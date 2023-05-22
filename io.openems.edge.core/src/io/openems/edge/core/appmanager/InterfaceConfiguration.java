@@ -109,7 +109,7 @@ public class InterfaceConfiguration {
 		BiConsumer<List<InterfaceConfiguration>, InterfaceConfiguration> flatAdd = (t, u) -> {
 			var existingInterfaces = t.stream() //
 					.filter(i -> i.interfaceName.equals(u.interfaceName)) //
-					.toList();
+					.collect(Collectors.toList());
 			if (existingInterfaces.isEmpty()) {
 				t.add(u);
 				return;

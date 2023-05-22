@@ -25,7 +25,7 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 		{
 			var doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
-			doc.persistencePriority(PersistencePriority.HIGH);
+			doc.persistencePriority(PersistencePriority.MEDIUM);
 			var channelId = new FieldbusChannelId(id, doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}

@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Utils, Widgets } from 'src/app/shared/shared';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html'
+  templateUrl: './live.component.html',
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -19,15 +19,13 @@ export class LiveComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     public service: Service,
-    protected utils: Utils,
-    protected websocket: Websocket
+    protected utils: Utils
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent('', this.route)
-    this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge
-    })
+    this.service.setCurrentComponent('', this.route).then(edge => {
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       this.config = config;
       this.widgets = config.widgets;

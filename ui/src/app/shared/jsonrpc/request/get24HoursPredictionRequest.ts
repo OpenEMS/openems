@@ -19,7 +19,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  */
 export class Get24HoursPredictionRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "get24HoursPrediction";
+    static METHOD: string = "get24HoursPrediction";
 
     public constructor(
         private channels: ChannelAddress[]

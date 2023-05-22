@@ -12,8 +12,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -30,31 +28,27 @@ import io.openems.common.jsonrpc.response.AppCenterGetInstalledAppsResponse.Inst
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse;
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundle;
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.backend.BackendApi;
 
 @Component
 public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile BackendApi backend;
 
-	private final ComponentManager componentManager;
-
 	@Activate
-	public AppCenterBackendUtilImpl(//
-			@Reference ComponentManager componentManager //
-	) {
-		this.componentManager = componentManager;
+	public AppCenterBackendUtilImpl() {
 	}
 
 	@Override
-	public boolean isKeyApplicable(User user, String key, String appId) throws OpenemsNamedException {
-		var response = this.handleRequest(user, new AppCenterIsKeyApplicableRequest(key, appId));
-		return AppCenterIsKeyApplicableResponse.from(response).isKeyApplicable;
+	public boolean isKeyApplicable(User user, String key, String appId) {
+		try {
+			var response = this.handleRequest(user, new AppCenterIsKeyApplicableRequest(key, appId));
+			return AppCenterIsKeyApplicableResponse.from(response).isKeyApplicable;
+		} catch (OpenemsNamedException e) {
+			return false;
+		}
 	}
 
 	@Override
@@ -90,16 +84,15 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	@Override
 	public boolean isConnected() {
-		final var backendApi = this.getBackend();
-		if (backendApi == null) {
+		if (this.backend == null) {
 			return false;
 		}
-		return backendApi.isConnected();
+		return this.backend.isConnected();
 	}
 
 	private final CompletableFuture<? extends JsonrpcResponseSuccess> handleRequestAsync(User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		return this.getBackendOrError().handleJsonrpcRequest(user, new AppCenterRequest(request));
+		return this.getBackend().handleJsonrpcRequest(user, new AppCenterRequest(request));
 	}
 
 	private final JsonrpcResponseSuccess handleRequest(User user, JsonrpcRequest request) throws OpenemsNamedException {
@@ -111,25 +104,11 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 		}
 	}
 
-	private final BackendApi getBackendOrError() throws OpenemsNamedException {
-		final var backendApi = this.getBackend();
-		if (backendApi == null || !backendApi.isConnected()) {
+	private final BackendApi getBackend() throws OpenemsNamedException {
+		if (!this.isConnected()) {
 			throw new OpenemsException("Backend not connected!");
 		}
-		return backendApi;
-	}
-
-	private final BackendApi getBackend() {
-		if (this.backend != null) {
-			return this.backend;
-		}
-		final var backendApis = this.componentManager.getEnabledComponentsOfType(BackendApi.class);
-		if (backendApis.isEmpty()) {
-			return null;
-		}
-		this.log.warn("BackendApi Controller exists but was not injected!");
-		return backendApis.get(0);
-
+		return this.backend;
 	}
 
 	private static final OpenemsNamedException getOpenemsException(Throwable e) {

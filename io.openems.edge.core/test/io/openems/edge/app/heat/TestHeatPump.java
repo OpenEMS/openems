@@ -38,9 +38,8 @@ public class TestHeatPump {
 
 	@Before
 	public void beforeEach() throws Exception {
-		final var componentFactory = new AppManagerTestBundle.DefaultComponentManagerFactory();
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return ImmutableList.of(//
+			return ImmutableList.of(
 					this.heatPump = Apps.heatPump(t), //
 					this.homeApp = Apps.feneconHome(t), //
 					Apps.gridOptimizedCharge(t), //
@@ -49,14 +48,14 @@ public class TestHeatPump {
 					this.modbusTcpApiReadOnly = Apps.modbusTcpApiReadOnly(t), //
 					this.restJsonApiReadOnly = Apps.restJsonApiReadOnly(t) //
 			);
-		}, null, componentFactory);
+		});
 
 		// create relay to make sure heat pump can be installed
 		final var dummyRelay = new DummyInputOutput("io0");
 		new ComponentTest(dummyRelay) //
 				.activate(null);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration("io0");
-		componentFactory.getComponentManager().addComponent(dummyRelay);
+		this.appManagerTestBundle.componentManger.addComponent(dummyRelay);
 	}
 
 	@Test

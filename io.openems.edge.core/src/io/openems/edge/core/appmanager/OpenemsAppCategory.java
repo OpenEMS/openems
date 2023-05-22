@@ -45,11 +45,6 @@ public enum OpenemsAppCategory {
 	HARDWARE("hardware"),
 
 	/**
-	 * Peak-Shaving.
-	 */
-	PEAK_SHAVING("peakShaving"), //
-
-	/**
 	 * PV-Inverter.
 	 */
 	PV_INVERTER("pvInverter"),

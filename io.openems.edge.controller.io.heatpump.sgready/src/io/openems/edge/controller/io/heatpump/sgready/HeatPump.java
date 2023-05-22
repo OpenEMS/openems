@@ -15,9 +15,8 @@ public interface HeatPump extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		STATUS(Doc.of(Status.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Current State")), //
+		STATUS(Doc.of(Status.values()). //
+				text("Current State")), //
 		AWAITING_HYSTERESIS(Doc.of(OpenemsType.BOOLEAN)), //
 		REGULAR_STATE_TIME(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_SECONDS) //

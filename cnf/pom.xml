@@ -1,9 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>local</groupId>
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
+
 	<packaging>pom</packaging>
+
 	<dependencies>
 		<!-- biz -->
 		<dependency>
@@ -48,13 +51,13 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>4.11.0</version>
+			<version>4.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>4.11.0</version>
+			<version>4.10.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
@@ -202,24 +205,23 @@
 			<version>7.0.5</version>
 		</dependency>
 		<dependency>
-			<!-- Apache Felix HTTP Service -->
-			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.0.4</version>
-		</dependency>
-		<dependency>
-			<!-- Apache Felix Servlet API -->
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>2.1.0</version>
-		</dependency>
-		<dependency>
 			<!-- Apache Felix Inventory -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.inventory</artifactId>
 			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix HTTP Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.jetty</artifactId>
+			<version>4.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.servlet-api</artifactId>
+			<version>2.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -259,12 +261,12 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.32.0</version>
+			<version>3.29.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.15.3</version>
+			<version>0.14.18</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -275,22 +277,22 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.8.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.8.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.8.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>6.8.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -300,7 +302,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.8.21</version>
+			<version>1.8.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -386,7 +388,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.6.0</version>
+			<version>42.5.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->

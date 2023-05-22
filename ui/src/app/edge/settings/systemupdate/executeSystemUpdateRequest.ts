@@ -16,7 +16,7 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  */
 export class ExecuteSystemUpdateRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "executeSystemUpdate";
+    static METHOD: string = "executeSystemUpdate";
 
     public constructor(
         public readonly params: {

@@ -2,7 +2,6 @@ package io.openems.edge.evcs.keba.kecontact;
 
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -11,7 +10,6 @@ import io.openems.edge.evcs.api.Status;
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	ALIAS(Doc.of(OpenemsType.STRING) //
-			.persistencePriority(PersistencePriority.HIGH) //
 			.text("A human-readable name of this Component")),
 	/*
 	 * Report 1
@@ -41,8 +39,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 	ERROR_2(Doc.of(OpenemsType.INTEGER) //
 			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-	PLUG(Doc.of(Plug.values()) //
-			.persistencePriority(PersistencePriority.HIGH)), //
+	PLUG(Doc.of(Plug.values())), //
 	ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //

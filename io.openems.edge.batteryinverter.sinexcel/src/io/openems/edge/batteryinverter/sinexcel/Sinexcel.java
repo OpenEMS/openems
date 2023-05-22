@@ -3,7 +3,6 @@ package io.openems.edge.batteryinverter.sinexcel;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -95,7 +94,6 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		MANUFACTURER_AND_MODEL_NUMBER(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		FAULT_STATUS(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY)), //

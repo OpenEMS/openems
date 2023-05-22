@@ -9,15 +9,19 @@
       <ion-col size="12" size-xl="3">
         <form [formGroup]="form" (ngSubmit)="submit()">
           <ion-card>
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
+              <ion-label>{{ app.name }}</ion-label>
+            </ion-item>
             <ion-card-content>
-              <div style="display: flex; align-items: center;justify-content: center;" class="ion-margin">
+              <div style="display: flex; align-items: center;justify-content: center;">
                 <img *ngIf="app.image" [src]="app.image" />
               </div>
               <!-- This button will be invisible until the feature gets implemented -->
               <div *ngIf="false">
                 <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
-              <div *ngIf="!(isPreInstalledApp || isFreeApp)">
+              <div *ngIf="!isFreeApp">
                 <ion-button style="width: 100%;" (click)="registerKey(app.appId)" translate>
                   Edge.Config.App.Key.registerKey</ion-button>
               </div>
@@ -26,7 +30,7 @@
                   [routerLink]="['../../update', app.appId]" [queryParams]="{name: app.name}" translate>
                   Edge.Config.App.modifyApp</ion-button>
               </div>
-              <div *ngIf="!isPreInstalledApp">
+              <div *ngIf="!isFreeApp">
                 <ion-button style="width: 100%;" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) 
                   || app.status.name !== 'INSTALLABLE' 
                   || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)"

@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../../../shared/jsonrpc/base";
  */
 export class GetNetworkConfigRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "getNetworkConfig";
+    static METHOD: string = "getNetworkConfig";
 
     public constructor(
     ) {

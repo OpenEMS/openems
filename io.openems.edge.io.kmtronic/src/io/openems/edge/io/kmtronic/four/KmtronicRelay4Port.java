@@ -22,8 +22,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN) //
-				.persistencePriority(PersistencePriority.MEDIUM)), //
+		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)), //
 		/**
 		 * Relay Output 1.
 		 *
@@ -35,7 +34,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 */
 		RELAY_1(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
@@ -59,7 +58,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 */
 		RELAY_2(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
 		/**
 		 * Holds writes to Relay Output 3 for debugging.
@@ -83,7 +82,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 */
 		RELAY_3(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_3))), //
 		/**
 		 * Holds writes to Relay Output 4 for debugging.
@@ -107,7 +106,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 */
 		RELAY_4(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_4))); //
 
 		private final Doc doc;

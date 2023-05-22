@@ -27,13 +27,10 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
 import io.openems.edge.app.meter.KdkMeter;
@@ -41,7 +38,6 @@ import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -50,11 +46,9 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
@@ -107,9 +101,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
  * </pre>
  */
 @Component(name = "App.FENECON.Home")
-public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+public class FeneconHome extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public static enum Property {
 		// Battery Inverter
 		SAFETY_COUNTRY, //
 		MAX_FEED_IN_POWER, //
@@ -223,7 +217,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-home-10/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/home/") //
 				.build();
 	}
 
@@ -249,7 +243,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 					.orElse(AcMeterType.SOCOMEC);
 
 			// Battery-Inverter Settings
-			final var safetyCountry = EnumUtils.getAsEnum(SafetyCountry.class, p, Property.SAFETY_COUNTRY);
+			final var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
 			final int maxFeedInPower;
 			final String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
 			if (!rippleControlReceiverActive) {
@@ -317,7 +311,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdExternal) //
 									.addProperty("modbusUnitId", 247) //
-									.addProperty("safetyCountry", safetyCountry.name()) //
+									.addProperty("safetyCountry", safetyCountry) //
 									.addProperty("backupEnable", //
 											hasEmergencyReserve ? "ENABLE" : "DISABLE") //
 									.addProperty("feedPowerEnable", rippleControlReceiverActive ? "DISABLE" : "ENABLE") //
@@ -479,11 +473,26 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".safetyCountry.label")) //
 								.isRequired(true) //
-								.setOptions(OptionsFactory.of(SafetyCountry.class), language) //
+								.setOptions(JsonUtils.buildJsonArray() //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", //
+														TranslationUtil.getTranslation(bundle, "germany")) //
+												.addProperty("value", "GERMANY") //
+												.build()) //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", //
+														TranslationUtil.getTranslation(bundle, "austria")) //
+												.addProperty("value", "AUSTRIA") //
+												.build()) //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", //
+														TranslationUtil.getTranslation(bundle, "switzerland")) //
+												.addProperty("value", "SWITZERLAND") //
+												.build()) //
+										.build()) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
-									final var setting = SafetyCountry.valueOf(batteryInverter.get() //
+									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("safetyCountry").get().getAsString());
-									f.setDefaultValue(setting.name());
 								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
@@ -624,7 +633,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategories() {
+	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
 	}
 
@@ -636,13 +645,6 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
-	}
-
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanSee(Role.INSTALLER) //
-				.build();
 	}
 
 	private List<String> getFeedInSettingsOptions() {

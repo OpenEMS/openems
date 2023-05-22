@@ -9,13 +9,13 @@ export class ModalLineComponent extends AbstractModalLine {
 
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input()
-    protected leftColumnWidth: number;
+    leftColumnWidth: number;
 
     /** ControlName for Form Field */
-    @Input() public controlName: string;
+    @Input() controlName: string;
 
     /** ControlName for Toggle Button */
-    @Input() protected control:
+    @Input() control:
         { type: 'TOGGLE' } |
         { type: 'INPUT' } |
         /* the available select options*/
@@ -24,7 +24,7 @@ export class ModalLineComponent extends AbstractModalLine {
         { type: 'RANGE', properties: { min: number, max: number, unit: 'H' } };
 
     /** Fixed indentation of the modal-line */
-    @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+    @Input() textIndent: TextIndentation = TextIndentation.NONE;
 }
 
 export enum TextIndentation {

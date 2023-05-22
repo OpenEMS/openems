@@ -29,4 +29,5 @@ import io.openems.edge.meter.api.MeterType;
 	boolean addToSum() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Meter Virtual Symmetric Add [{id}]";
+
 }

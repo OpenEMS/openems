@@ -90,7 +90,7 @@ public interface CommonTimedataService {
 	 *
 	 * @param edgeId  the Edge-ID
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
-	 * @return the query result; possibly null
+	 * @return the query result
 	 */
 	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
@@ -110,7 +110,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result; possibly null
+	 * @return the query result
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
@@ -123,7 +123,7 @@ public interface CommonTimedataService {
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @param channels the Channels
-	 * @return the query result; possibly null
+	 * @return the query result
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
@@ -142,7 +142,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result; possibly null
+	 * @return the query result
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)

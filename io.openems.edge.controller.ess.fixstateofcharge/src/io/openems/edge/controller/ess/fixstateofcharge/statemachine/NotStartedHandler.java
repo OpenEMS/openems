@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -18,7 +20,7 @@ public class NotStartedHandler extends StateHandler<State, Context> {
 		/*
 		 * Switch state if no target time specified or target time already passed
 		 */
-		if (!context.considerTargetTime() || context.passedTargetTime()) {
+		if (!context.config.isTargetTimeSpecified() || context.passedTargetTime()) {
 			return socState;
 		}
 
@@ -37,10 +39,10 @@ public class NotStartedHandler extends StateHandler<State, Context> {
 				ChronoUnit.SECONDS);
 
 		// Start time not reached
-		var t = ZonedDateTime.now(context.clock);
-		if (startTime.isAfter(t)) {
+		if (startTime.isAfter(LocalDateTime.now(context.clock))) {
 
-			context.getParent()._setExpectedStartEpochSeconds(startTime.toEpochSecond());
+			var zonedDateTime = ZonedDateTime.ofLocal(startTime, ZoneId.systemDefault(), null);
+			context.getParent()._setExpectedStartEpochSeconds(zonedDateTime.toEpochSecond());
 			return State.NOT_STARTED;
 		}
 

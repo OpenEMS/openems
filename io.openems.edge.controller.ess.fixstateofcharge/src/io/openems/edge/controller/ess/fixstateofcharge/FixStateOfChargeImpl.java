@@ -59,8 +59,8 @@ public class FixStateOfChargeImpl extends AbstractFixStateOfCharge
 	@Activate
 	private void activate(ComponentContext context, ConfigFixStateOfCharge config) {
 		ConfigProperties cp = new ConfigProperties(config.isRunning(), config.targetSoc(), config.targetTimeSpecified(),
-				config.targetTime(), config.targetTimeBuffer(), config.selfTermination(), config.terminationBuffer(),
-				config.conditionalTermination(), config.endCondition());
+				config.targetDate(), config.targetTime(), config.targetTimeBuffer(), config.selfTermination(),
+				config.terminationBuffer(), config.conditionalTermination(), config.endCondition());
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), cp);
 	}
@@ -68,8 +68,8 @@ public class FixStateOfChargeImpl extends AbstractFixStateOfCharge
 	@Modified
 	private void modified(ComponentContext context, ConfigFixStateOfCharge config) throws OpenemsNamedException {
 		ConfigProperties cp = new ConfigProperties(config.isRunning(), config.targetSoc(), config.targetTimeSpecified(),
-				config.targetTime(), config.targetTimeBuffer(), config.selfTermination(), config.terminationBuffer(),
-				config.conditionalTermination(), config.endCondition());
+				config.targetDate(), config.targetTime(), config.targetTimeBuffer(), config.selfTermination(),
+				config.terminationBuffer(), config.conditionalTermination(), config.endCondition());
 
 		super.modified(context, config.id(), config.alias(), config.enabled(), cp);
 	}

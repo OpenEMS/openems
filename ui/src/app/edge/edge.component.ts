@@ -7,9 +7,22 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 @Component({
     selector: "edge",
     template: `
-    <ion-content></ion-content>
-         <ion-router-outlet id="content"></ion-router-outlet>
+        <router-outlet class="fullscreen">
+        </router-outlet>
     `,
+    styles: [`
+    .fullscreen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+    }
+    :host ::ng-deep  ion-content{
+        position: absolute;
+        height: 94%;
+    }
+`]
 })
 export class EdgeComponent implements OnInit, OnDestroy {
 
@@ -20,7 +33,9 @@ export class EdgeComponent implements OnInit, OnDestroy {
         private activatedRoute: ActivatedRoute,
         private service: Service,
         private websocket: Websocket
-    ) { }
+    ) {
+
+    }
 
     public ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {

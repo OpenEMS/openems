@@ -2,10 +2,10 @@ Bundle-Name: influxdb-flux-dsl
 Bundle-Description: The Java InfluxDB 2.0 Flux DSL
 Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 6.8.0
+Bundle-Version: 6.7.0
 
 Include-Resource: \
-	@flux-dsl-6.8.0.jar,\
+	@flux-dsl-6.7.0.jar,\
 
 Export-Package: \
 	com.influxdb.query,\

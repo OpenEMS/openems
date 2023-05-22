@@ -411,7 +411,7 @@ public interface Evcs extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setPhases(Integer value) {
-		if (value == null || value == 0) {
+		if (value == null) {
 			this._setPhases(Phases.THREE_PHASE);
 			return;
 		}

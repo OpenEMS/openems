@@ -13,13 +13,13 @@ import { Role } from "../../type/role";
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
-    @Input() public formGroup: FormGroup;
+    @Input() formGroup: FormGroup;
 
     /** component */
-    @Input() public component: EdgeConfig.Component = null;
+    @Input() component: EdgeConfig.Component = null;
 
     /** FormGroup ControlName */
-    @Input() public controlName: string;
+    @Input() controlName: string;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -28,12 +28,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @returns converter function
     */
     @Input()
-    public converter = (value: any): string => { return value }
+    converter = (value: any): string => { return value }
 
     /** Name for parameter, displayed on the left side*/
-    @Input() public name: string;
-    @Input() public value: number | string;
-    @Input() public roleIsAtLeast?: Role = Role.GUEST;
+    @Input() name: string;
+    @Input() value: number | string;
+    @Input() roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()

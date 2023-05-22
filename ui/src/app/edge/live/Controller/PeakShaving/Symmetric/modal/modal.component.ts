@@ -10,8 +10,8 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
-    @Input() protected component: EdgeConfig.Component;
-    @Input() protected edge: Edge;
+    @Input() component: EdgeConfig.Component;
+    @Input() edge: Edge;
 
 
     public formGroup: FormGroup;

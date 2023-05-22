@@ -9,7 +9,7 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-This chapter explains, how the OpenEMS Backend can be compiled to a JAR file that can be executed outside of an IDE.
+This chapter explains, how OpenEMS Edge can be compiled to a JAR file that can be executed outside of an IDE.
 
 == Build using Eclipse IDE
 
@@ -32,7 +32,3 @@ link:https://gradle.org/[Gradle] is a build tool that is used in the OpenEMS pro
 . Open a console and change to your repository directory.
 
 . Execute `gradlew buildBackend`
-
-=== Building only a specific project
-
-If developing a component for the backend, it might make sense to only build the component in isolation instead of the entire backend (same applies to the Edge). This can be achieved by executing `gradlew :io.openems.backend.metadata.mymetadata:build`, which produces a JAR file.

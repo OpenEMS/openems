@@ -16,7 +16,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -67,8 +66,8 @@ public class ExecuteSimulationRequest extends JsonrpcRequest {
 		 * @throws OpenemsNamedException on parse error
 		 */
 		public static Clock from(JsonObject j) throws OpenemsNamedException {
-			var start = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "start"));
-			var end = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "end"));
+			var start = ZonedDateTime.parse(JsonUtils.getAsString(j, "start"));
+			var end = ZonedDateTime.parse(JsonUtils.getAsString(j, "end"));
 			var timeleapPerCycle = JsonUtils.getAsInt(j, "timeleapPerCycle");
 			boolean executeCycleTwice = JsonUtils.getAsOptionalBoolean(j, "executeCycleTwice").orElse(false);
 			return new Clock(start, end, timeleapPerCycle, executeCycleTwice);

@@ -1,8 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -14,65 +13,24 @@ import io.openems.common.session.Language;
 public interface AppManagerUtil {
 
 	/**
-	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance}.
-	 * 
-	 * @return the list of installed apps
-	 */
-	public List<OpenemsAppInstance> getInstantiatedApps();
-
-	/**
-	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance} which
-	 * match the given appId.
-	 * 
-	 * @param appId the appId which should match with
-	 *              {@link OpenemsAppInstance#appId}
-	 * @return a {@link List} of {@link OpenemsAppInstance}
-	 */
-	public default List<OpenemsAppInstance> getInstantiatedAppsOfApp(String appId) {
-		Objects.requireNonNull(appId);
-		return this.getInstantiatedApps().stream() //
-				.filter(instance -> appId.equals(instance.appId)) //
-				.toList();
-	}
-
-	/**
-	 * Finds the {@link OpenemsApp} with the given id.
-	 * 
-	 * @param id the {@link OpenemsApp#getAppId()} of the app.
-	 * @return a {@link Optional} of the app
-	 */
-	public Optional<OpenemsApp> findAppById(String id);
-
-	/**
-	 * Finds the {@link OpenemsApp} with the given id.
-	 * 
-	 * @param id the {@link OpenemsApp#getAppId()} of the app.
-	 * @return the app
-	 * @throws OpenemsNamedException if the app was not found
-	 */
-	public default OpenemsApp findAppByIdOrError(String id) throws OpenemsNamedException {
-		return this.findAppById(id).orElseThrow(() -> new OpenemsException("Unable to find app with id '" + id + "'"));
-	}
-
-	/**
-	 * Finds the {@link OpenemsAppInstance} with the given {@link UUID}.
+	 * Gets the {@link OpenemsApp} for the given appId.
 	 *
-	 * @param id the id of the instance
-	 * @return a {@link Optional} of the instance
+	 * @param appId the appId of the {@link OpenemsApp}
+	 * @return the {@link OpenemsApp}
+	 * @throws NoSuchElementException if there is no {@link OpenemsApp} with the
+	 *                                given appId
 	 */
-	public Optional<OpenemsAppInstance> findInstanceById(UUID id);
+	public OpenemsApp getAppById(String appId) throws NoSuchElementException;
 
 	/**
-	 * Finds the {@link OpenemsAppInstance} with the given {@link UUID}.
-	 * 
-	 * @param id the {@link UUID} of the instance
-	 * @return the instance
-	 * @throws OpenemsNamedException if not found
+	 * Gets the {@link OpenemsAppInstance} for the given instanceId.
+	 *
+	 * @param instanceId the instanceId of the {@link OpenemsAppInstance}
+	 * @return the {@link OpenemsAppInstance}
+	 * @throws NoSuchElementException if there is not {@link OpenemsAppInstance}
+	 *                                with the given instanceId
 	 */
-	public default OpenemsAppInstance findInstanceByIdOrError(UUID id) throws OpenemsNamedException {
-		return this.findInstanceById(id)
-				.orElseThrow(() -> new OpenemsException("Unable to find instance with id '" + id + "'"));
-	}
+	public OpenemsAppInstance getInstanceById(UUID instanceId) throws NoSuchElementException;
 
 	/**
 	 * Gets the {@link AppConfiguration} with the given parameter.
@@ -101,7 +59,7 @@ public interface AppManagerUtil {
 	 */
 	public default AppConfiguration getAppConfiguration(ConfigurationTarget target, String appId, String alias,
 			JsonObject properties, Language language) throws OpenemsNamedException {
-		return this.getAppConfiguration(target, this.findAppByIdOrError(appId), alias, properties, language);
+		return this.getAppConfiguration(target, this.getAppById(appId), alias, properties, language);
 	}
 
 	/**
@@ -130,7 +88,7 @@ public interface AppManagerUtil {
 	 */
 	public default AppConfiguration getAppConfiguration(ConfigurationTarget target, OpenemsAppInstance instance,
 			Language language) throws OpenemsNamedException {
-		return this.getAppConfiguration(target, this.findAppByIdOrError(instance.appId), instance, language);
+		return this.getAppConfiguration(target, this.getAppById(instance.appId), instance, language);
 	}
 
 	/**

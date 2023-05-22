@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -115,7 +116,7 @@ public class ModbusUtils {
 				.thenAccept(ignored -> result.complete(//
 						subResults.stream() //
 								.map(CompletableFuture::join) //
-								.toList()));
+								.collect(Collectors.toList())));
 
 		return result;
 	}

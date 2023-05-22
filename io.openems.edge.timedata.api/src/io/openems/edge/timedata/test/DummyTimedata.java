@@ -100,6 +100,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
+
 		var result = this.data.entrySet() //
 				.stream() //
 				.sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey())).map(Entry::getValue) //
@@ -107,6 +108,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 				.filter(Objects::nonNull) //
 				.map(t -> (Object) t.getAsInt()) //
 				.findFirst();
+
 		return CompletableFuture.completedFuture(result);
 	}
 }

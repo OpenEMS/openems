@@ -23,7 +23,7 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class AppInstallWorker extends AbstractWorker {
 
-	private final Object keyForFreeAppsLock = new Object();
+	private final Object keyForFreeAppsKey = new Object();
 	private String keyForFreeApps = null;
 
 	/**
@@ -31,8 +31,7 @@ public class AppInstallWorker extends AbstractWorker {
 	 * boot and read configurations.
 	 */
 	private static final int INITIAL_WAIT_TIME = 60_000; // in ms
-	private static final int INACTIVE_WAIT_TIME = 1_000 * 60 * 60 * 24; // 1 day
-	private static final int RELOAD_FREE_APPS_TIME = 10; // every 10 days
+	private static final int INITIAL_RELOAD_FREE_APPS_TIME = 10;
 
 	private int reloadFreeApps = 0;
 	private List<Bundle> freeApps = null;
@@ -68,7 +67,7 @@ public class AppInstallWorker extends AbstractWorker {
 	}
 
 	private void installApp(String appId) throws OpenemsNamedException {
-		final var app = this.parent.findAppByIdOrError(appId);
+		var app = this.parent.findAppById(appId);
 
 		JsonObject requestProperties;
 		try {
@@ -106,16 +105,19 @@ public class AppInstallWorker extends AbstractWorker {
 			this.freeApps = null;
 			return;
 		}
-		final String key = this.keyForFreeApps;
-		if (key == null) {
-			return;
+		final String key;
+		synchronized (this.keyForFreeAppsKey) {
+			if (this.keyForFreeApps == null) {
+				return;
+			}
+			key = this.keyForFreeApps;
 		}
 		this.freeApps = this.parent.backendUtil.getPossibleApps(key);
 	}
 
 	@Override
 	protected void forever() throws Throwable {
-		if (this.reloadFreeApps == RELOAD_FREE_APPS_TIME) {
+		if (this.reloadFreeApps == INITIAL_RELOAD_FREE_APPS_TIME) {
 			this.reloadFreeApps();
 		}
 		this.installFreeApps();
@@ -128,29 +130,22 @@ public class AppInstallWorker extends AbstractWorker {
 		}
 		this.reloadFreeApps--;
 		if (this.reloadFreeApps < 0) {
-			this.reloadFreeApps = RELOAD_FREE_APPS_TIME;
+			this.reloadFreeApps = INITIAL_RELOAD_FREE_APPS_TIME;
 		}
-		if (!this.isValidBackendResponse()) {
-			return INITIAL_WAIT_TIME;
-		}
-		return INACTIVE_WAIT_TIME;
+		return INITIAL_WAIT_TIME;
 	}
 
 	public void setKeyForFreeApps(String key) {
 		if (Objects.equals(this.keyForFreeApps, key)) {
 			return;
 		}
-		synchronized (this.keyForFreeAppsLock) {
+		synchronized (this.keyForFreeAppsKey) {
 			this.keyForFreeApps = key;
 			if (key != null) {
 				this.reloadFreeApps = 0;
 				this.triggerNextRun();
 			}
 		}
-	}
-
-	private boolean isValidBackendResponse() {
-		return this.freeApps != null;
 	}
 
 }

@@ -18,7 +18,6 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -26,7 +25,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -54,9 +52,9 @@ import io.openems.edge.meter.api.SymmetricMeter;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.PvSelfConsumption.SelfConsumptionOptimization")
-public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public static enum Property {
 		// Component-IDs
 		METER_ID, //
 		// Properties
@@ -130,7 +128,7 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategories() {
+	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
 	}
 

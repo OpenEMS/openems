@@ -47,7 +47,7 @@ pipeline:
       - GRADLE_USER_HOME=/woodpecker/.gradle
     commands:
       - mkdir -p /woodpecker/.m2 && ln -s /woodpecker/.m2 ~/.m2
-      - ./gradlew --build-cache build
+      - ./gradlew build
       - ./gradlew resolve.EdgeApp
       - ./gradlew resolve.BackendApp
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun

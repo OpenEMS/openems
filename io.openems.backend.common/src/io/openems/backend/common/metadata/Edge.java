@@ -100,12 +100,12 @@ public class Edge {
 	 */
 	public synchronized void setOnline(boolean isOnline) {
 		if (this.isOnline != isOnline) {
-			this.isOnline = isOnline;
-			
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_ONLINE) //
-					.addArg(Events.OnSetOnline.EDGE_ID, this.getId()) //
+					.addArg(Events.OnSetOnline.EDGE, this) //
 					.addArg(Events.OnSetOnline.IS_ONLINE, isOnline) //
 					.send(); //
+
+			this.isOnline = isOnline;
 		}
 	}
 
@@ -257,7 +257,7 @@ public class Edge {
 		public static final String ON_SET_ONLINE = Events.TOPIC_BASE + "ON_SET_ONLINE";
 
 		public static final class OnSetOnline {
-			public static final String EDGE_ID = "EdgeId:String";
+			public static final String EDGE = "Edge:Edge";
 			public static final String IS_ONLINE = "IsOnline:boolean";
 		}
 

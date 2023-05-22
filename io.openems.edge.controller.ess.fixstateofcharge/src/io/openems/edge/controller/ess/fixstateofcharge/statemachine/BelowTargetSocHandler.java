@@ -24,7 +24,7 @@ public class BelowTargetSocHandler extends StateHandler<State, Context> {
 		/*
 		 * Maximum charge if no target time specified or already passed
 		 */
-		if (!context.considerTargetTime() || context.passedTargetTime()) {
+		if (!context.config.isTargetTimeSpecified() || context.passedTargetTime()) {
 
 			context.setTargetPower(context.maxApparentPower * -1);
 			return State.BELOW_TARGET_SOC;

@@ -9,7 +9,7 @@ import { Component, Input } from "@angular/core";
 })
 export class FlatWidgetHorizontalLineComponent {
     /** Components-Array to iterate over */
-    @Input() protected components: any[] | null = null;
+    @Input() components: any[] | null = null;
     /** index is an iterator */
-    @Input() protected index: number | null = null;
+    @Input() index: number | null = null;
 }

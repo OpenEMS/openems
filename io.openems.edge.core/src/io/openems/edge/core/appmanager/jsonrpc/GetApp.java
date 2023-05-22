@@ -149,7 +149,7 @@ public class GetApp {
 			final var status = statusFuture.get();
 
 			return JsonUtils.buildJsonObject() //
-					.add("categorys", Arrays.stream(app.getCategories()) //
+					.add("categorys", Arrays.stream(app.getCategorys()) //
 							.map(cat -> cat.toJsonObject(language)) //
 							.collect(JsonUtils.toJsonArray())) //
 					.addProperty("cardinality", app.getCardinality().name()) //
@@ -165,7 +165,6 @@ public class GetApp {
 		} catch (InterruptedException | CancellationException e) {
 			throw new OpenemsException(e);
 		} catch (ExecutionException e) {
-			e.getCause().printStackTrace();
 			throw new OpenemsException(e.getCause());
 		}
 	}

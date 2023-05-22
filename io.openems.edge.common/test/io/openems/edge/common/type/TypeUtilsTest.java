@@ -14,21 +14,6 @@ import io.openems.edge.common.channel.value.Value;
 public class TypeUtilsTest {
 
 	@Test
-	public void testAverageInt() {
-		// int values input, avg - rounding previous value
-		assertEquals(Integer.valueOf(0), TypeUtils.averageInt(0, 0, 1));
-
-		// int values
-		assertEquals(Integer.valueOf(10), TypeUtils.averageInt(5, 10, 15));
-
-		// int values input, avg - rounding to next value
-		assertEquals(Integer.valueOf(11), TypeUtils.averageInt(10, 11));
-
-		// null values
-		assertEquals(null, TypeUtils.averageInt(null, null));
-	}
-
-	@Test
 	public void testAverage() {
 		// null values
 		assertEquals(null, TypeUtils.average(null, null, null));

@@ -192,8 +192,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * </ul>
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.unit(Unit.MILLIVOLT)),
 
 		/**
 		 * Maximum cell voltage.

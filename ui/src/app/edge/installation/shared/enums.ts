@@ -1,6 +1,3 @@
-import { Language } from "src/app/shared/type/language";
-import { environment } from "src/environments";
-
 export enum FeedInSetting {
     QuEnableCurve = "QU_ENABLE_CURVE",
     PuEnableCurve = "PU_ENABLE_CURVE",
@@ -54,50 +51,4 @@ export enum FeedInSetting {
 export enum FeedInType {
     DYNAMIC_LIMITATION,
     EXTERNAL_LIMITATION
-}
-
-export enum WebLinks {
-    GTC_LINK,
-    WARRANTY_LINK_HOME,
-    WARRANTY_LINK_COMMERCIAL
-}
-
-export namespace WebLinks {
-    export function getLink(link: WebLinks): string {
-        var lang: string = Language.getByKey(localStorage.LANGUAGE).key ?? Language.DEFAULT.key;
-        switch (link) {
-            case WebLinks.GTC_LINK:
-                switch (lang) {
-                    case "de":
-                    default:
-                        return environment.links.gtc.DE;
-                    case "en":
-                        return environment.links.gtc.EN;
-                }
-
-            case WebLinks.WARRANTY_LINK_HOME:
-                switch (lang) {
-                    case "de":
-                    default:
-                        return environment.links.warranty.home.DE;
-                    case "en":
-                        return environment.links.warranty.home.EN;
-                }
-
-            case WebLinks.WARRANTY_LINK_COMMERCIAL:
-                switch (lang) {
-                    case "de":
-                    default:
-                        return environment.links.warranty.commercial.DE;
-                    case "en":
-                        return environment.links.warranty.commercial.EN;
-                }
-        }
-    }
-}
-
-// Specific for Configuration-commercial-modbusbridge
-export enum ModbusBridgeType {
-    TCP_IP,
-    RS485
 }

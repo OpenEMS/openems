@@ -162,13 +162,9 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 			}
 
 			try {
-				final var request = new DeleteComponentConfigRequest(comp.getId());
-				if (user != null) {
-					this.componentManager.handleJsonrpcRequest(user, request);
-				} else {
-					// user can be null using internal method
-					((ComponentManagerImpl) this.componentManager).handleDeleteComponentConfigRequest(user, request);
-				}
+				// user can be null using internal method
+				((ComponentManagerImpl) this.componentManager).handleDeleteComponentConfigRequest(user,
+						new DeleteComponentConfigRequest(comp.getId()));
 				this.deletedComponents.add(comp.getId());
 			} catch (OpenemsNamedException e) {
 				errors.add(e.toString());

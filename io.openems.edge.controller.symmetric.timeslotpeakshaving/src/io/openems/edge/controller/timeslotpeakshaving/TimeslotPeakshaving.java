@@ -23,7 +23,6 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -38,7 +37,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.TimeslotPeakshaving", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
+	public static final String TIME_FORMAT = "H:mm";
+	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 
@@ -83,22 +83,21 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {		
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {			
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 
 	}
 
-	private void applyConfig(Config config) throws OpenemsNamedException {
-		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_DATE}
-		this.startDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
-		this.endDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
+	private void applyConfig(Config config) throws OpenemsNamedException {		
+		this.startDate = convertDate(config.startDate());
+		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
 		this.endTime = convertTime(config.endTime());
 		this.slowStartTime = convertTime(config.slowChargeStartTime());
@@ -218,8 +217,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This method calculates the power that is required to cut the peak during time
-	 * slot.
+	 * This method calculates the power that is required to cut the peak during
+	 * time slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
@@ -371,14 +370,25 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
+	 * Converts a string to a LocalDate.
+	 *
+	 * @param date the date as a String
+	 * @return the converted date
+	 */
+	protected static LocalDate convertDate(String date) throws OpenemsException {
+		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+		return LocalDate.parse(date, dateTimeFormatter);
+	}
+
+	/**
 	 * Converts a string to a LocalTime.
 	 *
 	 * @param time the time as a string
 	 * @return the converted time
 	 */
 	protected static LocalTime convertTime(String time) throws OpenemsException {
-		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_TIME}
-		return DateUtils.parseLocalTimeOrError(time, TIME_FORMATTER);
+		var dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
+		return LocalTime.parse(time, dateTimeFormatter);
 	}
 
 	/**
@@ -388,8 +398,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 *
 	 * @param slowStartTime start of slow charging the battery
 	 * @param startTime     start of the high threshold period
-	 * @return forceChargeMinutes in integer, which specifies the total time the
-	 *         battery should be slowly charged
+	 * @return forceChargeMinutes in integer, which specifies the total time the battery
+	 *         should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		var forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);

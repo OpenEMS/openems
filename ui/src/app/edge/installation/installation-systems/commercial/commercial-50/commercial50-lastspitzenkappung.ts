@@ -20,7 +20,6 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
             View.ProtocolSystem,
             View.ConfigurationPeakShaving,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -38,9 +37,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
 
-        const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator =
-            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+            super.getComponentConfigurator(edge, config, websocket);
 
         let factoryId: string;
         let alias: string;

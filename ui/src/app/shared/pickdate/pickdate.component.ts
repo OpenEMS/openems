@@ -43,7 +43,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     public checkArrowAutomaticForwarding() {
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
-                if (isFuture(addDays(this.service.historyPeriod.from, 1))) {
+                if (isFuture(addDays(this.service.historyPeriod.value.from, 1))) {
                     //waits until next day is reached to set next days period
                     this.forwardToNextDayWhenReached()
                     this.disableArrow = true;
@@ -57,7 +57,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 break;
             }
             case DefaultTypes.PeriodString.WEEK: {
-                if (isFuture(addWeeks(this.service.historyPeriod.from, 1))) {
+                if (isFuture(addWeeks(this.service.historyPeriod.value.from, 1))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextWeekWhenReached()
                     this.disableArrow = true;
@@ -71,7 +71,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 break;
             }
             case DefaultTypes.PeriodString.MONTH: {
-                if (isFuture(addMonths(this.service.historyPeriod.from, 1))) {
+                if (isFuture(addMonths(this.service.historyPeriod.value.from, 1))) {
                     //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached()
                     this.disableArrow = true;
@@ -85,7 +85,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 break;
             }
             case DefaultTypes.PeriodString.YEAR: {
-                if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
+                if (isFuture(addYears(this.service.historyPeriod.value.from, 1))) {
                     //waits until next week is reached to set next weeks period
                     // this.forwardToNextYearWhenReached()
                     this.disableArrow = true;
@@ -98,9 +98,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
             }
             case DefaultTypes.PeriodString.CUSTOM: {
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
-                if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
+                if (isFuture(addDays(this.service.historyPeriod.value.from, dateDistance * 2))) {
                     this.disableArrow = true;
                 } else {
                     this.disableArrow = false;
@@ -117,79 +117,79 @@ export class PickDateComponent implements OnInit, OnDestroy {
      * @param toDate   the end date
      */
     public setDateRange(period: DefaultTypes.HistoryPeriod) {
-        this.service.historyPeriod = period;
+        this.service.historyPeriod.next(period);
     }
 
     public goForward() {
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
-                if (isFuture(addDays(this.service.historyPeriod.from, 2))) {
+                if (isFuture(addDays(this.service.historyPeriod.value.from, 2))) {
                     //waits until next day is reached to set next days period
                     this.forwardToNextDayWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.from, 1), addDays(endOfDay(this.service.historyPeriod.to), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.value.from, 1), addDays(endOfDay(this.service.historyPeriod.value.to), 1)));
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next day when next day is reached if current day is not selected
                     if (this.changePeriodTimeout != null) {
                         clearTimeout(this.changePeriodTimeout);
                     }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.from, 1), addDays(endOfDay(this.service.historyPeriod.to), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.value.from, 1), addDays(endOfDay(this.service.historyPeriod.value.to), 1)));
                 }
                 break;
             }
             case DefaultTypes.PeriodString.WEEK: {
-                if (isFuture(addWeeks(this.service.historyPeriod.from, 2))) {
+                if (isFuture(addWeeks(this.service.historyPeriod.value.from, 2))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextWeekWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addWeeks(this.service.historyPeriod.from, 1), addWeeks(endOfWeek(this.service.historyPeriod.to, { weekStartsOn: 1 }), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addWeeks(this.service.historyPeriod.value.from, 1), addWeeks(endOfWeek(this.service.historyPeriod.value.to, { weekStartsOn: 1 }), 1)));
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next week when next week is reached if current week is not selected
                     if (this.changePeriodTimeout != null) {
                         clearTimeout(this.changePeriodTimeout);
                     }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addWeeks(this.service.historyPeriod.from, 1), addWeeks(endOfWeek(this.service.historyPeriod.to, { weekStartsOn: 1 }), 1)));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addWeeks(this.service.historyPeriod.value.from, 1), addWeeks(endOfWeek(this.service.historyPeriod.value.to, { weekStartsOn: 1 }), 1)));
                 }
                 break;
             }
             case DefaultTypes.PeriodString.MONTH: {
-                if (isFuture(addMonths(this.service.historyPeriod.from, 2))) {
+                if (isFuture(addMonths(this.service.historyPeriod.value.from, 2))) {
                     //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), endOfMonth(addMonths(this.service.historyPeriod.to, 1))));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.value.from, 1), endOfMonth(addMonths(this.service.historyPeriod.value.to, 1))));
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next week when next week is reached if current week is not selected
                     if (this.changePeriodTimeout != null) {
                         clearTimeout(this.changePeriodTimeout);
                     }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.from, 1), endOfMonth(addMonths(this.service.historyPeriod.to, 1))));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addMonths(this.service.historyPeriod.value.from, 1), endOfMonth(addMonths(this.service.historyPeriod.value.to, 1))));
                 }
                 break;
             }
             case DefaultTypes.PeriodString.YEAR: {
-                if (isFuture(addYears(this.service.historyPeriod.from, 2))) {
+                if (isFuture(addYears(this.service.historyPeriod.value.from, 2))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextYearWhenReached();
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), endOfYear(addYears(this.service.historyPeriod.to, 1))));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.value.from, 1), endOfYear(addYears(this.service.historyPeriod.value.to, 1))));
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next week when next week is reached if current week is not selected
                     if (this.changePeriodTimeout != null) {
                         clearTimeout(this.changePeriodTimeout);
                     }
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.from, 1), endOfYear(addYears(this.service.historyPeriod.to, 1))));
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addYears(this.service.historyPeriod.value.from, 1), endOfYear(addYears(this.service.historyPeriod.value.to, 1))));
                 }
                 break;
             }
             case DefaultTypes.PeriodString.CUSTOM: {
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
-                if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
+                if (isFuture(addDays(this.service.historyPeriod.value.to, dateDistance * 2))) {
                     this.disableArrow = true;
                 }
-                if (!isFuture(addDays(this.service.historyPeriod.to, dateDistance))) {
-                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.from, dateDistance), addDays(this.service.historyPeriod.to, dateDistance)));
+                if (!isFuture(addDays(this.service.historyPeriod.value.to, dateDistance))) {
+                    this.setDateRange(new DefaultTypes.HistoryPeriod(addDays(this.service.historyPeriod.value.from, dateDistance), addDays(this.service.historyPeriod.value.to, dateDistance)));
                 }
                 break;
             }
@@ -204,7 +204,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     clearTimeout(this.changePeriodTimeout);
                 }
                 this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.from, 1), subDays((endOfDay(this.service.historyPeriod.to)), 1)));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, 1), subDays((endOfDay(this.service.historyPeriod.value.to)), 1)));
                 break;
             }
             case DefaultTypes.PeriodString.WEEK: {
@@ -213,7 +213,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     clearTimeout(this.changePeriodTimeout);
                 }
                 this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subWeeks(this.service.historyPeriod.from, 1), subWeeks(endOfWeek(this.service.historyPeriod.to, { weekStartsOn: 1 }), 1)));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subWeeks(this.service.historyPeriod.value.from, 1), subWeeks(endOfWeek(this.service.historyPeriod.value.to, { weekStartsOn: 1 }), 1)));
                 break;
             }
             case DefaultTypes.PeriodString.MONTH: {
@@ -222,7 +222,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     clearTimeout(this.changePeriodTimeout);
                 }
                 this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.from, 1), endOfMonth(subMonths(this.service.historyPeriod.to, 1))));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.value.from, 1), endOfMonth(subMonths(this.service.historyPeriod.value.to, 1))));
                 break;
             }
             case DefaultTypes.PeriodString.YEAR: {
@@ -231,14 +231,14 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     clearTimeout(this.changePeriodTimeout);
                 }
                 this.disableArrow = false;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.from, 1), endOfYear(subYears(this.service.historyPeriod.to, 1))));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.value.from, 1), endOfYear(subYears(this.service.historyPeriod.value.to, 1))));
                 break;
             }
             case DefaultTypes.PeriodString.CUSTOM: {
                 this.disableArrow = false;
-                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
+                let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
-                this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.from, dateDistance), subDays(this.service.historyPeriod.to, dateDistance)));
+                this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, dateDistance), subDays(this.service.historyPeriod.value.to, dateDistance)));
                 break;
             }
         }
@@ -250,7 +250,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private forwardToNextDayWhenReached() {
         this.changePeriodTimeout = setTimeout(() => {
             this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
-            this.service.historyPeriod.getText(this.translate);
+            this.service.historyPeriod.value?.getText(this.translate);
         }, this.millisecondsUntilnextPeriod());
     }
 
@@ -260,7 +260,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private forwardToNextWeekWhenReached() {
         this.changePeriodTimeout = setTimeout(() => {
             this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfWeek(new Date(), { weekStartsOn: 1 })));
-            this.service.historyPeriod.getText(this.translate);
+            this.service.historyPeriod.value?.getText(this.translate);
         }, this.millisecondsUntilnextPeriod());
     }
 
@@ -272,7 +272,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         if (this.millisecondsUntilnextPeriod() < 2147483647) {
             this.changePeriodTimeout = setTimeout(() => {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfMonth(new Date())));
-                this.service.historyPeriod.getText(this.translate);
+                this.service.historyPeriod.value?.getText(this.translate);
             }, this.millisecondsUntilnextPeriod());
         }
     }
@@ -284,7 +284,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         if (this.millisecondsUntilnextPeriod() < 2147483647) {
             this.changePeriodTimeout = setTimeout(() => {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(new Date(), endOfYear(new Date())));
-                this.service.historyPeriod.getText(this.translate);
+                this.service.historyPeriod.value?.getText(this.translate);
             }, this.millisecondsUntilnextPeriod());
         }
     }

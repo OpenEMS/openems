@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -94,10 +94,6 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		// reset channels
-		this._setGridActivePowerNotPresent(false);
-		this._setEssDischargePowerNotPresent(false);
-		this._setStateOfChargeNotPresent(false);
 	}
 
 	@Override
@@ -147,11 +143,6 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	 */
 	private void modeAutomatic() throws IllegalArgumentException, OpenemsNamedException {
 
-		// Values to calculate the surplus/grid-buy power
-		final var gridActivePower = this.getGridActivePowerOrZero();
-		final var soc = this.getEssSocOrZero();
-		var essDischargePower = this.getEssDischargePowerOrZero();
-
 		// Detect if hysteresis is active, depending on the minimum switching time
 		if (this.lastStateChange.plusSeconds(this.config.minimumSwitchingTime())
 				.isAfter(Instant.now(this.componentManager.getClock()))) {
@@ -159,6 +150,11 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 			return;
 		}
 		this._setAwaitingHysteresis(false);
+
+		// Values to calculate the surplus/grid-buy power
+		var gridActivePower = this.getGridActivePowerOrZero();
+		var soc = this.getEssSocOrZero();
+		var essDischargePower = this.getEssDischargePowerOrZero();
 
 		// We are only interested in discharging, not charging
 		essDischargePower = essDischargePower < 0 ? 0 : essDischargePower;
@@ -228,33 +224,35 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	}
 
 	private int getEssDischargePowerOrZero() {
-		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssDischargePower(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssDischargePowerChannel(),
 				this.getEssDischargePowerNotPresentChannel());
 	}
 
 	private int getEssSocOrZero() {
-		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssSoc(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getEssSocChannel(),
 				this.getStateOfChargeNotPresentChannel());
 	}
 
 	private int getGridActivePowerOrZero() {
-		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getGridActivePower(),
+		return this.getChannelValueOrZeroAndSetStateChannel(this.sum.getGridActivePowerChannel(),
 				this.getGridActivePowerNotPresentChannel());
 	}
 
 	/**
-	 * Get the Channel value or 0 if not present - Sets also the according state
-	 * channel depending on the channel.
+	 * Get the IntegerReadChannel value or 0 if not present - Sets also the
+	 * according state channel depending on the channel.
 	 *
-	 * @param value        Channel value
+	 * @param channel      Channel that value should be read.
 	 * @param stateChannel Referring StateChannel that will be set if the value is
 	 *                     not present.
 	 * @return Current channel value as int.
 	 */
-	private int getChannelValueOrZeroAndSetStateChannel(Value<Integer> value, StateChannel stateChannel) {
-		if (value.isDefined()) {
+	private int getChannelValueOrZeroAndSetStateChannel(IntegerReadChannel channel, StateChannel stateChannel) {
+		var channelOptional = channel.getNextValue().asOptional();
+
+		if (channelOptional.isPresent()) {
 			stateChannel.setNextValue(false);
-			return value.get();
+			return channelOptional.get();
 		}
 		stateChannel.setNextValue(true);
 		return 0;

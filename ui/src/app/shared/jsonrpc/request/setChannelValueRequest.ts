@@ -18,7 +18,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class SetChannelValueRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "setChannelValue";
+    static METHOD: string = "setChannelValue";
 
     public constructor(
         public readonly params: {

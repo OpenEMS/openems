@@ -1,8 +1,9 @@
 package io.openems.common.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
@@ -13,45 +14,52 @@ public class StringUtilsTest {
 	@Test
 	public void testToShortStringStringInt() {
 		var test = "test to short string";
-		assertEquals("te...", StringUtils.toShortString(test, 5));
+		Assert.assertEquals("te...", StringUtils.toShortString(test, 5));
+
 	}
 
 	@Test
 	public void testToShortStringJsonObjectInt() {
 		var j = new JsonObject();
 		j.add("name", new JsonPrimitive("Testbert")); // {"name":"Testbert"} --> {"name":"T...
-		assertEquals("{\"name\":\"T...", StringUtils.toShortString(j, 13));
+		Assert.assertEquals("{\"name\":\"T...", StringUtils.toShortString(j, 13));
 	}
 
 	@Test
 	public void testCapitalizeFirstLetter() {
-		assertEquals("Test", StringUtils.capitalizeFirstLetter("test"));
-		assertEquals("TEST", StringUtils.capitalizeFirstLetter("TEST"));
-		assertEquals("1test", StringUtils.capitalizeFirstLetter("1test"));
+		Assert.assertEquals("Test", StringUtils.capitalizeFirstLetter("test"));
+		Assert.assertEquals("TEST", StringUtils.capitalizeFirstLetter("TEST"));
+		Assert.assertEquals("1test", StringUtils.capitalizeFirstLetter("1test"));
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testCapitalizeFirstLetterWithEmptyString() {
-		assertEquals("", StringUtils.capitalizeFirstLetter(""));
+		Assert.assertEquals("", StringUtils.capitalizeFirstLetter(""));
 	}
 
 	@Test
 	public void testMatchWildcard() {
-		final var activePower = "ActivePower";
-		final var anyPower = "*Power";
-		final var anyActive = "Active*";
-		final var any = "*";
-		final var foobar = "foobar";
+		var activePower = "ActivePower";
+		var anyPower = "*Power";
+		var anyActive = "Active*";
+		var any = "*";
+		var foobar = "foobar";
 
-		assertEquals(anyPower.length(), StringUtils.matchWildcard(activePower, anyPower));
-		assertEquals(anyActive.length(), StringUtils.matchWildcard(activePower, anyActive));
-		assertEquals(1, StringUtils.matchWildcard(activePower, any));
-		assertEquals(-1, StringUtils.matchWildcard(activePower, foobar));
+		Assert.assertEquals(anyPower.length(), StringUtils.matchWildcard(activePower, anyPower));
+		Assert.assertEquals(anyActive.length(), StringUtils.matchWildcard(activePower, anyActive));
+		Assert.assertEquals(1, StringUtils.matchWildcard(activePower, any));
+		Assert.assertEquals(-1, StringUtils.matchWildcard(activePower, foobar));
 	}
 
 	@Test
 	public void testMatchesFloatPattern() {
 		assertTrue(StringUtils.matchesFloatPattern("208.6"));
+		assertFalse(StringUtils.matchesIntegerPattern("001004        \""));
+	}
+
+	@Test
+	public void testReverse() {
+		Assert.assertEquals("OpenEMS", StringUtils.reverse("SMEnepO"));
 	}
 
 }

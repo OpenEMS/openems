@@ -5,7 +5,7 @@ import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtoco
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Country } from 'src/app/shared/type/country';
 import { Category } from '../shared/category';
-import { FeedInType, ModbusBridgeType, WebLinks } from '../shared/enums';
+import { FeedInType } from '../shared/enums';
 import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { Meter } from '../shared/meter';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
@@ -31,7 +31,6 @@ export enum View {
   ConfigurationFeaturesStorageSystem,
   ConfigurationCommercialComponent,
   ConfigurationPeakShaving,
-  ConfigurationCommercialModbuBridgeComponent
 }
 
 export type SerialNumberData = {
@@ -131,12 +130,6 @@ export abstract class AbstractIbn {
   // Protocol Serial Numbers.
   public serialNumbers: {
     modules: ComponentData[];
-  };
-
-  // Configuration summary
-  public gtcAndWarrantyLinks: {
-    gtcLink: WebLinks;
-    warrantyLink: WebLinks;
   };
 
   //Controller-Id's
@@ -300,34 +293,18 @@ export abstract class AbstractIbn {
   }
 
   /**
-   * Sets the Non abstract fields for the IBN object from session storage or from specific views.
+   * Specific to commercial-50 and sets the Beladung Unter and Entladung Über information based on user's requirement.
    * 
-   * for eg: commercial 50 features, modbus bridge type from commercial systems and many more.
-   * 
-   * @param model model information from the view.
+   * @param model model information from the peak shaving view.
    */
-  public setNonAbstractFields(model: any) { }
+  public setCommercialfeature(model: any) { }
 
   /**
-   * Gets the additional Emergency reserve fields.
-   * 
-   * eg: Coupler fields from Commercial 30 Netztrenstelle variant.
-   * 
-   * @param fields fields for the componenet.
-   * @returns The fields to be displayed.
+   * Specific to commercial-50. Retrieves title for peakshaving view based on feature selected. 
    */
-  public getAdditionalEmergencyReserveFields(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
-    return fields;
-  }
-
-  /**
-   * Adds the emergency reserve model to the IBN.
-   * 
-   * @param model The model.
-   */
-  public setEmergencyReserve(model: any) {
-    this.emergencyReserve = model;
-  }
+  public getPeakShavingHeader(): Category {
+    return null;
+  };
 
   /**
    * Returns the pv meter configuration object.

@@ -525,7 +525,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final GetEdgeRequest request //
 	) throws OpenemsNamedException {
 		var edge = this.parent.metadata.getEdge(request.edgeId)
-				.orElseThrow(() -> new OpenemsException("Unable to find edge with id [" + request.edgeId + "]"));
+				.orElseThrow(() -> new OpenemsException("Unable to finde edge with id [" + request.edgeId + "]"));
 
 		var role = this.parent.metadata.getRoleForEdge(user, request.edgeId);
 

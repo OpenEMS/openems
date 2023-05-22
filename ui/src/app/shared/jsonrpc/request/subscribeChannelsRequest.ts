@@ -23,7 +23,7 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     // holds the global last count. This is used in Backend to identify the latest Request.
     private static lastCount: number = 0;
 
-    private static METHOD: string = "subscribeChannels";
+    static METHOD: string = "subscribeChannels";
 
     public constructor(
         private channels: ChannelAddress[]

@@ -16,7 +16,7 @@ public class FieldbusChannelId implements io.openems.edge.common.channel.Channel
 	 */
 	public static final FieldbusChannelId forDigitalInput(int module, int index) {
 		var doc = new BooleanDoc();
-		doc.persistencePriority(PersistencePriority.HIGH);
+		doc.persistencePriority(PersistencePriority.MEDIUM);
 
 		return new FieldbusChannelId(//
 				String.format("DIGITAL_INPUT_M%d_C%d", module, index), //

@@ -4,7 +4,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/re
 import { HistoryUtils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
+import { ChannelData, ChartData, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'totalDcChart',
@@ -14,22 +14,22 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
     return {
-      channel:
+      input:
         [
           {
             name: 'ProductionDcActual',
             powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
             energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
-            filter: ChannelFilter.NOT_NULL,
+            converter: (data) => data != null ? data : null,
           },
         ],
-      displayValues: (data: { [name: string]: number[] }) => {
+      output: (data: ChannelData) => {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyResponse.result.data['_sum/ProductionDcActiveEnergy']
           },
-          setValue: () => {
+          converter: () => {
             return data['ProductionDcActual'] ?? null
           },
           strokeThroughHiddingStyle: false,

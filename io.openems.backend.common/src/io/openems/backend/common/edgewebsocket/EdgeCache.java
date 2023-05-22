@@ -50,8 +50,8 @@ public class EdgeCache {
 			} else {
 				// Incoming data is more recent than cache
 
-				if (incomingTimestamp > this.timestamp + 15 * 60 * 1000) {
-					// Cache is not anymore valid (elder than 15 minutes) -> clear Cache
+				if (incomingTimestamp > this.timestamp + 5 * 60 * 1000) {
+					// Cache is not anymore valid (elder than 5 minutes) -> clear Cache
 					synchronized (this) {
 						this.data.clear();
 					}

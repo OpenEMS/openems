@@ -16,7 +16,7 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  */
 export class GetUserAlertingConfigsRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "getUserAlertingConfigs";
+    static METHOD: string = "getUserAlertingConfigs";
 
     public constructor(
         public readonly params: {

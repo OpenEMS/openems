@@ -19,19 +19,6 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
-        "@typescript-eslint/explicit-member-accessibility": [
-          "error",
-          {
-            "accessibility": "explicit",
-            "overrides": {
-              "accessors": "off",
-              "constructors": "off",
-              "methods": "off",
-              "properties": "explicit",
-              "parameterProperties": "off"
-            }
-          }
-        ],
         "@angular-eslint/directive-selector": [
           "error",
           {

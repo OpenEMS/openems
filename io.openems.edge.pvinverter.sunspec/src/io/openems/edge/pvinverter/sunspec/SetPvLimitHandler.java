@@ -2,18 +2,19 @@ package io.openems.edge.pvinverter.sunspec;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public class SetPvLimitHandler implements ThrowingConsumer<Optional<Integer>, OpenemsNamedException> {
+public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private static final float COMPARE_THRESHOLD = 0.0001F;
 
@@ -25,15 +26,13 @@ public class SetPvLimitHandler implements ThrowingConsumer<Optional<Integer>, Op
 
 	private Instant lastWMaxLimPctTime = Instant.MIN;
 
-	/**
-	 * Handles a PV-Inverter power limitation request.
-	 * 
-	 * @param activePowerLimitOpt an Optional power limit; empty value sets the
-	 *                            allowed inverter power to 100 %, i.e. no limit
-	 * @throws OpenemsNamedException on error
-	 */
 	@Override
-	public void accept(Optional<Integer> activePowerLimitOpt) throws OpenemsNamedException {
+	public void run() throws OpenemsNamedException {
+		// Get ActivePowerLimit that should be applied
+		IntegerWriteChannel activePowerLimitChannel = this.parent
+				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
+		var activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
+
 		FloatWriteChannel wMaxLimPctChannel;
 		FloatReadChannel wRtgChannel;
 		EnumWriteChannel wMaxLimEnaChannel;

@@ -1,9 +1,6 @@
 package io.openems.common.channel;
 
 import java.util.HashSet;
-import java.util.OptionalDouble;
-import java.util.function.Function;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import com.google.common.base.CaseFormat;
@@ -370,72 +367,6 @@ public enum Unit {
 				.filter(u -> u.symbol == symbol) //
 				.findFirst() //
 				.orElse(defaultUnit);
-	}
-
-	/**
-	 * Get the corresponding aggregate function of current {@link Unit}.
-	 * 
-	 * @return corresponding aggregate function
-	 */
-	public Function<DoubleStream, OptionalDouble> getChannelAggregateFunction() {
-		if (this.isCumulated()) {
-			return DoubleStream::max;
-		} else {
-			return DoubleStream::average;
-		}
-	}
-
-	/**
-	 * Returns true if this is a cumulated unit.
-	 * 
-	 * @return true if this {@link Unit} is cumulated, otherwise false
-	 */
-	public boolean isCumulated() {
-		switch (this) {
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return true;
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROAMPERE:
-		case MICROOHM:
-		case MICROVOLT:
-		case MILLIAMPERE:
-		case MILLIAMPERE_HOURS:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case OHM:
-		case ON_OFF:
-		case PERCENT:
-		case SECONDS:
-		case THOUSANDTH:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT:
-		case WATT_HOURS_BY_WATT_PEAK:
-			return false;
-		}
-		return false;
 	}
 
 	/*

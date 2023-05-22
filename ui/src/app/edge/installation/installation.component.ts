@@ -75,7 +75,10 @@ export class InstallationComponent implements OnInit {
         ibn.feedInLimitation = ibnString.feedInLimitation ?? {};
         ibn.pv = ibnString.pv ?? {};
 
-        ibn.setNonAbstractFields(ibnString);
+        // Applies only for COmmercial-50.
+        if (ibnString.commercial50Feature) {
+          ibn.setCommercialfeature(ibnString.commercial50Feature);
+        }
       }
     }
 

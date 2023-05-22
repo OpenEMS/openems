@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 @ProviderType
 public interface AppCenterMetadata {
@@ -110,37 +109,6 @@ public interface AppCenterMetadata {
 		 * @throws OpenemsNamedException on error
 		 */
 		public JsonArray sendGetRegisteredKeys(String edgeId, String appId) throws OpenemsNamedException;
-
-		/**
-		 * Adds a key to the request if needed for a 'addAppInstance' request.
-		 * 
-		 * @param user    the user
-		 * @param edgeId  the edge
-		 * @param request the request
-		 */
-		@Deprecated(since = "2023.3.1", forRemoval = true)
-		public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request) throws OpenemsNamedException;
-
-		/**
-		 * Gets a key that can be supplied to the installation of the given app.
-		 * 
-		 * @param user   the requested user
-		 * @param edgeId the edge to install the app on
-		 * @param appId  the app to install
-		 * @return the key or null if none can be supplied
-		 * @throws OpenemsNamedException on error
-		 */
-		public String getSuppliableKey(User user, String edgeId, String appId) throws OpenemsNamedException;
-
-		/**
-		 * Gets if the given app is free.
-		 * 
-		 * @param user  the requested user
-		 * @param appId the id of the app
-		 * @return true if the app is free
-		 * @throws OpenemsNamedException on error
-		 */
-		public boolean isAppFree(User user, String appId) throws OpenemsNamedException;
 
 	}
 

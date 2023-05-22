@@ -1,5 +1,8 @@
-<oe-history-data-error [response]="errorResponse"></oe-history-data-error>
-
+<ion-item lines="full" color="warning" *ngIf="!isDataExisting">
+    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
+    <ion-label class="ion-text-wrap" style="text-align: center"
+        translate>Edge.Index.Energymonitor.displayWarning</ion-label>
+</ion-item>
 <div [style.height.px]="getChartHeight()">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">

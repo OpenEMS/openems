@@ -40,7 +40,7 @@ pipeline:
   build-ui:
     when:
       branch:
-        exclude: [main, develop, '**/heckert/**']
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: openems-build:latest
@@ -49,31 +49,12 @@ pipeline:
       - npm ci --prefer-offline --cache /woodpecker/.npm --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
       - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
-      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ --deploy-url /${CI_COMMIT_BRANCH}/ -c "fenecon,fenecon-backend-prod,prod"
+      - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
       - node_modules/.bin/ng lint
       - export CHROME_BIN=/usr/bin/google-chrome-stable
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
     group: build
-  
-  # remove after woodpecker update
-  build-ui-heckert:
-    when:
-      branch:
-        include: [ '**/heckert/**' ]
-      path:
-        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: openems-build:latest
-    commands:
-      - cd ui
-      - npm ci --prefer-offline --cache /woodpecker/.npm --force
-      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
-      - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
-      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ --deploy-url /${CI_COMMIT_BRANCH}/ -c "heckert,heckert-backend-prod,prod"
-      - node_modules/.bin/ng lint
-      - export CHROME_BIN=/usr/bin/google-chrome-stable
-      - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-    group: build
-    
+
   refresh-dev:
     when:
       branch:

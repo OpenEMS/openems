@@ -52,9 +52,9 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ng-container *ngFor="let country of countries">
-                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
-                        </ng-container>
+                        <ion-select-option value="de">Deutschland</ion-select-option>
+                        <ion-select-option value="at">Österreich</ion-select-option>
+                        <ion-select-option value="ch">Schweiz</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>
@@ -65,12 +65,6 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.email<span>*</span></ion-label>
                     <ion-input formControlName="email" type="input" [placeholder]="'Register.Form.email' | translate">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating" translate>Register.Form.confirmEmail<span>*</span></ion-label>
-                    <ion-input formControlName="confirmEmail" type="input"
-                        [placeholder]="'Register.Form.confirmEmail' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>
@@ -139,9 +133,9 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ng-container *ngFor="let country of countries">
-                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
-                        </ng-container>
+                        <ion-select-option value="de">Deutschland</ion-select-option>
+                        <ion-select-option value="at">Österreich</ion-select-option>
+                        <ion-select-option value="ch">Schweiz</ion-select-option>
                     </ion-select>
                 </ion-item>
                 <ion-item>
@@ -152,12 +146,6 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.email<span>*</span></ion-label>
                     <ion-input formControlName="email" type="input" [placeholder]="'Register.Form.email' | translate">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating" translate>Register.Form.confirmEmail<span>*</span></ion-label>
-                    <ion-input formControlName="confirmEmail" type="input"
-                        [placeholder]="'Register.Form.confirmEmail' | translate">
                     </ion-input>
                 </ion-item>
                 <ion-item>

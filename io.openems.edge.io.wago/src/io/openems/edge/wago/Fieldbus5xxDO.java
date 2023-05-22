@@ -26,7 +26,7 @@ public class Fieldbus5xxDO extends FieldbusModule {
 		for (var i = 0; i < channelsCount; i++) {
 			var doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
-			doc.persistencePriority(PersistencePriority.HIGH);
+			doc.persistencePriority(PersistencePriority.MEDIUM);
 			var channelId = new FieldbusChannelId(id + "_C" + (i + 1), doc);
 			var channel = (BooleanWriteChannel) parent.addChannel(channelId);
 

@@ -83,8 +83,7 @@ public class TestOfflineEdgeHandler {
 		msg_2.addRecipient(new AlertingSetting(0, null, null, null, 2));
 
 		assertEquals(mailer.sentMails.size(), 0);
-		var msgs = new ArrayList<>(List.of(msg_1, msg_2));
-		handler.send(ZonedDateTime.now(), msgs);
+		handler.send(ZonedDateTime.now(), List.of(msg_1, msg_2));
 		assertEquals(1, mailer.sentMails.size());
 
 		// check if correctly rescheduled

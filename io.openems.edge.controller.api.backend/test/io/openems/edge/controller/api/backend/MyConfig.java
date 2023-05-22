@@ -17,7 +17,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public Type proxyType;
 		public int apiTimeout;
 		public PersistencePriority persistencePriority;
-		public PersistencePriority aggregationPriority;
 		public boolean debugMode;
 
 		private Builder() {
@@ -60,11 +59,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPersistencePriority(PersistencePriority persistencePriority) {
 			this.persistencePriority = persistencePriority;
-			return this;
-		}
-
-		public Builder setAggregationPriority(PersistencePriority aggregationPriority) {
-			this.aggregationPriority = aggregationPriority;
 			return this;
 		}
 
@@ -127,11 +121,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public PersistencePriority persistencePriority() {
 		return this.builder.persistencePriority;
-	}
-
-	@Override
-	public PersistencePriority aggregationPriority() {
-		return this.builder.aggregationPriority;
 	}
 
 	@Override

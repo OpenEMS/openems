@@ -71,16 +71,16 @@ export class UpdateAppComponent implements OnInit {
                 this.forms.push(form)
                 const clonedFields = [];
                 appAssistant.fields.forEach(val => clonedFields.push(Object.assign({}, val)));
+                // insert alias field into fields
+                let aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: instance.alias };
+                clonedFields.splice(0, 0, aliasField)
                 this.instances.push({
                   instanceId: instance.instanceId,
                   form: form,
                   isDeleting: false,
                   isUpdating: false,
                   fields: clonedFields,
-                  properties: {
-                    'ALIAS': instance.alias,
-                    ...instance.properties
-                  },
+                  properties: instance.properties,
                 })
               }
 

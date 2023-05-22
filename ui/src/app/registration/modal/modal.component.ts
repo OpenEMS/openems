@@ -4,7 +4,6 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
-import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
 import { environment } from 'src/environments';
 
 @Component({
@@ -13,9 +12,8 @@ import { environment } from 'src/environments';
 })
 export class RegistrationModalComponent implements OnInit {
 
-  protected formGroup: FormGroup;
-  protected activeSegment: string = "owner";
-  protected readonly countries = COUNTRY_OPTIONS(this.translate);
+  formGroup: FormGroup;
+  activeSegment: string = "owner";
 
   constructor(
     private formBuilder: FormBuilder,
@@ -52,14 +50,6 @@ export class RegistrationModalComponent implements OnInit {
 
     if (password != confirmPassword) {
       this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), 'danger');
-      return;
-    }
-
-    let email = this.formGroup.value.email;
-    let confirmEmail = this.formGroup.value.confirmEmail;
-
-    if (email != confirmEmail) {
-      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
       return;
     }
 
@@ -116,7 +106,6 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
-        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
         isElectrician: new FormControl(false, Validators.requiredTrue),
@@ -134,7 +123,6 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
-        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
         acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),

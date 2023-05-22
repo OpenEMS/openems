@@ -3,10 +3,11 @@ package io.openems.backend.timedata.influx;
 import java.net.URI;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -15,31 +16,23 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.OpenemsOEM;
-import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.notification.AbstractDataNotification;
-import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
@@ -54,19 +47,15 @@ import io.openems.shared.influxdb.InfluxConnector;
 		}, //
 		immediate = true //
 )
-@EventTopics({ //
-		Edge.Events.ON_SET_ONLINE //
-})
-public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timedata, EventHandler {
+public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timedata {
+
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(InfluxImpl.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
 	private Config config;
 	private InfluxConnector influxConnector = null;
-
-	// edgeId, channelIds which are timestamped channels
-	private final Multimap<Integer, String> timestampedChannelsForEdge = HashMultimap.create();
 
 	public InfluxImpl() {
 		super("Timedata.InfluxDB");
@@ -89,9 +78,15 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 				+ "]");
 
 		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
-				(e) -> {
-					this.fieldTypeConflictHandler.handleException(e);
+				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), //
+				(throwable) -> {
+					if (throwable instanceof BadRequestException) {
+						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
+
+					} else {
+						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
+								+ ": " + throwable.getMessage());
+					}
 				});
 	}
 
@@ -104,91 +99,29 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_ONLINE:
-			final var reader = new EventReader(event);
-			final var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
-			final var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
-			if (!isOnline) {
-				try {
-					var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-					this.timestampedChannelsForEdge.removeAll(influxEdgeId);
-				} catch (OpenemsException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
-		}
-	}
-
-	@Override
-	public void write(String edgeId, TimestampedDataNotification notification) {
+	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
 		// parse the numeric EdgeId
-		try {
-			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+		int influxEdgeId = InfluxImpl.parseNumberFromName(edgeId);
 
-			// Write data to default location
-			this.writeData(//
-					influxEdgeId, //
-					notification, //
-					channel -> {
-						this.timestampedChannelsForEdge.put(influxEdgeId, channel);
-						return true;
-					});
-		} catch (OpenemsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void write(String edgeId, AggregatedDataNotification notification) {
-		try {
-			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-
-			// Write data to default location
-			this.writeData(//
-					influxEdgeId, //
-					notification, //
-					channel -> !this.isTimestampedChannel(influxEdgeId, channel));
-		} catch (OpenemsException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private boolean isTimestampedChannel(int edgeId, String channel) {
-		final var channelSet = this.timestampedChannelsForEdge.get(edgeId);
-		// if edge is not set the checked channel may be timestamped channel so
-		// initially return true
-		if (channelSet == null) {
-			return true;
-		}
-		return channelSet.contains(channel);
+		// Write data to default location
+		this.writeData(influxEdgeId, data);
 	}
 
 	/**
 	 * Actually writes the data to InfluxDB.
 	 *
-	 * @param influxEdgeId     the unique, numeric identifier of the Edge
-	 * @param notification     the {@link AbstractDataNotification}
-	 * @param shouldWriteValue the function which determines if the value should be
-	 *                         written
+	 * @param influxEdgeId the unique, numeric identifier of the Edge
+	 * @param data         the data
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(//
-			int influxEdgeId, //
-			AbstractDataNotification notification, //
-			Function<String, Boolean> shouldWriteValue //
-	) {
-		final var data = notification.getData();
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, String, JsonElement> data) {
 		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
-		for (var dataEntry : dataEntries) {
+		for (Entry<Long, Map<String, JsonElement>> dataEntry : dataEntries) {
 			var channelEntries = dataEntry.getValue().entrySet();
 			if (channelEntries.isEmpty()) {
 				// no points to add
@@ -198,22 +131,39 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 			var timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
 			var point = Point //
-					.measurement(this.config.measurement()) //
+					.measurement(InfluxConnector.MEASUREMENT) //
 					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, WritePrecision.MS);
-			for (var channelEntry : channelEntries) {
-				if (!shouldWriteValue.apply(channelEntry.getKey())) {
-					continue;
-				}
-				this.addValue(//
-						point, //
-						channelEntry.getKey(), //
-						channelEntry.getValue());
+			for (Entry<String, JsonElement> channelEntry : channelEntries) {
+				this.addValue(point, channelEntry.getKey(), channelEntry.getValue());
 			}
 			if (point.hasFields()) {
 				this.influxConnector.write(point);
 			}
 		}
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number
+	 * @throws OpenemsException on error
+	 */
+	public static Integer parseNumberFromName(String name) throws OpenemsException {
+		try {
+			var matcher = InfluxImpl.NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return Integer.parseInt(nameNumberString);
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 
 	// TODO remove before release
@@ -231,10 +181,9 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 		assertLongDuration(fromDate, toDate);
 
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
+		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
 
-		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution,
-				this.config.measurement());
+		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	@Override
@@ -243,9 +192,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 		assertLongDuration(fromDate, toDate);
 
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
-		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels,
-				this.config.measurement());
+		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 
 	@Override
@@ -255,9 +203,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 		assertLongDuration(fromDate, toDate);
 
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
-		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution,
-				this.config.measurement());
+		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	private static final Set<String> WHITELIST_PROPERTIES = Set.of("_PropertyLowThreshold", "_PropertyHighThreshold",

@@ -10,7 +10,7 @@ import { Component, Input } from "@angular/core";
 export class ModalHorizontalLineComponent {
 
     /** Components-Array to iterate over */
-    @Input() protected components: any[];
+    @Input() components: any[];
     /** index is an iterator */
-    @Input() protected index: number;
+    @Input() index: number;
 }
