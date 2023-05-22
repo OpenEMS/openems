@@ -1,6 +1,6 @@
 import { registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import localDE from '@angular/common/locales/de';
+import localEN from '@angular/common/locales/en';
 import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -75,6 +75,6 @@ import { UserModule } from './user/user.module';
 })
 export class AppModule {
   constructor() {
-    registerLocaleData(localDE);
+    registerLocaleData(localEN);
   }
 }
