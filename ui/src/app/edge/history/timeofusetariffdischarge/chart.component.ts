@@ -287,7 +287,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     options.scales.xAxes[0].stacked = true;
 
     //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
+    if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
       options.scales.xAxes[0].time.unit = "day";
     } else {
       options.scales.xAxes[0].time.unit = "hour";

@@ -166,13 +166,13 @@ export abstract class AbstractHistoryChart {
         // Overwrite TooltipsTitle
         options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
             let date = new Date(tooltipItems[0].xLabel);
-            return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
+            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
         }
 
         //x-axis
-        if (differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) > 1) {
+        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
             options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5 && differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) <= 1) {
+        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
             options.scales.xAxes[0].time.unit = "day";
         } else {
             options.scales.xAxes[0].time.unit = "hour";

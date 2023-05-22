@@ -6,7 +6,7 @@ import { AdvertWidgets } from 'src/app/shared/type/widget';
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html'
+  templateUrl: './live.component.html',
 })
 export class LiveComponent implements OnInit, OnDestroy {
 

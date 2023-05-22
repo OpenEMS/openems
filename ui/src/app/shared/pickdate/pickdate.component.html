@@ -5,7 +5,7 @@
         </ion-icon>
     </ion-button>
     <ion-button *ngIf="translate" (click)="presentPopover($event)" ngClass="secondary-color-contrast">
-        {{service.historyPeriod.getText(translate)}}
+        {{service.historyPeriod.value.getText(translate)}}
     </ion-button>
     <ng-container *ngIf="disableArrow === false">
         <ion-button (click)="goForward()">

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+
 import { ChangelogComponent } from './changelog/changelog.component';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
@@ -44,7 +45,11 @@ import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/set
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
+import { DataService } from './shared/genericComponents/shared/dataservice';
+import { LiveDataService } from './shared/genericComponents/shared/livedataservice';
 import { UserComponent } from './user/user.component';
+import { HistoryDataService } from './shared/genericComponents/shared/historydataservice';
+
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
   { path: 'index', component: IndexComponent },
@@ -58,9 +63,17 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
-      { path: 'live', component: EdgeLiveComponent },
       {
-        path: 'history', component: HistoryParentComponent, children: [
+        path: 'live', component: EdgeLiveComponent, providers: [{
+          provide: DataService,
+          useClass: LiveDataService
+        }]
+      },
+      {
+        path: 'history', component: HistoryParentComponent, providers: [{
+          provide: DataService,
+          useClass: HistoryDataService,
+        }], children: [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },

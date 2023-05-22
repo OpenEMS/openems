@@ -10,8 +10,7 @@ import { DataService } from "./dataservice";
 export class HistoryDataService extends DataService {
 
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {}
-  private subscribeChannelsTimeout: any | null = null;
-  private date: BehaviorSubject<{ from: Date, to: Date }> = new BehaviorSubject(null);
+  private queryChannelsTimeout: any | null = null;
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
@@ -26,13 +25,12 @@ export class HistoryDataService extends DataService {
       this.channelAddresses[channelAddress.toString()] = channelAddress;
     }
 
-    if (this.subscribeChannelsTimeout == null) {
-      this.subscribeChannelsTimeout = setTimeout(() => {
-        setInterval(() => {
-          if (Object.entries(this.channelAddresses).length > 0
-            && (this.date.value?.from != this.service.historyPeriod.from
-              || this.date.value?.to != this.service.historyPeriod.to)) {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(this.service.historyPeriod.from, this.service.historyPeriod.to, Object.values(this.channelAddresses)))
+    if (this.queryChannelsTimeout == null) {
+      this.queryChannelsTimeout = setTimeout(() => {
+        if (Object.entries(this.channelAddresses).length > 0) {
+
+          this.service.historyPeriod.subscribe(date => {
+            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(date.from, date.to, Object.values(this.channelAddresses)))
               .then((response) => {
                 let allComponents = {};
                 let result = (response as QueryHistoricTimeseriesEnergyResponse).result
@@ -41,10 +39,9 @@ export class HistoryDataService extends DataService {
                 }
                 this.currentValue.next({ allComponents: allComponents });
               }).catch(err => console.warn(err))
-            this.date.next({ from: this.service.historyPeriod.from, to: this.service.historyPeriod.to });
-          }
-        }, 500)
-      }, 300)
+          })
+        }
+      }, 100)
     }
   }
 }

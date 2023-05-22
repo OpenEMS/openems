@@ -49,7 +49,7 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
 
     protected updateValues() {
         // Gather result & timestamps to calculate effective active time in % 
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);

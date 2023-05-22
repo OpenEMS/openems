@@ -104,7 +104,7 @@ export class PickDatePopoverComponent implements OnInit {
     }
 
     public onDateChanged(event: IMyDateRangeModel) {
-        this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
+        this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));
         this.service.periodString = DefaultTypes.PeriodString.CUSTOM;
         this.popoverCtrl.dismiss();
     }
