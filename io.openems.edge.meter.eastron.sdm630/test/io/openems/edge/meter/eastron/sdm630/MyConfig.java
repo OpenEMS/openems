@@ -13,6 +13,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int modbusUnitId;
 		public MeterType type;
 
+		public boolean isWiringDirectionReversed;
+
 		private Builder() {
 		}
 
@@ -28,6 +30,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setIsWiringDirectionReversed(boolean isWiringDirectionReversed) {
+			this.isWiringDirectionReversed = isWiringDirectionReversed;
 			return this;
 		}
 
@@ -70,6 +77,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return this.builder.type;
+	}
+
+	@Override
+	public boolean isWiringDirectionReversed() {
+		return this.builder.isWiringDirectionReversed;
 	}
 
 }

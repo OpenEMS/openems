@@ -21,6 +21,14 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "Grid (default), Production, Consumption (Metered)")
 	MeterType type() default MeterType.GRID;
 
+	@AttributeDefinition(name = "Is wiring direction reversed?",
+			description = "This meter expects the load to be connected at the bottom of the meter; see 7. Wiring Diagram in Series_Manual.pdf "
+			+ "In case of GRID and PRODUCTION meter the load = EMS is connected at the bottom and the component (grid, PV, etc.) at top."
+			+ "While in case of a consumption meter the load = consumer is a the bottom and the EMS connected at top."
+			+ "If according to this, the wiring direction is reversed, it can be flagged here to fix power and energy readings."
+	)
+	boolean isWiringDirectionReversed() default false;
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
