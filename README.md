@@ -94,6 +94,8 @@ ng serve -o -c openems-edge-dev
 
 If running on a development server and want to expose the UI on your LAN, add the `--host 0.0.0.0` flag.  For example:  `ng serve -o -c openems-edge-dev --host 0.0.0.0`.
 
+To configure the backend, visit `http://localhost:8080/system/console/configMgr`.  Default user/password is **admin**.
+
 ## Documentation
 
 * [Latest version of documentation](https://openems.github.io/openems.io/openems/latest/introduction.html)
