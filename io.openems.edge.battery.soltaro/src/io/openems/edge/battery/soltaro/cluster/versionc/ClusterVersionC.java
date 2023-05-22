@@ -6,6 +6,7 @@ import java.util.Set;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -214,8 +215,10 @@ public interface ClusterVersionC extends //
 		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
 				.text("The maximum number of stop attempts failed")), //
 		NUMBER_OF_MODULES_PER_TOWER(Doc.of(OpenemsType.INTEGER) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number Modules per Tower")), //
 		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of Towers")), //
 
 		;

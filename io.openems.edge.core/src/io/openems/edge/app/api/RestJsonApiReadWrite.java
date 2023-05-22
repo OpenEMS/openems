@@ -18,6 +18,7 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.RestJsonApiReadWrite.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -26,6 +27,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -58,9 +60,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Api.RestJson.ReadWrite")
-public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		CONTROLLER_ID, //
 		// Properties
@@ -85,7 +87,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
-								.setMin(30) //
+								.setMin(0) //
 								.isRequired(true) //
 								.build())
 						.build())
@@ -100,7 +102,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 
@@ -124,7 +126,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 			);
 
 			final var schedulerIds = Lists.newArrayList(//
-			        "ctrlEmergencyCapacityReserve0",
+					"ctrlEmergencyCapacityReserve0", //
 					controllerId, //
 					"ctrlGridOptimizedCharge0", //
 					"ctrlEssSurplusFeedToGrid0", //

@@ -71,6 +71,7 @@ public class MulticastListener implements Runnable {
 	 * @param expectedMessage the message to look for
 	 * @param returnMessage   the message to reply with
 	 */
+	@SuppressWarnings("deprecation")
 	public MulticastListener(int multicastPort, String multicastGroup, byte[] expectedMessage, byte[] returnMessage)
 			throws IOException, UnknownHostException {
 		this.expectedMessage = expectedMessage;

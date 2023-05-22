@@ -1,8 +1,8 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -10,49 +10,135 @@ import java.util.function.Supplier;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 
-public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-		PROPERTY extends Enum<PROPERTY> & Type<PROPERTY, APP, PARAMETER>, PARAMETER extends Type.Parameter> //
-		extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
+public abstract class AbstractOpenemsAppWithProps<//
+		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
+		PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
+		PARAMETER extends Type.Parameter //
+> extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
 
 	protected AbstractOpenemsAppWithProps(ComponentManager componentManager, ComponentContext componentContext,
 			ConfigurationAdmin cm, ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
 
-	protected String getId(ConfigurationTarget target, EnumMap<PROPERTY, JsonElement> map, PROPERTY property) {
+	protected String getId(ConfigurationTarget target, Map<PROPERTY, JsonElement> map, PROPERTY property)
+			throws OpenemsException {
 		final var parameter = this.singletonParameter(Language.DEFAULT);
 		var componentId = Optional.ofNullable(property.def().getDefaultValue())
-				.map(t -> t.apply(new AppDef.FieldValues<>(this.getApp(), property, Language.DEFAULT, parameter.get()))
-						.getAsString())
-				.orElseThrow(() -> new RuntimeException(
+				.map(t -> t.get(this.getApp(), property, Language.DEFAULT, parameter.get()).getAsString())
+				.orElseThrow(() -> new OpenemsException(
 						"No default value set for Property '" + property + "' in app '" + this.getAppId() + "'"));
 		return super.getId(target, map, property, componentId);
 	}
 
-	protected String getValueOrDefault(//
-			final EnumMap<PROPERTY, JsonElement> map, //
+	protected JsonElement getValueOrDefault(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper)
+			throws OpenemsNamedException {
+		if (map.containsKey(property)) {
+			return map.get(property);
+		}
+		final var parameter = this.singletonParameter(l);
+		final var def = mapper.apply(property);
+		if (def.getDefaultValue() == null) {
+			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(property,
+					StringUtils.toShortString(map.toString(), 100).replace("%", "%%"));
+		}
+		return def.getDefaultValue().get(this.getApp(), property, l, parameter.get());
+	}
+
+	protected String getString(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsString(this.getValueOrDefault(map, l, property, mapper));
+	}
+
+	protected String getString(//
+			final Map<PROPERTY, JsonElement> map, //
 			final Language l, //
 			final PROPERTY property //
 	) throws OpenemsNamedException {
-		if (map.containsKey(property)) {
-			return EnumUtils.getAsString(map, property);
-		}
-		final var parameter = this.singletonParameter(Language.DEFAULT);
-		final var values = new AppDef.FieldValues<>(this.getApp(), property, Language.DEFAULT, parameter.get());
-		final var defaultValue = property.def().getDefaultValue().apply(values);
+		return this.getString(map, l, property, PROPERTY::def);
+	}
 
-		return JsonUtils.getAsString(defaultValue);
+	protected String getString(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getString(map, Language.DEFAULT, property);
+	}
+
+	protected JsonArray getJsonArray(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsJsonArray(this.getValueOrDefault(map, Language.DEFAULT, property, PROPERTY::def));
+	}
+
+	protected int getInt(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsInt(this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected int getInt(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getInt(map, property, PROPERTY::def);
+	}
+
+	protected <E extends Enum<E>> E getEnum(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Class<E> enumType, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsEnum(enumType, this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected <E extends Enum<E>> E getEnum(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Class<E> enumType, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getEnum(map, enumType, property, PROPERTY::def);
+	}
+
+	protected boolean getBoolean(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsBoolean(this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected boolean getBoolean(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getBoolean(map, property, PROPERTY::def);
 	}
 
 	@Override
@@ -77,9 +163,9 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 		return AppAssistant.create(this.getName(language)) //
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
+						.filter(p -> p.def().getShouldAddField().test(this.getApp(), p, language, parameter.get())) //
 						.filter(p -> p.def().getField() != null) //
-						.map(p -> p.def().getField()
-								.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter.get())).build()) //
+						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}
@@ -89,15 +175,10 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 				.filter(p -> p.name().equals("ALIAS")) //
 				.findFirst() //
 				.flatMap(p -> {
-					final var defaultValueFunction = p.def().getDefaultValue();
-					if (defaultValueFunction == null) {
-						return Optional.empty();
-					}
-					var defaultValue = defaultValueFunction
-							.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter));
-					return JsonUtils.getAsOptionalString(defaultValue);
-				}) //
-				.orElse(null);
+					return Optional.ofNullable(p.def().getDefaultValue()) //
+							.map(t -> t.get(this.getApp(), p, language, parameter)) // ;
+							.flatMap(JsonUtils::getAsOptionalString);
+				}).orElse(null);
 	}
 
 	@Override
@@ -108,7 +189,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	) throws OpenemsNamedException {
 		return super.getAppConfiguration(//
 				target, //
-				this.fillUpProperties(config), //
+				AbstractOpenemsApp.fillUpProperties(this, config), //
 				language //
 		);
 	}
@@ -119,42 +200,9 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 			final List<Dependency> dependecies //
 	) {
 		return super.getValidationErrors(//
-				this.fillUpProperties(jProperties), //
+				AbstractOpenemsApp.fillUpProperties(this, jProperties), //
 				dependecies //
 		);
-	}
-
-	/**
-	 * Creates a copy of the original configuration and fills up properties which
-	 * are binded bidirectional.
-	 * 
-	 * <p>
-	 * e. g. a property in a component is the same as one configured in the app so
-	 * it directly gets stored in the component configuration and not twice to avoid
-	 * miss matching errors.
-	 * 
-	 * @param original the original configuration
-	 * @return a copy of the original one with the filled up properties
-	 */
-	public JsonObject fillUpProperties(//
-			final JsonObject original //
-	) {
-		final var copy = original.deepCopy();
-		for (var prop : this.getProperties()) {
-			if (copy.has(prop.name)) {
-				continue;
-			}
-			if (prop.bidirectionalValue == null) {
-				continue;
-			}
-			var value = prop.bidirectionalValue.apply(copy);
-			if (value == null) {
-				continue;
-			}
-			// add value to configuration
-			copy.add(prop.name, value);
-		}
-		return copy;
 	}
 
 	private Function<Language, JsonElement> mapDefaultValue(//
@@ -163,8 +211,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	) {
 		return this.functionMapper(property, AppDef::getDefaultValue, defaultValue -> {
 			return l -> {
-				return defaultValue.apply(//
-						new AppDef.FieldValues<>(this.getApp(), property, l, parameter));
+				return defaultValue.get(this.getApp(), property, l, parameter);
 			};
 		});
 	}
@@ -175,10 +222,8 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	) {
 		return this.functionMapper(property, AppDef::getBidirectionalValue, bidirectionalValue -> {
 			return config -> {
-				return bidirectionalValue.apply(//
-						new AppDef.FieldValues<>(this.getApp(), property, //
-								Language.DEFAULT, parameter),
-						config //
+				return bidirectionalValue.apply(this.getApp(), property, //
+						Language.DEFAULT, parameter, config //
 				);
 			};
 		});
@@ -186,7 +231,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 
 	private <M, R> R functionMapper(//
 			final PROPERTY property, //
-			final Function<AppDef<APP, PROPERTY, PARAMETER>, M> mapper, //
+			final Function<AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>, M> mapper, //
 			final Function<M, R> resultMapper //
 	) {
 		final var firstResult = mapper.apply(property.def());

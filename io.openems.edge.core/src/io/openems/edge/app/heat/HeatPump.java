@@ -3,7 +3,6 @@ package io.openems.edge.app.heat;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,6 +19,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.HeatPump.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -63,9 +64,9 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Heat.HeatPump")
-public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class HeatPump extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		CTRL_IO_HEAT_PUMP_ID, //
 		// Properties
@@ -128,7 +129,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 				new int[] { 2, 3 });
 		var options = this.componentUtil.getAllRelays() //
 				.stream().map(r -> r.relays).flatMap(List::stream) //
-				.collect(Collectors.toList());
+				.toList();
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_1) //
@@ -154,12 +155,12 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-sg-ready-waermepumpe/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-power-to-heat/") //
 				.build();
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
 	}
 

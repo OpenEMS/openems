@@ -46,6 +46,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
@@ -104,7 +105,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 			var now = Instant.now().toEpochMilli();
 			data.put(now, COMPONENT_ID + "/Connections",
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-			this.timedataManager.write(EDGE_ID, data);
+			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
 	}
 

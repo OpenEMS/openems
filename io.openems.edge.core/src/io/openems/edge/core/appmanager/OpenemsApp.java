@@ -49,7 +49,7 @@ public interface OpenemsApp {
 	 *
 	 * @return the category's
 	 */
-	public OpenemsAppCategory[] getCategorys();
+	public OpenemsAppCategory[] getCategories();
 
 	/**
 	 * Gets the image of the {@link OpenemsApp} in Base64 encoding.

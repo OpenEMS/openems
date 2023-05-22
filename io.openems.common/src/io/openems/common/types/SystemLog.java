@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -109,7 +110,7 @@ public class SystemLog {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static SystemLog fromJsonObject(JsonObject j) throws OpenemsNamedException {
-		var time = ZonedDateTime.parse(JsonUtils.getAsString(j, "time"), SystemLog.FORMAT);
+		var time = DateUtils.parseZonedDateTimeOrError(JsonUtils.getAsString(j, "time"), SystemLog.FORMAT);
 		var level = Level.valueOf(JsonUtils.getAsString(j, "level").toUpperCase());
 		var source = JsonUtils.getAsString(j, "source");
 		var message = JsonUtils.getAsString(j, "message");

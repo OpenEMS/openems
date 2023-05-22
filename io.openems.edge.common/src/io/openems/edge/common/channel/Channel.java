@@ -1,6 +1,9 @@
 package io.openems.edge.common.channel;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -9,7 +12,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.CircularTreeMap;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -48,10 +50,10 @@ import io.openems.edge.common.type.TypeUtils;
 public interface Channel<T> {
 
 	/**
-	 * Holds the number of past values for this Channel that are kept in the
-	 * 'pastValues' variable.
+	 * Holds the maximum allowed age of past values based on the latest value for
+	 * this Channel that are kept in the 'pastValues' variable.
 	 */
-	public static final int NO_OF_PAST_VALUES = 300;
+	public static final TemporalAmount MAX_AGE_OF_PAST_VALUES = Duration.ofMinutes(5).plusSeconds(10);
 
 	/**
 	 * Gets the ChannelId of this Channel.
@@ -170,7 +172,7 @@ public interface Channel<T> {
 	 * @return a map of recording time and historic value at that time
 	 */
 	// TODO this should be a ZonedDateTime
-	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues();
+	public TreeMap<LocalDateTime, Value<T>> getPastValues();
 
 	/**
 	 * Add an onUpdate callback. It is called, after the active value was updated by
