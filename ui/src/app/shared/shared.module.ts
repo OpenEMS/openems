@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Inject, Injector, NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
