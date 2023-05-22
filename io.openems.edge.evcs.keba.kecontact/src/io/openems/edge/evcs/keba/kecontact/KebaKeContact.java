@@ -94,15 +94,6 @@ public interface KebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, Even
 		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT) //
 				.text("Voltage on L3")), //
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L1")), //
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L2")), //
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.text("Current on L3")), //
 		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIWATT) //
 				.text("Total real power")), //
@@ -188,9 +179,9 @@ public interface KebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, Even
 				.channel(79, KebaKeContact.ChannelId.VOLTAGE_L1, ModbusType.UINT16)
 				.channel(80, KebaKeContact.ChannelId.VOLTAGE_L2, ModbusType.UINT16)
 				.channel(81, KebaKeContact.ChannelId.VOLTAGE_L3, ModbusType.UINT16)
-				.channel(82, KebaKeContact.ChannelId.CURRENT_L1, ModbusType.UINT16)
-				.channel(83, KebaKeContact.ChannelId.CURRENT_L2, ModbusType.UINT16)
-				.channel(84, KebaKeContact.ChannelId.CURRENT_L3, ModbusType.UINT16)
+				.channel(82, Evcs.ChannelId.CURRENT_L1, ModbusType.UINT16)
+				.channel(83, Evcs.ChannelId.CURRENT_L2, ModbusType.UINT16)
+				.channel(84, Evcs.ChannelId.CURRENT_L3, ModbusType.UINT16)
 				.channel(85, KebaKeContact.ChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaKeContact.ChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
 				.channel(88, KebaKeContact.ChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();

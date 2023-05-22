@@ -18,9 +18,6 @@ public enum GoeChannelId implements io.openems.edge.common.channel.ChannelId {
 	VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L1")),
 	VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L2")),
 	VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L3")),
-	CURRENT_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L1")),
-	CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L2")),
-	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")),
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")),
 	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text("Total power consumption")),
 

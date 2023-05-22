@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
@@ -173,9 +174,9 @@ public class ReadHandler implements Consumer<String> {
 					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L1, jsonMessage, "U1");
 					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L2, jsonMessage, "U2");
 					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L3, jsonMessage, "U3");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L1, jsonMessage, "I1");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L2, jsonMessage, "I2");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L3, jsonMessage, "I3");
+					this.setInt(Evcs.ChannelId.CURRENT_L1, jsonMessage, "I1");
+					this.setInt(Evcs.ChannelId.CURRENT_L2, jsonMessage, "I2");
+					this.setInt(Evcs.ChannelId.CURRENT_L3, jsonMessage, "I3");
 					this.setInt(KebaKeContact.ChannelId.ACTUAL_POWER, jsonMessage, "P");
 					this.setInt(KebaKeContact.ChannelId.COS_PHI, jsonMessage, "PF");
 
@@ -185,11 +186,12 @@ public class ReadHandler implements Consumer<String> {
 					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
-					Channel<Integer> currentL1 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L1);
-					Channel<Integer> currentL2 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L2);
-					Channel<Integer> currentL3 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L3);
+					Channel<Integer> currentL1 = this.parent.channel(Evcs.ChannelId.CURRENT_L1);
+					Channel<Integer> currentL2 = this.parent.channel(Evcs.ChannelId.CURRENT_L2);
+					Channel<Integer> currentL3 = this.parent.channel(Evcs.ChannelId.CURRENT_L3);
 					var currentSum = currentL1.getNextValue().orElse(0) + currentL2.getNextValue().orElse(0)
 							+ currentL3.getNextValue().orElse(0);
+					this.parent._setCurrent(currentSum);
 
 					if (currentSum > 300) {
 
@@ -384,7 +386,7 @@ public class ReadHandler implements Consumer<String> {
 		return binaryString;
 	}
 
-	private void set(KebaKeContact.ChannelId channelId, Object value) {
+	private void set(ChannelId channelId, Object value) {
 		this.parent.channel(channelId).setNextValue(value);
 	}
 
@@ -392,7 +394,7 @@ public class ReadHandler implements Consumer<String> {
 		this.set(channelId, JsonUtils.getAsOptionalString(jMessage, name).orElse(null));
 	}
 
-	private void setInt(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setInt(ChannelId channelId, JsonObject jMessage, String name) {
 		this.set(channelId, JsonUtils.getAsOptionalInt(jMessage, name).orElse(null));
 	}
 
