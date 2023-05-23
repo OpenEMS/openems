@@ -18,6 +18,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/re
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
+
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../shared';
 import { EnergyModalComponent } from './modal/modal.component';
@@ -74,7 +75,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   public exportToXlxs() {
     this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
-      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
+      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
         let r = response as Base64PayloadResponse;
         var binary = atob(r.result.payload.replace(/\s/g, ''));
         var len = binary.length;
@@ -88,8 +89,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
 
         let fileName = "Export-" + edge.id + "-";
-        let dateFrom = this.service.historyPeriod.from;
-        let dateTo = this.service.historyPeriod.to;
+        let dateFrom = this.service.historyPeriod.value.from;
+        let dateTo = this.service.historyPeriod.value.to;
         if (isSameDay(dateFrom, dateTo)) {
           fileName += format(dateFrom, "dd.MM.yyyy");
         } else if (isSameMonth(dateFrom, dateTo)) {
@@ -792,7 +793,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
     };
 
     // X-Axis for Chart: Calculate Time-Unit for normal sized window
-    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.from, this.service.historyPeriod.to).timeFormat;
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
 
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;

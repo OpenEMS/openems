@@ -4,6 +4,7 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { BehaviorSubject } from 'rxjs';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,7 +26,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   @Input() public chartTitle: string = "";
 
   /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
-  @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
@@ -72,7 +72,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.updateChart();
+    this.service.historyPeriod.subscribe(() => {
+      this.updateChart();
+    })
   };
 
   protected getChartHeight(): number {
@@ -140,12 +142,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let nameSuffix = null;
 
       // Check if energyResponse is available
-      if (energyResponse) {
-        nameSuffix = element.nameSuffix
-          ? (element.nameSuffix(energyResponse) != null
-            ? element.nameSuffix(energyResponse)
-            : null)
-          : null;
+      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse)) {
+        nameSuffix = element.nameSuffix(energyResponse);
       }
 
       // Filter existing values
@@ -188,14 +186,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    */
   private loadChart() {
     this.labels = [];
-    let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
+    let unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
 
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
       Promise.all([
-        this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to),
-        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
+        this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
       ]).then(([energyPeriodResponse, energyResponse]) => {
         this.fillChart(energyPeriodResponse, energyResponse);
         this.setChartLabel();
@@ -236,8 +234,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
       // Shows Line-Chart
       Promise.all([
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to),
-        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
       ])
         .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line';
@@ -413,7 +411,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let chartObject = this.chartObject;
     let tooltipsLabel = this.getToolTipsLabel(chartObject.unit);
 
-    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
 
     if (this.chartType == 'bar') {
       options.scales.xAxes[0].stacked = true;

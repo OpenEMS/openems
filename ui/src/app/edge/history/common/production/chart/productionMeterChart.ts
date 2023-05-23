@@ -4,7 +4,6 @@ import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/re
 import { HistoryUtils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelData, ChartData, DisplayValues, InputChannel, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionMeterchart',
@@ -12,8 +11,8 @@ import { ChannelData, ChartData, DisplayValues, InputChannel, YAxisTitle } from 
 })
 export class ProductionMeterChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): ChartData {
-    let channels: InputChannel[] = [{
+  protected override getChartData(): HistoryUtils.ChartData {
+    let channels: HistoryUtils.InputChannel[] = [{
       name: 'ActivePower',
       powerChannel: ChannelAddress.fromString(this.component.id + '/ActivePower'),
       energyChannel: ChannelAddress.fromString(this.component.id + '/ActiveProductionEnergy'),
@@ -32,8 +31,8 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
     }
     return {
       input: channels,
-      output: (data: ChannelData) => {
-        let datasets: DisplayValues[] = [];
+      output: (data: HistoryUtils.ChannelData) => {
+        let datasets: HistoryUtils.DisplayValues[] = [];
         datasets.push({
           name: this.translate.instant('General.production'),
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -62,7 +61,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY,
     };
   }
 }

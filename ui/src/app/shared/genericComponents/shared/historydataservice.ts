@@ -1,5 +1,4 @@
 import { Inject, Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
 
 import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -33,11 +32,12 @@ export class HistoryDataService extends DataService {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(date.from, date.to, Object.values(this.channelAddresses)))
               .then((response) => {
                 let allComponents = {};
+                let thisComponent = {};
                 let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
                 for (let [key, value] of Object.entries(result.data)) {
                   allComponents[key] = value;
                 }
-                this.currentValue.next({ allComponents: allComponents });
+                this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
               }).catch(err => console.warn(err));
           });
         }

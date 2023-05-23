@@ -1,8 +1,8 @@
 import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';
-import { SubscribeEdgesRequest } from "../../jsonrpc/request/subscribeEdgesRequest";
 
+import { SubscribeEdgesRequest } from "../../jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared";
 import { DataService } from "./dataservice";
 
@@ -28,12 +28,13 @@ export class LiveDataService extends DataService implements OnDestroy {
         // call onCurrentData() with latest data
         edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
             let allComponents = this.currentValue.value.allComponents;
+            let thisComponent = this.currentValue.value.thisComponent;
             for (let channelAddress of channelAddresses) {
                 let ca = channelAddress.toString();
                 allComponents[ca] = currentData.channel[ca];
             }
 
-            this.currentValue.next({ allComponents: allComponents });
+            this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
         });
     }
 

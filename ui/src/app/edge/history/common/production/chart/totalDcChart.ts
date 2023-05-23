@@ -4,7 +4,6 @@ import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/re
 import { HistoryUtils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelData, ChartData, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'totalDcChart',
@@ -12,7 +11,7 @@ import { ChannelData, ChartData, YAxisTitle } from '../../../shared';
 })
 export class TotalDcChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     return {
       input:
         [
@@ -23,7 +22,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
             converter: (data) => data != null ? data : null,
           },
         ],
-      output: (data: ChannelData) => {
+      output: (data: HistoryUtils.ChannelData) => {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -40,7 +39,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
         // unit: 'kW',
         formatNumber: '1.1-2'
       },
-      unit: YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY,
     };
   }
 }

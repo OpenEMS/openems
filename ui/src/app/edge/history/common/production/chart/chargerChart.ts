@@ -4,7 +4,6 @@ import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/re
 import { HistoryUtils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelData, ChartData, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionChargerChart',
@@ -12,7 +11,7 @@ import { ChannelData, ChartData, YAxisTitle } from '../../../shared';
 })
 export class ChargerChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     return {
       input: [{
         name: 'ActualPower',
@@ -33,7 +32,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
       // color: string,
       // /** the stack for barChart */
       // stack?: number,
-      output: (data: ChannelData) => {
+      output: (data: HistoryUtils.ChannelData) => {
         return [
           {
             name: this.translate.instant('General.production'),
@@ -50,7 +49,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY,
     };
   }
 }

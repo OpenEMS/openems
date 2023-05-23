@@ -46,6 +46,9 @@ import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/set
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
+import { DataService } from './shared/genericComponents/shared/dataservice';
+import { HistoryDataService } from './shared/genericComponents/shared/historydataservice';
+import { LiveDataService } from './shared/genericComponents/shared/livedataservice';
 import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
@@ -61,9 +64,17 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
-      { path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent },
       {
-        path: 'history', component: HistoryParentComponent, children: [
+        path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
+          useClass: LiveDataService,
+          provide: DataService
+        }], component: EdgeLiveComponent
+      },
+      {
+        path: 'history', providers: [{
+          useClass: HistoryDataService,
+          provide: DataService
+        }], component: HistoryParentComponent, children: [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },

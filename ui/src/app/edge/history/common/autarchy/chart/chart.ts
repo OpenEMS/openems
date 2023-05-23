@@ -23,7 +23,7 @@ export class ChartComponent extends AbstractHistoryChart {
           name: 'GridBuy',
           powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          converter: HistoryUtils.ValueConverter.NON_NEGATIVE, // i.e. not GridSell
+          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
         }],
       output: (data: HistoryUtils.ChannelData) => {
         return [{

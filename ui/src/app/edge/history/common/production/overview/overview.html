@@ -3,7 +3,7 @@
   [period]="service.historyPeriod">
   <!-- Total Chart -->
   <ng-container *ngIf="showTotal, else singleMeter">
-    <productionTotalChart [period]="service.historyPeriod" [showPhases]="showPhases" [showTotal]="showTotal">
+    <productionTotalChart [showPhases]="showPhases" [showTotal]="showTotal">
     </productionTotalChart>
   </ng-container>
 
