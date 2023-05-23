@@ -5,7 +5,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { GridMode } from '../shared';
 import { EdgeConfig } from '../shared';
 
 export class Utils {
@@ -203,11 +202,11 @@ export class Utils {
   }
 
   /**
-  * Converts a value in Watt [W] to KiloWatt [kW].
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_WATT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -219,11 +218,11 @@ export class Utils {
   };
 
   /**
- * Converts a value in Watt [W] to KiloWatt [kW].
- * 
- * @param value the value from passed value in html
- * @returns converted value
- */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_VOLT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -235,11 +234,11 @@ export class Utils {
   };
 
   /**
-* Converts a value in Milliampere [mA] to Ampere[A].
-* 
-* @param value the value from passed value in html
-* @returns converted value
-*/
+   * Converts a value in Milliampere [mA] to Ampere[A].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_CURRENT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -377,7 +376,7 @@ export class Utils {
   };
 
   /**
-   * Converts Price to Cent per kWh [Cent / kWh]
+   * Converts Price to Cent per kWh [currency / kWh]
    * 
    * @param decimal number of decimals after fraction
    * @param label label to be displayed along with price
@@ -410,44 +409,6 @@ export class Utils {
       }
     };
   };
-
-  public static CONVERT_TO_GRID_BUY_POWER = (value: number | null): string => {
-    if (!value || value < 0) {
-      return '0 W'
-    }
-    return formatNumber(value, 'de', '1.0-1') + ' W'
-  }
-  public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
-    if (!value || value > 0) {
-      return '0 W'
-    }
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
-  }
-
-  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
-    let name: string = translate.instant('General.phase') + " " + phase;
-    return (value: any): string => {
-      if (!value) {
-        return "";
-      }
-
-      if (value < 0) {
-        return name + " " + translate.instant('General.gridSellAdvanced');
-      }
-
-      if (value >= 0) {
-        return name + " " + translate.instant('General.gridBuyAdvanced');
-      }
-    }
-  }
-
-  public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
-    if (!value) {
-      return "0 W";
-    }
-
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W"
-  }
 
   /**
    * Gets the image path for storage depending on State-of-Charge.
@@ -586,17 +547,13 @@ export class Utils {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
-  public static isGridModeOffGrid() {
-    return (value: number): boolean => value === GridMode.OFF_GRID;
-  }
-
   /**
-    * Returns the label based on component factory id.
-    * 
-    * @param component The Component.
-    * @param translate The Translate
-    * @returns the label.
-    */
+   * Returns the label based on component factory id.
+   * 
+   * @param component The Component.
+   * @param translate The Translate
+   * @returns the label.
+   */
   public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
     if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
       return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
@@ -604,5 +561,42 @@ export class Utils {
       return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
     }
   }
-}
 
+  public static CONVERT_TO_GRID_BUY_POWER = (value: number | null): string => {
+    if (!value || value < 0) {
+      return '0 W'
+    }
+    return formatNumber(value, 'de', '1.0-1') + ' W'
+  }
+  public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
+    if (!value || value > 0) {
+      return '0 W'
+    }
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
+  }
+
+  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
+    let name: string = translate.instant('General.phase') + " " + phase;
+    return (value: any): string => {
+      if (!value) {
+        return "";
+      }
+
+      if (value < 0) {
+        return name + " " + translate.instant('General.gridSellAdvanced');
+      }
+
+      if (value >= 0) {
+        return name + " " + translate.instant('General.gridBuyAdvanced');
+      }
+    }
+  }
+
+  public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
+    if (!value) {
+      return "0 W";
+    }
+
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W"
+  }
+}
