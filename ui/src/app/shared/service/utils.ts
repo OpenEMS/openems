@@ -564,15 +564,16 @@ export class Utils {
 
   public static CONVERT_TO_GRID_BUY_POWER = (value: number | null): string => {
     if (!value || value < 0) {
-      return '0 W'
+      return '0 W';
     }
-    return formatNumber(value, 'de', '1.0-1') + ' W'
+    return formatNumber(value, 'de', '1.0-1') + ' W';
   }
+
   public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
     if (!value || value > 0) {
-      return '0 W'
+      return '0 W';
     }
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
   }
 
   public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
@@ -597,7 +598,7 @@ export class Utils {
       return "0 W";
     }
 
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W"
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W";
   }
 
   public static isGridModeOffGrid() {
