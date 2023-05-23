@@ -5,7 +5,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { EdgeConfig } from '../shared';
+import { EdgeConfig, GridMode } from '../shared';
 
 export class Utils {
 
@@ -598,5 +598,9 @@ export class Utils {
     }
 
     return formatNumber(Math.abs(value), 'de', '1.0-1') + " W"
+  }
+
+  public static isGridModeOffGrid() {
+    return (value: number): boolean => value === GridMode.OFF_GRID;
   }
 }
