@@ -59,7 +59,7 @@ import { UserModule } from './user/user.module';
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
     UserModule,
     RegistrationModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: true })
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
