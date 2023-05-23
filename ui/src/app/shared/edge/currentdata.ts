@@ -246,9 +246,9 @@ export class CurrentData {
               )
             )
           ) * 100, 0
-        ), 0)
+        ), 0);
     } else {
-      return null
+      return null;
     }
   }
 

@@ -340,7 +340,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Aktuální cena",
           "delayedDischarge": "Opožděné propuštění",
-          "storageDischarge": "Vybíjení ze skladu",
+          "STORAGE_DISCHARGE": "Vybíjení ze skladu",
           "State": {
             "notStarted": "Ovladač ještě nezačal ",
             "delayed": "Opožděné",

@@ -22,7 +22,7 @@ export class Pagination {
 
       this.service.updateCurrentEdge(edge.id).then((edge) => {
         this.edge = edge;
-        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
+        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }));
       }).then(() => {
         this.edge.subscribeChannels(this.service.websocket, '', [
           new ChannelAddress('_sum', 'State'),
@@ -32,6 +32,6 @@ export class Pagination {
         .catch(() => {
           this.router.navigate(['index']);
         });
-    })
+    });
   }
 }

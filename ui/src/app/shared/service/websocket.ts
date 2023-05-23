@@ -51,7 +51,7 @@ export class Websocket implements WebsocketInterface {
     // try to auto connect using token or session_id
     setTimeout(() => {
       this.connect();
-    })
+    });
   }
 
   /**
@@ -82,7 +82,7 @@ export class Websocket implements WebsocketInterface {
           let token = this.cookieService.get('token');
           if (token) {
             // Login with Session Token
-            this.login(new AuthenticateWithTokenRequest({ token: token }))
+            this.login(new AuthenticateWithTokenRequest({ token: token }));
             this.status = 'authenticating';
 
           } else {
@@ -145,7 +145,7 @@ export class Websocket implements WebsocketInterface {
       this.status = 'failed';
       this.onClose();
 
-    })
+    });
   }
 
   /**
@@ -179,14 +179,14 @@ export class Websocket implements WebsocketInterface {
             if (edge != null) {
               edge.subscribeChannelsOnReconnect(this);
             }
-          })
+          });
         });
-        resolve()
+        resolve();
       }).catch(reason => {
-        this.checkErrorCode(reason)
-        resolve()
-      })
-    })
+        this.checkErrorCode(reason);
+        resolve();
+      });
+    });
   }
 
   private checkErrorCode(reason: JsonrpcResponseError) {
@@ -195,15 +195,15 @@ export class Websocket implements WebsocketInterface {
     switch (reason.error.code) {
       case 1003:
         this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
-        this.onLoggedOut()
+        this.onLoggedOut();
         break;
       case 1:
-        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger")
+        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
         this.status = 'waiting for credentials';
         this.service.onLogout();
         break;
       default:
-        this.onLoggedOut()
+        this.onLoggedOut();
     }
   }
 
@@ -214,8 +214,8 @@ export class Websocket implements WebsocketInterface {
     this.sendRequest(new LogoutRequest()).then(response => {
       this.onLoggedOut();
     }).catch(reason => {
-      console.error(reason)
-    })
+      console.error(reason);
+    });
   }
 
   private onLoggedOut(): void {
@@ -284,13 +284,13 @@ export class Websocket implements WebsocketInterface {
 
         // TODO: Status should be Observable, furthermore status should be like state-machine
         if (this.status == 'online') {
-          clearInterval(interval)
+          clearInterval(interval);
           this.sendRequest(request)
             .then((response) => resolve(response))
-            .catch((err) => reject(err))
+            .catch((err) => reject(err));
         }
-      }, 500)
-    })
+      }, 500);
+    });
   }
 
   /**
