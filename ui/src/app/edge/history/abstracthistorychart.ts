@@ -11,6 +11,7 @@ import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
+import { filter, take } from 'rxjs/operators';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -168,22 +169,25 @@ export abstract class AbstractHistoryChart {
     }
 
     protected createDefaultChartOptions(): ChartOptions {
+
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        this.service.historyPeriod.pipe(filter(date => !!date), take(1)).subscribe((historyPeriod) => {
 
-        // Overwrite TooltipsTitle
-        options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
-            let date = new Date(tooltipItems[0].xLabel);
-            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
-        };
+            // Overwrite TooltipsTitle
+            options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
+                let date = new Date(tooltipItems[0].xLabel);
+                return this.toTooltipTitle(historyPeriod.from, historyPeriod.to, date);
+            };
 
-        //x-axis
-        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
-            options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
-            options.scales.xAxes[0].time.unit = "day";
-        } else {
-            options.scales.xAxes[0].time.unit = "hour";
-        }
+            //x-axis
+            if (differenceInMonths(historyPeriod.to, historyPeriod.from) > 1) {
+                options.scales.xAxes[0].time.unit = "month";
+            } else if (differenceInDays(historyPeriod.to, historyPeriod.from) >= 5 && differenceInMonths(historyPeriod.to, historyPeriod.from) <= 1) {
+                options.scales.xAxes[0].time.unit = "day";
+            } else {
+                options.scales.xAxes[0].time.unit = "hour";
+            }
+        })
         return options;
     }
 

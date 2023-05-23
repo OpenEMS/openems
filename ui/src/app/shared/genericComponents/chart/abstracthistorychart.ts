@@ -4,7 +4,6 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { BehaviorSubject } from 'rxjs';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,6 +16,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
+import { JsonrpcResponseError } from '../../jsonrpc/base';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
@@ -47,6 +47,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean }[] = [];
+
+  protected errorResponse: JsonrpcResponseError | null = null;
 
   constructor(
     public service: Service,
@@ -268,11 +270,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
             if (Object.keys(result).length != 0) {
               resolve(response as QueryHistoricTimeseriesDataResponse);
             } else {
+              this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
               resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
                 timestamps: [null], data: { null: null }
               }));
             }
-          }).catch(() => {
+          }).catch((response) => {
+            this.errorResponse = response;
             this.initializeChart();
           });
         });
@@ -308,18 +312,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
+          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
-            edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+            edge.sendRequest(this.service.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
               if (Object.keys(result).length != 0) {
                 resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
               } else {
+                this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                 resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                   timestamps: [null], data: { null: null }
                 }));
               }
-            }).catch(() => {
+            }).catch((response) => {
+              this.errorResponse = response;
               this.initializeChart();
             });
           }
@@ -357,18 +364,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-
+          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
           if (channelAddresses.length > 0) {
-            edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses)).then(response => {
+            edge.sendRequest(this.service.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
               if (Object.keys(result).length != 0) {
                 resolve(response as QueryHistoricTimeseriesEnergyResponse);
               } else {
+                this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                 resolve(new QueryHistoricTimeseriesEnergyResponse(response.id, {
                   data: { null: null }
                 }));
               }
-            }).catch(() => {
+            }).catch((response) => {
+              this.errorResponse = response;
               this.initializeChart();
             });
           }
