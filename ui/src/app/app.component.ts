@@ -4,9 +4,12 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject, timer } from 'rxjs';
-import { retry, switchMap, takeUntil } from 'rxjs/operators';
+import { filter, retry, switchMap, takeUntil } from 'rxjs/operators';
+
 import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
+import { CheckForUpdateService } from './appupdateservice';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
+import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
 export interface CachetComponentStatus {
@@ -29,6 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   protected isSystemOutage = false;
 
+  protected isUserAllowedToSeeOverview: boolean = false;
+
   constructor(
     private platform: Platform,
     private http: HttpClient,
@@ -38,9 +43,16 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title
+    private titleService: Title,
+    private checkForUpdateService: CheckForUpdateService,
+    private globaleRouteChangeHandler: GlobalRouteChangeHandler
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+    checkForUpdateService.init();
+
+    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+    });
   }
 
   ngOnInit() {
@@ -75,8 +87,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
   }
 
   /**

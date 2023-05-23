@@ -14,7 +14,7 @@ export class KeyMaskDirective {
             trimmed = trimmed.substr(0, 19);
         }
 
-        let hasDashAsLastChar = trimmed.substr(trimmed.length - 1, 1) == "-"
+        let hasDashAsLastChar = trimmed.substr(trimmed.length - 1, 1) == "-";
         trimmed = trimmed.replace(/-/g, '');
 
         let numbers = [];

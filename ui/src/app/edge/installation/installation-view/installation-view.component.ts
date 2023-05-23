@@ -31,17 +31,17 @@ export class InstallationViewComponent implements OnInit {
       this.labelToShow = {
         label: this.translate.instant('INSTALLATION.LOAD'),
         icon: 'hourglass-outline'
-      }
+      };
     } else if (this.isLastView) {
       this.labelToShow = {
         label: this.translate.instant('INSTALLATION.COMPLETE'),
         icon: 'checkmark-done-outline1'
-      }
+      };
     } else {
       this.labelToShow = {
         label: this.translate.instant('INSTALLATION.NEXT'),
         icon: 'arrow-forward-outline'
-      }
+      };
     }
   }
   public keyPressed(event) {

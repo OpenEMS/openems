@@ -126,8 +126,8 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
                 category: Category.toTranslatedString(element.category, translate),
                 name: element.name,
                 value: element.value
-            }
-        })
+            };
+        });
 
         // 'Deep copy' to copy the object values from protocol recieved.
         // To avoid type issues from category to string.

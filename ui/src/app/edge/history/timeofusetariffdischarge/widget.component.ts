@@ -31,12 +31,12 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -53,7 +53,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
                     if (this.componentId + '/DelayedTime' in result.data) {
                         this.activeTimeOverPeriod = result.data[this.componentId + '/DelayedTime'];
                     }
-                })
+                });
             });
         });
     }

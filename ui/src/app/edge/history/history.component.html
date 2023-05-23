@@ -20,7 +20,7 @@
           <storageWidget [period]="service.historyPeriod.value"></storageWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <productionWidget></productionWidget>
+          <productionWidget [period]="service.historyPeriod"></productionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
           <gridWidget [period]="service.historyPeriod.value"></gridWidget>

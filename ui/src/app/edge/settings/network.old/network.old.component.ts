@@ -46,7 +46,7 @@ export class NetworkOldComponent implements OnInit {
           }
         }).catch(reason => {
           this.service.toast("Error reading current network configuration:" + reason.error.message, 'danger');
-        })
+        });
     });
   }
 
@@ -69,7 +69,7 @@ export class NetworkOldComponent implements OnInit {
         this.service.toast("Successfully updated network configuration for [" + iface.name + "].", 'success');
       }).catch(reason => {
         this.service.toast("Error updating [" + iface.name + "]:" + reason.error.message, 'danger');
-      })
+      });
   }
 
   private generateInterface(name: string, source: NetworkInterface) {
