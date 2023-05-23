@@ -41,7 +41,7 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticRecommendationCtrlEnabled: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
-    });
+    })
   };
 
   public updateControllerMode(event: CustomEvent) {
@@ -65,12 +65,12 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
   public updateAutomaticEnableMode(isTrue: boolean, state: AutomaticEnableMode) {
     this.formGroup.controls[state].setValue(isTrue);
-    this.formGroup.controls[state].markAsDirty();
+    this.formGroup.controls[state].markAsDirty()
   }
 
   public updateManualMode(state: ManualMode) {
     this.formGroup.controls['manualState'].setValue(state);
-    this.formGroup.controls['manualState'].markAsDirty();
+    this.formGroup.controls['manualState'].markAsDirty()
   }
 
   public applyChanges() {
@@ -80,7 +80,7 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
           let updateComponentArray = [];
           Object.keys(this.formGroup.controls).forEach((element, index) => {
             if (this.formGroup.controls[element].dirty) {
-              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
             }
           });
           this.loading = true;

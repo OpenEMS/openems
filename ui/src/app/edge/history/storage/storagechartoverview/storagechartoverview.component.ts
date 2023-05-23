@@ -42,8 +42,8 @@ export class StorageChartOverviewComponent implements OnInit {
                 } else {
                     this.isOnlyChart = false;
                 }
-            });
-        });
+            })
+        })
     }
 
     onNotifyPhases(showPhases: boolean): void {

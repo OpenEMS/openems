@@ -35,7 +35,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh();
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
@@ -60,7 +60,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                 let address = ChannelAddress.fromString(channel);
                 let activePowerData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null;
+                        return null
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -74,9 +74,9 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
                         borderColor: 'rgba(253,197,7,1)',
-                    });
+                    })
                 }
-            });
+            })
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -94,12 +94,12 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress(this.componentId, 'ActivePower'),
             ];
             let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
             for (let meter of consumptionMeters) {
-                result.push(new ChannelAddress(meter.id, 'ActivePower'));
+                result.push(new ChannelAddress(meter.id, 'ActivePower'))
             }
             resolve(result);
-        });
+        })
     }
 
     protected setLabel() {
@@ -109,7 +109,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
+        }
         this.options = options;
     }
 

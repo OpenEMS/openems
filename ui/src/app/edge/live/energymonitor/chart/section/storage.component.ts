@@ -38,7 +38,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
-    private socValue: number;
+    private socValue: number
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
     private startAnimation = null;
@@ -77,11 +77,11 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     get stateNameCharge() {
-        return this.showChargeAnimation ? 'show' : 'hide';
+        return this.showChargeAnimation ? 'show' : 'hide'
     }
 
     get stateNameDischarge() {
-        return this.showDischargeAnimation ? 'show' : 'hide';
+        return this.showDischargeAnimation ? 'show' : 'hide'
     }
 
     protected getStartAngle(): number {
@@ -131,7 +131,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                 sum.storage.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('Edge.Index.Energymonitor.storage');
+            this.name = this.translate.instant('Edge.Index.Energymonitor.storage')
             super.updateSectionData(null, null, null);
         }
 
@@ -175,7 +175,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
             middleTop: { x: 0, y: 0 }
-        };
+        }
         if (ratio > 0) {
             // towards bottom
             p.bottomLeft.y = p.bottomLeft.y - v;
@@ -197,7 +197,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
             middleTop: { x: 0, y: 0 }
-        };
+        }
         if (ratio < 0) {
             // towards top
             p.middleTop.y = p.middleBottom.y + animationWidth * 0.2;

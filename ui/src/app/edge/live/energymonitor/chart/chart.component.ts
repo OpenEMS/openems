@@ -102,6 +102,6 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   }
 
   private deg2rad(value: number): number {
-    return value * (Math.PI / 180);
+    return value * (Math.PI / 180)
   }
 }

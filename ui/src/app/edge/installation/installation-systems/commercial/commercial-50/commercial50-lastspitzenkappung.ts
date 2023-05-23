@@ -54,8 +54,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         }
 
         if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-            entladungÜber = this.commercial50Feature.feature.entladungÜber;
-            beladungUnter = this.commercial50Feature.feature.beladungUnter;
+            entladungÜber = this.commercial50Feature.feature.entladungÜber
+            beladungUnter = this.commercial50Feature.feature.beladungUnter
         }
 
         componentConfigurator.add({

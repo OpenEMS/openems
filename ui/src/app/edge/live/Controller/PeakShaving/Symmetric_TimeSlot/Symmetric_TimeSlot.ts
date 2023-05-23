@@ -19,7 +19,7 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
             new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
             new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
             new ChannelAddress(this.componentId, '_PropertyRechargePower')
-        ];
+        ]
     }
     protected onCurrentData(currentData: CurrentData) {
 
@@ -40,8 +40,8 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
         modal.onDidDismiss().then(() => {
             this.service.getConfig().then(config => {
                 this.component = config.components[this.componentId];
-            });
-        });
+            })
+        })
         return await modal.present();
     }
 }

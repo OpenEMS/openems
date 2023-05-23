@@ -25,7 +25,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 -1
             ),
             currentData.allComponents['_sum/ProductionActivePower']
-        );
+        )
     }
 
     async presentModal() {

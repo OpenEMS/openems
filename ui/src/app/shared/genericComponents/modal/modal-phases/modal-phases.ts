@@ -15,26 +15,26 @@ export class ModalPhasesComponent extends AbstractModalLine {
     { key: "L1", name: "" },
     { key: "L2", name: "" },
     { key: "L3", name: "" }
-  ];
-  @Input() private setTranslatedName = (powerPerPhase: number) => { return ""; };
+  ]
+  @Input() setTranslatedName = (powerPerPhase: number) => { return "" }
 
   protected readonly TextIndentation = TextIndentation;
 
   protected getChannelAddresses(): ChannelAddress[] {
-    let channelAddresses: ChannelAddress[] = [];
+    let channelAddresses: ChannelAddress[] = []
 
     for (let phase of this.phases) {
       channelAddresses.push(
         ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
-      );
+      )
     }
-    return channelAddresses;
+    return channelAddresses
   }
 
   protected onCurrentData(currentData: CurrentData): void {
     for (let phase of this.phases) {
-      let powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
-      phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);
+      let powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key]
+      phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase)
     }
   }
 
@@ -46,7 +46,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
    */
   protected CONVERT_TO_POSITIVE_WATT = (value: number | null): string => {
 
-    value = Utils.absSafely(value) ?? 0;
+    value = Utils.absSafely(value) ?? 0
     return formatNumber(value, 'de', '1.0-0') + ' W';
-  };
+  }
 }

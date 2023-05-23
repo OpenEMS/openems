@@ -2,7 +2,7 @@
 
     <!-- total summary of AC + DC -->
     <ng-container *ngIf="productionMeters?.length > 0 && chargerComponents?.length > 0">
-        <oe-modal-line [name]="'General.TOTAL'| translate" channelAddress="_sum/ProductionActivePower"
+        <oe-modal-line [name]="'General.total'| translate" channelAddress="_sum/ProductionActivePower"
             [converter]="CONVERT_TO_WATT">
         </oe-modal-line>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -18,7 +18,7 @@
     </ng-container>
     <ng-container *ngIf="productionMeters.length > 1">
         <oe-modal-line margin_bottom="2" [converter]="CONVERT_TO_WATT"
-            [name]="('General.TOTAL'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
+            [name]="('General.total'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
             [channelAddress]="'_sum/ProductionAcActivePower'">
         </oe-modal-line>
         <oe-modal-line *ngFor="let phase of ['L1','L2','L3']" [textIndent]="TextIndentation.SIMPLE"
@@ -37,7 +37,7 @@
 
     <!-- Chargers -->
     <ng-container *ngIf="chargerComponents.length > 1">
-        <oe-modal-line [name]="('General.TOTAL'| translate) + (productionMeters.length > 0 ? '&nbsp;DC':'')"
+        <oe-modal-line [name]="('General.total'| translate) + (productionMeters.length > 0 ? '&nbsp;DC':'')"
             [channelAddress]="'_sum/ProductionDcActualPower'" [converter]="CONVERT_TO_WATT">
         </oe-modal-line>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>

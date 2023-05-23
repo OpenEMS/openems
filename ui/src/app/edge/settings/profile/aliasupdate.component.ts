@@ -36,8 +36,8 @@ export class AliasUpdateComponent implements OnInit {
             this.componentIcon = config.getFactoryIcon(this.factory);
             this.formGroup = this.formBuilder.group({
                 alias: new FormControl(this.component.alias)
-            });
-        });
+            })
+        })
     }
 
     updateAlias(alias) {

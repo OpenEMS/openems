@@ -86,7 +86,7 @@ export class Edge {
       let edgeConfigResponse = response as GetEdgeConfigResponse;
       this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
     }).catch(reason => {
-      console.warn("Unable to refresh config", reason);
+      console.warn("Unable to refresh config", reason)
       this.config.next(new EdgeConfig(this));
     });
   }

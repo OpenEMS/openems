@@ -41,7 +41,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh();
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {
@@ -52,7 +52,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
         let array = response.result.data[channeladdress];
         let firstValue = array.find(el => el != null) ?? 0;
         let lastValue = array.slice().reverse().find(el => el != null) ?? 0;
-        return lastValue - firstValue;
+        return lastValue - firstValue
     }
 
     protected updateValues() {

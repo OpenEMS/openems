@@ -1,9 +1,9 @@
-import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { Edge, Websocket } from "src/app/shared/shared";
-import { AddAppInstance } from "../../settings/app/jsonrpc/addAppInstance";
-import { DeleteAppInstance } from "../../settings/app/jsonrpc/deleteAppInstance";
-import { GetAppInstances } from "../../settings/app/jsonrpc/getAppInstances";
-import { UpdateAppInstance } from "../../settings/app/jsonrpc/updateAppInstance";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest"
+import { Edge, Websocket } from "src/app/shared/shared"
+import { AddAppInstance } from "../../settings/app/jsonrpc/addAppInstance"
+import { DeleteAppInstance } from "../../settings/app/jsonrpc/deleteAppInstance"
+import { GetAppInstances } from "../../settings/app/jsonrpc/getAppInstances"
+import { UpdateAppInstance } from "../../settings/app/jsonrpc/updateAppInstance"
 
 
 export class AppCenterUtil {
@@ -28,19 +28,19 @@ export class AppCenterUtil {
                     if (result.result.instances.length > 0) {
                         // take first found instance e. g. a Home can only be instantiated 
                         // once so there should only be one instance available
-                        const alreadyExistingInstance = result.result.instances[0];
+                        const alreadyExistingInstance = result.result.instances[0]
                         AppCenterUtil.updateApp(edge, websocket, alreadyExistingInstance.instanceId, alias, properties)
                             .then(response => resolve(response.result.instance))
-                            .catch(error => reject(error));
+                            .catch(error => reject(error))
                     } else {
                         AppCenterUtil.createAppInstance(edge, websocket, appId, alias, properties, key)
                             .then(response => {
-                                let result = response as AddAppInstance.Response;
-                                resolve(result.result.instance);
-                            }).catch(error => reject(error));
+                                let result = response as AddAppInstance.Response
+                                resolve(result.result.instance)
+                            }).catch(error => reject(error))
                     }
-                }).catch(error => reject(error));
-        });
+                }).catch(error => reject(error))
+        })
     }
 
     /**
@@ -57,18 +57,18 @@ export class AppCenterUtil {
             AppCenterUtil.getAppInstances(edge, websocket, appId)
                 .then(response => {
                     let matchingIds = response.result.instances.filter(instance => {
-                        return instance.instanceId == instanceId;
-                    });
+                        return instance.instanceId == instanceId
+                    })
                     if (matchingIds.length == 0) {
-                        reject("Instance not found!");
-                        return;
+                        reject("Instance not found!")
+                        return
                     }
-                    resolve(matchingIds[0]);
+                    resolve(matchingIds[0])
                 })
                 .catch(error => {
-                    reject(error);
-                });
-        });
+                    reject(error)
+                })
+        })
     }
 
     /**
@@ -89,8 +89,8 @@ export class AppCenterUtil {
                     })
                 }))
                 .then(response => resolve(response as GetAppInstances.Response))
-                .catch(error => reject(error));
-        });
+                .catch(error => reject(error))
+        })
     }
 
     /**
@@ -109,13 +109,13 @@ export class AppCenterUtil {
                         resolve(response);
                         return;
                     }
-                    let instanceIds: string[] = [];
-                    response.result.instances.forEach(instance => { instanceIds.push(instance.instanceId); });
+                    let instanceIds: string[] = []
+                    response.result.instances.forEach(instance => { instanceIds.push(instance.instanceId) })
                     this.removeInstances(edge, websocket, instanceIds)
                         .then(response => resolve(response))
-                        .catch(error => reject(error));
+                        .catch(error => reject(error))
                 })
-                .catch(error => reject(error));
+                .catch(error => reject(error))
         });
     }
 
@@ -128,7 +128,7 @@ export class AppCenterUtil {
      * @returns a Promise that resolves after every instance got deinstalled
      */
     public static removeInstances(edge: Edge, websocket: Websocket, instanceIds: string[]): Promise<any[]> {
-        let promises: Promise<any>[] = [];
+        let promises: Promise<any>[] = []
         instanceIds.forEach(instanceId => {
             promises.push(edge.sendRequest(websocket,
                 new ComponentJsonApiRequest({
@@ -137,9 +137,9 @@ export class AppCenterUtil {
                         instanceId: instanceId
                     })
                 })
-            ));
-        });
-        return Promise.all(promises);
+            ))
+        })
+        return Promise.all(promises)
     }
 
     /**
@@ -165,8 +165,8 @@ export class AppCenterUtil {
                     })
                 }))
                 .then(response => resolve(response as UpdateAppInstance.Response))
-                .catch(error => reject(error));
-        });
+                .catch(error => reject(error))
+        })
     }
 
     /**
@@ -193,8 +193,8 @@ export class AppCenterUtil {
                     })
                 }))
                 .then(response => resolve(response as AddAppInstance.Response))
-                .catch(error => reject(error));
-        });
+                .catch(error => reject(error))
+        })
     }
 
     /**
@@ -204,12 +204,12 @@ export class AppCenterUtil {
      * @returns true if the appManager can be used else false
      */
     public static isAppManagerAvailable(edge: Edge): boolean {
-        return edge.isVersionAtLeast('2021.19.1') && !edge.isSnapshot();
+        return edge.isVersionAtLeast('2021.19.1') && !edge.isSnapshot()
     }
 
     // TODO this key will probably removed with a separate request for installing integrated systems
     public static keyForIntegratedSystems(): string {
-        return '0000-0000-0000-0001';
+        return '0000-0000-0000-0001'
     }
 
 }

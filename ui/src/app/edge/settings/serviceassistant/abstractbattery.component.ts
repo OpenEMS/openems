@@ -31,7 +31,7 @@ export abstract class AbstractBattery {
             { category: "Edge.Service.Cell.voltages", channels: this.getImportantCellVoltageReadChannelDescriptions() },
             { category: "Edge.Service.Cell.temperatures", channels: this.getImportantCellTemperatureReadChannelDescriptions() },
             { category: "Edge.Service.Cell.insulation", channels: this.getImportantInsulationReadChannelDescriptions() }
-        );
+        )
 
         this.getImportantAdditionalReadChannelDescriptions().forEach(categorizedChannelDescription => {
             this.importantReadChannelDescriptions.push(categorizedChannelDescription);

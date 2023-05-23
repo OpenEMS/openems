@@ -51,11 +51,11 @@ export class EdgeComponent implements OnInit, OnDestroy {
                         edge.subscribeChannels(this.websocket, '', [
                             new ChannelAddress('_sum', 'State'),
                         ]);
-                    });
+                    })
             }).catch(() => {
                 this.router.navigate(['index']);
             });
-        });
+        })
     }
 
     public ngOnDestroy(): void {

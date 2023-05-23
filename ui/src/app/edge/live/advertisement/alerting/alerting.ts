@@ -13,6 +13,6 @@ export class AlertingComponent implements OnInit {
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
-        });
+        })
     }
 }

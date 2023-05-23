@@ -17,8 +17,8 @@ export class PreInstallationUpdateComponent {
 
   @Input() public edge: Edge;
 
-  protected isWaiting: boolean;
-  protected isUpdated: boolean;
+  protected isWaiting: boolean
+  protected isUpdated: boolean
 
   constructor(private service: Service, public websocket: Websocket, private translate: TranslateService) { }
 

@@ -64,7 +64,7 @@ export abstract class AbstractHistoryWidget {
                             }
                         }).catch(reason => reject(reason));
                     }).catch(reason => reject(reason));
-                });
+                })
             });
         });
     }

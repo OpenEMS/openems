@@ -34,7 +34,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh();
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
@@ -61,7 +61,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                 if (meterIdActivePower in result.data) {
                     let data = result.data[meterIdActivePower].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -76,12 +76,12 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0.05)',
                         borderColor: 'rgba(0,0,0,1)'
-                    });
+                    })
                 }
                 if (rechargePower in result.data) {
                     let data = result.data[rechargePower].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -97,12 +97,12 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
                         borderColor: 'rgba(0,223,0,1)',
-                    });
+                    })
                 }
                 if (peakshavingPower in result.data) {
                     let data = result.data[peakshavingPower].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -118,7 +118,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
                         borderColor: 'rgba(200,0,0,1)',
-                    });
+                    })
                 }
                 if ('_sum/EssActivePower' in result.data) {
                     /*
@@ -134,7 +134,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     }
                     let chargeData = effectivePower.map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value < 0) {
                             return value / -1000; // convert to kW;
                         } else {
@@ -149,13 +149,13 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
                         borderColor: 'rgba(0,223,0,1)',
-                    });
+                    })
                     /*
                      * Storage Discharge
                      */
                     let dischargeData = effectivePower.map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value > 0) {
                             return value / 1000; // convert to kW
                         } else {
@@ -170,7 +170,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     this.colors.push({
                         backgroundColor: 'rgba(200,0,0,0.05)',
                         borderColor: 'rgba(200,0,0,1)',
-                    });
+                    })
                 }
                 this.datasets = datasets;
                 this.loading = false;
@@ -199,7 +199,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                 new ChannelAddress('_sum', 'EssActivePower')
             ];
             resolve(result);
-        });
+        })
     }
 
     protected setLabel() {
@@ -209,7 +209,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
+        }
         this.options = options;
     }
 

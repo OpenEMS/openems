@@ -100,7 +100,7 @@ export class PickDatePopoverComponent implements OnInit {
      * @returns the 'IMyDate'
      */
     private toIMyDate(date: Date): IMyDate {
-        return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) };
+        return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
     }
 
     public onDateChanged(event: IMyDateRangeModel) {

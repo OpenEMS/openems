@@ -39,7 +39,7 @@ export class ModalComponent extends AbstractModal {
                     });
                 }
                 this.productionMeters.push({ component: component, isAsymmetric: isAsymmetric });
-            });
+            })
 
         return channelAddresses;
     }

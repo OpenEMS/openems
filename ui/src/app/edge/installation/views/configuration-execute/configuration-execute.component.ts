@@ -48,7 +48,7 @@ export class ConfigurationExecuteComponent implements OnInit {
 
       // To update scheduler.
       this.ibn.setRequiredControllers();
-      Util.addIbnToSessionStorage(this.ibn);
+      Util.addIbnToSessionStorage(this.ibn)
 
       // Auto-start configuration when no components pre-configured
       if (this.isAnyConfigurationObjectPreConfigured) {

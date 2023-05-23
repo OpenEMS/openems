@@ -16,6 +16,6 @@ export class OfflineComponent implements OnInit {
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
-        });
+        })
     }
 }

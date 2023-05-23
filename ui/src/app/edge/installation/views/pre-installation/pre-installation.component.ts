@@ -69,7 +69,7 @@ export class PreInstallationComponent implements OnInit {
         this.edge = new Edge(
           edge.id,
           edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null
-        );
+        )
 
         // Get metadata
         const metadata = this.service.metadata?.getValue();
@@ -112,7 +112,7 @@ export class PreInstallationComponent implements OnInit {
 
         this.edgeChange.emit(this.edge);
         this.nextViewEvent.emit();
-        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }));
+        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
       })
       .catch((reason) => {
         this.service.toast(this.translate.instant('INSTALLATION.PRE_INSTALLATION.AUTHENTICATION_FAILED'), 'danger');

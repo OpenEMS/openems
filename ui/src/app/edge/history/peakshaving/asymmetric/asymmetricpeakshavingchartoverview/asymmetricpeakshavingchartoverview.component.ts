@@ -24,7 +24,7 @@ export class AsymmetricPeakshavingChartOverviewComponent implements OnInit {
 
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            });
-        });
+            })
+        })
     }
 }

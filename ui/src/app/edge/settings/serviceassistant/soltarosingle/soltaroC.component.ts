@@ -21,7 +21,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
         protected translate: TranslateService,
         public websocket: Websocket,
         private route: ActivatedRoute,
-    ) { super(service, translate, websocket); }
+    ) { super(service, translate, websocket) }
 
     ngOnInit() {
         this.spinnerId = "soltaroC";

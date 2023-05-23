@@ -36,7 +36,7 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
             ]))
-        });
+        })
     }
 
     applyChanges() {
@@ -47,9 +47,9 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
                         let updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
                             }
-                        });
+                        })
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.peakShavingPower = this.formGroup.value.peakShavingPower;
@@ -62,8 +62,8 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
                             this.loading = false;
                             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
-                        });
-                        this.formGroup.markAsPristine();
+                        })
+                        this.formGroup.markAsPristine()
                     } else {
                         this.service.toast(this.translate.instant('Edge.Index.Widgets.Peakshaving.relationError'), 'danger');
                     }

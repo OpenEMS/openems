@@ -83,14 +83,14 @@ export class SystemLogComponent implements OnInit, OnDestroy {
           level: line.level,
           source: line.source,
           message: line.message,
-        });
+        })
 
         // remove old lines
         if (this.lines.length > this.MAX_LOG_ENTRIES) {
           this.lines.length = this.MAX_LOG_ENTRIES;
         }
       });
-    });
+    })
     this.isSubscribed = true;
   };
 

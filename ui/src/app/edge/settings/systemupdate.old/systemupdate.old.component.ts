@@ -27,7 +27,7 @@ class Package {
       this.isUpdateAvailable = null;
       return;
     }
-    this.isUpdateAvailable = compareVersions(this.latestVersion, this.currentVersion) > 0;
+    this.isUpdateAvailable = compareVersions(this.latestVersion, this.currentVersion) > 0
   }
 
   public resetVersions() {
@@ -216,7 +216,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
       level: level,
       source: "",
       message: message,
-    });
+    })
   }
 
   private stopUpdateVersions() {

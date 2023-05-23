@@ -38,7 +38,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
             this.propertyModeChannel,
             new ChannelAddress(this.component.id, '_PropertyHighThreshold'),
             new ChannelAddress(this.component.id, '_PropertyLowThreshold')
-        ];
+        ]
     }
 
     protected onCurrentData(currentData: CurrentData) {
@@ -61,16 +61,16 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         switch (outputChannelValue) {
             case 0:
                 this.state = this.translate.instant('General.inactive');
-                this.icon.name == 'help-outline';
+                this.icon.name == 'help-outline'
                 break;
             case 1:
-                this.state = this.translate.instant('General.active');
+                this.state = this.translate.instant('General.active')
                 break;
         }
 
-        this.inputChannelValue = currentData.allComponents[this.inputChannel.toString()];
-        this.highThresholdValue = currentData.allComponents[this.component.id + '/_PropertyHighThreshold'];
-        this.lowThresholdValue = currentData.allComponents[this.component.id + '/_PropertyLowThreshold'];
+        this.inputChannelValue = currentData.allComponents[this.inputChannel.toString()]
+        this.highThresholdValue = currentData.allComponents[this.component.id + '/_PropertyHighThreshold']
+        this.lowThresholdValue = currentData.allComponents[this.component.id + '/_PropertyLowThreshold']
     }
 
     async presentModal() {

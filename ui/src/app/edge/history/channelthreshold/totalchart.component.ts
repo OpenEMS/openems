@@ -34,7 +34,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh();
+    this.unsubscribeChartRefresh()
   }
 
   protected updateChart() {
@@ -59,11 +59,11 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         let address = ChannelAddress.fromString(channel);
         let data = result.data[channel].map((value) => {
           if (value == null) {
-            return null;
+            return null
           } else {
             return value * 100; // convert to % [0,100]
           }
-        });
+        })
         switch (index % 2) {
           case 0:
             datasets.push({
@@ -73,7 +73,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
               borderColor: 'rgba(0,191,255,1)',
-            });
+            })
             break;
           case 1:
             datasets.push({
@@ -83,13 +83,13 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             this.colors.push({
               backgroundColor: 'rgba(0,0,139,0.05)',
               borderColor: 'rgba(0,0,139,1)',
-            });
+            })
             break;
         }
         this.datasets = datasets;
         this.loading = false;
         this.stopSpinner();
-      });
+      })
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -120,7 +120,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    };
+    }
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }

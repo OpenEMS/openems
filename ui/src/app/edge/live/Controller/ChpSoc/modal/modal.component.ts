@@ -100,7 +100,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
                 this.component.properties['highThreshold'] = oldUpperThreshold;
                 this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                 console.warn(reason);
-            });
+            })
         }
     }
 }

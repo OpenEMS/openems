@@ -27,8 +27,8 @@ export class HeatPumpChartOverviewComponent implements OnInit {
                 this.service.getConfig().then(config => {
                     this.edge = edge;
                     this.component = config.getComponent(this.route.snapshot.params.componentId);
-                });
-            });
-        });
+                })
+            })
+        })
     }
 }

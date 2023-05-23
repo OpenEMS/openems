@@ -42,10 +42,10 @@ export class ComponentInstallComponent implements OnInit {
       let model = {};
       for (let property of this.factory.properties) {
         let property_id = property.id.replace('.', '_');
-        let defaultValue = property.defaultValue;
+        let defaultValue = property.defaultValue
         // if the type is an array and there is no defaultValue then set the defaultValue to an empty array
         if (property.schema["type"] === 'repeat' && defaultValue === null) {
-          defaultValue = [];
+          defaultValue = []
         }
         let field: FormlyFieldConfig = {
           key: property_id,
@@ -55,7 +55,7 @@ export class ComponentInstallComponent implements OnInit {
             required: defaultValue === null,
             description: property.description
           }
-        };
+        }
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);

@@ -13,12 +13,12 @@ export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
   private static readonly SELECTOR = "executesystemupdate";
   public readonly spinnerId: string = ExecuteSystemUpdateComponent.SELECTOR;
 
-  @Input() public executeUpdateInstantly: boolean = false;
-  @Input() public edge: Edge;
+  @Input() public executeUpdateInstantly: boolean = false
+  @Input() public edge: Edge
   public readonly environment = environment;
-  protected executeUpdate: ExecuteSystemUpdate = null;
+  protected executeUpdate: ExecuteSystemUpdate = null
 
-  protected isWaiting: boolean;
+  protected isWaiting: boolean
 
   @Output() public stateChanged: EventEmitter<SystemUpdateState> = new EventEmitter();
 
@@ -30,12 +30,12 @@ export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
     this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);
 
     this.executeUpdate.systemUpdateStateChange = (systemUpdateState) => {
-      this.stateChanged.emit(systemUpdateState);
+      this.stateChanged.emit(systemUpdateState)
       if (systemUpdateState.updated) {
         this.service.stopSpinner(this.spinnerId);
         this.isWaiting = false;
       }
-    };
+    }
 
     this.service.startSpinnerTransparentBackground(this.spinnerId);
     this.isWaiting = true;

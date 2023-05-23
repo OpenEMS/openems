@@ -5,8 +5,7 @@ import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrp
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
-import { Coupler } from '../../../shared/coupler';
-import { FeedInType, ModbusBridgeType } from '../../../shared/enums';
+import { FeedInType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -15,22 +14,9 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
-    public readonly id: string = 'commercial-30-netztrennstelle';
+    public readonly type: string = 'Fenceon-Commercial-30';
 
-    // configuration-emergency-reserve
-    public override emergencyReserve?: {
-        isEnabled: boolean;
-        isReserveSocEnabled: boolean;
-        minValue: number;
-        value: number;
-        coupler: Coupler
-    } = {
-            isEnabled: true,
-            minValue: 15,
-            value: 20,
-            isReserveSocEnabled: false,
-            coupler: Coupler.WEIDMUELLER
-        };
+    public readonly id: string = 'commercial-30-netztrennstelle';
 
     constructor(translate: TranslateService) {
         super([
@@ -43,7 +29,6 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             View.ProtocolSystem,
             View.ConfigurationEmergencyReserve,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
@@ -90,16 +75,13 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
         const invalidateElementsAfterReadErrors: number = 3;
-        const componentConfigurator: ComponentConfigurator = super.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+        const componentConfigurator: ComponentConfigurator = super.getCommercialComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
-        // Modbus bridge type will already have modbus3 reserved for io0.
-        const couplerComponentId: string = this.modbusBridgeType === ModbusBridgeType.TCP_IP ? 'modbus4' : 'modbus3';
-
-        // modbus3/modbus4
+        //modbus3
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
-            componentId: couplerComponentId,
-            alias: Coupler.toAliasString(this.emergencyReserve.coupler, this.translate),
+            componentId: 'modbus3',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.WEIDMUELLER_BRIDGE'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '192.168.1.50' },
@@ -111,66 +93,33 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         }, 3);
 
         // io1
-        switch (this.emergencyReserve.coupler) {
-            case Coupler.WEIDMUELLER:
-                componentConfigurator.add({
-                    factoryId: Coupler.toFactoryId(this.emergencyReserve.coupler),
-                    componentId: 'io1',
-                    alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
-                    properties: [
-                        { name: 'enabled', value: true },
-                        { name: 'modbus.id', value: couplerComponentId },
-                        { name: 'modbusUnitId', value: 1 }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }, 5);
+        componentConfigurator.add({
+            factoryId: 'IO.Weidmueller.UR20',
+            componentId: 'io1',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'modbus.id', value: 'modbus3' },
+                { name: 'modbusUnitId', value: 1 },
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        }, 5);
 
-                // offGridSwitch0
-                componentConfigurator.add({
-                    factoryId: 'Io.Off.Grid.Switch',
-                    componentId: 'offGridSwitch0',
-                    alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.CONTROL_GRID_POINT'),
-                    properties: [
-                        { name: 'enabled', value: true },
-                        { name: 'inputGridStatus', value: 'io1/DigitalInputM0C2' },
-                        { name: 'inputGroundingContactor', value: 'io1/DigitalInputM0C3' },
-                        { name: 'inputMainContactor', value: 'io1/DigitalInputM0C1' },
-                        { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
-                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }, 6);
-                break;
-            case Coupler.WAGO:
-                componentConfigurator.add({
-                    factoryId: Coupler.toFactoryId(this.emergencyReserve.coupler),
-                    componentId: 'io1',
-                    alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
-                    properties: [
-                        { name: 'enabled', value: true },
-                        { name: 'modbus.id', value: couplerComponentId },
-                        { name: 'username', value: 'admin' },
-                        { name: 'password', value: 'wago' }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }, 5);
-
-                // offGridSwitch0
-                componentConfigurator.add({
-                    factoryId: 'Io.Off.Grid.Switch',
-                    componentId: 'offGridSwitch0',
-                    alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.CONTROL_GRID_POINT'),
-                    properties: [
-                        { name: 'inputGridStatus', value: 'io1/DigitalInputM1C2' },
-                        { name: 'inputGroundingContactor', value: 'io1/DigitalInputM1C3' },
-                        { name: 'inputMainContactor', value: 'io1/DigitalInputM1C1' },
-                        { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
-                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }, 6);
-                break;
-        }
+        // offGridSwitch0
+        componentConfigurator.add({
+            factoryId: 'Io.Off.Grid.Switch',
+            componentId: 'offGridSwitch0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.CONTROL_GRID_POINT'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'inputGridStatus', value: 'io1/DigitalInputM0C2' },
+                { name: 'inputGroundingContactor', value: 'io1/DigitalInputM0C3' },
+                { name: 'inputMainContactor', value: 'io1/DigitalInputM0C1' },
+                { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM0C2' },
+                { name: 'outputMainContactor', value: 'io1/DigitalOutputM0C1' }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        }, 6);
 
         // ess0
         componentConfigurator.add({
@@ -324,7 +273,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             });
         }
 
-        const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS;
+        const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS
         for (let index = 0; index < ac.length; index++) {
             const element = ac[index];
             const label = 'AC';
@@ -405,7 +354,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 key: 'emsbox',
                 type: 'input',
                 templateOptions: {
-                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30'),
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
                     placeholder: 'xxxx'
                 },
@@ -413,38 +362,11 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     validation: ['emsBoxNetztrennstelleSerialNumber']
                 },
                 wrappers: ['input-serial-number']
-            };
+            }
 
             // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.
             fields.splice(1, 0, emsbox);
         }
-
-        return fields;
-    }
-
-    public override getAdditionalEmergencyReserveFields(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
-
-        fields.push({
-            key: "coupler",
-            props: {
-                label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.COUPLER_TITLE'),
-                required: true,
-                options: [
-                    {
-                        label: Coupler.toLabelString(Coupler.WAGO, this.translate),
-                        value: Coupler.WAGO,
-                        url: Coupler.toImageUrl(Coupler.WAGO)
-                    },
-                    {
-                        label: Coupler.toLabelString(Coupler.WEIDMUELLER, this.translate),
-                        value: Coupler.WEIDMUELLER,
-                        url: Coupler.toImageUrl(Coupler.WEIDMUELLER)
-                    }
-                ],
-            },
-            wrappers: ['formly-field-radio-with-image'],
-            defaultValue: this.emergencyReserve.coupler
-        });
 
         return fields;
     }

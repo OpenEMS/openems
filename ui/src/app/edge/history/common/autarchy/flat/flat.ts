@@ -21,7 +21,7 @@ export class FlatComponent extends AbstractFlatWidget {
         return [
             new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
             new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
-        ];
+        ]
     }
 }
 

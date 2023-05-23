@@ -29,7 +29,7 @@ export class SinglethresholdChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
-            });
+            })
         });
     }
 }

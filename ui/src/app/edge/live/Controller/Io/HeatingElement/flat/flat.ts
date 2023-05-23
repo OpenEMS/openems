@@ -31,7 +31,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 this.component.properties['outputChannelPhaseL2']),
             ChannelAddress.fromString(
                 this.component.properties['outputChannelPhaseL3'])
-        );
+        )
 
         let channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
@@ -39,16 +39,16 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, 'Status'),
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, '_PropertyWorkMode')
-        ];
-        return channelAddresses;
+        ]
+        return channelAddresses
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        this.workMode = currentData.thisComponent['_PropertyWorkMode'];
+        this.workMode = currentData.allComponents[this.componentId + '/_PropertyWorkMode']
 
         // get current mode
-        switch (currentData.thisComponent[FlatComponent.PROPERTY_MODE]) {
+        switch (currentData.allComponents[this.componentId + '/' + FlatComponent.PROPERTY_MODE]) {
             case 'MANUAL_ON': {
                 this.mode = 'General.on';
                 break;
@@ -69,22 +69,22 @@ export class FlatComponent extends AbstractFlatWidget {
             if (currentData.allComponents[element.toString()] == 1) {
                 value += 1;
             }
-        });
+        })
 
         // Get current state
         this.activePhases.next(value);
         if (this.activePhases.value > 0) {
-            this.state = 'General.active';
+            this.state = 'General.active'
 
             // Check forced heat
             // TODO: Use only Status if edge version is latest [2022.8]
-            this.runState = currentData.thisComponent['Status'];
+            this.runState = currentData.allComponents[this.componentId + '/Status'];
 
             if (this.runState == Status.ActiveForced) {
                 this.state = 'Edge.Index.Widgets.Heatingelement.activeForced';
             }
         } else if (this.activePhases.value == 0) {
-            this.state = 'General.inactive';
+            this.state = 'General.inactive'
         }
 
 

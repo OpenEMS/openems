@@ -13,13 +13,13 @@ import { Role } from "../../type/role";
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
-    @Input() public formGroup: FormGroup;
+    @Input() formGroup: FormGroup;
 
     /** component */
-    @Input() public component: EdgeConfig.Component = null;
+    @Input() component: EdgeConfig.Component = null;
 
     /** FormGroup ControlName */
-    @Input() public controlName: string;
+    @Input() controlName: string;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -28,12 +28,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @returns converter function
     */
     @Input()
-    public converter = (value: any): string => { return value; };
+    converter = (value: any): string => { return value }
 
     /** Name for parameter, displayed on the left side*/
-    @Input() public name: string;
-    @Input() public value: number | string;
-    @Input() public roleIsAtLeast?: Role = Role.GUEST;
+    @Input() name: string;
+    @Input() value: number | string;
+    @Input() roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()
@@ -42,7 +42,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     /** Selector needed for Subscribe (Identifier) */
-    private selector: string = uuidv4();
+    private selector: string = uuidv4()
 
     /** 
      * displayValue is the displayed @Input value in html
@@ -74,7 +74,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     ngOnChanges() {
-        this.setValue(this.value);
+        this.setValue(this.value)
     }
 
     ngOnInit() {
@@ -97,23 +97,19 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let allComponents = {};
-                    let thisComponent = {};
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component.id) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
                     }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                    this.onCurrentData({ allComponents: allComponents });
                 });
-            });
-        });
+            })
+        })
     }
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        this.displayValue = this.converter(value);
+        this.displayValue = this.converter(value)
     }
 
     /** Subscribe on HTML passed Channels */
@@ -129,13 +125,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     if (currentData.channel[channelAddress.toString()] != null) {
-                        this.setValue(currentData.channel[channelAddress.toString()]);
+                        this.setValue(currentData.channel[channelAddress.toString()])
                     }
                 });
             } else {
                 this.isAllowedToBeSeen = false;
             }
-        });
+        })
 
     }
 
@@ -164,7 +160,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         return [];
     }
     protected getFormGroup(): FormGroup {
-        return;
+        return
     }
     /**
    * Gets the ChannelIds of the current Component that should be subscribed.

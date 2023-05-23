@@ -4,10 +4,8 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { GetApps } from '../jsonrpc/getApps';
 import { AppCenter } from './appCenter';
 import { AppCenterAddRegisterKeyHistory } from './appCenterAddRegisterKeyHistory';
 import { AppCenterGetRegisteredKeys } from './appCenterGetRegisteredKeys';
@@ -25,16 +23,14 @@ export class KeyModalComponent implements OnInit {
     @Input() public appName: string | null = null;
     @Input() public behaviour: KeyValidationBehaviour;
 
-    @Input() public knownApps: GetApps.App[] | null = null;
-
     private static readonly SELECTOR = 'key-modal';
     public readonly spinnerId: string = KeyModalComponent.SELECTOR;
 
     private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
-    private registeredKeys: Key[] = [];
+    private registeredKeys: Key[] = []
 
     protected form: FormGroup;
-    protected fields: FormlyFieldConfig[];
+    protected fields: FormlyFieldConfig[]
     protected model;
 
     constructor(
@@ -73,12 +69,7 @@ export class KeyModalComponent implements OnInit {
             }
             const selectRegisteredKey = this.fields.find(f => f.key === 'registeredKey');
             this.registeredKeys.forEach(key => {
-                const desc = this.getDescription(key);
-                (selectRegisteredKey.props.options as any[]).push({
-                    value: key.keyId,
-                    label: key.keyId,
-                    description: desc
-                });
+                (selectRegisteredKey.props.options as any[]).push({ value: key.keyId, label: key.keyId });
             });
         }).catch(reason => {
             this.fields = this.getFields();
@@ -86,68 +77,6 @@ export class KeyModalComponent implements OnInit {
         }).finally(() => {
             this.service.stopSpinner(this.spinnerId);
         });
-    }
-
-    private getDescription(key: Key): string | null {
-        if (!this.knownApps) {
-            return null;
-        }
-        const bundles = key.bundles;
-        if (!bundles) {
-            return null;
-        }
-        if (!bundles.some(bundle => bundle.length != 0)) {
-            return null;
-        }
-
-        const appPrefix = environment.edgeShortName + ' App';
-        // map to multiple description fields
-        const descriptionFields = [];
-        for (const bundle of bundles) {
-            let isCategorySet = false;
-            // if multiple apps are in bundle find category which has all the apps 
-            // and set the category name as the description
-            for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
-                if (apps.every(app => {
-                    for (const appFromBundle of bundle) {
-                        if (appFromBundle.appId === app.appId) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })) {
-                    const category = apps[0].categorys.find(c => c.name === catName);
-                    descriptionFields.push(category.readableName);
-                    isCategorySet = true;
-                }
-            }
-            if (isCategorySet) {
-                continue;
-            }
-            // if apps are not directly of a category, list them
-            for (const appOfBundle of bundle) {
-                const app = this.knownApps.find(app => app.appId === appOfBundle.appId);
-                descriptionFields.push(app.name);
-            }
-        }
-        return descriptionFields.length === 0 ? null : descriptionFields.map(e => appPrefix + ' ' + e).join(", ");
-    }
-
-    private getAppsByCategory(): { [key: string]: GetApps.App[]; } {
-        const map: { [key: string]: GetApps.App[]; } = {};
-        for (const app of this.knownApps) {
-            for (const category of app.categorys) {
-                let appList: GetApps.App[];
-                if (map[category.name]) {
-                    appList = map[category.name];
-                } else {
-                    appList = [];
-                    map[category.name] = appList;
-                }
-                appList.push(app);
-            }
-        }
-        return map;
     }
 
     /**
@@ -175,10 +104,9 @@ export class KeyModalComponent implements OnInit {
                 options: []
             },
             expressions: {
-                "hide": () => this.registeredKeys.length === 0,
+                hide: () => this.registeredKeys.length === 0,
                 'props.disabled': field => !field.model.useRegisteredKeys
-            },
-            wrappers: ['formly-select-extended-wrapper']
+            }
         });
 
         fields.push({
@@ -198,11 +126,11 @@ export class KeyModalComponent implements OnInit {
             hooks: {
                 onInit: (field) => {
                     field.formControl.valueChanges.subscribe((next) => {
-                        const nextInput = KeyModalComponent.transformInput(next);
+                        const nextInput = KeyModalComponent.transformInput(next)
                         if (!nextInput) {
                             return;
                         }
-                        field.formControl.setValue(nextInput);
+                        field.formControl.setValue(nextInput)
                     });
                 }
             }
@@ -229,7 +157,7 @@ export class KeyModalComponent implements OnInit {
         }
 
         // remove last dash
-        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
+        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-"
         trimmed = trimmed.replace(/-/g, '');
 
         let numbers = [];
@@ -301,7 +229,7 @@ export class KeyModalComponent implements OnInit {
                 && this.lastValidKey.result.additionalInfo.registrations.some(registration => {
                     return registration.edgeId === this.edge.id && registration.appId === this.appId;
                 })) {
-                resolve();
+                resolve()
                 return;
             }
             // only register key for this app
@@ -314,7 +242,7 @@ export class KeyModalComponent implements OnInit {
                 resolve();
             }).catch(reason => {
                 reject(reason);
-            });
+            })
         });
     }
 
@@ -325,9 +253,9 @@ export class KeyModalComponent implements OnInit {
      */
     private getSelectedKey() {
         if (this.model['useRegisteredKeys']) {
-            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey());
+            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey())
         } else {
-            return { keyId: this.getRawAppKey() };
+            return { keyId: this.getRawAppKey() }
         }
     }
 
@@ -336,7 +264,7 @@ export class KeyModalComponent implements OnInit {
      */
     protected validateKey(): void {
         if (this.form.invalid) {
-            return;
+            return
         }
         const appKey = this.getRawAppKey();
         const request = new AppCenter.Request({
@@ -390,9 +318,9 @@ export class KeyModalComponent implements OnInit {
      */
     private getRawAppKey(): string {
         if (this.model['useRegisteredKeys']) {
-            return this.model['registeredKey'];
+            return this.model['registeredKey']
         } else {
-            return this.model['key'];
+            return this.model['key']
         }
     }
 
@@ -403,7 +331,7 @@ export class KeyModalComponent implements OnInit {
      */
     protected isKeyValid(): boolean {
         if (this.model['useRegisteredKeys']) {
-            return true;
+            return true
         }
         return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
     };

@@ -57,7 +57,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         if (this.numberOfModulesPerTower < this.ibn.defaultNumberOfModules) {
           this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.READ_DESCRIPTION'), 'danger');
         }
-      });
+      })
     });
   }
 
@@ -155,7 +155,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
    */
   private readSerialNumbersFromRegisters(): Promise<Object>[] {
 
-    let result: Promise<Object>[] = [];
+    let result: Promise<Object>[] = []
     for (let i = 0; i < this.numberOfTowers; i++) {
       result.push(this.ibn.getSerialNumbers(i, this.edge, this.websocket, this.numberOfModulesPerTower));
     }
@@ -203,7 +203,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     // Collect the duplicate values..
     const duplicateValues = serialNumbers
       .map(v => v.value)
-      .filter((v, i, valueArray) => valueArray.indexOf(v) !== i);
+      .filter((v, i, valueArray) => valueArray.indexOf(v) !== i)
 
     // Based on the Id's collect the Labels to display in the alert.
     serialNumbers.filter(obj => duplicateValues.includes(obj.value))

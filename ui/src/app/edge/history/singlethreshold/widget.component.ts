@@ -33,12 +33,12 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-            });
+            })
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh();
+        this.unsubscribeWidgetRefresh()
     }
 
     ngOnChanges() {

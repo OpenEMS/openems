@@ -143,7 +143,7 @@ export class Service extends AbstractService {
 
       this.getCurrentEdge().then(edge => {
         resolve(edge);
-      }).catch(reject);
+      }).catch(reject)
     });
   }
 
@@ -155,9 +155,9 @@ export class Service extends AbstractService {
         first(),
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
-        resolve(this.currentEdge.value);
+        resolve(this.currentEdge.value)
       }
-    });
+    })
   }
 
   public getConfig(): Promise<EdgeConfig> {
@@ -299,16 +299,16 @@ export class Service extends AbstractService {
               edge.isOnline,
               edge.lastmessage
             );
-            value.edges[edge.id] = mappedEdge;
-            mappedResult.push(mappedEdge);
+            value.edges[edge.id] = mappedEdge
+            mappedResult.push(mappedEdge)
           }
 
-          this.metadata.next(value);
-          resolve(mappedResult);
+          this.metadata.next(value)
+          resolve(mappedResult)
         }).catch((err) => {
-          reject(err);
-        });
-    });
+          reject(err)
+        })
+    })
   }
 
   /**
@@ -321,12 +321,12 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve, reject) => {
       const existingEdge = this.metadata.value?.edges[edgeId];
       if (existingEdge) {
-        this.currentEdge.next(existingEdge);
+        this.currentEdge.next(existingEdge)
         resolve(existingEdge);
         return;
       }
       this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-        let edgeData = (response as GetEdgeResponse).result.edge;
+        let edgeData = (response as GetEdgeResponse).result.edge
         let value = this.metadata.value;
         const currentEdge = new Edge(
           edgeData.id,
@@ -338,12 +338,12 @@ export class Service extends AbstractService {
           edgeData.lastmessage
         );
 
-        this.currentEdge.next(currentEdge);
-        value.edges[edgeData.id] = currentEdge;
-        this.metadata.next(value);
-        resolve(currentEdge);
-      }).catch(reject);
-    });
+        this.currentEdge.next(currentEdge)
+        value.edges[edgeData.id] = currentEdge
+        this.metadata.next(value)
+        resolve(currentEdge)
+      }).catch(reject)
+    })
   }
 
   private queryEnergyQueue: {
@@ -358,7 +358,7 @@ export class Service extends AbstractService {
       bdColor: "rgba(0, 0, 0, 0.8)",
       size: "medium",
       color: "#fff"
-    });
+    })
   }
 
   public startSpinnerTransparentBackground(selector: string) {
@@ -368,11 +368,11 @@ export class Service extends AbstractService {
       bdColor: "rgba(0, 0, 0, 0)",
       size: "medium",
       color: "var(--ion-color-primary)"
-    });
+    })
   }
 
   public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
+    this.spinner.hide(selector)
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {

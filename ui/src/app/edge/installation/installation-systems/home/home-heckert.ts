@@ -55,44 +55,44 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
         const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
-        let appId: string;
-        let alias: string;
-        let properties: {};
+        let appId: string
+        let alias: string
+        let properties: {}
         switch (this.selectedFreeApp.id) {
             case EmsAppId.Keba:
-                appId = "App.Evcs.Keba";
-                alias = "Ladestation";
+                appId = "App.Evcs.Keba"
+                alias = "Ladestation"
                 properties = {
                     IP: "192.168.25.11"
-                };
-                break;
+                }
+                break
             case EmsAppId.HardyBarthSingle:
-                appId = "App.Evcs.HardyBarth";
-                alias = "Ladestation";
+                appId = "App.Evcs.HardyBarth"
+                alias = "Ladestation"
                 properties = {
                     IP: "192.168.25.30"
-                };
-                break;
+                }
+                break
             case EmsAppId.HardyBarthDouble:
                 // TODO single app
-                break;
+                break
             case EmsAppId.HeatPump:
-                appId = "App.Heat.HeatPump";
-                alias = "Wärmepumpe";
+                appId = "App.Heat.HeatPump"
+                alias = "Wärmepumpe"
                 properties = {
                     OUTPUT_CHANNEL_1: "io0/Relay1",
                     OUTPUT_CHANNEL_2: "io0/Relay2"
-                };
-                break;
+                }
+                break
             case EmsAppId.HeatingElement:
-                appId = "App.Heat.HeatingElement";
-                alias = "Heizstab";
+                appId = "App.Heat.HeatingElement"
+                alias = "Heizstab"
                 properties = {
                     OUTPUT_CHANNEL_PHASE_L1: "io0/Relay1",
                     OUTPUT_CHANNEL_PHASE_L2: "io0/Relay2",
                     OUTPUT_CHANNEL_PHASE_L3: "io0/Relay3"
-                };
-                break;
+                }
+                break
         }
         if (isAppManagerAvailable) {
             // remove old apps
@@ -116,13 +116,13 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                     if (!appId) {
                         Promise.all(deletePromise)
                             .then(result => resolve(result))
-                            .catch(error => reject(error));
+                            .catch(error => reject(error))
                     } else {
                         Promise.all(deletePromise)
                             .finally(() => {
                                 AppCenterUtil.createOrUpdateApp(edge, websocket, appId, alias, properties, this.keyForHeckertApps)
                                     .then(value => resolve(value))
-                                    .catch(error => reject(error));
+                                    .catch(error => reject(error))
                             });
                     }
                 });
@@ -357,7 +357,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                     label: '',
                     address: address[0],
                     subnetmask: this.getSubnetmaskAsString(address[1]),
-                });
+                })
             } else {
                 for (const addr of iface.model.addresses) {
                     if (addr.address == address[0]) {
@@ -368,7 +368,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                         label: '',
                         address: address[0],
                         subnetmask: this.getSubnetmaskAsString(address[1]),
-                    });
+                    })
                 }
             }
 

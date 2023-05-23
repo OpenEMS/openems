@@ -25,7 +25,7 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
-    ];
+    ]
 
     // Get consumptionMeterComponents
     this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
@@ -34,13 +34,13 @@ export class FlatComponent extends AbstractFlatWidget {
     for (let component of this.consumptionMeters) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ActivePower'),
-      );
+      )
       if (this.config.getNatureIdsByFactoryId(component.factoryId).includes('io.openems.edge.meter.api.AsymmetricMeter')) {
         channelAddresses.push(
           new ChannelAddress(component.id, 'ActivePowerL1'),
           new ChannelAddress(component.id, 'ActivePowerL2'),
           new ChannelAddress(component.id, 'ActivePowerL3'),
-        );
+        )
       }
     }
 
@@ -52,7 +52,7 @@ export class FlatComponent extends AbstractFlatWidget {
     for (let component of this.evcss) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ChargePower'),
-      );
+      )
     }
     return channelAddresses;
   }

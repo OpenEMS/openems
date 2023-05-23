@@ -1,4 +1,4 @@
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core"
 
 export enum Country {
     GERMANY = 'de',
@@ -17,5 +17,5 @@ export const COUNTRY_OPTIONS = (translate: TranslateService) => {
         { value: Country.SWEDEN, label: translate.instant('General.Country.sweden') },
         { value: Country.NETHERLANDS, label: translate.instant('General.Country.netherlands') },
         { value: Country.CZECH_REPUBLIK, label: translate.instant('General.Country.czech') },
-    ];
-};
+    ]
+}

@@ -15,7 +15,7 @@ export class FlatComponent extends AbstractFlatWidget {
     public isSellToGridLimitAvoided: boolean = false;
     public sellToGridLimitMinimumChargeLimit: boolean = false;
     public delayChargeMaximumChargeLimit: number | null = null;
-    public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
+    public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate)
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
     protected override getChannelAddresses() {
@@ -25,49 +25,49 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
             new ChannelAddress(this.componentId, "_PropertyMode")
-        ];
+        ]
     }
     protected override onCurrentData(currentData: CurrentData) {
-        this.mode = currentData.thisComponent['_PropertyMode'];
+        this.mode = currentData.allComponents[this.componentId + '/_PropertyMode'];
 
         // Check if Grid feed in limitation is avoided
-        if (currentData.thisComponent['SellToGridLimitState'] == 0 ||
-            (currentData.thisComponent['SellToGridLimitState'] == 3
-                && currentData.thisComponent['DelayChargeState'] != 0
-                && currentData.thisComponent['SellToGridLimitMinimumChargeLimit'] > 0)) {
+        if (currentData.allComponents[this.componentId + '/SellToGridLimitState'] == 0 ||
+            (currentData.allComponents[this.componentId + '/SellToGridLimitState'] == 3
+                && currentData.allComponents[this.componentId + '/DelayChargeState'] != 0
+                && currentData.allComponents[this.componentId + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.isSellToGridLimitAvoided = true;
         }
 
-        this.sellToGridLimitMinimumChargeLimit = currentData.thisComponent['SellToGridLimitMinimumChargeLimit'];
+        this.sellToGridLimitMinimumChargeLimit = currentData.allComponents[this.componentId + '/SellToGridLimitMinimumChargeLimit']
 
-        switch (currentData.thisComponent['DelayChargeState']) {
+        switch (currentData.allComponents[this.componentId + '/DelayChargeState']) {
             case -1:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined')
                 break;
             case 0:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive')
                 break;
             case 1:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime')
                 break;
             case 2:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull')
                 break;
             case 3:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated')
                 break;
             case 4:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible')
                 break;
             case 5:
             case 7:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
+                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
                 break;
-            case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed');
+            case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed')
                 break;
         }
 
-        this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit'];
+        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.componentId + '/DelayChargeMaximumChargeLimit']
     }
 
     async presentModal() {

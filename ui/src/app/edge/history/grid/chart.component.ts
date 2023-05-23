@@ -34,7 +34,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh();
+        this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
@@ -59,7 +59,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             if ('_sum/GridActivePower' in result.data) {
                 let gridData = result.data['_sum/GridActivePower'].map(value => {
                     if (value == null) {
-                        return null;
+                        return null
                     } else if (value == 0) {
                         return 0;
                     } else {
@@ -74,7 +74,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 this.colors.push({
                     backgroundColor: 'rgba(0,0,0,0.05)',
                     borderColor: 'rgba(0,0,0,1)'
-                });
+                })
             }
 
             if ('_sum/GridActivePowerL1' && '_sum/GridActivePowerL2' && '_sum/GridActivePowerL3' in result.data && this.showPhases == true) {
@@ -84,7 +84,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                      */
                     let gridData = result.data['_sum/GridActivePowerL1'].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -104,7 +104,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                      */
                     let gridData = result.data['_sum/GridActivePowerL2'].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -124,7 +124,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                      */
                     let gridData = result.data['_sum/GridActivePowerL3'].map(value => {
                         if (value == null) {
-                            return null;
+                            return null
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -159,7 +159,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 new ChannelAddress('_sum', 'GridActivePowerL3')
             ];
             resolve(result);
-        });
+        })
     }
 
     protected setLabel() {
@@ -184,7 +184,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
+        }
         this.options = options;
     }
 

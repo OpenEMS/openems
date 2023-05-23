@@ -28,7 +28,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
         this.checkArrowAutomaticForwarding();
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
-        });
+        })
     }
 
     public ngOnDestroy() {
@@ -45,7 +45,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             case DefaultTypes.PeriodString.DAY: {
                 if (isFuture(addDays(this.service.historyPeriod.value.from, 1))) {
                     //waits until next day is reached to set next days period
-                    this.forwardToNextDayWhenReached();
+                    this.forwardToNextDayWhenReached()
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next day when next day is reached if current day is not selected
@@ -59,7 +59,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             case DefaultTypes.PeriodString.WEEK: {
                 if (isFuture(addWeeks(this.service.historyPeriod.value.from, 1))) {
                     //waits until next week is reached to set next weeks period
-                    this.forwardToNextWeekWhenReached();
+                    this.forwardToNextWeekWhenReached()
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next week when next week is reached if current week is not selected
@@ -73,7 +73,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
             case DefaultTypes.PeriodString.MONTH: {
                 if (isFuture(addMonths(this.service.historyPeriod.value.from, 1))) {
                     //waits until next month is reached to set next months period
-                    this.forwardToNextMonthWhenReached();
+                    this.forwardToNextMonthWhenReached()
                     this.disableArrow = true;
                 } else {
                     //disables changing period to next month when next month is reached if current month is not selected
@@ -303,17 +303,17 @@ export class PickDateComponent implements OnInit, OnDestroy {
             }
             case DefaultTypes.PeriodString.WEEK: {
                 let currentDayTime = new Date();
-                let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 });
+                let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 })
                 return differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
             }
             case DefaultTypes.PeriodString.MONTH: {
                 let currentDayTime = new Date();
-                let endOfMonthTime = endOfMonth(currentDayTime);
+                let endOfMonthTime = endOfMonth(currentDayTime)
                 return differenceInMilliseconds(endOfMonthTime, currentDayTime) + 1000;
             }
             case DefaultTypes.PeriodString.YEAR: {
                 let currentDayTime = new Date();
-                let endOfYearTime = endOfYear(currentDayTime);
+                let endOfYearTime = endOfYear(currentDayTime)
                 return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;
             }
         }

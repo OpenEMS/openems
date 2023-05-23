@@ -38,7 +38,7 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
 }
 
 export function OnlyPositiveIntegerValidator(control: FormControl): ValidationErrors {
-  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true };
+  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
 }
 
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {

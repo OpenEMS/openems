@@ -5,7 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { delay, retryWhen } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from "src/environments";
-
+import { Edge } from '../edge/edge';
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
@@ -14,11 +14,13 @@ import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotifica
 import { AuthenticateWithPasswordRequest } from '../jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWithTokenRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
+import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
+import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
 import { Language } from '../type/language';
-import { Pagination } from './pagination';
+import { Role } from '../type/role';
 import { Service } from './service';
 import { WebsocketInterface } from './websocketInterface';
 import { WsData } from './wsdata';
@@ -44,14 +46,13 @@ export class Websocket implements WebsocketInterface {
     private translate: TranslateService,
     private cookieService: CookieService,
     private router: Router,
-    private pagination: Pagination
   ) {
     service.websocket = this;
 
     // try to auto connect using token or session_id
     setTimeout(() => {
       this.connect();
-    });
+    })
   }
 
   /**
@@ -69,8 +70,8 @@ export class Websocket implements WebsocketInterface {
     }
 
     /*
-    * Open Websocket connection + define onOpen/onClose callbacks.
-    */
+     * Open Websocket connection + define onOpen/onClose callbacks.
+     */
     this.socket = webSocket({
       url: environment.url,
       openObserver: {
@@ -84,7 +85,6 @@ export class Websocket implements WebsocketInterface {
             // Login with Session Token
             this.login(new AuthenticateWithTokenRequest({ token: token }));
             this.status = 'authenticating';
-
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
@@ -145,7 +145,7 @@ export class Websocket implements WebsocketInterface {
       this.status = 'failed';
       this.onClose();
 
-    });
+    })
   }
 
   /**
@@ -173,37 +173,34 @@ export class Websocket implements WebsocketInterface {
 
         // Resubscribe Channels
         this.service.getCurrentEdge().then(edge => {
-
-          this.pagination.getAndSubscribeEdge(edge).then(() => {
-            edge.subscribeChannelsSuccessful = true;
-            if (edge != null) {
-              edge.subscribeChannelsOnReconnect(this);
-            }
-          });
+          if (edge != null) {
+            edge.subscribeChannelsOnReconnect(this);
+          }
         });
-        resolve();
+        resolve()
       }).catch(reason => {
-        this.checkErrorCode(reason);
-        resolve();
-      });
-    });
+        this.checkErrorCode(reason)
+        resolve()
+      })
+    })
   }
 
   private checkErrorCode(reason: JsonrpcResponseError) {
+
 
     // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
         this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
-        this.onLoggedOut();
+        this.onLoggedOut()
         break;
       case 1:
-        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
+        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger")
         this.status = 'waiting for credentials';
         this.service.onLogout();
         break;
       default:
-        this.onLoggedOut();
+        this.onLoggedOut()
     }
   }
 
@@ -214,8 +211,8 @@ export class Websocket implements WebsocketInterface {
     this.sendRequest(new LogoutRequest()).then(response => {
       this.onLoggedOut();
     }).catch(reason => {
-      console.error(reason);
-    });
+      console.error(reason)
+    })
   }
 
   private onLoggedOut(): void {
@@ -284,13 +281,13 @@ export class Websocket implements WebsocketInterface {
 
         // TODO: Status should be Observable, furthermore status should be like state-machine
         if (this.status == 'online') {
-          clearInterval(interval);
+          clearInterval(interval)
           this.sendRequest(request)
             .then((response) => resolve(response))
-            .catch((err) => reject(err));
+            .catch((err) => reject(err))
         }
-      }, 500);
-    });
+      }, 500)
+    })
   }
 
   /**
