@@ -1,6 +1,7 @@
 package io.openems.shared.influxdb.proxy;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -16,6 +17,10 @@ import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 import io.openems.shared.influxdb.QueryLanguageConfig;
 
 public abstract class QueryProxy {
+
+	public static final String CHANNEL_TAG = "channel";
+	public static final String AVAILABLE_SINCE_MEASUREMENT = "availableSince";
+	public static final String AVAILABLE_SINCE_COLUMN_NAME = "available_since";
 
 	/**
 	 * Builds a {@link QueryProxy} from a {@link QueryLanguageConfig}.
@@ -58,6 +63,7 @@ public abstract class QueryProxy {
 	 * @param influxConnection a Influx-Connection
 	 * @param bucket           the bucket name; 'database/retentionPolicy' for
 	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
 	 * @param influxEdgeId     the Edge-ID
 	 * @param fromDate         the From-Date
 	 * @param toDate           the To-Date
@@ -65,9 +71,15 @@ public abstract class QueryProxy {
 	 * @return the query result
 	 * @throws OpenemsNamedException on error
 	 */
-	public abstract SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(InfluxConnection influxConnection,
-			String bucket, Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
-			Set<ChannelAddress> channels) throws OpenemsNamedException;
+	public abstract SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(//
+			InfluxConnection influxConnection, //
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels //
+	) throws OpenemsNamedException;
 
 	/**
 	 * {@link CommonTimedataService#queryHistoricData(String, io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest)}.
@@ -75,6 +87,7 @@ public abstract class QueryProxy {
 	 * @param influxConnection a Influx-Connection
 	 * @param bucket           the bucket name; 'database/retentionPolicy' for
 	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
 	 * @param influxEdgeId     the Edge-ID
 	 * @param fromDate         the From-Date
 	 * @param toDate           the To-Date
@@ -83,9 +96,16 @@ public abstract class QueryProxy {
 	 * @return the query result
 	 * @throws OpenemsNamedException on error
 	 */
-	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
-			InfluxConnection influxConnection, String bucket, Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution) throws OpenemsNamedException;
+	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(//
+			InfluxConnection influxConnection, //
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsNamedException;
 
 	/**
 	 * {@link CommonTimedataService#queryHistoricEnergyPerPeriod(String, ZonedDateTime, ZonedDateTime, Set, Resolution)}.
@@ -93,6 +113,7 @@ public abstract class QueryProxy {
 	 * @param influxConnection a Influx-Connection
 	 * @param bucket           the bucket name; 'database/retentionPolicy' for
 	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
 	 * @param influxEdgeId     the Edge-ID
 	 * @param fromDate         the From-Date
 	 * @param toDate           the To-Date
@@ -101,26 +122,54 @@ public abstract class QueryProxy {
 	 * @return the query result
 	 * @throws OpenemsNamedException on error
 	 */
-	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
-			InfluxConnection influxConnection, String bucket, Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution) throws OpenemsNamedException;
+	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(//
+			InfluxConnection influxConnection, //
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsNamedException;
 
-	protected static class RandomLimit {
+	/**
+	 * Queries the available since fields from the database.
+	 * 
+	 * @param influxConnection a Influx-Connection
+	 * @param bucket           the bucket name; 'database/retentionPolicy' for
+	 *                         InfluxDB v1
+	 * @return the map where the key is the edgeId and the value the timestamp of
+	 *         available since
+	 */
+	public abstract Map<Integer, Map<String, Long>> queryAvailableSince(//
+			InfluxConnection influxConnection, //
+			String bucket //
+	) throws OpenemsNamedException;
+
+	public static class RandomLimit {
 		private static final double MAX_LIMIT = 0.95;
 		private static final double MIN_LIMIT = 0;
-		private static final double STEP = 0.01;
+		private static final double STEP_UP = 0.10;
+		private static final double STEP_DOWN = 0.01;
 
 		private double limit = 0;
 
-		protected synchronized void increase() {
-			this.limit += STEP;
+		/**
+		 * Increases the current limit.
+		 */
+		public synchronized void increase() {
+			this.limit += STEP_UP;
 			if (this.limit > MAX_LIMIT) {
 				this.limit = MAX_LIMIT;
 			}
 		}
 
-		protected synchronized void decrease() {
-			this.limit -= STEP;
+		/**
+		 * Decreases the current limit.
+		 */
+		public synchronized void decrease() {
+			this.limit -= STEP_DOWN;
 			if (this.limit <= MIN_LIMIT) {
 				this.limit = MIN_LIMIT;
 			}
@@ -136,23 +185,50 @@ public abstract class QueryProxy {
 		}
 	}
 
-	protected final RandomLimit queryLimit = new RandomLimit();
+	public final RandomLimit queryLimit = new RandomLimit();
+
+	public boolean isLimitReached() {
+		return Math.random() < this.queryLimit.getLimit();
+	}
 
 	protected void assertQueryLimit() throws OpenemsException {
-		if (Math.random() < this.queryLimit.getLimit()) {
+		if (this.isLimitReached()) {
 			throw new OpenemsException("InfluxDB read is temporarily blocked [" + this.queryLimit + "].");
 		}
 	}
 
-	protected abstract String buildHistoricDataQuery(String bucket, Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
-			throws OpenemsException;
+	// TODO refactor to single parameter
+	protected abstract String buildHistoricDataQuery(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsException;
 
-	protected abstract String buildHistoricEnergyQuery(String bucket, Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsException;
+	protected abstract String buildHistoricEnergyQuery(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels //
+	) throws OpenemsException;
 
-	protected abstract String buildHistoricEnergyPerPeriodQuery(String bucket, Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
-			throws OpenemsException;
+	protected abstract String buildHistoricEnergyPerPeriodQuery(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsException;
+
+	protected abstract String buildFetchAvailableSinceQuery(//
+			String bucket //
+	);
 
 }

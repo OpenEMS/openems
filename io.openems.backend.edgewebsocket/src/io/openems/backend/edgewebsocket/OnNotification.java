@@ -15,6 +15,8 @@ import io.openems.common.event.EventBuilder;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.jsonrpc.notification.AbstractDataNotification;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
@@ -55,7 +57,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			return;
 
 		case TimestampedDataNotification.METHOD:
-			this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);
+			this.handleDataNotification(TimestampedDataNotification.from(notification), wsData);
+			return;
+
+		case AggregatedDataNotification.METHOD:
+			this.handleDataNotification(AggregatedDataNotification.from(notification), wsData);
 			return;
 
 		case SystemLogNotification.METHOD:
@@ -102,17 +108,18 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
-	private void handleTimestampedDataNotification(TimestampedDataNotification message, WsData wsData)
-			throws OpenemsNamedException {
+	private void handleDataNotification(AbstractDataNotification message, WsData wsData) throws OpenemsNamedException {
 		var edgeId = wsData.assertEdgeId(message);
 
-		var data = message.getData();
-
-		// Update the Data Cache
-		wsData.edgeCache.update(data.rowMap());
-
 		try {
-			this.parent.timedataManager.write(edgeId, data);
+			// Update the Data Cache
+			wsData.edgeCache.update(message.getData().rowMap());
+			// TODO java 17 switch case with type
+			if (message instanceof TimestampedDataNotification) {
+				this.parent.timedataManager.write(edgeId, (TimestampedDataNotification) message);
+			} else if (message instanceof AggregatedDataNotification) {
+				this.parent.timedataManager.write(edgeId, (AggregatedDataNotification) message);
+			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}

@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -58,11 +57,11 @@ public class ResolveDependencies implements Runnable {
 	 * @param appManagerImpl the {@link AppManagerImpl}
 	 * @param appManagerUtil the {@link AppManagerUtil}
 	 */
-	protected static void resolveDependencies(User user, AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil) {
+	public static void resolveDependencies(User user, AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil) {
 		final var instances = appManagerImpl.getInstantiatedApps();
 		for (var instance : instances) {
 			try {
-				var configuration = appManagerUtil.getAppConfiguration(ConfigurationTarget.VALIDATE, instance,
+				var configuration = appManagerUtil.getAppConfiguration(ConfigurationTarget.UPDATE, instance,
 						Language.DEFAULT);
 
 				// check if instance should have dependencies
@@ -90,23 +89,17 @@ public class ResolveDependencies implements Runnable {
 						continue;
 					}
 
-					var shouldInstallConfig = false;
+					if (// checkstyle requires new line
 					switch (dependency.createPolicy) {
-					case NEVER:
+					case NEVER -> {
 						// can not resolve dependency automatically
 						LOG.warn(String.format("Unable to automatically add dependency for %s and key %s.",
 								instance.instanceId, dependency.key));
-						continue;
-					case IF_NOT_EXISTING:
-						if (!instances.stream().anyMatch(t -> t.appId.equals(config.appId))) {
-							shouldInstallConfig = true;
-						}
-						break;
-					case ALWAYS:
-						shouldInstallConfig = true;
-						break;
+						yield false;
 					}
-					if (!shouldInstallConfig) {
+					case IF_NOT_EXISTING -> instances.stream().anyMatch(t -> t.appId.equals(config.appId));
+					case ALWAYS -> false;
+					}) {
 						continue;
 					}
 
@@ -119,6 +112,8 @@ public class ResolveDependencies implements Runnable {
 										config.initialProperties),
 								true);
 						future.get();
+						resolveDependencies(user, appManagerImpl, appManagerUtil);
+						return;
 					} catch (OpenemsNamedException | InterruptedException | ExecutionException e) {
 						e.printStackTrace();
 					}
@@ -143,7 +138,7 @@ public class ResolveDependencies implements Runnable {
 		// null so no new instance gets installed
 		for (var config : configs) {
 			var instances = appManagerImpl.getInstantiatedApps().stream().filter(i -> i.appId.equals(config.appId))
-					.collect(Collectors.toList());
+					.toList();
 			for (var instance : instances) {
 				var existingDependencies = appManagerUtil.getAppsWithDependencyTo(instance);
 				if (existingDependencies.isEmpty()) {

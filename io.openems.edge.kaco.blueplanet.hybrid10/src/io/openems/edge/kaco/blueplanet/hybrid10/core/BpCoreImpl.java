@@ -33,6 +33,7 @@ import com.ed.edcom.Discovery;
 import com.ed.edcom.Util;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -75,12 +76,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		 */
 		this.config = config;
 
-		final InetAddress inverterAddress;
-		if (config.ip() == null) {
-			inverterAddress = null;
-		} else {
-			inverterAddress = InetAddress.getByName(config.ip());
-		}
+		final InetAddress inverterAddress = InetAddressUtils.parseOrNull(config.ip());
 		Runnable initializeLibrary = () -> {
 			while (true) {
 				try {

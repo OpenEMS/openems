@@ -2,17 +2,21 @@ package io.openems.shared.influxdb;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +27,13 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApiBlocking;
+import com.influxdb.client.domain.WriteConsistency;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.client.write.WriteParameters;
+import com.influxdb.exceptions.BadRequestException;
 
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -36,26 +45,27 @@ import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
-	public static final String MEASUREMENT = "data";
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 60; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
-	private static final int POINTS_QUEUE_SIZE = 1_000_000;
 
 	protected final ThreadPoolExecutor executor;
-	protected final BlockingQueue<Point> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
-	private final QueryProxy queryProxy;
+	protected final QueryProxy queryProxy;
 	private final URI url;
 	private final String org;
 	private final String apiKey;
 	private final String bucket;
 	private final boolean isReadOnly;
+	private final boolean safeWrite;
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
-	private final MergePointsWorker mergePointsWorker;
+
+	private final WriteParameters defaultWriteParameters;
+	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
 
 	/**
 	 * The Constructor.
@@ -69,34 +79,74 @@ public class InfluxConnector {
 	 * @param isReadOnly    If true, a 'Read-Only-Mode' is activated, where no data
 	 *                      is actually written to the database
 	 * @param poolSize      the number of threads dedicated to handle the tasks
+	 * @param maxQueueSize  queue size limit for executor
 	 * @param onWriteError  A consumer for write-errors
+	 * @param safeWrite     Adds back points to the queue if a write fails
+	 * @param parameters    the {@link WriteParameters} to create a
+	 *                      {@link MergePointsWorker} for. All later used
+	 *                      {@link WriteParameters} need to be passed here
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, Consumer<Throwable> onWriteError) {
+			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError,
+			boolean safeWrite, WriteParameters... parameters) {
 		this.queryProxy = QueryProxy.from(queryLanguage);
 		this.url = url;
 		this.org = org;
 		this.apiKey = apiKey;
 		this.bucket = bucket;
 		this.isReadOnly = isReadOnly;
+		this.safeWrite = safeWrite;
 
-		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
+		this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(maxQueueSize), //
 				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build());
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int pointsQueueSize = this.pointsQueue.size();
 			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
 					.append(ThreadPoolUtils.debugLog(this.executor)) //
-					.append(" Queue:") //
-					.append(pointsQueueSize) //
-					.append("/") //
-					.append(POINTS_QUEUE_SIZE) //
-					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
+					.append(", MergePointsWorker[") //
+					.append(this.mergePointsWorkerByWriteParameters.values().stream().map(MergePointsWorker::debugLog)
+							.collect(Collectors.joining(", ")))
+					.append("], Limit:") //
+					.append(this.queryProxy.queryLimit) //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
-		this.mergePointsWorker = new MergePointsWorker(this, onWriteError);
-		this.mergePointsWorker.activate("TimescaleDB-MergePoints");
+		BiFunction<String, WriteParameters, MergePointsWorker> mergePointsWorkerFactory;
+		if (this.isSafeWrite()) {
+			mergePointsWorkerFactory = (name, params) -> new SafeMergePointsWorker(this, name, params, onWriteError);
+		} else {
+			mergePointsWorkerFactory = (name, params) -> new ForceMergePointsWorker(this, name, params, onWriteError);
+		}
+
+		// initialize default merge points worker
+		// TODO most of the stuff can be omitted after update
+		// https://github.com/influxdata/influxdb-client-java/pull/483
+		this.defaultWriteParameters = new WriteParameters(this.bucket, this.org,
+				WriteParameters.DEFAULT_WRITE_PRECISION, WriteConsistency.ALL);
+		final var defaultMergePointsWorker = mergePointsWorkerFactory.apply("Default", this.defaultWriteParameters);
+		defaultMergePointsWorker.activate();
+		this.mergePointsWorkerByWriteParameters.put(this.defaultWriteParameters, defaultMergePointsWorker);
+
+		final var defaultOptions = InfluxDBClientOptions.builder() //
+				.url(this.url.toString()) //
+				.org(this.org) //
+				.bucket(this.bucket) //
+				.build();
+		// initialize merge points worker for specific write parameters
+		for (var writeParameters : parameters) {
+			final var mergePointsWorker = mergePointsWorkerFactory.apply(writeParameters.bucketSafe(defaultOptions),
+					writeParameters);
+			mergePointsWorker.activate();
+			this.mergePointsWorkerByWriteParameters.put(writeParameters, mergePointsWorker);
+		}
+	}
+
+	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
+			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError,
+			WriteParameters... parameters) {
+		this(queryLanguage, url, org, apiKey, bucket, isReadOnly, poolSize, maxQueueSize, onWriteError, false,
+				parameters);
 	}
 
 	public static class InfluxConnection {
@@ -137,7 +187,6 @@ public class InfluxConnector {
 		if (this.apiKey != null && !this.apiKey.isBlank()) {
 			options.authenticateToken(String.format(this.apiKey).toCharArray()); //
 		}
-
 		var client = InfluxDBClientFactory //
 				.create(options.build()) //
 				.enableGzip();
@@ -154,11 +203,12 @@ public class InfluxConnector {
 	 * Close current {@link InfluxDBClient}.
 	 */
 	public synchronized void deactivate() {
-		this.mergePointsWorker.deactivate();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		if (this.influxConnection != null) {
 			this.influxConnection.client.close();
 		}
+		this.mergePointsWorkerByWriteParameters.values() //
+				.forEach(MergePointsWorker::deactivate);
 	}
 
 	/**
@@ -168,18 +218,20 @@ public class InfluxConnector {
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
+	 * @param measurement  the measurement
 	 * @return a map between ChannelAddress and value
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, String measurement)
+			throws OpenemsNamedException {
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricEnergy(this.getInfluxConnection(), this.bucket, influxEdgeId, fromDate,
-				toDate, channels);
+		return this.queryProxy.queryHistoricEnergy(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
+				fromDate, toDate, channels);
 	}
 
 	/**
@@ -190,19 +242,20 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
+	 * @param measurement  the measurement
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			Resolution resolution) throws OpenemsNamedException {
+			Resolution resolution, String measurement) throws OpenemsNamedException {
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, influxEdgeId,
-				fromDate, toDate, channels, resolution);
+		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, measurement,
+				influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	/**
@@ -213,35 +266,111 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
+	 * @param measurement  the measurement
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			Resolution resolution) throws OpenemsNamedException {
+			Resolution resolution, String measurement) throws OpenemsNamedException {
 
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, influxEdgeId, fromDate,
-				toDate, channels, resolution);
+		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
+				fromDate, toDate, channels, resolution);
 	}
 
 	/**
 	 * Actually write the Point to InfluxDB.
 	 *
 	 * @param point the InfluxDB Point
-	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) {
+		this.write(point, this.defaultWriteParameters);
+	}
+
+	/**
+	 * Actually write the Point to InfluxDB.
+	 * 
+	 * @param point           the InfluxDB Point
+	 * @param writeParameters the {@link WriteParameters} of the written point. The
+	 *                        {@link WriteParameters} had to be passed in the
+	 *                        constructor
+	 */
+	public void write(Point point, WriteParameters writeParameters) {
 		if (this.isReadOnly) {
 			this.log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
-		this.pointsQueue.offer(point);
+		final var mergePointsWorker = this.mergePointsWorkerByWriteParameters.get(writeParameters);
+		if (mergePointsWorker == null) {
+			this.log.info("Unknown write parameters: " + writeParameters);
+			return;
+		}
+		mergePointsWorker.offer(point);
+	}
+
+	/**
+	 * Gets the edges which already have the available since field set. Mapped from
+	 * edgeId to timestamp of availableSince.
+	 * 
+	 * @return the map
+	 * @throws OpenemsNamedException on error
+	 */
+	public Map<Integer, Map<String, Long>> queryAvailableSince() throws OpenemsNamedException {
+		return this.queryProxy.queryAvailableSince(this.getInfluxConnection(), this.bucket);
+	}
+
+	/**
+	 * Builds a {@link Point} which set the
+	 * {@link QueryProxy.AVAILABLE_SINCE_COLUMN_NAME} field to the new value.
+	 * 
+	 * @param influxEdgeId            the id of the edge
+	 * @param availableSinceTimestamp the new timestamp
+	 * @param channel                 the channels
+	 * @return the {@link Point}
+	 */
+	public Point buildUpdateAvailableSincePoint(//
+			int influxEdgeId, //
+			String channel, //
+			long availableSinceTimestamp //
+	) {
+		return Point.measurement(QueryProxy.AVAILABLE_SINCE_MEASUREMENT) //
+				.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+				.addTag(QueryProxy.CHANNEL_TAG, channel) //
+				.time(0, WritePrecision.S) //
+				.addField(QueryProxy.AVAILABLE_SINCE_COLUMN_NAME, availableSinceTimestamp);
+	}
+
+	public boolean isSafeWrite() {
+		return this.safeWrite;
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number
+	 * @throws OpenemsException on error
+	 */
+	public static Integer parseNumberFromName(String name) throws OpenemsException {
+		try {
+			var matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return Integer.parseInt(nameNumberString);
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 
 }

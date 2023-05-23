@@ -2,6 +2,7 @@ package io.openems.edge.battery.fenecon.commercial;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -136,10 +137,12 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.text("The maximum number of stop attempts failed")), //
 		NUMBER_OF_TOWERS(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.onInit(FeneconCommercialBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK)),
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.onInit(FeneconCommercialBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK)),
 		NUMBER_OF_CELLS_PER_MODULE(new IntegerDoc() //
@@ -370,6 +373,7 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.MILLIVOLT)), //
 		MASTER_SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		BATTERY_NOMINAL_POWER(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)//
