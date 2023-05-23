@@ -2,6 +2,7 @@ import { Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
@@ -18,15 +19,15 @@ import { Icon } from "../../type/widget";
 })
 export class ModalComponent {
 
-    @Input() component: EdgeConfig.Component = null;
-    @Input() formGroup: FormGroup = new FormGroup({});
+    @Input() protected component: EdgeConfig.Component = null;
+    @Input() protected formGroup: FormGroup = new FormGroup({});
 
     /** Title in Header */
-    @Input() title: string;
+    @Input() public title: string;
 
-    @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
+    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
 
-    @Input() helpKey: string | null = null;
+    @Input() protected helpKey: string | null = null;
 
     public readonly Role = Role;
 
@@ -55,7 +56,7 @@ export class ModalComponent {
             updateComponentArray.push({
                 name: key,
                 value: this.formGroup.value[key]
-            })
+            });
         }
 
         if (this.edge) {
@@ -64,7 +65,7 @@ export class ModalComponent {
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                })
+                });
         }
         this.formGroup.markAsPristine();
     }

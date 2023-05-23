@@ -7,13 +7,14 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+
 import { Role } from "../../type/role";
 import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
 
-    @Input() component: EdgeConfig.Component = null;
+    @Input() public component: EdgeConfig.Component = null;
 
     public isInitialized: boolean = false;
     public edge: Edge = null;
@@ -74,11 +75,12 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let allComponents = {};
+                    let thisComponent = {};
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
                     }
-                    this.onCurrentData({ allComponents: allComponents });
+                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });
                 this.formGroup = this.getFormGroup();
 
@@ -121,6 +123,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /** Gets the FormGroup of the current Component */
     protected getFormGroup(): FormGroup | null {
-        return null
+        return null;
     }
 }

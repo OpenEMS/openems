@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { ChannelData, ChartData, ValueConverter, YAxisTitle } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
 @Component({
@@ -10,7 +10,7 @@ import { ChannelAddress, Utils } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     this.spinnerId = 'autarchy-chart';
     return {
       input:
@@ -23,27 +23,27 @@ export class ChartComponent extends AbstractHistoryChart {
           name: 'GridBuy',
           powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          converter: ValueConverter.NON_NEGATIVE, // i.e. not GridSell
+          converter: HistoryUtils.ValueConverter.NON_NEGATIVE, // i.e. not GridSell
         }],
-      output: (data: ChannelData) => {
+      output: (data: HistoryUtils.ChannelData) => {
         return [{
           name: this.translate.instant('General.autarchy'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-            return Utils.calculateAutarchy(energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null, energyValues?.result.data['_sum/ConsumptionActiveEnergy'] ?? null)
+            return Utils.calculateAutarchy(energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null, energyValues?.result.data['_sum/ConsumptionActiveEnergy'] ?? null);
           },
           converter: () => {
             return data['Consumption']
               ?.map((value, index) =>
                 Utils.calculateAutarchy(data['GridBuy'][index], value)
-              )
+              );
           },
           color: 'rgb(0,152,204)'
-        }]
+        }];
       },
       tooltip: {
-        formatNumber: '1.0-0'
+        formatNumber: '1.0-0',
       },
-      unit: YAxisTitle.PERCENTAGE,
-    }
+      unit: HistoryUtils.YAxisTitle.PERCENTAGE,
+    };
   }
 }

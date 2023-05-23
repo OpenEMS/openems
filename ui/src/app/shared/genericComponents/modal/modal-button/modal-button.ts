@@ -1,5 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { Icon } from "src/app/shared/type/widget";
+
 import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
@@ -8,7 +9,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 
-    @Input() buttons: ButtonLabel[];
+    @Input() protected buttons: ButtonLabel[];
 }
 
 export type ButtonLabel = {

@@ -28,7 +28,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
         powerChannel: ChannelAddress.fromString(this.component.id + '/ActivePowerL' + i),
         energyChannel: ChannelAddress.fromString(this.component.id + '/ActiveProductionEnergyL' + i),
         converter: (data) => data != null ? data : null,
-      })
+      });
     }
     return {
       input: channels,
@@ -37,13 +37,13 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
         datasets.push({
           name: this.translate.instant('General.production'),
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyPeriodResponse?.result.data[this.component.id + '/ActiveProductionEnergy'] ?? null
+            return energyPeriodResponse?.result.data[this.component.id + '/ActiveProductionEnergy'] ?? null;
           },
           converter: () => {
-            return data['ActivePower']
+            return data['ActivePower'];
           },
           color: 'rgb(0,152,204)'
-        })
+        });
         if (this.showPhases) {
 
           // Phase 1 to 3
@@ -51,10 +51,10 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
             datasets.push({
               name: "Erzeugung Phase L" + i,
               converter: () => {
-                return data['ActivePowerL' + i] ?? null
+                return data['ActivePowerL' + i] ?? null;
               },
               color: this.phaseColors[i - 1]
-            })
+            });
           }
         }
         return datasets;
@@ -63,6 +63,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
         formatNumber: '1.1-2'
       },
       unit: YAxisTitle.ENERGY,
-    }
+    };
   }
 }

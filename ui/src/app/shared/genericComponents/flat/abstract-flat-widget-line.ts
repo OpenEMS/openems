@@ -18,7 +18,7 @@ export class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
    * @returns converter function
    */
   @Input()
-  public converter = (value: any): string => { return value }
+  public converter = (value: any): string => { return value; };
 
   /** value defines value of the parameter, displayed on the right */
   @Input()

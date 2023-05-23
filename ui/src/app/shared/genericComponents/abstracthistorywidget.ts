@@ -56,23 +56,23 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   public updateValues() {
     let channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ allComponents: {} })
+    this.onCurrentData({ allComponents: {} });
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
       let thisComponent = {};
       let allComponents = {};
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca]
+        allComponents[ca] = result.data[ca];
       }
-      this.onCurrentData({ allComponents: allComponents })
+      this.onCurrentData({ allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
-    })
+    });
   }
 
   public ngOnChanges() {
-    this.updateValues()
+    this.updateValues();
   }
 
   public ngOnDestroy() {

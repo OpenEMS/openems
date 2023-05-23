@@ -52,7 +52,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
         energyChannel: ChannelAddress.fromString(component.id + '/ActiveProductionEnergy')
-      })
+      });
 
     }
     for (let component of chargerComponents) {
@@ -60,7 +60,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActualPower'),
         energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy'),
-      })
+      });
     }
 
     let chartObject: ChartData = {
@@ -70,26 +70,26 @@ export class TotalChartComponent extends AbstractHistoryChart {
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.total'),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyQueryResponse?.result.data['_sum/ProductionActiveEnergy'] ?? null
+            return energyQueryResponse?.result.data['_sum/ProductionActiveEnergy'] ?? null;
           },
           converter: () => {
-            return data['ProductionActivePower']
+            return data['ProductionActivePower'];
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
           noStrokeThroughLegendIfHidden: false,
           stack: 2,
-        })
+        });
 
         if (!this.showTotal) {
-          return datasets
+          return datasets;
         }
 
         for (let i = 1; i < 4; i++) {
           datasets.push({
             name: "Phase L" + i,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionAcActiveEnergyL' + i]
+              return energyValues.result.data['_sum/ProductionAcActiveEnergyL' + i];
             },
             converter: () => {
               if (!this.showPhases) {
@@ -101,50 +101,50 @@ export class TotalChartComponent extends AbstractHistoryChart {
               if (this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
                 data['ProductionDcActualPower'].forEach((value, index) => {
                   effectiveProduction[index] = Utils.addSafely(data['ProductionAcActivePowerL' + i][index], value / 3);
-                })
+                });
               } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
-                effectiveProduction = data['ProductionAcActivePowerL' + i]
+                effectiveProduction = data['ProductionAcActivePowerL' + i];
               }
-              console.log("🚀 ~ file: totalChart.ts:112 ~ TotalChartComponent ~ overridegetChartData ~ effectiveProduction:", effectiveProduction)
-              return effectiveProduction
+              console.log("🚀 ~ file: totalChart.ts:112 ~ TotalChartComponent ~ overridegetChartData ~ effectiveProduction:", effectiveProduction);
+              return effectiveProduction;
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
             stack: 3,
-          })
+          });
         }
 
         // ProductionMeters
-        let productionMeterColors: string[] = ['rgb(253,197,7)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)']
+        let productionMeterColors: string[] = ['rgb(253,197,7)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)'];
         for (let i = 0; i < productionMeterComponents.length; i++) {
-          let component = productionMeterComponents[i]
+          let component = productionMeterComponents[i];
           datasets.push({
             name: component.alias ?? component.id,
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyResponse.result.data[component.id + '/ActiveProductionEnergy'] ?? null
+              return energyResponse.result.data[component.id + '/ActiveProductionEnergy'] ?? null;
             },
             converter: () => {
-              return data[component.id] ?? null
+              return data[component.id] ?? null;
             },
             color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
             stack: 1,
-          })
+          });
         }
 
-        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)']
+        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
         // ChargerComponents
         for (let i = 0; i < chargerComponents.length; i++) {
           let component = chargerComponents[i];
           datasets.push({
             name: component.alias ?? component.id,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data[new ChannelAddress(component.id, 'ActualEnergy').toString()]
+              return energyValues.result.data[new ChannelAddress(component.id, 'ActualEnergy').toString()];
             },
             converter: () => {
-              return data[component.id] ?? null
+              return data[component.id] ?? null;
             },
             color: chargerColors[Math.min(i, (chargerColors.length - 1))],
             stack: 1
-          })
+          });
         }
         return datasets;
       },
@@ -153,7 +153,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         afterTitle: this.translate.instant('General.total')
       },
       unit: YAxisTitle.ENERGY,
-    }
+    };
 
     return chartObject;
 
@@ -163,7 +163,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
     if (this.showTotal) {
       return window.innerHeight / 1.3;
     } else {
-      return window.innerHeight / 2.3
+      return window.innerHeight / 2.3;
     }
   }
 }

@@ -27,20 +27,20 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyResponse.result.data['_sum/ProductionDcActiveEnergy']
+            return energyResponse.result.data['_sum/ProductionDcActiveEnergy'];
           },
           converter: () => {
-            return data['ProductionDcActual'] ?? null
+            return data['ProductionDcActual'] ?? null;
           },
           strokeThroughHiddingStyle: false,
           color: 'rgb(0,152,204)'
-        }]
+        }];
       },
       tooltip: {
         // unit: 'kW',
         formatNumber: '1.1-2'
       },
       unit: YAxisTitle.ENERGY,
-    }
+    };
   }
 }

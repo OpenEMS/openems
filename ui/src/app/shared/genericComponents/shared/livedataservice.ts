@@ -9,13 +9,13 @@ import { DataService } from "./dataservice";
 @Injectable()
 export class LiveDataService extends DataService implements OnDestroy {
 
-    private subscribeId: string | null = null
+    private subscribeId: string | null = null;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
         @Inject(Service) protected service: Service
     ) {
-        super()
+        super();
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
@@ -40,6 +40,6 @@ export class LiveDataService extends DataService implements OnDestroy {
     ngOnDestroy() {
         this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [] }));
         this.stopOnDestroy.next();
-        this.stopOnDestroy.complete()
+        this.stopOnDestroy.complete();
     }
 }

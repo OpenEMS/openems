@@ -45,7 +45,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
         this.updateValues();
-      })
+      });
     });
   };
 
@@ -57,19 +57,19 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
       let allComponents = {};
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca]
+        allComponents[ca] = result.data[ca];
         if (channelAddress.componentId === this.componentId) {
           thisComponent[channelAddress.channelId] = result.data[ca];
         }
       }
-      this.onCurrentData({ allComponents: allComponents })
+      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
-    })
+    });
   }
 
   public ngOnChanges() {
-    this.updateValues()
+    this.updateValues();
   }
 
   public ngOnDestroy() {

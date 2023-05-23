@@ -19,6 +19,6 @@ export class ProductionChartOverviewComponent extends AbstractHistoryChartOverVi
     this.productionMeterComponents =
       this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
         .filter(component => component.isEnabled && this.config.isProducer(component));
-    return []
+    return [];
   }
 }  

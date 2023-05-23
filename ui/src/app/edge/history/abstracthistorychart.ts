@@ -7,7 +7,9 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -26,7 +28,7 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET;
+    public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = [];
     // prevents subscribing more than once
@@ -171,13 +173,13 @@ export abstract class AbstractHistoryChart {
         // Overwrite TooltipsTitle
         options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
             let date = new Date(tooltipItems[0].xLabel);
-            return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
+            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
         };
 
         //x-axis
-        if (differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) > 1) {
+        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
             options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5 && differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) <= 1) {
+        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
             options.scales.xAxes[0].time.unit = "day";
         } else {
             options.scales.xAxes[0].time.unit = "hour";
@@ -192,7 +194,7 @@ export abstract class AbstractHistoryChart {
     // protected checkAllowanceChartRefresh(): boolean {
     //     let currentDate = new Date();
     //     let allowRefresh: boolean = false;
-    //     if (isAfter(this.service.historyPeriod.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //     if (isAfter(this.service.historyPeriod.value.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
     //         allowRefresh = true;
     //     } else {
     //         allowRefresh = false;

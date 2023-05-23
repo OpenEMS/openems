@@ -36,19 +36,19 @@ export class ChartComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-    })
+    });
   }
 
   ngOnChanges() {
-    this.checkIfPopoverNeeded()
+    this.checkIfPopoverNeeded();
   }
 
   private checkIfPopoverNeeded() {
     if (this.isPopoverNeeded) {
       if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
         this.showPopover = false;
-        this.setShowPhases.emit(false)
-        this.setShowTotal.emit(true)
+        this.setShowPhases.emit(false);
+        this.setShowTotal.emit(true);
       } else {
         this.showPopover = true;
       }
@@ -69,8 +69,8 @@ export class ChartComponent implements OnInit, OnChanges {
     popover.onDidDismiss().then((data) => {
       this.showPhases = data.role == 'Phases' ? data.data : this.showPhases;
       this.showTotal = data.role == 'Total' ? data.data : this.showTotal;
-      this.setShowPhases.emit(this.showPhases)
-      this.setShowTotal.emit(this.showTotal)
+      this.setShowPhases.emit(this.showPhases);
+      this.setShowTotal.emit(this.showTotal);
     });
     await popover.present();
   }

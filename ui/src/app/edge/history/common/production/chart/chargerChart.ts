@@ -37,20 +37,20 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         return [
           {
             name: this.translate.instant('General.production'),
-            converter: () => { return data['ActualPower'] },
+            converter: () => { return data['ActualPower']; },
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyResponse.result.data[this.component.id + '/ActualEnergy']
+              return energyResponse.result.data[this.component.id + '/ActualEnergy'];
             },
             // setValue: () => data['ActualPower'],
             color: 'rgb(0,152,204)',
 
           }
-        ]
+        ];
       },
       tooltip: {
         formatNumber: '1.1-2'
       },
       unit: YAxisTitle.ENERGY,
-    }
+    };
   }
 }

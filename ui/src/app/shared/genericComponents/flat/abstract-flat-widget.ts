@@ -59,7 +59,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 this.dataService.getValues(channelAddresses, this.edge, this.componentId);
                 this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
                     this.onCurrentData(value);
-                })
+                });
             });
         });
     };

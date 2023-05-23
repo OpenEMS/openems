@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelData, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionTotalAcChart',
@@ -11,7 +11,7 @@ import { ChannelData, ChartData, DisplayValues, YAxisTitle } from '../../../shar
 })
 export class TotalAcChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     return {
       input:
         [
@@ -33,20 +33,20 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
           }
         ],
-      output: (data: ChannelData) => {
-        let datasets: DisplayValues[] = []
+      output: (data: HistoryUtils.ChannelData) => {
+        let datasets: HistoryUtils.DisplayValues[] = [];
 
         datasets.push({
           name: this.translate.instant("General.total"),
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null
+            return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null;
           },
           converter: () => {
-            return data['ProductionAcActivePower']
+            return data['ProductionAcActivePower'];
           },
           color: "rgb(0,152,204)",
           stack: 0
-        })
+        });
 
         for (let i = 1; i < 4; i++) {
           datasets.push({
@@ -55,18 +55,18 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               if (!this.showPhases) {
                 return null;
               }
-              return data['ProductionAcActivePowerL' + i] ?? null
+              return data['ProductionAcActivePowerL' + i] ?? null;
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
-          })
+          });
         }
 
-        return datasets
+        return datasets;
       },
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: YAxisTitle.ENERGY,
-    }
+      unit: HistoryUtils.YAxisTitle.ENERGY,
+    };
   }
 }

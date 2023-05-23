@@ -10,7 +10,7 @@ export abstract class DataService {
   protected stopOnDestroy: Subject<void> = new Subject<void>();
 
   /** Used to retrieve values */
-  public currentValue: BehaviorSubject<{ allComponents: {} }> = new BehaviorSubject({ allComponents: {} });
+  public currentValue: BehaviorSubject<{ allComponents: {}, thisComponent: {} }> = new BehaviorSubject({ allComponents: {}, thisComponent: {} });
 
   /**
    * Gets the values from passed channelAddresses
