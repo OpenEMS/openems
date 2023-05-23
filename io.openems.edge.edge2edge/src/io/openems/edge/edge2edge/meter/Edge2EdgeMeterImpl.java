@@ -31,71 +31,71 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Edge2Edge.Meter", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+	name = "Edge2Edge.Meter", //
+	immediate = true, //
+	configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class Edge2EdgeMeterImpl extends AbstractEdge2Edge implements AsymmetricMeter, SymmetricMeter,
-		Edge2Edge, ModbusComponent, OpenemsComponent {
+public class Edge2EdgeMeterImpl extends AbstractEdge2Edge
+	implements AsymmetricMeter, SymmetricMeter, Edge2Edge, ModbusComponent, OpenemsComponent {
 
-	@Reference
-	protected ConfigurationAdmin cm;
+    @Reference
+    protected ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
+    @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+    protected void setModbus(BridgeModbus modbus) {
+	super.setModbus(modbus);
+    }
+
+    private Config config;
+
+    public Edge2EdgeMeterImpl() throws OpenemsException {
+	super(//
+		Lists.newArrayList(//
+			OpenemsComponent::getModbusSlaveNatureTable, //
+			SymmetricMeter::getModbusSlaveNatureTable, //
+			AsymmetricMeter::getModbusSlaveNatureTable //
+		), //
+		OpenemsComponent.ChannelId.values(), //
+		ModbusComponent.ChannelId.values(), //
+		Edge2Edge.ChannelId.values(), //
+		SymmetricMeter.ChannelId.values(), //
+		AsymmetricMeter.ChannelId.values() //
+	);
+    }
+
+    @Activate
+    private void activate(ComponentContext context, Config config) throws OpenemsException {
+	this.config = config;
+	if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+		"Modbus", config.modbus_id(), config.remoteComponentId(), AccessMode.READ_ONLY)) {
+	    return;
 	}
-	
-	private Config config;
+    }
 
-	public Edge2EdgeMeterImpl() throws OpenemsException {
-		super(//
-				Lists.newArrayList(//
-						OpenemsComponent::getModbusSlaveNatureTable, //
-						SymmetricMeter::getModbusSlaveNatureTable, //
-						AsymmetricMeter::getModbusSlaveNatureTable //
-				), //
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				Edge2Edge.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values() //
-		);
-	}
+    @Deactivate
+    protected void deactivate() {
+	super.deactivate();
+    }
 
-	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
-	    this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), config.remoteComponentId(), AccessMode.READ_ONLY)) {
-			return;
-		}
-	}
+    @Override
+    protected Consumer<Object> getOnUpdateCallback(ModbusSlaveNatureTable modbusSlaveNatureTable, ModbusRecord record) {
+	return null;
+    }
 
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
+    @Override
+    protected io.openems.edge.common.channel.ChannelId getWriteChannelId(ModbusSlaveNatureTable modbusSlaveNatureTable,
+	    ModbusRecord record) {
+	return null;
+    }
 
-	@Override
-	protected Consumer<Object> getOnUpdateCallback(ModbusSlaveNatureTable modbusSlaveNatureTable, ModbusRecord record) {
-		return null;
-	}
+    @Override
+    public String debugLog() {
+	return "L:" + this.getActivePower().asString();
+    }
 
-	@Override
-	protected io.openems.edge.common.channel.ChannelId getWriteChannelId(ModbusSlaveNatureTable modbusSlaveNatureTable,
-			ModbusRecord record) {
-		return null;
-	}
-
-	@Override
-	    public String debugLog() {
-		return "L:" + this.getActivePower().asString();
-	    }
-
-	@Override
-	public MeterType getMeterType() {
-	    return this.config.type();
-	}
+    @Override
+    public MeterType getMeterType() {
+	return this.config.type();
+    }
 
 }
