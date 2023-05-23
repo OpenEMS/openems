@@ -37,7 +37,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
         this.config = config;
         this.component = config.components[this.componentId];
 
-        this.period = this.service.historyPeriod;
+        this.period = this.service.historyPeriod.value;
 
       }).then(() => {
         // announce initialized

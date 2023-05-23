@@ -1,6 +1,7 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { SharedModule } from 'src/app/shared/shared.module';
+
 import { ChargerChartComponent } from './chart/chargerChart';
 import { ProductionMeterChartComponent } from './chart/productionMeterChart';
 import { TotalAcChartComponent } from './chart/totalAcChart';

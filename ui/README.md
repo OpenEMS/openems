@@ -141,3 +141,25 @@ ngOnDestroy() {
     this.stopOnDestroy.complete();
 }
 ```
+
+
+### Creating a UI-Widget
+
+There are many examples of how ui widgets are created and used in [LiveComponent](src/app/edge/live/live.component.html) and [HistoryComponent](src/app/edge/history/history.component.html).
+
+UI-Widgets created for the Live-View, mainly consist of two components: 
+- `FlatWidget`: directly visible in Live-View:
+- `ModalComponent`: Popover, that can be opened when clicking on a `FlatWidget`
+- `Module`: Every `FlatWidget` and his corresponding `ModalComponent` should be wrapped inside their own module.
+
+
+
+Step 1: Copy an existing Controller/Folder e.g. [FixActivePower](src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts).
+
+Step 2: Rename the [Module](src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts) and import it in [LiveModule](src/app/edge/live/live.module.ts).
+
+Step 3: Change the `@Component` selector and use this selector inside [LiveComponent](src/app/edge/live/live.component.html#L135). Widgets in this view are shown if they are either part of the `EdgeConfig` and the corresponding factoryId matches or are a `Common` Widget.
+
+Step 4: The Widget should now be visible in the Live-View
+
+If you looked at the code of e.g. [FixActivePower](src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts), you will notice that different widgets have been used.

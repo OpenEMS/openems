@@ -87,7 +87,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.loadChart()
   }
 
-  private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse, energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
+  /**
+   * Fills the chart with required data
+   * 
+   * @param energyPeriodResponse the response of a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest} or {@link QueryHistoricTimeseriesDataResponse}
+   * @param energyResponse the response of a {@link QueryHistoricTimeseriesEnergyResponse}
+   */
+  private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
+    energyResponse?: QueryHistoricTimeseriesEnergyResponse): void {
     if (Utils.isDataEmpty(energyPeriodResponse)) {
       return
     }
@@ -120,7 +127,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
               }
 
               return value;
-
             }) ?? null
       }
     })
@@ -128,7 +134,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     // Fill datasets, labels and colors
     let datasets: ChartDataSets[] = [];
     let colors: any[] = [];
-    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData.data);
+    let displayValues: DisplayValues[] = this.chartObject.output(channelData.data);
 
     displayValues.forEach(element => {
       let nameSuffix = null;
@@ -143,11 +149,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       }
 
       // Filter existing values
-      if (values) {
+      if (element) {
         let label = this.getLabelName(element.name, nameSuffix);
+        let data: number[] | null = element.converter()
+
+        if (data === null) {
+          return;
+        }
+
         datasets.push({
           label: label,
-          data: values,
+          data: data,
           hidden: element.hiddenOnInit ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
           ...(element.stack != null && { stack: element.stack.toString() }),
           maxBarThickness: 100,
@@ -165,25 +177,27 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       }
     })
 
+    // Filling required data
     this.datasets = datasets;
     this.colors = colors;
     this.labels = labels;
   }
 
+  /**
+   * Used to loadChart, dependent on the resolution
+   */
   private loadChart() {
-
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
-    if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
-
-      // Shows barchart
+    // Show Barchart if resolution is days or months
+    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to),
         this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
-      ]).then(response => {
-        this.fillChart(response[0], response[1])
+      ]).then(([energyPeriodResponse, energyResponse]) => {
+        this.fillChart(energyPeriodResponse, energyResponse)
         this.setChartLabel();
       }).finally(() => {
 
@@ -225,9 +239,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.queryHistoricTimeseriesData(this.period.from, this.period.to),
         this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
       ])
-        .then(response => {
+        .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line'
-          this.fillChart(response[0], response[1]);
+          this.fillChart(dataResponse, energyResponse);
           this.setChartLabel();
         })
     }
@@ -435,7 +449,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     // Overwrite Tooltips -Title -Label 
     options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
       let date = new Date(tooltipItems[0].xLabel);
-      return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
+      return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
     }
 
 

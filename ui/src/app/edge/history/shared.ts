@@ -371,7 +371,7 @@ export type ChartData = {
   /** Input Channels that need to be queried from the database */
   input: InputChannel[],
   /** Output Channels that will be shown in the chart */
-  output: (data: ChartData) => DisplayValues[],
+  output: (data: ChannelData) => DisplayValues[],
   tooltip: {
     /** Format of Number displayed */
     formatNumber: string,

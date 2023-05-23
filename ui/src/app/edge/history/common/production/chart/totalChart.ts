@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
-import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 import { Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, Channels, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
+import { ChannelData, ChartData, DisplayValues, InputChannel, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionTotalChart',
@@ -17,35 +16,35 @@ export class TotalChartComponent extends AbstractHistoryChart {
     let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
-    let channels: Channels[] = [{
+    let channels: InputChannel[] = [{
       name: 'ProductionDcActualPower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
-      filter: ChannelFilter.NOT_NULL,
+      // converter: (data) => data != null ? data : null,
     },
     {
       name: 'ProductionAcActivePowerL1',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL1'),
-      filter: ChannelFilter.NOT_NULL,
+      // converter: (data) => data != null ? data : null,
     },
     {
       name: 'ProductionAcActivePowerL2',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL2'),
-      filter: ChannelFilter.NOT_NULL,
+      // converter: (data) => data != null ? data : null,
     },
     {
       name: 'ProductionAcActivePowerL3',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL3'),
-      filter: ChannelFilter.NOT_NULL,
+      // converter: (data) => data != null ? data : null,
     },
     {
       name: 'ProductionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy'),
-      filter: ChannelFilter.NOT_NULL,
+      // converter: (data) => data != null ? data : null,
     }];
 
     for (let component of productionMeterComponents) {
@@ -65,15 +64,15 @@ export class TotalChartComponent extends AbstractHistoryChart {
     }
 
     let chartObject: ChartData = {
-      channel: channels,
-      displayValues: (data: { [name: string]: number[] }) => {
+      input: channels,
+      output: (data: ChannelData) => {
         let datasets: DisplayValues[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.total'),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyQueryResponse?.result.data['_sum/ProductionActiveEnergy'] ?? null
           },
-          setValue: () => {
+          converter: () => {
             return data['ProductionActivePower']
           },
           color: 'rgb(0,152,204)',
@@ -92,7 +91,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/ProductionAcActiveEnergyL' + i]
             },
-            setValue: () => {
+            converter: () => {
               if (!this.showPhases) {
                 return null;
               }
@@ -106,6 +105,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
                 effectiveProduction = data['ProductionAcActivePowerL' + i]
               }
+              console.log("🚀 ~ file: totalChart.ts:112 ~ TotalChartComponent ~ overridegetChartData ~ effectiveProduction:", effectiveProduction)
               return effectiveProduction
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
@@ -122,7 +122,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
               return energyResponse.result.data[component.id + '/ActiveProductionEnergy'] ?? null
             },
-            setValue: () => {
+            converter: () => {
               return data[component.id] ?? null
             },
             color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
@@ -139,7 +139,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data[new ChannelAddress(component.id, 'ActualEnergy').toString()]
             },
-            setValue: () => {
+            converter: () => {
               return data[component.id] ?? null
             },
             color: chargerColors[Math.min(i, (chargerColors.length - 1))],

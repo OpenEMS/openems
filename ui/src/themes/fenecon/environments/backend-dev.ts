@@ -5,7 +5,7 @@ export const environment: Environment = {
     ...theme, ...{
 
         backend: 'OpenEMS Backend',
-        url: "wss://srv0.fenecon.de/ui",
+        url: "wss://portal.fenecon.de/openems-backend-ui2",
 
         production: false,
         debugMode: true,
