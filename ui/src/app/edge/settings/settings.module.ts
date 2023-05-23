@@ -20,7 +20,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
   imports: [
     AppModule,
     SharedModule,
-	ChangelogModule
+    ChangelogModule
   ],
   declarations: [
     AliasUpdateComponent,
@@ -36,8 +36,6 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SystemExecuteComponent,
     SystemUpdateComponent,
     AlertingComponent,
-  ],
-  entryComponents: [
   ],
   exports: [
     OeSystemUpdateComponent

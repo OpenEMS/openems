@@ -29,20 +29,6 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         RouterModule,
         TranslateModule
     ],
-    entryComponents: [
-        PickDateComponent,
-        FlatWidgetComponent,
-        FlatWidgetLineComponent,
-        FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent
-    ],
     declarations: [
         PickDateComponent,
         FlatWidgetComponent,

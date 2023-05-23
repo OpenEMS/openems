@@ -14,16 +14,6 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
     imports: [
         BrowserModule,
     ],
-    entryComponents: [
-        UnitvaluePipe,
-        SignPipe,
-        FormatSecondsToDurationPipe,
-        KeysPipe,
-        IsclassPipe,
-        HasclassPipe,
-        ClassnamePipe,
-        TypeofPipe
-    ],
     declarations: [
         UnitvaluePipe,
         SignPipe,

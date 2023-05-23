@@ -15,8 +15,6 @@ import { SymmetricMeterComponent } from "./symmetric/modal.component";
         PipeModule,
         Generic_ComponentsModule
     ],
-    entryComponents: [
-    ],
     declarations: [
         AsymmetricMeterComponent,
         EssChargerComponent,

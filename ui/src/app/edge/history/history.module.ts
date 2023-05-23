@@ -77,9 +77,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     SharedModule,
     Autarchy
   ],
-  entryComponents: [
-    EnergyModalComponent,
-  ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,

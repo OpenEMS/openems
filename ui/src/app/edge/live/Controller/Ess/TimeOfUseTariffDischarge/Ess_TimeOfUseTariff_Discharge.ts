@@ -9,10 +9,6 @@ import { ModalComponent } from "./modal/modal";
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-        ModalComponent
-    ],
     declarations: [
         FlatComponent,
         ModalComponent

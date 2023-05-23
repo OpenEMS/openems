@@ -40,10 +40,6 @@ import { UserModule } from './user/user.module';
     StatusSingleComponent,
     SystemLogComponent,
   ],
-  entryComponents: [
-    ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
-  ],
   imports: [
     AngularMyDatePickerModule,
     AppRoutingModule,

@@ -10,9 +10,6 @@ import { AutarchyChartOverviewComponent } from './overview/overview';
         BrowserModule,
         SharedModule,
     ],
-    entryComponents: [
-        FlatComponent,
-    ],
     declarations: [
         FlatComponent,
         ChartComponent,
