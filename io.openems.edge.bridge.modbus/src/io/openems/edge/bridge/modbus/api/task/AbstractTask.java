@@ -94,6 +94,9 @@ public abstract class AbstractTask {
 		return bridge.getLogVerbosity();
 	}
 
+	/**
+	 * Deactivate.
+	 */
 	public void deactivate() {
 		for (ModbusElement<?> element : this.elements) {
 			element.deactivate();

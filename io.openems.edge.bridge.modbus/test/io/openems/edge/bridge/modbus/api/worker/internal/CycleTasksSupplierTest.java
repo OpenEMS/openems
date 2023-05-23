@@ -5,12 +5,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -19,7 +21,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 
 public class CycleTasksSupplierTest {
 
-	private final static String CMP = "foo";
+	private static final String CMP = "foo";
 
 	private static DummyReadTask RT_H_1;
 	private static DummyReadTask RT_H_2;
@@ -40,7 +42,7 @@ public class CycleTasksSupplierTest {
 	public void test() throws OpenemsException {
 		var clock = new TimeLeapClock();
 		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new CycleTasksSupplier();
+		var sut = new CycleTasksSupplier(new AtomicReference<>(LogVerbosity.NONE));
 
 		var bridge = new DummyModbusBridge("modbus0");
 		var foo = new DummyModbusComponent(CMP, bridge);

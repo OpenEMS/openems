@@ -14,8 +14,7 @@ public class DummyReadTask extends AbstractDummyTask implements ReadTask {
 
 	@Override
 	public String toString() {
-		return "DummyReadTask [name=" + this.name + ", delay=" + this.delay + ", priority=" + this.priority
-				+ ", isError=" + this.isError + "]";
+		return "DummyReadTask [name=" + this.name + ", delay=" + this.delay + ", priority=" + this.priority + "]";
 	}
 
 	@Override

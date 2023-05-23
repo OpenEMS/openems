@@ -20,7 +20,10 @@ public class WaitMutexTask implements WaitTask {
 
 	private AbstractOpenemsModbusComponent parent = null;
 
-	public void interrupt() {
+	/**
+	 * Release the Mutex, i.e. interrupt waiting.
+	 */
+	public void release() {
 		this.mutex.release();
 	}
 

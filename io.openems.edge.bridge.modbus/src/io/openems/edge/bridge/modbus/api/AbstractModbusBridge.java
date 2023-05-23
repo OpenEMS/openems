@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
@@ -37,18 +39,18 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	private final AtomicReference<LogVerbosity> logVerbosity = new AtomicReference<>(LogVerbosity.NONE);
 	private int invalidateElementsAfterReadErrors = 1;
 
-//	protected final ModbusWorker worker = new ModbusWorker(
-//			// Execute Task
-//			task -> task.execute(this),
-//			// Invalidate ModbusElements
-//			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
-//			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
-//			state -> this._setCycleTimeIsTooShort(state),
-//			// Log Warning
-//			(logger, message) -> this.logWarn(logger, message),
-//			// LogVerbosity
-//			this.logVerbosity //
-//	);
+	protected final ModbusWorker worker = new ModbusWorker(
+			// Execute Task
+			task -> task.execute(this),
+			// Invalidate ModbusElements
+			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
+			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
+			state -> this._setCycleTimeIsTooShort(state),
+			// Log Warning
+			(logger, message) -> this.logWarn(logger, message),
+			// LogVerbosity
+			this.logVerbosity //
+	);
 
 	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -63,17 +65,16 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
 		super.activate(context, id, alias, enabled);
 		this.logVerbosity.set(logVerbosity);
-//		this.modbusWorker.setLogVerbosity(logVerbosity);
 		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
 		if (this.isEnabled()) {
-//			this.worker.activate(id);
+			this.worker.activate(id);
 		}
 	}
 
 	@Override
 	protected void deactivate() {
 		super.deactivate();
-//		this.worker.deactivate();
+		this.worker.deactivate();
 		this.closeModbusConnection();
 	}
 
@@ -85,7 +86,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	@Override
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-//		this.worker.addProtocol(sourceId, protocol);
+		this.worker.addProtocol(sourceId, protocol);
 	}
 
 	/**
@@ -95,7 +96,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	@Override
 	public void removeProtocol(String sourceId) {
-//		this.worker.removeProtocol(sourceId);
+		this.worker.removeProtocol(sourceId);
 	}
 
 	@Override
@@ -105,10 +106,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-//			this.worker.onBeforeProcessImage();
+			this.worker.onBeforeProcessImage();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-//			this.worker.onExecuteWrite();
+			this.worker.onExecuteWrite();
 			break;
 		}
 	}
@@ -126,7 +127,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	public abstract void closeModbusConnection();
 
-	// TODO required?
 	public LogVerbosity getLogVerbosity() {
 		return this.logVerbosity.get();
 	}
@@ -153,5 +153,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	public int invalidateElementsAfterReadErrors() {
 		return this.invalidateElementsAfterReadErrors;
+	}
+
+	@Override
+	public void retryModbusCommunication(String sourceId) {
+		// TODO Auto-generated method stub
 	}
 }

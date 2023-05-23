@@ -82,4 +82,9 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 		// ignore
 	}
 
+	@Override
+	public void retryModbusCommunication(String sourceId) {
+		// ignore
+	}
+
 }

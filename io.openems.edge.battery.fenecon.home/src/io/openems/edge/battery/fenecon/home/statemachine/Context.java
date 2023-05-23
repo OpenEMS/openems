@@ -23,4 +23,8 @@ public class Context extends AbstractContext<FeneconHomeBattery> {
 		}
 		return !isNotStarted.get();
 	}
+
+	protected void retryModbusCommunication() {
+		this.getParent().retryModbusCommunication();
+	}
 }

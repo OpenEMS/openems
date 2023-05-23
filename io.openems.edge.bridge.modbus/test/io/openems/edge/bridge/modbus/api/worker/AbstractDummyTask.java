@@ -5,22 +5,19 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
-public abstract class AbstractDummyTask {
+public abstract class AbstractDummyTask extends AbstractTask {
 
 	protected final String name;
 	protected final long delay;
 
-	protected boolean isError = false;
-
 	private final Logger log = LoggerFactory.getLogger(AbstractDummyTask.class);
 
-	private AbstractOpenemsModbusComponent parent = null;
 	private Runnable onExecuteCallback;
 
 	public AbstractDummyTask(String name, long delay) {
+		super(0);
 		this.name = name;
 		this.delay = delay;
 	}
@@ -34,42 +31,10 @@ public abstract class AbstractDummyTask {
 		this.onExecuteCallback = onExecuteCallback;
 	}
 
-	public ModbusElement<?>[] getElements() {
-		return new ModbusElement[0];
-	}
-
-	public int getStartAddress() {
-		return 0;
-	}
-
-	public int getLength() {
-		return 0;
-	}
-
-	public void setParent(AbstractOpenemsModbusComponent parent) {
-		this.parent = parent;
-	}
-
-	public AbstractOpenemsModbusComponent getParent() {
-		return this.parent;
-	}
-
-	public void deactivate() {
-	}
-
-	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
+	@Override
+	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		if (this.onExecuteCallback != null) {
 			this.onExecuteCallback.run();
-		}
-
-		if (this.isError) {
-			try {
-				Thread.sleep(this.delay * 10);
-			} catch (InterruptedException e) {
-				this.log.warn(e.getMessage());
-				e.printStackTrace();
-			}
-			throw new OpenemsException("DummyTask is configured to fail");
 		}
 
 		try {
@@ -80,8 +45,8 @@ public abstract class AbstractDummyTask {
 		return 1;
 	}
 
-	public void setError(boolean isError) {
-		this.isError = isError;
+	@Override
+	protected String getActiondescription() {
+		return "";
 	}
-
 }

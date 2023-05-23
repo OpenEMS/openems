@@ -41,9 +41,20 @@ public class WaitDelayHandler {
 		this(Ticker.systemTicker(), logVerbosity, onWaitDelayTaskFinished);
 	}
 
+	/**
+	 * Called on BEFORE_PROCESS_IMAGE event.
+	 * 
+	 * @param nextCycleContainsDefectiveComponents true if the {@link CycleTasks}
+	 *                                             contain tasks of a defective
+	 *                                             component
+	 */
 	public void onBeforeProcessImage(boolean nextCycleContainsDefectiveComponents) {
-		if (previousCycleContainedDefectiveComponents) {
+		if (this.previousCycleContainedDefectiveComponents) {
 			// Do not add possibleDelay if previous Cycle contained a defective component
+			this.log("onBeforeProcessImage: previous Cycle contained a defective component");
+			this.stopwatch.reset();
+
+		} else {
 			final long possibleDelay;
 			if (this.stopwatch.isRunning()) {
 				// Coming from FINISHED state -> it's possible to increase delay
@@ -54,14 +65,11 @@ public class WaitDelayHandler {
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
 				this.log("onBeforeProcessImage: FINISHED state has not happened -> reduce possible delay");
-				this.stopwatch.stop();
 				possibleDelay = 0;
 			}
 
 			this.possibleDelays.add(possibleDelay);
 		}
-
-		// TODO handle defective components; copy from old WaitHandler
 
 		// Initialize a new WaitDelayTask.
 		if (nextCycleContainsDefectiveComponents) {
@@ -73,11 +81,19 @@ public class WaitDelayHandler {
 		this.previousCycleContainedDefectiveComponents = nextCycleContainsDefectiveComponents;
 	}
 
+	/**
+	 * Called when waiting finished.
+	 */
 	public void onFinished() {
 		// Measure duration between FINISHED and ON_BEFORE_PROCESS_IMAGE eventT
 		this.stopwatch.start();
 	}
 
+	/**
+	 * Gets the {@link WaitDelayTask}.
+	 * 
+	 * @return the task
+	 */
 	public WaitDelayTask getWaitDelayTask() {
 		return this.waitDelayTask;
 	}

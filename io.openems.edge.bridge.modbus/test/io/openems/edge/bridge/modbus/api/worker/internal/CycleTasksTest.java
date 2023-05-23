@@ -15,7 +15,7 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class CycleTasksTest {
 
-	public final static Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT_CALLBACK = (cycleTimeIsTooShort) -> {
+	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT_CALLBACK = (cycleTimeIsTooShort) -> {
 	};
 
 	public static DummyReadTask RT_H_1;
@@ -44,8 +44,9 @@ public class CycleTasksTest {
 				.writes(WT_1) //
 				.build();
 		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1, cycle2);
+		var defectiveComponents = new DefectiveComponents();
 
-		var sut = new CycleTasksManager(cycleTasksSupplier, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();

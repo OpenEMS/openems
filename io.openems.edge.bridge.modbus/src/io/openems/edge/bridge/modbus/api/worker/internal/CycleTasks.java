@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
@@ -18,11 +19,23 @@ public record CycleTasks(LinkedList<ReadTask> reads, LinkedList<WriteTask> write
 		private Builder() {
 		}
 
+		/**
+		 * Adds {@link ReadTask}s.
+		 * 
+		 * @param tasks the tasks
+		 * @return myself
+		 */
 		public Builder reads(ReadTask... tasks) {
 			Stream.of(tasks).forEach(this.reads::add);
 			return this;
 		}
 
+		/**
+		 * Adds {@link WriteTask}s.
+		 * 
+		 * @param tasks the tasks
+		 * @return myself
+		 */
 		public Builder writes(WriteTask... tasks) {
 			Stream.of(tasks).forEach(this.writes::add);
 			return this;
@@ -43,14 +56,16 @@ public record CycleTasks(LinkedList<ReadTask> reads, LinkedList<WriteTask> write
 	}
 
 	/**
-	 * Is any of the tasks belonging to a Component that is known to be defective?
+	 * Is any of the tasks belonging to a Component that is known to be defective?.
 	 * 
 	 * @param defectiveComponents the {@link DefectiveComponents}
-	 * @return
+	 * @return true for defective; false otherwise
 	 */
 	public boolean containsDefectiveComponent(DefectiveComponents defectiveComponents) {
 		return Stream.concat(this.reads.stream(), this.writes.stream()) //
-				.map(t -> t.getParent().id()) //
+				.map(t -> t.getParent()) //
+				.filter(Objects::nonNull) //
+				.map(p -> p.id()) //
 				.anyMatch(c -> defectiveComponents.isKnown(c));
 	}
 }

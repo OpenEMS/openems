@@ -109,4 +109,18 @@ public interface BridgeModbus extends OpenemsComponent {
 	 */
 	public void removeProtocol(String sourceId);
 
+	/**
+	 * The Modbus Bridge marks defective Components, e.g. if there are communication
+	 * failures. If a component is marked as defective, reads and writes are paused
+	 * for an increasing waiting time. This method resets the waiting time, causing
+	 * the Modbus Bridge to retry if a Component is not anymore defective.
+	 * 
+	 * <p>
+	 * Use this method if there is good reason that a Modbus Component should be
+	 * available again 'now', e.g. because it was turned on manually.
+	 * 
+	 * @param sourceId the unique source identifier
+	 */
+	public void retryModbusCommunication(String sourceId);
+
 }

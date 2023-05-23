@@ -238,6 +238,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return this.protocol;
 	}
 
+	@Override
+	public void retryModbusCommunication() {
+		var bridge = this.modbus.get();
+		bridge.retryModbusCommunication(this.id());
+	}
+
 	/**
 	 * Defines the Modbus protocol.
 	 *

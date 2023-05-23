@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ import io.openems.edge.common.type.Tuple;
 public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTasks> {
 
 	private final Logger log = LoggerFactory.getLogger(CycleTasksSupplier.class);
-	private LogVerbosity logVerbosity = LogVerbosity.NONE;
+	private final AtomicReference<LogVerbosity> logVerbosity;
 
 	/**
 	 * Source-ID -> TasksManager for {@link Task}s.
@@ -40,7 +41,7 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 	 */
 	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
-	protected void setLogVerbosity(LogVerbosity logVerbosity) {
+	public CycleTasksSupplier(AtomicReference<LogVerbosity> logVerbosity) {
 		this.logVerbosity = logVerbosity;
 	}
 
@@ -138,7 +139,7 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 
 	// TODO remove before release
 	private void log(String message) {
-		switch (this.logVerbosity) {
+		switch (this.logVerbosity.get()) {
 		case DEV_REFACTORING:
 			System.out.println(//
 					String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));

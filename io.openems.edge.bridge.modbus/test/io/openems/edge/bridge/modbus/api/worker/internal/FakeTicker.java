@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// CHECKSTYLE:OFF
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -93,3 +94,4 @@ public class FakeTicker extends Ticker {
 		return nanos.getAndAdd(autoIncrementStepNanos);
 	}
 }
+//CHECKSTYLE:ON
