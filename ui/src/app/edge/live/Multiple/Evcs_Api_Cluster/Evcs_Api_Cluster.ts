@@ -10,7 +10,7 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
 export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 
   public channelAddresses: ChannelAddress[] = [];
-  public evcsIdsInCluster: String[] = []
+  public evcsIdsInCluster: String[] = [];
   public evcssInCluster: EdgeConfig.Component[] = [];
   public evcsComponent: EdgeConfig.Component = null;
   public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
@@ -38,8 +38,8 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
       new ChannelAddress(this.componentId, 'EnergySession'),
       new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
       new ChannelAddress(this.componentId, 'MaximumHardwarePower')
-    )
-    return this.channelAddresses
+    );
+    return this.channelAddresses;
   }
 
   protected onCurrentData(currentData: CurrentData) {
@@ -76,7 +76,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
       new ChannelAddress(componentId, 'State'),
       new ChannelAddress(componentId, 'EnergySession'),
       new ChannelAddress(componentId, 'Alias')
-    )
+    );
   }
 
   async presentModal() {

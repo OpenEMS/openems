@@ -15,9 +15,9 @@ import { ChannelChartDescription } from '../../abstractbattery.component';
 })
 export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() battery: string;
-    @Input() channels: ChannelChartDescription[];
-    @Input() refresh: boolean;
+    @Input() private battery: string;
+    @Input() private channels: ChannelChartDescription[];
+    @Input() private refresh: boolean;
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
@@ -39,7 +39,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -65,7 +65,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
                     channel.datasets = result.data[this.battery + '/' + channel.channelName].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
                             return value;
                         }
@@ -74,11 +74,11 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
                         label: channel.label,
                         data: channel.datasets,
                         hidden: false
-                    })
+                    });
                     this.colors.push({
                         backgroundColor: 'rgba(' + channel.colorRgb + ',0.05)',
                         borderColor: 'rgba(' + channel.colorRgb + ',1)'
-                    })
+                    });
                 }
             });
 
@@ -100,7 +100,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
                 result.push(new ChannelAddress(this.battery, channel.channelName));
             });
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -110,7 +110,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " mV";
-        }
+        };
         options.scales.yAxes[0].ticks.beginAtZero = false;
         this.options = options;
     }

@@ -113,7 +113,7 @@ export type SetupProtocol = {
  */
 export class SubmitSetupProtocolRequest extends JsonrpcRequest {
 
-    static METHOD: string = "submitSetupProtocol";
+    private static METHOD: string = "submitSetupProtocol";
 
     public static translateFrom(protocol: SetupProtocol, translate: TranslateService): SubmitSetupProtocolRequest {
         // protocol.items are type category in the protocol recieved and need to be translated before the request being sent.
@@ -126,8 +126,8 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
                 category: Category.toTranslatedString(element.category, translate),
                 name: element.name,
                 value: element.value
-            }
-        })
+            };
+        });
 
         // 'Deep copy' to copy the object values from protocol recieved.
         // To avoid type issues from category to string.

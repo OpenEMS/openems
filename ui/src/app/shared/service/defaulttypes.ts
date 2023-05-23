@@ -88,7 +88,7 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', CUSTOM = 'custom' }
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', CUSTOM = 'custom' };
 
   export class HistoryPeriod {
 
@@ -127,7 +127,7 @@ export module DefaultTypes {
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
           value2: format(this.to, translate.instant('General.dateFormat'))
-        })
+        });
       }
     }
 

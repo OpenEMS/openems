@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-
-import { ChangelogComponent } from './changelog/changelog.component';
+import { environment } from 'src/environments';
+import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
-import { ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -18,6 +17,7 @@ import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
+import { ProductionChartOverviewComponent } from './edge/history/production/productionchartoverview/productionchartoverview.component';
 import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
@@ -45,17 +45,14 @@ import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/set
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
-import { DataService } from './shared/genericComponents/shared/dataservice';
-import { LiveDataService } from './shared/genericComponents/shared/livedataservice';
 import { UserComponent } from './user/user.component';
-import { HistoryDataService } from './shared/genericComponents/shared/historydataservice';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', component: IndexComponent },
+  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
 
   { path: 'user', component: UserComponent },
-  { path: 'changelog', component: ChangelogComponent },
+  { path: 'changelog', component: ChangelogViewComponent },
 
   { path: 'index/installation', component: InstallationComponent },
 
@@ -63,17 +60,9 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
+      { path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent },
       {
-        path: 'live', component: EdgeLiveComponent, providers: [{
-          provide: DataService,
-          useClass: LiveDataService
-        }]
-      },
-      {
-        path: 'history', component: HistoryParentComponent, providers: [{
-          provide: DataService,
-          useClass: HistoryDataService,
-        }], children: [
+        path: 'history', component: HistoryParentComponent, children: [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
@@ -93,11 +82,10 @@ const routes: Routes = [
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
           { path: 'storagechart', component: StorageChartOverviewComponent },
-
         ]
       },
 
-      { path: 'settings', component: EdgeSettingsComponent },
+      { path: 'settings', data: { navbarTitleToBeTranslated: 'Menu.edgeSettings' }, component: EdgeSettingsComponent },
       { path: 'settings/channels', component: EdgeSettingsChannelsComponent },
       { path: 'settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent },
       { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
@@ -112,7 +100,7 @@ const routes: Routes = [
       { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
       { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
       { path: 'settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
-      { path: 'settings/app', component: EdgeSettingsAppIndex },
+      { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },

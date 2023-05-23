@@ -20,7 +20,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class UpdateComponentConfigRequest extends JsonrpcRequest {
 
-    static METHOD: string = "updateComponentConfig";
+    private static METHOD: string = "updateComponentConfig";
 
     public constructor(
         public readonly params: {

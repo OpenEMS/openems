@@ -14,18 +14,18 @@ import * as Chart from 'chart.js';
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
-  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() edge: Edge;
-  @Input() currentData: CurrentData;
-  @Input() evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
-  @Input() componentId: string;
+  @Input() private evcsMap: { [sourceId: string]: EdgeConfig.Component };
+  @Input() private edge: Edge;
+  @Input() private currentData: CurrentData;
+  @Input() private evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+  @Input() private componentId: string;
 
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
   public options: BarChartOptions;
   public labels: Label[];
   public datasets: ChartDataSets[];
-  chart: Chart; // This will hold our chart info
+  public chart: Chart; // This will hold our chart info
 
 
   constructor(
@@ -58,7 +58,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     let index = 0;
     for (let evcsId in this.evcsMap) {
       let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0
+      let chargePowerKW = chargePower / 1000.0;
       let alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({

@@ -61,9 +61,7 @@
 
           <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
           <ng-container *ngIf="(service.metadata | async) as service">
-            <ng-container
-              *ngIf="environment.backend === 'OpenEMS Backend'
-              && ((service.edges | keys).length > 1 || (service.user.globalRole === 'installer' || service.user.globalRole === 'admin'))">
+            <ng-container *ngIf="environment.backend === 'OpenEMS Backend' && isUserAllowedToSeeOverview">
               <ion-item lines="full" routerLinkActive="active" routerLink="/index" (click)="menu.close()">
                 <ion-label translate>Menu.overview </ion-label>
               </ion-item>

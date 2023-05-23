@@ -1,17 +1,13 @@
 <header></header>
 <ion-content>
-  <ion-item lines="full" color="warning" *ngIf="showWarning" style="margin-top: 1%;">
-    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
-    <ion-label class="ion-text-wrap" style="text-align: center"
-      translate>Edge.Index.Energymonitor.excelExportWarning</ion-label>
-  </ion-item>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
   <!-- Only displayed when history allowed to be seen -->
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy (setShowWarning)="setShowWarning($event)" [period]="service.historyPeriod.value"
+        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod.value"
           [style.height]="energyChartHeight"></energy>
       </ion-col>
 
@@ -70,8 +66,10 @@
           </gridOptimizedChargeWidget>
         </ion-col>
 
+        <!-- Same widget is used for multiple Time-Of-Use-Tariff controllers temporarily, and later to be replaced by just one unified controller -->
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
-          *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'">
+          *ngSwitchCase="widget.name === 'Controller.Ess.Time-Of-Use-Tariff.Discharge' || widget.name === 'Controller.Ess.Time-Of-Use-Tariff' ? widget.name : '' ">
           <timeOfUseTariffDischargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </timeOfUseTariffDischargeWidget>
         </ion-col>

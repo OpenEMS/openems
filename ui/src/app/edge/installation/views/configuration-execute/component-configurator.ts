@@ -56,7 +56,7 @@ export class ComponentConfigurator {
     private channelMappings: { configurationObject: ConfigurationObject, channelAddress: ChannelAddress }[] = [];
     private subscriptions: Subscription[] = [];
 
-    private installAppCallbacks: (() => Promise<any>)[] = []
+    private installAppCallbacks: (() => Promise<any>)[] = [];
 
     constructor(private edge: Edge, private config: EdgeConfig, private websocket: Websocket) { }
 
@@ -77,7 +77,7 @@ export class ComponentConfigurator {
     }
 
     public addInstallAppCallback(installAppCallback: () => Promise<any>) {
-        this.installAppCallbacks.push(installAppCallback)
+        this.installAppCallbacks.push(installAppCallback);
     }
 
     private refreshConfigurationState(configurationObject: ConfigurationObject) {
@@ -106,7 +106,7 @@ export class ComponentConfigurator {
             this.updateScheduler().then(() => {
                 // execute app install callbacks
                 let installApp = new Promise<void>((resolve, reject) => {
-                    let allPromises: Promise<any>[] = []
+                    let allPromises: Promise<any>[] = [];
                     this.installAppCallbacks.forEach(callback => {
                         allPromises.push(callback());
                     });
@@ -122,14 +122,14 @@ export class ComponentConfigurator {
                             resolve(response))
                             .catch((reason) => reject(reason));
                     }).catch((reason) => reject(reason));
-                })
+                });
                 Promise.all([installApp, updateComponents])
                     .then(() => resolve())
                     .catch(error => reject(error));
             }).catch(reason => {
                 reject(reason);
-            })
-        })
+            });
+        });
     }
 
     /**
@@ -252,11 +252,11 @@ export class ComponentConfigurator {
                         resolve();
                     }
                 }, delay);
-            }
+            };
 
             if (configurationObject.baseMode === BaseMode.AppManager) {
                 clearNext();
-                return
+                return;
             }
 
             if (configurationObject.mode === ConfigurationMode.UpdateOnly) {
@@ -348,8 +348,8 @@ export class ComponentConfigurator {
     private configure(configurationObject: ConfigurationObject): Promise<void> {
         return new Promise((resolve, reject) => {
             if (configurationObject.baseMode === BaseMode.AppManager) {
-                resolve()
-                return
+                resolve();
+                return;
             }
             let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
 
@@ -410,13 +410,13 @@ export class ComponentConfigurator {
                 switch (channelValue) {
                     case 0:
                     case 1:
-                        functionState = FunctionState.Ok
+                        functionState = FunctionState.Ok;
                         break;
                     case 2:
-                        functionState = FunctionState.Warning
+                        functionState = FunctionState.Warning;
                         break;
                     case 3:
-                        functionState = FunctionState.Fault
+                        functionState = FunctionState.Fault;
                         break;
                     default:
                         functionState = undefined;
@@ -449,13 +449,13 @@ export class ComponentConfigurator {
             let ibn = JSON.parse(sessionStorage.ibn);
 
             let requiredControllerIds: SchedulerId[] = ibn.requiredControllerIds;
-            let controllerIds: string[] = []
+            let controllerIds: string[] = [];
             requiredControllerIds.forEach(value => {
                 if (AppCenterUtil.isAppManagerAvailable(this.edge) && value.behaviour === SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER) {
-                    return
+                    return;
                 }
-                controllerIds.push(value.componentId)
-            })
+                controllerIds.push(value.componentId);
+            });
 
             if (!scheduler) {
                 // If scheduler doesn't exist, it gets created and configured as required

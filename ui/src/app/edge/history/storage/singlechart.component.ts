@@ -80,45 +80,45 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
 
                     let totalData = effectivePower.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
                             return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     let totalDataL1 = effectivePowerL1.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     let totalDataL2 = effectivePowerL2.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     let totalDataL3 = effectivePowerL3.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
-                            })
+                            });
                             if (!data) {
                                 return;
                             } else {
@@ -130,7 +130,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
                                         borderColor: 'rgba(0,223,0,1)',
-                                    })
+                                    });
                                 }
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'EssActivePowerL1') {
@@ -189,7 +189,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 new ChannelAddress('_sum', 'EssActivePowerL3'),
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -214,7 +214,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

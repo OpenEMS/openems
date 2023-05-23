@@ -41,7 +41,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -52,11 +52,11 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
         let array = response.result.data[channeladdress];
         let firstValue = array.find(el => el != null) ?? 0;
         let lastValue = array.slice().reverse().find(el => el != null) ?? 0;
-        return lastValue - firstValue
+        return lastValue - firstValue;
     }
 
     protected updateValues() {
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
             this.activeTimeOverPeriodLevel1 = this.getCumulativeValue(this.componentId + '/Level1CumulatedTime', response);
             this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + '/Level2CumulatedTime', response);
             this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + '/Level3CumulatedTime', response);

@@ -16,7 +16,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -36,7 +36,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -60,7 +60,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 let address = ChannelAddress.fromString(channel);
                 let chargerData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -74,9 +74,9 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
                         borderColor: 'rgba(0,223,0,1)',
-                    })
+                    });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -94,7 +94,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 new ChannelAddress(this.componentId, 'ActualPower'),
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -104,7 +104,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

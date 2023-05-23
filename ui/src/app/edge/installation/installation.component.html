@@ -58,6 +58,10 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-line-side-meter-fuse>
 
+                <configuration-commercial-modbusbridge *ngSwitchCase="view.ConfigurationCommercialModbuBridgeComponent"
+                    [ibn]="ibn" (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-commercial-modbusbridge>
+
                 <protocol-pv *ngSwitchCase="view.ProtocolPv" [ibn]="ibn" (previousViewEvent)="displayPreviousView()"
                     (nextViewEvent)="displayNextView($event)">
                 </protocol-pv>

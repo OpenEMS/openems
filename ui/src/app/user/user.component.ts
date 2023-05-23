@@ -4,12 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
-import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
 import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
 import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
 import { Service, Websocket } from '../shared/shared';
+import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { Language } from '../shared/type/language';
 
 type UserInformation = {
@@ -40,8 +40,7 @@ export class UserComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
     private websocket: Websocket,
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     // Set currentLanguage to 
@@ -53,7 +52,7 @@ export class UserComponent implements OnInit {
         formGroup: new FormGroup({}),
         fields: this.getFields(),
         model: userInformation
-      }
+      };
     }).then(() => {
       this.service.metadata.subscribe(entry => {
         if (entry) {
@@ -68,8 +67,8 @@ export class UserComponent implements OnInit {
               this.showInformation = true;
           }
         }
-      })
-    })
+      });
+    });
   }
 
   public applyChanges() {
@@ -86,12 +85,12 @@ export class UserComponent implements OnInit {
           country: this.form.model.country
         },
       }
-    }
+    };
     this.service.websocket.sendRequest(new SetUserInformationRequest(user)).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
     }).catch((reason) => {
       this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-    })
+    });
     this.enableAndDisableFormFields();
     this.form.formGroup.markAsPristine();
   }
@@ -103,11 +102,11 @@ export class UserComponent implements OnInit {
           formGroup: new FormGroup({}),
           fields: this.getFields(),
           model: userInformation
-        }
+        };
       });
     }
 
-    this.enableAndDisableFormFields()
+    this.enableAndDisableFormFields();
   }
 
   public enableAndDisableFormFields(): boolean {
@@ -212,7 +211,7 @@ export class UserComponent implements OnInit {
               zip: user.address.zip,
               city: user.address.city,
               country: user.address.country,
-            })
+            });
           }).catch(() => {
             resolve({
               lastname: "",
@@ -227,7 +226,7 @@ export class UserComponent implements OnInit {
           });
           clearInterval(interval);
         }
-      }, 1000)
+      }, 1000);
     });
   }
 
@@ -240,7 +239,7 @@ export class UserComponent implements OnInit {
 
   public toggleDebugMode(event: CustomEvent) {
 
-    sessionStorage.setItem("DEBUGMODE", event.detail['checked'])
+    sessionStorage.setItem("DEBUGMODE", event.detail['checked']);
     this.environment.debugMode = event.detail['checked'];
   }
 

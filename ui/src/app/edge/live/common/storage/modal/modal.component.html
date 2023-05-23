@@ -11,8 +11,9 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content>
-    <form [formGroup]="formGroup" *ngIf="formGroup">
+<ion-content style="height: 100%; ">
+
+    <form [formGroup]="formGroup" *ngIf="formGroup" style="margin-bottom: 15%;" class="align_items">
 
         <!-- one ESS Component -->
         <ng-container *ngIf="essComponents?.length === 1 && edge.currentData | async as currentData">
@@ -98,56 +99,200 @@
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
                     <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
-                        <table class="full_width" style="margin-top: 2%;">
-                            <tr>
-                                <ion-item-divider color="light">
-                                    <td style="width: 70%;" translate>
-                                        Edge.Index.EmergencyReserve.emergencyReserve
-                                    </td>
-                                    <td style="width: 15%;" class="align_right">
-                                        {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
-                                    </td>
-                                    <td style="width: 15%" class="align_right"
-                                        [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.8)': ''">
+                        <ng-container [formGroupName]="'emergencyReserveController'"
+                            *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                            <ng-container>
+                                <table class="full_width" style="margin-top: 2%;">
+                                    <tr>
+                                        <ion-item-divider color="light">
+                                            <td style="width: 70%;" translate>
+                                                Edge.Index.EmergencyReserve.emergencyReserve
+                                            </td>
+                                            <td style="width: 15%;" class="align_right">
+                                                {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                unitvalue:'%' }}
+                                            </td>
+                                            <td style="width: 15%" class="align_right">
 
-                                        <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
-                                        <ion-toggle formControlName="isReserveSocEnabled">
-                                        </ion-toggle>
-                                    </td>
-                                </ion-item-divider>
-                            </tr>
-                        </table>
+                                                <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
+                                                <ng-container
+                                                    *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    </ion-toggle>
+                                                </ng-container>
+                                            </td>
+                                        </ion-item-divider>
+                                    </tr>
+                                </table>
+                                <table class="full_width" style="margin-top: 2%;">
+                                    <tr>
+                                        <td style="width: 10%">
+                                            <ion-icon name="information-outline" size="large"></ion-icon>
+                                        </td>
+                                        <td style="width: 90%">
+                                            <ion-note class="ion-text-wrap ion-align-items-center">
+                                                <ion-text>
+                                                    <small translate>
+                                                        Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
+                                                    </small>
+                                                </ion-text>
+                                            </ion-note>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                        <table class="full_width" style="margin-top: 2%;">
-                            <tr>
-                                <td style="width: 10%">
-                                    <ion-icon name="information-outline" size="large"></ion-icon>
-                                </td>
-                                <td style="width: 90%">
-                                    <ion-note class="ion-text-wrap ion-align-items-center">
-                                        <ion-text>
-                                            <small translate>
-                                                Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
-                                            </small>
-                                        </ion-text>
-                                    </ion-note>
-                                </td>
-                            </tr>
-                        </table>
 
-                        <!-- Show only when EmergencyReserve is enabled -->
-                        <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
-                            <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
-                                <ion-label slot="start">
-                                    {{ 5 | unitvalue:'%' }}
-                                </ion-label>
-                                <ion-label slot="end">
-                                    {{ 100 | unitvalue:'%' }}
-                                </ion-label>
-                            </ion-range>
+                                <!-- Show only when EmergencyReserve is enabled -->
+                                <ng-container
+                                    *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] && formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                    <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
+                                        <ion-label slot="start">
+                                            {{ 5 | unitvalue:'%' }}
+                                        </ion-label>
+                                        <ion-label slot="end">
+                                            {{ 100 | unitvalue:'%' }}
+                                        </ion-label>
+                                    </ion-range>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+
+                        <ng-container [formGroupName]="'prepareBatteryExtensionController'"
+                            *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+
+
+                            <table class="full_width" style="margin-top: 2%;">
+                                <tr>
+                                    <ion-item-divider color="light">
+                                        <td style="width: 90%;" translate>
+                                            Edge.Index.RETROFITTING.OPTIMAL
+                                        </td>
+                                        <td style="width: 15%" class="align_right">
+                                            <ion-toggle formControlName="isRunning">
+                                            </ion-toggle>
+                                        </td>
+
+                                    </ion-item-divider>
+                                </tr>
+                            </table>
+                            <ng-container
+                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
+                                    <ng-container
+                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                        <ng-container
+                                            *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                            <ion-segment [formControlName]="'targetTimeSpecified'">
+                                                <ion-segment-button value="false">
+                                                    <ion-label
+                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                </ion-segment-button>
+                                                <ion-segment-button value="true">
+                                                    <ion-label
+                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                </ion-segment-button>
+                                            </ion-segment>
+
+                                            <table class="full_width" style="margin-top: 2%;"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                                            && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
+                                                <tr>
+                                                    <td style="width: 10%">
+                                                        <ion-icon name="information-outline" size="large"></ion-icon>
+                                                    </td>
+                                                    <td style="width: 90%">
+                                                        <ion-note class="ion-text-wrap ion-align-items-center">
+                                                            <ion-text>
+                                                                <small translate
+                                                                    [translateParams]="{targetSoc: prepareBatteryExtensionController['targetSoc'],
+                                                                 targetTime: prepareBatteryExtensionController['targetTime'],
+                                                                 targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                </small>
+                                                            </ion-text>
+                                                        </ion-note>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                            <table class="full_width"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                <tr
+                                                    style="display: block; width: 75%; margin-left: 12.5%; margin-top: 2%;">
+
+                                                    <!-- Date picker -->
+                                                    <td style="width: 20%; text-align: center">
+                                                        <ion-item button="true" id="open-date-input">
+                                                            <ion-label style="text-align: center"
+                                                                *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
+                                                                [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
+                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                            </ion-label>
+
+                                                            <ng-template #noValidTargetTime>
+                                                                <ion-icon name="warning-outline"
+                                                                    color="warning"></ion-icon>
+                                                                <ion-label style="text-align: center;" translate>
+                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                </ion-label>
+                                                            </ng-template>
+
+                                                            <ion-popover trigger="open-date-input" show-backdrop="false"
+                                                                side="top"
+                                                                style="--offset-y: 0px !important; --height: 50%;">
+                                                                <ng-template>
+                                                                    <ion-datetime [showDefaultButtons]="true"
+                                                                        style="overflow-y: auto;"
+                                                                        presentation="date-time"
+                                                                        [doneText]="translate.instant('General.ok')"
+                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [formControlName]="'targetTime'"></ion-datetime>
+                                                                </ng-template>
+                                                            </ion-popover>
+                                                        </ion-item>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table class="full_width" style="margin-top: 2%;"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                <tr>
+                                                    <td style="width: 10%">
+                                                        <ion-icon name="information-outline" size="large"></ion-icon>
+                                                    </td>
+                                                    <td style="width: 90%">
+                                                        <ion-note class="ion-text-wrap ion-align-items-center">
+                                                            <ion-text>
+                                                                <small
+                                                                    *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                    translate
+                                                                    [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
+                                                                 targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                                targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                </small>
+                                                                <small *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                    translate
+                                                                    [translateParams]="{
+                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                </small>
+                                                            </ion-text>
+                                                        </ion-note>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+                            </ng-container>
+
+                            <!-- Show only when isRunning is activated -->
                         </ng-container>
                     </ng-container>
-
                 </ion-card-content>
             </ng-container>
         </ng-container>
@@ -160,7 +305,7 @@
                     <table class="full_width">
                         <tr>
                             <td style="width:100%" translate>
-                                General.total
+                                General.TOTAL
                             </td>
                         </tr>
                         <div style="padding-top: 5px;"></div>
@@ -335,51 +480,203 @@
 
                             <!-- Show if ess has EmergencyCapacityReserveController assigned-->
                             <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
-                                <table class="full_width" style="margin-top: 2%;">
-                                    <tr>
-                                        <ion-item-divider color="light">
-                                            <td style="width: 70%;" translate>
-                                                Edge.Index.EmergencyReserve.emergencyReserve
-                                            </td>
-                                            <td style="width: 20%; text-align: right;">
-                                                {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
-                                            </td>
-                                            <td style="width: 10%" class="align_right">
+                                <ng-container [formGroupName]="'emergencyReserveController'">
+                                    <ng-container *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                                        <table class="full_width" style="margin-top: 2%;">
+                                            <tr>
+                                                <ion-item-divider color="light">
+                                                    <td style="width: 70%;" translate>
+                                                        Edge.Index.EmergencyReserve.emergencyReserve
+                                                    </td>
+                                                    <td style="width: 15%;" class="align_right">
+                                                        {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                        unitvalue:'%' }}
+                                                    </td>
+                                                    <td style="width: 15%" class="align_right">
 
-                                                <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
-                                                <ion-toggle formControlName="isReserveSocEnabled">
-                                                </ion-toggle>
-                                            </td>
-                                        </ion-item-divider>
-                                    </tr>
-                                </table>
+                                                        <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
+                                                        <ng-container
+                                                            *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                            <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                            </ion-toggle>
+                                                        </ng-container>
+                                                    </td>
+                                                </ion-item-divider>
+                                            </tr>
+                                        </table>
 
-                                <table class="full_width" style="margin-top: 2%;">
-                                    <tr>
-                                        <td style="width: 10%">
-                                            <ion-icon name="information-outline" size="large"></ion-icon>
-                                        </td>
-                                        <td style="width: 90%">
-                                            <ion-note class="ion-text-wrap ion-align-items-center">
-                                                <ion-text>
-                                                    <small translate>
-                                                        Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
-                                                    </small>
-                                                </ion-text>
-                                            </ion-note>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <!-- Show only when EmergencyReserve is enabled -->
-                                <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
-                                    <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
-                                        <ion-label slot="start">
-                                            {{ 5 | unitvalue:'%' }}
-                                        </ion-label>
-                                        <ion-label slot="end">
-                                            {{ 100 | unitvalue:'%' }}
-                                        </ion-label>
-                                    </ion-range>
+
+                                        <table class="full_width" style="margin-top: 2%;">
+                                            <tr>
+                                                <td style="width: 10%">
+                                                    <ion-icon name="information-outline" size="large"></ion-icon>
+                                                </td>
+                                                <td style="width: 90%">
+                                                    <ion-note class="ion-text-wrap ion-align-items-center">
+                                                        <ion-text>
+                                                            <small translate>
+                                                                Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
+                                                            </small>
+                                                        </ion-text>
+                                                    </ion-note>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Show only when EmergencyReserve is enabled -->
+                                        <ng-container
+                                            *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] &&  formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                            <ion-range formControlName="reserveSoc" pin color="primary" min="5"
+                                                max="100">
+                                                <ion-label slot="start">
+                                                    {{ 5 | unitvalue:'%' }}
+                                                </ion-label>
+                                                <ion-label slot="end">
+                                                    {{ 100 | unitvalue:'%' }}
+                                                </ion-label>
+                                            </ion-range>
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+
+                                <ng-container [formGroupName]="'prepareBatteryExtensionController'"
+                                    *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+
+                                    <table class="full_width" style="margin-top: 2%;">
+                                        <tr>
+                                            <ion-item-divider color="light">
+                                                <td style="width: 90%;" translate>
+                                                    Edge.Index.RETROFITTING.OPTIMAL
+                                                </td>
+                                                <td style="width: 15%" class="align_right">
+                                                    <ion-toggle formControlName="isRunning">
+                                                    </ion-toggle>
+                                                </td>
+
+                                            </ion-item-divider>
+                                        </tr>
+                                    </table>
+                                    <ng-container
+                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                        <ng-container
+                                            *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
+                                            <ng-container
+                                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                                <ng-container
+                                                    *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                                    <ion-segment [formControlName]="'targetTimeSpecified'">
+                                                        <ion-segment-button value="false">
+                                                            <ion-label
+                                                                translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                        </ion-segment-button>
+                                                        <ion-segment-button value="true">
+                                                            <ion-label
+                                                                translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                        </ion-segment-button>
+                                                    </ion-segment>
+
+                                                    <table class="full_width" style="margin-top: 2%;"
+                                                        *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                                            && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
+                                                        <tr>
+                                                            <td style="width: 10%">
+                                                                <ion-icon name="information-outline"
+                                                                    size="large"></ion-icon>
+                                                            </td>
+                                                            <td style="width: 90%">
+                                                                <ion-note class="ion-text-wrap ion-align-items-center">
+                                                                    <ion-text>
+                                                                        <small translate
+                                                                            [translateParams]="{targetSoc: prepareBatteryExtensionController['targetSoc'],
+                                                                 targetTime: prepareBatteryExtensionController['targetTime'],
+                                                                 targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
+                                                                            translate>
+                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                        </small>
+                                                                    </ion-text>
+                                                                </ion-note>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <table class="full_width"
+                                                        *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                        <tr
+                                                            style="display: block; width: 75%; margin-left: 12.5%; margin-top: 2%;">
+
+                                                            <!-- Date picker -->
+                                                            <td style="width: 20%; text-align: center">
+                                                                <ion-item button="true" id="open-date-input">
+                                                                    <ion-label style="text-align: center"
+                                                                        *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
+                                                                        [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
+                                                                        translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                    </ion-label>
+
+                                                                    <ng-template #noValidTargetTime>
+                                                                        <ion-icon name="warning-outline"
+                                                                            color="warning"></ion-icon>
+                                                                        <ion-label style="text-align: center;"
+                                                                            translate>
+                                                                            Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                        </ion-label>
+                                                                    </ng-template>
+
+                                                                    <ion-popover trigger="open-date-input"
+                                                                        show-backdrop="false" side="top"
+                                                                        style="--offset-y: 0px !important; --height: 50%;">
+                                                                        <ng-template>
+                                                                            <ion-datetime [showDefaultButtons]="true"
+                                                                                style="overflow-y: auto;"
+                                                                                presentation="date-time"
+                                                                                [doneText]="translate.instant('General.ok')"
+                                                                                [cancelText]="translate.instant('General.cancel')"
+                                                                                [formControlName]="'targetTime'"></ion-datetime>
+                                                                        </ng-template>
+                                                                    </ion-popover>
+                                                                </ion-item>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table class="full_width" style="margin-top: 2%;"
+                                                        *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                        <tr>
+                                                            <td style="width: 10%">
+                                                                <ion-icon name="information-outline"
+                                                                    size="large"></ion-icon>
+                                                            </td>
+                                                            <td style="width: 90%">
+                                                                <ion-note class="ion-text-wrap ion-align-items-center">
+                                                                    <ion-text>
+                                                                        <small
+                                                                            *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                            translate
+                                                                            [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
+                                                                 targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                                targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                            translate>
+                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                        </small>
+                                                                        <small
+                                                                            *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                            translate
+                                                                            [translateParams]="{
+                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                                            translate>
+                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                        </small>
+                                                                    </ion-text>
+                                                                </ion-note>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </ng-container>
+                                            </ng-container>
+                                        </ng-container>
+
+                                        <!-- Show only when isRunning is activated -->
+                                    </ng-container>
                                 </ng-container>
                             </ng-container>
                         </ion-card-content>
@@ -417,60 +714,218 @@
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
                     <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
-                        <table class="full_width" style="margin-top: 2%;">
-                            <tr>
-                                <ion-item-divider color="light">
-                                    <td style="width: 70%;" translate>
-                                        Edge.Index.EmergencyReserve.emergencyReserve
-                                    </td>
-                                    <td style="width: 20%; text-align: right;">
-                                        {{ formGroup.value[component.id]?.reserveSoc | unitvalue:'%' }}
-                                    </td>
-                                    <td style="width: 10%" class="align_right">
+                        <ng-container [formGroupName]="'emergencyReserveController'">
+                            <ng-container *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                                <table class="full_width" style="margin-top: 2%;">
+                                    <tr>
+                                        <ion-item-divider color="light">
+                                            <td style="width: 70%;" translate>
+                                                Edge.Index.EmergencyReserve.emergencyReserve
+                                            </td>
+                                            <td style="width: 15%;" class="align_right">
+                                                {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                unitvalue:'%' }}
+                                            </td>
+                                            <td style="width: 15%" class="align_right">
 
-                                        <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
-                                        <ion-toggle formControlName="isReserveSocEnabled">
-                                        </ion-toggle>
-                                    </td>
-                                </ion-item-divider>
-                            </tr>
-                        </table>
+                                                <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
+                                                <ng-container
+                                                    *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                    <ion-toggle [formControlName]="'isReserveSocEnabled'">
+                                                    </ion-toggle>
+                                                </ng-container>
+                                            </td>
+                                        </ion-item-divider>
+                                    </tr>
+                                </table>
+                                <table class="full_width" style="margin-top: 2%;">
+                                    <tr>
+                                        <td style="width: 10%">
+                                            <ion-icon name="information-outline" size="large"></ion-icon>
+                                        </td>
+                                        <td style="width: 90%">
+                                            <ion-note class="ion-text-wrap ion-align-items-center">
+                                                <ion-text>
+                                                    <small translate>
+                                                        Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
+                                                    </small>
+                                                </ion-text>
+                                            </ion-note>
+                                        </td>
+                                    </tr>
+                                </table>
 
-                        <table class="full_width" style="margin-top: 2%;">
-                            <tr>
-                                <td style="width: 10%">
-                                    <ion-icon name="information-outline" size="large"></ion-icon>
-                                </td>
-                                <td style="width: 90%">
-                                    <ion-note class="ion-text-wrap ion-align-items-center">
-                                        <ion-text>
-                                            <small translate>
-                                                Edge.Index.EmergencyReserve.InfoForEmergencyReserveSlider
-                                            </small>
-                                        </ion-text>
-                                    </ion-note>
-                                </td>
-                            </tr>
-                        </table>
 
-                        <!-- Show only when EmergencyReserve is enabled -->
-                        <ng-container *ngIf="formGroup.value[component.id]?.isReserveSocEnabled">
-                            <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
-                                <ion-label slot="start">
-                                    {{ 5 | unitvalue:'%' }}
-                                </ion-label>
-                                <ion-label slot="end">
-                                    {{ 100 | unitvalue:'%' }}
-                                </ion-label>
-                            </ion-range>
+                                <!-- Show only when EmergencyReserve is enabled -->
+                                <ng-container
+                                    *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] && formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                    <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
+                                        <ion-label slot="start">
+                                            {{ 5 | unitvalue:'%' }}
+                                        </ion-label>
+                                        <ion-label slot="end">
+                                            {{ 100 | unitvalue:'%' }}
+                                        </ion-label>
+                                    </ion-range>
+                                </ng-container>
+                            </ng-container>
+                        </ng-container>
+                        <ng-container [formGroupName]="'prepareBatteryExtensionController'"
+                            *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+
+                            <table class="full_width" style="margin-top: 2%;">
+                                <tr>
+                                    <ion-item-divider color="light">
+                                        <td style="width: 90%;" translate>
+                                            Edge.Index.RETROFITTING.OPTIMAL
+                                        </td>
+                                        <td style="width: 15%" class="align_right">
+                                            <ion-toggle formControlName="isRunning">
+                                            </ion-toggle>
+                                        </td>
+
+                                    </ion-item-divider>
+                                </tr>
+                            </table>
+                            <ng-container
+                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
+                                    <ng-container
+                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                        <ng-container
+                                            *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                            <ion-segment [formControlName]="'targetTimeSpecified'">
+                                                <ion-segment-button value="false">
+                                                    <ion-label
+                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                </ion-segment-button>
+                                                <ion-segment-button value="true">
+                                                    <ion-label
+                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                </ion-segment-button>
+                                            </ion-segment>
+
+                                            <table class="full_width" style="margin-top: 2%;"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                                        && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
+                                                <tr>
+                                                    <td style="width: 10%">
+                                                        <ion-icon name="information-outline" size="large"></ion-icon>
+                                                    </td>
+                                                    <td style="width: 90%">
+                                                        <ion-note class="ion-text-wrap ion-align-items-center">
+                                                            <ion-text>
+                                                                <small translate
+                                                                    [translateParams]="{targetSoc: prepareBatteryExtensionController['targetSoc'],
+                                                             targetTime: prepareBatteryExtensionController['targetTime'],
+                                                             targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                </small>
+                                                            </ion-text>
+                                                        </ion-note>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                            <table class="full_width"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                <tr
+                                                    style="display: block; width: 75%; margin-left: 12.5%; margin-top: 2%;">
+
+                                                    <!-- Date picker -->
+                                                    <td style="width: 20%; text-align: center">
+                                                        <ion-item button="true" id="open-date-input">
+                                                            <ion-label style="text-align: center"
+                                                                *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
+                                                                [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
+                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                            </ion-label>
+
+                                                            <ng-template #noValidTargetTime>
+                                                                <ion-icon name="warning-outline"
+                                                                    color="warning"></ion-icon>
+                                                                <ion-label style="text-align: center;" translate>
+                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                </ion-label>
+                                                            </ng-template>
+
+                                                            <ion-popover trigger="open-date-input" show-backdrop="false"
+                                                                side="top"
+                                                                style="--offset-y: 0px !important; --height: 50%;">
+                                                                <ng-template>
+                                                                    <ion-datetime [showDefaultButtons]="true"
+                                                                        style="overflow-y: auto;"
+                                                                        presentation="date-time"
+                                                                        [doneText]="translate.instant('General.ok')"
+                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [formControlName]="'targetTime'"></ion-datetime>
+                                                                </ng-template>
+                                                            </ion-popover>
+                                                        </ion-item>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <table class="full_width" style="margin-top: 2%;"
+                                                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'true'">
+                                                <tr>
+                                                    <td style="width: 10%">
+                                                        <ion-icon name="information-outline" size="large"></ion-icon>
+                                                    </td>
+                                                    <td style="width: 90%">
+                                                        <ion-note class="ion-text-wrap ion-align-items-center">
+                                                            <ion-text>
+                                                                <small
+                                                                    *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                    translate
+                                                                    [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
+                                                             targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                            targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                            targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                </small>
+                                                                <small *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                    translate
+                                                                    [translateParams]="{
+                                                            targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                                    translate>
+                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                </small>
+                                                            </ion-text>
+                                                        </ion-note>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </ng-container>
+                                    </ng-container>
+                                </ng-container>
+
+                                <!-- Show only when isRunning is activated -->
+                            </ng-container>
                         </ng-container>
                     </ng-container>
-
                 </ion-card-content>
             </ng-container>
         </ng-container>
     </form>
 
+    <ng-template #oldControllerVersion>
+        <table class="full_width" style="margin-top: 2%;">
+            <tr>
+                <td>
+                    <ion-text>
+                        <span translate>
+                            Edge.Index.RETROFITTING.UPDATE_TO_NEW_VERSION
+                        </span>
+                        →
+                        <a (click)="modalCtrl.dismiss()" routerLink="/device/{{ edge.id }}/settings/systemupdate"
+                            [innerHtml]="'Edge.Index.SYSTEMUPDATE' | translate"></a>
+                    </ion-text>
+                </td>
+            </tr>
+        </table>
+    </ng-template>
 
     <ion-fab *ngIf="formGroup?.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
         <ion-fab-button (click)="applyChanges()">

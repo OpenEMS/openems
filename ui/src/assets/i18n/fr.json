@@ -27,12 +27,12 @@
     "gridBuyAdvanced": "Achete",
     "gridSell": "Vendu sur le réseau",
     "gridSellAdvanced": "Vends",
-    "history": "Historique",
+    "HISTORY": "Historique",
     "inactive": "Désactivé",
     "info": "Info",
     "inputNotValid": "Input not valid",
     "insufficientRights": "Droits insuffisants",
-    "live": "Direct",
+    "LIVE": "Direct",
     "load": "Charge",
     "manually": "Manuellement",
     "measuredValue": "Measured Value",
@@ -59,7 +59,7 @@
     "state": "Etat",
     "storageSystem": "Système de stockage",
     "systemState": "System state",
-    "total": "total",
+    "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
     "Week": {
@@ -172,8 +172,7 @@
         "storage": "Stockage",
         "storageCharge": "Stockage-Charge",
         "storageDischarge": "Stockage-Décharge",
-        "title": "Moniteur d'énergie",
-        "excelExportWarning": "L`affichage et l`exportation de données sur une longue période sont actuellement limités. Veuillez réessayer ultérieurement."
+        "title": "Moniteur d'énergie"
       },
       "Energytable": {
         "title": "Tableau énergétique",
@@ -378,7 +377,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Prix actuel",
           "delayedDischarge": "Sortie retardée",
-          "storageDischarge": "Décharge de stockage",
+          "STORAGE_DISCHARGE": "Décharge de stockage",
           "State": {
             "notStarted": "Le contrôleur n'a pas encore démarré",
             "delayed": "Retardé",
@@ -499,12 +498,12 @@
           "error": "Erreur lors du chargement des paramètres"
         },
         "interval": {
-          "hours": "heures",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "journée",
-          "days": "journées",
-          "hour": "heure"
+          "hours": "Heures",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Journée",
+          "days": "Journées",
+          "hour": "Heure"
         }
       },
       "App": {

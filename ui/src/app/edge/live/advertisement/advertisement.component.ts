@@ -27,13 +27,13 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
   public disablePrevBtn: boolean = null;
   public disableNextBtn: boolean = null;
 
-  slideOpts = {
+  protected slideOpts = {
     allowTouchMove: false,
     initialSlide: 0,
     preventClicks: false,
     preventClicksPropagation: false,
     speed: 5000,
-  }
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -51,11 +51,11 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
     // Slide to random first view
     this.slides.getActiveIndex().then(index => {
       this.title = this.advertWidgets.list[index].title ?? environment.edgeShortName + ' - App';
-    })
+    });
 
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
-    })
+    });
 
     // enables or disables nav buttons generally
     this.slides.length().then(length => {
@@ -64,7 +64,7 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
         this.disablePrevBtn = true;
         this.disableNextBtn = false;
       }
-    })
+    });
   }
 
   ngOnDestroy() {
@@ -91,25 +91,25 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
       this.slides.getSwiper().then(swiper => {
         if (swiper.isBeginning) {
           // Show only nextButton for first slide
-          this.disablePrevBtn = true
-          this.disableNextBtn = false
+          this.disablePrevBtn = true;
+          this.disableNextBtn = false;
         } else if (swiper.isEnd) {
           // Show only previousButton for last slide
-          this.disablePrevBtn = false
-          this.disableNextBtn = true
+          this.disablePrevBtn = false;
+          this.disableNextBtn = true;
         } else {
-          this.disablePrevBtn = false
-          this.disableNextBtn = false
+          this.disablePrevBtn = false;
+          this.disableNextBtn = false;
         }
-      })
+      });
     }
   }
 
   swipeNext() {
-    this.slides.slideNext()
+    this.slides.slideNext();
   }
 
   swipePrevious() {
-    this.slides.slidePrev()
+    this.slides.slidePrev();
   }
 }

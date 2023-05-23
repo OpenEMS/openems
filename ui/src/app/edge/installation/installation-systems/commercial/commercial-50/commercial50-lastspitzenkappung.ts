@@ -20,6 +20,7 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
             View.ProtocolSystem,
             View.ConfigurationPeakShaving,
             View.ConfigurationLineSideMeterFuse,
+            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -37,8 +38,9 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
 
+        const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator =
-            super.getComponentConfigurator(edge, config, websocket);
+            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
         let factoryId: string;
         let alias: string;
@@ -54,8 +56,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         }
 
         if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-            entladungÜber = this.commercial50Feature.feature.entladungÜber
-            beladungUnter = this.commercial50Feature.feature.beladungUnter
+            entladungÜber = this.commercial50Feature.feature.entladungÜber;
+            beladungUnter = this.commercial50Feature.feature.beladungUnter;
         }
 
         componentConfigurator.add({

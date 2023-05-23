@@ -35,12 +35,12 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
                 this.edge = response;
                 this.config = config;
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -49,12 +49,12 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
 
     protected updateValues() {
         // Gather result & timestamps to calculate effective active time in % 
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
                 this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
-            })
+            });
         });
     };
 

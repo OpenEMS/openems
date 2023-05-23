@@ -21,6 +21,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   protected model;
   public insertModeEnabled: boolean;
+  protected manualLink: string | null = null;
 
   constructor(
     private service: Service,
@@ -143,10 +144,16 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       expressions: {
         // Change the modbus description based on the meter selected above.
         'templateOptions.description': (form) => {
-          if (form.model.meterType === Meter.SOCOMEC) {
-            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_SOCOMEC_DESCRIPTION')
+          var meterType = form.model.meterType;
+
+          // Load the appropriate link based on the meter selected.
+          this.manualLink = Meter.toManualLink(meterType);
+
+          // Load the appropriate description based on the meter selected.
+          if (meterType === Meter.SOCOMEC) {
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_SOCOMEC_DESCRIPTION');
           } else {
-            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION')
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION');
           }
         }
       }
@@ -191,6 +198,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   }
 
   public openManual() {
-    window.open('https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf');
+    if (!this.manualLink) {
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_SELECTION_WARNING'), 'warning');
+    } else {
+      window.open(this.manualLink);
+    }
   }
 }

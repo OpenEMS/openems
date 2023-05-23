@@ -27,12 +27,12 @@
     "gridBuyAdvanced": "Netafname",
     "gridSell": "Netteruglevering",
     "gridSellAdvanced": "Netteruglevering",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Inactief",
     "info": "Info",
     "inputNotValid": "Invoer ongeldig",
     "insufficientRights": "Onvoldoende rechten",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "Laden",
     "manually": "handmatig",
     "measuredValue": "Gemeten Waarde",
@@ -54,7 +54,7 @@
     "state": "Staat",
     "storageSystem": "Batterij",
     "systemState": "Systeemstatus",
-    "total": "totale verbruik",
+    "TOTAL": "totale verbruik",
     "totalState": "Algemene staat",
     "warning": "Waarschuwing",
     "Week": {
@@ -165,8 +165,7 @@
         "productionMeter": "Productiemeter",
         "reactivePower": "Blind vermogen",
         "storage": "Batterij",
-        "title": "Energiemonitor",
-        "excelExportWarning": "De weergave en uitvoer van gegevens over een langere periode is momenteel slechts in beperkte mate mogelijk. Probeer het later nog eens."
+        "title": "Energiemonitor"
       },
       "Widgets": {
         "autarchyInfo": "Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.",
@@ -372,7 +371,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Huidige prijs",
           "delayedDischarge": "Vertraagd ontslag",
-          "storageDischarge": "Opslag ontlading",
+          "STORAGE_DISCHARGE": "Opslag ontlading",
           "State": {
             "notStarted": "De regelaar is nog niet gestart",
             "delayed": "Vertraagd",
@@ -494,12 +493,12 @@
           "error": "Fout bij het laden van de instellingen"
         },
         "interval": {
-          "hours": "uur",
-          "minute": "minuut",
-          "minutes": "minuten",
-          "day": "dag",
-          "days": "dagen",
-          "hour": "uur"
+          "hours": "Uur",
+          "minute": "Minuut",
+          "minutes": "Minuten",
+          "day": "Dag",
+          "days": "Dagen",
+          "hour": "Uur"
         }
       },
       "App": {

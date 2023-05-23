@@ -24,8 +24,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben.",
-        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
+        "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
+        "ERROR_TOO_LONG": "Die Anzeige der Daten ist teilweise durch Umbauarbeiten an unseren Servern nicht möglich. Ihre Daten für diesen Zeitraum sind nicht verloren. Alternativ besteht weiterhin die Möglichkeit die historischen Daten über das <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>lokale Monitoring</a> anzusehen. Wir bitten Sie um Ihr Verständnis."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -230,15 +230,32 @@
         "TimeOfUseTariff": {
           "currentTariff": "Aktueller Bezugsstrompreis",
           "delayedDischarge": "Entladung verzögert",
-          "storageDischarge": "Speicherentladung",
+          "STORAGE_DISCHARGE": "Speicherentladung",
           "State": {
             "notStarted": "Noch nicht gestartet",
             "delayed": "Verzögert",
             "allowsDischarge": "Freigegeben",
-            "standby": "Standby"
-          }
+            "standby": "Standby",
+            "CHARGING": "Beladung"
+          },
+          "CHARGED": "Beladung",
+          "STORAGE_STATUS": "Speicherstatus"
         }
-      }
+      },
+      "RETROFITTING": {
+        "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
+        "OPTIMAL": "Kapazitätserweiterung",
+        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
+        "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
+        "INSTANT_START": "Sofortstart",
+        "PLANNED_EXPANSION": "Geplante Erweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "PREPARING": "Kapazitätserweiterung wird vorbereitet",
+        "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen."
+      },
+      "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
       "beginDate": "Startdatum wählen",
@@ -349,7 +366,7 @@
           "hour": "Stunde",
           "hours": "Stunden",
           "minute": "Minute",
-          "minutes": "minuten",
+          "minutes": "Minuten",
           "day": "Tag",
           "days": "Tage"
         }
@@ -447,12 +464,12 @@
     "gridBuyAdvanced": "Bezug",
     "gridSell": "Netzeinspeisung",
     "gridSellAdvanced": "Einspeisung",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Inaktiv",
     "info": "Info",
     "inputNotValid": "Eingabe ungültig",
     "insufficientRights": "Unzureichende Rechte",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "Last",
     "manual": "Anleitung",
     "manually": "Manuell",
@@ -480,7 +497,7 @@
     "state": "Zustand",
     "storageSystem": "Speichersystem",
     "systemState": "Systemzustand",
-    "total": "Gesamt",
+    "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",
     "Week": {
@@ -531,7 +548,8 @@
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
     "OFFLINE_SINCE": "Offline seit",
-    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
+    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -552,7 +570,8 @@
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
       "VALUE": "Wert [%]",
-      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}",
+      "COUPLER_TITLE": "Welcher Feldbuskoppler ist in Ihrer Netztrennstelle verbaut?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Batterie-Wechselrichter",
@@ -590,7 +609,12 @@
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
       "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
       "BATTERY_INTERFACE": "Schnittstelle Batterie",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
+        "WAGO_BRIDGE": "WAGO (graue Komponente)"
+      },
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -609,7 +633,7 @@
       "DEVICE_ACTIVE_CHECKED": "Batterie und Wechselrichter eingeschaltet",
       "EDGE_NUMBER": "{{ edgeShortName }} Nummer",
       "GENERAL": "Allgemein",
-      "GTC_ACCEPT": "AGB akzeptieren",
+      "GTC_ACCEPT": "AGB",
       "INSTALLER": "Installateur",
       "INVERTER": "Wechselrichter",
       "NEXT_CLICKED_DESCRIPTION": "Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.",
@@ -617,10 +641,11 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "VALUE_AC": "Wert AC",
-      "WARRANTY_TERMS": "Garantiebedingungen akzeptieren",
+      "WARRANTY_TERMS": "Garantiebedingungen",
       "PEAK_SHAVING": "Lastspitzenkappung",
       "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App"
+      "HECKERT": "Ihre gewählte kostenlose App",
+      "ACCEPT": "akzeptieren"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",
@@ -632,8 +657,8 @@
     "FORM": {
       "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus {{ length }} Ziffern.",
-      "MIN": "Nur Werte größer oder gleich {{ min }} sind erlaubt.",
-      "MAX": "Nur Werte kleiner oder gleich {{ max }} sind erlaubt.",
+      "MIN": "Bitte geben Sie einen Wert größer als {{ min }} ein.",
+      "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
       "POSITIVE_INTEGER": "Nur ganze positive Zahlen sind erlaubt."
@@ -722,9 +747,10 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       "TITLE_ADDITIONAL_AC": "AC-Erzeuger",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
-      "VALID_DATA": "Geben Sie gültige Daten ein um zu Speichern.",
+      "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC zähler nicht erstellt!"
+      "AC_NOT_CREATED": "AC zähler nicht erstellt!",
+      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
@@ -755,7 +781,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Netztrennstelle"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -788,7 +815,14 @@
       "DISCHARGE_ABOVE_LABEL": "Entladung über",
       "CHARGE_BELOW_LABEL": "Beladung unter"
     },
-    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Auswahl der Kommunikationsart"
+    }
   },
   "Login": {
     "title": "Login",
@@ -849,12 +883,14 @@
       "isElectrician": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
       "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
       "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
-      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
+      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten.",
+      "confirmEmail": "E-Mail Adresse wiederholen"
     },
     "button": "Anlegen",
     "errors": {
       "requiredFields": "Bitte alle Felder ausfüllen",
-      "passwordNotEqual": "Passwörter sind nicht gleich"
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
     },
     "success": "Registrierung erfolgreich"
   },
@@ -866,7 +902,7 @@
   },
   "SETTINGS": {
     "SYSTEM_UPDATE": {
-      "INSTALLED_VERSION": "Installierte version:",
+      "INSTALLED_VERSION": "Installierte Version:",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste version installieren",
       "NEW_VERSION": "Neueste version:",
