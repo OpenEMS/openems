@@ -70,7 +70,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	private final Map<String, MyEdge> edges = new HashMap<>();
 	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
-	private Language defaultLanguage = Language.DE;
+	private Language defaultLanguage = Language.EN;
 
 	@Activate
 	public MetadataDummy(@Reference EventAdmin eventadmin) {
