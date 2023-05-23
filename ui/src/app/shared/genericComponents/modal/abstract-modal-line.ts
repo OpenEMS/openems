@@ -102,6 +102,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
+                        if (channelAddress.componentId === this.component.id) {
+                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
+                        }
                     }
                     this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });

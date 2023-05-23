@@ -1,7 +1,6 @@
 import { formatNumber } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
-
 import { AbstractModalLine } from "../abstract-modal-line";
 import { TextIndentation } from "../modal-line/modal-line";
 

@@ -56,7 +56,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   public updateValues() {
     let channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ allComponents: {} });
+    this.onCurrentData({ thisComponent: {}, allComponents: {} });
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
       let thisComponent = {};
@@ -65,7 +65,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
       }
-      this.onCurrentData({ allComponents: allComponents });
+      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
     });

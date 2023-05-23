@@ -19,19 +19,6 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(this.component.id + '/ActualEnergy'),
         converter: (data) => data != null ? data : null,
       }],
-      // name: string,
-      // /** suffix to the name */
-      // nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
-      // /** Convert the values to be displayed in Chart */
-      // converter: () => number[],
-      // /** If dataset should be hidden on Init */
-      // hiddenOnInit?: boolean,
-      // /** default: true, stroke through label for hidden dataset */
-      // noStrokeThroughLegendIfHidden?: boolean,
-      // /** color in rgb-Format */
-      // color: string,
-      // /** the stack for barChart */
-      // stack?: number,
       output: (data: HistoryUtils.ChannelData) => {
         return [
           {
@@ -40,9 +27,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
               return energyResponse.result.data[this.component.id + '/ActualEnergy'];
             },
-            // setValue: () => data['ActualPower'],
             color: 'rgb(0,152,204)',
-
           }
         ];
       },

@@ -1,5 +1,4 @@
 import { Component, Input } from "@angular/core";
-
 import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({

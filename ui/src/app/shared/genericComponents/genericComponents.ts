@@ -27,7 +27,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         PipeModule,
         ReactiveFormsModule,
         RouterModule,
-        TranslateModule.forRoot(),
+        TranslateModule
     ],
     entryComponents: [
         PickDateComponent,
@@ -41,7 +41,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalHorizontalLineComponent,
         ModalComponent,
         ModalLineItemComponent,
-        ModalPhasesComponent,
+        ModalPhasesComponent
     ],
     declarations: [
         PickDateComponent,
@@ -55,9 +55,9 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent,
         ChartComponent,
+        ModalLineItemComponent,
+        ModalPhasesComponent
     ],
     exports: [
         FlatWidgetComponent,
@@ -70,10 +70,10 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
-        ModalLineItemComponent,
-        ModalPhasesComponent,
         ChartComponent,
         PickDateComponent,
+        ModalLineItemComponent,
+        ModalPhasesComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 
