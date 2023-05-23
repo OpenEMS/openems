@@ -612,7 +612,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			// replace modified apps
 			this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
 			this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
-			return new Pair<>(false, new Pair<>(result, instance));
+			return new Pair<>(true, new Pair<>(result, instance));
 		}, (shouldUpdate) -> {
 			if (shouldUpdate == null || !shouldUpdate) {
 				return;
