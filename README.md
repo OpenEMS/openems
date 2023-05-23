@@ -7,7 +7,7 @@
 
 OpenEMS - the Open Source Energy Management System - is a modular platform for energy management applications. It was developed around the requirements of monitoring, controlling, and integrating energy storage together with renewable energy sources and complementary devices and services like electric vehicle charging stations, heat-pumps, electrolysers, time-of-use electricity tariffs and more.
 
-This is a fork of the [OpenEMS](https://github.com/OpenEMS/openems) project.  Community contributions & bug fixes by Veloce Energy developers will be branched from and merged back into the **branch** branch.  Features relevant only for Veloce Energy will be branched from and merged back into to the **veloce** branch. 
+This is a fork of the [OpenEMS](https://github.com/OpenEMS/openems) project.  Community contributions & bug fixes by Veloce Energy will be branched from and merged to the **develop** branch.  Features relevant only for Veloce Energy will be branched from and merged to the **veloce** branch. 
 
 ## OpenEMS IoT stack
 
