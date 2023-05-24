@@ -7,7 +7,7 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/
 import { DefaultTypes } from "../../service/defaulttypes";
 
 @Directive()
-export abstract class OverView implements OnInit, OnChanges, OnDestroy {
+export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
   @Input() public componentId: string;
   public edge: Edge | null = null;
