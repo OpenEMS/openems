@@ -20,7 +20,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -46,7 +46,7 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 	private Config config;
 
 	@Reference
-	protected ComponentManager componentManager;
+	protected ClockProvider clockProvider;
 
 	@Reference
 	private ConfigurationAdmin cm;
