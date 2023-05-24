@@ -329,7 +329,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           }
         });
       });
-    }).then(async (response) => {
+    }).then((response) => {
 
       // Check if channelAddresses are empty
       if (Utils.isDataEmpty(response)) {

@@ -3,7 +3,6 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-
 import { DefaultTypes } from "../../service/defaulttypes";
 
 @Directive()
