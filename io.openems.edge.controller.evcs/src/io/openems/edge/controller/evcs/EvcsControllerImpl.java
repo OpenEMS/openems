@@ -130,21 +130,16 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 
 			var status = this.evcs.getStatus();
 			switch (status) {
-			case ERROR:
-			case STARTING:
-			case UNDEFINED:
-			case NOT_READY_FOR_CHARGING:
-			case ENERGY_LIMIT_REACHED:
+			case ERROR, STARTING, UNDEFINED, NOT_READY_FOR_CHARGING, ENERGY_LIMIT_REACHED -> {
 				this.evcs.setChargePowerRequest(0);
 				this.resetMinMaxChannels();
 				return;
-			case CHARGING_REJECTED:
-			case READY_FOR_CHARGING:
-			case CHARGING_FINISHED:
+			}
+			case CHARGING_REJECTED, READY_FOR_CHARGING, CHARGING_FINISHED -> {
 				this.evcs._setMaximumPower(null);
-				break;
-			case CHARGING:
-				break;
+			}
+			case CHARGING -> {
+			}
 			}
 		}
 
