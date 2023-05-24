@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AbstractHistoryChartOverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
+import { OverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
 
 @Component({
     templateUrl: './overview.html'
 })
-export class AutarchyChartOverviewComponent extends AbstractHistoryChartOverView { }  
+export class AutarchyChartOverviewComponent extends OverView { }  

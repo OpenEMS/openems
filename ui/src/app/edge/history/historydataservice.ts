@@ -1,15 +1,15 @@
 import { Inject, Injectable } from "@angular/core";
 
-import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
-import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared";
-import { DataService } from "./dataservice";
+import { QueryHistoricTimeseriesEnergyRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
+import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
+import { DataService } from "../../shared/genericComponents/shared/dataservice";
 
 @Injectable()
 export class HistoryDataService extends DataService {
 
   private channelAddresses: { [sourceId: string]: ChannelAddress } = {};
-  private queryChannelsTimeout: any | null = null;
+  public queryChannelsTimeout: any | null = null;
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
@@ -25,6 +25,7 @@ export class HistoryDataService extends DataService {
     }
 
     if (this.queryChannelsTimeout == null) {
+
       this.queryChannelsTimeout = setTimeout(() => {
         if (Object.entries(this.channelAddresses).length > 0) {
 
@@ -38,7 +39,9 @@ export class HistoryDataService extends DataService {
                   allComponents[key] = value;
                 }
                 this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
-              }).catch(err => console.warn(err));
+              }).catch(err => console.warn(err))
+              .finally(() => {
+              });
           });
         }
       }, 100);

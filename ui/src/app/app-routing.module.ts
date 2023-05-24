@@ -47,8 +47,8 @@ import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
-import { HistoryDataService } from './shared/genericComponents/shared/historydataservice';
-import { LiveDataService } from './shared/genericComponents/shared/livedataservice';
+import { HistoryDataService } from './edge/history/historydataservice';
+import { LiveDataService } from './edge/live/livedataservice';
 import { UserComponent } from './user/user.component';
 
 const routes: Routes = [

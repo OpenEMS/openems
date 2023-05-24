@@ -2,9 +2,9 @@ import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';
 
-import { SubscribeEdgesRequest } from "../../jsonrpc/request/subscribeEdgesRequest";
-import { ChannelAddress, Edge, Service, Websocket } from "../../shared";
-import { DataService } from "./dataservice";
+import { SubscribeEdgesRequest } from "../../shared/jsonrpc/request/subscribeEdgesRequest";
+import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
+import { DataService } from "../../shared/genericComponents/shared/dataservice";
 
 @Injectable()
 export class LiveDataService extends DataService implements OnDestroy {
@@ -32,6 +32,9 @@ export class LiveDataService extends DataService implements OnDestroy {
             for (let channelAddress of channelAddresses) {
                 let ca = channelAddress.toString();
                 allComponents[ca] = currentData.channel[ca];
+                if (channelAddress.componentId === componentId) {
+                    thisComponent[channelAddress.channelId] = currentData.channel[ca];
+                }
             }
 
             this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });

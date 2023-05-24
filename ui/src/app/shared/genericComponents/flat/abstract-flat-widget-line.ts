@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DataService } from "../shared/dataservice";
 
 @Directive()
-export class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
+export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   /**
    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.

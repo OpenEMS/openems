@@ -20,7 +20,7 @@ import { JsonrpcResponseError } from '../../jsonrpc/base';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnChanges {
+export abstract class AbstractHistoryChart implements OnInit {
 
   /** Title for Chart, diplayed above the Chart */
   @Input() public chartTitle: string = "";
@@ -55,7 +55,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     public cdRef: ChangeDetectorRef,
     protected translate: TranslateService,
     protected route: ActivatedRoute,
-  ) { }
+  ) {
+    this.service.historyPeriod.subscribe(() => {
+      this.updateChart();
+    })
+  }
 
   ngOnInit() {
     this.startSpinner();
@@ -64,7 +68,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         // store important variables publically
         this.edge = edge;
         this.config = config;
-        this.edge = edge;
 
       }).then(() => {
         this.chartObject = this.getChartData();
@@ -72,12 +75,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       });
     });
   }
-
-  ngOnChanges() {
-    this.service.historyPeriod.subscribe(() => {
-      this.updateChart();
-    })
-  };
 
   protected getChartHeight(): number {
     if (this.isOnlyChart) {
@@ -606,9 +603,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    * 
    * Spinner will appear inside html tag only
    * 
-   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * @example <ngx-spinner name="spinnerId"></ngx-spinner>
+   * the spinnerId represents a uuidv4() generated id
    * 
-   * @param selector selector for specific spinner
    */
   public startSpinner() {
     this.service.startSpinner(this.spinnerId);

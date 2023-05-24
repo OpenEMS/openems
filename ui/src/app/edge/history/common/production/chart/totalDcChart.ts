@@ -36,7 +36,6 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
         }];
       },
       tooltip: {
-        // unit: 'kW',
         formatNumber: '1.1-2'
       },
       unit: HistoryUtils.YAxisTitle.ENERGY,

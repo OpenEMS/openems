@@ -589,6 +589,8 @@ export namespace HistoryUtils {
     ENERGY
   }
   export type InputChannel = {
+
+    /** Must be unique, is used as identifier in {@link ChartData.input} */
     name: string,
     powerChannel: ChannelAddress,
     energyChannel?: ChannelAddress

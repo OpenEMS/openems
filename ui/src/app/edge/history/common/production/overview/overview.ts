@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { AbstractHistoryChartOverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
+import { OverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
 import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
   templateUrl: './overview.html'
 })
-export class ProductionChartOverviewComponent extends AbstractHistoryChartOverView {
+export class ProductionChartOverviewComponent extends OverView {
   protected chargerComponents: EdgeConfig.Component[] = [];
   protected productionMeterComponents: EdgeConfig.Component[] = [];
 
