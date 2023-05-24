@@ -98,10 +98,10 @@ export class Service extends AbstractService {
   }
 
   public getDocsLang(): string {
-    if (this.translate.currentLang == "de") {
-      return "de";
-    } else {
+    if (this.translate.currentLang == "en") {
       return "en";
+    } else {
+      return "de";
     }
   }
 
