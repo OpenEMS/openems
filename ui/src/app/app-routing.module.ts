@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -10,6 +11,7 @@ import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridop
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
+import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
@@ -37,6 +39,9 @@ import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
+import { DataService } from './shared/genericComponents/shared/dataservice';
+import { HistoryDataService } from './edge/history/historydataservice';
+import { LiveDataService } from './edge/live/livedataservice';
 import { UserComponent } from './user/user.component';
 import { EdgeComponent } from './edge/edge.component';
 import { HistoryParentComponent } from './edge/history/historyparent.component';
@@ -56,7 +61,16 @@ const routes: Routes = [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
       { path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent },
       {
-        path: 'history', component: HistoryParentComponent, children: [
+        path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
+          useClass: LiveDataService,
+          provide: DataService
+        }], component: EdgeLiveComponent
+      },
+      {
+        path: 'history', providers: [{
+          useClass: HistoryDataService,
+          provide: DataService
+        }], component: HistoryParentComponent, children: [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },

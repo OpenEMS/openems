@@ -77,6 +77,7 @@ export type ChartOptions = {
         yAxes: [{
             id?: string,
             position: string,
+            stacked?: boolean,
             scaleLabel: {
                 display: boolean,
                 labelString: string,
@@ -321,7 +322,6 @@ export type ChartData = {
         name: string,
         powerChannel: ChannelAddress,
         energyChannel: ChannelAddress
-        filter?: ChannelFilter
     }[],
     displayValue: {
         /** Name displayed in Label */
@@ -342,9 +342,4 @@ export type ChartData = {
     /** Name to be displayed on the left y-axis */
     yAxisTitle: string,
 }
-// Should be renamed
-export enum ChannelFilter {
-    NOT_NULL,
-    NOT_NULL_OR_NEGATIVE,
-    NOT_NULL_OR_POSITIVE
-}
+
