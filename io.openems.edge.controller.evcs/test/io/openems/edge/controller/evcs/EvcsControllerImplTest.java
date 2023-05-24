@@ -49,7 +49,7 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -76,7 +76,7 @@ public class EvcsControllerImplTest {
 
 		final var test = new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -105,7 +105,7 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -131,7 +131,7 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -154,7 +154,7 @@ public class EvcsControllerImplTest {
 		var cm = new DummyConfigurationAdmin();
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", cm) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -183,7 +183,7 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", componentManager) //
+				.addReference("clockProvider", componentManager) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -233,7 +233,7 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
