@@ -660,6 +660,6 @@ export namespace HistoryUtils {
       } else {
         return 0;
       }
-    }
+    };
   }
 }

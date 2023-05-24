@@ -58,7 +58,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   ) {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
-    })
+    });
   }
 
   ngOnInit() {
