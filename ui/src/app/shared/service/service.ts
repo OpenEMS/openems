@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { NgxSpinnerService, Spinner } from 'ngx-spinner';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { filter, first, map, take } from 'rxjs/operators';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { filter, first, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
@@ -12,7 +12,6 @@ import { JsonrpcResponseError } from '../jsonrpc/base';
 import { GetEdgeRequest } from '../jsonrpc/request/getEdgeRequest';
 import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
-import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { GetEdgeResponse } from '../jsonrpc/response/getEdgeResponse';
 import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -82,7 +81,7 @@ export class Service extends AbstractService {
     translate.setDefaultLang(Language.DEFAULT.key);
 
     // initialize history period
-    this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+    this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -413,12 +412,12 @@ export class Service extends AbstractService {
   /**
    * Currently selected history period
    */
-  public historyPeriod: DefaultTypes.HistoryPeriod;
+  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
 
   /**
    * Currently selected history period string
    * 
    * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString = 'day';
+  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }

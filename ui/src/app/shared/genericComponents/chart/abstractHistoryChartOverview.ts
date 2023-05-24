@@ -1,39 +1,31 @@
-import { Directive, Inject, Injectable, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { v4 as uuidv4 } from 'uuid';
+import { Directive, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { Subject } from "rxjs";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "../../service/defaulttypes";
 
-// NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
-export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
+export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  @Input()
+  @Input() public componentId: string;
+  public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
-
-  @Input()
-  protected componentId: string;
+  protected showTotal: boolean = true;
+  protected showPhases: boolean = false;
 
   /**
    * True after this.edge, this.config and this.component are set.
    */
   public isInitialized: boolean = false;
-  public edge: Edge = null;
   public config: EdgeConfig = null;
   public component: EdgeConfig.Component = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
 
-  private selector: string = uuidv4();
-
   constructor(
-    @Inject(Websocket) protected websocket: Websocket,
-    @Inject(ActivatedRoute) protected route: ActivatedRoute,
-    @Inject(Service) public service: Service,
-    @Inject(ModalController) protected modalController: ModalController,
-    @Inject(TranslateService) protected translate: TranslateService
+    public service: Service,
+    protected route: ActivatedRoute,
+    public modalCtrl: ModalController,
   ) { }
 
   public ngOnInit() {
@@ -44,11 +36,13 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
         this.config = config;
         this.component = config.components[this.componentId];
 
+        this.period = this.service.historyPeriod.value;
+
+      }).then(() => {
         // announce initialized
         this.isInitialized = true;
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
-      }).then(() => {
         this.updateValues();
       });
     });
@@ -56,7 +50,6 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   public updateValues() {
     let channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ thisComponent: {}, allComponents: {} });
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
       let thisComponent = {};
@@ -64,6 +57,9 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
+        if (channelAddress.componentId === this.componentId) {
+          thisComponent[channelAddress.channelId] = result.data[ca];
+        }
       }
       this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
     }).catch(() => {
@@ -103,5 +99,12 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
    */
   protected getChannelAddresses(): ChannelAddress[] {
     return [];
+  }
+
+  protected setShowTotal(event) {
+    this.showTotal = event;
+  }
+  protected setShowPhases(event) {
+    this.showPhases = event;
   }
 }
