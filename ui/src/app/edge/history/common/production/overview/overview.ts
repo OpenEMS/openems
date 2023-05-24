@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AbstractHistoryChartOverview } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
+import { AbstractHistoryChartOverview } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverview';
 import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
