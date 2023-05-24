@@ -109,13 +109,15 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             templateOptions: {
                 type: 'number',
                 label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_MODULES_PER_STRINGS'),
-                min: 20,
                 max: 20,
                 description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MODULES_PER_STRINGS_DESCRIPTION', { number: 20 }),
                 required: true
             },
             parsers: [Number],
-            defaultValue: numberOfModulesPerTower,
+            defaultValue: numberOfModulesPerTower, // Acts as minimum value through "defaultAsMinimumValue" validator
+            validators: {
+                validation: ["defaultAsMinimumValue"]
+            }
         });
         return fields;
     }

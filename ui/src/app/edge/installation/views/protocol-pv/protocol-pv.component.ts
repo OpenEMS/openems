@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
@@ -108,15 +108,15 @@ export class ProtocolPvComponent implements OnInit {
         {
           key: "value",
           type: "input",
+          defaultValue: 1000, // Acts as minimum value through "defaultAsMinimumValue" validator
           templateOptions: {
             type: "number",
             label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
-            min: 1000,
             required: true
           },
           parsers: [Number],
           validators: {
-            validation: ["onlyPositiveInteger"]
+            validation: ["onlyPositiveInteger", "defaultAsMinimumValue"]
           },
           hideExpression: model => !model.isSelected
         },

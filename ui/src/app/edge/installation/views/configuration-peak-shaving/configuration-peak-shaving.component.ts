@@ -75,7 +75,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
             },
             expressionProperties: {
                 // "beladungUnter" value cannot be greater than "entladungÜber" value
-                'templateOptions.max': 'model.entladungÜber'
+                'templateOptions.max': `parseInt(model.entladungÜber)`
             }
         });
 
