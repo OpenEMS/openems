@@ -20,9 +20,9 @@ public class ChargingLowerThanTargetHandler {
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 	private Integer maximumChargePower = null; // W
 
-	private final EvcsController parent;
+	private final EvcsControllerImpl parent;
 
-	public ChargingLowerThanTargetHandler(EvcsController parent) {
+	public ChargingLowerThanTargetHandler(EvcsControllerImpl parent) {
 		this.parent = parent;
 	}
 
