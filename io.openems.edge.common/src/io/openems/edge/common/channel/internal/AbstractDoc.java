@@ -170,6 +170,26 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
+	 * Provides a callback on value change for Channel.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a
+	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 *
+	 * @param callback the method to call at value change event
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT> AbstractDoc<T> onValueUpdate(Consumer<COMPONENT> callback) {
+		this.onInitCallback.add(channel -> {
+			channel.onChange((ignore, value) -> {
+				callback.accept((COMPONENT) channel.getComponent());
+			});
+		});
+		return this.self();
+	}
+
+	/**
 	 * Gets the callbacks for initialization of the actual Channel.
 	 *
 	 * @return a list of callbacks

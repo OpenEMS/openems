@@ -1132,7 +1132,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 * SoC to be set maximum(100) or minimum(0) based on discharge and charge
 	 * current of the battery.
 	 */
-	private synchronized void updateSoc() {
+	protected synchronized void updateSoc() {
 		Channel<Integer> batterySocChannel = this.channel(FeneconCommercialBattery.ChannelId.BATTERY_SOC);
 		var batterySoc = batterySocChannel.value();
 		var batteryChargeMaxCurrent = this.getChargeMaxCurrent();

@@ -110,7 +110,7 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		UNIT_ID(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_SOC)), //
+				.<FeneconCommercialBatteryImpl>onValueUpdate(FeneconCommercialBatteryImpl::updateSoc)),
 		UNIT_NUMBER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		SUBMASTER_MAP(Doc.of(OpenemsType.INTEGER)//
