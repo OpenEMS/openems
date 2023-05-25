@@ -8,10 +8,14 @@ import java.util.function.Consumer;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingBiConsumer;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -197,7 +201,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * 
 	 * <p>
 	 * This is a convenience method to react on a
-	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 * {@link Channel#onChange(BiConsumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
 	 * @param callback    the method to call at value change event, value is the new
@@ -209,7 +213,7 @@ public abstract class AbstractDoc<T> implements Doc {
 			BiConsumer<COMPONENT, Value<T>> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
-				callback.accept((COMPONENT) channel.getComponent(), (Value<T>) value);
+				callback.accept((COMPONENT) channel.getComponent(), value);
 			});
 		});
 		return this.self();
@@ -220,7 +224,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * 
 	 * <p>
 	 * This is a convenience method to react on a
-	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 * {@link Channel#onSetNextValue(Consumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
 	 * @param callback    the method to call at value change event, value is the new
@@ -232,7 +236,30 @@ public abstract class AbstractDoc<T> implements Doc {
 			BiConsumer<COMPONENT, Value<T>> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onSetNextValue(value -> {
-				callback.accept((COMPONENT) channel.getComponent(), (Value<T>) value);
+				callback.accept((COMPONENT) channel.getComponent(), value);
+			});
+		});
+		return this.self();
+	}
+
+	/**
+	 * Provides a callback on Channel setNextWriteValue event.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a
+	 * {@link WriteChannel#onSetNextWrite(ThrowingConsumer)} event
+	 *
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the method to call at value change event, value is the new
+	 *                    value after change
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelSetNextWrite(
+			ThrowingBiConsumer<COMPONENT, T, OpenemsNamedException> callback) {
+		this.onInitCallback.add(channel -> {
+			((WriteChannel<T>) channel).onSetNextWrite(value -> {
+				callback.accept((COMPONENT) channel.getComponent(), value);
 			});
 		});
 		return this.self();
