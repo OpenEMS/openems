@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
-import { HistoryUtils, Utils } from '../../../../../shared/service/utils';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
@@ -11,11 +12,11 @@ import { ChannelAddress } from '../../../../../shared/shared';
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): DefaultTypes.History.ChartData {
     let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
-    let channels: HistoryUtils.InputChannel[] = [{
+    let channels: DefaultTypes.History.InputChannel[] = [{
       name: 'ProductionDcActualPower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
@@ -57,10 +58,10 @@ export class TotalChartComponent extends AbstractHistoryChart {
       });
     }
 
-    let chartObject: HistoryUtils.ChartData = {
+    let chartObject: DefaultTypes.History.ChartData = {
       input: channels,
-      output: (data: HistoryUtils.ChannelData) => {
-        let datasets: HistoryUtils.DisplayValues[] = [];
+      output: (data: DefaultTypes.History.ChannelData) => {
+        let datasets: DefaultTypes.History.DisplayValues[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.TOTAL'),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -145,11 +146,10 @@ export class TotalChartComponent extends AbstractHistoryChart {
         formatNumber: '1.1-2',
         afterTitle: this.translate.instant('General.total')
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: DefaultTypes.History.YAxisTitle.ENERGY,
     };
 
     return chartObject;
-
   }
 
   public override getChartHeight(): number {

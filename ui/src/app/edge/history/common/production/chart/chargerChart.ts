@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
 
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
@@ -11,7 +11,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 })
 export class ChargerChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): DefaultTypes.History.ChartData {
     return {
       input: [{
         name: 'ActualPower',
@@ -19,7 +19,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(this.component.id + '/ActualEnergy'),
         converter: (data) => data != null ? data : null,
       }],
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: DefaultTypes.History.ChannelData) => {
         return [
           {
             name: this.translate.instant('General.production'),
@@ -34,7 +34,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: DefaultTypes.History.YAxisTitle.ENERGY,
     };
   }
 }

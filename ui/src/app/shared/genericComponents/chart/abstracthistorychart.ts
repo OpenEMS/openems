@@ -41,7 +41,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
   public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
   public colors: any[] = [];
-  public chartObject: HistoryUtils.ChartData = null;
+  public chartObject: DefaultTypes.History.ChartData = null;
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
@@ -139,7 +139,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Fill datasets, labels and colors
     let datasets: ChartDataSets[] = [];
     let colors: any[] = [];
-    let displayValues: HistoryUtils.DisplayValues[] = this.chartObject.output(channelData.data);
+    let displayValues: DefaultTypes.History.DisplayValues[] = this.chartObject.output(channelData.data);
 
     displayValues.forEach(element => {
       let nameSuffix = null;
@@ -540,11 +540,11 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   };
 
-  protected getYAxisTitle(title: HistoryUtils.YAxisTitle): string {
+  protected getYAxisTitle(title: DefaultTypes.History.YAxisTitle): string {
     switch (title) {
-      case HistoryUtils.YAxisTitle.PERCENTAGE:
+      case DefaultTypes.History.YAxisTitle.PERCENTAGE:
         return this.translate.instant("General.percentage");
-      case HistoryUtils.YAxisTitle.ENERGY:
+      case DefaultTypes.History.YAxisTitle.ENERGY:
         if (this.chartType == 'bar') {
           return 'kWh';
         } else {
@@ -553,11 +553,11 @@ export abstract class AbstractHistoryChart implements OnInit {
     }
   }
 
-  protected getToolTipsLabel(title: HistoryUtils.YAxisTitle) {
+  protected getToolTipsLabel(title: DefaultTypes.History.YAxisTitle) {
     switch (title) {
-      case HistoryUtils.YAxisTitle.PERCENTAGE:
+      case DefaultTypes.History.YAxisTitle.PERCENTAGE:
         return '%';
-      case HistoryUtils.YAxisTitle.ENERGY:
+      case DefaultTypes.History.YAxisTitle.ENERGY:
         if (this.chartType == 'bar') {
           return 'kWh';
         } else {
@@ -569,9 +569,9 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected getLabelName(baseName: string, suffix?: number): string {
     if (suffix != null) {
       switch (this.chartObject.unit) {
-        case HistoryUtils.YAxisTitle.ENERGY:
+        case DefaultTypes.History.YAxisTitle.ENERGY:
           return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-1") + " kWh";
-        case HistoryUtils.YAxisTitle.PERCENTAGE:
+        case DefaultTypes.History.YAxisTitle.PERCENTAGE:
           return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
       }
     }
@@ -626,5 +626,5 @@ export abstract class AbstractHistoryChart implements OnInit {
   public stopSpinner() {
     this.service.stopSpinner(this.spinnerId);
   }
-  protected abstract getChartData(): HistoryUtils.ChartData | null
+  protected abstract getChartData(): DefaultTypes.History.ChartData | null
 }

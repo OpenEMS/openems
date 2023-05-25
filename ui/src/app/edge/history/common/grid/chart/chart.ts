@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress } from 'src/app/shared/shared';
 
@@ -10,7 +11,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): DefaultTypes.History.ChartData {
     this.spinnerId = 'grid-chart';
     return {
       input:
@@ -40,9 +41,9 @@ export class ChartComponent extends AbstractHistoryChart {
           powerChannel: ChannelAddress.fromString('_sum/GridActivePowerL3'),
         },
         ],
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: DefaultTypes.History.ChannelData) => {
 
-        let datasets: HistoryUtils.DisplayValues[] = [];
+        let datasets: DefaultTypes.History.DisplayValues[] = [];
         datasets.push(
           {
             name: this.translate.instant('General.gridBuy'),
@@ -93,7 +94,7 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-0',
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: DefaultTypes.History.YAxisTitle.ENERGY,
     };
   }
 }

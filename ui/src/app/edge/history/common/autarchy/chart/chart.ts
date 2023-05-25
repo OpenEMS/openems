@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
@@ -10,7 +11,7 @@ import { ChannelAddress, Utils } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): DefaultTypes.History.ChartData {
     this.spinnerId = 'autarchy-chart';
     return {
       input:
@@ -25,7 +26,7 @@ export class ChartComponent extends AbstractHistoryChart {
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
           converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
         }],
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: DefaultTypes.History.ChannelData) => {
         return [{
           name: this.translate.instant('General.autarchy'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -43,7 +44,7 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-0',
       },
-      unit: HistoryUtils.YAxisTitle.PERCENTAGE,
+      unit: DefaultTypes.History.YAxisTitle.PERCENTAGE,
     };
   }
 }
