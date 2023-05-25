@@ -584,7 +584,7 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of modules per tower") //
-				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+				.<FeneconHomeBatteryImpl>onValueChange(FeneconHomeBatteryImpl::updateNumberOfTowersAndModules)),
 
 		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
@@ -595,13 +595,13 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of third tower") //
-				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+				.<FeneconHomeBatteryImpl>onValueChange(FeneconHomeBatteryImpl::updateNumberOfTowersAndModules)),
 
 		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of second tower") //
-				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
+				.<FeneconHomeBatteryImpl>onValueChange(FeneconHomeBatteryImpl::updateNumberOfTowersAndModules)),
 
 		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
