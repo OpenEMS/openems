@@ -470,7 +470,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     alias: alias,
                     properties: [
                         { name: 'enabled', value: true },
-                        { name: 'ip', value: '192.168.0.9' },
+                        { name: 'ip', value: '192.168.0.7' },
                         { name: 'port', value: '20108' },
                         { name: 'logVerbosity', value: 'NONE' },
                         { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
