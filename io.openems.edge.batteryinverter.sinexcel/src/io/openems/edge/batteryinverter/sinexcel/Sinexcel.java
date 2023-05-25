@@ -28,7 +28,6 @@ import io.openems.edge.batteryinverter.sinexcel.enums.StartMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.Switch;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -100,32 +99,22 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		BATTERY_INVERTER_STATE(new BooleanDoc() //
-				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)//
-				.onInit(c -> { //
-					var channel = (BooleanReadChannel) c;
-					var self = (Sinexcel) channel.getComponent();
-					channel.onChange((oldValue, newValue) -> {
-						var value = newValue.asOptional();
-						self._setInverterState(value.orElse(null));
-					});
-				})), //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
+				.<Sinexcel>onValueChange(Sinexcel::_setInverterState)),
+
 		INVERTER_GRID_MODE(new BooleanDoc() //
 				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("On Grid") //
-				.onInit(c -> { //
-					var channel = (BooleanReadChannel) c;
-					var self = (Sinexcel) channel.getComponent();
-					channel.onChange((oldValue, newValue) -> {
-						var value = newValue.asOptional();
-						if (!value.isPresent()) {
-							self._setGridMode(GridMode.UNDEFINED);
-						} else if (value.get()) {
-							self._setGridMode(GridMode.ON_GRID);
-						} else {
-							self._setGridMode(GridMode.OFF_GRID);
-						}
-					});
+				.<Sinexcel>onValueChange((self, value) -> {
+					if (!value.isDefined()) {
+						self._setGridMode(GridMode.UNDEFINED);
+					} else if (value.get()) {
+						self._setGridMode(GridMode.ON_GRID);
+					} else {
+						self._setGridMode(GridMode.OFF_GRID);
+					}
 				})),
+
 		ISLAND_MODE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		DERATING_STATUS(Doc.of(OpenemsType.BOOLEAN) //

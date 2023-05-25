@@ -2,6 +2,7 @@ package io.openems.edge.common.channel.internal;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import io.openems.common.channel.AccessMode;
@@ -11,6 +12,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
@@ -185,6 +187,28 @@ public abstract class AbstractDoc<T> implements Doc {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
 				callback.accept((COMPONENT) channel.getComponent());
+			});
+		});
+		return this.self();
+	}
+
+	/**
+	 * Provides a callback on value change for Channel.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a
+	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 *
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the method to call at value change event, value is the new
+	 *                    value after change
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onValueChange(BiConsumer<COMPONENT, Value<T>> callback) {
+		this.onInitCallback.add(channel -> {
+			channel.onChange((ignore, value) -> {
+				callback.accept((COMPONENT) channel.getComponent(), (Value<T>) value);
 			});
 		});
 		return this.self();

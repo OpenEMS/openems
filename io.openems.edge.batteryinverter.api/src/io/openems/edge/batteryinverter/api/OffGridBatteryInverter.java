@@ -144,7 +144,7 @@ public interface OffGridBatteryInverter
 	 *
 	 * @param value the next value
 	 */
-	public default void _setInverterState(Boolean value) {
+	public default void _setInverterState(Object value) {
 		this.getInverterStateChannel().setNextValue(value);
 	}
 
