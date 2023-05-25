@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 
 public abstract class AbstractOpenemsAppWithProps<//
 		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
@@ -280,5 +283,18 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	protected abstract APP getApp();
+
+	@Override
+	public Flag[] flags() {
+		final var flags = new ArrayList<>();
+		if (this.getStatus() == OpenemsAppStatus.BETA) {
+			flags.add(Flags.SHOW_AFTER_KEY_REDEEM);
+		}
+		return flags.toArray(Flag[]::new);
+	}
+
+	protected OpenemsAppStatus getStatus() {
+		return OpenemsAppStatus.STABLE;
+	}
 
 }

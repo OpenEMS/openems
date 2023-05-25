@@ -20,7 +20,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
-import io.openems.edge.app.evcs.KebaEvcs.Property;
+import io.openems.edge.app.evcs.DezonyEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -29,29 +29,30 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
- * Describes a Keba evcs App.
+ * Describes a dezony IQ evcs App.
  *
  * <pre>
   {
-    "appId":"App.Evcs.Keba",
-    "alias":"KEBA Ladestation",
+    "appId":"App.Evcs.Dezony",
+    "alias":"dezoney IQ Ladestation",
     "instanceId": UUID,
     "image": base64,
     "properties":{
       "EVCS_ID": "evcs0",
       "CTRL_EVCS_ID": "ctrlEvcs0",
-      "IP":"192.168.25.11"
+      "IP":"192.168.25.11",
+      "PORT":"5000"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -59,49 +60,53 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
   }
  * </pre>
  */
-@Component(name = "App.Evcs.Keba")
-public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Parameter.BundleParameter>
+@Component(name = "App.Evcs.Dezony")
+public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property, Parameter.BundleParameter>
 		implements OpenemsApp {
 
-	public enum Property implements Type<Property, KebaEvcs, Parameter.BundleParameter>, Nameable {
+	public enum Property implements Type<Property, DezonyEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
 		EVCS_ID(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
-				.setDefaultValue("192.168.25.11")), //
+		ALIAS(CommonProps.alias()), //
+		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
+				def -> def.setDefaultValue("192.168.50.88") //
+						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), //
+				def -> def.setDefaultValue(5000) //
+						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
-		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
-				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //
+		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //
+		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //
 		;
 
-		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super DezonyEvcs, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super DezonyEvcs, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, KebaEvcs, BundleParameter> self() {
+		public Type<Property, DezonyEvcs, BundleParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super DezonyEvcs, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<KebaEvcs>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<DezonyEvcs>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
 	}
 
 	@Activate
-	public KebaEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public DezonyEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
@@ -113,8 +118,9 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					"App.Evcs.controller.alias");
 
 			// values the user enters
-			final var ip = this.getString(p, l, Property.IP);
 			final var alias = this.getString(p, l, Property.ALIAS);
+			final var ip = this.getString(p, Property.IP);
+			final var port = this.getInt(p, Property.PORT);
 
 			// values which are being auto generated by the appmanager
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
@@ -125,24 +131,20 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
 			}
 
-			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(evcsId, alias, "Evcs.Keba.KeContact", JsonUtils.buildJsonObject() //
-							.addPropertyIfNotNull("ip", ip) //
+			final var components = Lists.newArrayList(//
+					new EdgeConfig.Component(evcsId, alias, "Evcs.Dezony", JsonUtils.buildJsonObject() //
+							.addProperty("ip", ip) //
+							.addProperty("port", port) //
 							.build()), //
 					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
 							.addProperty("evcs.id", evcsId) //
 							.build())//
 			);
 
-			var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Evcs", "192.168.25.10/24") //
-			);
-
 			return new AppConfiguration(//
 					components, //
 					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					ip.startsWith("192.168.25.") ? ips : null, //
+					null, //
 					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
 							evcsId) //
 			);
@@ -152,7 +154,6 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/") //
 				.build();
 	}
 
@@ -167,7 +168,12 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 	}
 
 	@Override
-	protected KebaEvcs getApp() {
+	protected OpenemsAppStatus getStatus() {
+		return OpenemsAppStatus.BETA;
+	}
+
+	@Override
+	protected DezonyEvcs getApp() {
 		return this;
 	}
 

@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
@@ -96,6 +98,20 @@ public interface OpenemsApp {
 	 * @return the permissions
 	 */
 	public OpenemsAppPermissions getAppPermissions();
+
+	/**
+	 * Gets {@link Flag Flags} for this {@link OpenemsApp}. A Flag could be anything
+	 * that would describe the app more.
+	 * 
+	 * <p>
+	 * Flags may be specific for Monitoring e. g. only show the app after a key was
+	 * entered ({@link Flags#SHOW_AFTER_KEY_REDEEM}).
+	 * 
+	 * @return an array of {@link Flag Flags}
+	 */
+	public default Flag[] flags() {
+		return new Flag[] {};
+	}
 
 	/**
 	 * Validate the {@link OpenemsApp}.

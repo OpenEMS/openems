@@ -19,7 +19,9 @@ import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.FieldGroupBuilder;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.FieldGroupBuilder.DisplayType;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -62,7 +64,7 @@ public final class EvcsProps {
 			FieldGroupBuilder field //
 	) {
 		field.hideKey();
-		field.setPopupInput(property);
+		field.setPopupInput(property, DisplayType.NUMBER);
 		field.setFieldGroup(JsonUtils.buildJsonArray() //
 				.add(JsonFormlyUtil.buildText() //
 						.setText(TranslationUtil.getTranslation(parameter.bundle, //
@@ -125,10 +127,13 @@ public final class EvcsProps {
 	 * 
 	 * @param <T>            the type of the {@link OpenemsApp}
 	 * @param acceptProperty the property of the accept field
+	 * @param evcsIdProperty the property of the evcs id
 	 * @return the {@link AppDef}
 	 */
 	public static <T extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier> AppDef<T, Nameable, Parameter.BundleParameter> clusterMaxHardwarePowerSingleCp(
-			Nameable acceptProperty) {
+			Nameable acceptProperty, //
+			Nameable evcsIdProperty //
+	) {
 		return EvcsProps.<T>clusterMaxHardwarePower(acceptProperty) //
 				.setIsAllowedToSee((app, property, l, parameter, user) -> {
 					final var componentManager = app.getComponentManager();
@@ -137,6 +142,16 @@ public final class EvcsProps {
 					}
 					final var existingEvcs = getEvcsComponents(app.getComponentUtil());
 					return !existingEvcs.isEmpty();
+				}).wrapField((app, property, l, parameter, field) -> {
+					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
+					if (existingEvcs.isEmpty()) {
+						return;
+					}
+					final var expression = ExpressionBuilder.ofNotIn(evcsIdProperty,
+							existingEvcs.stream().map(OpenemsComponent::id) //
+									.toArray(String[]::new));
+
+					field.onlyShowIf(expression);
 				});
 	}
 
