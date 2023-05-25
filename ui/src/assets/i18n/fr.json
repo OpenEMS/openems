@@ -121,7 +121,6 @@
     "user": "Utilisateur"
   },
   "Register": {
-    "title": "Créer un compte utilisateur",
     "segment": {
       "user": "Utilisateur",
       "installer": "Installateur"

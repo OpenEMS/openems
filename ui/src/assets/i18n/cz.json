@@ -120,7 +120,6 @@
     "user": "Uživatel"
   },
   "Register": {
-    "title": "Vytvoření uživatelského účtu",
     "segment": {
       "user": "Uživatel",
       "installer": "Instalatér"

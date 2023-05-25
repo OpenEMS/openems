@@ -855,7 +855,7 @@
     "loggedInAs": "Angemeldet als Benutzer '{{ value }}'."
   },
   "Register": {
-    "title": "Benutzer Account anlegen",
+    "title": "Account anlegen",
     "segment": {
       "user": "Benutzer",
       "installer": "Installateur"
@@ -892,7 +892,8 @@
       "passwordNotEqual": "Passwörter sind nicht gleich",
       "emailNotEqual": "E-Mails stimmen nicht überein"
     },
-    "success": "Registrierung erfolgreich"
+    "success": "Registrierung erfolgreich",
+    "createUser": "Installateurszugang anlegen"
   },
   "Role": {
     "guest": "Gast",

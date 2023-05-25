@@ -855,7 +855,7 @@
     "loggedInAs": "Logged in as '{{ value }}'."
   },
   "Register": {
-    "title": "Create user account",
+    "title": "Create account",
     "segment": {
       "user": "User",
       "installer": "Installer"
@@ -892,7 +892,8 @@
       "passwordNotEqual": "Passwords are not equal",
       "emailNotEqual": "E-Mails are not equal"
     },
-    "success": "Registration successful"
+    "success": "Registration successful",
+    "createUser": "Create installer account"
   },
   "Role": {
     "guest": "Guest",
