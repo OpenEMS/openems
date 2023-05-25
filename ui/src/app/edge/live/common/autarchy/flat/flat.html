@@ -1,7 +1,7 @@
 <ng-container *ngIf="isInitialized">
-    <oe-flat-widget [title]="'General.autarchy' | translate" img="assets/img/autarchy.png" button
-        (click)="presentModal()">
-        <oe-flat-widget-percentagebar [value]="this.percentageValue">
-        </oe-flat-widget-percentagebar>
-    </oe-flat-widget>
+  <oe-flat-widget [title]="'General.autarchy' | translate" [icon]="{name: 'oe-grid', color:'environmental'}" button
+    (click)="presentModal()">
+    <oe-flat-widget-percentagebar [value]="this.percentageValue">
+    </oe-flat-widget-percentagebar>
+  </oe-flat-widget>
 </ng-container>

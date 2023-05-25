@@ -83,4 +83,24 @@ $font-family: var(--ion-font-family);
 
   /** font **/
   --ion-font-family: "Roboto", "Helvetica Neue", sans-serif;
+  --ion-background-color: #fff;
+}
+  
+/** Custom Colors **/
+:root {
+  --ion-color-environmental: #8abd46;
+  --ion-color-environmental-rgb: 138, 189, 70;
+  --ion-color-environmental-contrast: #fff;
+  --ion-color-environmental-contrast-rgb: 255, 255, 255;
+  --ion-color-environmental-shade: #527029;
+  --ion-color-environmental-tint: #bbff5d;
+
+  .ion-color-environmental {
+    --ion-color-base: var(--ion-color-environmental);
+    --ion-color-base-rgb: var(--ion-color-environmental-rgb);
+    --ion-color-contrast: var(--ion-color-environmental-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-environmental-contrast-rgb);
+    --ion-color-shade: var(--ion-color-environmental-shade);
+    --ion-color-tint: var(--ion-color-environmental-tint);
+  }
 }
