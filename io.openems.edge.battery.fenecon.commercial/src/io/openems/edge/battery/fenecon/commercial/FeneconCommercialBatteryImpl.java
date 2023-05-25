@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -921,7 +922,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 												getSingleModulePrefix(module) + "_MODULE_STATUS", OpenemsType.INTEGER,
 												Unit.NONE))), //
 								m(generateTowerChannel(this, towerNum, getSingleModulePrefix(module) + "_SERIAL_NUMBER",
-										OpenemsType.INTEGER, Unit.NONE),
+										OpenemsType.INTEGER, Unit.NONE, PersistencePriority.HIGH),
 										new UnsignedDoublewordElement(towerOffset + 128 + module * 20 + 18)
 												.wordOrder(WordOrder.LSWMSW),
 										SERIAL_NUMBER_CONVERTER)//
@@ -1028,6 +1029,28 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit) {
 		io.openems.edge.common.channel.ChannelId channelId = new DynamicChannelId(
 				"TOWER_" + tower + "_" + channelIdSuffix, Doc.of(openemsType).unit(channelUnit));
+		parent.addChannel(channelId);
+		return channelId;
+	}
+
+	/**
+	 * Generates a tower channel with a specific channelIdSuffix,openemsType and
+	 * channelUnit.
+	 *
+	 * @param parent          the parent component
+	 * @param tower           number of the Tower
+	 * @param channelIdSuffix e.g. "STATUS_ALARM"
+	 * @param openemsType     specified type e.g. "INTEGER"
+	 * @param channelUnit     specified type e.g. "NONE"
+	 * @param persistence     specified type e.g. "LOW"
+	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
+	 */
+	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
+			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit,
+			PersistencePriority persistence) {
+		io.openems.edge.common.channel.ChannelId channelId = new DynamicChannelId(
+				"TOWER_" + tower + "_" + channelIdSuffix,
+				Doc.of(openemsType).unit(channelUnit).persistencePriority(persistence));
 		parent.addChannel(channelId);
 		return channelId;
 	}
