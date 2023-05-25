@@ -51,7 +51,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null;
             },
             converter: () => {
-              return data['GridBuy']
+              return data['GridBuy'];
             },
             color: 'rgb(0,0,0)',
             stack: 0
@@ -64,7 +64,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data['_sum/GridSellActiveEnergy'] ?? null;
             },
             converter: () => {
-              return data['GridSell']
+              return data['GridSell'];
             },
             // TODO create Color class
             color: 'rgba(0,0,200)',
