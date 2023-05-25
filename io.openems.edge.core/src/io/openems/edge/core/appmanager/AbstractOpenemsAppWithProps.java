@@ -21,6 +21,7 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 
@@ -157,15 +158,20 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
+	public AppAssistant getAppAssistant(User user) {
+		final var language = user.getLanguage();
 		final var parameter = this.singletonParameter(language);
 		final var alias = this.getAlias(language, parameter.get());
 		return AppAssistant.create(this.getName(language)) //
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
-						.filter(p -> p.def().getShouldAddField().test(this.getApp(), p, language, parameter.get())) //
+						.filter(p -> p.def().getIsAllowedToSee() //
+								.test(this.getApp(), p, language, parameter.get(), user)) //
 						.filter(p -> p.def().getField() != null) //
-						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
+						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()) //
+								.readonly(!p.def().getIsAllowedToEdit() //
+										.test(this.getApp(), p, language, parameter.get(), user)) //
+								.build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}

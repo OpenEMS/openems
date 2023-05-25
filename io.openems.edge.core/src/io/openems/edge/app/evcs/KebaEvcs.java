@@ -135,8 +135,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 			var maxHardwarePowerPerPhase = OptionalInt.empty();
 			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
-				maxHardwarePowerPerPhase = OptionalInt
-						.of(this.getInt(p, Property.MAX_HARDWARE_POWER) / EvcsProps.NUMBER_OF_PHASES);
+				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
 			}
 
 			var components = Lists.newArrayList(//

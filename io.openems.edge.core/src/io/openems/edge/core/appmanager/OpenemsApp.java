@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
@@ -13,10 +14,10 @@ public interface OpenemsApp {
 	/**
 	 * Gets the {@link AppAssistant} for this {@link OpenemsApp}.
 	 *
-	 * @param language the language of the {@link AppAssistant}
+	 * @param user the {@link User}
 	 * @return the AppAssistant
 	 */
-	public AppAssistant getAppAssistant(Language language);
+	public AppAssistant getAppAssistant(User user);
 
 	/**
 	 * Gets the {@link AppConfiguration} needed for the {@link OpenemsApp}.

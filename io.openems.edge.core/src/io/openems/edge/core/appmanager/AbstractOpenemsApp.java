@@ -31,6 +31,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
@@ -422,7 +423,15 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				if (appConfig.specificInstanceId != null) {
 					try {
 						final var instance = appManager.findInstanceByIdOrError(appConfig.specificInstanceId);
-						checkProperties(errors, instance.properties, appConfig, dependency.key);
+						final var app = appManager.findAppById(instance.appId);
+						final var props = app.map(a -> {
+							try {
+								return AbstractOpenemsApp.fillUpProperties(a, instance.properties);
+							} catch (UnsupportedOperationException e) {
+								return instance.properties;
+							}
+						}).orElse(instance.properties);
+						checkProperties(errors, props, appConfig, dependency.key);
 					} catch (OpenemsNamedException e) {
 						appConfigErrors.add(e.getMessage());
 					}
@@ -574,6 +583,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	@Override
 	public OpenemsAppPropertyDefinition[] getProperties() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AppAssistant getAppAssistant(User user) {
+		return this.getAppAssistant(user.getLanguage());
+	}
+
+	protected AppAssistant getAppAssistant(Language l) {
+		return AppAssistant.create(this.getName(l)) //
+				.build();
 	}
 
 	protected abstract PROPERTY[] propertyValues();

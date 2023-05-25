@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -14,7 +15,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
@@ -75,6 +78,28 @@ public class AppDef<APP extends OpenemsApp, //
 		 * @return true if the test was successful
 		 */
 		public boolean test(A app, P property, Language l, M parameter);
+
+	}
+
+	@FunctionalInterface
+	public static interface FieldValuesBiPredicate<A, P, M, E> {
+
+		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> TRUE//
+				= (app, property, l, parameter, user) -> true;
+		public static final FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, Object> FALSE//
+				= (app, property, l, parameter, user) -> false;
+
+		/**
+		 * A function with the values of the current field.
+		 * 
+		 * @param app            the current app
+		 * @param property       the current property
+		 * @param l              the current language
+		 * @param parameter      the current provided parameters
+		 * @param extraParameter the extra parameter to pass to the predicate
+		 * @return true if the test was successful
+		 */
+		public boolean test(A app, P property, Language l, M parameter, E extraParameter);
 
 	}
 
@@ -151,11 +176,6 @@ public class AppDef<APP extends OpenemsApp, //
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field;
 
 	/**
-	 * Determines if the field gets added to the {@link AppAssistant}.
-	 */
-	private FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> shouldAddField = FieldValuesPredicate.ALWAYS_TRUE;
-
-	/**
 	 * Determines if the property should get visibly saved in the AppManager
 	 * configuration.
 	 */
@@ -170,6 +190,17 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Function to get the {@link ResourceBundle} for translations.
 	 */
 	private Function<? super PARAMETER, ResourceBundle> translationBundleSupplier;
+
+	/**
+	 * Determines if the property is allowed to be seen.
+	 */
+	private FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToSee//
+			= FieldValuesBiPredicate.TRUE;
+	/**
+	 * Determines if the property is allowed to be edited.
+	 */
+	private FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToEdit//
+			= FieldValuesBiPredicate.TRUE;
 
 	/**
 	 * Creates a {@link AppDef} with the componentId as the default value.
@@ -318,9 +349,10 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
-		def.shouldAddField = otherDef.shouldAddField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
+		def.isAllowedToSee = otherDef.isAllowedToSee;
+		def.isAllowedToEdit = otherDef.isAllowedToEdit;
 		return def;
 	}
 
@@ -670,18 +702,80 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {
-		this.shouldAddField = autoGenerateField ? FieldValuesPredicate.ALWAYS_TRUE : FieldValuesPredicate.ALWAYS_FALSE;
+		this.isAllowedToSee = autoGenerateField ? FieldValuesBiPredicate.TRUE : FieldValuesBiPredicate.FALSE;
 		return this.self();
 	}
 
-	public AppDef<APP, PROPERTY, PARAMETER> setShouldAddField(
-			FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> shouldAddField) {
-		this.shouldAddField = shouldAddField;
+	public AppDef<APP, PROPERTY, PARAMETER> setIsAllowedToSee(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, User> isAllowedToSee //
+	) {
+		this.isAllowedToSee = isAllowedToSee;
 		return this.self();
 	}
 
-	public FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> getShouldAddField() {
-		return this.shouldAddField;
+	/**
+	 * Appends the given predicates and collections them into one which checks that
+	 * every predicate returns true to determine if the current field should be
+	 * show.
+	 * 
+	 * @param isAllowedToSeePredicate the {@link FieldValuesBiPredicate}
+	 * @return this
+	 */
+	@SafeVarargs
+	public final AppDef<APP, PROPERTY, PARAMETER> appendIsAllowedToSee(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User>... isAllowedToSeePredicate //
+	) {
+		this.isAllowedToSee = appendToExisting(this.isAllowedToSee, isAllowedToSeePredicate);
+		return this.self();
+	}
+
+	/**
+	 * Appends the given predicates and collections them into one which checks that
+	 * every predicate returns true to determine if the current field can be edited.
+	 * 
+	 * @param isAllowedToEditPredicates the {@link FieldValuesBiPredicate}
+	 * @return this
+	 */
+	@SafeVarargs
+	public final AppDef<APP, PROPERTY, PARAMETER> appendIsAllowedToEdit(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User>... isAllowedToEditPredicates //
+	) {
+		this.isAllowedToEdit = appendToExisting(this.isAllowedToEdit, isAllowedToEditPredicates);
+		return this.self();
+	}
+
+	@SafeVarargs
+	private static <APP, PROPERTY, PARAMETER, EXTRA> FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> appendToExisting(//
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> existing, //
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA>... appendPredicates //
+	) {
+		if (appendPredicates.length == 0) {
+			return existing;
+		}
+		if (existing == FieldValuesBiPredicate.FALSE //
+				|| Arrays.stream(appendPredicates).anyMatch(pred -> pred == FieldValuesBiPredicate.FALSE)) {
+			return FieldValuesBiPredicate.FALSE;
+		}
+		FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super EXTRA> singlePredicate = (app,
+				property, l, parameter, user) -> {
+			return Arrays.stream(appendPredicates) //
+					.allMatch(pred -> pred.test(app, property, l, parameter, user));
+		};
+		if (existing == null || existing == FieldValuesBiPredicate.TRUE) {
+			return singlePredicate;
+		}
+		return (app, property, l, parameter, user) -> {
+			return existing.test(app, property, l, parameter, user)
+					&& singlePredicate.test(app, property, l, parameter, user);
+		};
+	}
+
+	public FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> getIsAllowedToEdit() {
+		return this.isAllowedToEdit;
+	}
+
+	public FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> getIsAllowedToSee() {
+		return this.isAllowedToSee;
 	}
 
 	/**
@@ -864,6 +958,34 @@ public class AppDef<APP extends OpenemsApp, //
 			final String property, //
 			final Function<? super APP, ComponentManager> componentManagerFunction //
 	) {
+		return this.bidirectional(propOfComponentId, property, componentManagerFunction, Function.identity());
+	}
+
+	/**
+	 * Binds a property bidirectional.
+	 * 
+	 * <p>
+	 * The property itself will not be stored in the app configuration only in the
+	 * component. If the user doesn't provide the value of a property and there is a
+	 * bidirectional binding for it it will be filled up with the value of the
+	 * bidirectional binding. If there is no component id in the configuration or
+	 * the component doesn't exist or the property of the value is null then null is
+	 * returned inside the bidirectional function.
+	 * 
+	 * @param propOfComponentId        the key to get the component id from a
+	 *                                 configuration
+	 * @param property                 the property of the component
+	 * @param componentManagerFunction the function to get the component manager
+	 * @param mapper                   the mapper {@link Function} from the
+	 *                                 component to the actual value
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
+			final PROPERTY propOfComponentId, //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction, //
+			final Function<? super JsonElement, JsonElement> mapper //
+	) {
 		this.bidirectionalValue = (app, prop, l, param, properties) -> {
 			if (properties == null) {
 				return null;
@@ -877,11 +999,42 @@ public class AppDef<APP extends OpenemsApp, //
 					.getComponent(componentId.getAsString());
 			return optionalComponent.map(component -> {
 				return component.getProperty(property).orElse(null);
-			}).orElseGet(() -> this.getDefaultValue().get(app, prop, l, param));
+			}).map(mapper).orElseGet(() -> this.getDefaultValue().get(app, prop, l, param));
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;
 		return this.self();
+	}
+
+	/**
+	 * Creates a simple mapper if the input {@link JsonElement} is a number it gets
+	 * multiplied with the given multiplicator.
+	 * 
+	 * @param multiplicator the multiplicator to be applied to the
+	 *                      {@link JsonElement}
+	 * @return the converter {@link Function}
+	 */
+	public static Function<? super JsonElement, JsonElement> multiplyWith(double multiplicator) {
+		return element -> {
+			if (!element.isJsonPrimitive()) {
+				return element;
+			}
+			if (!element.getAsJsonPrimitive().isNumber()) {
+				return element;
+			}
+			return new JsonPrimitive(element.getAsDouble() * multiplicator);
+		};
+	}
+
+	/**
+	 * Creates a {@link FieldValuesBiPredicate} to check if the {@link Role} of the
+	 * user is at least the given {@link Role}.
+	 * 
+	 * @param role the compared Role
+	 * @return the {@link FieldValuesBiPredicate}
+	 */
+	public static FieldValuesBiPredicate<? super Object, ? super Object, ? super Object, User> ofLeastRole(Role role) {
+		return (app, property, l, parameter, user) -> user.getRole().isAtLeast(role);
 	}
 
 }

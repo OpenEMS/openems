@@ -657,12 +657,14 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppAssistantRequest(User user,
-			GetAppAssistant.Request request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppAssistantRequest(//
+			final User user, //
+			final GetAppAssistant.Request request //
+	) throws OpenemsNamedException {
 		for (var app : this.availableApps) {
 			if (request.appId.equals(app.getAppId())) {
-				return CompletableFuture.completedFuture(
-						new GetAppAssistant.Response(request.id, app.getAppAssistant(user.getLanguage())));
+				return CompletableFuture
+						.completedFuture(new GetAppAssistant.Response(request.id, app.getAppAssistant(user)));
 			}
 		}
 		throw new OpenemsException("App-ID [" + request.appId + "] is unknown");
