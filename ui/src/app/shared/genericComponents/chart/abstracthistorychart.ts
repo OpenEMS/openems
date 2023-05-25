@@ -25,7 +25,6 @@ export abstract class AbstractHistoryChart implements OnInit {
   /** Title for Chart, diplayed above the Chart */
   @Input() public chartTitle: string = "";
 
-  /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
@@ -83,6 +82,10 @@ export abstract class AbstractHistoryChart implements OnInit {
     return window.innerHeight / 21 * 9;
   }
 
+  ngOnChanges() {
+    this.updateChart();
+  }
+
   private updateChart() {
     this.startSpinner();
     this.loadChart();
@@ -96,6 +99,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    */
   private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
     energyResponse?: QueryHistoricTimeseriesEnergyResponse): void {
+
     if (Utils.isDataEmpty(energyPeriodResponse)) {
       return;
     }
@@ -189,7 +193,10 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
+
+      // Set showphases to null to hide popover for 
       this.chartType = 'bar';
+      this.chartObject = this.getChartData()
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
@@ -238,6 +245,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       ])
         .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line';
+          this.chartObject = this.getChartData()
           this.fillChart(dataResponse, energyResponse);
           this.setChartLabel();
         });

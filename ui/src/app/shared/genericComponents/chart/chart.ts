@@ -10,12 +10,12 @@ import { Edge, Service } from "../../shared";
   selector: 'oe-chart',
   templateUrl: './chart.html',
 })
-export class ChartComponent implements OnInit, OnChanges {
+export class ChartComponent implements OnInit {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';
-  @Input() public showPhases: boolean;
-  @Input() public showTotal: boolean;
+  @Input() public showPhases: boolean | null = null;
+  @Input() public showTotal: boolean | null = null;
   @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
   @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
@@ -37,9 +37,12 @@ export class ChartComponent implements OnInit, OnChanges {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
+
   }
 
-  ngOnChanges() {
+  /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
+  ngAfterViewChecked() {
+    this.ref.detectChanges();
     this.checkIfPopoverNeeded();
   }
 

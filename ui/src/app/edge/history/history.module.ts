@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+
 import { SharedModule } from '../../shared/shared.module';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
@@ -6,8 +7,7 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common_Autarchy } from './common/autarchy/Autarchy';
-import { Common_Production } from './common/production/Production';
+import { Common_Module } from './common/module';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
@@ -24,9 +24,6 @@ import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdi
 import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
 import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
-import { GridChartComponent } from './grid/chart.component';
-import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
-import { GridComponent } from './grid/widget.component';
 import { GridOptimizedChargeChartComponent } from './gridoptimizedcharge/chart.component';
 import { GridOptimizedChargeChartOverviewComponent } from './gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { SellToGridLimitChartComponent } from './gridoptimizedcharge/sellToGridLimitChart.component';
@@ -68,8 +65,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common_Autarchy,
-    Common_Production
+    Common_Module
   ],
   entryComponents: [
     EnergyModalComponent,
@@ -100,9 +96,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     FixDigitalOutputSingleChartComponent,
     FixDigitalOutputTotalChartComponent,
     FixDigitalOutputWidgetComponent,
-    GridChartComponent,
-    GridChartOverviewComponent,
-    GridComponent,
     GridOptimizedChargeChartComponent,
     GridOptimizedChargeChartOverviewComponent,
     GridOptimizedChargeWidgetComponent,

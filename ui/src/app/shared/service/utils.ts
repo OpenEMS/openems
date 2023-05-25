@@ -660,5 +660,12 @@ export namespace HistoryUtils {
         return 0;
       }
     };
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+      if (value < 0) {
+        return Math.abs(value);
+      } else {
+        return 0;
+      }
+    }
   }
 }
