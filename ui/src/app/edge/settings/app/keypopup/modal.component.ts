@@ -13,6 +13,7 @@ import { AppCenterAddRegisterKeyHistory } from './appCenterAddRegisterKeyHistory
 import { AppCenterGetRegisteredKeys } from './appCenterGetRegisteredKeys';
 import { AppCenterIsKeyApplicable } from './appCenterIsKeyApplicable';
 import { Key } from './key';
+import { Flags } from '../jsonrpc/flag/flags';
 
 @Component({
     selector: KeyModalComponent.SELECTOR,
@@ -109,6 +110,9 @@ export class KeyModalComponent implements OnInit {
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
                 if (apps.every(app => {
+                    if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
+                        return true;
+                    }
                     for (const appFromBundle of bundle) {
                         if (appFromBundle.appId === app.appId) {
                             return true;
