@@ -258,9 +258,31 @@ public abstract class AbstractDoc<T> implements Doc {
 	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelSetNextWrite(
 			ThrowingBiConsumer<COMPONENT, T, OpenemsNamedException> callback) {
 		this.onInitCallback.add(channel -> {
+			if (!(channel instanceof WriteChannel<?>)) {
+				throw new IllegalArgumentException("Channel [" + channel.address()
+						+ "] is not a WriteChannel ('AbstractDoc.onChannelSetNextWrite')");
+			}
 			((WriteChannel<T>) channel).onSetNextWrite(value -> {
 				callback.accept((COMPONENT) channel.getComponent(), value);
 			});
+		});
+		return this.self();
+	}
+
+	/**
+	 * Registers a Mirror-To-Debug-Channel on Channel setNextWriteValue event.
+	 * 
+	 * <p>
+	 * After calling this method, on every setNextWriteValue event, the
+	 * 'nextWriteValue' will be mirrored to the 'targetChannelId' of the same
+	 * Component.
+	 *
+	 * @param targetChannelId the target Channel-ID of the same component
+	 * @return myself
+	 */
+	public AbstractDoc<T> onChannelSetNextWriteMirrorToDebugChannel(ChannelId targetChannelId) {
+		this.onChannelSetNextWrite((component, value) -> {
+			component.channel(targetChannelId).setNextValue(value);
 		});
 		return this.self();
 	}

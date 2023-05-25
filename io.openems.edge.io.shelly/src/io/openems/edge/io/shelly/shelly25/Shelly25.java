@@ -38,7 +38,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		 */
 		RELAY_1(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
 		 *
@@ -60,7 +60,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		 */
 		RELAY_2(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Slave Communication Failed Fault.
 		 *
