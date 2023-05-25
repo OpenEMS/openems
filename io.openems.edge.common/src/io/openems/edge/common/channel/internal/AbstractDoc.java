@@ -176,11 +176,12 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * This is a convenience method to react on a
 	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
 	 *
-	 * @param callback the method to call at value change event
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the method to call at value change event
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
-	public <COMPONENT> AbstractDoc<T> onValueUpdate(Consumer<COMPONENT> callback) {
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onValueChange(Consumer<COMPONENT> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
 				callback.accept((COMPONENT) channel.getComponent());
