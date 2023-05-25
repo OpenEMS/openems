@@ -88,7 +88,7 @@ public final class EvcsProps {
 						.isRequired(true) //
 						.requireTrue(language) //
 						.setLabel(TranslationUtil.getTranslation(parameter.bundle,
-								"App.Evcs.Cluster.acceptConditions.label")) //
+								"acceptCondition.label")) //
 						.build())
 				.build());
 	}
