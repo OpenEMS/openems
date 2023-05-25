@@ -15,7 +15,7 @@ This chapter explains the steps required to implement a UI Widget for OpenEMS UI
 link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/live.component.html[LiveComponent, window="_blank"] and link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/history/history.component.html[HistoryComponent, window="_blank"].
 
 
-UI-Widgets mainly consist of these components:
+UI-Modules mainly consist of these components:
 
 Module:: Modules should always be used to import and export all of the components, relevant to this Widget. The following components could be part of it: 
 
@@ -25,7 +25,7 @@ Module:: Modules should always be used to import and export all of the component
 
 === Create a new module [Live-View]
 
-.  Copy an existing Module e.g. link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[FixActivePower, window="_blank"] and paste it somewhere inside the Live-View somewhere.
+.  Copy an existing Module e.g. link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[FixActivePower, window="_blank"] and paste it inside the Live-View.
 
 . Change the `@Component` link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/flat/flat.ts[selector, window="_blank"] and use it inside link:file:ui/src/app/edge/live/live.component.html#L135[LiveComponent, window="_blank"].
 
@@ -44,11 +44,95 @@ To be able to see the module in action, you need to create a new switchCase Stat
 
 
 NOTE: The Live and History View are designed to show UI-Widgets dependent on the `EdgeConfig`, except of widgets listed in link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/common/[Common, window="_blank"].
-If you have implemented a controller or component, that is part of `EdgeConfig`, you will have to use the factoryId as a switchCase statement.
+If you implemented a controller or component, that is part of an `EdgeConfig`, you have to use the factoryId as a switchCase statement.
 If thats not the case, go into link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/type/widget.ts[widget.ts, window="_blank"] and add a identifier to the classes array inside `parseWidgets()`.
 
 
 
-The FlatWidget should now be visible in the Live-View and can be looking like this.
+The FlatWidget should now be visible in the Live-View and could be looking like this.
 
 image::ui-flat-widget-fixactivepower.png[FlatWidget FixActivePower]
+
+=== Creating a FlatWidget
+
+Data Visualisation in the Live-View is enabled with the link:https://github.com/OpenEMS/openems/tree/develop/ui/src/app/shared/genericComponents/flat[flat, window="_blank"] and https://github.com/OpenEMS/openems/tree/develop/ui/src/app/shared/genericComponents/modal[modal, window="_blank"]-widgets.
+
+The FlatWidget is mandatory for a Modal-Widget. Its purpose is to show only  the most important or general data. It also acts as a button, that can open the ModalWidget.
+
+[source,html]
+----
+<ng-container *ngIf="isInitialized">
+    <oe-flat-widget (click)="presentModal()" [icon]="{name:'swap-vertical-outline'}" [title]="component.alias">
+        <oe-flat-widget-line [name]="'General.state' | translate" [value]="propertyMode"
+            [converter]="CONVERT_MANUAL_ON_OFF">
+        </oe-flat-widget-line>
+
+        <ng-container *ngIf="propertyMode === 'MANUAL_ON'">
+            <oe-flat-widget-line [name]="chargeDischargePower.name" [value]="chargeDischargePower.value"
+                [converter]="CONVERT_WATT_TO_KILOWATT">
+            </oe-flat-widget-line>
+        </ng-container>
+    </oe-flat-widget>
+</ng-container>
+----
+
+If we take another look at the example of FixActivePowers FlatWidget you can see that everything is wrapped up in a ```ng-container``` with a statement, that will return true, if the edge and the edgeConfig have been received from Backend or Edge. The Widget will not be shown, till this condition is met.
+
+One step further there is a ```oe-flat-widget```. If you take a look at the link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/genericComponents/flat/flat.ts[corresponding class, window="_blank"], you will see multiple `@Input()` properties. These properties can be passed with the Widget. If you are not familiar with `@Input()` and `@Output()`, window="_blank", take a look link:https://angular.io/guide/inputs-outputs[here].
+
+Inside this `@Component`-tag, multiple other Components can be used.
+
+
+[cols="2,2"]  
+|===
+a|
+[source, html]
+----
+<oe-flat-widget-line [name]="chargeDischargePower.name"  [value]="chargeDischargePower.value"
+[converter]="CONVERT_WATT_TO_KILOWATT">
+</oe-flat-widget-line>
+----
+
+or
+
+[source, html]
+----
+ <oe-flat-widget-line [name]="component.alias" 
+ [channelAddress]="
+ component.id + '/ActualPower'"
+[converter]="CONVERT_WATT_TO_KILOWATT">
+</oe-flat-widget-line>
+
+----
+a|image::ui-flat-widget-fixactivepower.png[FlatWidget FixActivePower]
+
+Shows a row with a @Input() name left and @Input() value on the right. This value can also be converted with @Input() converter.
+
+a|
+[source, html]
+----
+<oe-flat-widget-percentagebar [channelAddress]="
+component.id + '/Soc'">
+</oe-flat-widget-percentagebar>
+----
+
+a| image::ui-flat-widget-autarchy.png[]
+
+
+
+a|
+[source, html]
+----
+<oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+----
+
+a| 
+image::ui-flat-widget-consumption.png[]
+Shows a horizontal line, that is used to divide children of AbstractFlatWidgetLine.
+
+|=== 
+
+Passing data can be done two ways:
+
+- @Input() channelAddress: provide channel, which will be subscribed in AbstractFlatWidgetLine.
+-  @Input() value: subscribe in the ts-file and pass the subscribed value.
