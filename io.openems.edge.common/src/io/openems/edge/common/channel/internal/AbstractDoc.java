@@ -172,7 +172,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
-	 * Provides a callback on value change for Channel.
+	 * Provides a callback on Channel onChange event.
 	 * 
 	 * <p>
 	 * This is a convenience method to react on a
@@ -183,7 +183,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
-	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onValueChange(Consumer<COMPONENT> callback) {
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelChange(Consumer<COMPONENT> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
 				callback.accept((COMPONENT) channel.getComponent());
@@ -193,7 +193,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
-	 * Provides a callback on value change for Channel.
+	 * Provides a callback on Channel onChange event.
 	 * 
 	 * <p>
 	 * This is a convenience method to react on a
@@ -205,9 +205,33 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
-	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onValueChange(BiConsumer<COMPONENT, Value<T>> callback) {
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelChange(
+			BiConsumer<COMPONENT, Value<T>> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
+				callback.accept((COMPONENT) channel.getComponent(), (Value<T>) value);
+			});
+		});
+		return this.self();
+	}
+
+	/**
+	 * Provides a callback on Channel setNextValue event.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a
+	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 *
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the method to call at value change event, value is the new
+	 *                    value after change
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelSetNextValue(
+			BiConsumer<COMPONENT, Value<T>> callback) {
+		this.onInitCallback.add(channel -> {
+			channel.onSetNextValue(value -> {
 				callback.accept((COMPONENT) channel.getComponent(), (Value<T>) value);
 			});
 		});

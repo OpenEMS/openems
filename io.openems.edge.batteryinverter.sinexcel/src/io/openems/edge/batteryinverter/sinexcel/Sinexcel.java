@@ -100,12 +100,12 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_ONLY)), //
 		BATTERY_INVERTER_STATE(new BooleanDoc() //
 				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
-				.<Sinexcel>onValueChange(Sinexcel::_setInverterState)),
+				.<Sinexcel>onChannelChange(Sinexcel::_setInverterState)),
 
 		INVERTER_GRID_MODE(new BooleanDoc() //
 				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("On Grid") //
-				.<Sinexcel>onValueChange((self, value) -> {
+				.<Sinexcel>onChannelChange((self, value) -> {
 					if (!value.isDefined()) {
 						self._setGridMode(GridMode.UNDEFINED);
 					} else if (value.get()) {
