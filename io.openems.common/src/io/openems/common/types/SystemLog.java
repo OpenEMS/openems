@@ -33,20 +33,21 @@ public class SystemLog {
 		 * @return a Level enum
 		 */
 		public static Level fromPaxLevel(PaxLevel paxLevel) {
-			switch (paxLevel.getSyslogEquivalent()) {
-			case 0: // FATAL/OFF
-			case 3: // ERROR
-				return ERROR;
-			case 4: // WARN
-				return WARN;
-			case 6: // INFO
-			case 7: // DEBUG/TRACE/ALL
-				return INFO;
-			default:
-				SystemLog.log.warn("Undefined PaxLevel [" + paxLevel.toString() + "/" + paxLevel.getSyslogEquivalent()
+			return switch (paxLevel.getSyslogEquivalent()) {
+			case 0, // FATAL/OFF
+			3 ->  // ERROR
+				 ERROR;
+			case 4 -> // WARN
+				 WARN;
+			case 6, // INFO
+			     7 -> // DEBUG/TRACE/ALL
+				 INFO;
+			default -> {
+				 SystemLog.log.warn("Undefined PaxLevel [" + paxLevel.toString() + "/" + paxLevel.getSyslogEquivalent()
 						+ "] . Falling back to [INFO].");
+				yield  INFO;
 			}
-			return INFO;
+			};			
 		}
 	}
 

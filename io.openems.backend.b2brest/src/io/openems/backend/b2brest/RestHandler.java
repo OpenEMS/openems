@@ -59,9 +59,8 @@ public class RestHandler extends AbstractHandler {
 
 			var thisTarget = targets.get(0);
 			switch (thisTarget) {
-			case "jsonrpc":
+			case "jsonrpc" -> 
 				this.handleJsonRpc(user, baseRequest, request, response);
-				break;
 			}
 		} catch (OpenemsNamedException e) {
 			throw new IOException(e.getMessage());

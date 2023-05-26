@@ -282,9 +282,8 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_CONFIG:
+		case Edge.Events.ON_SET_CONFIG -> 
 			this.edgeHandler.setEdgeConfigFromEvent(reader);
-			break;
 		}
 	}
 

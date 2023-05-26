@@ -23,29 +23,21 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		var inverter = context.getParent();
 		switch (inverter.getCurrentState()) {
-		case STANDBY:
-		case GRID_CONNECTED:
-		case GRID_PRE_CONNECTED:
-		case THROTTLED:
-		case PRECHARGE:
-		case MPPT:
-		case STARTING:
-		case OFF:
-		case SHUTTING_DOWN:
-		case SLEEPING:
+		case STANDBY, GRID_CONNECTED, GRID_PRE_CONNECTED, THROTTLED, PRECHARGE, MPPT, STARTING, OFF, SHUTTING_DOWN, SLEEPING -> {
+		
 			// no more error pending
 			return State.UNDEFINED;
-		case UNDEFINED:
+		}
+		case UNDEFINED -> {
 			// TODO
-			break;
-		case FAULT:
-		case NO_ERROR_PENDING:
+		}
+		case FAULT, NO_ERROR_PENDING -> {
 			/*
 			 * According to Manual: to more errors to be acknowledged - try to turn OFF
 			 */
 			// TODO this should not be set all the time
 			inverter.setRequestedState(S64201RequestedState.OFF);
-			break;
+		 }
 		}
 
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > WAIT_SECONDS) {

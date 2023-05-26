@@ -89,16 +89,16 @@ public class AbstractComponentConfig {
 		// Parse all class methods to get configuration properties
 		for (Method method : this.getClass().getMethods()) {
 			if (method.getDeclaringClass() != this.getClass()) {
+				
 				switch (method.getName()) {
-				case "id":
-				case "alias":
-				case "enabled":
-					// these methods are specifically allowed
-					break;
-				default:
-					// This method is inherited, e.g. from java.lang.Object and not interesting
-					continue;
-				}
+			    case "id", "alias", "enabled" -> {
+			        // these methods are specifically allowed
+			      }
+			    default -> {
+			        // This method is inherited, e.g. from java.lang.Object and not interesting
+			        continue;
+			    }
+			}
 			}
 			if (method.getParameterCount() > 0) {
 				// We are looking for methods with zero parameters

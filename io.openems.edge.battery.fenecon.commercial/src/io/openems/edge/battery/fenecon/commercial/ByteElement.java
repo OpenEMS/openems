@@ -27,20 +27,18 @@ public class ByteElement implements Consumer<Integer> {
 		}
 
 		switch (this.shifter) {
-		case ONLY_FIRST_CHANNEL:
+		case ONLY_FIRST_CHANNEL ->
 			this.parent.channel(this.channels[0].id()).setNextValue(t & 0xff);
-			break;
-		case ONLY_SECOND_CHANNEL:
+		case ONLY_SECOND_CHANNEL ->
 			this.parent.channel(this.channels[0].id()).setNextValue((t & 0xff00) >> 8);
-			break;
-		case SEPARATE_BITS_AS_6_AND_10_FOR_TWO_CHANNELS:
+		case SEPARATE_BITS_AS_6_AND_10_FOR_TWO_CHANNELS ->{
 			this.parent.channel(this.channels[0].id()).setNextValue(t & 0x3f);
 			this.parent.channel(this.channels[1].id()).setNextValue((t & 0xffc0) >> 6);
-			break;
-		case SEPERATE_TO_TWO_8_BIT_CHANNELS:
+		}
+		case SEPERATE_TO_TWO_8_BIT_CHANNELS -> {
 			this.parent.channel(this.channels[0].id()).setNextValue(t & 0xff);
 			this.parent.channel(this.channels[1].id()).setNextValue((t & 0xff00) >> 8);
-			break;
+		}
 		}
 	}
 }

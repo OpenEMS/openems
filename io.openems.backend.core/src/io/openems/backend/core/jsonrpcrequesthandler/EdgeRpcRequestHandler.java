@@ -47,60 +47,45 @@ public class EdgeRpcRequestHandler {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
-
+	
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
-		switch (request.getMethod()) {
+		
+		  resultFuture = switch (request.getMethod()) {
 
-		case QueryHistoricTimeseriesDataRequest.METHOD:
-			resultFuture = this.handleQueryHistoricDataRequest(edgeId, user,
-					QueryHistoricTimeseriesDataRequest.from(request));
-			break;
+	     	case QueryHistoricTimeseriesDataRequest.METHOD -> 
+	     		this.handleQueryHistoricDataRequest(edgeId, user,QueryHistoricTimeseriesDataRequest.from(request));								
 
-		case QueryHistoricTimeseriesEnergyRequest.METHOD:
-			resultFuture = this.handleQueryHistoricEnergyRequest(edgeId, user,
-					QueryHistoricTimeseriesEnergyRequest.from(request));
-			break;
-
-		case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD:
-			resultFuture = this.handleQueryHistoricEnergyPerPeriodRequest(edgeId, user,
-					QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
-			break;
-
-		case QueryHistoricTimeseriesExportXlxsRequest.METHOD:
-			resultFuture = this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, user,
-					QueryHistoricTimeseriesExportXlxsRequest.from(request));
-			break;
-
-		case GetEdgeConfigRequest.METHOD:
-			resultFuture = this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
-			break;
-
-		case CreateComponentConfigRequest.METHOD:
-			resultFuture = this.handleCreateComponentConfigRequest(edgeId, user,
-					CreateComponentConfigRequest.from(request));
-			break;
-
-		case UpdateComponentConfigRequest.METHOD:
-			resultFuture = this.handleUpdateComponentConfigRequest(edgeId, user,
-					UpdateComponentConfigRequest.from(request));
-			break;
-
-		case DeleteComponentConfigRequest.METHOD:
-			resultFuture = this.handleDeleteComponentConfigRequest(edgeId, user,
-					DeleteComponentConfigRequest.from(request));
-			break;
-
-		case SetChannelValueRequest.METHOD:
-			resultFuture = this.handleSetChannelValueRequest(edgeId, user, SetChannelValueRequest.from(request));
-			break;
-
-		case ComponentJsonApiRequest.METHOD:
-			resultFuture = this.handleComponentJsonApiRequest(edgeId, user, ComponentJsonApiRequest.from(request));
-			break;
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
+		    case QueryHistoricTimeseriesEnergyRequest.METHOD -> 
+		    	this.handleQueryHistoricEnergyRequest(edgeId, user,QueryHistoricTimeseriesEnergyRequest.from(request));
+	
+		    case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD ->
+		    	this.handleQueryHistoricEnergyPerPeriodRequest(edgeId, user,QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
+			
+		    case QueryHistoricTimeseriesExportXlxsRequest.METHOD ->
+		    	this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, user,QueryHistoricTimeseriesExportXlxsRequest.from(request));	
+		    	
+		    case GetEdgeConfigRequest.METHOD ->
+		    	this.handleGetEdgeConfigRequest(edgeId, user, GetEdgeConfigRequest.from(request));
+			
+		    case CreateComponentConfigRequest.METHOD ->
+		    	this.handleCreateComponentConfigRequest(edgeId, user,CreateComponentConfigRequest.from(request));		
+		    	
+		    case UpdateComponentConfigRequest.METHOD -> 
+		    	this.handleUpdateComponentConfigRequest(edgeId, user,UpdateComponentConfigRequest.from(request));
+		    	
+		    case DeleteComponentConfigRequest.METHOD ->
+		    	this.handleDeleteComponentConfigRequest(edgeId, user,DeleteComponentConfigRequest.from(request));
+		    	
+		    case SetChannelValueRequest.METHOD -> 
+		    	this.handleSetChannelValueRequest(edgeId, user, SetChannelValueRequest.from(request));
+			
+		    case ComponentJsonApiRequest.METHOD -> 
+		    	this.handleComponentJsonApiRequest(edgeId, user, ComponentJsonApiRequest.from(request));
+		
+		    default ->
+		    	throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+			
+		};
 
 		// Wrap reply in EdgeRpcResponse
 		var result = new CompletableFuture<EdgeRpcResponse>();

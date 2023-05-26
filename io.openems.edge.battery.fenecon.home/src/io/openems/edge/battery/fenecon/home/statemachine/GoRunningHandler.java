@@ -25,7 +25,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		switch (this.state) {
-		case WAIT_FOR_SWITCH_ON: {
+		case WAIT_FOR_SWITCH_ON -> {
 			if (context.isBatteryStarted()) {
 				this.state = BatteryRelayState.WAIT_FOR_SWITCH_OFF;
 
@@ -37,10 +37,9 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 				// Turns the 12 V power on for battery start-up
 				this.setBatteryStartUpRelay(context, true);
 			}
-			break;
+			
 		}
-
-		case WAIT_FOR_BMS_CONTROL: {
+		case WAIT_FOR_BMS_CONTROL -> {
 			// Battery internal relay has not switched on yet, wait ...
 			// TODO add timeout and throw error (see MaxStartAttempts in Soltaro as example)
 			if (context.isBatteryStarted()) {
@@ -48,10 +47,8 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			} else {
 				this.state = BatteryRelayState.WAIT_FOR_BMS_CONTROL;
 			}
-			break;
 		}
-
-		case WAIT_FOR_SWITCH_OFF: {
+		case WAIT_FOR_SWITCH_OFF -> {
 			// Turns the 12 V power off after battery start-up
 			this.setBatteryStartUpRelay(context, false);
 
@@ -59,11 +56,10 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 				// Relay switched off or Relay state unknown -> battery is running
 				this.state = BatteryRelayState.FINISHED;
 			}
-			break;
 		}
-
-		case FINISHED:
+		case FINISHED -> {
 			return State.RUNNING;
+		 }
 		}
 
 		return State.GO_RUNNING;

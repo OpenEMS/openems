@@ -99,17 +99,15 @@ public class FieldTypeConflictHandler {
 	 * @return the Handler
 	 */
 	private BiConsumer<Point, JsonElement> createHandler(String field, RequiredType requiredType) {
-		switch (requiredType) {
-		case STRING:
-			return (builder, jValue) -> {
-				var value = getAsFieldTypeString(jValue);
-				if (value != null) {
-					builder.addField(field, value);
-				}
-			};
-
-		case INTEGER:
-			return (builder, jValue) -> {
+		return switch (requiredType) {
+		case STRING ->  (builder, jValue) -> {
+			var value = getAsFieldTypeString(jValue);
+			if (value != null) {
+				builder.addField(field, value);
+			}
+		};			
+		case INTEGER ->
+			 (builder, jValue) -> {
 				try {
 					var value = getAsFieldTypeNumber(jValue);
 					if (value != null) {
@@ -128,9 +126,8 @@ public class FieldTypeConflictHandler {
 					}
 				}
 			};
-
-		case FLOAT:
-			return (builder, jValue) -> {
+		case FLOAT -> 
+			 (builder, jValue) -> {
 				try {
 					var value = getAsFieldTypeFloat(jValue);
 					if (value != null) {
@@ -141,8 +138,7 @@ public class FieldTypeConflictHandler {
 							+ "] to float: " + e1.getMessage());
 				}
 			};
-		}
-		return null; // can never happen
+		};	
 	}
 
 	/**

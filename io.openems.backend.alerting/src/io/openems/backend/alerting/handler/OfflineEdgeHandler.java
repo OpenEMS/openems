@@ -227,11 +227,12 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	@Override
 	public Runnable getEventHandler(EventReader event) {
-		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_ONLINE:
-			var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
-			var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
-			return () -> {
+		
+		return switch (event.getTopic()) {
+		 case Edge.Events.ON_SET_ONLINE -> {
+			 var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+			 var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+			yield () -> {
 				var edgeOpt = this.metadata.getEdge(edgeId);
 				edgeOpt.ifPresentOrElse((edge) -> {
 					// Ensure that the online-state has not changed
@@ -244,15 +245,15 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 					}
 				}, () -> {
 					this.log.warn("Edge with id: " + edgeId + " not found");
-				});
-			};
+				 });
+		    	};
+		   }
+		  case Metadata.Events.AFTER_IS_INITIALIZED ->
+		  		this::handleMetadataAfterInitialize; 
 
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			return this::handleMetadataAfterInitialize;
-
-		default:
-			return null;
-		}
+		  default -> null;
+			
+		};
 	}
 
 	@Override

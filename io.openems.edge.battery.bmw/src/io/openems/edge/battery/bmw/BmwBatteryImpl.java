@@ -108,13 +108,13 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private void handleStateMachine() {
 		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
-		case ERROR:
+		case ERROR -> {
 			this.clearError();
 			// TODO Reset BMS? anything else?
 			this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorDelay());
 			this.setStateMachineState(State.ERRORDELAY);
-			break;
-		case ERRORDELAY:
+		}
+		case ERRORDELAY -> {
 			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
 				this.errorDelayIsOver = null;
 				if (this.isError()) {
@@ -123,8 +123,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 					this.setStateMachineState(State.OFF);
 				}
 			}
-			break;
-		case INIT:
+		}
+		case INIT -> {
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
 				this.unsuccessfulStarts = 0;
@@ -140,15 +140,15 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 					this.unsuccessfulStarts = 0;
 				}
 			}
-			break;
-		case OFF:
+		  }
+		case OFF -> {
 			this.logDebug(this.log, "in case 'OFF'; try to start the system");
 			this.startSystem();
 			this.logDebug(this.log, "set state to 'INIT'");
 			this.setStateMachineState(State.INIT);
 			this.startAttemptTime = LocalDateTime.now();
-			break;
-		case RUNNING:
+		}
+		case RUNNING -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (!this.isSystemRunning()) {
@@ -157,15 +157,15 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.RUNNING);
 				readyForWorking = true;
 			}
-			break;
-		case STOPPING:
+		}
+		case STOPPING -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
 				this.setStateMachineState(State.OFF);
 			}
-			break;
-		case UNDEFINED:
+		}
+		case UNDEFINED ->{
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
@@ -175,8 +175,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 			} else if (this.isSystemStatePending()) {
 				this.setStateMachineState(State.PENDING);
 			}
-			break;
-		case PENDING:
+		}
+		case PENDING -> {
 			if (this.pendingTimestamp == null) {
 				this.pendingTimestamp = LocalDateTime.now();
 			}
@@ -195,9 +195,9 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.RUNNING);
 				this.pendingTimestamp = null;
 			}
-			break;
-		case STANDBY:
-			break;
+		}
+		case STANDBY -> {
+		}
 		}
 
 		// this.getReadyForWorking().setNextValue(readyForWorking);
@@ -230,23 +230,20 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
 			this.handleBatteryState();
-			break;
+			
 		}
 	}
 
 	private void handleBatteryState() {
 		switch (this.config.batteryState()) {
-		case DEFAULT:
-			this.handleStateMachine();
-			break;
-		case OFF:
-			this.stopSystem();
-			break;
-		case ON:
+		case DEFAULT ->
+			this.handleStateMachine();		
+		case OFF ->
+			this.stopSystem();	
+		case ON ->
 			this.startSystem();
-			break;
 		}
 	}
 

@@ -179,72 +179,32 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = value -> 0d;
 
 	private ToDoubleFunction<? super Object> getChannelMapFunction(OpenemsType openemsType) {
-		switch (openemsType) {
-		case BOOLEAN:
-			return MAP_BOOLEAN_TO_DOUBLE;
-		case SHORT:
-			return MAP_SHORT_TO_DOUBLE;
-		case INTEGER:
-			return MAP_INTEGER_TO_DOUBLE;
-		case LONG:
-			return MAP_LONG_TO_DOUBLE;
-		case FLOAT:
-			return MAP_FLOAT_TO_DOUBLE;
-		case DOUBLE:
-			return MAP_DOUBLE_TO_DOUBLE;
-		case STRING:
-			// Strings are not supported by RRD4J
-			return MAP_TO_DOUBLE_NOT_SUPPORTED;
-		}
-		throw new IllegalArgumentException("Type [" + openemsType + "] is not supported.");
+		var value = switch (openemsType) {
+		  case BOOLEAN -> MAP_BOOLEAN_TO_DOUBLE;			
+		  case SHORT ->  MAP_SHORT_TO_DOUBLE;			
+		  case INTEGER-> MAP_INTEGER_TO_DOUBLE;			 
+    	  case LONG -> MAP_LONG_TO_DOUBLE;			 
+		  case FLOAT -> MAP_FLOAT_TO_DOUBLE;			 
+		  case DOUBLE -> MAP_DOUBLE_TO_DOUBLE;			
+		  case STRING -> MAP_TO_DOUBLE_NOT_SUPPORTED;// Strings are not supported by RRD4J	
+		};
+		throw new IllegalArgumentException("Type [" + value + "] is not supported.");
 	}
 
 	private Function<DoubleStream, OptionalDouble> getChannelAggregateFunction(Unit channelUnit) {
-		switch (channelUnit) {
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROOHM:
-		case MICROAMPERE:
-		case MICROVOLT:
-		case MILLIAMPERE_HOURS:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case WATT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT_HOURS_BY_WATT_PEAK:
-		case OHM:
-		case SECONDS:
-		case THOUSANDTH:
-		case PERCENT:
-		case ON_OFF:
-			return DoubleStream::average;
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return DoubleStream::max;
-		}
-		throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");
+		return switch (channelUnit) {
+		
+		case AMPERE,AMPERE_HOURS ,DEGREE_CELSIUS ,DEZIDEGREE_CELSIUS ,EUROS_PER_MEGAWATT_HOUR ,HERTZ , HOUR,KILOAMPERE_HOURS ,KILOOHM,
+		 KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOWATT, MICROOHM, MICROAMPERE,MICROVOLT, MILLIAMPERE_HOURS,MILLIAMPERE,
+		 MILLIHERTZ,MILLIOHM,MILLISECONDS, MILLIVOLT, MILLIWATT, MINUTE, NONE, WATT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE,
+		 WATT_HOURS_BY_WATT_PEAK, OHM, SECONDS, THOUSANDTH, PERCENT, ON_OFF ->			
+			 DoubleStream::average;		
+			 
+		case CUMULATED_SECONDS, WATT_HOURS, KILOWATT_HOURS, VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS,
+		 KILOVOLT_AMPERE_REACTIVE_HOURS -> 
+			 DoubleStream::max;
+			 
+		default -> throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");			 
+		};		
 	}
-
 }

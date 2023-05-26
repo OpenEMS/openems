@@ -49,21 +49,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		});
 
 		// Handle notification
-		switch (notification.getMethod()) {
-		case EdgeConfigNotification.METHOD:
-			this.handleEdgeConfigNotification(EdgeConfigNotification.from(notification), wsData);
-			return;
-
-		case TimestampedDataNotification.METHOD:
-			this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);
-			return;
-
-		case SystemLogNotification.METHOD:
-			this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);
-			return;
-		}
-
-		this.parent.logWarn(this.log, edgeId, "Unhandled Notification: " + notification);
+				switch (notification.getMethod()) {
+				case EdgeConfigNotification.METHOD ->
+					this.handleEdgeConfigNotification(EdgeConfigNotification.from(notification), wsData);
+				case TimestampedDataNotification.METHOD ->
+					this.handleTimestampedDataNotification(TimestampedDataNotification.from(notification), wsData);							
+				case SystemLogNotification.METHOD -> 
+					this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);									
+				default -> 
+					this.parent.logWarn(this.log, edgeId, "Unhandled Notification: " + notification);
+				}	
 	}
 
 	/**

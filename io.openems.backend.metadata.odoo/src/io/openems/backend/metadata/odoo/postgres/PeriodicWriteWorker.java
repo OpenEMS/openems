@@ -140,18 +140,14 @@ public class PeriodicWriteWorker {
 	public void onSetSumState(MyEdge edge, Level sumState) {
 		var odooId = edge.getOdooId();
 		switch (sumState) {
-		case OK:
-			this.sumStateOk.add(odooId);
-			break;
-		case INFO:
-			this.sumStateInfo.add(odooId);
-			break;
-		case WARNING:
-			this.sumStateWarning.add(odooId);
-			break;
-		case FAULT:
-			this.sumStateFault.add(odooId);
-			break;
+	    	case OK -> 
+	    		this.sumStateOk.add(odooId);
+	    	case INFO -> 
+	    		this.sumStateInfo.add(odooId);
+	    	case WARNING ->
+	    		this.sumStateWarning.add(odooId);
+	    	case FAULT -> 
+	    		this.sumStateFault.add(odooId);
 		}
 	}
 

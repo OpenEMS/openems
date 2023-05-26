@@ -21,7 +21,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		switch (this.state) {
-		case WAIT_FOR_RELAYS_SWITCH_ON: {
+		case WAIT_FOR_RELAYS_SWITCH_ON -> {
 			// Master Started
 			if (context.isBatteryStarted()) {
 				this.state = BatteryRelayState.WAIT_FOR_RELAYS_SWITCH_OFF;
@@ -33,24 +33,21 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 				// Master not started and relay is false, switch the relay on
 				context.setBatteryStartUpRelays(true);
 			}
-		}
-			break;
-		case WAIT_FOR_RELAYS_SWITCH_OFF: {
+		}			
+		case WAIT_FOR_RELAYS_SWITCH_OFF -> {
 			// Master not started and relay is on, switch relay off
 			context.setBatteryStartUpRelays(false);
-
 			// Relay is off and master started
 			if (context.getBatteryStartStopRelay() != Boolean.TRUE) {
 				this.state = BatteryRelayState.FINISHED;
 			}
-		}
-			break;
-		case FINISHED:
+		}			
+		case FINISHED -> {
 			if (context.isBatteryStarted()) {
 				this.state = BatteryRelayState.WAIT_FOR_RELAYS_SWITCH_ON;
 				return State.RUNNING;
-			}
-			return State.GO_RUNNING;
+			}			
+		}
 		}
 		return State.GO_RUNNING;
 	}

@@ -152,21 +152,19 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			ContactorControl cc = newValue.asEnum();
 
 			switch (cc) {
-			case CONNECTION_INITIATING:
+			case CONNECTION_INITIATING ->
 				// TODO start stop is not implemented;
 				this._setStartStop(StartStop.UNDEFINED);
-				break;
-			case CUT_OFF:
+			case CUT_OFF -> {
 				// TODO start stop is not implemented;
 				this._setStartStop(StartStop.STOP);
 				this.isStopping = false;
-				break;
-			case ON_GRID:
+			}
+			case ON_GRID ->
 				// TODO start stop is not implemented; mark as started if 'readyForWorking'
 				this._setStartStop(StartStop.START);
-				break;
-			default:
-				break;
+			default -> {
+		    	}
 			}
 		});
 	}
@@ -177,28 +175,21 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE ->
 			this.batteryProtection.apply();
-			break;
-
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
 			this.handleBatteryState();
-			break;
 		}
 	}
 
 	private void handleBatteryState() {
 		switch (this.batteryState) {
-		case DEFAULT:
+		case DEFAULT ->
 			this.handleStateMachine();
-			break;
-		case OFF:
+		case OFF ->
 			this.stopSystem();
-			break;
-		case ON:
+		case ON ->
 			this.startSystem();
-			break;
 		}
 	}
 
@@ -206,13 +197,12 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 		this.log.info("SingleRackVersionBImpl.handleStateMachine(): State: " + this.getStateMachineState());
 		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
-		case ERROR:
+		case ERROR -> {
 			this.stopSystem();
 			this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorLevel2Delay());
 			this.setStateMachineState(State.ERRORDELAY);
-			break;
-
-		case ERRORDELAY:
+		}
+		case ERRORDELAY -> {
 			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
 				this.errorDelayIsOver = null;
 				if (this.isError()) {
@@ -221,8 +211,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					this.setStateMachineState(State.OFF);
 				}
 			}
-			break;
-		case INIT:
+		}		
+		case INIT -> {
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
 				this.unsuccessfulStarts = 0;
@@ -238,15 +228,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 					this.unsuccessfulStarts = 0;
 				}
 			}
-			break;
-		case OFF:
+		}
+		case OFF -> {
 			this.log.debug("in case 'OFF'; try to start the system");
 			this.startSystem();
 			this.log.debug("set state to 'INIT'");
 			this.setStateMachineState(State.INIT);
 			this.startAttemptTime = LocalDateTime.now();
-			break;
-		case RUNNING:
+		}
+		case RUNNING -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (!this.isSystemRunning()) {
@@ -255,15 +245,15 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				readyForWorking = true;
 				this.setStateMachineState(State.RUNNING);
 			}
-			break;
-		case STOPPING:
+		}
+		case STOPPING -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
 				this.setStateMachineState(State.OFF);
 			}
-			break;
-		case UNDEFINED:
+		}
+		case UNDEFINED -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
@@ -273,8 +263,8 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 			} else if (this.isSystemStatePending()) {
 				this.setStateMachineState(State.PENDING);
 			}
-			break;
-		case PENDING:
+		}
+		case PENDING -> {
 			if (this.pendingTimestamp == null) {
 				this.pendingTimestamp = LocalDateTime.now();
 			}
@@ -293,10 +283,10 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.RUNNING);
 				this.pendingTimestamp = null;
 			}
-			break;
-		case ERROR_HANDLING:
+		}
+		case ERROR_HANDLING -> {
 			// Cannot handle errors
-			break;
+		 }
 		}
 
 		// TODO start stop is not implemented; mark as started if 'readyForWorking'

@@ -90,14 +90,13 @@ public class AbstractComponentConfig {
 		for (Method method : this.getClass().getMethods()) {
 			if (method.getDeclaringClass() != this.getClass()) {
 				switch (method.getName()) {
-				case "id":
-				case "alias":
-				case "enabled":
+				case "id", "alias", "enabled" -> {
 					// these methods are specifically allowed
-					break;
-				default:
+				    }
+				default -> {
 					// This method is inherited, e.g. from java.lang.Object and not interesting
 					continue;
+				    }
 				}
 			}
 			if (method.getParameterCount() > 0) {

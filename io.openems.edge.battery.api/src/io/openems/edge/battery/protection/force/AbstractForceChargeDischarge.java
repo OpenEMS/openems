@@ -74,51 +74,48 @@ public abstract class AbstractForceChargeDischarge
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		switch (state) {
-		case UNDEFINED:
-			return new StateHandler<>() {
+		
+		return switch (state) {
+		case UNDEFINED ->
+			 new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleUndefinedState(context.minCellVoltage,
 							context.maxCellVoltage);
 				}
 			};
-
-		case WAIT_FOR_FORCE_MODE:
-			return new StateHandler<>() {
+		case WAIT_FOR_FORCE_MODE ->
+			 new StateHandler<>() {
 				private Instant enteredAt = Instant.MAX;
-
 				@Override
 				protected void onEntry(Context context) throws OpenemsNamedException {
 					this.enteredAt = context.now();
 				}
-
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleWaitForForceModeState(context.minCellVoltage,
 							context.maxCellVoltage, Duration.between(this.enteredAt, context.now()));
 				}
 			};
-
-		case FORCE_MODE:
-			return new StateHandler<>() {
+		case FORCE_MODE ->
+			 new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleForceModeState(context.minCellVoltage,
 							context.maxCellVoltage);
 				}
 			};
-
-		case BLOCK_MODE:
-			return new StateHandler<>() {
+		case BLOCK_MODE ->
+			 new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleBlockModeState(context.minCellVoltage,
 							context.maxCellVoltage);
 				}
 			};
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		default -> throw new IllegalArgumentException("Unknown State [" + state + "]");
+		};
+		
 	}
 
 	protected abstract State handleUndefinedState(int minCellVoltage, int maxCellVoltage);

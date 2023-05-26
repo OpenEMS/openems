@@ -24,16 +24,13 @@ public abstract class QueryProxy {
 	 * @return a {@link QueryProxy} instance
 	 */
 	public static QueryProxy from(QueryLanguageConfig config) {
-		switch (config) {
-		case FLUX:
-			return flux();
-		case INFLUX_QL:
-			return influxQl();
-		}
-		// Will never happen
-		return null;
+		return switch (config) {
+	       case FLUX -> flux();
+	       case INFLUX_QL -> influxQl();	       
+	       default -> null; // Will never happen
+	};
+	
 	}
-
 	/**
 	 * Builds a {@link FluxProxy}.
 	 * 

@@ -52,9 +52,8 @@ public class MyDeviceImpl extends AbstractOpenemsComponent implements MyDevice, 
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			// TODO: fill channels
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE ->
+		// TODO: fill channels		
 		}
 	}
 

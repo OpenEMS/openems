@@ -292,7 +292,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_ONLINE: {
+		case Edge.Events.ON_SET_ONLINE ->  {
 			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
 			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
@@ -303,37 +303,32 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				}
 			});
 		}
-			break;
+			
+		case Edge.Events.ON_SET_CONFIG -> this.onSetConfigEvent(reader);
 
-		case Edge.Events.ON_SET_CONFIG:
-			this.onSetConfigEvent(reader);
-			break;
-
-		case Edge.Events.ON_SET_VERSION: {
+		case Edge.Events.ON_SET_VERSION -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetVersion.EDGE);
 			var version = (SemanticVersion) reader.getProperty(Edge.Events.OnSetVersion.VERSION);
 
 			// Set Version in Odoo
 			this.odooHandler.writeEdge(edge, new FieldValue<>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
-		}
-			break;
-
-		case Edge.Events.ON_SET_LASTMESSAGE: {
+		}	
+		
+		case Edge.Events.ON_SET_LASTMESSAGE ->  {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetLastmessage.EDGE);
 			// Set LastMessage timestamp in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onLastMessage(edge);
 		}
-			break;
 
-		case Edge.Events.ON_SET_SUM_STATE: {
+		case Edge.Events.ON_SET_SUM_STATE -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetSumState.EDGE);
 			var sumState = (Level) reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
 			// Set Sum-State in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
-			break;
 
-		case Edge.Events.ON_SET_PRODUCTTYPE: {
+
+		case Edge.Events.ON_SET_PRODUCTTYPE -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetProducttype.EDGE);
 			var producttype = reader.getString(Edge.Events.OnSetProducttype.PRODUCTTYPE);
 			// Set Producttype in Odoo/Postgres
@@ -346,7 +341,6 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				}
 			});
 		}
-			break;
 
 		}
 	}

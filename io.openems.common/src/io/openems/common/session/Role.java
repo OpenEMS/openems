@@ -45,17 +45,14 @@ public enum Role {
 	 * @return the Role
 	 */
 	public static Role getRole(String name) {
-		switch (name.toLowerCase()) {
-		case "admin":
-			return ADMIN;
-		case "installer":
-			return INSTALLER;
-		case "owner":
-			return OWNER;
-		case "guest":
-		default:
-			return GUEST;
-		}
+		return switch (name.toLowerCase()) {
+		 		case "admin" -> ADMIN;
+		 		case "installer" ->INSTALLER;
+		 		case "owner"-> OWNER;
+		 		case "guest" -> GUEST;
+		 		default -> GUEST;
+			 
+		};
 	}
 
 	/**

@@ -158,14 +158,14 @@ public class EdgeConfigDiff {
 
 		protected ComponentDiff add(String name, OldNewProperty property) {
 			switch (name) {
-			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY:
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY ->
 				this.lastChangeBy = property;
-				break;
-			case OpenemsConstants.PROPERTY_LAST_CHANGE_AT:
+				
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_AT ->
 				this.lastChangeAt = property;
-				break;
-			default:
-				this.properties.put(name, property);
+				
+			default -> this.properties.put(name, property);
+				
 			}
 			return this;
 		}
@@ -324,31 +324,32 @@ public class EdgeConfigDiff {
 			final var component = componentEntry.getValue();
 			var change = component.properties.entrySet().stream() //
 					.filter(e -> {
-						switch (e.getKey()) {
-						case "_lastChangeAt":
-						case "_lastChangeBy":
-						case "org.ops4j.pax.logging.appender.name":
-							// ignore
-							return false;
-						default:
-							return true;
-						}
+						return switch (e.getKey()) {
+							case "_lastChangeAt", "_lastChangeBy", "org.ops4j.pax.logging.appender.name" -> // ignore	
+							     false;	
+											
+							default -> true;
+								
+						};
 					}) //
 					.map(e -> {
 						String oldValue = StringUtils.toShortString(e.getValue().getOld(), 20);
 						String newValue = StringUtils.toShortString(e.getValue().getNew(), 20);
 
-						switch (component.change) {
-						case CREATED:
-							return e.getKey() + "=" + newValue;
-						case UPDATED:
-							return e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
-						case DELETED:
-							return e.getKey() + " [was:" + oldValue + "]";
-						}
-						assert true;
-						return ""; // can never happen
-					}) //
+						return switch (component.change) {
+						case CREATED ->
+							 e.getKey() + "=" + newValue;
+						case UPDATED ->
+							 e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
+						case DELETED->
+							 e.getKey() + " [was:" + oldValue + "]";
+						default -> {
+							// can never happen
+							  assert true;
+							  yield "";							 
+							 }
+						};											
+					}) 
 					.collect(Collectors.joining(", "));
 			if (change.isEmpty()) {
 				continue;

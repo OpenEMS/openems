@@ -89,89 +89,97 @@ public class ControlAndLogic {
 	private static boolean isSlaveCommunicationError(SingleRackVersionB singleRackVersionB,
 			Optional<Integer> numberOfModules) {
 		var b = false;
-		switch (numberOfModules.orElse(0)) {
-		case 20:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		return b = switch (numberOfModules.orElse(0)) {
+		case 20 -> 
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_20_COMMUNICATION_ERROR);
 			// fall-through
-		case 19:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 19 -> 
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_19_COMMUNICATION_ERROR);
 			// fall-through
-		case 18:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 18 -> 
+			b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_18_COMMUNICATION_ERROR);
 			// fall-through
-		case 17:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 17 -> 
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_17_COMMUNICATION_ERROR);
 			// fall-through
-		case 16:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 16 -> 
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_16_COMMUNICATION_ERROR);
 			// fall-through
-		case 15:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 15 -> 
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_15_COMMUNICATION_ERROR);
 			// fall-through
-		case 14:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		
+		case 14 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_14_COMMUNICATION_ERROR);
 			// fall-through
-		case 13:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 13 ->
+		    b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_13_COMMUNICATION_ERROR);
 			// fall-through
-		case 12:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 12 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_12_COMMUNICATION_ERROR);
 			// fall-through
-		case 11:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 11 ->
+			b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_11_COMMUNICATION_ERROR);
 			// fall-through
-		case 10:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 10 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_10_COMMUNICATION_ERROR);
 			// fall-through
-		case 9:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 9 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_9_COMMUNICATION_ERROR);
 			// fall-through
-		case 8:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 8 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_8_COMMUNICATION_ERROR);
 			// fall-through
-		case 7:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 7 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_7_COMMUNICATION_ERROR);
 			// fall-through
-		case 6:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 6 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_6_COMMUNICATION_ERROR);
 			// fall-through
-		case 5:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 5 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_5_COMMUNICATION_ERROR);
 			// fall-through
-		case 4:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 4 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_4_COMMUNICATION_ERROR);
 			// fall-through
-		case 3:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 3 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_3_COMMUNICATION_ERROR);
 			// fall-through
-		case 2:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 2 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_2_COMMUNICATION_ERROR);
 			// fall-through
-		case 1:
-			b = b || readValueFromBooleanChannel(singleRackVersionB,
+		case 1 ->
+			 b || readValueFromBooleanChannel(singleRackVersionB,
 					SingleRackVersionB.ChannelId.SLAVE_1_COMMUNICATION_ERROR);
-		}
+		default -> b;
+		};
 
-		return b;
+		
 	}
 
 	private static boolean readValueFromBooleanChannel(OpenemsComponent component,

@@ -170,28 +170,16 @@ public class Utils {
 	 */
 	public static String toSqlInterval(Resolution resolution) {
 		var unit = resolution.getUnit();
-		switch (unit) {
-		case FOREVER:
-		case ERAS:
-		case MILLENNIA:
-		case CENTURIES:
-		case DECADES:
-			break;
-		case YEARS:
-		case MONTHS:
-		case WEEKS:
-		case DAYS:
-		case HALF_DAYS:
-		case HOURS:
-		case MINUTES:
-		case SECONDS:
-			return resolution.getValue() + " " + unit.toString();
-		case MILLIS:
-		case MICROS:
-		case NANOS:
-			break;
-		}
-		throw new IllegalArgumentException("Resolution " + resolution.getUnit() + " is not supported");
+		return switch (unit) {
+		
+		case YEARS, MONTHS, WEEKS, DAYS, HALF_DAYS, HOURS, MINUTES, SECONDS  -> 
+			resolution.getValue() + " " + unit.toString();
+			
+		case MILLIS, MICROS, NANOS,FOREVER, ERAS, MILLENNIA, CENTURIES, DECADES ->
+		 	throw new IllegalArgumentException("Resolution " + resolution.getUnit() + " is not supported");		
+			
+		};
+		
 	}
 
 }

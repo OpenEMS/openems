@@ -170,27 +170,22 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		}
 		switch (event.getTopic()) {
 
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE ->
 			this.batteryProtection.apply();
-			break;
 
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
 			this.handleBatteryState();
-			break;
 		}
 	}
 
 	private void handleBatteryState() {
 		switch (this.batteryState) {
-		case DEFAULT:
-			this.handleStateMachine();
-			break;
-		case OFF:
+		case DEFAULT ->
+			this.handleStateMachine();		
+		case OFF ->
 			this.stopSystem();
-			break;
-		case ON:
+		case ON ->
 			this.startSystem();
-			break;
 		}
 	}
 
@@ -199,12 +194,12 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		// this.getStateMachineState());
 		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
-		case ERROR:
+		case ERROR ->  {
 			this.stopSystem();
 			this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.errorLevel2Delay());
 			this.setStateMachineState(State.ERRORDELAY);
-			break;
-		case ERRORDELAY:
+		}
+		case ERRORDELAY -> {
 			// If we are in the error delay time, the system is reset, this can help
 			// handling the errors
 			if (LocalDateTime.now().isAfter(this.errorDelayIsOver)) {
@@ -218,9 +213,9 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 			} else if (!this.resetDone) {
 				this.handleErrorsWithReset();
 			}
-			break;
+		}
 
-		case INIT:
+		case INIT -> {
 			if (this.isSystemRunning()) {
 				this.setStateMachineState(State.RUNNING);
 				this.unsuccessfulStarts = 0;
@@ -236,13 +231,13 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 					this.unsuccessfulStarts = 0;
 				}
 			}
-			break;
-		case OFF:
+		}
+		case OFF -> {
 			this.startSystem();
 			this.setStateMachineState(State.INIT);
 			this.startAttemptTime = LocalDateTime.now();
-			break;
-		case RUNNING:
+		}
+		case RUNNING -> {
 			if (this.isSystemRunning()) {
 				if (this.isError()) {
 					this.setStateMachineState(State.ERROR);
@@ -253,15 +248,15 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 			} else {
 				this.setStateMachineState(State.UNDEFINED);
 			}
-			break;
-		case STOPPING:
+		}
+		case STOPPING -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
 				this.setStateMachineState(State.OFF);
 			}
-			break;
-		case UNDEFINED:
+		}
+		case UNDEFINED -> {
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
 			} else if (this.isSystemStopped()) {
@@ -271,8 +266,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 			} else if (this.isSystemStatePending()) {
 				this.setStateMachineState(State.PENDING);
 			}
-			break;
-		case PENDING:
+		}
+		case PENDING -> {
 			if (this.pendingTimestamp == null) {
 				this.pendingTimestamp = LocalDateTime.now();
 			}
@@ -291,10 +286,9 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				this.setStateMachineState(State.RUNNING);
 				this.pendingTimestamp = null;
 			}
-			break;
-		case ERROR_HANDLING:
+		}
+		case ERROR_HANDLING ->
 			this.handleErrorsWithReset();
-			break;
 		}
 
 		// TODO start stop is not implemented; mark as started if 'readyForWorking'
@@ -304,22 +298,21 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	private void handleErrorsWithReset() {
 		// To reset the cell drift phenomenon, first sleep and then reset the system
 		switch (this.resetState) {
-		case NONE:
+		case NONE ->
 			this.resetState = ResetState.SLEEP;
-			break;
-		case SLEEP:
+		case SLEEP -> {
 			this.sleepSystem();
 			this.resetState = ResetState.RESET;
-			break;
-		case RESET:
+		}
+		case RESET -> {
 			this.resetSystem();
 			this.resetState = ResetState.FINISHED;
-			break;
-		case FINISHED:
+		}
+		case FINISHED ->{
 			this.resetState = ResetState.NONE;
 			this.setStateMachineState(State.ERRORDELAY);
 			this.resetDone = true;
-			break;
+		}
 		}
 	}
 
@@ -786,12 +779,11 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		switch (value) {
-		case START:
-		case UNDEFINED:
+		case START, UNDEFINED -> {
 			// Current implementation always starts the Battery by default in
 			// handleStateMachine()
-			break;
-		case STOP:
+		}
+		case STOP ->
 			throw new NotImplementedException("'STOP' is not implemented for Soltaro Cluster Version B");
 		}
 	}

@@ -29,16 +29,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		WsData wsData = ws.getAttachment();
 		var user = wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
-		switch (request.getMethod()) {
+		return switch (request.getMethod()) {
 
-		case SubscribeEdgesChannelsRequest.METHOD:
-			return this.handleSubscribeEdgesChannelsRequest(wsData, user, request.getId(),
-					SubscribeEdgesChannelsRequest.from(request));
-		}
+		         case SubscribeEdgesChannelsRequest.METHOD ->
+		         	this.handleSubscribeEdgesChannelsRequest(wsData, user, request.getId(),SubscribeEdgesChannelsRequest.from(request));					
+		         // Forward to generic handler
+		         default -> 
+		         	this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
+	        	};
 
-		// Forward to generic handler
-		return this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
 	}
+
 
 	/**
 	 * Handles a {@link SubscribeEdgesChannelsRequest}.

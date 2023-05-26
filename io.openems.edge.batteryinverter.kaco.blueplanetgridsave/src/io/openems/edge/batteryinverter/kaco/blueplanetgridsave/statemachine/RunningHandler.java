@@ -20,25 +20,16 @@ public class RunningHandler extends StateHandler<State, Context> {
 		}
 
 		switch (inverter.getCurrentState()) {
-		case FAULT:
-		case GRID_PRE_CONNECTED:
-		case MPPT:
-		case NO_ERROR_PENDING:
-		case OFF:
-		case PRECHARGE:
-		case SHUTTING_DOWN:
-		case SLEEPING:
-		case STANDBY:
-		case STARTING:
-		case UNDEFINED:
+		case FAULT, GRID_PRE_CONNECTED, MPPT, NO_ERROR_PENDING, OFF, PRECHARGE, SHUTTING_DOWN, SLEEPING, STANDBY, STARTING, UNDEFINED -> {		
 			return State.UNDEFINED;
-
-		case GRID_CONNECTED:
+		  }
+		case GRID_CONNECTED ->{
 			// All Good
-
-		case THROTTLED:
+		}
+		case THROTTLED -> {
 			// if inverter is throttled, full power is not available, but the device
 			// is still working
+		}
 		}
 
 		// Mark as started

@@ -84,15 +84,18 @@ public abstract class QueueHandler<T extends Point> {
 	 */
 	public static QueueHandler<?> of(Type type, Priority priority, HikariDataSource dataSource,
 			ExecutorService executor) {
-		switch (type) {
-		case INTEGER:
-			return new IntQueueHandler(dataSource, executor, type, priority);
-		case FLOAT:
-			return new FloatQueueHandler(dataSource, executor, type, priority);
-		case STRING:
-			return new StringQueueHandler(dataSource, executor, type, priority);
-		}
-		return null;
+		return switch (type) {
+		case INTEGER ->
+			new IntQueueHandler(dataSource, executor, type, priority);
+		
+		case FLOAT -> 
+			new FloatQueueHandler(dataSource, executor, type, priority);
+		
+		case STRING -> 
+			new StringQueueHandler(dataSource, executor, type, priority);
+		//default -> 	null; 
+		};
+	
 	}
 
 	public static class IntQueueHandler extends QueueHandler<IntPoint> {

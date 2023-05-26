@@ -103,9 +103,9 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
 			this.collectAndWriteChannelValues();
-			break;
+		
 		}
 	}
 
@@ -122,12 +122,12 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 					.forEach(component -> {
 						component.channels().forEach(channel -> {
 							switch (channel.channelDoc().getAccessMode()) {
-							case WRITE_ONLY:
+							case WRITE_ONLY -> {
 								// ignore Write-Only-Channels
 								return;
-							case READ_ONLY:
-							case READ_WRITE:
-								break;
+								}
+							case READ_ONLY, READ_WRITE -> {								
+								}															
 							}
 
 							Optional<?> valueOpt = channel.value().asOptional();
@@ -139,27 +139,20 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 							var address = channel.address().toString();
 							try {
 								switch (channel.getType()) {
-								case BOOLEAN:
-									point.addField(address, (Boolean) value ? 1 : 0);
-									break;
-								case SHORT:
-									point.addField(address, (Short) value);
-									break;
-								case INTEGER:
-									point.addField(address, (Integer) value);
-									break;
-								case LONG:
-									point.addField(address, (Long) value);
-									break;
-								case FLOAT:
-									point.addField(address, (Float) value);
-									break;
-								case DOUBLE:
-									point.addField(address, (Double) value);
-									break;
-								case STRING:
-									point.addField(address, (String) value);
-									break;
+								case BOOLEAN ->
+									point.addField(address, (Boolean) value ? 1 : 0);								
+								case SHORT ->
+									point.addField(address, (Short) value);									
+								case INTEGER ->
+									point.addField(address, (Integer) value);									
+								case LONG ->
+									point.addField(address, (Long) value);								
+								case FLOAT ->
+									point.addField(address, (Float) value);									
+								case DOUBLE ->
+									point.addField(address, (Double) value);									
+								case STRING ->
+									point.addField(address, (String) value);									
 								}
 							} catch (IllegalArgumentException e) {
 								this.log.warn("Unable to add Channel [" + address + "] value [" + value + "]: "

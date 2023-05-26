@@ -299,53 +299,25 @@ public enum Unit {
 	 * @return the formatted value as String
 	 */
 	public String format(Object value, OpenemsType type) {
-		switch (this) {
-		case NONE:
-			return value.toString();
-		case AMPERE:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case MILLIAMPERE:
-		case MICROAMPERE:
-		case MILLIHERTZ:
-		case MILLIVOLT:
-		case MICROVOLT:
-		case PERCENT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT:
-		case KILOWATT:
-		case MILLIWATT:
-		case WATT_HOURS:
-		case OHM:
-		case KILOOHM:
-		case SECONDS:
-		case AMPERE_HOURS:
-		case HOUR:
-		case CUMULATED_SECONDS:
-		case KILOAMPERE_HOURS:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-		case KILOWATT_HOURS:
-		case MICROOHM:
-		case MILLIAMPERE_HOURS:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MINUTE:
-		case THOUSANDTH:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case WATT_HOURS_BY_WATT_PEAK:
-			return value + " " + this.symbol;
-		case ON_OFF:
-			boolean booleanValue = (Boolean) value;
-			return booleanValue ? "ON" : "OFF";
-		}
-		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
+		return switch (this) {
+			case NONE ->
+				value.toString();
+			 
+			case AMPERE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, EUROS_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE, MICROAMPERE, MILLIHERTZ, MILLIVOLT,
+			     MICROVOLT, PERCENT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT, KILOWATT, MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, 
+				 AMPERE_HOURS, HOUR, CUMULATED_SECONDS, KILOAMPERE_HOURS, KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS,
+				 KILOWATT_HOURS, MICROOHM, MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH, VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS,
+				 WATT_HOURS_BY_WATT_PEAK -> 
+				value + " " + this.symbol;
+			
+		    case ON_OFF -> {
+		    	boolean booleanValue = (Boolean) value;			
+		    	yield booleanValue ? "ON" : "OFF";
+				}
+		    default ->
+		    	"FORMAT_ERROR";// should never happen, if all possible cases are covered 
+		};
+		
 	}
 
 	@Override

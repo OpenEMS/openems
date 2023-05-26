@@ -112,9 +112,8 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case Metadata.Events.AFTER_IS_INITIALIZED:
+		case Metadata.Events.AFTER_IS_INITIALIZED ->
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-			break;
 		}
 	}
 }
