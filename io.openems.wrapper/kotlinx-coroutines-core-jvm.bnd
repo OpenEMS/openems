@@ -31,4 +31,4 @@ Import-Package: \
 
 -sources: false
 
--fixupmessages "Classes found in the wrong directory"; restrict:=error; is:=warning
+-fixupmessages "Classes found in the wrong directory"
