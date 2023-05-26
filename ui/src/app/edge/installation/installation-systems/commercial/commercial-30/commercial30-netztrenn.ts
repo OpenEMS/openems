@@ -2,7 +2,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
-import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { Coupler } from '../../../shared/coupler';
@@ -88,9 +88,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         });
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service): ComponentConfigurator {
         const invalidateElementsAfterReadErrors: number = 3;
-        const componentConfigurator: ComponentConfigurator = super.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+        const componentConfigurator: ComponentConfigurator = super.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors, service);
 
         // Modbus bridge type will already have modbus3 reserved for io0.
         const couplerComponentId: string = this.modbusBridgeType === ModbusBridgeType.TCP_IP ? 'modbus4' : 'modbus3';

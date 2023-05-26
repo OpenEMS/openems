@@ -1,6 +1,6 @@
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { ComponentData, SerialNumberFormData } from '../../../shared/ibndatatypes';
@@ -211,12 +211,13 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
+    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number, service: Service) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
         // adds Modbus 0, io0 (also modbus3 for Modbusbridge type TCP )
-        super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'), componentConfigurator);
+        super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'), componentConfigurator,
+            edge, websocket, service);
 
         // modbus1
         componentConfigurator.add({

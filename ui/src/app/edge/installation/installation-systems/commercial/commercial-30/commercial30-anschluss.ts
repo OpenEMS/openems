@@ -1,6 +1,6 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -45,9 +45,9 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         });
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
         const invalidateElementsAfterReadErrors: number = 3;
-        const componentConfigurator: ComponentConfigurator = this.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+        const componentConfigurator: ComponentConfigurator = this.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors, service);
 
         // ess0
         componentConfigurator.add({

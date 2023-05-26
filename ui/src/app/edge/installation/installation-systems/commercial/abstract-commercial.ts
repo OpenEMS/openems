@@ -3,12 +3,13 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
-import { ChannelAddress, Edge, Websocket } from 'src/app/shared/shared';
+import { ChannelAddress, Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../shared/category';
 import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
+import { IbnUtils } from '../../shared/ibnutils';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
 
@@ -457,7 +458,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
      * @param componentConfigurator configuration object.
      * @returns configuration object with modbus bridge components added.
      */
-    public addModbusBridgeAndIoComponents(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string, componentConfigurator: ComponentConfigurator): ComponentConfigurator {
+    public addModbusBridgeAndIoComponents(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string, componentConfigurator: ComponentConfigurator,
+        edge: Edge, websocket: Websocket, service: Service): ComponentConfigurator {
 
         let ioComponentId: string;
 
@@ -478,17 +480,23 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     mode: ConfigurationMode.RemoveAndConfigure
                 });
 
+                // Add ip address to network configuration
+                if (!IbnUtils.addIpAddress('eth1', '192.168.0.9/24', edge, websocket)) {
+                    service.toast('Eine für die Batterie notwendige IP-Adresse konnte nicht zur Netzwerkkonfiguration hinzugefügt werden.'
+                        , 'danger');
+                }
+
                 ioComponentId = 'modbus3'; // To communicate with io.
 
                 // modbus3
-                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_RELAY')));
+                componentConfigurator.add(AbstractCommercialIbn.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_RELAY')));
                 break;
 
             case ModbusBridgeType.RS485:
                 ioComponentId = 'modbus0'; // To communicate with battery and io.
 
                 // modbus0
-                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, alias));
+                componentConfigurator.add(AbstractCommercialIbn.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, alias));
                 break;
         }
 
@@ -516,7 +524,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
      * @param alias the alias string
      * @returns The modbus serial Configuration Object.
      */
-    private getSerialModbusBridgeComponent(ioComponentId: string, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+    private static getSerialModbusBridgeComponent(ioComponentId: string, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
         return {
             factoryId: 'Bridge.Modbus.Serial',
             componentId: ioComponentId,
@@ -569,6 +577,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 takeUntil(stopOnRequest),
                 filter(currentData => currentData != null)
             ).subscribe((currentData) => {
+                let anyNullorUndefined: boolean = false;
 
                 for (const [key, channelAddress] of Object.entries(channelAddresses)) {
 
@@ -576,7 +585,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
                     // If serial number is undefined or null, return
                     if (!serialNumber) {
-                        return;
+                        anyNullorUndefined = true;
+                        continue;
                     }
 
                     if (!this.addSerialNumbersToModel(key, model, serialNumber)) {
@@ -584,7 +594,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                         // eg: battery module serial numbers are taken directly.
                         model[key] = serialNumber;
                     }
+                }
 
+                if (!anyNullorUndefined) {
                     // Resolve the promise
                     isResolved = true;
                     resolve(model);
@@ -599,7 +611,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 // If data isn't available after the timeout, the
                 // promise gets resolved with an empty object
                 if (!isResolved) {
-                    resolve({});
+                    resolve(model);
                 }
 
                 // Unsubscribe to currentData and channels after timeout

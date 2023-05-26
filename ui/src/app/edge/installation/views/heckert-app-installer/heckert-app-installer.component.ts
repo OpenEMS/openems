@@ -3,7 +3,7 @@ import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Service } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Util } from '../../shared/util';
+import { IbnUtils } from '../../shared/ibnutils';
 
 export enum EmsAppId {
   HardyBarthSingle = "hardyBarthSingle",
@@ -67,7 +67,7 @@ export class HeckertAppInstallerComponent implements OnInit {
 
     // Save the id of the selected app and switch to next view
     this.ibn.selectedFreeApp = selectedApp;
-    Util.addIbnToSessionStorage(this.ibn);
+    IbnUtils.addIbnToSessionStorage(this.ibn);
     this.nextViewEvent.emit(this.ibn);
   }
 

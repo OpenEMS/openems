@@ -13,7 +13,7 @@ import { Commercial50Lastspitzenkappung } from './installation-systems/commercia
 import { GeneralIbn } from './installation-systems/general-ibn';
 import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
 import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
-import { Util } from './shared/util';
+import { IbnUtils } from './shared/ibnutils';
 
 @Component({
   selector: InstallationComponent.SELECTOR,
@@ -193,7 +193,7 @@ export class InstallationComponent implements OnInit {
       this.setIbn(ibn);
       if (sessionStorage) {
 
-        Util.addIbnToSessionStorage(ibn);
+        IbnUtils.addIbnToSessionStorage(ibn);
       }
     }
 
