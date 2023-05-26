@@ -50,7 +50,7 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 				.unit(Unit.WATT_HOURS)),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.<FeneconDessEss>onChannelChange((self, value) -> {
-					// on each update set Grid-Mode channel
+					// on each change set Grid-Mode channel
 					BsmuWorkState state = value.asEnum();
 					self._setGridMode(switch (state) {
 					case ON_GRID -> GridMode.ON_GRID;
