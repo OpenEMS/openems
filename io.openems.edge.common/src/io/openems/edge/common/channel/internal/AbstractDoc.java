@@ -180,10 +180,10 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * 
 	 * <p>
 	 * This is a convenience method to react on a
-	 * {@link Channel#onChange(java.util.function.BiConsumer)} event
+	 * {@link Channel#onChange(BiConsumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the method to call at value change event
+	 * @param callback    the callback method
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
@@ -197,6 +197,28 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
+	 * Provides a callback on Channel onUpdate event.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a {@link Channel#onUpdate(Consumer)}
+	 * event
+	 *
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the callback method
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelUpdate(
+			BiConsumer<COMPONENT, Value<T>> callback) {
+		this.onInitCallback.add(channel -> {
+			channel.onUpdate((value) -> {
+				callback.accept((COMPONENT) channel.getComponent(), value);
+			});
+		});
+		return this.self();
+	}
+
+	/**
 	 * Provides a callback on Channel onChange event.
 	 * 
 	 * <p>
@@ -204,8 +226,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * {@link Channel#onChange(BiConsumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the method to call at value change event, value is the new
-	 *                    value after change
+	 * @param callback    the callback method; value is the new value after change
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
@@ -227,8 +248,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * {@link Channel#onSetNextValue(Consumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the method to call at value change event, value is the new
-	 *                    value after change
+	 * @param callback    the callback method; value is the new value after change
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
@@ -250,13 +270,15 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * {@link WriteChannel#onSetNextWrite(ThrowingConsumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the method to call at setNextWriteValue event, value can
-	 *                    be null
+	 * @param callback    the callback method; value can be null
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
 	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelSetNextWrite(
 			ThrowingBiConsumer<COMPONENT, T, OpenemsNamedException> callback) {
+		if (this.accessMode == AccessMode.READ_ONLY) {
+			throw new IllegalArgumentException("Channel AccessMode is READ_ONLY ('AbstractDoc.onChannelSetNextWrite')");
+		}
 		this.onInitCallback.add(channel -> {
 			if (!(channel instanceof WriteChannel<?>)) {
 				throw new IllegalArgumentException("Channel [" + channel.address()
