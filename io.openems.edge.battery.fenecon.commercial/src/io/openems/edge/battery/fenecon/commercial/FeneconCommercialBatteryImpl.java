@@ -1021,7 +1021,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Update Number of towers,modules and cells; called on onUpdate event.
+	 * Update Number of towers,modules and cells; called on onChange event.
 	 * 
 	 * <p>
 	 * Recalculate the number of towers, modules and cells. Unfortunately the

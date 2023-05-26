@@ -421,7 +421,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	/**
-	 * Update Number of towers and modules; called on onUpdate event.
+	 * Update Number of towers and modules; called on onChange event.
 	 * 
 	 * <p>
 	 * Recalculate the number of towers and modules. Unfortunately the battery may
