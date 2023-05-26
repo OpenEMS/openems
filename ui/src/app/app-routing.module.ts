@@ -15,6 +15,7 @@ import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridop
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
+import { HistoryDataService } from './edge/history/historydataservice';
 import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
@@ -25,6 +26,7 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
+import { LiveDataService } from './edge/live/livedataservice';
 import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
@@ -47,8 +49,6 @@ import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
-import { HistoryDataService } from './edge/history/historydataservice';
-import { LiveDataService } from './edge/live/livedataservice';
 import { UserComponent } from './user/user.component';
 
 const routes: Routes = [

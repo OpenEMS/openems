@@ -8,7 +8,6 @@ import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -1073,27 +1072,14 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Callback for Channels to recalculate the number of towers and modules and
-	 * cells. Unfortunately the battery may report too small wrong values in the
-	 * beginning, so we need to recalculate on every change.
+	 * Update Number of towers,modules and cells; called on onChange event.
+	 * 
+	 * <p>
+	 * Recalculate the number of towers, modules and cells. Unfortunately the
+	 * battery may report too small wrong values in the beginning, so we need to
+	 * recalculate on every change.
 	 */
-	protected static final Consumer<Channel<Integer>> UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK = channel -> {
-		channel.onChange((ignore, value) -> {
-			((FeneconCommercialBatteryImpl) channel.getComponent()).updateNumberOfTowersAndModulesAndCells();
-		});
-	};
-
-	protected static final Consumer<Channel<Integer>> UPDATE_SOC = channel -> {
-		channel.onChange((ignore, value) -> {
-			((FeneconCommercialBatteryImpl) channel.getComponent()).updateSoc();
-		});
-	};
-
-	/**
-	 * Update Number of towers,modules and cells; called by
-	 * UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK.
-	 */
-	private synchronized void updateNumberOfTowersAndModulesAndCells() {
+	protected synchronized void updateNumberOfTowersAndModulesAndCells() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(FeneconCommercialBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
@@ -1183,7 +1169,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 * SoC to be set maximum(100) or minimum(0) based on discharge and charge
 	 * current of the battery.
 	 */
-	private synchronized void updateSoc() {
+	protected synchronized void updateSoc() {
 		Channel<Integer> batterySocChannel = this.channel(FeneconCommercialBattery.ChannelId.BATTERY_SOC);
 		var batterySoc = batterySocChannel.value();
 		var batteryChargeMaxCurrent = this.getChargeMaxCurrent();

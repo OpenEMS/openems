@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
@@ -9,6 +9,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
 import { calculateResolution, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
@@ -16,7 +17,6 @@ import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
-import { JsonrpcResponseError } from '../../jsonrpc/base';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
