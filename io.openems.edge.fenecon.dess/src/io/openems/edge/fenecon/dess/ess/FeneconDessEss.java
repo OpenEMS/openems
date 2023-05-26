@@ -49,30 +49,15 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 		ORIGINAL_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
-				.onInit(channel -> { //
+				.<FeneconDessEss>onChannelChange((self, value) -> {
 					// on each update set Grid-Mode channel
-					channel.onChange((oldValue, newValue) -> {
-						BsmuWorkState state = newValue.asEnum();
-						var parent = (SymmetricEss) channel.getComponent();
-						switch (state) {
-						case ON_GRID:
-							parent._setGridMode(GridMode.ON_GRID);
-							break;
-						case OFF_GRID:
-							parent._setGridMode(GridMode.OFF_GRID);
-							break;
-						case FAULT:
-						case UNDEFINED:
-						case BEING_ON_GRID:
-						case BEING_PRE_CHARGE:
-						case BEING_STOP:
-						case DEBUG:
-						case INIT:
-						case LOW_CONSUMPTION:
-						case PRE_CHARGE:
-							parent._setGridMode(GridMode.UNDEFINED);
-							break;
-						}
+					BsmuWorkState state = value.asEnum();
+					self._setGridMode(switch (state) {
+					case ON_GRID -> GridMode.ON_GRID;
+					case OFF_GRID -> GridMode.OFF_GRID;
+					case FAULT, UNDEFINED, BEING_ON_GRID, BEING_PRE_CHARGE, BEING_STOP, DEBUG, INIT, LOW_CONSUMPTION,
+							PRE_CHARGE ->
+						GridMode.UNDEFINED;
 					});
 				})), //
 		STACK_CHARGE_STATE(Doc.of(StackChargeState.values())); //
