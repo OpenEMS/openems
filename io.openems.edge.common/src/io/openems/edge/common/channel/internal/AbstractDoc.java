@@ -197,28 +197,6 @@ public abstract class AbstractDoc<T> implements Doc {
 	}
 
 	/**
-	 * Provides a callback on Channel onUpdate event.
-	 * 
-	 * <p>
-	 * This is a convenience method to react on a {@link Channel#onUpdate(Consumer)}
-	 * event
-	 *
-	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the callback method
-	 * @return myself
-	 */
-	@SuppressWarnings("unchecked")
-	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelUpdate(
-			BiConsumer<COMPONENT, Value<T>> callback) {
-		this.onInitCallback.add(channel -> {
-			channel.onUpdate((value) -> {
-				callback.accept((COMPONENT) channel.getComponent(), value);
-			});
-		});
-		return this.self();
-	}
-
-	/**
 	 * Provides a callback on Channel onChange event.
 	 * 
 	 * <p>
@@ -234,6 +212,28 @@ public abstract class AbstractDoc<T> implements Doc {
 			BiConsumer<COMPONENT, Value<T>> callback) {
 		this.onInitCallback.add(channel -> {
 			channel.onChange((ignore, value) -> {
+				callback.accept((COMPONENT) channel.getComponent(), value);
+			});
+		});
+		return this.self();
+	}
+
+	/**
+	 * Provides a callback on Channel onUpdate event.
+	 * 
+	 * <p>
+	 * This is a convenience method to react on a {@link Channel#onUpdate(Consumer)}
+	 * event
+	 *
+	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
+	 * @param callback    the callback method
+	 * @return myself
+	 */
+	@SuppressWarnings("unchecked")
+	public <COMPONENT extends OpenemsComponent> AbstractDoc<T> onChannelUpdate(
+			BiConsumer<COMPONENT, Value<T>> callback) {
+		this.onInitCallback.add(channel -> {
+			channel.onUpdate((value) -> {
 				callback.accept((COMPONENT) channel.getComponent(), value);
 			});
 		});
