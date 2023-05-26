@@ -250,8 +250,8 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * {@link WriteChannel#onSetNextWrite(ThrowingConsumer)} event
 	 *
 	 * @param <COMPONENT> the type of the {@link OpenemsComponent}
-	 * @param callback    the method to call at value change event, value is the new
-	 *                    value after change
+	 * @param callback    the method to call at setNextWriteValue event, value can
+	 *                    be null
 	 * @return myself
 	 */
 	@SuppressWarnings("unchecked")
