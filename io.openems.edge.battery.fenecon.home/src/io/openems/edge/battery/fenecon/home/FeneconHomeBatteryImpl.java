@@ -2,7 +2,6 @@ package io.openems.edge.battery.fenecon.home;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -422,21 +421,14 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	/**
-	 * Callback for Channels to recalculate the number of towers and modules.
-	 * Unfortunately the battery may report too small wrong values in the beginning,
-	 * so we need to recalculate on every change.
+	 * Update Number of towers and modules; called on onChange event.
+	 * 
+	 * <p>
+	 * Recalculate the number of towers and modules. Unfortunately the battery may
+	 * report too small wrong values in the beginning, so we need to recalculate on
+	 * every change.
 	 */
-	protected static final Consumer<Channel<Integer>> UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK = channel -> {
-		channel.onChange((ignore, value) -> {
-			((FeneconHomeBatteryImpl) channel.getComponent()).updateNumberOfTowersAndModules();
-		});
-	};
-
-	/**
-	 * Update Number of towers and modules; called by
-	 * UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK.
-	 */
-	private synchronized void updateNumberOfTowersAndModules() {
+	protected synchronized void updateNumberOfTowersAndModules() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(FeneconHomeBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();

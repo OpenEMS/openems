@@ -27,12 +27,12 @@
     "gridBuyAdvanced": "Achete",
     "gridSell": "Vendu sur le réseau",
     "gridSellAdvanced": "Vends",
-    "history": "Historique",
+    "HISTORY": "Historique",
     "inactive": "Désactivé",
     "info": "Info",
     "inputNotValid": "Input not valid",
     "insufficientRights": "Droits insuffisants",
-    "live": "Direct",
+    "LIVE": "Direct",
     "load": "Charge",
     "manually": "Manuellement",
     "measuredValue": "Measured Value",
@@ -59,7 +59,7 @@
     "state": "Etat",
     "storageSystem": "Système de stockage",
     "systemState": "System state",
-    "total": "total",
+    "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
     "Week": {
@@ -340,7 +340,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Prix actuel",
           "delayedDischarge": "Sortie retardée",
-          "storageDischarge": "Décharge de stockage",
+          "STORAGE_DISCHARGE": "Décharge de stockage",
           "State": {
             "notStarted": "Le contrôleur n'a pas encore démarré",
             "delayed": "Retardé",

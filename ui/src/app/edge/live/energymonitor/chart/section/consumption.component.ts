@@ -53,7 +53,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     get stateName() {
-        return this.showAnimation ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -98,7 +98,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW')
+        return this.unitpipe.transform(value, 'kW');
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -106,8 +106,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -120,7 +120,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
             middleRight: { x: r - v, y: 0 }
-        }
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topRight.x - v;
@@ -142,7 +142,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
             middleRight: { x: r - v, y: 0 }
-        }
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topLeft.x + animationWidth * 0.2;

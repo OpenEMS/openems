@@ -33,11 +33,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   ngOnInit() {
     this.startSpinner();
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
+    this.setLabel();
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -76,18 +76,18 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             data: delayChargeData,
             hidden: false,
             borderDash: [3, 3]
-          })
+          });
           this.colors.push({
             backgroundColor: 'rgba(253,197,7,0.05)',
             borderColor: 'rgba(253,197,7,1)',
-          })
+          });
         }
 
         // Sell to grid limit - Minimum charge limit data
         if (this.component.id + '/SellToGridLimitMinimumChargeLimit' in result.data) {
           let sellToGridLimitData = result.data[this.component.id + '/SellToGridLimitMinimumChargeLimit'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value == 0) {
               return 0;
             } else if (value < 0) {
@@ -101,11 +101,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             data: sellToGridLimitData,
             hidden: false,
             borderDash: [3, 3]
-          })
+          });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
             borderColor: 'rgba(200,0,0,1)',
-          })
+          });
         }
 
         if ('_sum/EssActivePower' in result.data) {
@@ -123,7 +123,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
           let chargeData = effectivePower.map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value < 0) {
               return value / -1000; // convert to kW;
             } else {
@@ -141,19 +141,19 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           this.colors.push({
             backgroundColor: 'rgba(0,223,0,0.05)',
             borderColor: 'rgba(0,223,0,1)',
-          })
+          });
 
           // State of charge data
           if ('_sum/EssSoc' in result.data) {
             let socData = result.data['_sum/EssSoc'].map(value => {
               if (value == null) {
-                return null
+                return null;
               } else if (value > 100 || value < 0) {
                 return null;
               } else {
                 return value;
               }
-            })
+            });
             datasets.push({
               label: this.translate.instant('General.soc'),
               data: socData,
@@ -161,11 +161,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               yAxisID: 'yAxis2',
               position: 'right',
               borderDash: [10, 10]
-            })
+            });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
               borderColor: 'rgba(189, 195, 199,1)',
-            })
+            });
           }
         }
         this.datasets = datasets;
@@ -198,7 +198,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         result.push(new ChannelAddress(this.component.id, 'SellToGridLimitMinimumChargeLimit'));
       }
       resolve(result);
-    })
+    });
   }
 
   protected setLabel() {
@@ -223,7 +223,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         padding: -5,
         stepSize: 20
       }
-    })
+    });
     options.layout = {
       padding: {
         left: 2,
@@ -231,16 +231,16 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         top: 0,
         bottom: 0
       }
-    }
+    };
     //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
+    if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
       options.scales.xAxes[0].time.unit = "day";
     } else {
       options.scales.xAxes[0].time.unit = "hour";
     }
 
     //y-axis
-    options.scales.yAxes[0].id = "yAxis1"
+    options.scales.yAxes[0].id = "yAxis1";
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
@@ -258,7 +258,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
       }
-    }
+    };
     this.options = options;
   }
 

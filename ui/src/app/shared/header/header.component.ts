@@ -15,7 +15,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
+    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
     public environment = environment;
     public backUrl: string | boolean = '/';
@@ -44,12 +44,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        })
+        });
     }
 
     // used to prevent 'Expression has changed after it was checked' error
     ngAfterViewChecked() {
-        this.cdRef.detectChanges()
+        this.cdRef.detectChanges();
     }
 
     updateUrl(url: string) {
@@ -81,12 +81,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
         if (url === '/user' && currentEdge != null) {
-            this.backUrl = '/device/' + currentEdge.id + "/live"
+            this.backUrl = '/device/' + currentEdge.id + "/live";
             return;
         }
         if (url === '/changelog' && currentEdge != null) {
             // TODO this does not work if Changelog was opened from /user
-            this.backUrl = '/device/' + currentEdge.id + "/settings/profile"
+            this.backUrl = '/device/' + currentEdge.id + "/settings/profile";
             return;
         }
 

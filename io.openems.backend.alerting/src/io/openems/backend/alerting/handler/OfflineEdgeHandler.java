@@ -5,7 +5,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +99,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		var count = new AtomicInteger();
 		var validOfflineEges = this.metadata.getAllOfflineEdges().stream() //
 				.filter(this::isValidEdge) //
-				.collect(Collectors.toList());
+				.toList();
 
 		if (validOfflineEges.size() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES) {
 			this.log.error("[OfflineEdgeHandler] Canceled checkMetadata(); tried to schedule msgs for "
