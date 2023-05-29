@@ -23,7 +23,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 		 */
 		TOTAL_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS)), //
-		
+
 		/**
 		 * The exponent of the sum of production.
 		 *
@@ -34,7 +34,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 		 * </ul>
 		 */
 		PRODUCTION_EXPONENT(Doc.of(OpenemsType.INTEGER)), //
-		
+
 		/**
 		 * Sum of consumption.
 		 *

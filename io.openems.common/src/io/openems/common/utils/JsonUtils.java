@@ -1186,7 +1186,8 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
-		return Optional.ofNullable(InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName)))));
+		return Optional.ofNullable(//
+				InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**

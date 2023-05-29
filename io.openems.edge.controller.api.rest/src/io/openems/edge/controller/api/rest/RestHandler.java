@@ -277,7 +277,7 @@ public class RestHandler extends AbstractHandler {
 		return components.stream() //
 				.filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id())) //
 				.flatMap(component -> component.channels().stream()) //
-				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id()))
+				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id())) //
 				.toList();
 	}
 
