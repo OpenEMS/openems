@@ -245,10 +245,10 @@ public class OneWireContainer1A extends OneWireContainer {
 	@Override
 	public String getDescription() {
 		return """
-			4096 bit read/write nonvolatile memory with\s\
-			four 32-bit read-only non rolling-over page write\s\
-			cycle counters and tamper-detect bits for small\s\
-			money storage""";
+				4096 bit read/write nonvolatile memory with \
+				four 32-bit read-only non rolling-over page write \
+				cycle counters and tamper-detect bits for small \
+				money storage""";
 	}
 
 	/**

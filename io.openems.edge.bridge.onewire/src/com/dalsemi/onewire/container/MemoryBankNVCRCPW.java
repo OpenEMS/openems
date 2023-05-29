@@ -394,10 +394,10 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 
 				// password block would be written to with potentially bad data
 				throw new OneWireException("""
-					Executing write would overwrite password control registers with\s\
-					potentially invalid data.  Please ensure write does not occur over\
-					password control register page, or the password control data is\s\
-					specified exactly in the write buffer.""");
+						Executing write would overwrite password control registers with \
+						potentially invalid data.  Please ensure write does not occur over \
+						password control register page, or the password control data is \
+						specified exactly in the write buffer.""");
 			}
 
 			var tempBuf = new byte[len + numBytes];

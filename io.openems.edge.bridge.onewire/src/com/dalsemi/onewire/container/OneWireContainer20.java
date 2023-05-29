@@ -250,13 +250,13 @@ public class OneWireContainer20 extends OneWireContainer implements ADContainer 
 	@Override
 	public String getDescription() {
 		return """
-			Four high-impedance inputs for measurement of analog\s\
-			voltages.  User programmable input range.  Very low\s\
-			power.  Built-in multidrop controller.  Channels\s\
-			not used as input can be configured as outputs\s\
-			through the use of open drain digital outputs.\s\
-			Capable of use of Overdrive for fast data transfer.\s\
-			Uses on-chip 16-bit CRC-generator to guarantee good data.""";
+				Four high-impedance inputs for measurement of analog \
+				voltages.  User programmable input range.  Very low \
+				power.  Built-in multidrop controller.  Channels \
+				not used as input can be configured as outputs \
+				through the use of open drain digital outputs. \
+				Capable of use of Overdrive for fast data transfer. \
+				Uses on-chip 16-bit CRC-generator to guarantee good data.""";
 	}
 
 	/**

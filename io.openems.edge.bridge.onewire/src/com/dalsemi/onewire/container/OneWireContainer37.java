@@ -152,9 +152,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	private static final byte DISABLE_BYTE = 0x00;
 
 	private final String descriptionString = """
-		Rugged, self-sufficient 1-Wire device that, once setup can\s\
-		store 32KB of password protected memory with a read only\s\
-		and a read/write password.""";
+			Rugged, self-sufficient 1-Wire device that, once setup can \
+			store 32KB of password protected memory with a read only \
+			and a read/write password.""";
 
 // *****************************************************************************
 //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

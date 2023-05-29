@@ -243,9 +243,9 @@ public class OneWireContainer14 extends OneWireContainer {
 	@Override
 	public String getDescription() {
 		return """
-			Electrically Erasable Programmable Read Only Memory\s\
-			(EEPROM) organized as one page of 256 bits and 64 bit\s\
-			one-time programmable application register.""";
+				Electrically Erasable Programmable Read Only Memory \
+				(EEPROM) organized as one page of 256 bits and 64 bit \
+				one-time programmable application register.""";
 	}
 
 	/**

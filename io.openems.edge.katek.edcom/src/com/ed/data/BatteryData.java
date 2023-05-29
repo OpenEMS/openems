@@ -263,25 +263,25 @@ public final class BatteryData implements DataSet {
 	@Override
 	public String toString() {
 		return String.format("""
-			Battery :
-			Power %.1f W\s
-			 U BMS %.1f V\s
-			 SOE\s\
-			%.1f %%\s
-			 I limit charge %.1f A\s
-			 I limit discharge\s\
-			%.1f A\s
-			 Nominal energy %.1f kWh\s
-			 Nominal power\s\
-			%.1f KW\s
-			 U cell min %.1f V\s
-			 U cell max %.1f V\s
-			 \
-			Cell min Temp %.1f °C\s
-			 Cell max Temp %.1f °C\s
-			 \
-			Cycles %d\s
-			""", //
+				Battery :
+				Power %.1f W
+				 U BMS %.1f V
+				 SOE \
+				%.1f %%
+				 I limit charge %.1f A
+				 I limit discharge \
+				%.1f A\s
+				 Nominal energy %.1f kWh
+				 Nominal power \
+				%.1f KW
+				 U cell min %.1f V
+				 U cell max %.1f V
+				 \
+				Cell min Temp %.1f °C
+				 Cell max Temp %.1f °C
+				 \
+				Cycles %d
+				""", //
 				pBat.getFloat(0), uBms.getFloat(0), soe.getFloat(0), I_lim_charge.getFloat(),
 				I_lim_discharge.getFloat(), bms_energy_nom.getFloat(), bms_power_nom.getFloat(),
 				bms_u_cell_min_total.getFloat(), bms_u_cell_max_total.getFloat(), bms_Tmin_total.getFloat(),

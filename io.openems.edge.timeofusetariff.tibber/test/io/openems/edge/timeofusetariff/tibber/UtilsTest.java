@@ -152,25 +152,25 @@ public class UtilsTest {
 	@Test
 	public void generateGraphQlTest() {
 		assertEquals("""
-			{
-			  viewer {
-			    homes {
-			      id
-			      appNickname
-			      currentSubscription{
-			        priceInfo{
-			          today {
-			            total
-			            startsAt
-			          }
-			          tomorrow {
-			            total
-			            startsAt
-			          }
-			        }
-			      }
-			    }
-			  }
-			}""", Utils.generateGraphQl());
+				{
+				  viewer {
+				    homes {
+				      id
+				      appNickname
+				      currentSubscription{
+				        priceInfo{
+				          today {
+				            total
+				            startsAt
+				          }
+				          tomorrow {
+				            total
+				            startsAt
+				          }
+				        }
+				      }
+				    }
+				  }
+				}""", Utils.generateGraphQl());
 	}
 }

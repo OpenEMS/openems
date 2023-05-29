@@ -227,9 +227,9 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 	@Override
 	public String getDescription() {
 		return """
-			Addressable Switch with controlled open drain PIO\s\
-			pin. PIO pin sink capability is greater than 4mA\s\
-			at 0.4V.""";
+				Addressable Switch with controlled open drain PIO \
+				pin. PIO pin sink capability is greater than 4mA \
+				at 0.4V.""";
 	}
 
 	// --------

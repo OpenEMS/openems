@@ -39,46 +39,46 @@ public class SchemaGenerator {
 
 	private String createEdgeTable() {
 		return """
-			CREATE TABLE IF NOT EXISTS edge (
-			  id SERIAL primary key,
-			  name text NOT NULL,
-			  UNIQUE(name)
-			);
-			""";
+				CREATE TABLE IF NOT EXISTS edge (
+				  id SERIAL primary key,
+				  name text NOT NULL,
+				  UNIQUE(name)
+				);
+				""";
 	}
 
 	private String createComponentTable() {
 		return """
-			CREATE TABLE IF NOT EXISTS component (
-			  id SERIAL primary key,
-			  name text NOT NULL,
-			  UNIQUE(name)
-			);
-			""";
+				CREATE TABLE IF NOT EXISTS component (
+				  id SERIAL primary key,
+				  name text NOT NULL,
+				  UNIQUE(name)
+				);
+				""";
 	}
 
 	private String createChannelTable() {
 		return """
-			CREATE TABLE IF NOT EXISTS channel (
-			  id SERIAL primary key,
-			  component_id INTEGER NOT NULL REFERENCES component,
-			  name text NOT NULL,
-			  priority INTEGER NOT NULL,
-			  UNIQUE(component_id, name)
-			);
-			""";
+				CREATE TABLE IF NOT EXISTS channel (
+				  id SERIAL primary key,
+				  component_id INTEGER NOT NULL REFERENCES component,
+				  name text NOT NULL,
+				  priority INTEGER NOT NULL,
+				  UNIQUE(component_id, name)
+				);
+				""";
 	}
 
 	private String createEdgeChannelTable() {
 		return """
-			CREATE TABLE IF NOT EXISTS edge_channel (
-			  id SERIAL primary key,
-			  edge_id INTEGER NOT NULL REFERENCES edge,
-			  channel_id INTEGER NOT NULL REFERENCES channel,
-			  type INTEGER NOT NULL,
-			  available_since TIMESTAMPTZ
-			);
-			""";
+				CREATE TABLE IF NOT EXISTS edge_channel (
+				  id SERIAL primary key,
+				  edge_id INTEGER NOT NULL REFERENCES edge,
+				  channel_id INTEGER NOT NULL REFERENCES channel,
+				  type INTEGER NOT NULL,
+				  available_since TIMESTAMPTZ
+				);
+				""";
 	}
 
 	private String createEdgeChannelIndex() {
@@ -186,138 +186,139 @@ public class SchemaGenerator {
 
 	private String createFunctionGetOrCreateEdgeId() {
 		return """
-			CREATE OR REPLACE FUNCTION openems_get_or_create_edge_id(
-			  _edge text,
-			  OUT _edge_id int
-			) LANGUAGE plpgsql AS\s
-			$$
-			BEGIN
-			  LOOP
-			    SELECT id
-			    FROM edge
-			    WHERE edge.name = _edge
-			    INTO _edge_id;
-			
-			    EXIT WHEN FOUND;
-			
-			    INSERT INTO edge (name)
-			    VALUES (_edge)
-			    ON CONFLICT DO NOTHING
-			    RETURNING id
-			    INTO _edge_id;
-			
-			    EXIT WHEN FOUND;
-			  END LOOP;
-			END;
-			$$;
-			""";
+				CREATE OR REPLACE FUNCTION openems_get_or_create_edge_id(
+				  _edge text,
+				  OUT _edge_id int
+				) LANGUAGE plpgsql AS
+				$$
+				BEGIN
+				  LOOP
+				    SELECT id
+				    FROM edge
+				    WHERE edge.name = _edge
+				    INTO _edge_id;
+
+				    EXIT WHEN FOUND;
+
+				    INSERT INTO edge (name)
+				    VALUES (_edge)
+				    ON CONFLICT DO NOTHING
+				    RETURNING id
+				    INTO _edge_id;
+
+				    EXIT WHEN FOUND;
+				  END LOOP;
+				END;
+				$$;
+				""";
 	}
 
 	private String createFunctionGetOrCreateComponentId() {
 		return """
-			CREATE OR REPLACE FUNCTION openems_get_or_create_component_id(
-			  _component text,\s
-			  OUT _component_id int
-			) LANGUAGE plpgsql AS\s
-			$$
-			BEGIN\s\s\s\s
-			  loop
-			    SELECT component.id
-			      FROM component
-			      WHERE component.name = _component
-			      INTO _component_id;\s\s\s
-			
-			      EXIT WHEN FOUND;
-			
-			    INSERT INTO component (name)
-			    VALUES (_component)\s
-			      ON CONFLICT DO nothing
-			      RETURNING id INTO _component_id;
-			
-			    EXIT WHEN FOUND;
-			  END LOOP;
-			END;
-			$$;
-			""";
+				CREATE OR REPLACE FUNCTION openems_get_or_create_component_id(
+				  _component text,
+				  OUT _component_id int
+				) LANGUAGE plpgsql AS\
+				$$
+				BEGIN
+				  loop
+				    SELECT component.id
+				      FROM component
+				      WHERE component.name = _component
+				      INTO _component_id;
+
+				      EXIT WHEN FOUND;
+
+				    INSERT INTO component (name)
+				    VALUES (_component)
+				      ON CONFLICT DO nothing
+				      RETURNING id INTO _component_id;
+
+				    EXIT WHEN FOUND;
+				  END LOOP;
+				END;
+				$$;
+				""";
 	}
 
 	private String createFunctionGetOrCreateChannelId() {
-		return "CREATE OR REPLACE FUNCTION openems_get_or_create_channel_id(\n" //
-				+ "  _component text,\n" //
-				+ "  _channel text,\n" //
-				+ "  OUT _channel_id int,\n" //
-				+ "  OUT _priority int\n" //
-				+ ") LANGUAGE plpgsql AS \n" //
-				+ "$$ \n" //
-				+ "BEGIN\n" //
-				+ "  LOOP\n" //
-				+ "    SELECT channel.id, channel.priority\n" //
-				+ "    FROM channel\n" //
-				+ "    LEFT JOIN component\n" //
-				+ "    ON channel.component_id = component.id \n" //
-				+ "    WHERE component.name = _component AND channel.name = _channel\n" //
-				+ "    INTO _channel_id, _priority;\n" //
-				+ "\n" //
-				+ "    EXIT WHEN FOUND;\n" //
-				+ "\n" //
-				+ "    INSERT INTO channel (component_id, name, priority)\n" //
-				+ "    VALUES ((SELECT _component_id FROM openems_get_or_create_component_id(_component)), _channel, "
-				+ Priority.LOW.getId() + "" + ")\n" //
-				+ "      ON CONFLICT DO NOTHING\n" //
-				+ "    RETURNING id, priority\n" //
-				+ "    INTO _channel_id, _priority;\n" //
-				+ "\n" //
-				+ "    EXIT WHEN FOUND;\n" //
-				+ "  END LOOP;\n" //
-				+ "END;\n" //
-				+ "$$;\n\n";
+		return """
+				CREATE OR REPLACE FUNCTION openems_get_or_create_channel_id(
+				  _component text,
+				  _channel text,
+				  OUT _channel_id int,
+				  OUT _priority int
+				) LANGUAGE plpgsql AS
+				$$
+				BEGIN
+				  LOOP
+				    SELECT channel.id, channel.priority
+				    FROM channel
+				    LEFT JOIN component
+				    ON channel.component_id = component.id
+				    WHERE component.name = _component AND channel.name = _channel
+				    INTO _channel_id, _priority;
+
+				    EXIT WHEN FOUND;
+
+				    INSERT INTO channel (component_id, name, priority)
+				    VALUES ((SELECT _component_id FROM openems_get_or_create_component_id(_component)), _channel,
+				""" + Priority.LOW.getId() + "" + ")" + """
+				ON CONFLICT DO NOTHING
+				    RETURNING id, priority
+				    INTO _channel_id, _priority;
+				    EXIT WHEN FOUND;
+				  END LOOP;
+				END;
+				$$;
+				""";
 	}
 
 	private String createFunctionGetOrCreateEdgeChannelId() {
 		return """
-			CREATE OR REPLACE FUNCTION openems_get_or_create_edge_channel_id(
-			  _edge text,
-			  _component text,
-			  _channel text,
-			  _type int,
-			  OUT _channel_id int,
-			  OUT _channel_type int,
-			  OUT _priority int,
-			  OUT _available_since TIMESTAMPTZ
-			) LANGUAGE plpgsql AS\s
-			$$\s
-			BEGIN
-			  LOOP
-			    SELECT edge_channel.id, edge_channel.type, channel.priority, edge_channel.available_since
-			    FROM edge_channel
-			    LEFT JOIN edge
-			    ON edge_channel.edge_id = edge.id\s
-			    LEFT JOIN channel
-			    ON edge_channel.channel_id = channel.id
-			    LEFT JOIN component
-			    ON channel.component_id = component.id\s
-			    WHERE edge.name = _edge AND component.name = _component AND channel.name = _channel
-			    INTO _channel_id, _channel_type, _priority, _available_since;
-			
-			    EXIT WHEN FOUND;
-			
-			    SELECT c._channel_id, c._priority
-			    FROM openems_get_or_create_channel_id(_component, _channel) c
-			    INTO _channel_id, _priority;
-			
-			    INSERT INTO edge_channel (edge_id, channel_id, type, available_since)
-			    VALUES ((SELECT _edge_id FROM openems_get_or_create_edge_id(_edge)),
-			      _channel_id,
-			      _type,
-			      now())
-			    ON CONFLICT DO NOTHING
-			    RETURNING id, type
-			    INTO _channel_id, _channel_type;
-			
-			    EXIT WHEN FOUND;
-			  END LOOP;
-			END;
-			$$;
-			""";
+				CREATE OR REPLACE FUNCTION openems_get_or_create_edge_channel_id(
+				  _edge text,
+				  _component text,
+				  _channel text,
+				  _type int,
+				  OUT _channel_id int,
+				  OUT _channel_type int,
+				  OUT _priority int,
+				  OUT _available_since TIMESTAMPTZ
+				) LANGUAGE plpgsql AS\s
+				$$\s
+				BEGIN
+				  LOOP
+				    SELECT edge_channel.id, edge_channel.type, channel.priority, edge_channel.available_since
+				    FROM edge_channel
+				    LEFT JOIN edge
+				    ON edge_channel.edge_id = edge.id\s
+				    LEFT JOIN channel
+				    ON edge_channel.channel_id = channel.id
+				    LEFT JOIN component
+				    ON channel.component_id = component.id\s
+				    WHERE edge.name = _edge AND component.name = _component AND channel.name = _channel
+				    INTO _channel_id, _channel_type, _priority, _available_since;
+
+				    EXIT WHEN FOUND;
+
+				    SELECT c._channel_id, c._priority
+				    FROM openems_get_or_create_channel_id(_component, _channel) c
+				    INTO _channel_id, _priority;
+
+				    INSERT INTO edge_channel (edge_id, channel_id, type, available_since)
+				    VALUES ((SELECT _edge_id FROM openems_get_or_create_edge_id(_edge)),
+				      _channel_id,
+				      _type,
+				      now())
+				    ON CONFLICT DO NOTHING
+				    RETURNING id, type
+				    INTO _channel_id, _channel_type;
+
+				    EXIT WHEN FOUND;
+				  END LOOP;
+				END;
+				$$;
+				""";
 	}
 }

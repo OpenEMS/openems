@@ -440,13 +440,13 @@ public class OneWireContainer12 extends OneWireContainer implements SwitchContai
 	@Override
 	public String getDescription() {
 		return """
-			1-Wire Dual Addressable Switch.  PIO pin channel\s\
-			A sink capability of typical 50mA at 0.4V with\s\
-			soft turn-on; optional channel B typical 10 mA at\s\
-			0.4V.  1024 bits of Electrically Programmable\s\
-			Read Only Memory (EPROM) partitioned into four 256\s\
-			bit pages.  7 bytes of user-programmable status\s\
-			memory to control the device.""";
+				1-Wire Dual Addressable Switch. PIO pin channel \
+				A sink capability of typical 50mA at 0.4V with \
+				soft turn-on; optional channel B typical 10 mA at \
+				0.4V. 1024 bits of Electrically Programmable \
+				Read Only Memory (EPROM) partitioned into four 256 \
+				bit pages. 7 bytes of user-programmable status \
+				memory to control the device.""";
 	}
 
 	/**
