@@ -33,11 +33,13 @@ public class SchemaGenerator {
 	}
 
 	private String createEdgeTable() {
-		return "CREATE TABLE IF NOT EXISTS edge (\n" //
-				+ "  id SERIAL primary key,\n" //
-				+ "  name text NOT NULL,\n" //
-				+ "  UNIQUE(name)\n" //
-				+ ");\n\n";
+		return """
+				CREATE TABLE IF NOT EXISTS edge (
+				  id SERIAL primary key,
+				  name text NOT NULL,
+				  UNIQUE(name)
+				);
+				""";
 	}
 
 	private String createChannelTable() {
@@ -155,29 +157,32 @@ public class SchemaGenerator {
 	}
 
 	private String createFunctionGetOrCreateEdgeId() {
-		return "CREATE OR REPLACE FUNCTION openems_get_or_create_edge_id(\n" //
-				+ "  _edge text,\n" //
-				+ "  OUT _edge_id int\n" //
-				+ ") LANGUAGE plpgsql AS \n" + "$$\n" //
-				+ "BEGIN\n" //
-				+ "  LOOP\n" //
-				+ "    SELECT id\n" //
-				+ "    FROM edge\n" //
-				+ "    WHERE edge.name = _edge\n" //
-				+ "    INTO _edge_id;\n" //
-				+ "\n" //
-				+ "    EXIT WHEN FOUND;\n" //
-				+ "\n" //
-				+ "    INSERT INTO edge (name)\n" //
-				+ "    VALUES (_edge)\n" //
-				+ "    ON CONFLICT DO NOTHING\n" //
-				+ "    RETURNING id\n" //
-				+ "    INTO _edge_id;\n" //
-				+ "\n" //
-				+ "    EXIT WHEN FOUND;\n" //
-				+ "  END LOOP;\n" //
-				+ "END;\n" //
-				+ "$$;\n\n";
+		return """
+				CREATE OR REPLACE FUNCTION openems_get_or_create_edge_id(
+				  _edge text,
+				  OUT _edge_id int
+				) LANGUAGE plpgsql AS
+				$$
+				BEGIN
+				  LOOP
+				    SELECT id
+				    FROM edge
+				    WHERE edge.name = _edge
+				    INTO _edge_id;
+
+				    EXIT WHEN FOUND;
+
+				    INSERT INTO edge (name)
+				    VALUES (_edge)
+				    ON CONFLICT DO NOTHING
+				    RETURNING id
+				    INTO _edge_id;
+
+				    EXIT WHEN FOUND;
+				  END LOOP;
+				END;
+				$$;
+				""";
 	}
 
 	private String createFunctionGetOrCreateChannelId() {

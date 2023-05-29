@@ -31,7 +31,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.phase = phase;
 			return this;
 		}
-		
+
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
 			return this;

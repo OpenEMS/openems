@@ -148,8 +148,7 @@ public class IesKeywattSingleCcs extends AbstractManagedOcppEvcsComponent
 		var requests = new ArrayList<Request>();
 
 		// TODO: Try to set lower Intervals
-		var setMeterValueSampleInterval = new ChangeConfigurationRequest(
-				"MeterValueSampleInterval", "2");
+		var setMeterValueSampleInterval = new ChangeConfigurationRequest("MeterValueSampleInterval", "2");
 		requests.add(setMeterValueSampleInterval);
 
 		return requests;

@@ -84,7 +84,7 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 						"Validator.Checkable.CheckRelayCount.Message", //
 						this.count, this.availableRelays) //
 		);
-		
+
 		// message to install additional relay
 		if (this.relayApp != null) {
 			messageBuilder.append(//
