@@ -30,7 +30,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setType(MeterType type) {
 			this.type = type;
 			return this;

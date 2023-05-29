@@ -251,13 +251,13 @@ public class AppDef<APP extends OpenemsApp, //
 	/**
 	 * Creates a copy of the otherDef.
 	 * 
-	 * @param <APP>         the type of the app
-	 * @param <PROPERTY>    the type of the property
-	 * @param <PARAMETER>   the type of the parameter
-	 * @param <APPO>        the type of the app from the otherDef
-	 * @param <PROPERTYO>   the type of the property from the otherDef
-	 * @param <PARAMETERO>  the type of the parameter from the otherDef
-	 * @param otherDef      the other {@link AppDef}
+	 * @param <APP>        the type of the app
+	 * @param <PROPERTY>   the type of the property
+	 * @param <PARAMETER>  the type of the parameter
+	 * @param <APPO>       the type of the app from the otherDef
+	 * @param <PROPERTYO>  the type of the property from the otherDef
+	 * @param <PARAMETERO> the type of the parameter from the otherDef
+	 * @param otherDef     the other {@link AppDef}
 	 * @return the new {@link AppDef}
 	 */
 	public static final <//
@@ -346,7 +346,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
 	 * overridden and return a non null value.
 	 * 
-	 * @param key the key of the translation
+	 * @param key    the key of the translation
 	 * @param params the parameter of the translation
 	 * @return this
 	 */
