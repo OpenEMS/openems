@@ -104,8 +104,9 @@ This project was generated with [angular-cli](https://github.com/angular/angular
    - Files in `root` will be copied to `/` of the OpenEMS UI
    - `scss/variables.scss` will be used for styling
    - `environments/*.ts` define settings for Backend/Edge and development/production environments
-- Generate contents of `root` folder using https://realfavicongenerator.net Place them in `root` subdirectory
-- Add entries in `angular.json`
+- Generate contents of `root` folder using https://realfavicongenerator.net.
+   Place them in `root` subdirectory
+- Add entries in `angular.json` according to the original openems-configurations
 
 #### i18n - internationalization
 
@@ -141,3 +142,6 @@ ngOnDestroy() {
     this.stopOnDestroy.complete();
 }
 ```
+
+#### Debugging Angular PWA Via USB-Connection
+Please follow this: https://medium.com/nerd-for-tech/google-chrome-how-to-inspect-websites-on-mobile-devices-804677f863ce
