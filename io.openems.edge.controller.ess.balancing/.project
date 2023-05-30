@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.edge.controller.symmetric.balancing</name>
+	<name>io.openems.edge.controller.ess.balancing</name>
 	<comment></comment>
 	<projects>
 	</projects>
