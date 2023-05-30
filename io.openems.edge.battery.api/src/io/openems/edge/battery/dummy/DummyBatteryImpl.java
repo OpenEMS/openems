@@ -1,12 +1,6 @@
 package io.openems.edge.battery.dummy;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -16,10 +10,10 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.clusterable.BatteryClusterable;
+import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.statemachine.Context;
 import io.openems.edge.battery.statemachine.StateMachine;
 import io.openems.edge.battery.statemachine.StateMachine.State;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -36,11 +30,8 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(DummyBatteryImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private StartStop startStopTarget = StartStop.UNDEFINED;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private ComponentManager componentManager;
 
 	private Config config = null;
@@ -51,21 +42,21 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				BatteryClusterable.ChannelId.values(), //
+				BatteryProtection.ChannelId.values(), //
 				DummyBattery.ChannelId.values()//
 		);
-		for (Channel<?> channel : this.channels()) {
+		for (var channel : this.channels()) {
 			channel.nextProcessImage();
 		}
 	}
 
-	@Activate
+	@SuppressWarnings("unused")
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		super.activate(null, config.id(), "", true);
 	}
 
 	@Override
-	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
@@ -203,12 +194,10 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 		return this.stateMachine.getCurrentState();
 	}
 
-	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
-
 	@Override
-	public void setStartStop(StartStop value) {
-		if (this.startStopTarget.getAndSet(value) != value) {
-			// Set only if value changed
+	public synchronized void setStartStop(StartStop value) {
+		if (this.startStopTarget != value) {
+			this.startStopTarget = value;
 			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
@@ -216,7 +205,7 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 	@Override
 	public StartStop getStartStopTarget() {
 		return switch (this.config.startStop()) {
-		case AUTO -> this.startStopTarget.get();
+		case AUTO -> this.startStopTarget;
 		case START -> StartStop.START;
 		case STOP -> StartStop.STOP;
 		};

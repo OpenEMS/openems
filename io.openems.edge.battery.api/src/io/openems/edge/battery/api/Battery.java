@@ -42,7 +42,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#PERCENT}
 		 * </ul>
 		 */
@@ -55,7 +55,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#PERCENT}
 		 * </ul>
 		 */
@@ -68,7 +68,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
@@ -81,7 +81,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#AMPERE}
 		 * </ul>
 		 */
@@ -94,7 +94,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
@@ -107,7 +107,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
@@ -120,7 +120,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#AMPERE}
 		 * <li>Usually positive, negative for force discharge mode
 		 * </ul>
@@ -134,7 +134,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
@@ -147,7 +147,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#AMPERE}
 		 * <li>Usually positive, negative for force charge mode
 		 * </ul>
@@ -161,7 +161,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
 		 * </ul>
 		 */
@@ -174,7 +174,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
 		 * </ul>
 		 */
@@ -187,7 +187,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
 		 * </ul>
 		 */
@@ -200,7 +200,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
@@ -213,7 +213,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
@@ -226,7 +226,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Boolean
+		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
 		MAIN_CONTACTOR(Doc.of(OpenemsType.BOOLEAN) //
@@ -238,7 +238,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link Battery}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIOHM}
 		 * </ul>
 		 */

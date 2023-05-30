@@ -9,11 +9,12 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public class ErrorHandler extends StateHandler<State, Context> {
 
+	private static final int SECONDS_UNTIL_RETRY = 120;
 	private Instant entryAt = Instant.MIN;
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		this.entryAt = Instant.now();
+		this.entryAt = Instant.now(context.componentManager.getClock());
 	}
 
 	@Override
@@ -25,8 +26,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
-			// Try again
+		if (Duration.between(this.entryAt, Instant.now(context.componentManager.getClock()))
+				.getSeconds() > SECONDS_UNTIL_RETRY) {
 			return State.UNDEFINED;
 		}
 		return State.ERROR;

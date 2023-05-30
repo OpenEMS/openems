@@ -44,7 +44,7 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 		this.setDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
 		this.setChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
 		try {
-			this.setMainContactor(Boolean.TRUE);
+			this.setMainContactor(true);
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
