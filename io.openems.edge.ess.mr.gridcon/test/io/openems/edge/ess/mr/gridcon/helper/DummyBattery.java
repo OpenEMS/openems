@@ -13,6 +13,8 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 	public static int DEFAULT_MAX_CELL_VOLTAGE = 3380;
 	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
 	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
+	public static int DEFAULT_AVG_CELL_TEMPERATURE = 29;
+	public static int DEFAULT_MAX_INTERNAL_RESISTANCE = 29;
 
 	public static int DEFAULT_VOLTAGE = 800;
 	public static int DEFAULT_CURRENT = 0;
@@ -30,6 +32,8 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 		this.setMaximalCellVoltage(DEFAULT_MAX_CELL_VOLTAGE);
 		this.setMinimalCellTemperature(DEFAULT_MIN_CELL_TEMPERATURE);
 		this.setMaximalCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
+		this.setAvgCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
+		this.setMaxInternalResistance(DEFAULT_MAX_INTERNAL_RESISTANCE);
 		this.setSoc(DEFAULT_SOC);
 		this.setSoh(DEFAULT_SOH);
 		this.setCapacity(DEFAULT_CAPACITY);
@@ -39,6 +43,11 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 		this.setMaximalDischargeCurrent(DEFAULT_MAX_DISCHARGE_CURRENT);
 		this.setDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
 		this.setChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
+		try {
+			this.setMainContactor(Boolean.TRUE);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setMinimalCellVoltage(int minimalCellVoltage) {
@@ -69,6 +78,26 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 	public void setMinimalCellTemperatureToUndefined() {
 		this._setMinCellTemperature(null);
 		this.getMinCellTemperatureChannel().nextProcessImage();
+	}
+
+	public void setAvgCellTemperature(int avgCellTemperature) {
+		this._setAvgCellTemperature(avgCellTemperature);
+		this.getAvgCellTemperatureChannel().nextProcessImage();
+	}
+
+	public void setAvgCellTemperatureToUndefined() {
+		this._setAvgCellTemperature(null);
+		this.getAvgCellTemperatureChannel().nextProcessImage();
+	}
+
+	public void setMaxInternalResistance(int maxInternalResistance) {
+		this._setMaxInternalResistance(maxInternalResistance);
+		this.getMaxInternalResistanceChannel().nextProcessImage();
+	}
+
+	public void setMainContactor(int mainContactor) {
+		this._setMaxInternalResistance(mainContactor);
+		this.getMaxInternalResistanceChannel().nextProcessImage();
 	}
 
 	public void setMaximalCellTemperature(int maximalCellTemperature) {
