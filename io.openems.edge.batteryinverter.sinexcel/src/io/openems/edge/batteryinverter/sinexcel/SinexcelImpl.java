@@ -38,7 +38,6 @@ import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -535,7 +534,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						m(Sinexcel.ChannelId.COS_PHI_L3, new SignedWordElement(121),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(122),
-								new ElementToChannelConverterChain(ElementToChannelConverter.SCALE_FACTOR_1,
+								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_1,
 										IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
 								ElementToChannelConverter.SCALE_FACTOR_1), //

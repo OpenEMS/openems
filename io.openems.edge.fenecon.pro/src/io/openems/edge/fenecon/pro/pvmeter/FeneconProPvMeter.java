@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.pro.pvmeter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.subtract;
+
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -19,7 +21,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelOffsetConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -60,11 +61,6 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	@Reference
 	protected ConfigurationAdmin cm;
-
-	/**
-	 * Subtracts 10.000 between Element and Channel.
-	 */
-	public static final ElementToChannelConverter MINUS_10000_CONVERTER = new ElementToChannelOffsetConverter(-10000);
 
 	public FeneconProPvMeter() {
 		super(//
@@ -128,20 +124,17 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(2035),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2037, 2065), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
-								MINUS_10000_CONVERTER)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066), subtract(10000))), //
 				new FC3ReadRegistersTask(2135, Priority.LOW, // //
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(2135),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2137, 2165), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
-								MINUS_10000_CONVERTER)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166), subtract(10000))), //
 				new FC3ReadRegistersTask(2235, Priority.LOW, // //
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(2235),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2237, 2265), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
-								MINUS_10000_CONVERTER))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266), subtract(10000)))//
 
 		);
 	}

@@ -18,7 +18,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -101,15 +100,15 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(0xc558)) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new ElementToChannelConverterChain(//
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.chain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new ElementToChannelConverterChain(//
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, ElementToChannelConverter.chain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new ElementToChannelConverterChain(//
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, ElementToChannelConverter.chain(//
 										ElementToChannelConverter.SCALE_FACTOR_1, //
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
@@ -134,19 +133,19 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 										ElementToChannelConverter
 												.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
 														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
 														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
@@ -157,19 +156,19 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 										ElementToChannelConverter
 												.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
 														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter
 														.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, //
-										new ElementToChannelConverterChain(//
+										ElementToChannelConverter.chain(//
 												ElementToChannelConverter
 														.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 												ElementToChannelConverter

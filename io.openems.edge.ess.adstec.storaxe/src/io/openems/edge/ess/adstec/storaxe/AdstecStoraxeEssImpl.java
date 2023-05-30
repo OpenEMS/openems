@@ -17,7 +17,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -91,7 +90,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2 + offset),
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(3 + offset),
-								new ElementToChannelConverterChain(ElementToChannelConverter.SCALE_FACTOR_2,
+								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_2,
 										reactivePowerConverter))),
 				new FC4ReadInputRegistersTask(125 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125 + offset),
