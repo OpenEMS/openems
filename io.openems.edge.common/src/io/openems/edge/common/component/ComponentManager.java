@@ -1,6 +1,5 @@
 package io.openems.edge.common.component;
 
-import java.time.Clock;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -18,7 +17,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 /**
  * A Service that provides access to OpenEMS-Components.
  */
-public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvider {
+public interface ComponentManager extends OpenemsComponent, JsonApi {
 
 	public static final String SINGLETON_SERVICE_PID = "Core.ComponentManager";
 	public static final String SINGLETON_COMPONENT_ID = "_componentManager";
@@ -160,15 +159,6 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	public default void _setDefaultConfigurationFailed(boolean value) {
 		this.getDefaultConfigurationFailedChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the OpenEMS Clock - either the real system clock or a mocked clock for
-	 * simulations.
-	 *
-	 * @return the Clock
-	 */
-	@Override
-	public Clock getClock();
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
