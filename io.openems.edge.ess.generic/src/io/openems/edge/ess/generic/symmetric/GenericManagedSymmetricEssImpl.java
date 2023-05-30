@@ -35,7 +35,6 @@ import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
-import io.openems.edge.ess.offgrid.api.OffGridEss;
 import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
@@ -50,7 +49,7 @@ import io.openems.edge.ess.power.api.Power;
 public class GenericManagedSymmetricEssImpl
 		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
 		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
 
@@ -182,5 +181,4 @@ public class GenericManagedSymmetricEssImpl
 			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
-
 }
