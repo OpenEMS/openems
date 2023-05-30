@@ -36,6 +36,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.5.3',
+        changes: [
+          Changelog.app(App.EVCS_AC, App.KEBA) + "Fehlerbehebung",
+        ]
+      },
+      {
         version: '2023.5.2',
         changes: [
           Changelog.UI,
