@@ -110,7 +110,7 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		UNIT_ID(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_SOC)), //
+				.<FeneconCommercialBatteryImpl>onChannelChange(FeneconCommercialBatteryImpl::updateSoc)),
 		UNIT_NUMBER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		SUBMASTER_MAP(Doc.of(OpenemsType.INTEGER)//
@@ -119,13 +119,13 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.accessMode(AccessMode.READ_WRITE)), //
 		BATTERY_SOC(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_SOC)), //
+				.<FeneconCommercialBatteryImpl>onChannelChange(FeneconCommercialBatteryImpl::updateSoc)),
 		BATTERY_CHARGE_MAX_CURRENT(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_SOC)), //
+				.<FeneconCommercialBatteryImpl>onChannelChange(FeneconCommercialBatteryImpl::updateSoc)),
 		BATTERY_DISCHARGE_MAX_CURRENT(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_SOC)), //
+				.<FeneconCommercialBatteryImpl>onChannelChange(FeneconCommercialBatteryImpl::updateSoc)),
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.WARNING) //
@@ -137,15 +137,18 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 		NUMBER_OF_TOWERS(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of modules per tower") //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK)),
+				.<FeneconCommercialBatteryImpl>onChannelChange(
+						FeneconCommercialBatteryImpl::updateNumberOfTowersAndModulesAndCells)),
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of modules per tower") //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK)),
+				.<FeneconCommercialBatteryImpl>onChannelChange(
+						FeneconCommercialBatteryImpl::updateNumberOfTowersAndModulesAndCells)),
 		NUMBER_OF_CELLS_PER_MODULE(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Number of cells per module") //
-				.onInit(FeneconCommercialBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK)),
+				.<FeneconCommercialBatteryImpl>onChannelChange(
+						FeneconCommercialBatteryImpl::updateNumberOfTowersAndModulesAndCells)),
 
 		// Versions
 		MASTER_MCU_HARDWARE_VERSION(Doc.of(OpenemsType.STRING) //

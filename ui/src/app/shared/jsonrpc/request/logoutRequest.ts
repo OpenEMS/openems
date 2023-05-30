@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class LogoutRequest extends JsonrpcRequest {
 
-    static METHOD: string = "logout";
+    private static METHOD: string = "logout";
 
     public constructor() {
         super(LogoutRequest.METHOD, {});

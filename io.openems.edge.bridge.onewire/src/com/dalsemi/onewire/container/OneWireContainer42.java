@@ -306,14 +306,16 @@ public class OneWireContainer42 extends OneWireContainer implements TemperatureC
 	 */
 	@Override
 	public String getDescription() {
-		return "Programmable resolution digital thermometer with "
-				+ "'sequence detect' and 2 PIO channels. It measures "
-				+ "temperature from -40 C to +85 C in 0.75 seconds (max). "
-				+ "Its accuracy is +/-0.5 C between -10 C and 85 C and "
-				+ "+/-2 C accuracy from -40 C to +85 C. Thermometer "
-				+ "resolution is programmable at 9, 10, 11, and 12 "
-				+ "bits. PIO channels can be used as generic channels "
-				+ "or used in 'Chain' mode to detect the physical " + "sequence of devices in a 1-Wire network.";
+		return """
+				Programmable resolution digital thermometer with \
+				'sequence detect' and 2 PIO channels. It measures \
+				temperature from -40 C to +85 C in 0.75 seconds (max). \
+				Its accuracy is +/-0.5 C between -10 C and 85 C and \
+				+/-2 C accuracy from -40 C to +85 C. Thermometer \
+				resolution is programmable at 9, 10, 11, and 12 \
+				bits. PIO channels can be used as generic channels \
+				or used in 'Chain' mode to detect the physical \
+				sequence of devices in a 1-Wire network.""";
 	}
 
 	/**

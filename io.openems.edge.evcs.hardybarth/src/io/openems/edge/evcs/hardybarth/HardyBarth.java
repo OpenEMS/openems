@@ -5,7 +5,7 @@ import java.util.function.Function;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -68,13 +68,11 @@ public interface HardyBarth {
 		RAW_METER_TYPE(Doc.of(OpenemsType.STRING), "secc", "port0", "metering", "meter", "type"), //
 		METER_NOT_AVAILABLE(Doc.of(Level.INFO) //
 				.text("No meter values available. The communication cable of the internal meter may be loose.")), //
-		RAW_METER_AVAILABLE(Doc.of(OpenemsType.BOOLEAN).onInit(channel -> {
-			((BooleanReadChannel) channel).onSetNextValue(value -> {
-				var hardyBarth = (HardyBarthImpl) channel.getComponent();
-				var notAvailable = value.get() == null ? null : !value.get();
-				hardyBarth.channel(HardyBarth.ChannelId.METER_NOT_AVAILABLE).setNextValue(notAvailable);
-			});
-		}), "secc", "port0", "metering", "meter", "available"), //
+		RAW_METER_AVAILABLE(new BooleanDoc()//
+				.onChannelSetNextValue((hardyBarth, value) -> {
+					var notAvailable = value.get() == null ? null : !value.get();
+					hardyBarth.channel(HardyBarth.ChannelId.METER_NOT_AVAILABLE).setNextValue(notAvailable);
+				}), "secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - POWER
 		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG).unit(Unit.WATT), value -> {

@@ -151,25 +151,26 @@ public class UtilsTest {
 
 	@Test
 	public void generateGraphQlTest() {
-		assertEquals("{\n" //
-				+ "  viewer {\n" //
-				+ "    homes {\n" //
-				+ "      id\n" //
-				+ "      appNickname\n" //
-				+ "      currentSubscription{\n" //
-				+ "        priceInfo{\n" //
-				+ "          today {\n" //
-				+ "            total\n" //
-				+ "            startsAt\n" //
-				+ "          }\n" //
-				+ "          tomorrow {\n" //
-				+ "            total\n" //
-				+ "            startsAt\n" //
-				+ "          }\n" //
-				+ "        }\n" //
-				+ "      }\n" //
-				+ "    }\n" //
-				+ "  }\n" //
-				+ "}", Utils.generateGraphQl());
+		assertEquals("""
+				{
+				  viewer {
+				    homes {
+				      id
+				      appNickname
+				      currentSubscription{
+				        priceInfo{
+				          today {
+				            total
+				            startsAt
+				          }
+				          tomorrow {
+				            total
+				            startsAt
+				          }
+				        }
+				      }
+				    }
+				  }
+				}""", Utils.generateGraphQl());
 	}
 }

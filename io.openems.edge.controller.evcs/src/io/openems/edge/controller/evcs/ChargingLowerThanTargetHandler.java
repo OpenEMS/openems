@@ -20,9 +20,9 @@ public class ChargingLowerThanTargetHandler {
 	private LocalDateTime lastChargingCheck = LocalDateTime.now();
 	private Integer maximumChargePower = null; // W
 
-	private final EvcsController parent;
+	private final EvcsControllerImpl parent;
 
-	public ChargingLowerThanTargetHandler(EvcsController parent) {
+	public ChargingLowerThanTargetHandler(EvcsControllerImpl parent) {
 		this.parent = parent;
 	}
 
@@ -37,7 +37,7 @@ public class ChargingLowerThanTargetHandler {
 	 */
 	protected boolean isLower(ManagedEvcs evcs) throws InvalidValueException {
 		if (this.lastChargingCheck.plusSeconds(CHECK_CHARGING_TARGET_DIFFERENCE_TIME)
-				.isBefore(LocalDateTime.now(this.parent.componentManager.getClock()))) {
+				.isBefore(LocalDateTime.now(this.parent.clockProvider.getClock()))) {
 			if (this.isChargingLowerThanTarget(evcs)) {
 
 				this.outOfRangeCounter++;

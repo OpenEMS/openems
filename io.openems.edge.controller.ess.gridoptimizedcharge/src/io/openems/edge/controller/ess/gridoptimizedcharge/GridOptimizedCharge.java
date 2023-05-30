@@ -12,6 +12,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -127,22 +128,17 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 * <p>
 		 * Target minute independent of the current mode Manual and Automatic.
 		 */
-		TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
+		TARGET_MINUTE(new IntegerDoc() //
 				.text("Target minute independent of the current mode Manual and Automatic.") //
-				.onInit(channel -> {
-					((IntegerReadChannel) channel).onSetNextValue(value -> {
-						if (value != null && value.isDefined()) {
-							int targetTime = value.get();
-							var gridOptimizedCharge = (GridOptimizedChargeImpl) channel.getComponent();
+				.<GridOptimizedChargeImpl>onChannelSetNextValue((self, value) -> {
+					value.asOptional().ifPresent(targetTime -> {
+						var targetDateTime = LocalDate.now(self.componentManager.getClock())
+								.atTime(LocalTime.of(targetTime / 60, targetTime % 60));
 
-							var targetDateTime = LocalDate.now(gridOptimizedCharge.componentManager.getClock())
-									.atTime(LocalTime.of(targetTime / 60, targetTime % 60));
+						var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(), null);
+						var targetEpochTime = zonedDateTime.toEpochSecond();
 
-							var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(), null);
-							var targetEpochTime = zonedDateTime.toEpochSecond();
-
-							gridOptimizedCharge.channel(ChannelId.TARGET_EPOCH_SECONDS).setNextValue(targetEpochTime);
-						}
+						self.channel(ChannelId.TARGET_EPOCH_SECONDS).setNextValue(targetEpochTime);
 					});
 				})),
 

@@ -67,7 +67,7 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 
 		// Set the MinSoc channel.
 		this._setMinSoc(this.minSoc);
-		
+
 		// Parse Force-Charge-Power
 		int forceChargePower;
 		try {

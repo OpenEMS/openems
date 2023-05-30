@@ -277,8 +277,8 @@ public class RestHandler extends AbstractHandler {
 		return components.stream() //
 				.filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id())) //
 				.flatMap(component -> component.channels().stream()) //
-				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id()))
-				.collect(Collectors.toList());
+				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id())) //
+				.toList();
 	}
 
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {

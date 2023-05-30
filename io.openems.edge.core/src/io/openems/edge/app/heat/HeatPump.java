@@ -3,7 +3,6 @@ package io.openems.edge.app.heat;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -130,7 +129,7 @@ public class HeatPump extends AbstractEnumOpenemsApp<Property> implements Openem
 				new int[] { 2, 3 });
 		var options = this.componentUtil.getAllRelays() //
 				.stream().map(r -> r.relays).flatMap(List::stream) //
-				.collect(Collectors.toList());
+				.toList();
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_1) //

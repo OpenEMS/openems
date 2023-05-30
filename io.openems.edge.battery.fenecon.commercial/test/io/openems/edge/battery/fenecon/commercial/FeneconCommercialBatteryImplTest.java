@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.commercial.statemachine.StateMachine;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
@@ -16,7 +17,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.io.test.DummyInputOutput;
-import io.openems.edge.battery.api.Battery;
 
 public class FeneconCommercialBatteryImplTest {
 
@@ -37,8 +37,7 @@ public class FeneconCommercialBatteryImplTest {
 			Battery.ChannelId.DISCHARGE_MAX_CURRENT.id());
 	private static final ChannelAddress BATTERY_MAX_CHARGE_CURRENT = new ChannelAddress(BATTERY_ID,
 			Battery.ChannelId.CHARGE_MAX_CURRENT.id());
-	private static final ChannelAddress SOC = new ChannelAddress(BATTERY_ID,
-			Battery.ChannelId.SOC.id());
+	private static final ChannelAddress SOC = new ChannelAddress(BATTERY_ID, Battery.ChannelId.SOC.id());
 
 	@Test
 	public void startBattery() throws Exception {
@@ -130,13 +129,12 @@ public class FeneconCommercialBatteryImplTest {
 						.build())//
 				.next(new TestCase("Soc")//
 						.input(RUNNING, true) //
-						.input(BATTERY_SOC, 10)
-						.input(BATTERY_MAX_DISCHARGE_CURRENT, 0)
-						.input(BATTERY_MAX_CHARGE_CURRENT, 10000)
-						.output(SOC, 10))
-		;
+						.input(BATTERY_SOC, 10) //
+						.input(BATTERY_MAX_DISCHARGE_CURRENT, 0) //
+						.input(BATTERY_MAX_CHARGE_CURRENT, 10000) //
+						.output(SOC, 10));
 	}
-	
+
 	@Test
 	public void socManipulationMax() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
@@ -154,10 +152,9 @@ public class FeneconCommercialBatteryImplTest {
 						.build())//
 				.next(new TestCase("Soc")//
 						.input(RUNNING, true) //
-						.input(BATTERY_SOC, 98)
-						.input(BATTERY_MAX_DISCHARGE_CURRENT, 100000)
-						.input(BATTERY_MAX_CHARGE_CURRENT, 0)
-						.output(SOC, 100))
-		;
+						.input(BATTERY_SOC, 98) //
+						.input(BATTERY_MAX_DISCHARGE_CURRENT, 100000) //
+						.input(BATTERY_MAX_CHARGE_CURRENT, 0) //
+						.output(SOC, 100));
 	}
 }

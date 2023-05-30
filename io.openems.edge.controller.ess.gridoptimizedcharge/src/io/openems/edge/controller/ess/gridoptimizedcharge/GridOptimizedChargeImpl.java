@@ -214,7 +214,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		Integer sellToGridLimitMinChargePower = null;
 		Integer delayChargeMaxChargePower = null;
-		
+
 		/*
 		 * Run the logic of the different modes, depending on the configuration
 		 */
