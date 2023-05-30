@@ -5,7 +5,10 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -38,10 +41,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * State of Charge.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: %
-		 * <li>Range: 0..100
+		 * <li>Unit: {@link Unit#PERCENT}
 		 * </ul>
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
@@ -52,10 +54,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * State of Health.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: %
-		 * <li>Range: 0..100
+		 * <li>Unit: {@link Unit#PERCENT}
 		 * </ul>
 		 */
 		SOH(Doc.of(OpenemsType.INTEGER) //
@@ -66,9 +67,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Voltage of battery.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: V
+		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -79,9 +80,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Current of battery.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: A
+		 * <li>Unit: {@link Unit#AMPERE}
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -92,9 +93,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Capacity of battery.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: Wh
+		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		CAPACITY(Doc.of(OpenemsType.INTEGER) //
@@ -105,9 +106,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Maximal voltage for charging.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: V
+		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
 		CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -118,9 +119,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Maximum current for charging.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: A
+		 * <li>Unit: {@link Unit#AMPERE}
 		 * <li>Usually positive, negative for force discharge mode
 		 * </ul>
 		 */
@@ -132,9 +133,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Minimal voltage for discharging.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: V
+		 * <li>Unit: {@link Unit#VOLT}
 		 * </ul>
 		 */
 		DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -145,9 +146,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Maximum current for discharging.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: A
+		 * <li>Unit: {@link Unit#AMPERE}
 		 * <li>Usually positive, negative for force charge mode
 		 * </ul>
 		 */
@@ -159,9 +160,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Minimal Cell Temperature.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: Celsius
+		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
 		 * </ul>
 		 */
 		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
@@ -172,10 +173,9 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		 * Maximum Cell Temperature.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: Celsius
-		 * <li>Range: (-50)..100
+		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
 		 * </ul>
 		 */
 		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
@@ -183,29 +183,69 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
+		 * Average Cell Temperature.
+		 *
+		 * <ul>
+		 * <li>Interface: {@link Battery}
+		 * <li>Type: Integer
+		 * <li>Unit: {@link Unit#DEGREE_CELSIUS}
+		 * </ul>
+		 */
+		AVG_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
 		 * Minimal cell voltage.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: mV
+		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
 		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT)),
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
 		 * Maximum cell voltage.
 		 *
 		 * <ul>
-		 * <li>Interface: Battery
+		 * <li>Interface: {@link Battery}
 		 * <li>Type: Integer
-		 * <li>Unit: mV
+		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
 		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH));
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Main Contactor.
+		 *
+		 * <ul>
+		 * <li>Interface: {@link Battery}
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		MAIN_CONTACTOR(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Maximum internal resistance.
+		 *
+		 * <ul>
+		 * <li>Interface: {@link Battery}
+		 * <li>Type: Integer
+		 * <li>Unit: {@link Unit#MILLIOHM}
+		 * </ul>
+		 */
+		MAX_INTERNAL_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIOHM) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		;
 
 		private final Doc doc;
 
@@ -241,13 +281,16 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 				.channel(18, ChannelId.MAX_CELL_TEMPERATURE, ModbusType.FLOAT32) //
 				.channel(20, ChannelId.MIN_CELL_VOLTAGE, ModbusType.FLOAT32) //
 				.channel(22, ChannelId.MAX_CELL_VOLTAGE, ModbusType.FLOAT32) //
+				.channel(24, ChannelId.AVG_CELL_TEMPERATURE, ModbusType.FLOAT32) //
+				.channel(26, ChannelId.MAIN_CONTACTOR, ModbusType.UINT16) //
+				.channel(27, ChannelId.MAX_INTERNAL_RESISTANCE, ModbusType.FLOAT32) //
 				.build();
 	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SOC}.
 	 *
-	 * @return the Channel
+	 * @return the Channel {@link ChannelId}
 	 */
 	public default IntegerReadChannel getSocChannel() {
 		return this.channel(ChannelId.SOC);
@@ -585,6 +628,45 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#AVG_CELL_TEMPERATURE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getAvgCellTemperatureChannel() {
+		return this.channel(ChannelId.AVG_CELL_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Average Cell Temperature. See
+	 * {@link ChannelId#AVG_CELL_TEMPERATURE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAvgCellTemperature() {
+		return this.getAvgCellTemperatureChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AVG_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAvgCellTemperature(Integer value) {
+		this.getAvgCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AVG_CELL_TEMPERATURE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAvgCellTemperature(int value) {
+		this.getAvgCellTemperatureChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
 	 *
 	 * @return the Channel
@@ -732,5 +814,62 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 */
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAIN_CONTACTOR}.
+	 *
+	 * @return the Channel {@link Channel}
+	 */
+	public default BooleanWriteChannel getMainContactorChannel() {
+		return this.channel(ChannelId.MAIN_CONTACTOR);
+	}
+
+	/**
+	 * See {@link ChannelId#MAIN_CONTACTOR}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getMainContactor() {
+		return this.getMainContactorChannel().value();
+	}
+
+	/**
+	 * See {@link ChannelId#MAIN_CONTACTOR}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setMainContactor(Boolean value) throws OpenemsNamedException {
+		this.getMainContactorChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_INTERNAL_RESISTANCE}.
+	 *
+	 * @return the Channel {@link Channel}
+	 */
+	public default IntegerReadChannel getMaxInternalResistanceChannel() {
+		return this.channel(ChannelId.MAX_INTERNAL_RESISTANCE);
+	}
+
+	/**
+	 * Gets the Maximum Internal Resistance in [mOhm]. See
+	 * {@link ChannelId#MAX_INTERNAL_RESISTANCE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxInternalResistance() {
+		return this.getMaxInternalResistanceChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAX_INTERNAL_RESISTANCE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxInternalResistance(Integer value) {
+		this.getMaxInternalResistanceChannel().setNextValue(value);
 	}
 }
