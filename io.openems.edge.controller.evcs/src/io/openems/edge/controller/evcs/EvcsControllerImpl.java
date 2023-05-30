@@ -20,7 +20,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -40,13 +39,9 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
 
 	private final Logger log = LoggerFactory.getLogger(EvcsControllerImpl.class);
-
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
 	private Config config;
-
-	@Reference
-	protected ClockProvider clockProvider;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -67,7 +62,7 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 				Controller.ChannelId.values(), //
 				EvcsController.ChannelId.values() //
 		);
-		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(this);
+		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
 	}
 
 	@Activate
