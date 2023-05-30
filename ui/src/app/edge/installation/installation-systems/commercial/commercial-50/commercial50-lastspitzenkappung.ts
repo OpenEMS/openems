@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Category } from '../../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -36,11 +36,11 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         }];
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
 
         const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator =
-            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors, service);
 
         let factoryId: string;
         let alias: string;
@@ -56,8 +56,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         }
 
         if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-            entladungÜber = this.commercial50Feature.feature.entladungÜber
-            beladungUnter = this.commercial50Feature.feature.beladungUnter
+            entladungÜber = this.commercial50Feature.feature.entladungÜber;
+            beladungUnter = this.commercial50Feature.feature.beladungUnter;
         }
 
         componentConfigurator.add({

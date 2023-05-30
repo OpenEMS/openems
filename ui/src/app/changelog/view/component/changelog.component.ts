@@ -36,6 +36,20 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.5.2',
+        changes: [
+          Changelog.UI,
+          "App Center: Allgemeine Verbesserungen",
+          "IBN-Assistent für Commercial-Serie: Fehlerbehebungen",
+          "Multiladepunktmanagement: Angabe der maximalen Gesamtleistung bei der Installation über das App Center",
+          Changelog.product(Product.COMMERCIAL_30) + " Verbesserung der Notstromumschaltung",
+          Changelog.library(Library.D3, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.GUAVA),
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Übersetzungen; mehr Länder bei Benutzerregistrierung; Refactoring der History-Charts für Produktion" },
+          { roleIsAtLeast: Role.ADMIN, change: "IBN-Commercial: Setzen der FEMS-IP-Adresse 192.168.0.9 für Verbindung zur Batterie; Verbesserung bei Validierung von Minimal-Werten; Auslesen der Seriennummern" },
+          { roleIsAtLeast: Role.ADMIN, change: "BETA-Test für 'OpenEMS Apps' (= (noch) nicht offizielle FEMS Apps): EVCS Dezony, Zähler SDM630" },
+        ]
+      },
+      {
         version: '2023.5.1',
         changes: [
           Changelog.UI,

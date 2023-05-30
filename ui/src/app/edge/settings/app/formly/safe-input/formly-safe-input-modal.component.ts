@@ -10,7 +10,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 export class FormlySafeInputModalComponent implements OnInit {
 
     @Input()
-    protected title: string
+    protected title: string;
     @Input()
     protected fields: FormlyFieldConfig[] = null;
     @Input()

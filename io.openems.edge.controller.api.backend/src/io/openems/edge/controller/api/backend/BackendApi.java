@@ -59,7 +59,7 @@ public interface BackendApi extends Controller, JsonApi, OpenemsComponent, PaxAp
 	public default StateChannel getUnableToSendChannel() {
 		return this.channel(ChannelId.UNABLE_TO_SEND);
 	}
-	
+
 	/**
 	 * Gets if the edge is currently connected to the backend.
 	 * 

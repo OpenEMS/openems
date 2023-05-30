@@ -8,7 +8,6 @@ import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -921,7 +921,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 												getSingleModulePrefix(module) + "_MODULE_STATUS", OpenemsType.INTEGER,
 												Unit.NONE))), //
 								m(generateTowerChannel(this, towerNum, getSingleModulePrefix(module) + "_SERIAL_NUMBER",
-										OpenemsType.INTEGER, Unit.NONE),
+										OpenemsType.INTEGER, Unit.NONE, PersistencePriority.HIGH),
 										new UnsignedDoublewordElement(towerOffset + 128 + module * 20 + 18)
 												.wordOrder(WordOrder.LSWMSW),
 										SERIAL_NUMBER_CONVERTER)//
@@ -1033,6 +1033,28 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
+	 * Generates a tower channel with a specific channelIdSuffix,openemsType and
+	 * channelUnit.
+	 *
+	 * @param parent          the parent component
+	 * @param tower           number of the Tower
+	 * @param channelIdSuffix e.g. "STATUS_ALARM"
+	 * @param openemsType     specified type e.g. "INTEGER"
+	 * @param channelUnit     specified type e.g. "NONE"
+	 * @param persistence     specified type e.g. "LOW"
+	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
+	 */
+	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
+			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit,
+			PersistencePriority persistence) {
+		io.openems.edge.common.channel.ChannelId channelId = new DynamicChannelId(
+				"TOWER_" + tower + "_" + channelIdSuffix,
+				Doc.of(openemsType).unit(channelUnit).persistencePriority(persistence));
+		parent.addChannel(channelId);
+		return channelId;
+	}
+
+	/**
 	 * Generates a Channel-ID for channels that are specific to a tower.
 	 *
 	 * @param parent          the parent component
@@ -1050,27 +1072,14 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Callback for Channels to recalculate the number of towers and modules and
-	 * cells. Unfortunately the battery may report too small wrong values in the
-	 * beginning, so we need to recalculate on every change.
+	 * Update Number of towers,modules and cells; called on onChange event.
+	 * 
+	 * <p>
+	 * Recalculate the number of towers, modules and cells. Unfortunately the
+	 * battery may report too small wrong values in the beginning, so we need to
+	 * recalculate on every change.
 	 */
-	protected static final Consumer<Channel<Integer>> UPDATE_NUMBER_OF_TOWERS_AND_MODULES_AND_CELLS_CALLBACK = channel -> {
-		channel.onChange((ignore, value) -> {
-			((FeneconCommercialBatteryImpl) channel.getComponent()).updateNumberOfTowersAndModulesAndCells();
-		});
-	};
-
-	protected static final Consumer<Channel<Integer>> UPDATE_SOC = channel -> {
-		channel.onChange((ignore, value) -> {
-			((FeneconCommercialBatteryImpl) channel.getComponent()).updateSoc();
-		});
-	};
-
-	/**
-	 * Update Number of towers,modules and cells; called by
-	 * UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK.
-	 */
-	private synchronized void updateNumberOfTowersAndModulesAndCells() {
+	protected synchronized void updateNumberOfTowersAndModulesAndCells() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(FeneconCommercialBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
@@ -1160,7 +1169,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 * SoC to be set maximum(100) or minimum(0) based on discharge and charge
 	 * current of the battery.
 	 */
-	private synchronized void updateSoc() {
+	protected synchronized void updateSoc() {
 		Channel<Integer> batterySocChannel = this.channel(FeneconCommercialBattery.ChannelId.BATTERY_SOC);
 		var batterySoc = batterySocChannel.value();
 		var batteryChargeMaxCurrent = this.getChargeMaxCurrent();

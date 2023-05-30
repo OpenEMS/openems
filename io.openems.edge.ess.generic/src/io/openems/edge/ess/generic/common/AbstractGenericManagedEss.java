@@ -15,7 +15,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -31,7 +30,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
-import io.openems.edge.ess.offgrid.api.OffGridEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -43,7 +41,7 @@ import io.openems.edge.ess.power.api.Relationship;
  */
 public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OffGridEss, OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
@@ -209,15 +207,6 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
 		);
-	}
-
-	@Override
-	public boolean isOffGridPossible() {
-		var batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof OffGridBatteryInverter) {
-			return batteryInverter.isOffGridPossible();
-		}
-		return false;
 	}
 
 	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);

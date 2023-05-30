@@ -52,14 +52,25 @@ public interface Type<P extends Nameable, //
 
 	public class Parameter {
 
-		// TODO should be an interface
-		public static class BundleParameter extends Parameter {
+		public static interface BundleProvider {
+
+			/**
+			 * Gets the {@link ResourceBundle} to get the translations from.
+			 * 
+			 * @return the {@link ResourceBundle}
+			 */
+			public ResourceBundle getBundle();
+
+		}
+
+		public static class BundleParameter extends Parameter implements BundleProvider {
 			public final ResourceBundle bundle;
 
 			public BundleParameter(ResourceBundle bundle) {
 				this.bundle = bundle;
 			}
 
+			@Override
 			public final ResourceBundle getBundle() {
 				return this.bundle;
 			}

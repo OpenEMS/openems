@@ -919,6 +919,24 @@ public class JsonFormlyUtil {
 
 	public static final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
 
+		public static enum DisplayType {
+			STRING("string"), //
+			BOOLEAN("boolean"), //
+			NUMBER("number"), //
+			;
+
+			private final String typeName;
+
+			private DisplayType(String typeName) {
+				this.typeName = typeName;
+			}
+
+			public String getTypeName() {
+				return this.typeName;
+			}
+
+		}
+
 		private JsonArray fieldGroup;
 
 		private FieldGroupBuilder(Nameable property) {
@@ -934,9 +952,10 @@ public class JsonFormlyUtil {
 			return this.self();
 		}
 
-		public FieldGroupBuilder setPopupInput(Nameable displayValue) {
+		public FieldGroupBuilder setPopupInput(Nameable displayValue, DisplayType displayType) {
 			this.addWrapper(Wrappers.SAFE_INPUT);
 			this.templateOptions.addProperty("pathToDisplayValue", displayValue.name());
+			this.templateOptions.addProperty("displayType", displayType.getTypeName());
 			return this;
 		}
 

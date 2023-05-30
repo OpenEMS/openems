@@ -35,7 +35,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL1Equals", Phase.L1, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL1Equals", Phase.L1, Pwr.ACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed Active Power on L2.
 		 *
@@ -49,7 +50,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL2Equals", Phase.L2, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL2Equals", Phase.L2, Pwr.ACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed Active Power on L3.
 		 *
@@ -63,7 +65,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL3Equals", Phase.L3, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL3Equals", Phase.L3, Pwr.ACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L1.
 		 *
@@ -77,7 +80,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL1Equals", Phase.L1, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL1Equals", Phase.L1, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L2.
 		 *
@@ -91,7 +95,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL2Equals", Phase.L2, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL2Equals", Phase.L2, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L3.
 		 *
@@ -105,7 +110,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL2Equals", Phase.L3, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL2Equals", Phase.L3, Pwr.REACTIVE, Relationship.EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L1.
 		 *
@@ -119,7 +125,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL1LessOrEquals", Phase.L1, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL1LessOrEquals", Phase.L1, Pwr.ACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L2.
@@ -134,7 +140,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL2LessOrEquals", Phase.L2, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL2LessOrEquals", Phase.L2, Pwr.ACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L3.
@@ -149,7 +155,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL3LessOrEquals", Phase.L3, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL3LessOrEquals", Phase.L3, Pwr.ACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L1.
@@ -164,7 +170,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL1GreaterOrEquals", Phase.L1, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL1GreaterOrEquals", Phase.L1, Pwr.ACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L2.
@@ -179,7 +185,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL2GreaterOrEquals", Phase.L2, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL2GreaterOrEquals", Phase.L2, Pwr.ACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L3.
@@ -194,7 +200,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetActivePowerL3GreaterOrEquals", Phase.L3, Pwr.ACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL3GreaterOrEquals", Phase.L3, Pwr.ACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L1.
@@ -209,7 +215,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL1LessOrEquals", Phase.L1, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL1LessOrEquals", Phase.L1, Pwr.REACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L2.
@@ -224,7 +230,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL2LessOrEquals", Phase.L2, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2LessOrEquals", Phase.L2, Pwr.REACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L3.
@@ -239,7 +245,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL3LessOrEquals", Phase.L3, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3LessOrEquals", Phase.L3, Pwr.REACTIVE,
 						Relationship.LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L1.
@@ -254,7 +260,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL1GreaterOrEquals", Phase.L1, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL1GreaterOrEquals", Phase.L1, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L2.
@@ -269,7 +275,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL2GreaterOrEquals", Phase.L2, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2GreaterOrEquals", Phase.L2, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L3.
@@ -284,7 +290,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
 				.unit(Unit.VOLT_AMPERE) //
 				.accessMode(AccessMode.WRITE_ONLY) //
-				.onInit(new PowerConstraint("SetReactivePowerL3GreaterOrEquals", Phase.L3, Pwr.REACTIVE,
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3GreaterOrEquals", Phase.L3, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
 		 * Holds settings of Active Power L1 for debugging.

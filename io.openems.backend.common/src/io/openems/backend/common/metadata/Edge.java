@@ -101,7 +101,7 @@ public class Edge {
 	public synchronized void setOnline(boolean isOnline) {
 		if (this.isOnline != isOnline) {
 			this.isOnline = isOnline;
-			
+
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_ONLINE) //
 					.addArg(Events.OnSetOnline.EDGE_ID, this.getId()) //
 					.addArg(Events.OnSetOnline.IS_ONLINE, isOnline) //

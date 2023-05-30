@@ -1,12 +1,12 @@
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
-import { AbstractHistoryWidget } from 'src/app/shared/genericComponents/abstracthistorywidget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 
 @Component({
     selector: 'autarchyWidget',
     templateUrl: './flat.html'
 })
-export class FlatComponent extends AbstractHistoryWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
     public autarchyValue: number;
 
@@ -21,7 +21,7 @@ export class FlatComponent extends AbstractHistoryWidget {
         return [
             new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
             new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
-        ]
+        ];
     }
 }
 

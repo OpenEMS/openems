@@ -1,12 +1,8 @@
 import { TranslateService } from '@ngx-translate/core';
-import { GetNetworkConfigRequest } from 'src/app/edge/settings/network/getNetworkConfigRequest';
-import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetworkConfigResponse';
-import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
-import { Interface } from 'src/app/shared/interface/interface';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
+import { IbnUtils } from '../../shared/ibnutils';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { View } from '../abstract-ibn';
@@ -55,44 +51,44 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
         const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
-        let appId: string
-        let alias: string
-        let properties: {}
+        let appId: string;
+        let alias: string;
+        let properties: {};
         switch (this.selectedFreeApp.id) {
             case EmsAppId.Keba:
-                appId = "App.Evcs.Keba"
-                alias = "Ladestation"
+                appId = "App.Evcs.Keba";
+                alias = "Ladestation";
                 properties = {
                     IP: "192.168.25.11"
-                }
-                break
+                };
+                break;
             case EmsAppId.HardyBarthSingle:
-                appId = "App.Evcs.HardyBarth"
-                alias = "Ladestation"
+                appId = "App.Evcs.HardyBarth";
+                alias = "Ladestation";
                 properties = {
                     IP: "192.168.25.30"
-                }
-                break
+                };
+                break;
             case EmsAppId.HardyBarthDouble:
                 // TODO single app
-                break
+                break;
             case EmsAppId.HeatPump:
-                appId = "App.Heat.HeatPump"
-                alias = "Wärmepumpe"
+                appId = "App.Heat.HeatPump";
+                alias = "Wärmepumpe";
                 properties = {
                     OUTPUT_CHANNEL_1: "io0/Relay1",
                     OUTPUT_CHANNEL_2: "io0/Relay2"
-                }
-                break
+                };
+                break;
             case EmsAppId.HeatingElement:
-                appId = "App.Heat.HeatingElement"
-                alias = "Heizstab"
+                appId = "App.Heat.HeatingElement";
+                alias = "Heizstab";
                 properties = {
                     OUTPUT_CHANNEL_PHASE_L1: "io0/Relay1",
                     OUTPUT_CHANNEL_PHASE_L2: "io0/Relay2",
                     OUTPUT_CHANNEL_PHASE_L3: "io0/Relay3"
-                }
-                break
+                };
+                break;
         }
         if (isAppManagerAvailable) {
             // remove old apps
@@ -116,13 +112,13 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                     if (!appId) {
                         Promise.all(deletePromise)
                             .then(result => resolve(result))
-                            .catch(error => reject(error))
+                            .catch(error => reject(error));
                     } else {
                         Promise.all(deletePromise)
                             .finally(() => {
                                 AppCenterUtil.createOrUpdateApp(edge, websocket, appId, alias, properties, this.keyForHeckertApps)
                                     .then(value => resolve(value))
-                                    .catch(error => reject(error))
+                                    .catch(error => reject(error));
                             });
                     }
                 });
@@ -140,7 +136,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         // Add ip address to network configuration if HardyBarthDouble gets configured
         // else the ip gets set by the appManager
         if ((!isAppManagerAvailable && isAppEvcs) || freeAppId === EmsAppId.HardyBarthDouble) {
-            if (!this.addIpAddress('eth0', '192.168.25.10/24', edge, websocket)) {
+            if (!IbnUtils.addIpAddress('eth0', '192.168.25.10/24', edge, websocket)) {
                 service.toast('Eine für die Ladestation notwendige IP-Adresse konnte nicht zur Netzwerkkonfiguration hinzugefügt werden.'
                     , 'danger');
             }
@@ -291,102 +287,6 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
             mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
         });
         return componentConfigurator;
-    }
-
-    /**
-   * Converts the subnetmask to a string address.
-   * 
-   * e. g. Converts "24" to "255.255.255.0"
-   * 
-   * @param cidr the CIDR number
-   * @returns the subnetmask as a string
-   */
-    protected getSubnetmaskAsString(cidr: any): string {
-        var mask = [];
-        for (var i = 0; i < 4; i++) {
-            var n = Math.min(cidr, 8);
-            mask.push(256 - Math.pow(2, 8 - n));
-            cidr -= n;
-        }
-        return mask.join('.');
-    }
-
-    /**
-     * Adds an ip address to the given interface.
-     * Returns false if an error occurs.
-     *
-     * @param interfaceName Interface default 'eth0'
-     * @param ip Ip that should be added
-     * @param edge the current edge.
-     * @param websocket the websocket connection.
-     * @returns the status of adding ip address as boolean.
-     */
-    public addIpAddress(interfaceName: string, ip: string, edge: Edge, websocket: Websocket) {
-        let iface: Interface;
-
-        edge.sendRequest(
-            websocket,
-            new ComponentJsonApiRequest({ componentId: '_host', payload: new GetNetworkConfigRequest() })
-        ).then((response) => {
-            const result = (response as GetNetworkConfigResponse).result;
-
-            // Get interface
-            for (const name of Object.keys(result.interfaces)) {
-                if (name === interfaceName) {
-                    iface = { name, model: result.interfaces[name] };
-                }
-            }
-
-            // No interface with given name found
-            if (!iface) {
-                console.log('Network interface with name \'\'' + interfaceName + '\'\' was not found.');
-                return false;
-            }
-
-            // Unset Gateway and DNS if DHCP is activated
-            if (iface.model.dhcp) {
-                iface.model.gateway = null;
-                iface.model.dns = null;
-            }
-
-            // Set the ip in the model of the interface
-            // or return if it already exists
-            var address = ip.split('/');
-            if (iface.model.addresses == null) {
-                iface.model.addresses = new Array({
-                    label: '',
-                    address: address[0],
-                    subnetmask: this.getSubnetmaskAsString(address[1]),
-                })
-            } else {
-                for (const addr of iface.model.addresses) {
-                    if (addr.address == address[0]) {
-                        return true;
-                    }
-
-                    iface.model.addresses.push({
-                        label: '',
-                        address: address[0],
-                        subnetmask: this.getSubnetmaskAsString(address[1]),
-                    })
-                }
-            }
-
-            const params = {
-                interfaces: {}
-            };
-            params.interfaces[iface.name] = iface.model;
-
-            edge.sendRequest(
-                websocket,
-                new ComponentJsonApiRequest({ componentId: '_host', payload: new SetNetworkConfigRequest(params) })
-            ).then(() => true).catch((reason) => {
-                console.log(reason);
-            });
-        }).catch(reason => {
-            console.log(reason);
-        });
-        return false;
     }
 
 }

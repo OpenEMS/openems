@@ -464,12 +464,12 @@
     "gridBuyAdvanced": "Bezug",
     "gridSell": "Netzeinspeisung",
     "gridSellAdvanced": "Einspeisung",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Inaktiv",
     "info": "Info",
     "inputNotValid": "Eingabe ungültig",
     "insufficientRights": "Unzureichende Rechte",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "Last",
     "manual": "Anleitung",
     "manually": "Manuell",
@@ -497,7 +497,7 @@
     "state": "Zustand",
     "storageSystem": "Speichersystem",
     "systemState": "Systemzustand",
-    "total": "Gesamt",
+    "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",
     "Week": {
@@ -548,7 +548,8 @@
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
     "OFFLINE_SINCE": "Offline seit",
-    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
+    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -854,7 +855,7 @@
     "loggedInAs": "Angemeldet als Benutzer '{{ value }}'."
   },
   "Register": {
-    "title": "Benutzer Account anlegen",
+    "title": "Account anlegen",
     "segment": {
       "user": "Benutzer",
       "installer": "Installateur"
@@ -891,7 +892,8 @@
       "passwordNotEqual": "Passwörter sind nicht gleich",
       "emailNotEqual": "E-Mails stimmen nicht überein"
     },
-    "success": "Registrierung erfolgreich"
+    "success": "Registrierung erfolgreich",
+    "createUser": "Installateurszugang anlegen"
   },
   "Role": {
     "guest": "Gast",

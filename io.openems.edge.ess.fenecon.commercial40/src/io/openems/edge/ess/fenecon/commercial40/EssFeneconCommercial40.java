@@ -81,50 +81,47 @@ public interface EssFeneconCommercial40
 
 		// IntegerReadChannels
 		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
+				.onChannelUpdate((self, newValue) -> {
 					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
 					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						var originalValue = newValue.asOptional();
-						var currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.max(originalValue.get(), currentValue.get() - 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
+					IntegerReadChannel currentValueChannel = self
+							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
+					var originalValue = newValue.asOptional();
+					var currentValue = currentValueChannel.value().asOptional();
+					final int value;
+					if (!originalValue.isPresent() && !currentValue.isPresent()) {
+						value = 0;
+					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+						value = originalValue.get();
+					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+						value = currentValue.get();
+					} else {
+						value = Math.max(originalValue.get(), currentValue.get() - 500);
+					}
+					currentValueChannel.setNextValue(value);
 				})), //
 
 		ORIGINAL_ALLOWED_DISCHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
+				.onChannelUpdate((self, newValue) -> {
 					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
 					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						var originalValue = newValue.asOptional();
-						var currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.min(originalValue.get(), currentValue.get() + 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
+					IntegerReadChannel currentValueChannel = self
+							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+					var originalValue = newValue.asOptional();
+					var currentValue = currentValueChannel.value().asOptional();
+					final int value;
+					if (!originalValue.isPresent() && !currentValue.isPresent()) {
+						value = 0;
+					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
+						value = originalValue.get();
+					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
+						value = currentValue.get();
+					} else {
+						value = Math.min(originalValue.get(), currentValue.get() + 500);
+					}
+					currentValueChannel.setNextValue(value);
 				})), //
+
 		PROTOCOL_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)), //

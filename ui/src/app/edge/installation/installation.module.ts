@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { FormControl, ValidationErrors } from "@angular/forms";
-import { FormlyModule } from "@ngx-formly/core";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { SharedModule } from "src/app/shared/shared.module";
 import { SettingsModule } from "../settings/settings.module";
 import { InstallationViewComponent } from "./installation-view/installation-view.component";
@@ -39,7 +39,7 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
 }
 
 export function OnlyPositiveIntegerValidator(control: FormControl): ValidationErrors {
-  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
+  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true };
 }
 
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -89,6 +89,19 @@ export function Commercial50BatteryInverterSerialNumberValidator(control: FormCo
   return /^.{6}$/.test(control.value) ? null : { "commercialBatteryInverterSerialNumber": true };
 }
 
+/**
+ * This validator checks if the value entered is greater than minimum (default) value.
+ * Workaround for default min prop in formly field.
+ * User has trouble entering value in a field which is initialized with min prop. especially if a minimum value specified is more than one digit.
+ * 
+ * @param control the form control containing the value that needs to be validated.
+ * @param field the specific field of the form. 
+ * @returns sets the validation to true if the condition is met.
+ */
+export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFieldConfig): ValidationErrors {
+  return control.value >= field.defaultValue ? null : { "defaultAsMinimumValue": true };
+}
+
 @NgModule({
   imports: [
     FormlyModule.forRoot({
@@ -105,6 +118,7 @@ export function Commercial50BatteryInverterSerialNumberValidator(control: FormCo
         { name: "commercialBatteryModuleSerialNumber", validation: CommercialBatteryModuleSerialNumberValidator },
         { name: "commercial30BatteryInverterSerialNumber", validation: Commercial30BatteryInverterSerialNumberValidator },
         { name: "commercial50BatteryInverterSerialNumber", validation: Commercial50BatteryInverterSerialNumberValidator },
+        { name: "defaultAsMinimumValue", validation: DefaultAsMinValueValidator },
       ],
     }),
     SharedModule,

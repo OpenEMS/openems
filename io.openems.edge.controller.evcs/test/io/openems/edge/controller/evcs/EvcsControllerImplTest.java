@@ -2,6 +2,9 @@ package io.openems.edge.controller.evcs;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -10,24 +13,25 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 
-public class EvcsControllerTest {
+public class EvcsControllerImplTest {
 
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyManagedEvcs EVCS = new DummyManagedEvcs("evcs0", EVCS_POWER);
 
-	private static String EVCS_ID = EVCS.id();
-	private static boolean ENABLE_CHARGING;
-	private static ChargeMode CHARGE_MODE;
-	private static int FORCE_CHARGE_MIN_POWER = 7360;
-	private static int DEFAULT_CHARGE_MIN_POWER = 0;
-	private static Priority PRIORITY = Priority.CAR;
-	private static int ENERGY_SESSION_LIMIT = 0;
+	private static final String EVCS_ID = EVCS.id();
+	private static final boolean DEFAULT_ENABLE_CHARGING = true;
+	private static final ChargeMode DEFAULT_CHARGE_MODE = ChargeMode.EXCESS_POWER;
+	private static final int DEFAULT_FORCE_CHARGE_MIN_POWER = 7360;
+	private static final int DEFAULT_CHARGE_MIN_POWER = 0;
+	private static final Priority DEFAULT_PRIORITY = Priority.CAR;
+	private static final int DEFAULT_ENERGY_SESSION_LIMIT = 0;
 
 	private static ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
 	private static ChannelAddress sumEssDischargePower = new ChannelAddress("_sum", "EssDischargePower");
@@ -43,24 +47,20 @@ public class EvcsControllerTest {
 	@Test
 	public void excessChargeTest1() throws Exception {
 
-		ENABLE_CHARGING = true;
-		CHARGE_MODE = ChargeMode.EXCESS_POWER;
-		PRIORITY = Priority.CAR;
-
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -6000) //
@@ -74,23 +74,20 @@ public class EvcsControllerTest {
 	@Test
 	public void excessChargeTest2() throws Exception {
 
-		ENABLE_CHARGING = true;
-		CHARGE_MODE = ChargeMode.EXCESS_POWER;
-		PRIORITY = Priority.STORAGE;
-		final var test = new ControllerTest(new EvcsController()) //
+		final var test = new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(Priority.STORAGE) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()); //
 
 		test.next(new TestCase() //
@@ -106,25 +103,20 @@ public class EvcsControllerTest {
 	@Test
 	public void forceChargeTest() throws Exception {
 
-		ENABLE_CHARGING = true;
-		FORCE_CHARGE_MIN_POWER = 7360;
-		CHARGE_MODE = ChargeMode.FORCE_CHARGE;
-		PRIORITY = Priority.CAR;
-
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(ChargeMode.FORCE_CHARGE) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -5000) //
@@ -137,22 +129,20 @@ public class EvcsControllerTest {
 	@Test
 	public void chargingDisabledTest() throws Exception {
 
-		ENABLE_CHARGING = false;
-
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(false) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.output(evcs0SetChargePowerLimit, 0));
@@ -161,24 +151,21 @@ public class EvcsControllerTest {
 	@Test
 	public void wrongConfigParametersTest() throws Exception {
 
-		DEFAULT_CHARGE_MIN_POWER = 30000;
-		FORCE_CHARGE_MIN_POWER = 30000;
-
 		var cm = new DummyConfigurationAdmin();
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", cm) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
-						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(30_000) //
+						.setDefaultChargeMinPower(30_000) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.input(evcs0MaximumHardwarePower, 12000));
@@ -190,25 +177,24 @@ public class EvcsControllerTest {
 	@Test
 	public void clusterTest() throws Exception {
 
-		ENABLE_CHARGING = true;
-		FORCE_CHARGE_MIN_POWER = 3333;
-		CHARGE_MODE = ChargeMode.EXCESS_POWER;
-		PRIORITY = Priority.CAR;
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", componentManager) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(3_333) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -10000) //
@@ -245,25 +231,20 @@ public class EvcsControllerTest {
 	@Test
 	public void clusterTestDisabledCharging() throws Exception {
 
-		ENABLE_CHARGING = false;
-		FORCE_CHARGE_MIN_POWER = 3333;
-		CHARGE_MODE = ChargeMode.EXCESS_POWER;
-		PRIORITY = Priority.CAR;
-
-		new ControllerTest(new EvcsController()) //
+		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
-						.setEnableCharging(ENABLE_CHARGING) //
-						.setChargeMode(CHARGE_MODE) //
-						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
+						.setEnableCharging(false) //
+						.setChargeMode(DEFAULT_CHARGE_MODE) //
+						.setForceChargeMinPower(3_333) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
-						.setPriority(PRIORITY) //
-						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
+						.setPriority(DEFAULT_PRIORITY) //
+						.setEnergySessionLimit(DEFAULT_ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
 						.input(sumEssDischargePower, -10000) //

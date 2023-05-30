@@ -118,7 +118,7 @@ export class SystemExecuteComponent implements OnInit {
         timeoutSeconds: timeoutSeconds.value,
         runInBackground: runInBackground.value,
         command: command.value
-      })
+      });
 
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
@@ -137,7 +137,7 @@ export class SystemExecuteComponent implements OnInit {
         }).catch(reason => {
           this.loading = false;
           this.stderr = ["Error executing system command:", reason.error.message];
-        })
+        });
       this.commandLogs.unshift(executeSystemCommandRequest);
     });
   }

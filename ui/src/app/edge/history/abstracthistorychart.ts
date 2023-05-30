@@ -8,7 +8,9 @@ import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/js
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -26,9 +28,9 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET;
+    public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
-    public colors = []
+    public colors = [];
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
 
@@ -36,15 +38,15 @@ export abstract class AbstractHistoryChart {
     protected phase1Color = {
         backgroundColor: 'rgba(255,127,80,0.05)',
         borderColor: 'rgba(255,127,80,1)',
-    }
+    };
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
         borderColor: 'rgba(0,0,255,1)',
-    }
+    };
     protected phase3Color = {
         backgroundColor: 'rgba(128,128,0,0.1)',
         borderColor: 'rgba(128,128,0,1)',
-    }
+    };
 
     constructor(
         public readonly spinnerId: string,
@@ -90,21 +92,21 @@ export abstract class AbstractHistoryChart {
                             this.errorResponse = error;
                             resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
                                 timestamps: [null], data: { null: null }
-                            }))
+                            }));
                         });
                     });
-                })
-            })
+                });
+            });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+                this.service.stopSpinner(this.spinnerId);
+                this.initializeChart();
             }
-            return response
-        })
+            return response;
+        });
 
-        return result
+        return result;
     }
 
     /**
@@ -127,23 +129,23 @@ export abstract class AbstractHistoryChart {
                     edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     }).catch((response) => {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     });
                 });
             });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId)
+                this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response
-        })
+            return response;
+        });
         return response;
     }
 
@@ -165,24 +167,31 @@ export abstract class AbstractHistoryChart {
         }
     }
 
+    /**
+     * Creates the default Chart options
+     * 
+     * @Future TODO change into static method and pass the historyPeriods value
+     * 
+     * @returns the ChartOptions
+     */
     protected createDefaultChartOptions(): ChartOptions {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
         // Overwrite TooltipsTitle
         options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
             let date = new Date(tooltipItems[0].xLabel);
-            return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
-        }
+            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
+        };
 
         //x-axis
-        if (differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) > 1) {
+        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
             options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5 && differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) <= 1) {
+        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
             options.scales.xAxes[0].time.unit = "day";
         } else {
             options.scales.xAxes[0].time.unit = "hour";
         }
-        return options
+        return options;
     }
 
     /**
@@ -192,7 +201,7 @@ export abstract class AbstractHistoryChart {
     // protected checkAllowanceChartRefresh(): boolean {
     //     let currentDate = new Date();
     //     let allowRefresh: boolean = false;
-    //     if (isAfter(this.service.historyPeriod.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //     if (isAfter(this.service.historyPeriod.value.to, currentDate) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
     //         allowRefresh = true;
     //     } else {
     //         allowRefresh = false;
@@ -249,7 +258,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData');
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

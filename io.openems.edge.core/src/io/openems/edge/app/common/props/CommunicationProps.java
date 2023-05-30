@@ -32,11 +32,11 @@ public final class CommunicationProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleParameter> ip() {
-		return CommonProps.defaultDef() //
-				.setTranslatedLabel("ipAddress") //
-				.setDefaultValue("192.168.178.85") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setValidation(JsonFormlyUtil.InputBuilder.Validation.IP));
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
+				def -> def.setTranslatedLabel("ipAddress") //
+						.setDefaultValue("192.168.178.85") //
+						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
+						f.setValidation(JsonFormlyUtil.InputBuilder.Validation.IP)));
 	}
 
 	/**
@@ -45,13 +45,13 @@ public final class CommunicationProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleParameter> port() {
-		return CommonProps.defaultDef() //
-				.setTranslatedLabel("port") //
-				.setTranslatedDescription("port.description") //
-				.setDefaultValue(502) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-						.setMin(0));
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
+				def -> def.setTranslatedLabel("port") //
+						.setTranslatedDescription("port.description") //
+						.setDefaultValue(502) //
+						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
+						f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+								.setMin(0)));
 	}
 
 	/**
@@ -60,14 +60,14 @@ public final class CommunicationProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleParameter> modbusUnitId() {
-		return CommonProps.defaultDef() //
-				.setTranslatedLabel("modbusUnitId") //
-				.setTranslatedDescription("modbusUnitId.description") //
-				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-						.setMin(0) //
-						.onlyPositiveNumbers());
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
+				def -> def.setTranslatedLabel("modbusUnitId") //
+						.setTranslatedDescription("modbusUnitId.description") //
+						.setDefaultValue(0) //
+						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
+						f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+								.setMin(0) //
+								.onlyPositiveNumbers()));
 	}
 
 	/**

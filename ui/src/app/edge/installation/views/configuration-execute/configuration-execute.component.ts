@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Util } from '../../shared/util';
+import { IbnUtils } from '../../shared/ibnutils';
 import { ComponentConfigurator, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
 
 @Component({
@@ -48,7 +48,7 @@ export class ConfigurationExecuteComponent implements OnInit {
 
       // To update scheduler.
       this.ibn.setRequiredControllers();
-      Util.addIbnToSessionStorage(this.ibn)
+      IbnUtils.addIbnToSessionStorage(this.ibn);
 
       // Auto-start configuration when no components pre-configured
       if (this.isAnyConfigurationObjectPreConfigured) {

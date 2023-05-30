@@ -22,7 +22,6 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -31,7 +30,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -76,18 +74,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
-				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY)) //
-				.wrapField((app, property, l, parameter, field) -> {
-					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
-					if (existingEvcs.isEmpty()) {
-						return;
-					}
-					final var expression = ExpressionBuilder.ofNotIn(EVCS_ID,
-							existingEvcs.stream().map(OpenemsComponent::id) //
-									.toArray(String[]::new));
-
-					field.onlyShowIf(expression);
-				})), //
+				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //
 		;
 
 		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
@@ -135,8 +122,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 			var maxHardwarePowerPerPhase = OptionalInt.empty();
 			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
-				maxHardwarePowerPerPhase = OptionalInt
-						.of(this.getInt(p, Property.MAX_HARDWARE_POWER) / EvcsProps.NUMBER_OF_PHASES);
+				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
 			}
 
 			var components = Lists.newArrayList(//

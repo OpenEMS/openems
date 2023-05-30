@@ -14,6 +14,6 @@ export class FemsAppCenterComponent implements OnInit {
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
             this.updatedRequired = !edge.isVersionAtLeast('2023.3.6');
-        })
+        });
     }
 }

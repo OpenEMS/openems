@@ -4,7 +4,6 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
@@ -39,8 +38,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		 */
 		RELAY_1(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
 		 *
@@ -62,8 +60,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		 */
 		RELAY_2(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Slave Communication Failed Fault.
 		 *

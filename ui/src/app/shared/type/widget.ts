@@ -1,6 +1,6 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Service, Utils } from '../shared';
+import { Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -45,7 +45,7 @@ export type Icon = {
 
 export class Widget {
     public name: WidgetNature | WidgetFactory | String;
-    public componentId: string
+    public componentId: string;
 }
 
 export type AdvertWidget = {
@@ -80,13 +80,12 @@ export class AdvertWidgets {
             list.push({
                 name: 'FeneconAvu',
                 title: 'FENECON AVU'
-            })
+            });
         }
         list.push({
             name: 'Fems-App-Center',
             title: 'FEMS App Center'
-        })
-
+        });
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);

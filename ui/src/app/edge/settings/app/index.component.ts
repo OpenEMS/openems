@@ -15,6 +15,7 @@ import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { Key } from './keypopup/key';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey } from './permissions';
+import { Flags } from './jsonrpc/flag/flags';
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -52,13 +53,13 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   public categories: { val: GetApps.Category, isChecked: boolean }[] = [];
 
-  protected key: Key | null = null
-  protected selectedBundle: number | null = null
+  protected key: Key | null = null;
+  protected selectedBundle: number | null = null;
 
   // check if update is available
   protected isUpdateAvailable: boolean = false;
 
-  protected canEnterKey: boolean | undefined
+  protected canEnterKey: boolean | undefined;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -73,7 +74,7 @@ export class IndexComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit() {
-    this.init()
+    this.init();
   }
 
   private init() {
@@ -82,7 +83,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.selectedBundle = null;
 
     this.appLists.forEach(element => {
-      element.appCategories = []
+      element.appCategories = [];
     });
 
     this.service.setCurrentComponent(environment.edgeShortName + ' Apps', this.route).then(edge => {
@@ -106,7 +107,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           this.apps.forEach(a => {
             a.categorys.forEach(category => {
               if (!this.categories.find(c => c.val.name === category.name)) {
-                this.categories.push({ val: category, isChecked: true })
+                this.categories.push({ val: category, isChecked: true });
               }
             });
           });
@@ -123,7 +124,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         if (updateState.available) {
           this.isUpdateAvailable = true;
         }
-      }
+      };
       systemUpdate.start();
     });
   }
@@ -144,60 +145,66 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.installedApps.appCategories = [];
     this.availableApps.appCategories = [];
 
-    var sortedApps = []
-    this.apps.forEach(a => {
-      a.categorys.forEach(category => {
+    var sortedApps = [];
+    this.apps.forEach(app => {
+      app.categorys.forEach(category => {
         if (this.selectedBundle >= 0 && this.key) {
-          if (!this.key.bundles[this.selectedBundle].some((app) => app.appId === a.appId)) {
+          if (!this.key.bundles[this.selectedBundle].some((a) => app.appId === a.appId)) {
+            return false;
+          }
+        } else {
+          if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM)
+            && environment.production
+            && app.instanceIds.length === 0) {
             return false;
           }
         }
-        var cat = this.categories.find(c => c.val.name === category.name)
+        var cat = this.categories.find(c => c.val.name === category.name);
         if (!cat.isChecked) {
           return false;
         }
-        sortedApps.push(a);
+        sortedApps.push(app);
         return true;
-      })
-    })
+      });
+    });
 
     sortedApps.forEach(a => {
       if (a.instanceIds.length > 0) {
-        this.pushIntoCategory(a, this.installedApps)
+        this.pushIntoCategory(a, this.installedApps);
         if (a.cardinality === 'MULTIPLE' && a.status.name !== 'INCOMPATIBLE') {
-          this.pushIntoCategory(a, this.availableApps)
+          this.pushIntoCategory(a, this.availableApps);
         }
       } else {
         if (a.status.name === 'INCOMPATIBLE') {
-          this.pushIntoCategory(a, this.incompatibleApps)
+          this.pushIntoCategory(a, this.incompatibleApps);
         } else {
-          this.pushIntoCategory(a, this.availableApps)
+          this.pushIntoCategory(a, this.availableApps);
         }
       }
-    })
+    });
   }
 
   private pushIntoCategory(app: GetApps.App, list: AppList): void {
     app.categorys.forEach(category => {
-      var catList = list.appCategories.find(l => l.category.name === category.name)
+      var catList = list.appCategories.find(l => l.category.name === category.name);
       if (catList === undefined) {
         catList = { category: category, apps: [] };
         list.appCategories.push(catList);
       }
       catList.apps.push(app);
-    })
+    });
   }
 
   protected showCategories(app: AppList): boolean {
-    return this.sum(app) > IndexComponent.MAX_APPS_IN_LIST
+    return this.sum(app) > IndexComponent.MAX_APPS_IN_LIST;
   }
 
   protected isEmpty(app: AppList): boolean {
-    return this.sum(app) === 0
+    return this.sum(app) === 0;
   }
 
   private sum(app: AppList): number {
-    return app.appCategories.reduce((p, c) => p + c.apps.length, 0)
+    return app.appCategories.reduce((p, c) => p + c.apps.length, 0);
   }
 
   /**
@@ -219,7 +226,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         this.updateSelection(null);
         return; // no key selected
       }
-      this.key = data.data.key
+      this.key = data.data.key;
       if (!this.key.bundles) {
         // load bundles
         this.edge.sendRequest(this.websocket, new AppCenter.Request({
@@ -231,12 +238,12 @@ export class IndexComponent implements OnInit, OnDestroy {
           this.key.bundles = result.bundles;
           this.selectedBundle = 0;
           this.updateSelection(null);
-        })
+        });
       } else {
         this.selectedBundle = 0;
         this.updateSelection(null);
       }
-    })
+    });
     return await modal.present();
   }
 

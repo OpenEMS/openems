@@ -1,5 +1,5 @@
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Category } from '../../../shared/category';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -45,11 +45,11 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
         });
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service): ComponentConfigurator {
 
         const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator =
-            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors, service);
 
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             // ctrlGridOptimizedCharge0

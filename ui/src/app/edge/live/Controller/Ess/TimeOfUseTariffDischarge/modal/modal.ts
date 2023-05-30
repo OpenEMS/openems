@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
+import { ChannelAddress, Currency, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
     templateUrl: './modal.html',
@@ -30,11 +30,7 @@ export class ModalComponent extends AbstractModal {
     protected override onCurrentData(currentData: CurrentData): void {
         var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
 
-        var currencyLabel: string = 'Cent/kWh' // Default
-        if (this.edge.id === 'fems17289') {
-            // For Swedish system
-            currencyLabel = 'Öre/kWh'
-        }
+        var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge?.id);
 
         // Since 'component' is empty during ngOninit. so assigning the labels through this method.
         this.storageStatuslabel = this.Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);

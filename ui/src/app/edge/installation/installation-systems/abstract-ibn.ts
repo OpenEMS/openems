@@ -355,7 +355,7 @@ export abstract class AbstractIbn {
         { name: 'invert', value: false }
       ],
       mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-    }
+    };
 
     return configurationObject;
   }

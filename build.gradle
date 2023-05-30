@@ -42,7 +42,7 @@ subprojects {
 		apply plugin: 'checkstyle'
 
 		checkstyle {
-			toolVersion = '10.4'
+			toolVersion = '10.11.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures false

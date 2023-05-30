@@ -21,12 +21,12 @@ public final class MeterProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, Parameter.BundleParameter> type() {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef()) //
-				.setTranslatedLabel("App.Meter.mountType.label") //
-				.setDefaultValue(MeterType.PRODUCTION) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(MeterType.class), l);
-				});
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
+				def -> def.setTranslatedLabel("App.Meter.mountType.label") //
+						.setDefaultValue(MeterType.PRODUCTION) //
+						.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+							field.setOptions(OptionsFactory.of(MeterType.class), l);
+						}));
 	}
 
 	/**

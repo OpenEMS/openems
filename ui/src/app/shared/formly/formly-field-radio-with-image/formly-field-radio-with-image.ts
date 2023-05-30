@@ -21,6 +21,6 @@ export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements 
      * Needs to be updated manually, because @Angular Formly-Form doesnt do it on its own
      */
     protected updateFormControl() {
-        this.formControl.setValue(this.value)
+        this.formControl.setValue(this.value);
     }
 }

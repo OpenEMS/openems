@@ -276,8 +276,8 @@ export class ConfigurationSummaryComponent implements OnInit {
       return {
         header: Category.toTranslatedString(element.header, this.translate),
         rows: element.rows
-      }
-    })
+      };
+    });
   }
 
   /**

@@ -22,11 +22,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.evcs.EvcsCluster.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -35,9 +38,11 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -79,12 +84,13 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		ALIAS(AppDef.of(EvcsCluster.class) //
 				.setDefaultValueToAppName()), //
 		EVCS_IDS(AppDef.of(EvcsCluster.class) //
-				.setLabel("EVCS-IDs") //
+				.setTranslatedLabelWithAppPrefix(".evcsIds.label") //
 				.setTranslatedDescriptionWithAppPrefix(".evcsIds.description") //
 				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
-					f.setOptions(
-							app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
-									.filter(t -> !t.id().startsWith("evcsCluster")).toList(),
+					f.setOptions(app.getComponentUtil() //
+							.getEnabledComponentsOfStartingId("evcs").stream()
+							.filter(t -> !t.id().startsWith("evcsCluster")) //
+							.toList(), //
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 							.isRequired(true) //
@@ -92,15 +98,23 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				}) //
 				.setDefaultValue((app, property, l, parameter) -> new JsonArray()) //
 				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids", a -> a.componentManager)), //
-		MAX_HARDWARE_POWER_LIMIT_PER_PHASE(AppDef.of(EvcsCluster.class) //
-				.setLabel("Max Hardware power") //
+		MAX_HARDWARE_POWER_LIMIT_PER_PHASE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+				.setTranslatedLabelWithAppPrefix(".maxChargeFromGrid.short.label") //
+				.setTranslatedDescriptionWithAppPrefix(".maxChargeFromGrid.description") //
 				.setDefaultValue(7000) //
-				.bidirectional(EVCS_CLUSTER_ID, "hardwarePowerLimitPerPhase", t -> t.componentManager)), //
+				.appendIsAllowedToEdit(AppDef.ofLeastRole(Role.INSTALLER)) //
+				.setField(JsonFormlyUtil::buildInput,
+						(app, property, l, parameter, field) -> field.setInputType(InputBuilder.Type.NUMBER) //
+								.setMin(0) //
+								.isRequired(true) //
+								.setUnit(Unit.WATT, l)) //
+				.bidirectional(EVCS_CLUSTER_ID, "hardwarePowerLimitPerPhase",
+						ComponentManagerSupplier::getComponentManager, AppDef.multiplyWith(3)))), //
 		;
 
-		private final AppDef<EvcsCluster, Property, BundleParameter> def;
+		private final AppDef<? super EvcsCluster, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<EvcsCluster, Property, BundleParameter> def) {
+		private Property(AppDef<? super EvcsCluster, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -110,7 +124,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		}
 
 		@Override
-		public AppDef<EvcsCluster, Property, BundleParameter> def() {
+		public AppDef<? super EvcsCluster, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -129,18 +143,18 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
+			final var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID);
 
-			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID);
-
-			var alias = this.getString(p, l, Property.ALIAS);
-			var ids = this.getJsonArray(p, Property.EVCS_IDS);
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var ids = this.getJsonArray(p, Property.EVCS_IDS);
 			final var hardwarePowerLimitPerPhase = this.getInt(p, Property.MAX_HARDWARE_POWER_LIMIT_PER_PHASE);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsClusterId, alias, "Evcs.Cluster.PeakShaving",
 							JsonUtils.buildJsonObject() //
 									.add("evcs.ids", ids) //
-									.addProperty("hardwarePowerLimitPerPhase", hardwarePowerLimitPerPhase) //
+									.addProperty("hardwarePowerLimitPerPhase",
+											hardwarePowerLimitPerPhase / EvcsProps.NUMBER_OF_PHASES) //
 									.build()) //
 			);
 

@@ -114,7 +114,7 @@ public class TestEvcsCluster {
 				.setApps(apps) //
 				.build());
 
-		this.appManagerTestBundle.assertInstalledApps(2);
+		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
 				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//

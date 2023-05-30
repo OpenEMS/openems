@@ -21,15 +21,15 @@ public final class PeakShavingProps {
 	 * @return the {@link AppDef}
 	 */
 	public static AppDef<OpenemsApp, Nameable, Parameter.BundleParameter> peakShavingPower() {
-		return CommonProps.defaultDef() //
-				.setTranslatedLabel("App.PeakShaving.power.label") //
-				.setTranslatedDescription("App.PeakShaving.power.description") //
-				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-							.setMin(0) //
-							.setUnit(Unit.WATT, l);
-				});
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(),
+				def -> def.setTranslatedLabel("App.PeakShaving.power.label") //
+						.setTranslatedDescription("App.PeakShaving.power.description") //
+						.setDefaultValue(0) //
+						.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+							field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+									.setMin(0) //
+									.setUnit(Unit.WATT, l);
+						}));
 	}
 
 	/**
@@ -49,15 +49,15 @@ public final class PeakShavingProps {
 	 * @return the {@link AppDef}
 	 */
 	public static AppDef<OpenemsApp, Nameable, Parameter.BundleParameter> rechargePower() {
-		return CommonProps.defaultDef() //
-				.setTranslatedLabel("App.PeakShaving.rechargePower.label") //
-				.setTranslatedDescription("App.PeakShaving.rechargePower.description") //
-				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-							.setMin(0) //
-							.setUnit(Unit.WATT, l);
-				});
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(),
+				def -> def.setTranslatedLabel("App.PeakShaving.rechargePower.label") //
+						.setTranslatedDescription("App.PeakShaving.rechargePower.description") //
+						.setDefaultValue(0) //
+						.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+							field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+									.setMin(0) //
+									.setUnit(Unit.WATT, l);
+						}));
 	}
 
 	/**

@@ -27,12 +27,12 @@
     "gridBuyAdvanced": "Relación",
     "gridSell": "Fuente de alimentación",
     "gridSellAdvanced": "Fuente de alimentación",
-    "history": "Historia",
+    "HISTORY": "Historia",
     "inactive": "Inactivo",
     "info": "Informacion",
     "inputNotValid": "Entrada inválida",
     "insufficientRights": "Derechos insuficientes",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "la cantidad",
     "manually": "a mano",
     "measuredValue": "Valor Medido",
@@ -43,7 +43,7 @@
     "offGrid": "No hay conexión de red",
     "ok": "ok",
     "On": "Conmutada",
-    "otherConsumption": "otro Consumo",
+    "otherConsumption": "otro consumo",
     "percentage": "Por ciento",
     "periodFromTo": "de {{ value1 }} para {{ value2 }}",
     "phase": "Fase",
@@ -57,7 +57,7 @@
     "state": "Estado",
     "storageSystem": "Almacenamiento",
     "systemState": "Estado del sistema",
-    "total": "consumo total",
+    "TOTAL": "consumo total",
     "totalState": "Condición general",
     "warning": "Advertencia",
     "Week": {
@@ -119,7 +119,6 @@
     "user": "Usuario"
   },
   "Register": {
-    "title": "Crear una cuenta de usuario",
     "segment": {
       "user": "Usuario",
       "installer": "Instalador"

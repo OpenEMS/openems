@@ -67,8 +67,8 @@ export class UpdateAppComponent implements OnInit {
               this.appName = appAssistant.name;
               this.instances = [];
               for (let instance of recInstances) {
-                let form = new FormGroup({})
-                this.forms.push(form)
+                let form = new FormGroup({});
+                this.forms.push(form);
                 const clonedFields = [];
                 appAssistant.fields.forEach(val => clonedFields.push(Object.assign({}, val)));
                 this.instances.push({
@@ -81,7 +81,7 @@ export class UpdateAppComponent implements OnInit {
                     'ALIAS': instance.alias,
                     ...instance.properties
                   },
-                })
+                });
               }
 
               this.service.stopSpinner(this.spinnerId);
@@ -100,13 +100,13 @@ export class UpdateAppComponent implements OnInit {
 
   protected submit(instance: MyInstance) {
     this.service.startSpinnerTransparentBackground(instance.instanceId);
-    instance.isUpdating = true
+    instance.isUpdating = true;
     // remove alias field from properties
-    let alias = instance.form.value['ALIAS']
+    let alias = instance.form.value['ALIAS'];
     const clonedFields = {};
     for (let item in instance.form.value) {
       if (item != 'ALIAS') {
-        clonedFields[item] = instance.form.value[item]
+        clonedFields[item] = instance.form.value[item];
       }
     }
     instance.form.markAsPristine();
@@ -131,14 +131,14 @@ export class UpdateAppComponent implements OnInit {
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Config.App.failUpdate', { error: reason.error.message }), 'danger');
       }).finally(() => {
-        instance.isUpdating = false
+        instance.isUpdating = false;
         this.service.stopSpinner(instance.instanceId);
       });
   }
 
   protected delete(instance: MyInstance) {
     this.service.startSpinnerTransparentBackground(instance.instanceId);
-    instance.isDeleting = true
+    instance.isDeleting = true;
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
         componentId: '_appManager',
@@ -152,8 +152,8 @@ export class UpdateAppComponent implements OnInit {
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Config.App.failDelete', { error: reason.error.message }), 'danger');
       }).finally(() => {
-        instance.isDeleting = false
+        instance.isDeleting = false;
         this.service.stopSpinner(instance.instanceId);
-      })
+      });
   }
 }

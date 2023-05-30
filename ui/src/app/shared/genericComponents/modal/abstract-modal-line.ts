@@ -7,6 +7,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+
 import { Role } from "../../type/role";
 
 @Directive()
@@ -28,7 +29,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @returns converter function
     */
     @Input()
-    public converter = (value: any): string => { return value }
+    public converter = (value: any): string => { return value; };
 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string;
@@ -42,7 +43,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     /** Selector needed for Subscribe (Identifier) */
-    private selector: string = uuidv4()
+    private selector: string = uuidv4();
 
     /** 
      * displayValue is the displayed @Input value in html
@@ -74,7 +75,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     ngOnChanges() {
-        this.setValue(this.value)
+        this.setValue(this.value);
     }
 
     ngOnInit() {
@@ -107,13 +108,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                     }
                     this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });
-            })
-        })
+            });
+        });
     }
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        this.displayValue = this.converter(value)
+        this.displayValue = this.converter(value);
     }
 
     /** Subscribe on HTML passed Channels */
@@ -129,13 +130,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     if (currentData.channel[channelAddress.toString()] != null) {
-                        this.setValue(currentData.channel[channelAddress.toString()])
+                        this.setValue(currentData.channel[channelAddress.toString()]);
                     }
                 });
             } else {
                 this.isAllowedToBeSeen = false;
             }
-        })
+        });
 
     }
 
@@ -164,7 +165,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         return [];
     }
     protected getFormGroup(): FormGroup {
-        return
+        return;
     }
     /**
    * Gets the ChannelIds of the current Component that should be subscribed.

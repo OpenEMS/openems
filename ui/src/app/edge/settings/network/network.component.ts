@@ -51,7 +51,7 @@ export class NetworkComponent implements OnInit {
 
             if (this.edge.roleIsAtLeast(Role.ADMIN)) {
               // Display all interfaces available for user with role Admin.
-              this.generateInterface(name, iface)
+              this.generateInterface(name, iface);
             } else {
               // Display only eth0 (LAN) interface for user with role less than Admin.
               if (name === 'eth0') {
@@ -61,7 +61,7 @@ export class NetworkComponent implements OnInit {
           }
         }).catch(reason => {
           this.service.toast(this.translate.instant('Edge.Network.errorReading') + reason.error.message, 'danger');
-        })
+        });
     });
   }
 
@@ -124,7 +124,7 @@ export class NetworkComponent implements OnInit {
         this.service.toast(this.translate.instant('Edge.Network.successUpdate') + '[' + interfaceName + '].', 'success');
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Network.errorUpdating') + '[' + interfaceName + ']:' + reason.error.message, 'danger');
-      })
+      });
   }
 
   /**
@@ -192,7 +192,7 @@ export class NetworkComponent implements OnInit {
       fields: this.fillFields(addressArray),
       formGroup: new FormGroup({}),
       model: source,
-    })
+    });
   }
 
   /**

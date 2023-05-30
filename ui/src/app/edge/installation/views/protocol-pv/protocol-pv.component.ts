@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
@@ -39,11 +39,11 @@ export class ProtocolPvComponent implements OnInit {
         formGroup: new FormGroup({}),
         fields: [],
         model: {}
-      })
+      });
 
     this.forms[0].model = this.ibn.batteryInverter ?? {
       shadowManagementDisabled: false
-    }
+    };
     this.forms[1].model = this.ibn.pv.dc1 ?? {
       isSelected: false
     };
@@ -63,7 +63,7 @@ export class ProtocolPvComponent implements OnInit {
     // Iterate over forms and prohibit onNextClicked if forms are not valid
     for (let form of this.forms) {
       if (form.formGroup.invalid) {
-        return
+        return;
       }
     }
 
@@ -83,7 +83,7 @@ export class ProtocolPvComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
         description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION'),
       },
-    })
+    });
 
     //  For 2 DC-PVs
     for (let forMpptNr = 1; forMpptNr <= 2; forMpptNr++) {
@@ -108,15 +108,15 @@ export class ProtocolPvComponent implements OnInit {
         {
           key: "value",
           type: "input",
+          defaultValue: 1000, // Acts as minimum value through "defaultAsMinimumValue" validator
           templateOptions: {
             type: "number",
             label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
-            min: 1000,
             required: true
           },
           parsers: [Number],
           validators: {
-            validation: ["onlyPositiveInteger"]
+            validation: ["onlyPositiveInteger", "defaultAsMinimumValue"]
           },
           hideExpression: model => !model.isSelected
         },
@@ -147,7 +147,7 @@ export class ProtocolPvComponent implements OnInit {
           },
           parsers: [Number],
           hideExpression: model => !model.isSelected
-        })
+        });
     }
   }
 }

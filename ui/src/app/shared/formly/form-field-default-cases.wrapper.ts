@@ -12,11 +12,11 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
             this.form.get(item["field"]).valueChanges.subscribe((value) => {
                 this.onChange(item, value);
             });
-            let value = this.model[item.field]
+            let value = this.model[item.field];
             if (value) {
                 this.onChange(item, value);
             }
-        })
+        });
     }
 
     private onChange(item: FieldDefaultCases, value: any) {

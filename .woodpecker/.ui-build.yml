@@ -85,7 +85,7 @@ pipeline:
     user: fenecon-docs
     secrets:
       - source: ssh_key_intranet
-        target: scp_key
+        target: ssh_key
     rm: true
     source: ./ui/target
     strip_components: 3

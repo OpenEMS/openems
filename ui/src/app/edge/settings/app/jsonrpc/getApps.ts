@@ -1,4 +1,5 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
+import { Flag } from "./flag/flag";
 
 /**
  * Represents a JSON-RPC Request for 'getApps'.
@@ -71,6 +72,7 @@ export namespace GetApps {
         image: string,
         status: Status,
         instanceIds: string[],
+        flags: Flag[]
     }
 
     export interface Status {

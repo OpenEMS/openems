@@ -393,10 +393,11 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 									+ this.ibPass.getWriteOnlyPasswordLength()) {
 
 				// password block would be written to with potentially bad data
-				throw new OneWireException("Executing write would overwrite password control registers with "
-						+ "potentially invalid data.  Please ensure write does not occur over"
-						+ "password control register page, or the password control data is "
-						+ "specified exactly in the write buffer.");
+				throw new OneWireException("""
+						Executing write would overwrite password control registers with \
+						potentially invalid data.  Please ensure write does not occur over \
+						password control register page, or the password control data is \
+						specified exactly in the write buffer.""");
 			}
 
 			var tempBuf = new byte[len + numBytes];

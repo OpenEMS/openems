@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,11 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 
 public abstract class AbstractOpenemsAppWithProps<//
 		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
@@ -157,15 +161,20 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
+	public AppAssistant getAppAssistant(User user) {
+		final var language = user.getLanguage();
 		final var parameter = this.singletonParameter(language);
 		final var alias = this.getAlias(language, parameter.get());
 		return AppAssistant.create(this.getName(language)) //
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
-						.filter(p -> p.def().getShouldAddField().test(this.getApp(), p, language, parameter.get())) //
+						.filter(p -> p.def().getIsAllowedToSee() //
+								.test(this.getApp(), p, language, parameter.get(), user)) //
 						.filter(p -> p.def().getField() != null) //
-						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
+						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()) //
+								.readonly(!p.def().getIsAllowedToEdit() //
+										.test(this.getApp(), p, language, parameter.get(), user)) //
+								.build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}
@@ -274,5 +283,18 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	protected abstract APP getApp();
+
+	@Override
+	public Flag[] flags() {
+		final var flags = new ArrayList<>();
+		if (this.getStatus() == OpenemsAppStatus.BETA) {
+			flags.add(Flags.SHOW_AFTER_KEY_REDEEM);
+		}
+		return flags.toArray(Flag[]::new);
+	}
+
+	protected OpenemsAppStatus getStatus() {
+		return OpenemsAppStatus.STABLE;
+	}
 
 }
