@@ -420,15 +420,15 @@ public class ElementToChannelConverter {
 		if (value instanceof Long l) {
 			return longFactor.apply(l);
 		}
-		if (value instanceof Float ff) {
-			double result = floatFactor.apply(ff);
+		if (value instanceof Float f) {
+			double result = floatFactor.apply(f);
 			if (result >= Float.MIN_VALUE && result <= Float.MAX_VALUE) {
 				return Float.valueOf((float) result);
 			}
 			return Double.valueOf(result);
 		}
-		if (value instanceof Double fff) {
-			return doubleFactor.apply(fff);
+		if (value instanceof Double d) {
+			return doubleFactor.apply(d);
 		}
 		if (value instanceof String) {
 			return value;
