@@ -55,6 +55,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongWriteChannel;
@@ -997,8 +998,8 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
 			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit) {
-		io.openems.edge.common.channel.ChannelId channelId = new DynamicChannelId(
-				"TOWER_" + tower + "_" + channelIdSuffix, Doc.of(openemsType).unit(channelUnit));
+		io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
+				Doc.of(openemsType).unit(channelUnit));
 		parent.addChannel(channelId);
 		return channelId;
 	}
@@ -1014,8 +1015,8 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
 			int tower, String channelIdSuffix, Level level) {
-		io.openems.edge.common.channel.ChannelId channelId = new DynamicChannelId(
-				"TOWER_" + tower + "_" + channelIdSuffix, Doc.of(level));
+		io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
+				Doc.of(level));
 		parent.addChannel(channelId);
 		return channelId;
 	}

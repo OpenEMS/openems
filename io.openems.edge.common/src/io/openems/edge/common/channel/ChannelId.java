@@ -102,4 +102,7 @@ public interface ChannelId {
 	 * @return the Channel-Doc
 	 */
 	Doc doc();
+	
+	public record ChannelIdImpl(String name, Doc doc) implements ChannelId {
+	}
 }
