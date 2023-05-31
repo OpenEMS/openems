@@ -123,8 +123,7 @@ public interface RefuStore88k
 	/**
 	 * Exit the STANDBY mode.
 	 *
-	 * @throws OpenemsNamedException
-	 *
+	 * @throws OpenemsNamedException on error
 	 */
 	public default void exitStandbyMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
@@ -134,8 +133,7 @@ public interface RefuStore88k
 	/**
 	 * Enter the STARTED mode.
 	 *
-	 * @throws OpenemsNamedException
-	 *
+	 * @throws OpenemsNamedException on error
 	 */
 	public default void enterStartedMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
@@ -145,8 +143,7 @@ public interface RefuStore88k
 	/**
 	 * Enter the Throttled or MPPT mode.
 	 *
-	 * @throws OpenemsNamedException
-	 *
+	 * @throws OpenemsNamedException on error
 	 */
 	public default void enterThrottledMpptMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
@@ -156,8 +153,7 @@ public interface RefuStore88k
 	/**
 	 * STOP the inverter by setting the power to zero and entering the STARTED mode.
 	 *
-	 * @throws OpenemsNamedException
-	 *
+	 * @throws OpenemsNamedException on error
 	 */
 	public default void stopInverter() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
