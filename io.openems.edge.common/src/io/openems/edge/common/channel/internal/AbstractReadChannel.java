@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ChannelAddress;
@@ -134,12 +135,25 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
+	 * 
+	 * <p>
+	 * If the {@link Unit} of the Channel is cumulated and 'value' is null, it is
+	 * silently ignored. Cumulated values must be steadily increasing and should
+	 * never get reset to null.
 	 *
 	 * @param value the next value
 	 */
 	@Override
 	@Deprecated
 	public void _setNextValue(T value) {
+		if (this.channelDoc.getUnit().isCumulated() && value == null) {
+			if (this.channelDoc.isDebug()) {
+				this.log.info(
+						"Ignoring next value for [" + this.address() + "]: Channel is Cumulated and value is null");
+			}
+			return;
+		}
+
 		this.nextValue = new Value<>(this, value);
 		if (this.channelDoc.isDebug()) {
 			this.log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
