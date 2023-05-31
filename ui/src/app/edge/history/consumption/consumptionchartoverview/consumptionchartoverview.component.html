@@ -26,7 +26,7 @@
                         <td style="width: 100%" class="ion-padding" translate>General.total</td>
                     </tr>
                 </table>
-                <consumptionTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                <consumptionTotalChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                 </consumptionTotalChart>
             </ion-card-content>
         </ng-container>
@@ -38,7 +38,7 @@
                     </tr>
                 </table>
                 <consumptionSingleChart [isOnlyChart]="isOnlyChart" [showPhases]="showPhases"
-                    [period]="service.historyPeriod">
+                    [period]="service.historyPeriod.value">
                 </consumptionSingleChart>
             </ion-card-content>
             <ng-container *ngFor="let evcsComponent of evcsComponents">
@@ -50,7 +50,7 @@
                             </td>
                         </tr>
                     </table>
-                    <consumptionEvcsChart [period]="service.historyPeriod" [componentId]="evcsComponent.id">
+                    <consumptionEvcsChart [period]="service.historyPeriod.value" [componentId]="evcsComponent.id">
                     </consumptionEvcsChart>
                 </ion-card-content>
             </ng-container>
@@ -63,7 +63,7 @@
                             </td>
                         </tr>
                     </table>
-                    <consumptionMeterChart [period]="service.historyPeriod" [componentId]="meterComponent.id">
+                    <consumptionMeterChart [period]="service.historyPeriod.value" [componentId]="meterComponent.id">
                     </consumptionMeterChart>
                 </ion-card-content>
             </ng-container>
@@ -73,7 +73,7 @@
                         <td style="width: 100%" class="ion-padding" translate>General.otherConsumption</td>
                     </tr>
                 </table>
-                <consumptionOtherChart [period]="service.historyPeriod">
+                <consumptionOtherChart [period]="service.historyPeriod.value">
                 </consumptionOtherChart>
             </ion-card-content>
         </ng-container>
