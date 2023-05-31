@@ -296,7 +296,8 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer"
+      "activeDuration": "Einschaltdauer",
+      "noHistoricDataAvailableLocally": "Historische Daten sind derzeit lokal nicht verfügbar."
     },
     "Config": {
       "Index": {
@@ -550,7 +551,7 @@
     "OFFLINE_SINCE": "Offline seit",
     "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
-    },
+  },
   "Login": {
     "title": "Login",
     "preamble": "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",

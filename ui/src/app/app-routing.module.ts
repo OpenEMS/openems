@@ -6,7 +6,7 @@ import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
-import { OverviewComponent } from './edge/history/common/grid/overview/overview';
+import { OverviewComponent as HistoryGridOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
@@ -84,7 +84,7 @@ const routes: Routes = [
           { path: ':componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
           { path: 'autarchychart', component: AutarchyChartOverviewComponent },
           { path: 'consumptionchart', component: ConsumptionChartOverviewComponent },
-          { path: 'gridchart', component: OverviewComponent },
+          { path: 'gridchart', component: HistoryGridOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
           { path: 'storagechart', component: StorageChartOverviewComponent },

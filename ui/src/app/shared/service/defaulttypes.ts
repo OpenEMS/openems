@@ -124,11 +124,7 @@ export module DefaultTypes {
       /** the stack for barChart */
       stack?: number,
     }
-    /**
-   * Data from a subscription to Channel or from a historic data query.
-   * 
-   * TODO Lukas refactor
-   */
+
     export type ChannelData = {
       [name: string]: number[]
     }

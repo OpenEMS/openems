@@ -13,34 +13,31 @@ export class ChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): DefaultTypes.History.ChartData {
     this.spinnerId = 'grid-chart';
+
+    let input: DefaultTypes.History.InputChannel[] = [
+      {
+        name: 'GridSell',
+        powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
+        energyChannel: ChannelAddress.fromString('_sum/GridSellActiveEnergy'),
+        ...(this.chartType === 'line' && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE })
+      },
+      {
+        name: 'GridBuy',
+        powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
+        energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
+        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+      },
+    ];
+
+    ['L1', 'L2', 'L3'].forEach(phase => {
+      input.push({
+        name: 'GridActivePower' + phase,
+        powerChannel: ChannelAddress.fromString('_sum/GridActivePower' + phase),
+      },)
+    });
+
     return {
-      input:
-        [{
-          name: 'GridSell',
-          powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/GridSellActiveEnergy'),
-          // TODO energyChannel has positive values, powerChannel needs only negative values
-          ...(this.chartType === 'line' && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE })
-        },
-        {
-          name: 'GridBuy',
-          powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
-        },
-        {
-          name: 'GridActivePowerL1',
-          powerChannel: ChannelAddress.fromString('_sum/GridActivePowerL1'),
-        },
-        {
-          name: 'GridActivePowerL2',
-          powerChannel: ChannelAddress.fromString('_sum/GridActivePowerL2'),
-        },
-        {
-          name: 'GridActivePowerL3',
-          powerChannel: ChannelAddress.fromString('_sum/GridActivePowerL3'),
-        },
-        ],
+      input: input,
       output: (data: DefaultTypes.History.ChannelData) => {
 
         let datasets: DefaultTypes.History.DisplayValues[] = [];
