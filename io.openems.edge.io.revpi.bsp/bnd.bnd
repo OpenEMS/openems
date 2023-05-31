@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge RevolutionPi Data IO module
+Bundle-Name: RevolutionPi board support package
 Bundle-Vendor: opernikus GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -16,3 +16,4 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath}
+
