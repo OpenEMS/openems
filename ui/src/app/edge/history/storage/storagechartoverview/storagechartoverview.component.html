@@ -26,7 +26,7 @@
                     <td style="width: 100%" class="ion-padding" translate>General.soc</td>
                 </tr>
             </table>
-            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod"></socStorageChart>
+            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod.value"></socStorageChart>
         </ion-card-content>
         <ng-container *ngIf="showTotal">
             <ion-card-content>
@@ -35,7 +35,7 @@
                         <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                     </tr>
                 </table>
-                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                 </storageTotalChart>
                 <!-- Info Text -->
                 <ion-row class="ion-justify-content-center">
@@ -65,7 +65,7 @@
                             <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                     </storageSingleChart>
                 </ion-card-content>
                 <!-- Info Text -->
@@ -96,7 +96,8 @@
                             <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod"></storageSingleChart>
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
+                    </storageSingleChart>
                 </ion-card-content>
                 <ng-container *ngFor="let component of essComponents">
                     <ion-card-content class="underline">
@@ -107,7 +108,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod"
+                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod.value"
                             [componentId]="component.id"></storageESSChart>
                     </ion-card-content>
                 </ng-container>
@@ -142,7 +143,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <storageChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+                        <storageChargerChart [period]="service.historyPeriod.value" [componentId]="component.id">
                         </storageChargerChart>
                     </ion-card-content>
                 </ng-container>

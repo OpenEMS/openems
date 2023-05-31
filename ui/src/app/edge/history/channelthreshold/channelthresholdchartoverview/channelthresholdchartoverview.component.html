@@ -25,7 +25,7 @@
                         <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                     </tr>
                 </table>
-                <channelthresholdTotalChart [period]="service.historyPeriod">
+                <channelthresholdTotalChart [period]="service.historyPeriod.value">
                 </channelthresholdTotalChart>
             </ion-card-content>
         </ng-container>
@@ -36,7 +36,7 @@
                         <td style="width: 100%" class="ion-padding"></td>
                     </tr>
                 </table>
-                <channelthresholdSingleChart [componentId]="component.id" [period]="service.historyPeriod">
+                <channelthresholdSingleChart [componentId]="component.id" [period]="service.historyPeriod.value">
                 </channelthresholdSingleChart>
             </ion-card-content>
         </ng-container>
