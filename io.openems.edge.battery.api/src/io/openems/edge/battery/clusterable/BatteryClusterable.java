@@ -21,7 +21,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Boolean
+		 * <li>Type: {@link OpenemsType#Boolean}
 		 * </ul>
 		 */
 		COOLING_VALVE_STATE(Doc.of(OpenemsType.BOOLEAN)//
@@ -32,7 +32,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
@@ -44,7 +44,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
 		SET_BALANCING_CONDITIONS_FULFILLED(Doc.of(OpenemsType.INTEGER)//
@@ -54,7 +54,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
 		SET_OCV_REACHED_AT_ALL_THE_BATTERIES(Doc.of(OpenemsType.INTEGER)//
@@ -64,7 +64,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
 		SET_BALANCING_RUNNING(Doc.of(OpenemsType.INTEGER)//
@@ -74,7 +74,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Integer
+		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
@@ -86,7 +86,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Boolean
+		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
 		OCV_REACHED(Doc.of(OpenemsType.BOOLEAN)//
@@ -96,7 +96,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Boolean
+		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
 		BALANCING_STILL_RUNNING(Doc.of(OpenemsType.BOOLEAN)//
@@ -106,7 +106,7 @@ public interface BatteryClusterable extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: {@link BatteryClusterable}
-		 * <li>Type: Boolean
+		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
 		BALANCING_CONDITION(Doc.of(OpenemsType.BOOLEAN)//
@@ -351,8 +351,8 @@ public interface BatteryClusterable extends OpenemsComponent {
 
 	/**
 	 * A helper method in determining when to begin heating the battery. The serial
-	 * cluster will begin to heat up the batteries if the all battery temperatures is
-	 * below 10 degrees and they are all started.
+	 * cluster will begin to heat up the batteries if the all battery temperatures
+	 * is below 10 degrees and they are all started.
 	 * 
 	 * @param value true for start heating.
 	 */
