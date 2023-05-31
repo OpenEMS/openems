@@ -375,51 +375,30 @@ public enum Unit {
 	 * @return true if this {@link Unit} is cumulated, otherwise false
 	 */
 	public boolean isCumulated() {
-		switch (this) {
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return true;
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROAMPERE:
-		case MICROOHM:
-		case MICROVOLT:
-		case MILLIAMPERE:
-		case MILLIAMPERE_HOURS:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case OHM:
-		case ON_OFF:
-		case PERCENT:
-		case SECONDS:
-		case THOUSANDTH:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT:
-		case WATT_HOURS_BY_WATT_PEAK:
-			return false;
-		}
-		return false;
+		return switch (this) {
+		case //
+				CUMULATED_SECONDS, //
+				WATT_HOURS, KILOWATT_HOURS, //
+				VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS, KILOVOLT_AMPERE_REACTIVE_HOURS ->
+			true;
+
+		case //
+				AMPERE, MILLIAMPERE, MICROAMPERE, //
+				MICROVOLT, MILLIVOLT, VOLT, //
+				AMPERE_HOURS, KILOAMPERE_HOURS, MILLIAMPERE_HOURS, //
+				KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, //
+				DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, //
+				EUROS_PER_MEGAWATT_HOUR, //
+				MILLIHERTZ, HERTZ, //
+				MILLISECONDS, SECONDS, MINUTE, HOUR, //
+				MICROOHM, MILLIOHM, OHM, KILOOHM, //
+				MILLIWATT, KILOWATT, //
+				VOLT_AMPERE, //
+				PERCENT, THOUSANDTH, VOLT_AMPERE_REACTIVE, WATT, //
+				WATT_HOURS_BY_WATT_PEAK, //
+				NONE, ON_OFF ->
+			false;
+		};
 	}
 
 	/*
