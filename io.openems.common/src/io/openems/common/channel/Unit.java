@@ -1,9 +1,6 @@
 package io.openems.common.channel;
 
 import java.util.HashSet;
-import java.util.OptionalDouble;
-import java.util.function.Function;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import com.google.common.base.CaseFormat;
@@ -370,19 +367,6 @@ public enum Unit {
 				.filter(u -> u.symbol == symbol) //
 				.findFirst() //
 				.orElse(defaultUnit);
-	}
-
-	/**
-	 * Get the corresponding aggregate function of current {@link Unit}.
-	 * 
-	 * @return corresponding aggregate function
-	 */
-	public Function<DoubleStream, OptionalDouble> getChannelAggregateFunction() {
-		if (this.isCumulated()) {
-			return DoubleStream::max;
-		} else {
-			return DoubleStream::average;
-		}
 	}
 
 	/**
