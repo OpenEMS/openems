@@ -840,7 +840,7 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setMainContactor(Boolean value) throws OpenemsNamedException {
+	public default void setMainContactor(boolean value) throws OpenemsNamedException {
 		this.getMainContactorChannel().setNextWriteValue(value);
 	}
 
