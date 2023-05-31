@@ -39,9 +39,6 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
 
 	private final Logger log = LoggerFactory.getLogger(EvcsControllerImpl.class);
-
-	protected final Clock clock;
-
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
 	private Config config;
@@ -65,8 +62,7 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 				Controller.ChannelId.values(), //
 				EvcsController.ChannelId.values() //
 		);
-		this.clock = clock;
-		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(this);
+		this.chargingLowerThanTargetHandler = new ChargingLowerThanTargetHandler(clock);
 	}
 
 	@Activate
