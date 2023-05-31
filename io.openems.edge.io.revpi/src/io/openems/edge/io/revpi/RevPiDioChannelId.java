@@ -4,7 +4,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
 
@@ -31,7 +30,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_1(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT1))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT1)),
 	/**
 	 * Holds writes to ioX/Out2 for debugging.
 	 *
@@ -53,7 +52,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_2(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT2))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT2)),
 	/**
 	 * Holds writes to ioX/Out3 for debugging.
 	 *
@@ -75,7 +74,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_3(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT3))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT3)),
 	/**
 	 * Holds writes to ioX/Out4 for debugging.
 	 *
@@ -97,7 +96,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_4(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT4))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT4)),
 	/**
 	 * Holds writes to ioX/Out5 for debugging.
 	 *
@@ -119,7 +118,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_5(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT5))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT5)),
 	/**
 	 * Holds writes to ioX/Out6 for debugging.
 	 *
@@ -141,7 +140,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_6(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT6))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT6)),
 	/**
 	 * Holds writes to ioX/Out7 for debugging.
 	 *
@@ -163,7 +162,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_7(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT7))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT7)),
 	/**
 	 * Holds writes to ioX/Out8 for debugging.
 	 *
@@ -185,7 +184,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_8(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT8))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT8)),
 	/**
 	 * Holds writes to ioX/Out9 for debugging.
 	 *
@@ -207,7 +206,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_9(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT9))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT9)),
 	/**
 	 * Holds writes to ioX/Out10 for debugging.
 	 *
@@ -229,7 +228,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_10(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT10))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT10)),
 	/**
 	 * Holds writes to ioX/Out11 for debugging.
 	 *
@@ -251,7 +250,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_11(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT11))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT11)),
 	/**
 	 * Holds writes to ioX/Out12 for debugging.
 	 *
@@ -273,7 +272,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_12(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT12))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT12)),
 	/**
 	 * Holds writes to ioX/Out13 for debugging.
 	 *
@@ -295,7 +294,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_13(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT13))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT13)),
 	/**
 	 * Holds writes to ioX/Out14 for debugging.
 	 *
@@ -317,7 +316,7 @@ public enum RevPiDioChannelId implements ChannelId {
 	 */
 	OUT_14(new BooleanDoc() //
 			.accessMode(AccessMode.READ_WRITE) //
-			.onInit(new BooleanWriteChannel.MirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT14))), //
+			.onChannelSetNextWriteMirrorToDebugChannel(RevPiDioChannelId.DEBUG_OUT14)),
 
 	/**
 	 * ioX/In1.

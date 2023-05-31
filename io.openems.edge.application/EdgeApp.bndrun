@@ -68,6 +68,7 @@
 	bnd.identity;id='io.openems.edge.controller.debug.log',\
 	bnd.identity;id='io.openems.edge.controller.ess.acisland',\
 	bnd.identity;id='io.openems.edge.controller.ess.activepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.ess.balancing',\
 	bnd.identity;id='io.openems.edge.controller.ess.cycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
@@ -94,7 +95,6 @@
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
-	bnd.identity;id='io.openems.edge.controller.symmetric.balancing',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.limitactivepower',\
@@ -183,7 +183,7 @@
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.gson;version='[2.10.1,2.10.2)',\
-	com.google.guava;version='[31.1.0,31.1.1)',\
+	com.google.guava;version='[32.0.0,32.0.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.squareup.okio;version='[3.3.0,3.3.1)',\
 	com.sun.jna;version='[5.13.0,5.13.1)',\
@@ -222,6 +222,7 @@
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.ess.acisland;version=snapshot,\
 	io.openems.edge.controller.ess.activepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.ess.balancing;version=snapshot,\
 	io.openems.edge.controller.ess.cycle;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
@@ -248,7 +249,6 @@
 	io.openems.edge.controller.io.heatpump.sgready;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
-	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.symmetric.limitactivepower;version=snapshot,\

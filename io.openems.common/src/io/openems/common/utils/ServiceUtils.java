@@ -44,14 +44,14 @@ public class ServiceUtils {
 	 * Creates a {@link CloseableService} with the given parameters.
 	 * 
 	 * <p>
-	 * Usage: <br> 
+	 * Usage: <br>
 	 * 
 	 * <pre>
-	 * try (var componentManagerService =
-	 * 	    ServiceUtils.useService(bundleContext, ComponentManager.class)) {
-	 *     var componentManager = componentManagerService.getService();
-	 *     // use componentManager here (may be null) ... 
-	 * } catch (Exception e) { }
+	 * try (var componentManagerService = ServiceUtils.useService(bundleContext, ComponentManager.class)) {
+	 * 	var componentManager = componentManagerService.getService();
+	 * 	// use componentManager here (may be null) ...
+	 * } catch (Exception e) {
+	 * }
 	 * </pre>
 	 * 
 	 * @param <T>           the type of the service

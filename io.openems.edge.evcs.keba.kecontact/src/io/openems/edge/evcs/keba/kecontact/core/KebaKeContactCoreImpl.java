@@ -83,6 +83,7 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 			} catch (IOException e) {
 				KebaKeContactCoreImpl.this.log
 						.error("Error while receiving data from KEBA KeContact: " + e.getMessage());
+				return;
 			}
 
 			// Read message

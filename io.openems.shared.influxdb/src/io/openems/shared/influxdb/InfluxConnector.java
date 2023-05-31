@@ -69,7 +69,7 @@ public class InfluxConnector {
 	 * @param isReadOnly    If true, a 'Read-Only-Mode' is activated, where no data
 	 *                      is actually written to the database
 	 * @param poolSize      the number of threads dedicated to handle the tasks
-	 * @param maxQueueSize 	queue size limit for executor
+	 * @param maxQueueSize  queue size limit for executor
 	 * @param onWriteError  A consumer for write-errors
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,

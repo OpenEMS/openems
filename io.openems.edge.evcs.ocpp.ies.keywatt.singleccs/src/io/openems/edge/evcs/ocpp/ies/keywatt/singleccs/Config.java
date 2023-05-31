@@ -28,7 +28,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum power of the charger in Watt.", required = true)
 	int minHwPower() default 2000;
-	
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 

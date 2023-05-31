@@ -11,7 +11,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
@@ -49,7 +48,6 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -76,7 +74,6 @@ public class EvcsControllerImplTest {
 
 		final var test = new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -105,7 +102,6 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -131,7 +127,6 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -154,7 +149,6 @@ public class EvcsControllerImplTest {
 		var cm = new DummyConfigurationAdmin();
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", cm) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -179,11 +173,9 @@ public class EvcsControllerImplTest {
 
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new EvcsControllerImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", componentManager) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //
@@ -233,7 +225,6 @@ public class EvcsControllerImplTest {
 
 		new ControllerTest(new EvcsControllerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("clockProvider", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
 				.activate(MyConfig.create() //

@@ -17,6 +17,7 @@
 ** xref:ui/setup-ide.adoc[Setup IDE]
 ** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]
+** xref:ui/implementing-a-widget.adoc[Implementing a UI Widget]
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]
 ** xref:backend/backend-to-backend.adoc[Backend-to-Backend]
