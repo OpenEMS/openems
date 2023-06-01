@@ -138,7 +138,7 @@ public interface TimerManager extends OpenemsComponent {
      * @return true if the given count has been reached, false else
      */
     public default Timer getTimerByTime(int seconds) {
-	return this.getTimerByTime(null,  seconds, 0);
+	return this.getTimerByTime(null, seconds, 0);
     }
 
     /**
@@ -153,7 +153,7 @@ public interface TimerManager extends OpenemsComponent {
      * @return true if the given count has been reached, false else
      */
     public default Timer getTimerByTime(int seconds, int startDelayInSecs) {
-	return this.getTimerByTime(null,  seconds, startDelayInSecs);
+	return this.getTimerByTime(null, seconds, startDelayInSecs);
     }
 
     /**
@@ -165,7 +165,7 @@ public interface TimerManager extends OpenemsComponent {
      * @return true if the given count has been reached, false else
      */
     public default Timer getTimerByTime(Channel<Integer> channel, int seconds) {
-	return this.getTimerByTime(channel,  seconds, 0);
+	return this.getTimerByTime(channel, seconds, 0);
     }
 
     /**
