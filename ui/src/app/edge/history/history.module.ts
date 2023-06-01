@@ -7,7 +7,7 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common_Module } from './common/module';
+import { Common_Module } from './common/Grid';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
