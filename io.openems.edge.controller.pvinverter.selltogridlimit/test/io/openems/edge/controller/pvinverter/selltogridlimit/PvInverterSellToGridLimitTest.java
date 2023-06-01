@@ -75,7 +75,7 @@ public class PvInverterSellToGridLimitTest {
 	}
 
 	@Test
-	public void asymmetricMeterTest() throws Exception {
+	public void asymmetricElectricityMeterTest() throws Exception {
 		new ControllerTest(new PvInverterSellToGridLimit()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //

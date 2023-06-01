@@ -211,7 +211,7 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent implement
 . Eclipse will underline `ElectricityMeter` and show you the error *ElectricityMeter cannot be resolved to a type*. Resolve it by importing adding an `import io.openems.edge.meter.api.ElectricityMeter;`.
 +
 NOTE: The easiest way to fix these kind of import errors is to to selecto btn:[Source] → btn:[Organize Imports] in the menu or simply press btn:[Ctrl] + btn:[Shift] + btn:[o]. Alternatively click the 'error light bulb' next to the line with the error and select btn:[Import 'ElectricityMeter' (io.openems.edge.meter.api)].
-. Eclipse still complains and now underlines the class name `MeterSimulated` with the error *The type MeterSimulated must implement the inherited abstract method SymmetricMeter.getMeterType()*. Resolve it by adding an implementation of the `getMeterType()` method:
+. Eclipse still complains and now underlines the class name `MeterSimulated` with the error *The type MeterSimulated must implement the inherited abstract method ElectricityMeter.getMeterType()*. Resolve it by adding an implementation of the `getMeterType()` method:
 +
 [source,java]
 ----

@@ -26,7 +26,7 @@ public class PeakshavingTest {
 			"SetActivePowerEquals");
 
 	@Test
-	public void symmetricMeterTest() throws Exception {
+	public void symmetricElectricityMeterTest() throws Exception {
 		new ControllerTest(new PeakShaving()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
@@ -97,7 +97,7 @@ public class PeakshavingTest {
 	}
 
 	@Test
-	public void asymmetricMeterTest() throws Exception {
+	public void asymmetricElectricityMeterTest() throws Exception {
 		new ControllerTest(new PeakShaving()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //

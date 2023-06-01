@@ -416,7 +416,11 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 200) //
+				
+				
+				
+				
 				// TODO sum values
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
