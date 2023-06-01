@@ -422,7 +422,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * Gets the Active Production Energy in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -461,7 +461,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

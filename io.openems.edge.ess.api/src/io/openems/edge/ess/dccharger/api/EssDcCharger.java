@@ -202,7 +202,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Actual Energy in [Wh]. See {@link ChannelId#ACTUAL_ENERGY}.
+	 * Gets the Actual Energy in [Wh_Σ]. See {@link ChannelId#ACTUAL_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

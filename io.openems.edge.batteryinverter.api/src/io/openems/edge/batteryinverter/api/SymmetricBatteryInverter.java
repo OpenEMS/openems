@@ -290,7 +290,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. See
+	 * Gets the Active Charge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -329,7 +329,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. See
+	 * Gets the Active Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

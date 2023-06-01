@@ -673,7 +673,7 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

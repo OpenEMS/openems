@@ -514,7 +514,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case ON_OFF -> //
 			new ChannelDef(DsType.GAUGE, 0, 1, ConsolFun.AVERAGE);
 
-		case CUMULATED_SECONDS, CUMULATED_AMPERE_HOURS, CUMULATED_WATT_HOURS -> //
+		case CUMULATED_SECONDS, CUMULATED_WATT_HOURS -> //
 			new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		};
 	}

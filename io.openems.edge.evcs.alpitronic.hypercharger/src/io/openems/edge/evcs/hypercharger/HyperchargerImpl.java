@@ -81,7 +81,7 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 	private IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
 
 	/**
-	 * Calculates the value for total energy in [Wh].
+	 * Calculates the value for total energy in [Wh_Σ].
 	 * 
 	 * <p>
 	 * Accumulates the energy by calling this.calculateTotalEnergy.update(power);

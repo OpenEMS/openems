@@ -132,7 +132,7 @@ public interface HybridEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the DC Charge Energy in [Wh]. See {@link ChannelId#DC_CHARGE_ENERGY}.
+	 * Gets the DC Charge Energy in [Wh_Σ]. See {@link ChannelId#DC_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -170,7 +170,7 @@ public interface HybridEss extends SymmetricEss {
 	}
 
 	/**
-	 * Gets the DC Discharge Energy in [Wh]. See
+	 * Gets the DC Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#DC_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

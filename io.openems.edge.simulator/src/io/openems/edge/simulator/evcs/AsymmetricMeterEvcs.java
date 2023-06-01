@@ -377,7 +377,7 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * Gets the Active Production Energy in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
