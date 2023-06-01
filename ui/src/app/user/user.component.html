@@ -74,7 +74,7 @@
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
                 [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
+                <ion-label>{{isEditModeDisabled ?'edit':'reset to default'}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
