@@ -5,7 +5,7 @@ export const environment: Environment = {
     ...theme, ...{
 
         backend: 'OpenEMS Edge',
-        url: "ws://" + location.hostname + ":8075",
+        url: "ws://" + location.hostname + ":8085",
 
         production: true,
         debugMode: false
