@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ChannelAddress;
@@ -35,16 +36,21 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
 	private final CircularTreeMap<LocalDateTime, Value<T>> pastValues = new CircularTreeMap<>(NO_OF_PAST_VALUES);
 
-	private volatile Value<T> nextValue = null;
-	private volatile Value<T> activeValue = null;
+	/**
+	 * The 'next' value of the Channel. Copied to 'active' in
+	 * {@link #nextProcessImage()}. Never null.
+	 */
+	private volatile Value<T> nextValue = new Value<>(this, null);
+	/**
+	 * The 'active' value of the Channel. Never null.
+	 */
+	private volatile Value<T> activeValue = new Value<>(this, null);
 
 	protected AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, D channelDoc) {
 		this.type = type;
 		this.parent = parent;
 		this.channelId = channelId;
 		this.channelDoc = channelDoc;
-		this.nextValue = new Value<>(this, null);
-		this.activeValue = new Value<>(this, null);
 
 		// validate Type
 		if (!this.validateType(channelDoc.getType(), type)) {
@@ -99,22 +105,23 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
+		var oldValue = this.activeValue;
+		var newValue = this.nextValue;
 		try {
-			var oldValue = this.activeValue;
-			final boolean valueHasChanged;
-			if (oldValue == null && this.nextValue == null) {
-				valueHasChanged = false;
-			} else if (oldValue == null || this.nextValue == null) {
-				valueHasChanged = true;
-			} else {
-				valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
+
+			// Copy 'next' value to 'active' value
+			this.activeValue = newValue;
+
+			// Always -> call 'onUpdate' callbacks
+			this.onUpdateCallbacks.forEach(callback -> callback.accept(newValue));
+
+			// If value has changed -> call 'onChange' callbacks
+			if (!Objects.equals(oldValue.get(), newValue.get())) {
+				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, newValue));
 			}
-			this.activeValue = this.nextValue;
-			this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
-			if (valueHasChanged) {
-				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
-			}
-			this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
+
+			// Additionally store value in 'pastValues'
+			this.pastValues.put(this.activeValue.getTimestamp(), newValue);
 
 		} catch (RuntimeException e) {
 			this.log.error("Error while updating process image for [" + this.address() + "]: " + e.getMessage());
@@ -134,12 +141,27 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
+	 * 
+	 * <p>
+	 * If the {@link Unit} of the Channel is cumulated and 'value' is null, it is
+	 * silently ignored. Cumulated values must be steadily increasing and should
+	 * never get reset to null. See {@link Unit}.
 	 *
 	 * @param value the next value
 	 */
 	@Override
 	@Deprecated
 	public void _setNextValue(T value) {
+		if (this.channelDoc.getUnit().isCumulated() && this.activeValue.isDefined() && value == null) {
+			// Channel has CUMULATED Unit, currently holds a valid value and next value is
+			// 'null' -> ignore change to make sure the value is 'steadily increasing'.
+			if (this.channelDoc.isDebug()) {
+				this.log.info(
+						"Ignoring next value for [" + this.address() + "]: Channel is Cumulated and value is null");
+			}
+			return;
+		}
+
 		this.nextValue = new Value<>(this, value);
 		if (this.channelDoc.isDebug()) {
 			this.log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());

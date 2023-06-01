@@ -130,9 +130,9 @@ public interface EssFeneconCommercial40
 		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		AC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		AC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -185,9 +185,9 @@ public interface EssFeneconCommercial40
 				.unit(Unit.MILLIAMPERE)), //
 		BATTERY_STRING_CYCLES(Doc.of(OpenemsType.INTEGER)), //
 		BATTERY_STRING_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_STRING_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_STRING_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_STRING_MAX_CELL_VOLTAGE_NO(Doc.of(OpenemsType.INTEGER)), //
