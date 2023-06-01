@@ -5,6 +5,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -521,7 +522,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						m(Sinexcel.ChannelId.COS_PHI_L2, new SignedWordElement(120), SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.COS_PHI_L3, new SignedWordElement(121), SCALE_FACTOR_MINUS_2), //
 						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(122),
-								ElementToChannelConverter.chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
+								chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
 								SCALE_FACTOR_1), //
 						m(Sinexcel.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
