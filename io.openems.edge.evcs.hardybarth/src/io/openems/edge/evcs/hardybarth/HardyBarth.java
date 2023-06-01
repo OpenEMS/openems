@@ -99,9 +99,9 @@ public interface HardyBarth {
 				"ac", "l3", "actual"), //
 
 		// METERING - ENERGY
-		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(OpenemsType.DOUBLE).unit(Unit.WATT_HOURS), "secc", "port0", "metering", "energy",
+		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(OpenemsType.DOUBLE).unit(Unit.CUMULATED_WATT_HOURS), "secc", "port0", "metering", "energy",
 				"active_total", "actual"), //
-		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(OpenemsType.DOUBLE).unit(Unit.WATT_HOURS), "secc", "port0", "metering",
+		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(OpenemsType.DOUBLE).unit(Unit.CUMULATED_WATT_HOURS), "secc", "port0", "metering",
 				"energy", "active_export", "actual"), //
 
 		// EMERGENCY SHUTDOWN

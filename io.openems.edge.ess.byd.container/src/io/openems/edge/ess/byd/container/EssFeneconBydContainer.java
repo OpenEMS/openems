@@ -1,5 +1,8 @@
 package io.openems.edge.ess.byd.container;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,7 +23,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -591,24 +593,15 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				m(EssFeneconBydContainer.ChannelId.PCS_CHARGE_LIMIT_ACTIVE_POWER, new SignedWordElement(0x1007)),
 				m(EssFeneconBydContainer.ChannelId.POSITIVE_REACTIVE_POWER_LIMIT, new UnsignedWordElement(0x1008)),
 				m(EssFeneconBydContainer.ChannelId.NEGATIVE_REACTIVE_POWER_LIMIT, new SignedWordElement(0x1009)),
-				m(EssFeneconBydContainer.ChannelId.CURRENT_L1, new SignedWordElement(0x100A),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012),
-						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L1, new SignedWordElement(0x100A), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L2, new SignedWordElement(0x100B), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.CURRENT_L3, new SignedWordElement(0x100C), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x100D), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x100E), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x100F), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L12, new UnsignedWordElement(0x1010), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L23, new UnsignedWordElement(0x1011), SCALE_FACTOR_2),
+				m(EssFeneconBydContainer.ChannelId.VOLTAGE_L31, new UnsignedWordElement(0x1012), SCALE_FACTOR_2),
 				m(EssFeneconBydContainer.ChannelId.SYSTEM_FREQUENCY, new UnsignedWordElement(0x1013)),
 				m(EssFeneconBydContainer.ChannelId.DC_VOLTAGE, new SignedWordElement(0x1014)),
 				m(EssFeneconBydContainer.ChannelId.DC_CURRENT, new SignedWordElement(0x1015)),
@@ -943,16 +936,12 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 				// RTU registers
 				m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKSTATE, new UnsignedWordElement(0x38A0)),
 				m(EssFeneconBydContainer.ChannelId.SYSTEM_WORKMODE, new UnsignedWordElement(0x38A1)),
-				m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(0x38A2),
-						ElementToChannelConverter.SCALE_FACTOR_3),
-				m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(0x38A3),
-						ElementToChannelConverter.SCALE_FACTOR_3),
+				m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new SignedWordElement(0x38A2), SCALE_FACTOR_3),
+				m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new SignedWordElement(0x38A3), SCALE_FACTOR_3),
 				m(EssFeneconBydContainer.ChannelId.LIMIT_INDUCTIVE_REACTIVE_POWER, new SignedWordElement(0x38A4)),
 				m(EssFeneconBydContainer.ChannelId.LIMIT_CAPACITIVE_REACTIVE_POWER, new SignedWordElement(0x38A5)),
-				m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x38A6),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x38A7),
-						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(0x38A6), SCALE_FACTOR_2),
+				m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(0x38A7), SCALE_FACTOR_2),
 				m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(0x38A8)),
 				m(EssFeneconBydContainer.ChannelId.CONTAINER_RUN_NUMBER, new UnsignedWordElement(0x38A9))),
 				new FC16WriteRegistersTask(0x0500,

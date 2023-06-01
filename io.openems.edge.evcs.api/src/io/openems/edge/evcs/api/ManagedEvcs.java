@@ -670,7 +670,7 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
-	 * Gets the energy limit for the current or next session in [Wh].. See
+	 * Gets the energy limit for the current or next session in [Wh]. See
 	 * {@link ChannelId#SET_ENERGY_LIMIT}.
 	 *
 	 * @return the Channel {@link Value}

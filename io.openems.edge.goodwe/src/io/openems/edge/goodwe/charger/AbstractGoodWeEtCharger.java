@@ -1,12 +1,13 @@
 package io.openems.edge.goodwe.charger;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -46,9 +47,8 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.VOLTAGE, new UnsignedWordElement(startAddress), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(EssDcCharger.ChannelId.CURRENT, new UnsignedWordElement(startAddress + 1),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2), //
+						m(EssDcCharger.ChannelId.CURRENT, new UnsignedWordElement(startAddress + 1), SCALE_FACTOR_2),
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
 	}
 

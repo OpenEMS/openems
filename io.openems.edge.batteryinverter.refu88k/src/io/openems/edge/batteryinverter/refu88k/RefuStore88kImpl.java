@@ -1,5 +1,11 @@
 package io.openems.edge.batteryinverter.refu88k;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,7 +35,6 @@ import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine;
 import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -237,56 +242,56 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.ID_103, new UnsignedWordElement(SUNSPEC_103)), // 40070
 						m(RefuStore88kChannelId.L_103, new UnsignedWordElement(SUNSPEC_103 + 1)), // 40071
 						m(RefuStore88kChannelId.A, new UnsignedWordElement(SUNSPEC_103 + 2), // 40072
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.APH_A, new UnsignedWordElement(SUNSPEC_103 + 3), // 40073
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.APH_B, new UnsignedWordElement(SUNSPEC_103 + 4), // 40074
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.APH_C, new UnsignedWordElement(SUNSPEC_103 + 5), // 40075
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.A_SF, new UnsignedWordElement(SUNSPEC_103 + 6)), // 40076
 						m(RefuStore88kChannelId.PP_VPH_AB, new UnsignedWordElement(SUNSPEC_103 + 7), // 40077
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.PP_VPH_BC, new UnsignedWordElement(SUNSPEC_103 + 8), // 40078
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.PP_VPH_CA, new UnsignedWordElement(SUNSPEC_103 + 9), // 40079
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.PH_VPH_A, new UnsignedWordElement(SUNSPEC_103 + 10), // 40080
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.PH_VPH_B, new UnsignedWordElement(SUNSPEC_103 + 11), // 40081
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.PH_VPH_C, new UnsignedWordElement(SUNSPEC_103 + 12), // 40082
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.V_SF, new UnsignedWordElement(SUNSPEC_103 + 13)), // 40083
 						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 14), // 40084
-								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.W//
+								SCALE_FACTOR_1), // REFUStore88KChannelId.W//
 						m(RefuStore88kChannelId.W_SF, new SignedWordElement(SUNSPEC_103 + 15)), // 40085
 						m(RefuStore88kChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.HZ_SF, new SignedWordElement(SUNSPEC_103 + 17)), // 40087
 						m(RefuStore88kChannelId.VA, new SignedWordElement(SUNSPEC_103 + 18), // 40088
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090
-								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.VA_R
+								SCALE_FACTOR_1), // REFUStore88KChannelId.VA_R
 						m(RefuStore88kChannelId.VA_R_SF, new SignedWordElement(SUNSPEC_103 + 21)), // 40091
 						new DummyRegisterElement(SUNSPEC_103 + 22, SUNSPEC_103 + 23),
 						m(RefuStore88kChannelId.WH, new UnsignedDoublewordElement(SUNSPEC_103 + 24), // 40094
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(RefuStore88kChannelId.WH_SF, new UnsignedWordElement(SUNSPEC_103 + 26)), // 40096
 						m(RefuStore88kChannelId.DCA, new SignedWordElement(SUNSPEC_103 + 27), // 40097
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.DCA_SF, new UnsignedWordElement(SUNSPEC_103 + 28)), // 40098
 						m(RefuStore88kChannelId.DCV, new UnsignedWordElement(SUNSPEC_103 + 29), // 40099
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.DCV_SF, new UnsignedWordElement(SUNSPEC_103 + 30)), // 40100
 						m(RefuStore88kChannelId.DCW, new SignedWordElement(SUNSPEC_103 + 31), // 40101
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.DCW_SF, new SignedWordElement(SUNSPEC_103 + 32)), // 40102
 						m(RefuStore88kChannelId.TMP_CAB, new SignedWordElement(SUNSPEC_103 + 33), // 40103
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.TMP_SNK, new SignedWordElement(SUNSPEC_103 + 34), // 40104
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(SUNSPEC_103 + 35, SUNSPEC_103 + 36),
 						m(RefuStore88kChannelId.TMP_SF, new UnsignedWordElement(SUNSPEC_103 + 37)), // 40107
 						m(RefuStore88kChannelId.ST, new UnsignedWordElement(SUNSPEC_103 + 38)), // 40108
@@ -324,34 +329,33 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 						m(RefuStore88kChannelId.L_120, new UnsignedWordElement(SUNSPEC_120 + 1)), // 40123
 						m(RefuStore88kChannelId.DER_TYP, new UnsignedWordElement(SUNSPEC_120 + 2)), // 40124
 						m(RefuStore88kChannelId.W_RTG, new UnsignedWordElement(SUNSPEC_120 + 3), // 40125
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.W_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 4)), // 40126
 
 						m(new UnsignedWordElement(SUNSPEC_120 + 5))
-								.m(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1)
-								.m(RefuStore88kChannelId.VA_RTG, ElementToChannelConverter.SCALE_FACTOR_1).build(),
+								.m(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER, SCALE_FACTOR_1)
+								.m(RefuStore88kChannelId.VA_RTG, SCALE_FACTOR_1).build(),
 						m(RefuStore88kChannelId.VA_RTG_SF, new UnsignedWordElement(SUNSPEC_120 + 6)), // 40128
 						m(RefuStore88kChannelId.VAR_RTG_Q1, new SignedWordElement(SUNSPEC_120 + 7), // 40129
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VAR_RTG_Q2, new SignedWordElement(SUNSPEC_120 + 8), // 40130
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VAR_RTG_Q3, new SignedWordElement(SUNSPEC_120 + 9), // 40131
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VAR_RTG_Q4, new SignedWordElement(SUNSPEC_120 + 10), // 40132
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VAR_RTG_SF, new SignedWordElement(SUNSPEC_120 + 11)), // 40133
 						m(RefuStore88kChannelId.A_RTG, new UnsignedWordElement(SUNSPEC_120 + 12), // 40134
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.A_RTG_SF, new SignedWordElement(SUNSPEC_120 + 13)), // 40135
 						m(RefuStore88kChannelId.PF_RTG_Q1, new SignedWordElement(SUNSPEC_120 + 14), // 40136
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3),
 						m(RefuStore88kChannelId.PF_RTG_Q2, new SignedWordElement(SUNSPEC_120 + 15), // 40137
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3),
 						m(RefuStore88kChannelId.PF_RTG_Q3, new SignedWordElement(SUNSPEC_120 + 16), // 40138
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3),
 						m(RefuStore88kChannelId.PF_RTG_Q4, new SignedWordElement(SUNSPEC_120 + 17), // 40139
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3),
 						m(RefuStore88kChannelId.PF_RTG_SF, new SignedWordElement(SUNSPEC_120 + 18)), // 40140
 						new DummyRegisterElement(SUNSPEC_120 + 19, SUNSPEC_120 + 26),
 						m(RefuStore88kChannelId.PAD_120, new SignedWordElement(SUNSPEC_120 + 27))), // 40149
@@ -366,11 +370,11 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 				new FC16WriteRegistersTask(SUNSPEC_121 + 2, //
 						m(RefuStore88kChannelId.W_MAX, new UnsignedWordElement(SUNSPEC_121 + 2), // 40152
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.V_REF, new UnsignedWordElement(SUNSPEC_121 + 3), // 40153
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.V_REF_OFS, new UnsignedWordElement(SUNSPEC_121 + 4), // 40154
-								ElementToChannelConverter.SCALE_FACTOR_1)),
+								SCALE_FACTOR_1)),
 
 				new FC3ReadRegistersTask(SUNSPEC_123, Priority.LOW, //
 						m(RefuStore88kChannelId.ID_123, new UnsignedWordElement(SUNSPEC_123)), // 40182
@@ -387,12 +391,12 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 				new FC16WriteRegistersTask(SUNSPEC_123 + 9, //
 						m(RefuStore88kChannelId.W_MAX_LIM_ENA, new UnsignedWordElement(SUNSPEC_123 + 9)), // 40191
 						m(RefuStore88kChannelId.OUT_PF_SET, new SignedWordElement(SUNSPEC_123 + 10), // 40192
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 
 				new FC16WriteRegistersTask(SUNSPEC_123 + 14, //
 						m(RefuStore88kChannelId.OUT_PF_SET_ENA, new UnsignedWordElement(SUNSPEC_123 + 14)), // 40196
 						m(RefuStore88kChannelId.VAR_W_MAX_PCT, new SignedWordElement(SUNSPEC_123 + 15), // 40197
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1)),
 
 				new FC16WriteRegistersTask(SUNSPEC_123 + 22, //
 						m(RefuStore88kChannelId.VAR_PCT_ENA, new UnsignedWordElement(SUNSPEC_123 + 22))), // 40204
@@ -435,9 +439,9 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 				new FC16WriteRegistersTask(SUNSPEC_64800 + 6, //
 						m(RefuStore88kChannelId.PCS_SET_OPERATION, new SignedWordElement(SUNSPEC_64800 + 6)), // 40231
 						m(RefuStore88kChannelId.MAX_BAT_A_CHA, new UnsignedWordElement(SUNSPEC_64800 + 7), // 40232
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.MAX_BAT_A_DISCHA, new UnsignedWordElement(SUNSPEC_64800 + 8), // 40233
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(RefuStore88kChannelId.MAX_A, new UnsignedWordElement(SUNSPEC_64800 + 9)), // 40234
 						m(RefuStore88kChannelId.MAX_A_CUR, new UnsignedWordElement(SUNSPEC_64800 + 10)), // 40235
 						m(RefuStore88kChannelId.MAX_BAT_A_SF, new SignedWordElement(SUNSPEC_64800 + 11)), // 40236
