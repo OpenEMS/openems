@@ -1,12 +1,12 @@
 <oe-flat-widget [title]="'General.production' | translate" [icon]="{name: 'oe-production', color: 'production'}" (click)="presentModal()">
-  <ng-container *ngFor="let component of productionMeterComponents, let i = index">
-    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
-      [converter]="CONVERT_WATT_TO_KILOWATT">
-    </oe-flat-widget-line>
-  </ng-container>
-  <ng-container *ngFor="let component of chargerComponents">
-    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActualPower'"
-      [converter]="CONVERT_WATT_TO_KILOWATT">
-    </oe-flat-widget-line>
-  </ng-container>
+    <ng-container *ngFor="let component of productionMeterComponents, let i = index">
+        <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
+            [converter]="CONVERT_WATT_TO_KILOWATT">
+        </oe-flat-widget-line>
+    </ng-container>
+    <ng-container *ngFor="let component of chargerComponents">
+        <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActualPower'"
+            [converter]="CONVERT_WATT_TO_KILOWATT">
+        </oe-flat-widget-line>
+    </ng-container>
 </oe-flat-widget>

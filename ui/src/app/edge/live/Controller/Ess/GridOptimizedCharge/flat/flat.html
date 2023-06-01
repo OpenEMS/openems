@@ -1,36 +1,36 @@
-<oe-flat-widget [title]="component.alias" button (click)="presentModal()"
-  [icon]="{name: 'oe-grid-storage', color: 'dark'}" *ngIf="isInitialized">
+<oe-flat-widget [title]="component.alias" button (click)="presentModal()" [icon]="{name: 'oe-grid-storage', color: 'dark'}"
+    *ngIf="isInitialized">
 
-  <!--Selected mode-->
-  <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"
-    [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
+    <!--Selected mode-->
+    <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"
+        [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
 
-  <ng-container *ngIf="mode !== 'OFF'">
+    <ng-container *ngIf="mode !== 'OFF'">
 
-    <!--SellToGridLimit - Grid feed in limitation is avoided-->
-    <ng-container *ngIf="isSellToGridLimitAvoided, else sellToGridLimitNotActiveTemp">
-      <oe-flat-widget-line leftColumnWidth="20" [name]="'General.state' | translate"
-        [value]="'Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided' | translate">
-      </oe-flat-widget-line>
+        <!--SellToGridLimit - Grid feed in limitation is avoided-->
+        <ng-container *ngIf="isSellToGridLimitAvoided, else sellToGridLimitNotActiveTemp">
+            <oe-flat-widget-line leftColumnWidth="20" [name]="'General.state' | translate"
+                [value]="'Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided' | translate">
+            </oe-flat-widget-line>
 
-      <!--Minimum charge limit - negative are not shown-->
-      <oe-flat-widget-line *ngIf="sellToGridLimitMinimumChargeLimit > 0"
-        [name]="'Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="sellToGridLimitMinimumChargeLimit">
-      </oe-flat-widget-line>
+            <!--Minimum charge limit - negative are not shown-->
+            <oe-flat-widget-line *ngIf="sellToGridLimitMinimumChargeLimit > 0"
+                [name]="'Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'| translate"
+                [converter]="CONVERT_WATT_TO_KILOWATT" [value]="sellToGridLimitMinimumChargeLimit">
+            </oe-flat-widget-line>
+        </ng-container>
+
+        <!--DelayCharge State-->
+        <ng-template #sellToGridLimitNotActiveTemp>
+            <oe-flat-widget-line leftColumnWidth="20" [name]="'General.state' | translate" [value]="state">
+            </oe-flat-widget-line>
+
+            <!--DelayCharge maximum charge limit-->
+            <oe-flat-widget-line *ngIf="delayChargeMaximumChargeLimit !== null"
+                [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumCharge' | translate"
+                [converter]="CONVERT_WATT_TO_KILOWATT" [value]="delayChargeMaximumChargeLimit">
+            </oe-flat-widget-line>
+        </ng-template>
+
     </ng-container>
-
-    <!--DelayCharge State-->
-    <ng-template #sellToGridLimitNotActiveTemp>
-      <oe-flat-widget-line leftColumnWidth="20" [name]="'General.state' | translate" [value]="state">
-      </oe-flat-widget-line>
-
-      <!--DelayCharge maximum charge limit-->
-      <oe-flat-widget-line *ngIf="delayChargeMaximumChargeLimit !== null"
-        [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumCharge' | translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="delayChargeMaximumChargeLimit">
-      </oe-flat-widget-line>
-    </ng-template>
-
-  </ng-container>
 </oe-flat-widget>
