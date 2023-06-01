@@ -24,25 +24,25 @@ public enum WeidmuellerChannelId implements io.openems.edge.common.channel.Chann
 	COSPHI_L3(Doc.of(OpenemsType.INTEGER)), //
 	ROTATION_FIELD(Doc.of(RotationField.values())), //
 	REAL_ENERGY_L1(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L2(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L1_L3(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L1_CONSUMED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L2_CONSUMED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L3_CONSUMED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L1_DELIVERED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L2_DELIVERED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	REAL_ENERGY_L3_DELIVERED(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.WATT_HOURS)), //
+			.unit(Unit.CUMULATED_WATT_HOURS)), //
 	APPARENT_ENERGY_L1(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.VOLT_AMPERE_HOURS)), //
 	APPARENT_ENERGY_L2(Doc.of(OpenemsType.INTEGER) //

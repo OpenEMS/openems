@@ -52,7 +52,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
@@ -65,7 +65,7 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH) //
 		);
 

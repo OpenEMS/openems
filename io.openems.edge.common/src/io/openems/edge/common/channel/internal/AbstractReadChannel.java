@@ -139,14 +139,16 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * <p>
 	 * If the {@link Unit} of the Channel is cumulated and 'value' is null, it is
 	 * silently ignored. Cumulated values must be steadily increasing and should
-	 * never get reset to null.
+	 * never get reset to null. See {@link Unit}.
 	 *
 	 * @param value the next value
 	 */
 	@Override
 	@Deprecated
 	public void _setNextValue(T value) {
-		if (this.channelDoc.getUnit().isCumulated() && value == null) {
+		if (this.channelDoc.getUnit().isCumulated() && this.activeValue.isDefined() && value == null) {
+			// Channel has CUMULATED Unit, currently holds a valid value and next value is
+			// 'null' -> ignore change to make sure the value is 'steadily increasing'.
 			if (this.channelDoc.isDebug()) {
 				this.log.info(
 						"Ignoring next value for [" + this.address() + "]: Channel is Cumulated and value is null");

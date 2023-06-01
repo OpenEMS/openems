@@ -499,53 +499,24 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 * @return the {@link DsDef}
 	 */
 	private ChannelDef getDsDefForChannel(Unit channelUnit) {
-		switch (channelUnit) {
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROOHM:
-		case MICROAMPERE:
-		case MICROVOLT:
-		case MILLIAMPERE_HOURS:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case WATT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT_HOURS_BY_WATT_PEAK:
-		case OHM:
-		case SECONDS:
-		case THOUSANDTH:
-			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.AVERAGE);
-		case PERCENT:
-			return new ChannelDef(DsType.GAUGE, 0, 100, ConsolFun.AVERAGE);
-		case ON_OFF:
-			return new ChannelDef(DsType.GAUGE, 0, 1, ConsolFun.AVERAGE);
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
-		}
-		throw new IllegalArgumentException("Unhandled Channel unit [" + channelUnit + "]");
+		return switch (channelUnit) {
+		case AMPERE, AMPERE_HOURS, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, EUROS_PER_MEGAWATT_HOUR, HERTZ, HOUR,
+				KILOAMPERE_HOURS, KILOOHM, KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOWATT, MICROOHM, MICROAMPERE,
+				MICROVOLT, MILLIAMPERE_HOURS, MILLIAMPERE, MILLIHERTZ, MILLIOHM, MILLISECONDS, MILLIVOLT, MILLIWATT,
+				MINUTE, NONE, WATT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT_HOURS_BY_WATT_PEAK, OHM, SECONDS,
+				THOUSANDTH, WATT_HOURS, KILOWATT_HOURS, VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS,
+				KILOVOLT_AMPERE_REACTIVE_HOURS -> //
+			new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.AVERAGE);
+
+		case PERCENT -> //
+			new ChannelDef(DsType.GAUGE, 0, 100, ConsolFun.AVERAGE);
+
+		case ON_OFF -> //
+			new ChannelDef(DsType.GAUGE, 0, 1, ConsolFun.AVERAGE);
+
+		case CUMULATED_SECONDS, CUMULATED_AMPERE_HOURS, CUMULATED_WATT_HOURS -> //
+			new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
+		};
 	}
 
 	/**

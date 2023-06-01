@@ -690,10 +690,10 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 									Unit.MICROVOLT), new SignedDoublewordElement(towerOffset + 82),
 									SCALE_FACTOR_MINUS_2), //
 							m(generateTowerChannel(this, towerNum, "TOTAL_CHARGE_CAPACITY_WH", OpenemsType.LONG,
-									Unit.WATT_HOURS),
+									Unit.CUMULATED_WATT_HOURS),
 									new SignedQuadruplewordElement(towerOffset + 84).wordOrder(LSWMSW)), //
 							m(generateTowerChannel(this, towerNum, "TOTAL_DISCHARGE_CAPACITY_WH", OpenemsType.LONG,
-									Unit.WATT_HOURS),
+									Unit.CUMULATED_WATT_HOURS),
 									new SignedQuadruplewordElement(towerOffset + 88).wordOrder(LSWMSW)), //
 							m(generateTowerChannel(this, towerNum, "SLAVE_MAP", OpenemsType.LONG, Unit.NONE),
 									new UnsignedDoublewordElement(towerOffset + 92)), //

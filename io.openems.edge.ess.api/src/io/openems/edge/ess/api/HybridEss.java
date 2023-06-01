@@ -51,7 +51,7 @@ public interface HybridEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * DC Discharge Energy.
@@ -63,7 +63,7 @@ public interface HybridEss extends SymmetricEss {
 		 * </ul>
 		 */
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
