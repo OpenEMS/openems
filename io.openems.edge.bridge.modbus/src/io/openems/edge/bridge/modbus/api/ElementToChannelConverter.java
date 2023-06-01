@@ -101,25 +101,29 @@ public class ElementToChannelConverter {
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and
 	 * CONVERT_NEGATIVE_AND_INVERT.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_NEGATIVE_AND_INVERT = chain(SCALE_FACTOR_1, KEEP_NEGATIVE_AND_INVERT);
+	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_NEGATIVE_AND_INVERT = chain(SCALE_FACTOR_1,
+			KEEP_NEGATIVE_AND_INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and
 	 * CONVERT_POSITIVE.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_POSITIVE = chain(SCALE_FACTOR_2, KEEP_POSITIVE);
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_POSITIVE = chain(SCALE_FACTOR_2,
+			KEEP_POSITIVE);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and @see
 	 * {@link ElementToChannelConverter#KEEP_NEGATIVE_AND_INVERT}.
 	 */
-	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT = chain(SCALE_FACTOR_2, KEEP_NEGATIVE_AND_INVERT);
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT = chain(SCALE_FACTOR_2,
+			KEEP_NEGATIVE_AND_INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2_AND_KEEP_NEGATIVE}
 	 * and @see {@link ElementToChannelConverter#INVERT}.
 	 */
-	public static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = chain(SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
+	public static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = chain(
+			SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and INVERT_IF_TRUE.

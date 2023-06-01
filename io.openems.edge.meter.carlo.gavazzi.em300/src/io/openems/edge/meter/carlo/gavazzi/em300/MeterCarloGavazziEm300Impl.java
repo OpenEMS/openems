@@ -1,5 +1,7 @@
 package io.openems.edge.meter.carlo.gavazzi.em300;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -118,23 +120,24 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(300001 - offset, Priority.LOW, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
 								new SignedDoublewordElement(300001 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
 								new SignedDoublewordElement(300003 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
-								new SignedDoublewordElement(300005 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
+								new SignedDoublewordElement(300005 - offset)
+										.wordOrder(WordOrder.LSWMSW),
+								SCALE_FACTOR_2)),
 				new FC4ReadInputRegistersTask(300013 - offset, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1,
 								new SignedDoublewordElement(300013 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2,
 								new SignedDoublewordElement(300015 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3,
 								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
 								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
@@ -186,15 +189,14 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
 
 				new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset), SCALE_FACTOR_2),
 						m(energyChannelId300053,
 								new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						new DummyRegisterElement(300055 - offset, 300078 - offset), //
 						m(energyChannelId300079,
 								new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
+								SCALE_FACTOR_2)));
 	}
 
 	@Override

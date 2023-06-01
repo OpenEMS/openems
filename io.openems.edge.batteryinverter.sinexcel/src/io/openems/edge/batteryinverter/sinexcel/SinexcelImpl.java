@@ -1,5 +1,11 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -494,89 +500,53 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(101, Priority.HIGH, //
-						m(Sinexcel.ChannelId.GRID_VOLTAGE_L1, new SignedWordElement(101),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.GRID_VOLTAGE_L2, new SignedWordElement(102),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.GRID_VOLTAGE_L3, new SignedWordElement(103),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.GRID_CURRENT_L1, new SignedWordElement(104),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.GRID_CURRENT_L2, new SignedWordElement(105),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.GRID_CURRENT_L3, new SignedWordElement(106),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.FREQUENCY, new SignedWordElement(107),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.GRID_VOLTAGE_L1, new SignedWordElement(101), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.GRID_VOLTAGE_L2, new SignedWordElement(102), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.GRID_VOLTAGE_L3, new SignedWordElement(103), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.GRID_CURRENT_L1, new SignedWordElement(104), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.GRID_CURRENT_L2, new SignedWordElement(105), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.GRID_CURRENT_L3, new SignedWordElement(106), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.FREQUENCY, new SignedWordElement(107), SCALE_FACTOR_1), //
 						new DummyRegisterElement(108, 109),
-						m(Sinexcel.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(110),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(111),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(112),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(113),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(114),
-								ElementToChannelConverter.SCALE_FACTOR_1), // fems
-						m(Sinexcel.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(115),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.APPERENT_POWER_L1, new SignedWordElement(116),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.APPERENT_POWER_L2, new SignedWordElement(117),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.APPERENT_POWER_L3, new SignedWordElement(118),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.COS_PHI_L1, new SignedWordElement(119),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.COS_PHI_L2, new SignedWordElement(120),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.COS_PHI_L3, new SignedWordElement(121),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(110), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(111), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(112), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(113), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(114), SCALE_FACTOR_1), // fems
+						m(Sinexcel.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(115), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.APPERENT_POWER_L1, new SignedWordElement(116), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.APPERENT_POWER_L2, new SignedWordElement(117), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.APPERENT_POWER_L3, new SignedWordElement(118), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.COS_PHI_L1, new SignedWordElement(119), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.COS_PHI_L2, new SignedWordElement(120), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.COS_PHI_L3, new SignedWordElement(121), SCALE_FACTOR_MINUS_2), //
 						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(122),
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_1,
-										IGNORE_LESS_THAN_100)), //
+								ElementToChannelConverter.chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.APPARENT_POWER, new SignedWordElement(124),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.COS_PHI, new SignedWordElement(125),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.COS_PHI, new SignedWordElement(125), SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(126, 131), //
 						m(Sinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //
-						m(Sinexcel.ChannelId.DC_VOLTAGE_POSITIVE, new SignedWordElement(133),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.DC_VOLTAGE_NEGATIVE, new SignedWordElement(134),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(136),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.SET_OFF_GRID_VOLTAGE, new SignedWordElement(137),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.SET_OFF_GRID_FREQUENCY, new SignedWordElement(138),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.DC_VOLTAGE_POSITIVE, new SignedWordElement(133), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_VOLTAGE_NEGATIVE, new SignedWordElement(134), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(136), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.SET_OFF_GRID_VOLTAGE, new SignedWordElement(137), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.SET_OFF_GRID_FREQUENCY, new SignedWordElement(138), SCALE_FACTOR_1), //
 						new DummyRegisterElement(139, 140),
-						m(Sinexcel.ChannelId.DC_POWER, new SignedWordElement(141),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(Sinexcel.ChannelId.DC_VOLTAGE, new SignedWordElement(142),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.DC_CURRENT, new SignedWordElement(143),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.DC_CHARGE_ENERGY, new UnsignedDoublewordElement(144),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(146),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_POWER, new SignedWordElement(141), SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.DC_VOLTAGE, new SignedWordElement(142), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_CURRENT, new SignedWordElement(143), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_CHARGE_ENERGY, new UnsignedDoublewordElement(144), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_DISCHARGE_ENERGY, new UnsignedDoublewordElement(146), SCALE_FACTOR_2), //
 						m(Sinexcel.ChannelId.TEMPERATURE_OF_DC_DC_HEAT_SINK, new SignedWordElement(148)) //
 				),
 
 				new FC3ReadRegistersTask(224, Priority.LOW, //
-						m(Sinexcel.ChannelId.DC_RELAY_REAR_END_VOLTAGE, new SignedWordElement(224),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT_READ, new UnsignedWordElement(225),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT_READ, new UnsignedWordElement(226),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DC_RELAY_REAR_END_VOLTAGE, new SignedWordElement(224), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT_READ, new UnsignedWordElement(225), SCALE_FACTOR_2), //
+						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT_READ, new UnsignedWordElement(226), SCALE_FACTOR_2), //
 						new DummyRegisterElement(227, 299),
 						m(Sinexcel.ChannelId.IP_ADDRESS_BLOCK_1, new UnsignedWordElement(300)), //
 						m(Sinexcel.ChannelId.IP_ADDRESS_BLOCK_2, new UnsignedWordElement(301)), //
@@ -674,22 +644,16 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						m(Sinexcel.ChannelId.START_UP_MODE, new UnsignedWordElement(805)), //
 						new DummyRegisterElement(806),
 						m(Sinexcel.ChannelId.LOCAL_ID_SETTING, new SignedWordElement(807)), //
-						m(Sinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE, new SignedWordElement(808),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Sinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE, new SignedWordElement(809),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE, new SignedWordElement(808), SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE, new SignedWordElement(809), SCALE_FACTOR_MINUS_1), //
 						m(Sinexcel.ChannelId.CURRENT_FROM_TOPPING_CHARGING_TO_FLOAT_CHARGING,
-								new SignedWordElement(810), ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(811),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(812),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Sinexcel.ChannelId.DISCHARGE_MIN_VOLTAGE, new SignedWordElement(813),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(Sinexcel.ChannelId.CHARGE_MAX_VOLTAGE, new SignedWordElement(814),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								new SignedWordElement(810), SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(811), SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(812), SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.DISCHARGE_MIN_VOLTAGE, new SignedWordElement(813), SCALE_FACTOR_MINUS_1), //
+						m(Sinexcel.ChannelId.CHARGE_MAX_VOLTAGE, new SignedWordElement(814), SCALE_FACTOR_MINUS_1), //
 						m(Sinexcel.ChannelId.BATTERY_VOLTAGE_PROTECTION_LIMIT, new UnsignedWordElement(815),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								SCALE_FACTOR_MINUS_1) //
 
 				),
 
@@ -730,26 +694,21 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(873, 875),
 						m(Sinexcel.ChannelId.SOFT_START_RAMP_RATE, new SignedWordElement(876)), //
 						m(Sinexcel.ChannelId.POWER_RAMP_RATE, new SignedWordElement(877)), //
-						m(Sinexcel.ChannelId.POWER_FACTOR_SETTING, new SignedWordElement(878),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.POWER_FACTOR_P1, new SignedWordElement(879),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.POWER_FACTOR_P2, new SignedWordElement(880),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.POWER_FACTOR_P3, new SignedWordElement(881),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(Sinexcel.ChannelId.POWER_FACTOR_P4, new SignedWordElement(882),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.POWER_FACTOR_SETTING, new SignedWordElement(878), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.POWER_FACTOR_P1, new SignedWordElement(879), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.POWER_FACTOR_P2, new SignedWordElement(880), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.POWER_FACTOR_P3, new SignedWordElement(881), SCALE_FACTOR_MINUS_2), //
+						m(Sinexcel.ChannelId.POWER_FACTOR_P4, new SignedWordElement(882), SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.POWER_FACTOR_CURVE_MODE_P1, new SignedWordElement(883),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.POWER_FACTOR_CURVE_MODE_P2, new SignedWordElement(884),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.POWER_FACTOR_CURVE_MODE_P3, new SignedWordElement(885),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.POWER_FACTOR_CURVE_MODE_P4, new SignedWordElement(886),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.CONTINUOS_OVER_VOLTAGE_TRIP_THRESHOLD, new SignedWordElement(887),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(Sinexcel.ChannelId.FREQUENCY_VARIATION_RATE_TRIP_THRESHOLD, new SignedWordElement(888)), //
 						m(Sinexcel.ChannelId.PHASE_ANGLE_ABRUPT_TRIP_THRESHOLD, new SignedWordElement(889)), //
 						m(Sinexcel.ChannelId.GRID_RECONNECTION_VOLTAGE_UPPER_LIMIT, new SignedWordElement(890)), //
@@ -760,63 +719,58 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(934, Priority.LOW, //
-						m(Sinexcel.ChannelId.METER_ACTIVE_POWER, new SignedWordElement(934),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(Sinexcel.ChannelId.METER_ACTIVE_POWER, new SignedWordElement(934), SCALE_FACTOR_1), //
 						new DummyRegisterElement(935, 947),
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L1, new UnsignedWordElement(948),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L2, new UnsignedWordElement(949),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L3, new UnsignedWordElement(950),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L1, new UnsignedWordElement(951),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L2, new UnsignedWordElement(952),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L3, new UnsignedWordElement(953),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L1_PARAMETERS_1, new UnsignedWordElement(954),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L2_PARAMETERS_1, new UnsignedWordElement(955),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L3_PARAMETERS_1, new UnsignedWordElement(956),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L1_PARAMETERS_2, new UnsignedWordElement(957),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L2_PARAMETERS_2, new UnsignedWordElement(958),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L3_PARAMETERS_2, new UnsignedWordElement(959),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L1, new UnsignedWordElement(960),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L2, new UnsignedWordElement(961),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L3, new UnsignedWordElement(962),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.POSITIVE_BUS_VOLTAGE_CALIBRATION, new UnsignedWordElement(963),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.NEGATIVE_BUS_VOLTAGE_CALIBRATION, new UnsignedWordElement(964),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.DC_VOLTAGE_CALIBRATION, new UnsignedWordElement(965),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.DC_CURRENT_CALIBRATION, new UnsignedWordElement(966),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+								SCALE_FACTOR_MINUS_3), //
 						m(Sinexcel.ChannelId.DC_INDUCTOR_CURRENT_CALIBRATION, new UnsignedWordElement(967),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3) //
+								SCALE_FACTOR_MINUS_3) //
 				),
 
 				new FC6WriteRegisterTask(135, //
-						m(Sinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
+						m(Sinexcel.ChannelId.SET_ACTIVE_POWER, new SignedWordElement(135), SCALE_FACTOR_2)),
 				new FC6WriteRegisterTask(136, //
-						m(Sinexcel.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(136),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
+						m(Sinexcel.ChannelId.SET_REACTIVE_POWER, new SignedWordElement(136), SCALE_FACTOR_2)),
 				new FC6WriteRegisterTask(137, //
-						m(Sinexcel.ChannelId.SET_OFF_GRID_VOLTAGE, new SignedWordElement(137),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.SET_OFF_GRID_VOLTAGE, new SignedWordElement(137), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(138, //
-						m(Sinexcel.ChannelId.SET_OFF_GRID_FREQUENCY, new SignedWordElement(138),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.SET_OFF_GRID_FREQUENCY, new SignedWordElement(138), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(300, //
 						m(Sinexcel.ChannelId.IP_ADDRESS_BLOCK_1, new UnsignedWordElement(300))),
 				new FC6WriteRegisterTask(301, //
@@ -965,29 +919,23 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(807, //
 						m(Sinexcel.ChannelId.LOCAL_ID_SETTING, new SignedWordElement(807))),
 				new FC6WriteRegisterTask(808, //
-						m(Sinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE, new SignedWordElement(808),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE, new SignedWordElement(808), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(809, //
-						m(Sinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE, new SignedWordElement(809),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE, new SignedWordElement(809), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(810, //
 						m(Sinexcel.ChannelId.CURRENT_FROM_TOPPING_CHARGING_TO_FLOAT_CHARGING,
-								new SignedWordElement(810), ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								new SignedWordElement(810), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(811, //
-						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(811),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(811), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(812, //
-						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(812),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(812), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(813, //
-						m(Sinexcel.ChannelId.DISCHARGE_MIN_VOLTAGE, new SignedWordElement(813),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.DISCHARGE_MIN_VOLTAGE, new SignedWordElement(813), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(814, //
-						m(Sinexcel.ChannelId.CHARGE_MAX_VOLTAGE, new SignedWordElement(814),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+						m(Sinexcel.ChannelId.CHARGE_MAX_VOLTAGE, new SignedWordElement(814), SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(815, //
 						m(Sinexcel.ChannelId.BATTERY_VOLTAGE_PROTECTION_LIMIT, new UnsignedWordElement(815),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1)),
 				new FC6WriteRegisterTask(825, //
 						m(Sinexcel.ChannelId.LEAKAGE_CURRENT_DC_COMPONENT_DETECTOR, new UnsignedWordElement(825))),
 				// TODO Check scale factors, channel names and so on...
@@ -1085,64 +1033,64 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						m(Sinexcel.ChannelId.METER_ACTIVE_POWER, new SignedWordElement(934))),
 				new FC6WriteRegisterTask(948, //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L1, new UnsignedWordElement(948),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(949, //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L2, new UnsignedWordElement(949),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(950, //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_CALIBRATION_L3, new UnsignedWordElement(950),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(951, //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L1, new UnsignedWordElement(951),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(952, //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L2, new UnsignedWordElement(952),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(953, //
 						m(Sinexcel.ChannelId.INVERTER_VOLTAGE_CALIBRATION_L3, new UnsignedWordElement(953),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(954, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L1_PARAMETERS_1, new UnsignedWordElement(954),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(955, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L2_PARAMETERS_1, new UnsignedWordElement(955),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(956, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L3_PARAMETERS_1, new UnsignedWordElement(956),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(957, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L1_PARAMETERS_2, new UnsignedWordElement(957),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(958, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L2_PARAMETERS_2, new UnsignedWordElement(958),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(959, //
 						m(Sinexcel.ChannelId.INDUCTOR_CURRENT_CALIBRATION_L3_PARAMETERS_2, new UnsignedWordElement(959),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(960, //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L1, new UnsignedWordElement(960),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(961, //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L2, new UnsignedWordElement(961),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(962, //
 						m(Sinexcel.ChannelId.OUTPUT_CURRENT_CALIBRATION_L3, new UnsignedWordElement(962),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(963, //
 						m(Sinexcel.ChannelId.POSITIVE_BUS_VOLTAGE_CALIBRATION, new UnsignedWordElement(963),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(964, //
 						m(Sinexcel.ChannelId.NEGATIVE_BUS_VOLTAGE_CALIBRATION, new UnsignedWordElement(964),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(965, //
 						m(Sinexcel.ChannelId.DC_VOLTAGE_CALIBRATION, new UnsignedWordElement(965),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(966, //
 						m(Sinexcel.ChannelId.DC_CURRENT_CALIBRATION, new UnsignedWordElement(966),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(967, //
 						m(Sinexcel.ChannelId.DC_INDUCTOR_CURRENT_CALIBRATION, new UnsignedWordElement(967),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)),
+								SCALE_FACTOR_MINUS_3)),
 				new FC6WriteRegisterTask(4001, //
 						m(Sinexcel.ChannelId.TIME_SETTING, new SignedWordElement(4001))),
 				new FC6WriteRegisterTask(4007, //

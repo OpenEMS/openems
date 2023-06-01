@@ -1,5 +1,7 @@
 package io.openems.edge.meter.socomec.singlephase;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_ZERO_IF_TRUE;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -99,24 +101,23 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(0xc558)) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_1) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_1) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.chain(//
-										ElementToChannelConverter.SCALE_FACTOR_1, //
-										ElementToChannelConverter
-												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
+										SCALE_FACTOR_1, //
+										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, ElementToChannelConverter.chain(//
-										ElementToChannelConverter.SCALE_FACTOR_1, //
+										SCALE_FACTOR_1, //
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, ElementToChannelConverter.chain(//
-										ElementToChannelConverter.SCALE_FACTOR_1, //
+										SCALE_FACTOR_1, //
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
-								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_1) //
+								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_1) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
 										ElementToChannelConverter
 												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1)) //
@@ -177,18 +178,18 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 		if (this.config.invert()) {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
-							ElementToChannelConverter.SCALE_FACTOR_1), //
+							SCALE_FACTOR_1), //
 					new DummyRegisterElement(0xC704, 0xC707), //
 					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
-							ElementToChannelConverter.SCALE_FACTOR_1) //
+							SCALE_FACTOR_1) //
 			));
 		} else {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
-							ElementToChannelConverter.SCALE_FACTOR_1), //
+							SCALE_FACTOR_1), //
 					new DummyRegisterElement(0xC704, 0xC707), //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
-							ElementToChannelConverter.SCALE_FACTOR_1) //
+							SCALE_FACTOR_1) //
 			));
 		}
 	}

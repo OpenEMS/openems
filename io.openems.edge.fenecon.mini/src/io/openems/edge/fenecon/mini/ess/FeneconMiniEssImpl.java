@@ -1,5 +1,6 @@
 package io.openems.edge.fenecon.mini.ess;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.subtract;
 
 import java.util.function.Consumer;
@@ -196,11 +197,10 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(3000, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(3000),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(3001),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
+						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002), SCALE_FACTOR_2), //
 						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
 						m(FeneconMiniEss.ChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
 						m(new BitsWordElement(3005, this) //
@@ -462,11 +462,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30526, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
-								ElementToChannelConverter.SCALE_FACTOR_2,
-								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
+								SCALE_FACTOR_2, new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
-								ElementToChannelConverter.SCALE_FACTOR_2,
-								new ChannelMetaInfoReadAndWrite(30127, 30527))), //
+								SCALE_FACTOR_2, new ChannelMetaInfoReadAndWrite(30127, 30527))), //
 				new FC16WriteRegistersTask(30558, //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
 								new ChannelMetaInfoReadAndWrite(30157, 30558))), //
@@ -476,11 +474,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 
 				new FC3ReadRegistersTask(30126, Priority.LOW, //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
-								ElementToChannelConverter.SCALE_FACTOR_2,
-								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
+								SCALE_FACTOR_2, new ChannelMetaInfoReadAndWrite(30126, 30526)), //
 						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
-								ElementToChannelConverter.SCALE_FACTOR_2,
-								new ChannelMetaInfoReadAndWrite(30127, 30527)), //
+								SCALE_FACTOR_2, new ChannelMetaInfoReadAndWrite(30127, 30527)), //
 						new DummyRegisterElement(30128, 30156), //
 						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157),
 								new ChannelMetaInfoReadAndWrite(30157, 30558)), //

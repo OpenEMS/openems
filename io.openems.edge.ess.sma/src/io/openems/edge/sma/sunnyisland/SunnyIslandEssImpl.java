@@ -1,5 +1,11 @@
 package io.openems.edge.sma.sunnyisland;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -189,21 +195,17 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(30779)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(30781)), //
 						m(SunnyIslandEss.ChannelId.GRID_VOLTAGE_L1, new SignedDoublewordElement(30783),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(SunnyIslandEss.ChannelId.GRID_VOLTAGE_L2, new SignedDoublewordElement(30785),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						m(SunnyIslandEss.ChannelId.GRID_VOLTAGE_L3, new SignedDoublewordElement(30787),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(30789, 30802), //
-						m(SunnyIslandEss.ChannelId.FREQUENCY, new UnsignedDoublewordElement(30803),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(SunnyIslandEss.ChannelId.FREQUENCY, new UnsignedDoublewordElement(30803), SCALE_FACTOR_1), //
 						new DummyRegisterElement(30805, 30806), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(30807),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(30809),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(30811),
-								ElementToChannelConverter.INVERT)), //
+						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(30807), INVERT), //
+						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(30809), INVERT), //
+						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(30811), INVERT)), //
 
 				new FC3ReadRegistersTask(30835, Priority.LOW, //
 						m(SunnyIslandEss.ChannelId.OPERATING_MODE_FOR_ACTIVE_POWER_LIMITATION,
@@ -212,13 +214,13 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 				new FC3ReadRegistersTask(30843, Priority.HIGH, //
 						// BatteryAmpere 30843
 						m(SunnyIslandEss.ChannelId.BATTERY_CURRENT, new SignedDoublewordElement(30843),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3),
 						m(SymmetricEss.ChannelId.SOC, new UnsignedDoublewordElement(30845)), //
 						m(SunnyIslandEss.ChannelId.CURRENT_BATTERY_CAPACITY, new SignedDoublewordElement(30847)), //
 						m(SunnyIslandEss.ChannelId.BATTERY_TEMPERATURE, new SignedDoublewordElement(30849),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(SunnyIslandEss.ChannelId.BATTERY_VOLTAGE, new UnsignedDoublewordElement(30851), //
-								ElementToChannelConverter.SCALE_FACTOR_1)),
+								SCALE_FACTOR_1)),
 
 				new FC3ReadRegistersTask(30877, Priority.LOW,
 						m(SunnyIslandEss.ChannelId.POWER_SUPPLY_STATUS, new UnsignedDoublewordElement(30877),
@@ -248,15 +250,15 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 
 				new FC3ReadRegistersTask(30997, Priority.LOW,
 						m(SunnyIslandEss.ChannelId.LOWEST_MEASURED_BATTERY_TEMPERATURE,
-								new SignedDoublewordElement(30997), ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								new SignedDoublewordElement(30997), SCALE_FACTOR_MINUS_1),
 						m(SunnyIslandEss.ChannelId.HIGHEST_MEASURED_BATTERY_TEMPERATURE,
-								new SignedDoublewordElement(30999), ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								new SignedDoublewordElement(30999), SCALE_FACTOR_MINUS_1),
 						m(SunnyIslandEss.ChannelId.MAX_OCCURRED_BATTERY_VOLTAGE, new SignedDoublewordElement(31001),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)),
+								SCALE_FACTOR_MINUS_2)),
 
 				new FC3ReadRegistersTask(40189, Priority.HIGH, //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedDoublewordElement(40189),
-								ElementToChannelConverter.INVERT), //
+								INVERT), //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedDoublewordElement(40191))), //
 
 				new FC16WriteRegistersTask(40149, //

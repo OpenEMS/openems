@@ -23,7 +23,7 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 	 */
 	public static ElementToChannelConverter from(FeneconCommercialBatteryImpl parent,
 			ElementToChannelConverter converter) {
-		if (converter == ElementToChannelConverter.DIRECT_1_TO_1) {
+		if (converter == DIRECT_1_TO_1) {
 			return new IgnoreZeroConverter(parent);
 		}
 		return ElementToChannelConverter.chain(new IgnoreZeroConverter(parent), converter);

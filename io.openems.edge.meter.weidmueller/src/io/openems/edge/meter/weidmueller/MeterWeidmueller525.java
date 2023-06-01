@@ -1,5 +1,7 @@
 package io.openems.edge.meter.weidmueller;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,7 +18,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -81,8 +82,8 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(19000, Priority.HIGH, //
 						m(new FloatDoublewordElement(19000)) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, DIRECT_1_TO_1) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, DIRECT_1_TO_1) //
 								.build(), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002)), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004)), //

@@ -1,5 +1,9 @@
 package io.openems.edge.ess.adstec.storaxe;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -87,25 +91,22 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(1 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(1 + offset), GRID_MODE_CONVERTER),
-						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2 + offset),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2 + offset), SCALE_FACTOR_2),
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(3 + offset),
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_2,
-										reactivePowerConverter))),
+								ElementToChannelConverter.chain(SCALE_FACTOR_2, reactivePowerConverter))),
 				new FC4ReadInputRegistersTask(125 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125 + offset),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126 + offset),
-								ElementToChannelConverter.DIRECT_1_TO_1)),
+								SCALE_FACTOR_2),
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(126 + offset), DIRECT_1_TO_1)),
 				new FC4ReadInputRegistersTask(134 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, new UnsignedDoublewordElement(134 + offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(136 + offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138 + offset),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(139 + offset),
-								ElementToChannelConverter.DIRECT_1_TO_1)));
+								DIRECT_1_TO_1)));
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -409,7 +411,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element) {
-		return this.m(channelId, element, ElementToChannelConverter.DIRECT_1_TO_1);
+		return this.m(channelId, element, DIRECT_1_TO_1);
 	}
 
 	/**
@@ -424,7 +426,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ChannelMetaInfo channelMetaInfo) {
-		return this.m(channelId, element, ElementToChannelConverter.DIRECT_1_TO_1, channelMetaInfo);
+		return this.m(channelId, element, DIRECT_1_TO_1, channelMetaInfo);
 	}
 
 	/**

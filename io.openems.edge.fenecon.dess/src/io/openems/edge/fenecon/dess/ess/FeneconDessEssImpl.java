@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,11 +125,9 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(10143)), //
 						new DummyRegisterElement(10144, 10150),
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_CHARGE_ENERGY,
-								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								new UnsignedDoublewordElement(10151).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3), //
 						m(FeneconDessEss.ChannelId.ORIGINAL_ACTIVE_DISCHARGE_ENERGY,
-								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_3)), //
+								new UnsignedDoublewordElement(10153).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_3)), //
 				new FC3ReadRegistersTask(11133, Priority.HIGH, //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11133), DELTA_10000), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11134), DELTA_10000)), //

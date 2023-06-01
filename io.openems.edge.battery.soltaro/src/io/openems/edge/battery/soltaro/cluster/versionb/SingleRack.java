@@ -1,5 +1,8 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,7 +17,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -153,10 +155,8 @@ public class SingleRack {
 
 		// State values
 		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x100, Priority.HIGH, //
-				this.parent.map(this.channelIds.get(KEY_VOLTAGE), this.getUnsignedWordElement(0x100),
-						ElementToChannelConverter.SCALE_FACTOR_2), //
-				this.parent.map(this.channelIds.get(KEY_CURRENT), this.getSignedWordElement(0x101),
-						ElementToChannelConverter.SCALE_FACTOR_2), //
+				this.parent.map(this.channelIds.get(KEY_VOLTAGE), this.getUnsignedWordElement(0x100), SCALE_FACTOR_2), //
+				this.parent.map(this.channelIds.get(KEY_CURRENT), this.getSignedWordElement(0x101), SCALE_FACTOR_2), //
 				this.parent.map(this.channelIds.get(KEY_CHARGE_INDICATION), this.getUnsignedWordElement(0x102)), //
 				this.parent.map(this.channelIds.get(KEY_SOC), this.getUnsignedWordElement(0x103)). //
 						onUpdateCallback(val -> {
@@ -175,13 +175,13 @@ public class SingleRack {
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x109)), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE), this.getSignedWordElement(0x10A),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMaxCellTemperature();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x10B)), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE), this.getSignedWordElement(0x10C),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMinCellTemperature();
 						}) //
