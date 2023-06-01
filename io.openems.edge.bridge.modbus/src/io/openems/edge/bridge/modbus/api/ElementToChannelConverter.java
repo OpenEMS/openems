@@ -301,7 +301,9 @@ public class ElementToChannelConverter {
 	 * @param factor the value to be applied to the Channel value.
 	 * @return {@link ElementToChannelConverter}
 	 */
-	public static final ElementToChannelConverter multiply(double factor) {
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter MULTIPLY(double factor) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverter(multiplyFunction(factor), divideFunction(factor));
 	}
 
@@ -311,7 +313,9 @@ public class ElementToChannelConverter {
 	 * @param scale the value to be applied to the Channel value.
 	 * @return {@link ElementToChannelConverter}
 	 */
-	public static final ElementToChannelConverter divide(double scale) {
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter DIVIDE(double scale) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverter(divideFunction(scale), multiplyFunction(scale));
 	}
 
@@ -321,7 +325,9 @@ public class ElementToChannelConverter {
 	 * @param value to add to the Channel value.
 	 * @return {@link ElementToChannelConverter}
 	 */
-	public static final ElementToChannelConverter add(double value) {
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter ADD(double value) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverter(addFunction(value), addFunction(-value));
 	}
 
@@ -331,8 +337,10 @@ public class ElementToChannelConverter {
 	 * @param value to subtract to the Channel value.
 	 * @return {@link ElementToChannelConverter}
 	 */
-	public static final ElementToChannelConverter subtract(double value) {
-		return add(-value);
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SUBTRACT(double value) {
+		// CHECKSTYLE:ON
+		return ADD(-value);
 	}
 
 	/**

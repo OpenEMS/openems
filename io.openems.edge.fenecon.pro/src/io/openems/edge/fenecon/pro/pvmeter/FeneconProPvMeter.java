@@ -1,7 +1,7 @@
 package io.openems.edge.fenecon.pro.pvmeter;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.subtract;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
 
 import java.util.function.Consumer;
 
@@ -121,17 +121,17 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(2035),
 								SCALE_FACTOR_2), //
 						new DummyRegisterElement(2037, 2065), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066), subtract(10000))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066), SUBTRACT(10000))), //
 				new FC3ReadRegistersTask(2135, Priority.LOW, // //
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(2135),
 								SCALE_FACTOR_2), //
 						new DummyRegisterElement(2137, 2165), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166), subtract(10000))), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166), SUBTRACT(10000))), //
 				new FC3ReadRegistersTask(2235, Priority.LOW, // //
 						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(2235),
 								SCALE_FACTOR_2), //
 						new DummyRegisterElement(2237, 2265), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266), subtract(10000)))//
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266), SUBTRACT(10000)))//
 
 		);
 	}
