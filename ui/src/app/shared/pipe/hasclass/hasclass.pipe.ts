@@ -16,7 +16,9 @@ export class HasclassPipe implements PipeTransform {
       let found: boolean = false;
       for (let element of param) {
         found = this.transform(element, classname);
-        if (found) break;
+        if (found) {
+          break;
+        };
       }
       return found;
 
@@ -28,7 +30,9 @@ export class HasclassPipe implements PipeTransform {
       let found: boolean = false;
       for (let property in param) {
         found = this.transform(param[property], classname);
-        if (found) break;
+        if (found) {
+          break;
+        }
       }
       return found;
 
