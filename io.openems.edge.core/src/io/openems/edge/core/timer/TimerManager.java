@@ -112,7 +112,7 @@ public interface TimerManager extends OpenemsComponent {
      * @return true if the given count has been reached, false else
      */
     public default Timer getTimerByCoreCycles(Channel<Integer> channel, int count) {
-	return this.getTimerByCoreCycles(channel, count);
+	return this.getTimerByCoreCycles(channel, count, 0);
     }
 
     /**
