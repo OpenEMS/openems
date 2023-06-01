@@ -77,9 +77,9 @@ public interface FeneconProEss extends SymmetricEss, OpenemsComponent {
 
 		// IntegerReadChannels
 		TOTAL_BATTERY_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		TOTAL_BATTERY_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //

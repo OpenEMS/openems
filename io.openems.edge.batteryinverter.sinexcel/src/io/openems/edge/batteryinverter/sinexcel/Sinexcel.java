@@ -393,10 +393,10 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.unit(Unit.MILLIAMPERE)), //
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		TEMPERATURE_OF_DC_DC_HEAT_SINK(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.DEGREE_CELSIUS)), //

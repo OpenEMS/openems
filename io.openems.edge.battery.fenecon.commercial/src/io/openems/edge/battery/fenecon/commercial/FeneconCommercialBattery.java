@@ -242,10 +242,10 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.unit(Unit.OHM)), //
 		TOTAL_CHARGE_CAPACITY_WATT_HOURS(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		TOTAL_DISCHARGE_CAPACITY_WATT_HOURS(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// 1.2 SysProtectMessage
 		SYSTEM_FAULT_COUNTERS(Doc.of(OpenemsType.INTEGER)), //

@@ -240,9 +240,17 @@ export class KeyModalComponent implements OnInit {
 
         // push single parts into array
         numbers.push(trimmed.substring(0, 4));
-        if (trimmed.substring(4, 8) !== '') numbers.push(trimmed.substring(4, 8));
-        if (trimmed.substring(8, 12) != '') numbers.push(trimmed.substring(8, 12));
-        if (trimmed.substring(12, 16) != '') numbers.push(trimmed.substring(12, 16));
+        if (trimmed.substring(4, 8) !== '') {
+            numbers.push(trimmed.substring(4, 8));
+        }
+
+        if (trimmed.substring(8, 12) != '') {
+            numbers.push(trimmed.substring(8, 12));
+        }
+
+        if (trimmed.substring(12, 16) != '') {
+            numbers.push(trimmed.substring(12, 16));
+        }
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
         let modifiedValue = numbers.join('-');

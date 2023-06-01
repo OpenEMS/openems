@@ -1,12 +1,13 @@
 package io.openems.edge.fenecon.dess.charger;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -47,8 +48,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedWordElement(offset + 2)), //
 						new DummyRegisterElement(offset + 3, offset + 4),
 						m(FeneconDessCharger.ChannelId.ORIGINAL_ACTUAL_ENERGY,
-								new UnsignedDoublewordElement(offset + 5).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)) //
+								new UnsignedDoublewordElement(offset + 5).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_2)) //
 		);
 	}
 

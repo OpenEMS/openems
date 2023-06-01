@@ -112,7 +112,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 							break;
 						}
 
-						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
+						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().symbol);
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
 

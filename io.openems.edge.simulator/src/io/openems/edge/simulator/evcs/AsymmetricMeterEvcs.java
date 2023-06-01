@@ -127,7 +127,7 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage.
@@ -377,7 +377,7 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * Gets the Active Production Energy in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

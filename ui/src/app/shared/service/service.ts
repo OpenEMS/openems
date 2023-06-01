@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
@@ -243,6 +243,12 @@ export class Service extends AbstractService {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
+
+            // Jump to next request for empty channelAddresses
+            if (source.channels.length == 0) {
+              continue;
+            }
+
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;

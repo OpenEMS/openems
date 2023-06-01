@@ -5,11 +5,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.DoubleStream;
 
 import org.rrd4j.core.RrdDb;
 import org.slf4j.Logger;
@@ -90,7 +87,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				var channelAggregateFunction = this.getChannelAggregateFunction(channel.channelDoc().getUnit());
+				var channelAggregateFunction = channel.channelDoc().getUnit().getChannelAggregateFunction();
 
 				var value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
@@ -185,54 +182,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return MAP_TO_DOUBLE_NOT_SUPPORTED;
 		}
 		throw new IllegalArgumentException("Type [" + openemsType + "] is not supported.");
-	}
-
-	private Function<DoubleStream, OptionalDouble> getChannelAggregateFunction(Unit channelUnit) {
-		switch (channelUnit) {
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case EUROS_PER_MEGAWATT_HOUR:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROOHM:
-		case MICROAMPERE:
-		case MICROVOLT:
-		case MILLIAMPERE_HOURS:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case WATT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT_HOURS_BY_WATT_PEAK:
-		case OHM:
-		case SECONDS:
-		case THOUSANDTH:
-		case PERCENT:
-		case ON_OFF:
-			return DoubleStream::average;
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return DoubleStream::max;
-		}
-		throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");
 	}
 
 }

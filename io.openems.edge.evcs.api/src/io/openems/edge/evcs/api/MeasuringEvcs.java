@@ -83,7 +83,7 @@ public interface MeasuringEvcs extends Evcs {
 		 * </ul>
 		 */
 		ENERGY_ACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Active energy to grid")),
@@ -104,7 +104,7 @@ public interface MeasuringEvcs extends Evcs {
 		 * </ul>
 		 */
 		ENERGY_ACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Active energy to ev")),
