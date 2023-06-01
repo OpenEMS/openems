@@ -244,7 +244,9 @@ export class Service extends AbstractService {
           for (let source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
-            if (source.channels.length == 0) continue;
+            if (source.channels.length == 0) {
+              continue;
+            }
 
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
