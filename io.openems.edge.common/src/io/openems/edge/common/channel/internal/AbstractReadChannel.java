@@ -36,16 +36,21 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
 	private final CircularTreeMap<LocalDateTime, Value<T>> pastValues = new CircularTreeMap<>(NO_OF_PAST_VALUES);
 
-	private volatile Value<T> nextValue = null;
-	private volatile Value<T> activeValue = null;
+	/**
+	 * The 'next' value of the Channel. Copied to 'active' in
+	 * {@link #nextProcessImage()}. Never null.
+	 */
+	private volatile Value<T> nextValue = new Value<>(this, null);
+	/**
+	 * The 'active' value of the Channel. Never null.
+	 */
+	private volatile Value<T> activeValue = new Value<>(this, null);
 
 	protected AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, D channelDoc) {
 		this.type = type;
 		this.parent = parent;
 		this.channelId = channelId;
 		this.channelDoc = channelDoc;
-		this.nextValue = new Value<>(this, null);
-		this.activeValue = new Value<>(this, null);
 
 		// validate Type
 		if (!this.validateType(channelDoc.getType(), type)) {
@@ -102,19 +107,19 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public void nextProcessImage() {
 		try {
 			var oldValue = this.activeValue;
-			final boolean valueHasChanged;
-			if (oldValue == null && this.nextValue == null) {
-				valueHasChanged = false;
-			} else if (oldValue == null || this.nextValue == null) {
-				valueHasChanged = true;
-			} else {
-				valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
-			}
+
+			// Copy 'next' value to 'active' value
 			this.activeValue = this.nextValue;
+
+			// Always -> call 'onUpdate' callbacks
 			this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
-			if (valueHasChanged) {
+
+			// If value has changed -> call 'onChange' callbacks
+			if (!Objects.equals(oldValue.get(), this.nextValue.get())) {
 				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
 			}
+
+			// Additionally store value in 'pastValues'
 			this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 
 		} catch (RuntimeException e) {
