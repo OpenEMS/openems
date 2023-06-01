@@ -958,8 +958,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.B_POINT_POWER, new SignedWordElement(45436)), //
 						m(GoodWe.ChannelId.B_POINT_COS_PHI, new SignedWordElement(45437), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.C_POINT_POWER, new SignedWordElement(45438)), //
-						m(GoodWe.ChannelId.C_POINT_COS_PHI, new SignedWordElement(45439), SCALE_FACTOR_MINUS_2), // ),
-																													// //
+						m(GoodWe.ChannelId.C_POINT_COS_PHI, new SignedWordElement(45439), SCALE_FACTOR_MINUS_2), //
 						m(GoodWe.ChannelId.LOCK_IN_VOLTAGE, new UnsignedWordElement(45440), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.LOCK_OUT_VOLTAGE, new UnsignedWordElement(45441), SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.LOCK_OUT_POWER, new SignedWordElement(45442))), //

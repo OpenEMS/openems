@@ -103,8 +103,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3)//
 								.build(),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849), SCALE_FACTOR_3), // ,
-																													// //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849), SCALE_FACTOR_3), //
 						new DummyRegisterElement(3851, 3852), m(new FloatDoublewordElement(3853)) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1, SCALE_FACTOR_3) //
 								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_3) //
