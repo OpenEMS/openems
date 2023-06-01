@@ -49,15 +49,17 @@ public class KebaKeContactImpl extends AbstractManagedEvcsComponent
 	private final Logger log = LoggerFactory.getLogger(KebaKeContactImpl.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
-	private Boolean lastConnectionLostState = false;
-
-	protected Config config;
 
 	@Reference
 	private EvcsPower evcsPower;
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
+
+	protected Config config;
+
+	private Boolean lastConnectionLostState = false;
+	private InetAddress ip = null;
 
 	/**
 	 * Constructor.
@@ -71,10 +73,8 @@ public class KebaKeContactImpl extends AbstractManagedEvcsComponent
 		);
 	}
 
-	private InetAddress ip = null;
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
+	private void activate(ComponentContext context, Config config) throws UnknownHostException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.ip = InetAddress.getByName(config.ip().trim());

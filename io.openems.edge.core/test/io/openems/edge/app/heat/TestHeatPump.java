@@ -39,7 +39,7 @@ public class TestHeatPump {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			return ImmutableList.of(
+			return ImmutableList.of(//
 					this.heatPump = Apps.heatPump(t), //
 					this.homeApp = Apps.feneconHome(t), //
 					Apps.gridOptimizedCharge(t), //

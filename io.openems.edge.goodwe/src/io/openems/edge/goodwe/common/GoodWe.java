@@ -7,7 +7,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -1028,10 +1027,10 @@ public interface GoodWe extends OpenemsComponent {
 		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER)), //
 		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new EnumWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE)), //
 		EMS_POWER_SET(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET)), //
 
 		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //

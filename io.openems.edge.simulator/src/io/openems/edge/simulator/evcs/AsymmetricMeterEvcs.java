@@ -73,37 +73,33 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 		ACTIVE_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.onInit(channel -> {
-					channel.onSetNextValue(value -> {
-						/*
-						 * Fill Min/Max Active Power channels
-						 */
-						if (value.isDefined()) {
-							int newValue = value.get();
-							{
-								Channel<Integer> minActivePowerChannel = channel.getComponent()
-										.channel(ChannelId.MIN_ACTIVE_POWER);
-								int minActivePower = minActivePowerChannel.value().orElse(0);
-								int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
-								if (newValue < Math.min(minActivePower, minNextActivePower)) {
-									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.TOWARDS_ZERO, 100);
-									minActivePowerChannel.setNextValue(newValue);
-								}
-							}
-							{
-								Channel<Integer> maxActivePowerChannel = channel.getComponent()
-										.channel(ChannelId.MAX_ACTIVE_POWER);
-								int maxActivePower = maxActivePowerChannel.value().orElse(0);
-								int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
-								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
-									// avoid getting called too often -> round to 100
-									newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
-									maxActivePowerChannel.setNextValue(newValue);
-								}
+				.onChannelSetNextValue((self, value) -> {
+					/*
+					 * Fill Min/Max Active Power channels
+					 */
+					if (value.isDefined()) {
+						int newValue = value.get();
+						{
+							Channel<Integer> minActivePowerChannel = self.channel(ChannelId.MIN_ACTIVE_POWER);
+							int minActivePower = minActivePowerChannel.value().orElse(0);
+							int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
+							if (newValue < Math.min(minActivePower, minNextActivePower)) {
+								// avoid getting called too often -> round to 100
+								newValue = IntUtils.roundToPrecision(newValue, Round.TOWARDS_ZERO, 100);
+								minActivePowerChannel.setNextValue(newValue);
 							}
 						}
-					});
+						{
+							Channel<Integer> maxActivePowerChannel = self.channel(ChannelId.MAX_ACTIVE_POWER);
+							int maxActivePower = maxActivePowerChannel.value().orElse(0);
+							int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
+							if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
+								// avoid getting called too often -> round to 100
+								newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
+								maxActivePowerChannel.setNextValue(newValue);
+							}
+						}
+					}
 				})), //
 
 		/**
@@ -131,7 +127,7 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage.
@@ -381,7 +377,7 @@ public interface AsymmetricMeterEvcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * Gets the Active Production Energy in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

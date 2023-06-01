@@ -193,7 +193,7 @@ Most mistakes:
 - Missing register (Unimportant register could be skipped with *new DummyRegisterElement(xxx),*)
 - Important tasks with Priority HIGH are blocked by other unimportant tasks with Priority HIGH
 - Read/Write register must be read and write in different tasks with different function codes
-- Scale factor overlooked. The scale factor can be easily adjusted using, for example, ElementToChannelConverter.SCALE_FACTOR_MINUS_2
+- Scale factor overlooked. The scale factor can be easily adjusted using, for example, SCALE_FACTOR_MINUS_2
 
 . Check if every Channel is set correctly
 +

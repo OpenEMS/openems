@@ -22,7 +22,7 @@ public enum GoeChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L2")),
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")),
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")),
-	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).text("Total power consumption")),
+	ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.CUMULATED_WATT_HOURS).text("Total power consumption")),
 
 	CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING));
 

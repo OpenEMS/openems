@@ -71,7 +71,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 
 					// Create Sheet
 					List<Channel<?>> channels = component.channels().stream() //
-							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name()))
+							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 							.toList(); //
 					for (Channel<?> channel : channels) {
 						/*
@@ -112,7 +112,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 							break;
 						}
 
-						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().getSymbol());
+						ws.value(row, COL_UNIT, channel.channelDoc().getUnit().symbol);
 						ws.value(row, COL_DESCRIPTION, description);
 						ws.value(row, COL_ACCESS, channel.channelDoc().getAccessMode().getAbbreviation());
 

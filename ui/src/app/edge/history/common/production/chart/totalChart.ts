@@ -23,17 +23,14 @@ export class TotalChartComponent extends AbstractHistoryChart {
     {
       name: 'ProductionAcActivePowerL1',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL1'),
     },
     {
       name: 'ProductionAcActivePowerL2',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL2'),
     },
     {
       name: 'ProductionAcActivePowerL3',
       powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL3'),
     },
     {
       name: 'ProductionActivePower',
@@ -143,7 +140,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: '1.1-2',
-        afterTitle: this.translate.instant('General.total')
+        afterTitle: this.translate.instant('General.TOTAL')
       },
       unit: HistoryUtils.YAxisTitle.ENERGY,
     };
