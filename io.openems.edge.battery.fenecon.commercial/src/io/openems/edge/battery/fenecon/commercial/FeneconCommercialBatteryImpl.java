@@ -998,7 +998,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
 			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit) {
-		io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
+		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
 				Doc.of(openemsType).unit(channelUnit));
 		parent.addChannel(channelId);
 		return channelId;
@@ -1015,8 +1015,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	 */
 	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(FeneconCommercialBatteryImpl parent,
 			int tower, String channelIdSuffix, Level level) {
-		io.openems.edge.common.channel.ChannelId channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
-				Doc.of(level));
+		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, Doc.of(level));
 		parent.addChannel(channelId);
 		return channelId;
 	}

@@ -1,8 +1,5 @@
 package io.openems.edge.common.channel;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.base.CaseFormat;
 
 /**
@@ -14,6 +11,35 @@ import com.google.common.base.CaseFormat;
  * automatically provides a {@link ChannelId#name()} method.
  */
 public interface ChannelId {
+
+	/**
+	 * The preferred way to define {@link ChannelId}s in OpenEMS Edge is via an
+	 * {@code enum} that inherits {@code ChannelId}:
+	 * 
+	 * <pre>{@code
+	 * public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	 * 	MY_CHANNEL(Doc.of(OpenemsType.INTEGER));
+	 * 
+	 * 	private final Doc doc;
+	 * 
+	 * 	private ChannelId(Doc doc) {
+	 * 		this.doc = doc;
+	 * 	}
+	 * 
+	 * 	@Override
+	 * 	public Doc doc() {
+	 * 		return this.doc;
+	 * 	}
+	 * }
+	 * }</pre>
+	 * 
+	 * <p>
+	 * If instead you need to dynamically create ChannelIds at runtime - e.g.
+	 * because at compile time you do not know the exact number of battery modules
+	 * of a battery system - you may use {@link ChannelIdImpl} manually.
+	 */
+	public static record ChannelIdImpl(String name, Doc doc) implements ChannelId {
+	}
 
 	/**
 	 * Converts a Channel-ID in UPPER_UNDERSCORE format (like from an {@link Enum})
@@ -55,28 +81,6 @@ public interface ChannelId {
 	}
 
 	/**
-	 * Lists all Channel-IDs of the given Channel-ID Enum in a form that is suitable
-	 * for a InfluxDB-Query in a Grafana Dashboard.
-	 *
-	 * <p>
-	 * To create a query, call this function like
-	 * `ChannelId.printChannelIdsForInfluxQuery(FeneconMiniEss.ServiceInfoChannelId.values());`
-	 * 
-	 * @param <T>        the actual type
-	 * @param channelIds the {@link ChannelId}s, e.g. from ChannelId.values().
-	 */
-	public static <T extends Enum<T>> void printChannelIdsForInfluxQuery(ChannelId[] channelIds) {
-		System.out.println(Stream.of(channelIds) //
-				.map(c -> {
-					var name = c.doc().getText();
-					if (name.isEmpty()) {
-						name = c.id();
-					}
-					return "mean(\"$ess/" + c.id() + "\") as \"" + name + "\"";
-				}).collect(Collectors.joining(", ")));
-	}
-
-	/**
 	 * Gets the name in format {@link CaseFormat#UPPER_UNDERSCORE}. This is
 	 * available by default for an Enum.
 	 *
@@ -85,7 +89,7 @@ public interface ChannelId {
 	 *
 	 * @return the name
 	 */
-	String name();
+	public String name();
 
 	/**
 	 * Gets the name in CamelCase.
@@ -101,8 +105,6 @@ public interface ChannelId {
 	 *
 	 * @return the Channel-Doc
 	 */
-	Doc doc();
-	
-	public record ChannelIdImpl(String name, Doc doc) implements ChannelId {
-	}
+	public Doc doc();
+
 }
