@@ -105,22 +105,23 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
+		var oldValue = this.activeValue;
+		var newValue = this.nextValue;
 		try {
-			var oldValue = this.activeValue;
 
 			// Copy 'next' value to 'active' value
-			this.activeValue = this.nextValue;
+			this.activeValue = newValue;
 
 			// Always -> call 'onUpdate' callbacks
-			this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
+			this.onUpdateCallbacks.forEach(callback -> callback.accept(newValue));
 
 			// If value has changed -> call 'onChange' callbacks
-			if (!Objects.equals(oldValue.get(), this.nextValue.get())) {
-				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
+			if (!Objects.equals(oldValue.get(), newValue.get())) {
+				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, newValue));
 			}
 
 			// Additionally store value in 'pastValues'
-			this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
+			this.pastValues.put(this.activeValue.getTimestamp(), newValue);
 
 		} catch (RuntimeException e) {
 			this.log.error("Error while updating process image for [" + this.address() + "]: " + e.getMessage());
