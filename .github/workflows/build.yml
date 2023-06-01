@@ -72,42 +72,26 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Setup Cache for Node.js
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-            ~/.ng
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-
       - name: Build OpenEMS UI
         run: |
           cd ui
           npm install 
-          npm ci --prefer-offline --cache ~/.npm
-          node_modules/.bin/ng config cli.cache.path "~/.ng"
+          npm ci
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
-          
-      #
-      # Is this a Tag? Prepare release assets
-      #
+      
       - name: Prepare UI asset
         run: |
           mkdir build
           cd ui/target
-          zip -r ../../build/openems-ui.zip ./*
+          zip -r -o ../../build/openems-ui.zip ./*
           
       - name: Save build-artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
           path: build/openems-ui.zip
-
-  #
-  # Is this a Tag? Create a draft release
-  #
+          
   release:
     runs-on: ubuntu-latest
     needs: [build-java, build-ui]
