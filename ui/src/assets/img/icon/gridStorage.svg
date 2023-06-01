@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="71.496mm" height="95.832mm" version="1.1" viewBox="0 0 71.496 95.832" xml:space="preserve"
   xmlns="http://www.w3.org/2000/svg" id="root">
+  <defs>
+        <rect stroke-width="0.5" id="segment" y="155.21" width="2.6458" height="8.4667"></rect>
+  </defs>
   <g transform="translate(16.719 -89.623)">
     <g transform="translate(-82.35 -126.65)">
       <g transform="matrix(.75674 0 0 .74873 8.002 203.41)" fill="none" stroke="currentColor">
@@ -34,15 +37,14 @@
           </g>
         </g>
       </g>
-      <g transform="matrix(0 -2.4368 2.4368 0 -267.18 685.79)" stroke="#009846" stroke-linecap="square"
+      <g transform="matrix(0 -2.4368 2.4368 0 -267.18 685.79)" fill="var(--ion-color-success)" stroke="var(--ion-color-success)" stroke-linecap="square"
         stroke-miterlimit="10">
         <path
           d="m155.85 153.63h17.992a1.8521 1.8521 45 0 1 1.8521 1.8521v7.9375a1.8521 1.8521 135 0 1-1.8521 1.8521h-17.992a1.8521 1.8521 45 0 1-1.8521-1.8521v-7.9375a1.8521 1.8521 135 0 1 1.8521-1.8521z"
           fill="none" stroke-linejoin="round" stroke-width="1.3" style="mix-blend-mode:normal;paint-order:normal" />
-        <rect x="176.23" y="157.33" width="1.5875" height="4.7625" fill="#009846" stroke-linejoin="round"
+        <rect x="176.23" y="157.33" width="1.5875" height="4.7625" stroke-linejoin="round"
           stroke-width=".42426" />
-        <rect x="155.59" y="155.21" width="2.6458" height="8.4667" fill="#009846" stroke-width=".5"
-          style="mix-blend-mode:normal;paint-order:normal" />
+        <use id="segment-0" x="155.59" href="#segment" />
       </g>
     </g>
   </g>

@@ -35,8 +35,8 @@
           </g>
         </g>
       </g>
-      <path d="m57.633 22.109 118.53 118.53" stroke="#f00" stroke-linecap="round" stroke-width="10" />
-      <path d="m176.17 22.109-118.53 118.53" stroke="#f00" stroke-linecap="round" stroke-width="10" />
+      <path d="m57.633 22.109 118.53 118.53" stroke="var(--ion-color-danger)" stroke-linecap="round" stroke-width="10" />
+      <path d="m176.17 22.109-118.53 118.53" stroke="var(--ion-color-danger)" stroke-linecap="round" stroke-width="10" />
     </g>
   </g>
 </svg>

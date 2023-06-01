@@ -13,11 +13,11 @@ If you plan to use OpenEMS for your own projects, please consider joining the [O
 
 ### OpenEMS in »Local Energy Management«
 
-![alt text](./doc/modules/ROOT/assets/images/local-energy-management.png "Local Energy Management")
+![alt text](./doc/modules/ROOT/assets/images/local-energy-management.jpg "Local Energy Management")
 
 ### OpenEMS in »Areal Energy Management«
 
-![alt text](./doc/modules/ROOT/assets/images/areal-energy-management.png "Areal Energy Management")
+![alt text](./doc/modules/ROOT/assets/images/areal-energy-management.jpg "Areal Energy Management")
 
 ## OpenEMS IoT stack
 
