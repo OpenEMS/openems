@@ -1,6 +1,7 @@
 package io.openems.edge.battery.fenecon.commercial;
 
 import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
@@ -136,8 +137,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	private final ElementToChannelConverter ignoreZero = IgnoreZeroConverter.from(this,
-			ElementToChannelConverter.DIRECT_1_TO_1);
+	private final ElementToChannelConverter ignoreZero = IgnoreZeroConverter.from(this, DIRECT_1_TO_1);
 
 	private final ElementToChannelConverter ignoreZeroAndScaleFactorMinus2 = IgnoreZeroConverter.from(this,
 			SCALE_FACTOR_MINUS_2);

@@ -1,5 +1,8 @@
 package io.openems.edge.evcs.hypercharger;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -26,7 +29,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -191,9 +193,9 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
 						m(Hypercharger.ChannelId.RAW_STATUS, new UnsignedWordElement(this.offset.apply(0))),
 						m(Hypercharger.ChannelId.CHARGING_VOLTAGE, new UnsignedDoublewordElement(this.offset.apply(1)),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(Hypercharger.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(this.offset.apply(3)),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						/*
 						 * TODO: Test charge power register with newer firmware versions. Register value
 						 * was always 0 with versions < 1.7.2.
@@ -201,7 +203,7 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 						m(Hypercharger.ChannelId.RAW_CHARGE_POWER, new UnsignedDoublewordElement(this.offset.apply(4))),
 						m(Hypercharger.ChannelId.CHARGED_TIME, new UnsignedWordElement(this.offset.apply(6))),
 						m(Hypercharger.ChannelId.CHARGED_ENERGY, new UnsignedWordElement(this.offset.apply(7)),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2).onUpdateCallback(e -> {
+								SCALE_FACTOR_MINUS_2).onUpdateCallback(e -> {
 									if (e == null) {
 										return;
 									}
@@ -232,7 +234,7 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 								}),
 						// TODO: Implement SocEvcs Nature & map SoC register
 						m(Hypercharger.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								SCALE_FACTOR_MINUS_2),
 						m(Hypercharger.ChannelId.CONNECTOR_TYPE, new UnsignedWordElement(this.offset.apply(9))),
 
 						/*
@@ -247,7 +249,7 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 						m(Hypercharger.ChannelId.VAR_REACTIVE_MAX,
 								new UnsignedDoublewordElement(this.offset.apply(14))),
 						m(Hypercharger.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(this.offset.apply(16)),
-								ElementToChannelConverter.INVERT))
+								INVERT))
 
 		);
 

@@ -1,5 +1,9 @@
 package io.openems.edge.battery.bydcommercial;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -30,7 +34,6 @@ import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -188,44 +191,38 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(new UnsignedWordElement(0x2100).onUpdateCallback(this.onRegister0x2100Update)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_2) // [mV]
-								.m(Battery.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [V]
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_VOLTAGE, SCALE_FACTOR_2) // [mV]
+								.m(Battery.ChannelId.VOLTAGE, SCALE_FACTOR_MINUS_1) // [V]
 								.build(), //
 						m(new SignedWordElement(0x2101)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_CURRENT, ElementToChannelConverter.SCALE_FACTOR_2) // [mA]
-								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_CURRENT, SCALE_FACTOR_2) // [mA]
+								.m(Battery.ChannelId.CURRENT, SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
 						m(BatteryBoxC130.ChannelId.BATTERY_WORK_STATE, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(new UnsignedWordElement(0x2104)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
-								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, DIRECT_1_TO_1) // [%]
+								.m(Battery.ChannelId.SOH, DIRECT_1_TO_1) // [%]
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2105)), //
 						m(new UnsignedWordElement(0x2106)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE,
-										ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_VOLTAGE, DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_VOLTAGE, DIRECT_1_TO_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
 						m(new UnsignedWordElement(0x2108)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE,
-										ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE, DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_VOLTAGE, DIRECT_1_TO_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
 						m(new SignedWordElement(0x210A)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE,
-										ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE, DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, SCALE_FACTOR_MINUS_1) //
 								.build(), //
 						m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
 						m(new SignedWordElement(0x210C)) //
-								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE,
-										ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE,
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(BatteryBoxC130.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, DIRECT_1_TO_1) //
+								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, SCALE_FACTOR_MINUS_1) //
 								.build()), //
 
 				new FC3ReadRegistersTask(0x211D, Priority.HIGH, //
@@ -325,9 +322,9 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 				), //
 				new FC3ReadRegistersTask(0x216C, Priority.HIGH, //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x216C),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x216D),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								SCALE_FACTOR_MINUS_1) //
 				), //
 
 				new FC3ReadRegistersTask(0x2183, Priority.LOW, //
@@ -717,10 +714,10 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 														new UnsignedWordElement(0x210E))), //
 										new FC3ReadRegistersTask(0x216E, Priority.LOW, //
 												m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x216E), //
-														ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+														SCALE_FACTOR_MINUS_1), //
 												m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
 														new UnsignedWordElement(0x216F), //
-														ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+														SCALE_FACTOR_MINUS_1) //
 								));
 							} catch (OpenemsException e) {
 								BatteryBoxC130Impl.this.logError(BatteryBoxC130Impl.this.log,
