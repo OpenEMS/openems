@@ -39,7 +39,7 @@ public interface ShellyPlug extends DigitalOutput, SymmetricMeter, OpenemsCompon
 		 */
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Slave Communication Failed Fault.
 		 *

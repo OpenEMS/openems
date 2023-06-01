@@ -29,12 +29,12 @@
     "gridBuyAdvanced": "Nákup",
     "gridSell": "Prodej do sítě",
     "gridSellAdvanced": "Prodej",
-    "history": "Historie",
+    "HISTORY": "Historie",
     "inactive": "Neaktivní",
     "info": "Informace",
     "inputNotValid": "Vstup je neplatný",
     "insufficientRights": "Nedostatečná práva",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "nálož",
     "manual": "pokyny",
     "manually": "Ruční",
@@ -59,7 +59,7 @@
     "state": "Stát",
     "storageSystem": "Systém bateriového úložiště",
     "systemState": "Stav systému",
-    "total": "celková spotřeba",
+    "TOTAL": "celková spotřeba",
     "totalState": "Celkový stav",
     "warning": "Varování",
     "Week": {
@@ -340,7 +340,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Aktuální cena",
           "delayedDischarge": "Opožděné propuštění",
-          "storageDischarge": "Vybíjení ze skladu",
+          "STORAGE_DISCHARGE": "Vybíjení ze skladu",
           "State": {
             "notStarted": "Ovladač ještě nezačal ",
             "delayed": "Opožděné",

@@ -24,7 +24,7 @@ export class FlatComponent extends AbstractFlatWidget {
             this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                 .filter(component => component.isEnabled && this.config.isProducer(component));
 
-        return []
+        return [];
     }
 
     async presentModal() {

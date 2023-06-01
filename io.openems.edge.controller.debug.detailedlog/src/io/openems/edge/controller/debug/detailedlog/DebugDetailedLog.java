@@ -116,7 +116,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 			component.channels().stream() //
 					.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 					.forEach(channel -> {
-						var unit = channel.channelDoc().getUnit().getSymbol();
+						var unit = channel.channelDoc().getUnit().symbol;
 						/*
 						 * create descriptive text
 						 */

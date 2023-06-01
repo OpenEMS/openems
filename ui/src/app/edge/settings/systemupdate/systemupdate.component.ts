@@ -28,7 +28,7 @@ export class SystemUpdateComponent implements OnInit {
   ngOnInit() {
     this.service.setCurrentComponent("", this.route).then(edge => {
       this.edge = edge;
-    })
+    });
   }
 
 }

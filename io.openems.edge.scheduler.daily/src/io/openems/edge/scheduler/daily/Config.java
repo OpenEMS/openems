@@ -22,17 +22,18 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String[] alwaysRunBeforeController_ids() default {};
 
 	@AttributeDefinition(name = "Daily Schedule", description = "Execution order of Controllers per time of day.")
-	String controllerScheduleJson() default "[" //
-			+ "  {" //
-			+ "    \"time\": \"08:00:00\"," //
-			+ "    \"controllers\": [" //
-			+ "      \"ctrlFixActivePower0\"" //
-			+ "    ]" //
-			+ "  },  {" //
-			+ "    \"time\": \"13:45:00\"," //
-			+ "    \"controllers\": [\"\"]" //
-			+ "  }" //
-			+ "]";
+	String controllerScheduleJson() default """
+			[
+			  {
+			    "time": "08:00:00",
+			    "controllers": [
+			      "ctrlFixActivePower0"
+			    ]
+			  }, {
+			    "time": "13:45:00",
+			    "controllers": [""]
+			  }
+			]""";
 
 	@AttributeDefinition(name = "Always Run After", description = "IDs of Controllers that should be executed _after_ other Controllers in the order of the IDs.")
 	String[] alwaysRunAfterController_ids() default { "ctrlDebugLog0" };

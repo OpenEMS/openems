@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -203,7 +202,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 						}
 						// should never come here
 						return false;
-					}).collect(Collectors.toList());
+					}).toList();
 			var predictions = new Prediction24Hours[meters.size()];
 			for (var i = 0; i < meters.size(); i++) {
 				var meter = meters.get(i);

@@ -1,5 +1,8 @@
 package io.openems.edge.pvinverter.solarlog;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,7 +25,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -41,6 +43,9 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,13 +59,19 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarLogImpl extends AbstractOpenemsModbusComponent implements SolarLog, ManagedSymmetricPvInverter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
-	@Reference
-	protected ConfigurationAdmin cm;
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	protected Config config;
 
@@ -110,10 +121,8 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506), SCALE_FACTOR_3),
+						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507), SCALE_FACTOR_2),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD,
@@ -169,6 +178,9 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 				this.channel(SolarLog.ChannelId.PV_LIMIT_FAILED).setNextValue(true);
 			}
 			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateProductionEnergy.update(this.getActivePower().get());
+			break;
 		}
 	}
 
@@ -196,4 +208,10 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 				ModbusSlaveNatureTable.of(SolarLog.class, accessMode, 100) //
 						.build());
 	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
 }

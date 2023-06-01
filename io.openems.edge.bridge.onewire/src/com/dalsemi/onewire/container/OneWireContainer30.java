@@ -311,11 +311,12 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 	 */
 	@Override
 	public String getDescription() {
-		return "The DS2760 is a data acquisition, information storage, and safety"
-				+ " protection device tailored for cost-sensitive battery pack applications."
-				+ " This low-power device integrates precise temperature, voltage, and"
-				+ " current measurement , nonvolatile data storage, and Li-Ion protection"
-				+ " into the small footprint of either a TSSOP packet or flip-chip.";
+		return """
+				The DS2760 is a data acquisition, information storage, and safety \
+				protection device tailored for cost-sensitive battery pack applications. \
+				This low-power device integrates precise temperature, voltage, and \
+				current measurement , nonvolatile data storage, and Li-Ion protection \
+				into the small footprint of either a TSSOP packet or flip-chip.""";
 	}
 
 	/**

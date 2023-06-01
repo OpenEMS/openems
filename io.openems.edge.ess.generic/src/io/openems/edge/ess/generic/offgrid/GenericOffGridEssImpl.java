@@ -1,5 +1,8 @@
 package io.openems.edge.ess.generic.offgrid;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -28,6 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -63,6 +67,9 @@ public class GenericOffGridEssImpl
 	 */
 	private final StateMachine stateMachine = new StateMachine(OffGridState.UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
+	private final AtomicBoolean fromOffToOnGrid = new AtomicBoolean(false);
+	private final AtomicReference<TargetGridMode> targetGridMode = new AtomicReference<>(TargetGridMode.GO_ON_GRID);
+	private final AtomicBoolean targetDeepDischarge = new AtomicBoolean();
 
 	@Reference
 	private Power power;
@@ -104,6 +111,8 @@ public class GenericOffGridEssImpl
 				config.offGridSwitch_id())) {
 			return;
 		}
+		this.requestGridOperationChange();
+		this.avoidBatteryDeepDischarge();
 	}
 
 	@Override
@@ -118,16 +127,9 @@ public class GenericOffGridEssImpl
 		// Store the current State
 		this.channel(GenericOffGridEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
-		// Initialize 'Start-Stop' Channel
-		this._setStartStop(StartStop.UNDEFINED);
-
-		// TODO check if grid switched -> then force next state;
-		// tell to GridSwitch-State via Context, that grid switched and handle the logic
-		// that is currently in StartedInOffGrid
-
 		// Prepare Context
 		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
-				this.componentManager);
+				this.componentManager, this.fromOffToOnGrid);
 
 		// Call the StateMachine
 		try {
@@ -192,5 +194,64 @@ public class GenericOffGridEssImpl
 			// Set only if value changed
 			this.stateMachine.forceNextState(OffGridState.UNDEFINED);
 		}
+	}
+
+	@Override
+	public boolean isOffGridPossible() {
+		return this.getBatteryInverter().isOffGridPossible();
+	}
+
+	private enum TargetGridMode {
+		GO_ON_GRID, GO_OFF_GRID;
+	}
+
+	public void setTargetGridMode(TargetGridMode targetGridMode) {
+		var oldTargetGridMode = this.targetGridMode.getAndSet(targetGridMode);
+		if (oldTargetGridMode == targetGridMode) {
+			return;
+		}
+		if (oldTargetGridMode == TargetGridMode.GO_OFF_GRID) {
+			this.fromOffToOnGrid.set(true);
+		}
+		this.stateMachine.forceNextState(OffGridState.GRID_SWITCH);
+	}
+
+	/**
+	 * Change system on-off grid operation based on the updated grid status.
+	 */
+	private void requestGridOperationChange() {
+		this.offGridSwitch.getGridModeChannel().onUpdate(t -> {
+			if (t == null) {
+				return;
+			}
+			var targetGridMode = switch ((GridMode) t.asEnum()) {
+			case ON_GRID -> TargetGridMode.GO_ON_GRID;
+			case OFF_GRID -> TargetGridMode.GO_OFF_GRID;
+			case UNDEFINED -> null;
+			};
+			if (targetGridMode != null) {
+				this.setTargetGridMode(targetGridMode);
+			}
+		});
+	}
+
+	private void setTargetDeepDischarge(boolean value) {
+		if (this.targetDeepDischarge.getAndSet(value) != value) {
+			this.stateMachine.forceNextState(OffGridState.STOP_BATTERY_INVERTER);
+		}
+	}
+
+	/**
+	 * Avoid battery deep discharge situation in off grid mode.
+	 */
+	private void avoidBatteryDeepDischarge() {
+		this.getAllowedDischargePowerChannel().onSetNextValue(allowedDischargePowerValue -> {
+			var allowedDischargePower = allowedDischargePowerValue.orElse(0);
+			var gridMode = this.offGridSwitch.getGridMode();
+			if (allowedDischargePower > 0 || gridMode != GridMode.OFF_GRID) {
+				return;
+			}
+			this.setTargetDeepDischarge(true);
+		});
 	}
 }

@@ -76,11 +76,11 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     get stateNameBuy() {
-        return this.showBuyAnimation ? 'show' : 'hide'
+        return this.showBuyAnimation ? 'show' : 'hide';
     }
 
     get stateNameSell() {
-        return this.showSellAnimation ? 'show' : 'hide'
+        return this.showSellAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -104,7 +104,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             let arrowIndicate: number;
             if (sum.grid.buyActivePower > 49) {
                 arrowIndicate = Utils.multiplySafely(
-                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1)
+                    Utils.divideSafely(sum.grid.buyActivePower, sum.system.totalPower), -1);
             } else {
                 arrowIndicate = 0;
             }
@@ -120,7 +120,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             }
             let arrowIndicate: number;
             if (sum.grid.sellActivePower > 49) {
-                arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower)
+                arrowIndicate = Utils.divideSafely(sum.grid.sellActivePower, sum.system.totalPower);
             } else {
                 arrowIndicate = 0;
             }
@@ -130,14 +130,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant('General.grid')
+            this.name = this.translate.instant('General.grid');
             super.updateSectionData(0, null, null);
         }
 
         // set grid mode
         this.gridMode = sum.grid.gridMode;
         if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath()
+            this.square.image.image = "assets/img/" + this.getImagePath();
         }
     }
 
@@ -149,9 +149,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getImagePath(): string {
         if (this.gridMode == 2) {
-            return "offgrid.png"
+            return "offgrid.png";
         } else {
-            return "grid.png"
+            return "grid.png";
         }
     }
 
@@ -167,8 +167,8 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -181,7 +181,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
             middleRight: { x: 0, y: 0 }
-        }
+        };
         if (ratio > 0) {
             // towards left
             p.topLeft.x = p.topLeft.x + v;
@@ -203,7 +203,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
             middleRight: { x: 0, y: 0 }
-        }
+        };
 
         if (ratio > 0) {
             // towards left

@@ -36,7 +36,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.remoteComponentId = remoteComponentId;
 			return this;
 		}
-		
+
 		public Builder setRemoteAccessMode(AccessMode remoteAccessMode) {
 			this.remoteAccessMode = remoteAccessMode;
 			return this;

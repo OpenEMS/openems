@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -143,7 +142,7 @@ public class ResolveDependencies implements Runnable {
 		// null so no new instance gets installed
 		for (var config : configs) {
 			var instances = appManagerImpl.getInstantiatedApps().stream().filter(i -> i.appId.equals(config.appId))
-					.collect(Collectors.toList());
+					.toList();
 			for (var instance : instances) {
 				var existingDependencies = appManagerUtil.getAppsWithDependencyTo(instance);
 				if (existingDependencies.isEmpty()) {

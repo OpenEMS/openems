@@ -1,9 +1,12 @@
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChannelAddress, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -25,7 +28,9 @@ export class Utils {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj) return obj;
+    if (null == obj || "object" != typeof obj) {
+      return obj;
+    }
 
     // Handle Date
     if (obj instanceof Date) {
@@ -200,11 +205,11 @@ export class Utils {
   }
 
   /**
-  * Converts a value in Watt [W] to KiloWatt [kW].
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_WATT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -213,14 +218,14 @@ export class Utils {
     } else {
       return '0 W';
     }
-  }
+  };
 
   /**
- * Converts a value in Watt [W] to KiloWatt [kW].
- * 
- * @param value the value from passed value in html
- * @returns converted value
- */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_VOLT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -229,14 +234,14 @@ export class Utils {
     } else {
       return '0 V';
     }
-  }
+  };
 
   /**
-* Converts a value in Milliampere [mA] to Ampere[A].
-* 
-* @param value the value from passed value in html
-* @returns converted value
-*/
+   * Converts a value in Milliampere [mA] to Ampere[A].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_CURRENT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -245,8 +250,7 @@ export class Utils {
     } else {
       return '0 A';
     }
-  }
-
+  };
 
   /**
    * Converts a value in Watt [W] to KiloWatt [kW].
@@ -265,7 +269,7 @@ export class Utils {
     } else {
       return '0 kW';
     }
-  }
+  };
 
   /**
    * Converts a value in Seconds [s] to Dateformat [kk:mm:ss].
@@ -274,32 +278,38 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
-    return new Date(value * 1000).toLocaleTimeString()
-  }
+    return new Date(value * 1000).toLocaleTimeString();
+  };
 
+  /**
+   * Adds unit percentage [%] to a value.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_PERCENT = (value: any): string => {
-    return value + ' %'
-  }
+    return value + ' %';
+  };
 
   /**
-  * Converts a value to WattHours [Wh]
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value to WattHours [Wh]
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_WATTHOURS = (value: any): string => {
-    return formatNumber(value, 'de', '1.0-1') + ' Wh'
-  }
+    return formatNumber(value, 'de', '1.0-1') + ' Wh';
+  };
 
   /**
-  * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
-    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh'
-  }
+    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh';
+  };
 
   /**
    * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
@@ -316,8 +326,8 @@ export class Utils {
       } else {
         return '-';
       }
-    }
-  }
+    };
+  };
 
   /**
    * Takes a power value and extracts the information if it represents Charge or Discharge.
@@ -332,14 +342,14 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
-  }
+  };
 
   /**
- * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
- * 
- * @param value the value from passed value in html
- * @returns converted value
- */
+   * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === 'MANUAL') {
@@ -351,8 +361,8 @@ export class Utils {
       } else {
         return '-';
       }
-    }
-  }
+    };
+  };
 
   /**
    * Converts Minute from start of day to daytime in 'HH:mm' format.
@@ -365,16 +375,20 @@ export class Utils {
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
       return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
-    }
+    };
   };
 
   /**
-   * Converts Price to Cent per kWh [Cent / kWh]
+   * Converts Price to Cent per kWh [currency / kWh]
    * 
    * @param decimal number of decimals after fraction
+   * @param label label to be displayed along with price
    * @returns converted value
    */
-  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number) => { return (value: any): string => (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' Cent/kWh' };
+  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    return (value: any): string =>
+      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
+  };
 
   /**
    * Converts Time-Of-Use-Tariff-State 
@@ -394,10 +408,10 @@ export class Utils {
         case 2:
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.charging');
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
       }
-    }
-  }
+    };
+  };
 
   /**
    * Gets the image path for storage depending on State-of-Charge.
@@ -513,7 +527,7 @@ export class Utils {
    * @returns the shuffled array
    */
   public static shuffleArray(array: any[]): any[] {
-    return array.sort(() => Math.random() - 0.5)
+    return array.sort(() => Math.random() - 0.5);
   }
 
   /**
@@ -533,6 +547,120 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
+  }
+
+  /**
+   * Returns the label based on component factory id.
+   * 
+   * @param component The Component.
+   * @param translate The Translate
+   * @returns the label.
+   */
+  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
+    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
+    } else {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
+    }
+  }
+}
+export namespace HistoryUtils {
+
+  export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (data: number[]): number[] | null[] => {
+    return data?.map(value => value == null ? null : value / 1000);
+  };
+
+  /**
+ * Creates an empty dataset for ChartJS with translated error message.
+ * 
+ * @param translate the TranslateService
+ * @returns a dataset
+ */
+  export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+    return [{
+      label: translate.instant("Edge.History.noData"),
+      data: [],
+      hidden: false
+    }];
+  }
+
+  export enum YAxisTitle {
+    PERCENTAGE,
+    ENERGY
+  }
+  export type InputChannel = {
+
+    /** Must be unique, is used as identifier in {@link ChartData.input} */
+    name: string,
+    powerChannel: ChannelAddress,
+    energyChannel?: ChannelAddress
+
+    /** Choose between predefined converters */
+    converter?: (value: number) => number | null,
+  }
+  export type DisplayValues = {
+    name: string,
+    /** suffix to the name */
+    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
+    /** Convert the values to be displayed in Chart */
+    converter: () => number[],
+    /** If dataset should be hidden on Init */
+    hiddenOnInit?: boolean,
+    /** default: true, stroke through label for hidden dataset */
+    noStrokeThroughLegendIfHidden?: boolean,
+    /** color in rgb-Format */
+    color: string,
+    /** the stack for barChart */
+    stack?: number,
+  }
+  /**
+ * Data from a subscription to Channel or from a historic data query.
+ * 
+ * TODO Lukas refactor
+ */
+  export type ChannelData = {
+    [name: string]: number[]
+  }
+
+  export type ChartData = {
+    /** Input Channels that need to be queried from the database */
+    input: InputChannel[],
+    /** Output Channels that will be shown in the chart */
+    output: (data: ChannelData) => DisplayValues[],
+    tooltip: {
+      /** Format of Number displayed */
+      formatNumber: string,
+      afterTitle?: string
+    },
+    /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
+    unit: YAxisTitle,
+  }
+
+  export namespace ValueConverter {
+
+    export const NEGATIVE_AS_ZERO = (value) => {
+      if (value > 0) {
+        return value;
+      } else {
+        return 0;
+      }
+    };
+
+    export const NON_NEGATIVE = (value) => {
+      if (value >= 0) {
+        return value;
+      } else {
+        return null;
+      }
+    };
+
+    export const NON_NULL_OR_NEGATIVE = (value) => {
+      if (value > 0) {
+        return value;
+      } else {
+        return 0;
+      }
+    };
   }
 }

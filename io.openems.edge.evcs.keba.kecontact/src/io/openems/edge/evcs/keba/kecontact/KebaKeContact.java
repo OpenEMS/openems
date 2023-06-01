@@ -110,7 +110,7 @@ public interface KebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, Even
 				.unit(Unit.PERCENT) //
 				.text("Power factor")), //
 		ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.text("Total power consumption (persistent) without current loading session. "
 						+ "Is summed up after each completed charging session")), //
 		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //

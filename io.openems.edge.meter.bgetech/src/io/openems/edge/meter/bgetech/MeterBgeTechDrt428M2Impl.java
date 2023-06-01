@@ -1,6 +1,8 @@
 
 package io.openems.edge.meter.bgetech;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,7 +19,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -83,42 +84,27 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent imp
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(14, Priority.HIGH,
-						m(new FloatDoublewordElement(14))
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3).build(),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(16),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(18),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(new FloatDoublewordElement(14)).m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3)
+								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3).build(),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(16), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(18), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(20),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(20), SCALE_FACTOR_3), //
 
-						m(new FloatDoublewordElement(22))
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.SCALE_FACTOR_3)
-								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3).build(),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(24),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(26),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(new FloatDoublewordElement(22)).m(AsymmetricMeter.ChannelId.CURRENT_L1, SCALE_FACTOR_3)
+								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_3).build(),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(24), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(26), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(28),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(30),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(32),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(34),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(28), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(30), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(32), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(34), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(36),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(38),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(40),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(42),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(36), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(38), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(40), SCALE_FACTOR_3), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(42), SCALE_FACTOR_3), //
 
 						m(MeterBgeTechDrt428M2.ChannelId.TOTAL_APPARENT_POWER, new FloatDoublewordElement(44)),
 						m(MeterBgeTechDrt428M2.ChannelId.L1_APPARENT_POWER, new FloatDoublewordElement(46)),
