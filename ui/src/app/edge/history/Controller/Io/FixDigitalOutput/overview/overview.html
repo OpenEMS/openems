@@ -1,0 +1,13 @@
+<oe-chart [title]="'General.production' | translate" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
+  *ngIf="isInitialized" [period]="service.historyPeriod.value">
+  <!-- Total Chart -->
+  <ng-container *ngIf="showTotal, else singleChart">
+    <totalChart [showPhases]="showPhases" [showTotal]="showTotal">
+    </totalChart>
+  </ng-container>
+
+  <ng-template #singleChart>
+
+
+  </ng-template>
+</oe-chart>
