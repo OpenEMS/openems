@@ -1,7 +1,11 @@
 package io.openems.common.utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
@@ -206,5 +210,32 @@ public class XmlUtils {
 	 */
 	public static int getContentAsInt(Node node) {
 		return Integer.parseInt(node.getTextContent());
+	}
+
+	// Source: https://stackoverflow.com/a/48153597/4137113
+	public static Iterable<Node> list(final Node node) {
+		return () -> new Iterator<Node>() {
+
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < node.getChildNodes().getLength();
+			}
+
+			@Override
+			public Node next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
+				return node.getChildNodes().item(index++);
+			}
+		};
+	}
+
+	// Source: https://stackoverflow.com/a/62171621/4137113
+	public static Stream<Node> stream(final Node node) {
+		var childNodes = node.getChildNodes();
+		return IntStream.range(0, childNodes.getLength()).boxed().map(childNodes::item);
 	}
 }

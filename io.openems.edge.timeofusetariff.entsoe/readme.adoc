@@ -1,0 +1,7 @@
+= Time-Of-Use Tariff ENTSO-E
+
+This implementation uses the ENTSO-E transparency platform to receive day-ahead prices in European power grids.
+
+To request a (free) authentication token, please see chapter "2. Authentication and Authorisation" in the official API documentation: https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_authentication_and_authorisation
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.entsoe[Source Code icon:github[]]
