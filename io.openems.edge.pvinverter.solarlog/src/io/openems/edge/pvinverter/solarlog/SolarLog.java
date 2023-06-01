@@ -29,7 +29,7 @@ public interface SolarLog
 		YEARLY_YIELD(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS)),
 		TOTAL_YIELD(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		PAC_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		YESTERDAY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
@@ -39,7 +39,7 @@ public interface SolarLog
 		YEARLY_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS)),
 		TOTAL_YIELD_CONS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		TOTAL_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS_BY_WATT_PEAK)),
 
