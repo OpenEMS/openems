@@ -57,7 +57,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	private ScheduledFuture<?> configFuture = null;
 	private Client client = null;
 	private BpData _bpData = null;
-
 	private StableVersion stableVersion;
 
 	public BpCoreImpl() {

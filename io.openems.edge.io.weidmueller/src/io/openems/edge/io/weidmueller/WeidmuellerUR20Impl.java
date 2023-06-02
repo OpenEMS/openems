@@ -53,10 +53,24 @@ public class WeidmuellerUR20Impl extends AbstractOpenemsModbusComponent
 	// TODO Watchdog
 	// TODO Error/Warning state handling
 
-	private final Logger log = LoggerFactory.getLogger(WeidmuellerUR20Impl.class);
+	private static final int PROCESS_DATA_INPUT_BASE_REGISTER = 0x8000;
+	private static final int PROCESS_DATA_OUTPUT_BASE_REGISTER = 0x9000;
+	private static final int PROCESS_DATA_OUTPUT_BASE_COIL = 0x8000;
 
+	private final Logger log = LoggerFactory.getLogger(WeidmuellerUR20Impl.class);
 	private final ModbusProtocol modbusProtocol;
 	private final TreeMap<URemoteModule, List<BooleanReadChannel>> modules = new TreeMap<>();
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private BooleanReadChannel[] digitalInputChannels;
+	private BooleanWriteChannel[] digitalOutputChannels;
 
 	public WeidmuellerUR20Impl() throws OpenemsException {
 		super(//
@@ -68,21 +82,6 @@ public class WeidmuellerUR20Impl extends AbstractOpenemsModbusComponent
 		);
 		this.modbusProtocol = new ModbusProtocol(this);
 	}
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	private static final int PROCESS_DATA_INPUT_BASE_REGISTER = 0x8000;
-	private static final int PROCESS_DATA_OUTPUT_BASE_REGISTER = 0x9000;
-	private static final int PROCESS_DATA_OUTPUT_BASE_COIL = 0x8000;
-
-	private BooleanReadChannel[] digitalInputChannels;
-	private BooleanWriteChannel[] digitalOutputChannels;
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {

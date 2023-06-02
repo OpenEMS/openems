@@ -1,4 +1,6 @@
-package io.openems.edge.kaco.blueplanet.hybrid10.ess.charger;
+package io.openems.edge.kostal.piko.charger;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -10,8 +12,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
@@ -23,54 +23,55 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Kaco.BlueplanetHybrid10.Charger", //
+		name = "Kostal.Piko.Charger", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class BpChargerImpl extends AbstractOpenemsComponent
-		implements BpCharger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public class KostalPikoChargerImpl extends AbstractOpenemsComponent
+		implements KostalPikoCharger, EssDcCharger, OpenemsComponent, ModbusSlave {
 
-	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
-			EssDcCharger.ChannelId.ACTUAL_ENERGY);
+	private final AtomicReference<KostalPikoCore> core = new AtomicReference<>();
 
 	@Reference
 	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private BpCore core;
+	protected void setCore(KostalPikoCore core) {
+		this.core.set(core);
+		core.setCharger(this);
+	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+	protected void unsetCore(KostalPikoCore core) {
+		this.core.compareAndSet(core, null);
+		core.unsetCharger(this);
+	}
 
-	public BpChargerImpl() {
+	public KostalPikoChargerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				BpCharger.ChannelId.values() //
+				KostalPikoCharger.ChannelId.values() //
 		);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
+		// update filter for 'Core'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
 			return;
 		}
 	}
 
-	@Deactivate
 	@Override
+	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
@@ -81,40 +82,11 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updateChannels();
-			break;
-		}
-	}
-
-	private void updateChannels() {
-		Integer actualPower = null;
-
-		var bpData = this.core.getBpData();
-		this._setCommunicationFailed(bpData == null);
-
-		if (bpData != null) {
-			actualPower = Math.round(bpData.inverter.getPvPower());
-		}
-		this._setActualPower(actualPower);
-
-		// Calculate Energy
-		this.calculateActualEnergy.update(actualPower);
-	}
-
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
-	}
-
-	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(BpCharger.class, accessMode, 100) //
+				ModbusSlaveNatureTable.of(KostalPikoChargerImpl.class, accessMode, 100) //
 						.build());
 	}
 }

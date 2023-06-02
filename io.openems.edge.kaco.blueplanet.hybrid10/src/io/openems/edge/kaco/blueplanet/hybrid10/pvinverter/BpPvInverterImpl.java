@@ -56,21 +56,20 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	private final Logger log = LoggerFactory.getLogger(BpPvInverterImpl.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
+	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private Instant lastSuccessfulCommunication = null;
 
@@ -86,7 +85,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'

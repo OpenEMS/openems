@@ -47,15 +47,18 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterJanitzaUmg604Impl extends AbstractOpenemsModbusComponent
 		implements MeterJanitzaUmg604, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private MeterType meterType = MeterType.PRODUCTION;
-
-	/*
-	 * Invert power values
-	 */
-	private boolean invert = false;
-
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private MeterType meterType = MeterType.PRODUCTION;
+	/** Invert power values. */
+	private boolean invert = false;
 
 	public MeterJanitzaUmg604Impl() {
 		super(//
@@ -67,14 +70,8 @@ public class MeterJanitzaUmg604Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		this.invert = config.invert();
 

@@ -63,21 +63,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	private static final int WATCHDOG_SECONDS = 8;
 	private static final int MAX_POWER_RAMP = 500; // [W/sec]
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BpCore core;
-
-	@Reference
-	protected Cycle cycle;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	private Timedata timedata;
-
-	@Reference
-	private Power power;
-
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateAcDischargeEnergy = new CalculateEnergyFromPower(this,
@@ -86,6 +71,21 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			HybridEss.ChannelId.DC_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private BpCore core;
+
+	@Reference
+	private Cycle cycle;
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private Timedata timedata;
+
+	@Reference
+	private Power power;
 
 	private Config config;
 
@@ -101,7 +101,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {

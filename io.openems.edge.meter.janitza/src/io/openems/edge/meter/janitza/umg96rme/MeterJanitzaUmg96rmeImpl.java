@@ -1,4 +1,4 @@
-package io.openems.edge.meter.janitza.umg511;
+package io.openems.edge.meter.janitza.umg96rme;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
@@ -33,19 +33,19 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
- * Implements the Janitza UMG 511 power analyzer.
+ * Implements the Janitza UMG 96RM-E power analyzer.
  *
  * <p>
- * https://www.janitza.de/betriebsanleitungen.html?file=files/download/manuals/current/UMG511/Modbus/janitza-mal-umg511-en.pdf
+ * https://www.janitza.com/umg-96rm-e.html
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.Janitza.UMG511", //
+		name = "Meter.Janitza.UMG96RME", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
-		implements MeterJanitzaUmg511, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public class MeterJanitzaUmg96rmeImpl extends AbstractOpenemsModbusComponent implements MeterJanitzaUmg96rme,
+		SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -60,13 +60,13 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 	/** Invert power values. */
 	private boolean invert = false;
 
-	public MeterJanitzaUmg511Impl() {
+	public MeterJanitzaUmg96rmeImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				MeterJanitzaUmg511.ChannelId.values() //
+				MeterJanitzaUmg96rme.ChannelId.values() //
 		);
 	}
 
@@ -94,42 +94,41 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		/*
+		 * We are using the FLOAT registers from the modbus table, because they are all
+		 * reachable within one ReadMultipleRegistersRequest.
+		 */
 		var modbusProtocol = new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(3845, Priority.HIGH, //
-						m(new FloatDoublewordElement(3845)).m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3)//
-								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3)//
-								.build(),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849), SCALE_FACTOR_3), //
-						new DummyRegisterElement(3851, 3852), m(new FloatDoublewordElement(3853)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1, SCALE_FACTOR_3) //
-								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_3) //
+				new FC3ReadRegistersTask(800, Priority.HIGH, //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800), SCALE_FACTOR_3),
+						new DummyRegisterElement(802, 807), //
+						m(new FloatDoublewordElement(808)) //
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), //
-								SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), //
-								SCALE_FACTOR_3), //
-						new DummyRegisterElement(3859, 3860),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3861), //
-								INVERT_IF_TRUE(this.invert)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3863), //
-								INVERT_IF_TRUE(this.invert)), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3865), //
-								INVERT_IF_TRUE(this.invert)), //
-						new DummyRegisterElement(3867, 3868),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(3869), //
-								INVERT_IF_TRUE(this.invert)), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(3871), //
-								INVERT_IF_TRUE(this.invert)), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(3873), //
-								INVERT_IF_TRUE(this.invert))), //
-				new FC3ReadRegistersTask(3925, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925)), //
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
-								INVERT_IF_TRUE(this.invert))), //
-				new FC3ReadRegistersTask(3995, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), //
-								SCALE_FACTOR_3)));
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(810), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(812), SCALE_FACTOR_3),
+						new DummyRegisterElement(814, 859), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864), SCALE_FACTOR_3),
+						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
+								INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),
+								INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872),
+								INVERT_IF_TRUE(this.invert)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874),
+								INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
+								INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
+								INVERT_IF_TRUE(this.invert)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
+								INVERT_IF_TRUE(this.invert)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
+								INVERT_IF_TRUE(this.invert))));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
@@ -158,5 +157,6 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
 		);
+
 	}
 }

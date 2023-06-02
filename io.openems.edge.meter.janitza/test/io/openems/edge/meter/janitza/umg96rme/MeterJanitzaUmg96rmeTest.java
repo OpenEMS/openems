@@ -14,7 +14,7 @@ public class MeterJanitzaUmg96rmeTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterJanitzaUmg96rme()) //
+		new ComponentTest(new MeterJanitzaUmg96rmeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

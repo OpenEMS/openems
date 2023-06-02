@@ -39,8 +39,8 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 		implements ShellyPlug, DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(ShellyPlugImpl.class);
-
 	private final BooleanWriteChannel[] digitalOutputChannels;
+
 	private ShellyApi shellyApi = null;
 	private MeterType meterType = null;
 
@@ -57,7 +57,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.shellyApi = new ShellyApi(config.ip());
 		this.meterType = config.type();

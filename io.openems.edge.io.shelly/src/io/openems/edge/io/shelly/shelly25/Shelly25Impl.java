@@ -38,8 +38,8 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 		implements Shelly25, DigitalOutput, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(Shelly25Impl.class);
-
 	private final BooleanWriteChannel[] digitalOutputChannels;
+
 	private ShellyApi shellyApi = null;
 
 	public Shelly25Impl() {
@@ -55,7 +55,7 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.shellyApi = new ShellyApi(config.ip());
 	}

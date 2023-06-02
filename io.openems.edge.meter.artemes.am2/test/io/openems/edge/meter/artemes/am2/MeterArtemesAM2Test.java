@@ -14,7 +14,7 @@ public class MeterArtemesAM2Test {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterArtemesAM2()) //
+		new ComponentTest(new MeterArtemesAM2Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
