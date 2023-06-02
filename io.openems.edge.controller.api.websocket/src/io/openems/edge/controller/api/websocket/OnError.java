@@ -9,9 +9,9 @@ import io.openems.common.exceptions.OpenemsException;
 public class OnError implements io.openems.common.websocket.OnError {
 
 	private final Logger log = LoggerFactory.getLogger(OnError.class);
-	private final WebsocketApi parent;
+	private final WebsocketApiImpl parent;
 
-	public OnError(WebsocketApi parent) {
+	public OnError(WebsocketApiImpl parent) {
 		this.parent = parent;
 	}
 

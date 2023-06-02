@@ -37,19 +37,11 @@ import io.openems.edge.ess.power.api.Pwr;
 )
 public class EssCycleImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, EssCycle {
 
-	private final Logger log = LoggerFactory.getLogger(EssCycleImpl.class);
-
 	// Time formatter from the String
 	public static final String TIME_FORMAT = "HH:mm";
 
+	private final Logger log = LoggerFactory.getLogger(EssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
-	private Config config;
-
-	/**
-	 * Timestamp of the last time the State has changed.
-	 */
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -62,6 +54,10 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
+
+	private Config config;
+	/** Timestamp of the last time the State has changed. */
+	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	public EssCycleImpl() {
 		super(//

@@ -24,7 +24,7 @@ public class JsonLogicControllerTest2 {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new JsonLogicController()) //
+		new ControllerTest(new JsonLogicControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySum()) //
 				.addComponent(new DummyInputOutput(IO_ID)) //

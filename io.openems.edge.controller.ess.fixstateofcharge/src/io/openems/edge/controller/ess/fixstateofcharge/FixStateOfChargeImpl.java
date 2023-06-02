@@ -34,7 +34,7 @@ public class FixStateOfChargeImpl extends AbstractFixStateOfCharge
 		implements FixStateOfCharge, Controller, OpenemsComponent {
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
 	private ConfigurationAdmin cm;

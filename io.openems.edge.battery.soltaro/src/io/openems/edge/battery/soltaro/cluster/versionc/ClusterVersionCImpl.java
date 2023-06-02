@@ -87,6 +87,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	private static final int WATCHDOG = 90;
 
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionCImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private final TreeSet<Rack> racks = new TreeSet<>();
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -94,13 +96,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	@Reference
 	protected ComponentManager componentManager;
 
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
 	private Config config;
-	private final TreeSet<Rack> racks = new TreeSet<>();
 	private BatteryProtection batteryProtection = null;
 
 	public ClusterVersionCImpl() {
@@ -124,7 +120,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		// Initialize active racks
 
 		this.config = config;

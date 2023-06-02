@@ -88,36 +88,32 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 		implements Sinexcel, OffGridBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
 		ModbusComponent, OpenemsComponent, TimedataProvider, StartStoppable {
 
-	private final Logger log = LoggerFactory.getLogger(SinexcelImpl.class);
+	public static final int MAX_APPARENT_POWER = 30_000;
+	public static final int DEFAULT_UNIT_ID = 1;
+	public static final int DEFAULT_EMS_TIMEOUT = 60;
+	public static final int DEFAULT_BMS_TIMEOUT = 0;
+	public static final EnableDisable DEFAULT_GRID_EXISTENCE_DETECTION_ON = EnableDisable.DISABLE;
+	public static final PowerRisingMode DEFAULT_POWER_RISING_MODE = PowerRisingMode.STEP;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+	private static final int MAX_CURRENT = 90; // [A]
+	private static final int MAX_TOPPING_CHARGE_VOLTAGE = 750;
+
+	private final Logger log = LoggerFactory.getLogger(SinexcelImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
-	public static final int MAX_APPARENT_POWER = 30_000;
-	public static final int DEFAULT_UNIT_ID = 1;
-
-	private static final int MAX_CURRENT = 90; // [A]
-	public static final int DEFAULT_EMS_TIMEOUT = 60;
-	public static final int DEFAULT_BMS_TIMEOUT = 0;
-	public static final EnableDisable DEFAULT_GRID_EXISTENCE_DETECTION_ON = EnableDisable.DISABLE;
-	public static final PowerRisingMode DEFAULT_POWER_RISING_MODE = PowerRisingMode.STEP;
-	private static final int MAX_TOPPING_CHARGE_VOLTAGE = 750;
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -144,7 +140,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {

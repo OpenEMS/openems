@@ -16,11 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,13 +33,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(DelayedSellToGridImpl.class);
 
 	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected Power power;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
@@ -59,7 +51,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
@@ -78,13 +70,10 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
-
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		var gridMode = ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -96,9 +85,9 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		int essPower = ess.getActivePower().getOrError();/* current charge/discharge Ess */
+		int essPower = this.ess.getActivePower().getOrError();/* current charge/discharge Ess */
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		var gridPower = meter.getActivePower().getOrError() + essPower;
+		var gridPower = this.meter.getActivePower().getOrError() + essPower;
 
 		int calculatedPower;
 		if (gridPower <= -this.config.sellToGridPowerLimit()) {
@@ -123,7 +112,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		/*
 		 * set result
 		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEqualsWithPid(calculatedPower);
+		this.ess.setReactivePowerEquals(0);
 	}
 }

@@ -25,15 +25,16 @@ import io.openems.edge.timedata.api.Timedata;
 @Component(//
 		name = "Controller.Api.Rest.ReadWrite", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class RestApiReadWriteImpl extends AbstractRestApi
 		implements RestApiReadWrite, RestApi, Controller, OpenemsComponent {
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
-	protected UserService userService;
+	private UserService userService;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -49,7 +50,7 @@ public class RestApiReadWriteImpl extends AbstractRestApi
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), config.apiTimeout(),
 				config.port(), config.connectionlimit());
 	}

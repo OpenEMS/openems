@@ -49,14 +49,15 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
 
-	protected Config config;
-	private String topicPrefix;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	protected Config config;
+
+	private String topicPrefix;
 
 	public MqttApiControllerImpl() {
 		super(//
@@ -69,7 +70,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private IMqttClient mqttClient = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws Exception {
+	private void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
 
 		// Publish MQTT messages under the topic "edge/edge0/..."

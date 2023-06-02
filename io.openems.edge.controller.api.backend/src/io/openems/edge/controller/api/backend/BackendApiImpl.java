@@ -70,16 +70,12 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
-
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
 
 	protected WebsocketClient websocket = null;
 	protected Config config;
-
-	// Used for SubscribeSystemLogRequests
-	private boolean isSystemLogSubscribed = false;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -90,6 +86,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	@Reference
 	protected Cycle cycle;
 
+	/** Used for SubscribeSystemLogRequests. */
+	private boolean isSystemLogSubscribed = false;
 	private ScheduledExecutorService executor;
 
 	public BackendApiImpl() {
@@ -102,7 +100,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 

@@ -36,8 +36,17 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 		implements EmergencyCapacityReserve, Controller, OpenemsComponent {
 
+	/** Minimum reserve SoC value in [%]. */
+	private static final int reservSocMinValue = 5;
+	/** Maximum reserve SoC value in [%]. */
+	private static final int reservSocMaxValue = 100;
+
+	private final Logger log = LoggerFactory.getLogger(EmergencyCapacityReserveImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.NO_LIMIT);
+	private final RampFilter rampFilter = new RampFilter();
+
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -50,22 +59,6 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
-	/**
-	 * Minimum reserve SoC value in [%].
-	 */
-	private static final int reservSocMinValue = 5;
-
-	/**
-	 * Maximum reserve SoC value in [%].
-	 */
-	private static final int reservSocMaxValue = 100;
-
-	private final StateMachine stateMachine = new StateMachine(State.NO_LIMIT);
-
-	private final RampFilter rampFilter = new RampFilter();
-
-	private final Logger log = LoggerFactory.getLogger(EmergencyCapacityReserveImpl.class);
-
 	public EmergencyCapacityReserveImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -75,7 +68,7 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}

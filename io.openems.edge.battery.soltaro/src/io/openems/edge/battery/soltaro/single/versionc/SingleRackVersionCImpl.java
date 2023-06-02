@@ -74,19 +74,16 @@ import io.openems.edge.common.taskmanager.Priority;
 public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent implements SingleRackVersionC, Battery,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
-	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private static final int WATCHDOG = 60;
+
+	private final Logger log = LoggerFactory.getLogger(SingleRackVersionCImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private Config config;
 	private BatteryProtection batteryProtection = null;
@@ -109,7 +106,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {

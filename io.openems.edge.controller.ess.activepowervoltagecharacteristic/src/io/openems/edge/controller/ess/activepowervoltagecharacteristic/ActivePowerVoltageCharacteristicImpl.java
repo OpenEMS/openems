@@ -37,13 +37,8 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 
 	private final Logger log = LoggerFactory.getLogger(ActivePowerVoltageCharacteristicImpl.class);
 
-	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
-
-	private Config config;
-	private PolyLine pByUCharacteristics = null;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
@@ -52,7 +47,11 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 	private ManagedSymmetricEss ess;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
+
+	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
+	private Config config;
+	private PolyLine pByUCharacteristics = null;
 
 	public ActivePowerVoltageCharacteristicImpl() {
 		super(//
@@ -63,7 +62,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;

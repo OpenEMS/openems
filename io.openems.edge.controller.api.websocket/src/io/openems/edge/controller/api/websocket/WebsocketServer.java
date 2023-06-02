@@ -8,14 +8,14 @@ import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final WebsocketApi parent;
+	private final WebsocketApiImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(WebsocketApi parent, String name, int port, int poolSize, DebugMode debugMode) {
+	public WebsocketServer(WebsocketApiImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode, null);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);

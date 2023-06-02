@@ -51,7 +51,6 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
@@ -76,8 +75,13 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
-	@Reference
-	private Cycle cycle;
+	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -87,18 +91,6 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetGridsaveImpl.class);
-
-	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -155,7 +147,7 @@ public class KacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 			return;

@@ -49,20 +49,6 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		implements GridOptimizedCharge, Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
 
-	private final Logger log = LoggerFactory.getLogger(GridOptimizedChargeImpl.class);
-
-	protected Config config = null;
-
-	/**
-	 * Delay Charge logic.
-	 */
-	private DelayCharge delayCharge;
-
-	/**
-	 * Sell to grid logic.
-	 */
-	private SellToGridLimit sellToGridLimit;
-
 	/**
 	 * Buffer in watt taken into account in the calculation of the first and last
 	 * time when production is lower or higher than consumption.
@@ -71,10 +57,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	protected final RampFilter rampFilter = new RampFilter();
 
-	/**
-	 * Keeps the current day to detect changes in day.
-	 */
-	private LocalDate currentDay = LocalDate.MIN;
+	private final Logger log = LoggerFactory.getLogger(GridOptimizedChargeImpl.class);
 
 	/*
 	 * Time counter for the important states
@@ -88,23 +71,32 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private final CalculateActiveTime calculateNoLimitationTime = new CalculateActiveTime(this,
 			GridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
 
-	@Reference
-	protected Sum sum;
+	protected Config config = null;
+
+	/** Delay Charge logic. */
+	private DelayCharge delayCharge;
+	/** Sell to grid logic. */
+	private SellToGridLimit sellToGridLimit;
+	/** Keeps the current day to detect changes in day. */
+	private LocalDate currentDay = LocalDate.MIN;
 
 	@Reference
-	protected PredictorManager predictorManager;
+	protected Sum sum;
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	@Reference
-	private ConfigurationAdmin cm;
+	protected PredictorManager predictorManager;
 
 	@Reference
 	protected ManagedSymmetricEss ess;
 
 	@Reference
 	protected SymmetricMeter meter;
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;

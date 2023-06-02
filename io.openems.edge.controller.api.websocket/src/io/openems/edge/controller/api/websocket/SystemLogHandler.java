@@ -18,10 +18,10 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
-	private final WebsocketApi parent;
+	private final WebsocketApiImpl parent;
 	private final Set<String> subscriptions = new HashSet<>();
 
-	public SystemLogHandler(WebsocketApi parent) {
+	public SystemLogHandler(WebsocketApiImpl parent) {
 		this.parent = parent;
 	}
 

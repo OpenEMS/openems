@@ -14,7 +14,7 @@ public class SingleRackTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SingleRack()) //
+		new ComponentTest(new SingleRackImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

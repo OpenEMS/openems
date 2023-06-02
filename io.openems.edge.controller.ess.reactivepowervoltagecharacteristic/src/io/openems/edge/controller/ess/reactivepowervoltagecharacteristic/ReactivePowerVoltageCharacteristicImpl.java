@@ -32,18 +32,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
+public class ReactivePowerVoltageCharacteristicImpl extends AbstractOpenemsComponent
 		implements ReactivePowerVoltageCharacteristic, Controller, OpenemsComponent {
 
-	private final Logger log = LoggerFactory.getLogger(ReactivePwrVoltChractersticImpl.class);
-
-	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
-
-	private Config config;
-	private PolyLine qByUCharacteristics = null;
+	private final Logger log = LoggerFactory.getLogger(ReactivePowerVoltageCharacteristicImpl.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
@@ -52,9 +47,13 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 	private ManagedSymmetricEss ess;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
-	public ReactivePwrVoltChractersticImpl() {
+	private LocalDateTime lastSetPowerTime = LocalDateTime.MIN;
+	private Config config;
+	private PolyLine qByUCharacteristics = null;
+
+	public ReactivePowerVoltageCharacteristicImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -63,7 +62,7 @@ public class ReactivePwrVoltChractersticImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;

@@ -45,7 +45,7 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent implements Bridg
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.taskWorker = new OneWireTaskWorker(this, config.port());
 

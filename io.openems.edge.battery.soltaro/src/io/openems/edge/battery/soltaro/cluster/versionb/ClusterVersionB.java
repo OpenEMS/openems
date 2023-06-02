@@ -88,13 +88,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	// Helper that holds general information about single racks, independent if they
 	// are used or not
 	private static final Map<Integer, RackInfo> RACK_INFO = createRackInfo();
+
 	private final Logger log = LoggerFactory.getLogger(ClusterVersionB.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	// If an error has occurred, this indicates the time when next action could be
 	// done
@@ -133,7 +134,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
 		for (int i : config.racks()) {

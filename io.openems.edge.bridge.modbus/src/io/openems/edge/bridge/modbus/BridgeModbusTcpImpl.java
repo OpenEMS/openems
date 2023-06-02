@@ -45,9 +45,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	@Reference
 	private Cycle cycle;
 
-	/**
-	 * The configured IP address.
-	 */
+	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
 
@@ -60,7 +58,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
+	private void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
 		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));

@@ -44,6 +44,8 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 	private static final Pattern COMPONENT_ID_PATTERN = Pattern.compile("([^0-9]+)([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(DebugLogImpl.class);
+	private final TreeMultimap<String, String> additionalChannels = TreeMultimap.create();
+	private final Set<String> ignoreComponents = new HashSet<>();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -52,8 +54,6 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	private Config config;
-	private final TreeMultimap<String, String> additionalChannels = TreeMultimap.create();
-	private final Set<String> ignoreComponents = new HashSet<>();
 
 	public DebugLogImpl() {
 		super(//

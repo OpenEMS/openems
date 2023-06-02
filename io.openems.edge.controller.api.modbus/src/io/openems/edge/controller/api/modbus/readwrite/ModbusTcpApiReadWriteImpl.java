@@ -27,12 +27,16 @@ import io.openems.edge.controller.api.modbus.ModbusTcpApi;
 @Component(//
 		name = "Controller.Api.ModbusTcp.ReadWrite", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class ModbusTcpApiReadWriteImpl extends AbstractModbusTcpApi
 		implements ModbusTcpApiReadWrite, ModbusTcpApi, Controller, OpenemsComponent, JsonApi {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected Meta metaComponent = null;
+	private Meta metaComponent = null;
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -43,9 +47,6 @@ public class ModbusTcpApiReadWriteImpl extends AbstractModbusTcpApi
 	protected void removeComponent(OpenemsComponent component) {
 		super.removeComponent(component);
 	}
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	public ModbusTcpApiReadWriteImpl() {
 		super("Modbus/TCP-Api Read-Write", //
@@ -58,7 +59,7 @@ public class ModbusTcpApiReadWriteImpl extends AbstractModbusTcpApi
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
+	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm,
 				new ConfigRecord(this.metaComponent, config.component_ids(), config.apiTimeout(), config.port(),
 						config.maxConcurrentConnections()));

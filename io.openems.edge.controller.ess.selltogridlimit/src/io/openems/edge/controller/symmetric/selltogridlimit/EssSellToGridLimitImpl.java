@@ -33,7 +33,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(EssSellToGridLimitImpl.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
@@ -51,7 +51,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 

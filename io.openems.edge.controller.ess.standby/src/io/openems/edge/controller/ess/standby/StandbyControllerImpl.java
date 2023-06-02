@@ -35,6 +35,17 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 		implements StandbyController, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(StandbyControllerImpl.class);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	@Reference
+	private ComponentManager componentManager;
+
+	@Reference
+	private Sum sum;
+
+	private Config config;
+	private LocalDate configuredStartDate;
+	private LocalDate configuredEndDate;
 
 	public StandbyControllerImpl() {
 		super(//
@@ -43,21 +54,6 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 				StandbyController.ChannelId.values() //
 		);
 	}
-
-	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference
-	protected Sum sum;
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
-	private Config config;
-	private LocalDate configuredStartDate;
-	private LocalDate configuredEndDate;
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {

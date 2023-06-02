@@ -34,7 +34,6 @@ public class EssLinearPowerBandImpl extends AbstractOpenemsComponent
 	private ManagedSymmetricEss ess;
 
 	private Config config;
-
 	private int currentPower = 0;
 	private State state = State.DOWNWARDS;
 
@@ -47,7 +46,7 @@ public class EssLinearPowerBandImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		switch (config.startDirection()) {

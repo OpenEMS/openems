@@ -76,7 +76,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(WsData.class);
-	private final WebsocketApi parent;
+	private final WebsocketApiImpl parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 
 	/**
@@ -87,7 +87,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private Optional<User> user = Optional.empty();
 
-	public WsData(WebsocketApi parent) {
+	public WsData(WebsocketApiImpl parent) {
 		this.parent = parent;
 	}
 

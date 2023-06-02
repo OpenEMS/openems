@@ -21,7 +21,7 @@ public class ChpSocTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new ControllerChpSoc()) //
+		new ControllerTest(new ControllerChpSocImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //
 				.addComponent(new DummyInputOutput(IO_ID)) //

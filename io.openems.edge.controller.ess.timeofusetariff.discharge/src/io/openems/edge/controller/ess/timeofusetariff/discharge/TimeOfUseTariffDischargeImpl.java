@@ -53,9 +53,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
-	/**
-	 * Delayed Time is aggregated also after restart of OpenEMS.
-	 */
+	/** Delayed Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffDischarge.ChannelId.DELAYED_TIME);
 
@@ -108,7 +106,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 

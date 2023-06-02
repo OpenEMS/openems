@@ -41,8 +41,6 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 	private final Logger log = LoggerFactory.getLogger(EvcsControllerImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
 
-	private Config config;
-
 	@Reference
 	private ConfigurationAdmin cm;
 
@@ -51,6 +49,8 @@ public class EvcsControllerImpl extends AbstractOpenemsComponent implements Cont
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private ManagedEvcs evcs;
+
+	private Config config;
 
 	public EvcsControllerImpl() {
 		this(Clock.systemDefaultZone());

@@ -25,7 +25,7 @@ public class DelayChargeControllerTest {
 		// Initialize mocked Clock
 		final var clock = new TimeLeapClock(
 				Instant.ofEpochMilli(1546300800000L /* Tuesday, 1. January 2019 00:00:00 */), ZoneId.of("UTC"));
-		new ControllerTest(new DelayChargeController()) //
+		new ControllerTest(new DelayChargeControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
 						.withSoc(20) //

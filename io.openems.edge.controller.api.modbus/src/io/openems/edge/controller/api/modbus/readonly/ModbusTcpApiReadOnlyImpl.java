@@ -27,12 +27,16 @@ import io.openems.edge.controller.api.modbus.ModbusTcpApi;
 @Component(//
 		name = "Controller.Api.ModbusTcp.ReadOnly", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class ModbusTcpApiReadOnlyImpl extends AbstractModbusTcpApi
 		implements ModbusTcpApiReadOnly, ModbusTcpApi, Controller, OpenemsComponent, JsonApi {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected Meta metaComponent = null;
+	private Meta metaComponent = null;
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -43,9 +47,6 @@ public class ModbusTcpApiReadOnlyImpl extends AbstractModbusTcpApi
 	protected void removeComponent(OpenemsComponent component) {
 		super.removeComponent(component);
 	}
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	public ModbusTcpApiReadOnlyImpl() {
 		super("Modbus/TCP-Api Read-Only", //

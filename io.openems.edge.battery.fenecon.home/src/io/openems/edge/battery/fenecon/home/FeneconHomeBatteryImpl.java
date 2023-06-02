@@ -81,19 +81,14 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 	private static final String SERIAL_NUMBER_PREFIX_MODULE = "519110001210";
 
 	private final Logger log = LoggerFactory.getLogger(FeneconHomeBatteryImpl.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private Config config;
 	private BatteryProtection batteryProtection = null;
@@ -116,7 +111,7 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
