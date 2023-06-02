@@ -30,12 +30,20 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 		implements AllAlphabeticallyScheduler, Scheduler, OpenemsComponent {
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private Config config;
 
+	public AllAlphabeticallySchedulerImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				Scheduler.ChannelId.values(), //
+				AllAlphabeticallyScheduler.ChannelId.values() //
+		);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}
@@ -44,14 +52,6 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public AllAlphabeticallySchedulerImpl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Scheduler.ChannelId.values(), //
-				AllAlphabeticallyScheduler.ChannelId.values() //
-		);
 	}
 
 	@Override

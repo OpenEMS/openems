@@ -56,7 +56,7 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses());
 	}
 

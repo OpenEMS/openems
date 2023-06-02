@@ -1,12 +1,12 @@
-package io.openems.edge.meter.virtual.symmetric.add;
+package io.openems.edge.simulator.datasource.csv.predefined;
+
+import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.meter.api.VirtualMeter;
+import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
-public interface SymmetricVirtualAdd extends VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
+public interface SimulatorDatasourceCsvPredefined extends SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

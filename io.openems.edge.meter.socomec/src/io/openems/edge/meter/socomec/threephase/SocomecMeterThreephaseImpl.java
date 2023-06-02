@@ -52,10 +52,16 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 
 	private final Logger log = LoggerFactory.getLogger(SocomecMeterThreephaseImpl.class);
 
-	private Config config;
-
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private Config config;
 
 	public SocomecMeterThreephaseImpl() throws OpenemsException {
 		super(//
@@ -68,14 +74,8 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

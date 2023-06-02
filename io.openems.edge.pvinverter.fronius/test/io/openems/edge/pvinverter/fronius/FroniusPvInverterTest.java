@@ -13,7 +13,7 @@ public class FroniusPvInverterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new FroniusPvInverter()) //
+		new ComponentTest(new FroniusPvInverterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

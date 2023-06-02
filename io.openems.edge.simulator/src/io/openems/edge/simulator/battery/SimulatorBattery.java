@@ -1,12 +1,13 @@
-package io.openems.edge.meter.virtual.symmetric.add;
+package io.openems.edge.simulator.battery;
 
+import org.osgi.service.event.EventHandler;
+
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.meter.api.VirtualMeter;
+import io.openems.edge.common.startstop.StartStoppable;
 
-public interface SymmetricVirtualAdd extends VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
+public interface SimulatorBattery extends Battery, OpenemsComponent, EventHandler, StartStoppable {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

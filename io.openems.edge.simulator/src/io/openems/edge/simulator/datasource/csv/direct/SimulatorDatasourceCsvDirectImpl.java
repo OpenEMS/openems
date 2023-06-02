@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.csv.predefined;
+package io.openems.edge.simulator.datasource.csv.direct;
 
 import java.io.IOException;
 
@@ -20,29 +20,30 @@ import io.openems.edge.simulator.datasource.api.AbstractCsvDatasource;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.CSV.Predefined", //
+@Component(name = "Simulator.Datasource.CSV.Direct", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class CsvDatasourcePredefined extends AbstractCsvDatasource
-		implements SimulatorDatasource, OpenemsComponent, EventHandler {
+public class SimulatorDatasourceCsvDirectImpl extends AbstractCsvDatasource
+		implements SimulatorDatasourceCsvDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
 	private ComponentManager componentManager;
 
 	private Config config;
 
-	public CsvDatasourcePredefined() {
+	public SimulatorDatasourceCsvDirectImpl() {
 		super(//
-				OpenemsComponent.ChannelId.values() //
+				OpenemsComponent.ChannelId.values(), //
+				SimulatorDatasourceCsvDirect.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
+	private void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.timeDelta());
 	}
@@ -54,7 +55,7 @@ public class CsvDatasourcePredefined extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		return CsvUtils.readCsvFileFromResource(CsvDatasourcePredefined.class, this.config.source().filename,
-				this.config.format(), this.config.factor());
+		return CsvUtils.parseCsv(this.config.source(), this.config.format(), this.config.factor());
 	}
+
 }

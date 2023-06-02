@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.csv.direct;
+package io.openems.edge.simulator.datasource.csv.predefined;
 
 import java.io.IOException;
 
@@ -20,29 +20,31 @@ import io.openems.edge.simulator.datasource.api.AbstractCsvDatasource;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.CSV.Direct", //
+@Component(//
+		name = "Simulator.Datasource.CSV.Predefined", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class CsvDatasourceDirect extends AbstractCsvDatasource
-		implements SimulatorDatasource, OpenemsComponent, EventHandler {
+public class SimulatorDatasourceCsvPredefinedImpl extends AbstractCsvDatasource
+		implements SimulatorDatasourceCsvPredefined, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
 	private ComponentManager componentManager;
 
 	private Config config;
 
-	public CsvDatasourceDirect() {
+	public SimulatorDatasourceCsvPredefinedImpl() {
 		super(//
-				OpenemsComponent.ChannelId.values() //
+				OpenemsComponent.ChannelId.values(), //
+				SimulatorDatasourceCsvPredefined.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
+	private void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.timeDelta());
 	}
@@ -54,7 +56,7 @@ public class CsvDatasourceDirect extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		return CsvUtils.parseCsv(this.config.source(), this.config.format(), this.config.factor());
+		return CsvUtils.readCsvFileFromResource(SimulatorDatasourceCsvPredefinedImpl.class,
+				this.config.source().filename, this.config.format(), this.config.factor());
 	}
-
 }

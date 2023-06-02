@@ -55,10 +55,10 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	@Reference
 	private Timedata timedata;
 
-	protected Config config;
-
 	@Reference
 	private ComponentManager componentManager;
+
+	private Config config;
 
 	public SimilarDayPredictorImpl() throws OpenemsNamedException {
 		super(//
@@ -69,7 +69,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
 				this.config.channelAddresses());

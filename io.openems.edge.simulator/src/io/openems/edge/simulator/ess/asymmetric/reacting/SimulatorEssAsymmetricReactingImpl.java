@@ -19,7 +19,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -37,56 +36,52 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.EssAsymmetric.Reacting", //
+@Component(//
+		name = "Simulator.EssAsymmetric.Reacting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
-
-	/**
-	 * Current state of charge.
-	 */
-	private float soc = 0;
-
-	private Config config;
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	@Reference
-	private Power power;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected SimulatorDatasource datasource;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
+		implements SimulatorEssAsymmetricReacting, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
+		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
+	@Reference
+	private Power power;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private SimulatorDatasource datasource;
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	/** Current state of charge. */
+	private float soc = 0;
+	private Config config;
+
+	public SimulatorEssAsymmetricReactingImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				SimulatorEssAsymmetricReacting.ChannelId.values() //
+		);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
@@ -108,17 +103,6 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public EssAsymmetric() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
-				AsymmetricEss.ChannelId.values(), //
-				ManagedAsymmetricEss.ChannelId.values(), //
-				ChannelId.values() //
-		);
 	}
 
 	@Override
@@ -202,7 +186,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedAsymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(EssAsymmetric.class, accessMode, 300) //
+				ModbusSlaveNatureTable.of(SimulatorEssAsymmetricReactingImpl.class, accessMode, 300) //
 						.build());
 	}
 

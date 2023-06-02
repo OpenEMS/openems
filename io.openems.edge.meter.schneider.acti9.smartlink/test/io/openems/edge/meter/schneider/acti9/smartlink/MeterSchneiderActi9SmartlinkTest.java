@@ -14,7 +14,7 @@ public class MeterSchneiderActi9SmartlinkTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterSchneiderActi9Smartlink()) //
+		new ComponentTest(new MeterSchneiderActi9SmartlinkImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

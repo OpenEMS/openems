@@ -48,15 +48,18 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 		implements SiemensPacMeter, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private MeterType meterType = MeterType.PRODUCTION;
-
-	/*
-	 * Invert power values
-	 */
-	private boolean invert = false;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private MeterType meterType = MeterType.PRODUCTION;
+	/** Invert power values. */
+	private boolean invert = false;
 
 	public SiemensPacMeterImpl() {
 		super(//
@@ -68,14 +71,8 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		this.invert = config.invert();
 

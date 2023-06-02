@@ -50,10 +50,16 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 
 	private final Logger log = LoggerFactory.getLogger(SocomecMeterSinglephaseImpl.class);
 
-	private Config config;
-
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private Config config;
 
 	public SocomecMeterSinglephaseImpl() throws OpenemsException {
 		super(//
@@ -66,14 +72,8 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -104,8 +104,7 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(0xc558)) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
-										chain(//
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, chain(//
 										SCALE_FACTOR_1, //
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, chain(//

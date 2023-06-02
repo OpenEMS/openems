@@ -13,7 +13,7 @@ public class KacoBlueplanetTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new KacoBlueplanet()) //
+		new ComponentTest(new KacoBlueplanetImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

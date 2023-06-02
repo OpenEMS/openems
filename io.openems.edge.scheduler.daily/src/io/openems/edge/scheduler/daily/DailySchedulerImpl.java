@@ -32,10 +32,10 @@ import io.openems.edge.scheduler.api.Scheduler;
 public class DailySchedulerImpl extends AbstractOpenemsComponent
 		implements DailyScheduler, Scheduler, OpenemsComponent {
 
-	@Reference
-	protected ComponentManager componentManager;
-
 	private final TreeMap<LocalTime, LinkedHashSet<String>> controllerSchedule = new TreeMap<>();
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private Config config = null;
 
@@ -48,7 +48,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		if (config.controllerScheduleJson() != null && !config.controllerScheduleJson().trim().isEmpty()) {

@@ -28,7 +28,7 @@ public class VirtualSubtractMeterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new VirtualSubtractMeter()) //
+		new ComponentTest(new VirtualSubtractMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("minuend", new DummySymmetricMeter(MINUEND_ID)) //
 				.addReference("subtrahends", Lists.newArrayList(//

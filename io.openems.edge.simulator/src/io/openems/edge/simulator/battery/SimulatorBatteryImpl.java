@@ -4,6 +4,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -20,15 +21,15 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Simulator.Bms", //
+		name = "Simulator.Battery", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class BatteryDummy extends AbstractOpenemsComponent
-		implements Battery, OpenemsComponent, EventHandler, StartStoppable {
+public class SimulatorBatteryImpl extends AbstractOpenemsComponent
+		implements SimulatorBattery, Battery, OpenemsComponent, EventHandler, StartStoppable {
 
 	private int disChargeMinVoltage;
 	private int chargeMaxVoltage;
@@ -41,16 +42,17 @@ public class BatteryDummy extends AbstractOpenemsComponent
 	private int voltage;
 	private int minCellVoltage; // in mV
 
-	public BatteryDummy() {
+	public SimulatorBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				StartStoppable.ChannelId.values() //
+				StartStoppable.ChannelId.values(), //
+				SimulatorBattery.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.disChargeMinVoltage = config.disChargeMinVoltage();
 		this.chargeMaxVoltage = config.chargeMaxVoltage();
@@ -62,6 +64,12 @@ public class BatteryDummy extends AbstractOpenemsComponent
 		this.capacityKWh = config.capacityKWh();
 		this.voltage = config.voltage();
 		this.minCellVoltage = config.minCellVoltage_mV();
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override

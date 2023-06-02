@@ -41,7 +41,7 @@ public class PlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	public PlexlogDataloggerImpl() {
 		super(//
@@ -53,7 +53,7 @@ public class PlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
