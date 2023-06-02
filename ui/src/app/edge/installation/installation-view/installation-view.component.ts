@@ -45,6 +45,8 @@ export class InstallationViewComponent implements OnInit {
     }
   }
   public keyPressed(event) {
-    if (event.key === 'Enter') this.nextClicked.emit();
+    if (event.key === 'Enter') {
+      this.nextClicked.emit();
+    }
   }
 }

@@ -17,7 +17,9 @@ export class IbnUtils {
     public static addIbnToSessionStorage(ibn: AbstractIbn) {
         sessionStorage.setItem('ibn', JSON.stringify(ibn, (key, value) => {
             // Do not stringify the translate service
-            if (key === 'translate') return undefined;
+            if (key === 'translate') {
+                return undefined;
+            }
             return value;
         }));
     }
