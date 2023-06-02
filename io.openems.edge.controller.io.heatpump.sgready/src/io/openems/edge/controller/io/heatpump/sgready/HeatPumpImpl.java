@@ -47,12 +47,6 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(HeatPumpImpl.class);
 
-	private Config config = null;
-
-	protected Status activeState = Status.UNDEFINED;
-
-	protected Instant lastStateChange = Instant.MIN;
-
 	/*
 	 * Status definitions for each state. Are responsible for the time calculation
 	 * activation of that state and storing their meta data.
@@ -75,6 +69,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	private Config config = null;
+	protected Status activeState = Status.UNDEFINED;
+	protected Instant lastStateChange = Instant.MIN;
+
 	public HeatPumpImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -84,14 +82,14 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}

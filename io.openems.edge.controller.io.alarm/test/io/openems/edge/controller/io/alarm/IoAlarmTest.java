@@ -21,7 +21,7 @@ public class IoAlarmTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new IoAlarm()) //
+		new ControllerTest(new IoAlarmImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyComponent(DUMMY_ID)) //
 				.addComponent(new DummyInputOutput(IO_ID)) //

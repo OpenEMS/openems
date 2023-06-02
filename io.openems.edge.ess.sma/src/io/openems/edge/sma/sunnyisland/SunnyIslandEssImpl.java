@@ -51,20 +51,21 @@ import io.openems.edge.sma.enums.SetControlMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.SMA.SunnyIsland", immediate = true, //
+		name = "Ess.SMA.SunnyIsland", //
+		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implements ManagedSinglePhaseEss, SinglePhaseEss,
 		ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
 
-	private Config config;
-	private SinglePhase singlePhase = null;
-
 	@Reference
 	private Power power;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	private Config config;
+	private SinglePhase singlePhase = null;
 
 	public SunnyIslandEssImpl() {
 		super(//
@@ -87,7 +88,7 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,

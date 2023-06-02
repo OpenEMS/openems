@@ -12,39 +12,36 @@ public class TimeParserTest {
 
 	@Test
 	public void test() throws OpenemsException {
-
 		String startTime = "23:30";
 		LocalTime time = LocalTime.of(23, 30);
-		assertEquals(time, TimeslotPeakshaving.convertTime(startTime));
+		assertEquals(time, TimeslotPeakshavingImpl.convertTime(startTime));
 
 	}
 
 	@Test
 	public void testFormat() throws OpenemsException {
-
 		String startTime = "9:00";
 		LocalTime time = LocalTime.of(9, 00);
-		assertEquals(time, TimeslotPeakshaving.convertTime(startTime));
+		assertEquals(time, TimeslotPeakshavingImpl.convertTime(startTime));
 
 	}
 
 	@Test
 	public void testFormat1() throws OpenemsException {
-
 		String startTime = "09:00";
 		LocalTime time = LocalTime.of(9, 00);
-		assertEquals(time, TimeslotPeakshaving.convertTime(startTime));
+		assertEquals(time, TimeslotPeakshavingImpl.convertTime(startTime));
 
 	}
 
 	@Test(expected = OpenemsException.class)
 	public void testWrongFormat() throws OpenemsException {
-		TimeslotPeakshaving.convertTime(".9:00");
+		TimeslotPeakshavingImpl.convertTime(".9:00");
 	}
 
 	@Test(expected = OpenemsException.class)
 	public void testWrongFormat1() throws OpenemsException {
-		TimeslotPeakshaving.convertTime("55:00");
+		TimeslotPeakshavingImpl.convertTime("55:00");
 	}
 
 }

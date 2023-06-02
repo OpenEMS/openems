@@ -26,7 +26,7 @@ public class FixDigitalOutputTest {
 	}
 
 	private void testSwitch(boolean on) throws Exception {
-		new ControllerTest(new FixDigitalOutput()) //
+		new ControllerTest(new FixDigitalOutputImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyInputOutput(IO_ID)) //
 				.activate(MyConfig.create() //

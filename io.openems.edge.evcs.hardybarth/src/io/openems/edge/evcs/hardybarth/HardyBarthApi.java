@@ -16,14 +16,11 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Implements the Hardy Barth Api.
- *
  */
 public class HardyBarthApi {
 
 	private final String baseUrl;
-
 	private final String authorizationHeader;
-
 	private final HardyBarthImpl hardyBarthImpl;
 
 	public HardyBarthApi(String ip, HardyBarthImpl hardyBarthImpl) {

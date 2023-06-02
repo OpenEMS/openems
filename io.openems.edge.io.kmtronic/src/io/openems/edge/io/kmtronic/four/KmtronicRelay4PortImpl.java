@@ -39,7 +39,7 @@ public class KmtronicRelay4PortImpl extends AbstractKmtronicRelay
 		implements KmtronicRelay4Port, DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

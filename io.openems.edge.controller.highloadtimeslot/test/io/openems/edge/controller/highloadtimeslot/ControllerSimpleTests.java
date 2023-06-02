@@ -17,19 +17,19 @@ public class ControllerSimpleTests {
 		var endDate = LocalDate.of(2018, 11, 12);
 
 		var currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
-		assertFalse(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+		assertFalse(HighLoadTimeslotImpl.isActiveDate(startDate, endDate, currentDate));
 
 		currentDate = LocalDateTime.of(2018, 11, 10, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+		assertTrue(HighLoadTimeslotImpl.isActiveDate(startDate, endDate, currentDate));
 
 		currentDate = LocalDateTime.of(2018, 11, 11, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+		assertTrue(HighLoadTimeslotImpl.isActiveDate(startDate, endDate, currentDate));
 
 		currentDate = LocalDateTime.of(2018, 11, 12, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+		assertTrue(HighLoadTimeslotImpl.isActiveDate(startDate, endDate, currentDate));
 
 		currentDate = LocalDateTime.of(2018, 11, 13, 12, 0);
-		assertFalse(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
+		assertFalse(HighLoadTimeslotImpl.isActiveDate(startDate, endDate, currentDate));
 	}
 
 	@Test
@@ -38,46 +38,46 @@ public class ControllerSimpleTests {
 		var endTime = LocalTime.of(8, 10);
 
 		var currentDateTime = LocalDateTime.of(2018, 11, 11, 7, 59);
-		assertFalse(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertFalse(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 0);
-		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertTrue(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 1);
-		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertTrue(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 9);
-		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertTrue(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 10);
-		assertTrue(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertTrue(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 11);
-		assertFalse(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
+		assertFalse(HighLoadTimeslotImpl.isActiveTime(startTime, endTime, currentDateTime));
 	}
 
 	@Test
 	public void testIsActiveWeekday() {
 		var currentDate = LocalDateTime.of(2018, 11, 5, 12, 0);
 		var weekdayFilter = WeekdayFilter.ONLY_WEEKDAYS;
-		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Monday
+		assertTrue(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Monday
 
 		currentDate = LocalDateTime.of(2018, 11, 6, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Tuesday
+		assertTrue(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Tuesday
 
 		currentDate = LocalDateTime.of(2018, 11, 7, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Wednesday
+		assertTrue(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Wednesday
 
 		currentDate = LocalDateTime.of(2018, 11, 8, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Thursday
+		assertTrue(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Thursday
 
 		currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
-		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Friday
+		assertTrue(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Friday
 
 		currentDate = LocalDateTime.of(2018, 11, 10, 12, 0);
-		assertFalse(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Saturday
+		assertFalse(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Saturday
 
 		currentDate = LocalDateTime.of(2018, 11, 11, 12, 0);
-		assertFalse(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Sunday
+		assertFalse(HighLoadTimeslotImpl.isActiveWeekday(weekdayFilter, currentDate)); // Sunday
 	}
 }

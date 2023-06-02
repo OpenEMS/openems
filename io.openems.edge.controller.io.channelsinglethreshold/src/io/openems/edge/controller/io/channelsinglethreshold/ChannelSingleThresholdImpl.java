@@ -38,18 +38,15 @@ import io.openems.edge.controller.api.Controller;
 public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 		implements ChannelSingleThreshold, Controller, OpenemsComponent {
 
+	private final Logger log = LoggerFactory.getLogger(ChannelSingleThresholdImpl.class);
+
+	private final Set<ChannelAddress> outputChannelAdresses = new HashSet<>();
 	@Reference
 	private ComponentManager componentManager;
 
-	private final Logger log = LoggerFactory.getLogger(ChannelSingleThresholdImpl.class);
-	private final Set<ChannelAddress> outputChannelAdresses = new HashSet<>();
-
 	private Config config;
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
-
-	/**
-	 * The current state in the State Machine.
-	 */
+	/** The current state in the State Machine. */
 	private State state = State.UNDEFINED;
 
 	public ChannelSingleThresholdImpl() {

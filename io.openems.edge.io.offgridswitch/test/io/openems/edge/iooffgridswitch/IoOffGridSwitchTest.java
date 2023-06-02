@@ -23,7 +23,7 @@ public class IoOffGridSwitchTest {
 	public void test() throws Exception {
 		var io0 = new DummyInputOutput(IO_ID);
 
-		new ComponentTest(new IoOffGridSwitch()) //
+		new ComponentTest(new IoOffGridSwitchImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(io0) //
 				.activate(MyConfig.create() //

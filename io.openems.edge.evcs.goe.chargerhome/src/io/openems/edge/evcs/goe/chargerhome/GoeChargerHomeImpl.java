@@ -38,45 +38,40 @@ import io.openems.edge.evcs.api.Status;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class GoeChargerHomeImpl extends AbstractManagedEvcsComponent
-		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements GoeChargerHome, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(GoeChargerHomeImpl.class);
-	private GoeApi goeapi = null;
-
-	protected Config config;
 
 	@Reference
 	private EvcsPower evcsPower;
 
-	// Is charger active
+	/** Is charger active. */
 	public boolean isActive;
-
-	// Actual current
+	/** Actual current. */
 	public int activeCurrent;
 
-	// Minimal current
-	private int minCurrent;
+	protected Config config;
 
-	// Maximum current
+	private GoeApi goeapi = null;
+	/** Minimal current. */
+	private int minCurrent;
+	/** Maximum current. */
 	private int maxCurrent;
 
-	/**
-	 * Constructor.
-	 */
 	public GoeChargerHomeImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				GoeChannelId.values() //
+				GoeChargerHome.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
+	private void activate(ComponentContext context, Config config) throws UnknownHostException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.channel(GoeChannelId.ALIAS).setNextValue(config.alias());
+		this.channel(GoeChargerHome.ChannelId.ALIAS).setNextValue(config.alias());
 		this.config = config;
 		this.minCurrent = config.minHwCurrent();
 		this.maxCurrent = config.maxHwCurrent();
@@ -118,27 +113,27 @@ public class GoeChargerHomeImpl extends AbstractManagedEvcsComponent
 					}
 
 					// General information
-					this.channel(GoeChannelId.SERIAL).setNextValue(JsonUtils.getAsString(json, "sse"));
-					this.channel(GoeChannelId.FIRMWARE).setNextValue(JsonUtils.getAsString(json, "fwv"));
+					this.channel(GoeChargerHome.ChannelId.SERIAL).setNextValue(JsonUtils.getAsString(json, "sse"));
+					this.channel(GoeChargerHome.ChannelId.FIRMWARE).setNextValue(JsonUtils.getAsString(json, "fwv"));
 
 					// Current status
 					var status = JsonUtils.getAsInt(json, "car");
-					this.channel(GoeChannelId.STATUS_GOE).setNextValue(status);
+					this.channel(GoeChargerHome.ChannelId.STATUS_GOE).setNextValue(status);
 					this.channel(Evcs.ChannelId.STATUS).setNextValue(this.convertGoeStatus(status));
 
 					// Detailed charge information
 					this.activeCurrent = JsonUtils.getAsInt(json, "amp") * 1000;
-					this.channel(GoeChannelId.CURR_USER).setNextValue(this.activeCurrent);
+					this.channel(GoeChargerHome.ChannelId.CURR_USER).setNextValue(this.activeCurrent);
 
 					var nrg = JsonUtils.getAsJsonArray(json, "nrg");
-					this.channel(GoeChannelId.VOLTAGE_L1).setNextValue(JsonUtils.getAsInt(nrg, 0));
-					this.channel(GoeChannelId.VOLTAGE_L2).setNextValue(JsonUtils.getAsInt(nrg, 1));
-					this.channel(GoeChannelId.VOLTAGE_L3).setNextValue(JsonUtils.getAsInt(nrg, 2));
-					this.channel(GoeChannelId.CURRENT_L1).setNextValue(JsonUtils.getAsInt(nrg, 4) * 100);
-					this.channel(GoeChannelId.CURRENT_L2).setNextValue(JsonUtils.getAsInt(nrg, 5) * 100);
-					this.channel(GoeChannelId.CURRENT_L3).setNextValue(JsonUtils.getAsInt(nrg, 6) * 100);
+					this.channel(GoeChargerHome.ChannelId.VOLTAGE_L1).setNextValue(JsonUtils.getAsInt(nrg, 0));
+					this.channel(GoeChargerHome.ChannelId.VOLTAGE_L2).setNextValue(JsonUtils.getAsInt(nrg, 1));
+					this.channel(GoeChargerHome.ChannelId.VOLTAGE_L3).setNextValue(JsonUtils.getAsInt(nrg, 2));
+					this.channel(GoeChargerHome.ChannelId.CURRENT_L1).setNextValue(JsonUtils.getAsInt(nrg, 4) * 100);
+					this.channel(GoeChargerHome.ChannelId.CURRENT_L2).setNextValue(JsonUtils.getAsInt(nrg, 5) * 100);
+					this.channel(GoeChargerHome.ChannelId.CURRENT_L3).setNextValue(JsonUtils.getAsInt(nrg, 6) * 100);
 					var power = JsonUtils.getAsInt(nrg, 11);
-					this.channel(GoeChannelId.ACTUAL_POWER).setNextValue(power * 10);
+					this.channel(GoeChargerHome.ChannelId.ACTUAL_POWER).setNextValue(power * 10);
 					this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power * 10);
 
 					// Hardware limits
@@ -157,12 +152,13 @@ public class GoeChargerHomeImpl extends AbstractManagedEvcsComponent
 					this._setPhases(phases);
 
 					// Energy
-					this.channel(GoeChannelId.ENERGY_TOTAL).setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
+					this.channel(GoeChargerHome.ChannelId.ENERGY_TOTAL)
+							.setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
 					this.channel(Evcs.ChannelId.ENERGY_SESSION)
 							.setNextValue(JsonUtils.getAsInt(json, "dws") * 10 / 3600);
 
 					// Error
-					this.channel(GoeChannelId.ERROR).setNextValue(JsonUtils.getAsString(json, "err"));
+					this.channel(GoeChargerHome.ChannelId.ERROR).setNextValue(JsonUtils.getAsString(json, "err"));
 					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 
 				} catch (OpenemsNamedException e) {

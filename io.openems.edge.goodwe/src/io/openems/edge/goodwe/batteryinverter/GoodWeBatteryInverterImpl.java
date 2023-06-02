@@ -55,12 +55,17 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "GoodWe.BatteryInverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
-) //
+)
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
+
+	// Fenecon Home Battery Static module min voltage, used to calculate battery
+	// module number per tower
+	// TODO get from Battery
+	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
@@ -69,18 +74,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
 
 	@Reference
 	private Sum sum;
-
-	// Fenecon Home Battery Static module min voltage, used to calculate battery
-	// module number per tower
-	// TODO get from Battery
-	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	/**
 	 * Holds the latest known Charge-Max-Current. Updated in

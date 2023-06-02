@@ -61,9 +61,6 @@ public class KebaKeContactImpl extends AbstractManagedEvcsComponent
 	private Boolean lastConnectionLostState = false;
 	private InetAddress ip = null;
 
-	/**
-	 * Constructor.
-	 */
 	public KebaKeContactImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //

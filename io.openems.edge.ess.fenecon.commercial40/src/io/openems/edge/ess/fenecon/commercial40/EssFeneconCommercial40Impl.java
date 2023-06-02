@@ -78,14 +78,14 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		implements EssFeneconCommercial40, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
 		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
-	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
-
 	protected static final int MAX_APPARENT_POWER = 40000;
 	protected static final int NET_CAPACITY = 40000;
 
 	private static final int UNIT_ID = 100;
 	private static final int MIN_REACTIVE_POWER = -10000;
 	private static final int MAX_REACTIVE_POWER = 10000;
+
+	private final Logger log = LoggerFactory.getLogger(EssFeneconCommercial40Impl.class);
 
 	private final CalculateEnergyFromPower calculateAcChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
@@ -98,8 +98,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 	private final List<EssDcChargerFeneconCommercial40> chargers = new ArrayList<>();
 	private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 
-	private Config config;
-
 	@Reference
 	protected ComponentManager componentManager;
 
@@ -111,6 +109,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
 
 	public EssFeneconCommercial40Impl() {
 		super(//
@@ -146,7 +146,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;

@@ -44,19 +44,20 @@ public class HardyBarthImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, HardyBarth, Evcs, ManagedEvcs {
 
 	protected final Logger log = LoggerFactory.getLogger(HardyBarthImpl.class);
-	protected Config config;
-
-	// API for main REST API functions
-	protected HardyBarthApi api;
-
-	// ReadWorker and WriteHandler: Reading and sending data to the EVCS
-	private final HardyBarthReadWorker readWorker = new HardyBarthReadWorker(this);
-
-	// Master EVCS is responsible for RFID authentication (Not implemented for now)
-	protected boolean masterEvcs = true;
 
 	@Reference
 	private EvcsPower evcsPower;
+
+	/** API for main REST API functions. */
+	protected HardyBarthApi api;
+	/** ReadWorker and WriteHandler: Reading and sending data to the EVCS. */
+	private final HardyBarthReadWorker readWorker = new HardyBarthReadWorker(this);
+	/**
+	 * Master EVCS is responsible for RFID authentication (Not implemented for now).
+	 */
+	protected boolean masterEvcs = true;
+
+	protected Config config;
 
 	public HardyBarthImpl() {
 		super(//
@@ -68,7 +69,7 @@ public class HardyBarthImpl extends AbstractManagedEvcsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this._setChargingType(ChargingType.AC);

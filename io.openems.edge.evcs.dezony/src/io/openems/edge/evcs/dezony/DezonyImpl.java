@@ -40,12 +40,12 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	private final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
 	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
 
+	@Reference
+	private EvcsPower evcsPower;
+
 	protected Config config;
 	protected DezonyApi api;
 	protected boolean masterEvcs = true;
-
-	@Reference
-	private EvcsPower evcsPower;
 
 	public DezonyImpl() {
 		super(OpenemsComponent.ChannelId.values(), Evcs.ChannelId.values(), ManagedEvcs.ChannelId.values(),

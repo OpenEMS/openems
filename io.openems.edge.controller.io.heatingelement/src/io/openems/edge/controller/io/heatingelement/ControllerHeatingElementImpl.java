@@ -47,14 +47,14 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(ControllerHeatingElementImpl.class);
 
-	/**
+	/*
 	 * Definitions for each phase.
 	 */
 	private final PhaseDef phase1;
 	private final PhaseDef phase2;
 	private final PhaseDef phase3;
 
-	/**
+	/*
 	 * Cumulated active time for each level.
 	 */
 	private final CalculateActiveTime totalTimeLevel1 = new CalculateActiveTime(this,
@@ -64,27 +64,22 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	private final CalculateActiveTime totalTimeLevel3 = new CalculateActiveTime(this,
 			ControllerHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME);
 
-	// Current Level
-	private Level currentLevel = Level.UNDEFINED;
-
-	// Last Level change time, used for the hysteresis
-	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
-
-	private Config config;
-
-	/**
-	 * Holds the minimum time the phases should be switch on in [Ws].
-	 */
-	private long minimumTotalPhaseTime;
-
 	@Reference
 	protected ComponentManager componentManager;
 
 	@Reference
-	protected Sum sum;
+	private Sum sum;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	/** Holds the minimum time the phases should be switch on in [Ws]. */
+	private long minimumTotalPhaseTime;
+	/** Current Level. */
+	private Level currentLevel = Level.UNDEFINED;
+	/** Last Level change time, used for the hysteresis. */
+	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
+	private Config config;
 
 	public ControllerHeatingElementImpl() throws OpenemsNamedException {
 		super(//
@@ -98,13 +93,13 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.updateConfig(config);
 	}

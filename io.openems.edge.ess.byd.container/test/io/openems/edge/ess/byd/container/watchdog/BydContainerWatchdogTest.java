@@ -5,7 +5,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.ess.byd.container.EssFeneconBydContainer;
+import io.openems.edge.ess.byd.container.EssFeneconBydContainerImpl;
 import io.openems.edge.ess.test.DummyPower;
 
 public class BydContainerWatchdogTest {
@@ -29,7 +29,7 @@ public class BydContainerWatchdogTest {
 	// TODO requires fix by Pooran Chandrashekaraiah
 	// @Test
 	protected void test() throws Exception {
-		var ess = new EssFeneconBydContainer();
+		var ess = new EssFeneconBydContainerImpl();
 		new ComponentTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //

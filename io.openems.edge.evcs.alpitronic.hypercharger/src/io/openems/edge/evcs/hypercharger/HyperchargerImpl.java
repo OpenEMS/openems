@@ -65,8 +65,8 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 		implements Evcs, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, Hypercharger, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(HyperchargerImpl.class);
-
-	protected Config config;
+	/** Modbus offset for multiple connectors. */
+	private final IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -77,10 +77,7 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	/*
-	 * Modbus offset for multiple connectors.
-	 */
-	private IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
+	protected Config config;
 
 	/**
 	 * Calculates the value for total energy in [Wh_Σ].
@@ -90,14 +87,10 @@ public class HyperchargerImpl extends AbstractOpenemsModbusComponent
 	 */
 	private CalculateEnergyFromPower calculateTotalEnergy;
 
-	/**
-	 * Handles charge states.
-	 */
+	/** Handles charge states. */
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
 
-	/**
-	 * Processes the controller's writes to this evcs component.
-	 */
+	/** Processes the controller's writes to this evcs component. */
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	public HyperchargerImpl() {

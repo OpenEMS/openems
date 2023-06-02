@@ -52,6 +52,9 @@ public class GenericManagedSymmetricEssImpl
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
+	/** Manages the {@link State}s of the StateMachine. */
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private final ChannelManager channelManager = new ChannelManager(this);
 
 	@Reference
 	private Power power;
@@ -68,13 +71,6 @@ public class GenericManagedSymmetricEssImpl
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Battery battery;
 
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
-	private final ChannelManager channelManager = new ChannelManager(this);
-
 	public GenericManagedSymmetricEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -88,7 +84,7 @@ public class GenericManagedSymmetricEssImpl
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
 	}

@@ -89,13 +89,13 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 	private int maxEssDischargePower = 0;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
-	protected Sum sum;
+	private Sum sum;
 
 	@Reference
 	private SymmetricEss ess;
@@ -132,7 +132,7 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.evcsIds = config.evcs_ids();
 		this.updateSortedEvcss();
 		super.activate(context, config.id(), config.alias(), config.enabled());

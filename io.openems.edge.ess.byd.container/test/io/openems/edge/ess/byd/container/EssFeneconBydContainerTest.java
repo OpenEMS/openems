@@ -16,7 +16,7 @@ public class EssFeneconBydContainerTest {
 
 	@Test
 	public void test() throws Exception {
-		new ManagedSymmetricEssTest(new EssFeneconBydContainer()) //
+		new ManagedSymmetricEssTest(new EssFeneconBydContainerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS0_ID)) //

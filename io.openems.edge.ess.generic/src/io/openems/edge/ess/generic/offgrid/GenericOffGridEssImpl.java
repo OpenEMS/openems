@@ -61,10 +61,7 @@ public class GenericOffGridEssImpl
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(GenericOffGridEssImpl.class);
-
-	/**
-	 * Manages the {@link OffGridState}s of the StateMachine.
-	 */
+	/** Manages the {@link OffGridState}s of the StateMachine. */
 	private final StateMachine stateMachine = new StateMachine(OffGridState.UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
 	private final AtomicBoolean fromOffToOnGrid = new AtomicBoolean(false);

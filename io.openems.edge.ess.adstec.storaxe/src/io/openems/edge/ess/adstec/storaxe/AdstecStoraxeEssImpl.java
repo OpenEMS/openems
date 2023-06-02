@@ -40,12 +40,13 @@ import io.openems.edge.ess.api.SymmetricEss;
 @Component(//
 		name = "Ess.Adstec.StoraXe", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 		implements SymmetricEss, OpenemsComponent, ModbusComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -64,7 +65,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

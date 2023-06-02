@@ -58,25 +58,19 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(WebastoImpl.class);
 
-	/**
-	 * Handles charge states.
-	 */
+	/** Handles charge states. */
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
-
-	/**
-	 * Processes the controller's writes to this evcs component.
-	 */
+	/** Processes the controller's writes to this evcs component. */
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
-	private Config config;
-
-	private WebastoReadHandler readHandler;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private EvcsPower evcsPower;
+
+	private Config config;
+	private WebastoReadHandler readHandler;
 
 	public WebastoImpl() {
 		super(//

@@ -90,19 +90,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPcsImpl.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-	private InverterCount inverterCount;
-
-	private int activePowerPreset;
-
-	private double efficiencyLossDischargeFactor;
-	private double efficiencyLossChargeFactor;
-
 	private final Commands commands;
 	private final CcuParameters1 ccuParameters1;
 	private final CcuParameters2 ccuParameters2;
@@ -111,6 +98,19 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	private final IpuParameter ipu3Parameter;
 	private final DcDcParameter dcDcParameter;
 	private final CosPhiParameters cosPhiParameters;
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference
+	protected ComponentManager componentManager;
+
+	private InverterCount inverterCount;
+
+	private int activePowerPreset;
+
+	private double efficiencyLossDischargeFactor;
+	private double efficiencyLossChargeFactor;
 
 	public GridconPcsImpl() {
 		super(//
@@ -134,7 +134,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();

@@ -52,8 +52,6 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(BalancingScheduleImpl.class);
 
-	private List<GridConnSchedule> schedule = new CopyOnWriteArrayList<>();
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -66,6 +64,8 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
 
+	private List<GridConnSchedule> schedule = new CopyOnWriteArrayList<>();
+
 	public BalancingScheduleImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -75,7 +75,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {

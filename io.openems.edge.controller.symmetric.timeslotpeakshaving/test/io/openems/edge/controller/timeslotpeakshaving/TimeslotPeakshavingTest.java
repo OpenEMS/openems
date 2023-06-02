@@ -32,7 +32,7 @@ public class TimeslotPeakshavingTest {
 	@Test
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-02-03T08:30:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new TimeslotPeakshaving()) //
+		new ControllerTest(new TimeslotPeakshavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1)) //
 						.withGridMode(GridMode.ON_GRID)) //

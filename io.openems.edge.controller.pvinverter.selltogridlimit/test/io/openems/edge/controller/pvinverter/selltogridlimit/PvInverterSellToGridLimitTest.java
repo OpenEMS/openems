@@ -27,11 +27,11 @@ public class PvInverterSellToGridLimitTest {
 	private static final ChannelAddress PV_INVERTER_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(PV_INVERTER,
 			"ActivePowerLimit");
 
-	private static final double ADJUST_RATE = PvInverterSellToGridLimit.DEFAULT_MAX_ADJUSTMENT_RATE;
+	private static final double ADJUST_RATE = PvInverterSellToGridLimitImpl.DEFAULT_MAX_ADJUSTMENT_RATE;
 
 	@Test
 	public void symmetricMeterTest() throws Exception {
-		new ControllerTest(new PvInverterSellToGridLimit()) //
+		new ControllerTest(new PvInverterSellToGridLimitImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySymmetricMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //
@@ -77,7 +77,7 @@ public class PvInverterSellToGridLimitTest {
 
 	@Test
 	public void asymmetricMeterTest() throws Exception {
-		new ControllerTest(new PvInverterSellToGridLimit()) //
+		new ControllerTest(new PvInverterSellToGridLimitImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //
@@ -133,7 +133,7 @@ public class PvInverterSellToGridLimitTest {
 						.output(PV_INVERTER_SET_ACTIVE_POWER_EQUALS,
 								TypeUtils.getAsType(OpenemsType.INTEGER, 7920 - 7920 * ADJUST_RATE))); // 4920 -> 6336
 
-		new ControllerTest(new PvInverterSellToGridLimit()) //
+		new ControllerTest(new PvInverterSellToGridLimitImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //

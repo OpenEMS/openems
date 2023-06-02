@@ -51,34 +51,22 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	public static final String DEFAULT_IP = "0.0.0.0";
 	public static final int DEFAULT_PORT = 8887;
+
 	private final Logger log = LoggerFactory.getLogger(OcppServerImpl.class);
-	protected Config config;
 
-	/**
-	 * The JSON server.
-	 *
-	 * <p>
-	 * Responsible for the OCPP communication.
-	 */
+	/** The JSON server - responsible for the OCPP communication. */
 	private final MyJsonServer myJsonServer = new MyJsonServer(this);
-
-	/**
-	 * Currently connected sessions with their related evcs components.
-	 */
+	/** Currently connected sessions with their related evcs components. */
 	protected final Map<UUID, List<AbstractManagedOcppEvcsComponent>> activeEvcsSessions = new HashMap<>();
-
-	/**
-	 * Currently configured ocpp evcss.
-	 */
-	protected Map<String, List<AbstractManagedOcppEvcsComponent>> ocppEvcss = new HashMap<>();
-
-	/**
-	 * Current sessions (Existing connections between server and evcs hardware).
-	 */
-	protected Map<String, UUID> ocppSessions = new HashMap<>();
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	protected Config config;
+	/** Currently configured ocpp evcss. */
+	protected Map<String, List<AbstractManagedOcppEvcsComponent>> ocppEvcss = new HashMap<>();
+	/** Current sessions (Existing connections between server and evcs hardware). */
+	protected Map<String, UUID> ocppSessions = new HashMap<>();
 
 	/**
 	 * Adds each Evcs component to a list and checks whether there is a matching
@@ -140,8 +128,8 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException, OccurenceConstraintException,
-			UnsupportedFeatureException, NotConnectedException {
+	private void activate(ComponentContext context, Config config) throws UnknownHostException,
+			OccurenceConstraintException, UnsupportedFeatureException, NotConnectedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;

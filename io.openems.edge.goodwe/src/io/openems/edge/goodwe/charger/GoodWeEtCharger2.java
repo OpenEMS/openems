@@ -37,7 +37,7 @@ public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
 		implements GoodWeEtCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private GoodWe essOrBatteryInverter;
@@ -55,7 +55,7 @@ public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
+	private void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

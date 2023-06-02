@@ -54,13 +54,13 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 
 	private static final int UNIT_ID = 4;
 
-	private String modbusBridgeId;
-
 	@Reference
 	private Power power;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	private String modbusBridgeId;
 
 	public FeneconProPvMeter() {
 		super(//
@@ -91,7 +91,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;

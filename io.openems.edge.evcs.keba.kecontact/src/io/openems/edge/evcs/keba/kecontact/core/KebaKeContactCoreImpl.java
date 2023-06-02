@@ -26,16 +26,17 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 
 	private final Logger log = LoggerFactory.getLogger(KebaKeContactCoreImpl.class);
 	private final List<BiConsumer<InetAddress, String>> onReceiveCallbacks = new CopyOnWriteArrayList<>();
+
 	private ReceiveWorker receiveWorker = null;
 
 	@Activate
-	void activate() throws OpenemsException {
+	private void activate() throws OpenemsException {
 		this.receiveWorker = new ReceiveWorker(KebaKeContact.UDP_PORT);
 		this.receiveWorker.activate("kebaCore");
 	}
 
 	@Deactivate
-	protected void deactivate() {
+	private void deactivate() {
 		if (this.receiveWorker != null) {
 			this.receiveWorker.deactivate();
 		}

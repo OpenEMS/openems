@@ -39,7 +39,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 		implements KmtronicRelay8Port, DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -52,7 +52,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

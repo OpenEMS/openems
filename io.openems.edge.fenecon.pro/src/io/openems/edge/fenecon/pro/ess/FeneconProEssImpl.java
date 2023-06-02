@@ -75,13 +75,19 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(FeneconProEssImpl.class);
 	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
 
-	private String modbusBridgeId;
-
 	@Reference
 	private Power power;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private String modbusBridgeId;
 
 	public FeneconProEssImpl() {
 		super(//
@@ -109,14 +115,8 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
