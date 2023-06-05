@@ -67,7 +67,6 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
@@ -114,9 +113,6 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
-
-	@Reference
-	private Power power;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

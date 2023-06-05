@@ -38,7 +38,7 @@ public class ControllerAsymmetricBalancingCosPhiImpl extends AbstractOpenemsComp
 	private final Logger log = LoggerFactory.getLogger(ControllerAsymmetricBalancingCosPhiImpl.class);
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private String essId;
 	private String meterId;

@@ -54,7 +54,7 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 	private static final int UNIT_ID = 100;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -66,10 +66,10 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BridgeModbus modbus1;
+	private BridgeModbus modbus1;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BridgeModbus modbus2;
+	private BridgeModbus modbus2;
 
 	private boolean readonly = false;
 

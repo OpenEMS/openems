@@ -48,7 +48,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //

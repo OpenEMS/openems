@@ -35,7 +35,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	/**
 	 * Length of hysteresis in minutes. States are not changed quicker than this.

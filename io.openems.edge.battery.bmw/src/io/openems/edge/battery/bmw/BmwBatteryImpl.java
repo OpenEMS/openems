@@ -70,7 +70,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

@@ -73,7 +73,7 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbusTcp modbus) {

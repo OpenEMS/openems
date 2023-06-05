@@ -100,10 +100,10 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	private final CosPhiParameters cosPhiParameters;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private InverterCount inverterCount;
 

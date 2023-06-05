@@ -33,7 +33,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -53,9 +52,6 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private static final int UNIT_ID = 4;
-
-	@Reference
-	private Power power;
 
 	@Reference
 	private ConfigurationAdmin cm;

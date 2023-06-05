@@ -35,7 +35,7 @@ public class ControllerAsymmetricPhaseRectificationImpl extends AbstractOpenemsC
 	private final Logger log = LoggerFactory.getLogger(ControllerAsymmetricPhaseRectificationImpl.class);
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private Config config;
 

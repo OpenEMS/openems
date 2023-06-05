@@ -29,7 +29,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implements MyModbusDevice, ModbusComponent, OpenemsComponent {
 	
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {

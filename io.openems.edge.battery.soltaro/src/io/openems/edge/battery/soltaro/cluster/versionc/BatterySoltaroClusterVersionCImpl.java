@@ -91,10 +91,10 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 	private final TreeSet<Rack> racks = new TreeSet<>();
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

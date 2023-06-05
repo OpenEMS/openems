@@ -30,7 +30,7 @@ public class ControllerPvInverterSellToGridLimitImpl extends AbstractOpenemsComp
 	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private Config config;
 	private int lastSetLimit = 0;

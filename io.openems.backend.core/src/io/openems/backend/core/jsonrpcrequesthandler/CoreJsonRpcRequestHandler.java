@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -71,6 +72,10 @@ public class CoreJsonRpcRequestHandler extends AbstractOpenemsBackendComponent i
 	@Modified
 	private void modified(Config config) {
 		this.updateConfig(config);
+	}
+
+	@Deactivate
+	private void deactivate() {
 	}
 
 	private void updateConfig(Config config) {

@@ -64,7 +64,7 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	protected Sum sum;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;

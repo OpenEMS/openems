@@ -54,10 +54,10 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ControllerEssBalancingScheduleImpl.class);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;

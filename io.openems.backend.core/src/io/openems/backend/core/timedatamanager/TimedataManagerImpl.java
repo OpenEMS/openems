@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -66,6 +67,10 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 		super("Core.TimedataManager");
 		this._configTimedataIds = Arrays.asList(config.timedata_ids());
 		this.updateSortedTimedatas();
+	}
+
+	@Deactivate
+	private void deactivate() {
 	}
 
 	private void updateSortedTimedatas() {

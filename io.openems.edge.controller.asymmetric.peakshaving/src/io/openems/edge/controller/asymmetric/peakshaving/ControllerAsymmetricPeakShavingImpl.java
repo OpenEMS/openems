@@ -16,7 +16,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -33,9 +32,6 @@ public class ControllerAsymmetricPeakShavingImpl extends AbstractOpenemsComponen
 
 	@Reference
 	private ComponentManager componentManager;
-
-	@Reference
-	private Power power;
 
 	private Config config;
 

@@ -29,7 +29,7 @@ public class ControllerPvInverterFixPowerLimitImpl extends AbstractOpenemsCompon
 	private final Logger log = LoggerFactory.getLogger(ControllerPvInverterFixPowerLimitImpl.class);
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private String pvInverterId;
 	/** The configured Power Limit. */

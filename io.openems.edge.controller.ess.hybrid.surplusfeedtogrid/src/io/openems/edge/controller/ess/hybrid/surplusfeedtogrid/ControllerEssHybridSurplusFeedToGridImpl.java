@@ -31,7 +31,7 @@ public class ControllerEssHybridSurplusFeedToGridImpl extends AbstractOpenemsCom
 		implements ControllerEssHybridSurplusFeedToGrid, Controller, OpenemsComponent {
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private HybridEss ess;

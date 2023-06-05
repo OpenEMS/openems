@@ -31,7 +31,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.KacoBlueplanetHybrid10Core;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -65,9 +64,6 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 
 	@Reference
 	private ConfigurationAdmin cm;
-
-	@Reference
-	private Power power;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
