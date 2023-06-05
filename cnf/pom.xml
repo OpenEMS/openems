@@ -280,7 +280,7 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.8.0</version>
+			<version>6.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
