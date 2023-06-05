@@ -12,7 +12,7 @@ public class VectisImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new VectisImpl()) //
+		new ComponentTest(new KacoBlueplanetHybrid10GridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //

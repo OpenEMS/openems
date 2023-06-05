@@ -25,7 +25,7 @@ public class FixedOrderSchedulerImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final FixedOrderScheduler sut = new FixedOrderSchedulerImpl();
+		final SchedulerFixedOrder sut = new SchedulerFixedOrderImpl();
 		var test = new ComponentTest(sut) //
 				.addComponent(new DummyController(CTRL0_ID)) //
 				.addComponent(new DummyController(CTRL1_ID)) //

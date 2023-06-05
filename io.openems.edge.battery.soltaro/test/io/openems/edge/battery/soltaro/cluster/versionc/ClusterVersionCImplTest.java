@@ -14,7 +14,7 @@ public class ClusterVersionCImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new ClusterVersionCImpl()) //
+		new ComponentTest(new BatterySoltaroClusterVersionCImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

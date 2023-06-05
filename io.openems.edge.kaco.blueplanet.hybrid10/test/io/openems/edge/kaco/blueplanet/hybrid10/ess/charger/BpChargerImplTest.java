@@ -12,7 +12,7 @@ public class BpChargerImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new BpChargerImpl()) //
+		new ComponentTest(new KacoBlueplanetHybrid10ChargerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId(CHARGER_ID) //

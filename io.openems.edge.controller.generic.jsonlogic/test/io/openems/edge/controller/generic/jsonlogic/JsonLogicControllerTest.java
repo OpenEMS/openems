@@ -22,7 +22,7 @@ public class JsonLogicControllerTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new JsonLogicControllerImpl()) //
+		new ControllerTest(new ControllerGenericJsonLogicImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySum()) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID)) //

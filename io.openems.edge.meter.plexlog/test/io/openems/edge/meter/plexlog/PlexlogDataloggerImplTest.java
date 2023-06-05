@@ -15,7 +15,7 @@ public class PlexlogDataloggerImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new PlexlogDataloggerImpl()) //
+		new ComponentTest(new MeterPlexlogDataloggerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin())
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

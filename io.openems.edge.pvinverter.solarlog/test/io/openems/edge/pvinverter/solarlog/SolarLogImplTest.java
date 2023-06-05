@@ -13,7 +13,7 @@ public class SolarLogImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SolarLogImpl()) //
+		new ComponentTest(new PvInverterSolarlogImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

@@ -4,7 +4,7 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
-public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
+public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPv1 {
 
 	protected static class Builder {
 		private String id = null;
@@ -52,7 +52,7 @@ public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
 	private final Builder builder;
 
 	private MyConfigPV1(Builder builder) {
-		super(ConfigPV1.class, builder.id);
+		super(ConfigPv1.class, builder.id);
 		this.builder = builder;
 	}
 

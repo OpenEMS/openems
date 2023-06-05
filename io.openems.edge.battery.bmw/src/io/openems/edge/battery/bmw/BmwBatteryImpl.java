@@ -104,6 +104,12 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
 	private void handleStateMachine() {
 		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
@@ -215,12 +221,6 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 			// TODO should Fault state channel, but after start stop feature
 			this.logError(this.log, "Error while trying to reset the system!");
 		}
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Override

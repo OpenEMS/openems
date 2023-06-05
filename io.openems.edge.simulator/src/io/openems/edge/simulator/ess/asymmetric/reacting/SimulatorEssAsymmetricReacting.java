@@ -11,8 +11,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.timedata.api.TimedataProvider;
 
-public interface SimulatorEssAsymmetricReacting extends ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public interface SimulatorEssAsymmetricReacting extends ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
+		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

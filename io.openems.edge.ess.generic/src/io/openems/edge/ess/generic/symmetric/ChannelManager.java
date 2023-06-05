@@ -9,9 +9,9 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.generic.common.AbstractChannelManager;
 
 public class ChannelManager
-		extends AbstractChannelManager<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter> {
+		extends AbstractChannelManager<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> {
 
-	public ChannelManager(GenericManagedSymmetricEss parent) {
+	public ChannelManager(EssGenericManagedSymmetric parent) {
 		super(parent, new AllowedChargeDischargeHandler(parent));
 	}
 

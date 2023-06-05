@@ -5,7 +5,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.evcs.hypercharger.Hypercharger.Connector;
+import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
 
 public class HyperchargerTest {
 
@@ -14,7 +14,7 @@ public class HyperchargerTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new HyperchargerImpl()) //
+		new ComponentTest(new EvcsAlpitronicHyperchargerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

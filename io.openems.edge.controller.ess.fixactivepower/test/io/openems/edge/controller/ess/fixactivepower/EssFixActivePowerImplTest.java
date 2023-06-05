@@ -20,7 +20,7 @@ public class EssFixActivePowerImplTest {
 	@Test
 	public void testOn() throws OpenemsException, Exception {
 		final var ess = new DummyManagedAsymmetricEss(ESS_ID);
-		new ControllerTest(new EssFixActivePowerImpl()) //
+		new ControllerTest(new ControllerEssFixActivePowerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
@@ -36,7 +36,7 @@ public class EssFixActivePowerImplTest {
 
 	@Test
 	public void testOff() throws OpenemsException, Exception {
-		new ControllerTest(new EssFixActivePowerImpl()) //
+		new ControllerTest(new ControllerEssFixActivePowerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedAsymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create() //
@@ -60,9 +60,9 @@ public class EssFixActivePowerImplTest {
 				.withDcDischargePower(3000); //
 
 		assertEquals(Integer.valueOf(5000), //
-				EssFixActivePowerImpl.getAcPower(hybridEss, HybridEssMode.TARGET_AC, 5000));
+				ControllerEssFixActivePowerImpl.getAcPower(hybridEss, HybridEssMode.TARGET_AC, 5000));
 
 		assertEquals(Integer.valueOf(9000), //
-				EssFixActivePowerImpl.getAcPower(hybridEss, HybridEssMode.TARGET_DC, 5000));
+				ControllerEssFixActivePowerImpl.getAcPower(hybridEss, HybridEssMode.TARGET_DC, 5000));
 	}
 }

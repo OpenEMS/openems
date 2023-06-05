@@ -22,7 +22,7 @@ public class DelayedSellToGridImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new DelayedSellToGridImpl())//
+		new ControllerTest(new ControllerEssDelayedSellToGridImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //

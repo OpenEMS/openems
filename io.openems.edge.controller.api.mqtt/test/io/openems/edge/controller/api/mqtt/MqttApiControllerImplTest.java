@@ -19,7 +19,7 @@ public class MqttApiControllerImplTest {
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		new ComponentTest(new MqttApiControllerImpl()) //
+		new ComponentTest(new ControllerApiMqttImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummySum()) //
 				.activate(MyConfig.create() //

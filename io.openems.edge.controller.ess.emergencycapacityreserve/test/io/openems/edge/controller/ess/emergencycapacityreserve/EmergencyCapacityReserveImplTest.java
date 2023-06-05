@@ -39,7 +39,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testReserveSocRange() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -53,7 +53,7 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.output(RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE, false));
 
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -67,7 +67,7 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.output(RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE, false));
 
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -81,7 +81,7 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.output(RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE, true));
 
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -95,7 +95,7 @@ public class EmergencyCapacityReserveImplTest {
 				.next(new TestCase() //
 						.output(RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE, false));
 
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -112,7 +112,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testReachTargetPower() throws Exception {
-		var controllerTest = new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		var controllerTest = new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -153,7 +153,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testAllStates() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -196,7 +196,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testIncreaseRampByNoLimitState() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -221,7 +221,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testDecreaseRampByAboveReserveSocState() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -288,7 +288,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testDecreaseRampByAtReserveSocState() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -331,7 +331,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testDecreaseRampByUnderReserveSocState() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -378,7 +378,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testDecreaseRampByForceStartChargeState() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -447,7 +447,7 @@ public class EmergencyCapacityReserveImplTest {
 		// does not consider the mocked Clock.
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -478,7 +478,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testIncreaseRampToMaxApparentPower() throws Exception {
-		new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		new ControllerTest(new ControllerEssEmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //

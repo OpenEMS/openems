@@ -54,7 +54,7 @@ public class WagoTest {
 
 	@Test
 	public void test() throws Exception {
-		var sut = new WagoImpl();
+		var sut = new IoWagoImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -67,7 +67,7 @@ public class WagoTest {
 		;
 
 		InputStream dummyXml = new ByteArrayInputStream(EA_CONFIG.getBytes());
-		var doc = WagoImpl.parseXmlToDocument(dummyXml);
+		var doc = IoWagoImpl.parseXmlToDocument(dummyXml);
 
 		var modules = sut.parseXml(doc);
 		assertEquals(Fieldbus5xxDO.class, modules.get(0).getClass());

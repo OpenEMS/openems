@@ -19,7 +19,7 @@ public class EssLinearPowerBandImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new EssLinearPowerBandImpl()) //
+		new ControllerTest(new ControllerEssLinearPowerBandImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create() //

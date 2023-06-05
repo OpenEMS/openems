@@ -32,7 +32,7 @@ public class MyControllerImpl extends AbstractOpenemsComponent implements MyCont
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 	}

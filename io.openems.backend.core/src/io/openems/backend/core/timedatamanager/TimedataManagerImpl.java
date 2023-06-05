@@ -38,7 +38,6 @@ import io.openems.common.types.ChannelAddress;
 public class TimedataManagerImpl extends AbstractOpenemsBackendComponent implements TimedataManager {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataManagerImpl.class);
-
 	private final List<String> _configTimedataIds;
 	private final List<Timedata> _rawTimedatas = new ArrayList<>();
 	private final AtomicReference<ImmutableSortedSet<Timedata>> timedatas = new AtomicReference<>(
@@ -60,6 +59,13 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 			this._rawTimedatas.remove(timedata);
 			this.updateSortedTimedatas();
 		}
+	}
+
+	@Activate
+	public TimedataManagerImpl(Config config) {
+		super("Core.TimedataManager");
+		this._configTimedataIds = Arrays.asList(config.timedata_ids());
+		this.updateSortedTimedatas();
 	}
 
 	private void updateSortedTimedatas() {
@@ -90,13 +96,6 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 				return t1.getClass().getSimpleName().compareTo(t2.getClass().getSimpleName());
 			}, this._rawTimedatas));
 		}
-	}
-
-	@Activate
-	public TimedataManagerImpl(Config config) {
-		super("Core.TimedataManager");
-		this._configTimedataIds = Arrays.asList(config.timedata_ids());
-		this.updateSortedTimedatas();
 	}
 
 	@Override

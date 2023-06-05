@@ -24,7 +24,7 @@ public class PeakshavingTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new PeakShavingImpl()) //
+		new ControllerTest(new ControllerEssPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
 				.addComponent(new DummySymmetricMeter(METER_ID)) //

@@ -136,7 +136,7 @@ public class TimeOfUseTariffDischargeTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -188,7 +188,7 @@ public class TimeOfUseTariffDischargeTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -269,7 +269,7 @@ public class TimeOfUseTariffDischargeTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -325,7 +325,7 @@ public class TimeOfUseTariffDischargeTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
 
-		new ControllerTest(new TimeOfUseTariffDischargeImpl()) //
+		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

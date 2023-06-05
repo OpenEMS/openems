@@ -43,7 +43,7 @@ public class BydContainerWatchdogTest {
 						.setModbusId2(MODBUS2_ID) //
 						.build());
 
-		new ControllerTest(new BydContainerWatchdog()) //
+		new ControllerTest(new EssFeneconBydContainerWatchdogControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(ess) //

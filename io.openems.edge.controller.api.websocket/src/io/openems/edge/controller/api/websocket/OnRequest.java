@@ -56,9 +56,9 @@ import io.openems.edge.common.user.User;
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
-	private final WebsocketApiImpl parent;
+	private final ControllerApiWebsocketImpl parent;
 
-	public OnRequest(WebsocketApiImpl parent) {
+	public OnRequest(ControllerApiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
@@ -520,9 +520,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(//
 				new GetEdgeResponse(request.id, //
 						new EdgeMetadata(//
-								WebsocketApi.EDGE_ID, //
-								WebsocketApi.EDGE_COMMENT, //
-								WebsocketApi.EDGE_PRODUCT_TYPE, //
+								ControllerApiWebsocket.EDGE_ID, //
+								ControllerApiWebsocket.EDGE_COMMENT, //
+								ControllerApiWebsocket.EDGE_PRODUCT_TYPE, //
 								OpenemsConstants.VERSION, //
 								user.getGlobalRole(), //
 								true, //

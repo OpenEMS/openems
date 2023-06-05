@@ -87,7 +87,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -128,7 +128,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -170,7 +170,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -211,7 +211,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -254,7 +254,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		var sut = new EvcsClusterImpl();
+		var sut = new EvcsClusterPeakShavingImpl();
 		var test = new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -301,7 +301,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -368,7 +368,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1", "evcs2", "evcs3", "evcs4" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -418,7 +418,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -468,7 +468,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -516,7 +516,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -564,7 +564,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -621,7 +621,7 @@ public class EvcsClusterTest {
 
 		int initialPowerFromCluster = 4500;
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -665,7 +665,7 @@ public class EvcsClusterTest {
 		String[] evcsIds = { "evcs0", "evcs1", "evcs2", "evcs3" };
 		EVCS_TARGET = this.getEvcsTarget(evcsIds);
 
-		new ComponentTest(new EvcsClusterImpl()) //
+		new ComponentTest(new EvcsClusterPeakShavingImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //

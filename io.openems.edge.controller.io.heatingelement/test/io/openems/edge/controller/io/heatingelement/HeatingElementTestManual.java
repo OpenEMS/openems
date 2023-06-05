@@ -27,7 +27,7 @@ public class HeatingElementTestManual {
 	private static final ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
 
 	private static ControllerTest prepareTest(Mode mode, Level level) throws OpenemsNamedException, Exception {
-		return new ControllerTest(new ControllerHeatingElementImpl()) //
+		return new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager",
 						new DummyComponentManager(new TimeLeapClock(
 								Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,

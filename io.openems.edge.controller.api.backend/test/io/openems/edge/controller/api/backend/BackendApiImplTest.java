@@ -34,7 +34,7 @@ public class BackendApiImplTest {
 
 			final var clock = new TimeLeapClock(
 					Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
-			final var sut = new BackendApiImpl();
+			final var sut = new ControllerApiBackendImpl();
 			new ComponentTest(sut) //
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //

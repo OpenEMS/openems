@@ -13,7 +13,7 @@ public class KmtronicRelay4PortTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new KmtronicRelay4PortImpl()) //
+		new ComponentTest(new IoKmtronicRelay4PortImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

@@ -47,7 +47,7 @@ public class PersistenceModelPredictorTest {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
 
-		var sut = new PersistenceModelPredictorImpl();
+		var sut = new PredictorPersistenceModelImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //

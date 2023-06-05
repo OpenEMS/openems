@@ -119,6 +119,12 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		this.applyConfig(context, config);
 	}
 
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
 	private void applyConfig(ComponentContext context, Config config) {
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
@@ -130,12 +136,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		 * is no used for now)
 		 */
 		this._setPowerPrecision(230);
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Override

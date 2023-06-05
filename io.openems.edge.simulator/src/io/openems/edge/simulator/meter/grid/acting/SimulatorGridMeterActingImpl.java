@@ -47,8 +47,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
-		implements SimulatorGridMeterActing, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent implements SimulatorGridMeterActing,
+		SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);

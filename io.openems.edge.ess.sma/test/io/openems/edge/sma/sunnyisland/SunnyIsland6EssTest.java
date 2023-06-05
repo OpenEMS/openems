@@ -14,7 +14,7 @@ public class SunnyIsland6EssTest {
 
 	@Test
 	public void test() throws Exception {
-		new ManagedSymmetricEssTest(new SunnyIslandEssImpl()) //
+		new ManagedSymmetricEssTest(new EssSmaSunnyIslandImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

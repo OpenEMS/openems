@@ -54,7 +54,7 @@ public class StandbyControllerImplTest {
 				.setMaxApparentPower(MAX_APPARENT_POWER) //
 				.setSoc(70);
 
-		return new ControllerTest(new StandbyControllerImpl()) //
+		return new ControllerTest(new ControllerEssStandbyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(ess) //

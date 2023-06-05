@@ -166,7 +166,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -217,7 +217,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -275,7 +275,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -348,7 +348,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -419,7 +419,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -463,7 +463,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -560,7 +560,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -659,7 +659,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -760,7 +760,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -812,7 +812,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -862,7 +862,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -914,7 +914,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -963,7 +963,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -1019,7 +1019,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -1083,7 +1083,7 @@ public class MyControllerTest {
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
-		new ControllerTest(new GridOptimizedChargeImpl()) //
+		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -1227,7 +1227,7 @@ public class MyControllerTest {
 		final int maxApparentPower = 10_000;
 		final int soc = 20;
 		final int capacity = 10_000;
-		final GridOptimizedChargeImpl parent = new GridOptimizedChargeImpl();
+		final ControllerEssGridOptimizedChargeImpl parent = new ControllerEssGridOptimizedChargeImpl();
 
 		// Minimum charge power, to avoid low charge power
 		int minimumPower = Math.round(capacity * 0.081F);
@@ -1560,7 +1560,7 @@ public class MyControllerTest {
 		int totoalActivePower = 0;
 		int totoalActivePowerLessEfficiency = 0;
 		float socFloat = soc;
-		final GridOptimizedChargeImpl parent = new GridOptimizedChargeImpl();
+		final ControllerEssGridOptimizedChargeImpl parent = new ControllerEssGridOptimizedChargeImpl();
 
 		// Minimum charge power, to avoid low charge power
 		int minimumPower = Math.round(capacity * 0.081F);
@@ -1785,7 +1785,7 @@ public class MyControllerTest {
 		final int maxApparentPower = 10000;
 		final int soc = 10;
 		final int capacity = 44_000;
-		final GridOptimizedChargeImpl parent = new GridOptimizedChargeImpl();
+		final ControllerEssGridOptimizedChargeImpl parent = new ControllerEssGridOptimizedChargeImpl();
 
 		// Minimum charge power, to avoid low charge power
 		int minimumPower = Math.round(capacity * 0.11F);

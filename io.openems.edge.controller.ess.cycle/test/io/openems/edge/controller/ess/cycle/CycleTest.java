@@ -23,7 +23,7 @@ public class CycleTest {
 	private static final String ESS_ID = "ess0";
 
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID,
-			EssCycle.ChannelId.STATE_MACHINE.id());
+			ControllerEssCycle.ChannelId.STATE_MACHINE.id());
 
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
 	private static final ChannelAddress MAX_CHARGE_POWER = new ChannelAddress(ESS_ID, "AllowedChargePower");
@@ -37,7 +37,7 @@ public class CycleTest {
 		final var clock = new TimeLeapClock(Instant.parse("2021-09-12T17:55:10.00Z"), ZoneOffset.UTC);
 		final var power = new DummyPower(10_000);
 		final var ess = new DummyManagedSymmetricEss(ESS_ID, power);
-		final var test = new ControllerTest(new EssCycleImpl()) //
+		final var test = new ControllerTest(new ControllerEssCycleImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //

@@ -21,9 +21,9 @@ public class HardyBarthApi {
 
 	private final String baseUrl;
 	private final String authorizationHeader;
-	private final HardyBarthImpl hardyBarthImpl;
+	private final EvcsHardyBarthImpl hardyBarthImpl;
 
-	public HardyBarthApi(String ip, HardyBarthImpl hardyBarthImpl) {
+	public HardyBarthApi(String ip, EvcsHardyBarthImpl hardyBarthImpl) {
 		this.baseUrl = "http://" + ip;
 		this.authorizationHeader = "Basic ";
 		this.hardyBarthImpl = hardyBarthImpl;

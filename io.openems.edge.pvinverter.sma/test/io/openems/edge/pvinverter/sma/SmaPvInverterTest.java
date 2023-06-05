@@ -14,7 +14,7 @@ public class SmaPvInverterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SmaPvInverterImpl()) //
+		new ComponentTest(new PvInverterSmaSunnyTripowerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

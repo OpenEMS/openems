@@ -30,7 +30,7 @@ public class ClusterVersionBTest {
 
 	@Test
 	public void test() throws Exception {
-		var sut = new ClusterVersionB();
+		var sut = new BatterySoltaroClusterVersionBImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager())

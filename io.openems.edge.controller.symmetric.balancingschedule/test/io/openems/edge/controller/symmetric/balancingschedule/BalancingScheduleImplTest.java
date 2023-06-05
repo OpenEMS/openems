@@ -39,7 +39,7 @@ public class BalancingScheduleImplTest {
 		final var start = 1577836800L;
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		new ControllerTest(new BalancingScheduleImpl()) //
+		new ControllerTest(new ControllerEssBalancingScheduleImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //

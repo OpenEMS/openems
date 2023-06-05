@@ -18,10 +18,10 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 public class SystemLogHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemLogHandler.class);
-	private final WebsocketApiImpl parent;
+	private final ControllerApiWebsocketImpl parent;
 	private final Set<String> subscriptions = new HashSet<>();
 
-	public SystemLogHandler(WebsocketApiImpl parent) {
+	public SystemLogHandler(ControllerApiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
@@ -62,7 +62,7 @@ public class SystemLogHandler {
 			if (this.subscriptions.isEmpty()) {
 				return;
 			}
-			var notification = new EdgeRpcNotification(WebsocketApi.EDGE_ID,
+			var notification = new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID,
 					SystemLogNotification.fromPaxLoggingEvent(event));
 			for (var iter = this.subscriptions.iterator(); iter.hasNext();) {
 				var token = iter.next();

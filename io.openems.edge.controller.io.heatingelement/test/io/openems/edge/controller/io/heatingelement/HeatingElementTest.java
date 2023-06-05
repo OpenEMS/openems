@@ -36,7 +36,7 @@ public class HeatingElementTest {
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		new ControllerTest(new ControllerHeatingElementImpl()) //
+		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(new DummyInputOutput(IO_ID)) //

@@ -31,7 +31,7 @@ public class EssDcChargerFeneconCommercial40ImplTest {
 						.setSurplusFeedInOffTime("17:00:00") //
 						.build());
 
-		new ComponentTest(new EssDcChargerFeneconCommercial40Pv1Impl()) //
+		new ComponentTest(new EssFeneconCommercial40Pv1Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

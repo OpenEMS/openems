@@ -14,7 +14,7 @@ public class BpEssImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new BpEssImpl()) //
+		new ComponentTest(new KacoBlueplanetHybrid10EssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("timedata", new DummyTimedata(TIMEDATA_ID)) //
 				.activate(MyConfig.create() //

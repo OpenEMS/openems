@@ -12,7 +12,7 @@ public class BpPvInverterImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new BpPvInverterImpl()) //
+		new ComponentTest(new KacoBlueplanetHybrid10PvInverterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyConfig.create() //
 						.setId(PV_INVERTER_ID) //

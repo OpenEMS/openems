@@ -52,7 +52,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -82,7 +82,7 @@ public class FixStateOfChargeTest {
 
 	@Test
 	public void testAllStates() throws Exception {
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -138,7 +138,7 @@ public class FixStateOfChargeTest {
 		timedata.add(start.plusMinutes(60), CTRL_ESS_CAPACITY, 8_000);
 		timedata.add(start.plusMinutes(90), CTRL_ESS_CAPACITY, 8_000);
 
-		var test = new ControllerTest(new FixStateOfChargeImpl()) //
+		var test = new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -209,7 +209,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -254,7 +254,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -299,7 +299,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.UTC);
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -412,7 +412,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.UTC);
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -491,7 +491,7 @@ public class FixStateOfChargeTest {
 		/*
 		 * Below target SoC
 		 */
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -573,7 +573,7 @@ public class FixStateOfChargeTest {
 		/*
 		 * Above target SoC
 		 */
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -657,7 +657,7 @@ public class FixStateOfChargeTest {
 		new TimeLeapClock(Instant.parse("2022-10-27T09:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
@@ -745,7 +745,7 @@ public class FixStateOfChargeTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-26T22:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new FixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //

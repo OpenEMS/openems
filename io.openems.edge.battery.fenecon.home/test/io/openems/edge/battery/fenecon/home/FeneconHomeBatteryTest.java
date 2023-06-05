@@ -26,9 +26,9 @@ public class FeneconHomeBatteryTest {
 	private static final String IO_ID = "io0";
 
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_ID,
-			FeneconHomeBattery.ChannelId.STATE_MACHINE.id());
+			BatteryFeneconHome.ChannelId.STATE_MACHINE.id());
 	private static final ChannelAddress BMS_CONTROL = new ChannelAddress(BATTERY_ID,
-			FeneconHomeBattery.ChannelId.BMS_CONTROL.id());
+			BatteryFeneconHome.ChannelId.BMS_CONTROL.id());
 	private static final ChannelAddress BP_CHARGE_BMS = new ChannelAddress(BATTERY_ID,
 			BatteryProtection.ChannelId.BP_CHARGE_BMS.id());
 	private static final ChannelAddress MAX_CELL_VOLTAGE = new ChannelAddress(BATTERY_ID,
@@ -46,7 +46,7 @@ public class FeneconHomeBatteryTest {
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -115,7 +115,7 @@ public class FeneconHomeBatteryTest {
 	 */
 	@Test
 	public void test2() throws Exception {
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -157,7 +157,7 @@ public class FeneconHomeBatteryTest {
 	 */
 	@Test
 	public void test3() throws Exception {
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -194,7 +194,7 @@ public class FeneconHomeBatteryTest {
 	 */
 	@Test
 	public void test4() throws Exception {
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -250,7 +250,7 @@ public class FeneconHomeBatteryTest {
 	 */
 	@Test
 	public void test5() throws Exception {
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -294,7 +294,7 @@ public class FeneconHomeBatteryTest {
 	 */
 	@Test
 	public void test6() throws Exception {
-		new ComponentTest(new FeneconHomeBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconHomeImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

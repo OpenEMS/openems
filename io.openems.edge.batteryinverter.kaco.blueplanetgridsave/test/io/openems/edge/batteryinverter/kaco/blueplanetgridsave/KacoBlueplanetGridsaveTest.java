@@ -52,7 +52,7 @@ public class KacoBlueplanetGridsaveTest {
 		@Override
 		protected void handleEvent(String topic) throws Exception {
 			if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)) {
-				((KacoBlueplanetGridsaveImpl) this.getSut()).run(this.battery, 0, 0);
+				((BatteryInverterKacoBlueplanetGridsaveImpl) this.getSut()).run(this.battery, 0, 0);
 			}
 			super.handleEvent(topic);
 		}
@@ -67,7 +67,7 @@ public class KacoBlueplanetGridsaveTest {
 		final var start = 1577836800L;
 		clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		var sut = new KacoBlueplanetGridsaveImpl();
+		var sut = new BatteryInverterKacoBlueplanetGridsaveImpl();
 
 		test = new MyComponentTest(sut) //
 				.addReference("cycle", new DummyCycle(1000)) //
@@ -113,7 +113,7 @@ public class KacoBlueplanetGridsaveTest {
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
 						.input(CURRENT_STATE, S64201CurrentState.GRID_CONNECTED) //
-						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
+						.output(WATCHDOG, BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.RUNNING)) //
 		;
@@ -123,13 +123,14 @@ public class KacoBlueplanetGridsaveTest {
 	public void testWatchdog() throws Exception {
 		test //
 				.next(new TestCase() //
-						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
+						.output(WATCHDOG, BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 				.next(new TestCase() //
-						.timeleap(clock, KacoBlueplanetGridsave.WATCHDOG_TRIGGER_SECONDS - 1, ChronoUnit.SECONDS) //
+						.timeleap(clock, BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TRIGGER_SECONDS - 1,
+								ChronoUnit.SECONDS) //
 						.output(WATCHDOG, null /* waiting till next watchdog trigger */)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.SECONDS) //
-						.output(WATCHDOG, KacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
+						.output(WATCHDOG, BatteryInverterKacoBlueplanetGridsave.WATCHDOG_TIMEOUT_SECONDS)) //
 		;
 	}
 }

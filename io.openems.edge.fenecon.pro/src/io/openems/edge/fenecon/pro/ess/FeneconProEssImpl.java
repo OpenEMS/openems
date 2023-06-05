@@ -104,17 +104,6 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 		AsymmetricEss.initializePowerSumChannels(this);
 	}
 
-	@Override
-	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
-		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
-		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
-		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
-		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
-		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
-		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
-	}
-
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
@@ -128,6 +117,17 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+		this.getSetActivePowerL1Channel().setNextWriteValue(activePowerL1);
+		this.getSetActivePowerL2Channel().setNextWriteValue(activePowerL2);
+		this.getSetActivePowerL3Channel().setNextWriteValue(activePowerL3);
+		this.getSetReactivePowerL1Channel().setNextWriteValue(reactivePowerL1);
+		this.getSetReactivePowerL2Channel().setNextWriteValue(reactivePowerL2);
+		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
 	public String getModbusBridgeId() {

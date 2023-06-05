@@ -33,7 +33,7 @@ public class VirtualSymmetricMeterAddTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SymmetricVirtualAddImpl()) //
+		new ComponentTest(new MeterVirtualSymmetricAddImpl()) //
 				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
 				.addReference("addMeter", new DummySymmetricMeter(METER_ID_1)) //
 				.addReference("addMeter", new DummySymmetricMeter(METER_ID_2)) //

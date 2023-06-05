@@ -57,6 +57,28 @@ public class OneWireThermometerImpl extends AbstractOpenemsComponent implements 
 		);
 	}
 
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.config = config;
+
+		// update filter for 'bridge'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "bridge", config.bridge_id())) {
+			return;
+		}
+
+		if (this.isEnabled()) {
+			this.bridge.addTask(this.task);
+		}
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		this.bridge.removeTask(this.task);
+		super.deactivate();
+	}
+
 	private final Consumer<DSPortAdapter> task = adapter -> {
 		try {
 			var container = this.getDeviceContainer(adapter);
@@ -77,21 +99,6 @@ public class OneWireThermometerImpl extends AbstractOpenemsComponent implements 
 		}
 	};
 
-	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
-
-		// update filter for 'bridge'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "bridge", config.bridge_id())) {
-			return;
-		}
-
-		if (this.isEnabled()) {
-			this.bridge.addTask(this.task);
-		}
-	}
-
 	private TemperatureContainer getDeviceContainer(DSPortAdapter adapter) throws OpenemsException {
 		if (this._container != null) {
 			return this._container;
@@ -103,13 +110,6 @@ public class OneWireThermometerImpl extends AbstractOpenemsComponent implements 
 		var container = (TemperatureContainer) owc;
 		this._container = container;
 		return this._container;
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		this.bridge.removeTask(this.task);
-		super.deactivate();
 	}
 
 	@Override

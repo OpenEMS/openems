@@ -54,7 +54,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
@@ -95,17 +95,23 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 			HybridEss.ChannelId.DC_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
-	private final List<EssDcChargerFeneconCommercial40> chargers = new ArrayList<>();
+	private final List<EssFeneconCommercial40Pv> chargers = new ArrayList<>();
 	private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	@Reference
 	private Power power;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -127,24 +133,6 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		this._setCapacity(NET_CAPACITY);
 	}
 
-	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		if (this.config.readOnlyMode()) {
-			return;
-		}
-
-		IntegerWriteChannel setActivePowerChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_ACTIVE_POWER);
-		setActivePowerChannel.setNextWriteValue(activePower);
-		IntegerWriteChannel setReactivePowerChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_REACTIVE_POWER);
-		setReactivePowerChannel.setNextWriteValue(reactivePower);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
@@ -158,6 +146,18 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
+		if (this.config.readOnlyMode()) {
+			return;
+		}
+
+		IntegerWriteChannel setActivePowerChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_ACTIVE_POWER);
+		setActivePowerChannel.setNextWriteValue(activePower);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_REACTIVE_POWER);
+		setReactivePowerChannel.setNextWriteValue(reactivePower);
 	}
 
 	@Override
@@ -797,12 +797,12 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public void addCharger(EssDcChargerFeneconCommercial40 charger) {
+	public void addCharger(EssFeneconCommercial40Pv charger) {
 		this.chargers.add(charger);
 	}
 
 	@Override
-	public void removeCharger(EssDcChargerFeneconCommercial40 charger) {
+	public void removeCharger(EssFeneconCommercial40Pv charger) {
 		this.chargers.remove(charger);
 	}
 
@@ -836,7 +836,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 				 */
 				if (this.chargers.size() > 0) {
 					IntegerWriteChannel setPvPowerLimit = this.chargers.get(0)
-							.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+							.channel(EssFeneconCommercial40Pv.ChannelId.SET_PV_POWER_LIMIT);
 					try {
 						setPvPowerLimit.setNextWriteValue(
 								this.config.powerLimitOnPowerDecreaseCausedByOvertemperatureChannel());
@@ -881,7 +881,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		 * Calculate DC Power and Energy
 		 */
 		var dcDischargePower = acActivePower;
-		for (EssDcChargerFeneconCommercial40 charger : this.chargers) {
+		for (EssFeneconCommercial40Pv charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());
 		}

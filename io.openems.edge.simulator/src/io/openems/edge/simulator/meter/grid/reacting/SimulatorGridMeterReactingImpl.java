@@ -44,8 +44,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
-		implements SimulatorGridMeterReacting, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent implements SimulatorGridMeterReacting,
+		SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -66,7 +66,7 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
-	protected void addEss(ManagedSymmetricEss ess) {
+	private void addEss(ManagedSymmetricEss ess) {
 		this.symmetricEsss.add(ess);
 		ess.getActivePowerChannel().onSetNextValue(this.updateChannelsCallback);
 	}
@@ -81,7 +81,7 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Simulator.GridMeter.Reacting)))")
-	protected void addMeter(SymmetricMeter meter) {
+	private void addMeter(SymmetricMeter meter) {
 		this.symmetricMeters.add(meter);
 		meter.getActivePowerChannel().onSetNextValue(this.updateChannelsCallback);
 	}

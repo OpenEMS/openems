@@ -11,7 +11,7 @@ public class DezonyTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new DezonyImpl()) //
+		new ComponentTest(new EvcsDezonyImpl()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("192.168.50.88") //

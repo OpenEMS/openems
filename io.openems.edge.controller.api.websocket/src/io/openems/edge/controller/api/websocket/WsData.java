@@ -76,7 +76,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(WsData.class);
-	private final WebsocketApiImpl parent;
+	private final ControllerApiWebsocketImpl parent;
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 
 	/**
@@ -87,7 +87,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private Optional<User> user = Optional.empty();
 
-	public WsData(WebsocketApiImpl parent) {
+	public WsData(ControllerApiWebsocketImpl parent) {
 		this.parent = parent;
 	}
 
@@ -190,7 +190,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.parent.server.execute(() -> {
 			try {
 				this.send(//
-						new EdgeRpcNotification(WebsocketApi.EDGE_ID, //
+						new EdgeRpcNotification(ControllerApiWebsocket.EDGE_ID, //
 								new CurrentDataNotification(values)));
 
 			} catch (OpenemsException e) {

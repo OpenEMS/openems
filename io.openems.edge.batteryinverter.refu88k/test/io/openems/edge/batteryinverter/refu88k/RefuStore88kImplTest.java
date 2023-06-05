@@ -15,7 +15,7 @@ public class RefuStore88kImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new RefuStore88kImpl()) //
+		new ComponentTest(new BatteryInverterRefuStore88kImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

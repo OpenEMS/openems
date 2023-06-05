@@ -14,7 +14,7 @@ public class BatteryBoxC130ImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new BatteryBoxC130Impl()) //
+		new ComponentTest(new BydBatteryBoxCommercialC130Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

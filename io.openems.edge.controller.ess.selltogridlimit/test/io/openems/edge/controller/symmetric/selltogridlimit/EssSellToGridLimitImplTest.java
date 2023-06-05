@@ -25,7 +25,7 @@ public class EssSellToGridLimitImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new EssSellToGridLimitImpl()) //
+		new ControllerTest(new ControllerEssSellToGridLimitImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //

@@ -18,7 +18,7 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 	private final ModbusCoilElement[] outputCoil512Elements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus523RO1Ch(WagoImpl parent, int moduleCount, int coilOffset0, int coilOffset512) {
+	public Fieldbus523RO1Ch(IoWagoImpl parent, int moduleCount, int coilOffset0, int coilOffset512) {
 		var id = ID_TEMPLATE + moduleCount;
 
 		BooleanWriteChannel channel1;

@@ -51,7 +51,7 @@ public class SinexcelImplTest {
 		@Override
 		protected void handleEvent(String topic) throws Exception {
 			if (topic.equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)) {
-				((SinexcelImpl) this.getSut()).run(this.battery, 0, 0);
+				((BatteryInverterSinexcelImpl) this.getSut()).run(this.battery, 0, 0);
 			}
 			super.handleEvent(topic);
 		}
@@ -62,7 +62,7 @@ public class SinexcelImplTest {
 	public void testStart() throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		new MyComponentTest(new SinexcelImpl()) //
+		new MyComponentTest(new BatteryInverterSinexcelImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("power", new DummyPower()) //
@@ -98,7 +98,7 @@ public class SinexcelImplTest {
 	public void testOffGrid() throws Exception {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		var sut = new SinexcelImpl();
+		var sut = new BatteryInverterSinexcelImpl();
 		new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

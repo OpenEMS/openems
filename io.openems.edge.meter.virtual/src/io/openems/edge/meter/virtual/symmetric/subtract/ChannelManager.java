@@ -14,9 +14,9 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 public class ChannelManager extends AbstractChannelListenerManager {
 
-	private final VirtualSubtractMeter parent;
+	private final MeterVirtualSymmetricSubtract parent;
 
-	public ChannelManager(VirtualSubtractMeter parent) {
+	public ChannelManager(MeterVirtualSymmetricSubtract parent) {
 		this.parent = parent;
 	}
 

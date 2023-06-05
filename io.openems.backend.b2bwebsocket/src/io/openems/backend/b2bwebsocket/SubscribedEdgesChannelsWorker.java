@@ -40,9 +40,9 @@ public class SubscribedEdgesChannelsWorker {
 
 	private int lastRequestCount = Integer.MIN_VALUE;
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public SubscribedEdgesChannelsWorker(B2bWebsocket parent, WsData wsData) {
+	public SubscribedEdgesChannelsWorker(Backend2BackendWebsocket parent, WsData wsData) {
 		this.parent = parent;
 		this.wsData = wsData;
 	}

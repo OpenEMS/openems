@@ -14,7 +14,7 @@ public class WeidmuellerUR20ImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new WeidmuellerUR20Impl()) //
+		new ComponentTest(new IoWeidmuellerUr20Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

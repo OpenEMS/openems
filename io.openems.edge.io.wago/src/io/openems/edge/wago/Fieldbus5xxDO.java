@@ -16,7 +16,7 @@ public class Fieldbus5xxDO extends FieldbusModule {
 	private final ModbusCoilElement[] outputCoil512Elements;
 	private final BooleanReadChannel[] readChannels;
 
-	public Fieldbus5xxDO(WagoImpl parent, int moduleCount, int coilOffset512, int channelsCount) {
+	public Fieldbus5xxDO(IoWagoImpl parent, int moduleCount, int coilOffset512, int channelsCount) {
 		var id = ID_TEMPLATE + moduleCount;
 
 		this.readChannels = new BooleanReadChannel[channelsCount];

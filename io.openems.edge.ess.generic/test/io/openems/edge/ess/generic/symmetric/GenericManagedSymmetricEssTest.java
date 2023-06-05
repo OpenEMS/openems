@@ -43,7 +43,7 @@ public class GenericManagedSymmetricEssTest {
 	@Test
 	public void testStart() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new GenericManagedSymmetricEssImpl()) //
+		new ComponentTest(new EssGenericManagedSymmetricImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER_ID)) //
@@ -71,7 +71,7 @@ public class GenericManagedSymmetricEssTest {
 
 	@Test
 	public void testForceCharge() throws Exception {
-		new ManagedSymmetricEssTest(new GenericManagedSymmetricEssImpl()) //
+		new ManagedSymmetricEssTest(new EssGenericManagedSymmetricImpl()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //

@@ -53,7 +53,7 @@ public class RestApiReadWriteImplTest {
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
-		var sut = new RestApiReadWriteImpl();
+		var sut = new ControllerApiRestReadWriteImpl();
 		var test = new ControllerTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("userService", new DummyUserService(//

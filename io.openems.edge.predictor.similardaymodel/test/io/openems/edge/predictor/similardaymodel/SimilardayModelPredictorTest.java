@@ -39,7 +39,7 @@ public class SimilardayModelPredictorTest {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
 
-		var sut = new SimilarDayPredictorImpl();
+		var sut = new PredictorSimilardayModelImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //

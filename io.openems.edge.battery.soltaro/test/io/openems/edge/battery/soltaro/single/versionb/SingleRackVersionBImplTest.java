@@ -16,7 +16,7 @@ public class SingleRackVersionBImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SingleRackVersionBImpl()) //
+		new ComponentTest(new BatterySoltaroSingleRackVersionBImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

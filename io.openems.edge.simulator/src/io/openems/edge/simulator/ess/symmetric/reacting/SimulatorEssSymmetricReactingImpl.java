@@ -46,8 +46,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent implements SimulatorEssSymmetricReacting, ManagedSymmetricEss,
-		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
+public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
+		implements SimulatorEssSymmetricReacting, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider,
+		EventHandler, StartStoppable, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);

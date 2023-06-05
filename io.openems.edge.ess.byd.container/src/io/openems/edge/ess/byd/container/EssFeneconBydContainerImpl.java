@@ -59,6 +59,18 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private Power power;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected BridgeModbus modbus1;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected BridgeModbus modbus2;
+
 	private boolean readonly = false;
 
 	public EssFeneconBydContainerImpl() {
@@ -72,18 +84,6 @@ public class EssFeneconBydContainerImpl extends AbstractOpenemsModbusComponent
 		this._setMaxApparentPower(EssFeneconBydContainerImpl.MAX_APPARENT_POWER);
 		this._setGridMode(GridMode.ON_GRID);
 	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BridgeModbus modbus1;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected BridgeModbus modbus2;
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {

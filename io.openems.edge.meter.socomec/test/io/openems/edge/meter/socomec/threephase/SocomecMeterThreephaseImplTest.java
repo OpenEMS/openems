@@ -13,11 +13,11 @@ public class SocomecMeterThreephaseImplTest {
 	private static final String METER_ID = "meter0";
 	private static final String MODBUS_ID = "modbus0";
 
-	private static SocomecMeterThreephaseImpl meter;
+	private static MeterSocomecThreephaseImpl meter;
 
 	@Before
 	public void setup() throws Exception {
-		meter = new SocomecMeterThreephaseImpl();
+		meter = new MeterSocomecThreephaseImpl();
 		new ComponentTest(meter) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

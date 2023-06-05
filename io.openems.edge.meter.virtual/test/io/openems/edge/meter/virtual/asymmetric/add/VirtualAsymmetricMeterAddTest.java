@@ -40,7 +40,7 @@ public class VirtualAsymmetricMeterAddTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new AsymmetricVirtualAddImpl()) //
+		new ComponentTest(new MeterVirtualAsymmetricAddImpl()) //
 				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
 				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_1))
 				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_2)) //

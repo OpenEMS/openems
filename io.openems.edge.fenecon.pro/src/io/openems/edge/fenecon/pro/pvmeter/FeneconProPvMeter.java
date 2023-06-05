@@ -60,6 +60,12 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	private String modbusBridgeId;
 
 	public FeneconProPvMeter() {
@@ -82,12 +88,6 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		this.getActiveProductionEnergyL1Channel().onSetNextValue(activeEnergySum);
 		this.getActiveProductionEnergyL2Channel().onSetNextValue(activeEnergySum);
 		this.getActiveProductionEnergyL3Channel().onSetNextValue(activeEnergySum);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate

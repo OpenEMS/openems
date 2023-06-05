@@ -25,14 +25,14 @@ public class FeneconCommercialBatteryImplTest {
 	private static final String IO_ID = "io0";
 
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_ID,
-			FeneconCommercialBattery.ChannelId.STATE_MACHINE.id());
+			BatteryFeneconCommercial.ChannelId.STATE_MACHINE.id());
 	private static final ChannelAddress RUNNING = new ChannelAddress(BATTERY_ID,
-			FeneconCommercialBattery.ChannelId.RUNNING.id());
+			BatteryFeneconCommercial.ChannelId.RUNNING.id());
 	private static final ChannelAddress BATTERY_RELAY = new ChannelAddress(IO_ID, "InputOutput7");
 	private static final ChannelAddress START_STOP = new ChannelAddress(BATTERY_ID,
 			StartStoppable.ChannelId.START_STOP.id());
 	private static final ChannelAddress BATTERY_SOC = new ChannelAddress(BATTERY_ID,
-			FeneconCommercialBattery.ChannelId.BATTERY_SOC.id());
+			BatteryFeneconCommercial.ChannelId.BATTERY_SOC.id());
 	private static final ChannelAddress BATTERY_MAX_DISCHARGE_CURRENT = new ChannelAddress(BATTERY_ID,
 			Battery.ChannelId.DISCHARGE_MAX_CURRENT.id());
 	private static final ChannelAddress BATTERY_MAX_CHARGE_CURRENT = new ChannelAddress(BATTERY_ID,
@@ -42,7 +42,7 @@ public class FeneconCommercialBatteryImplTest {
 	@Test
 	public void startBattery() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconCommercialImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -84,7 +84,7 @@ public class FeneconCommercialBatteryImplTest {
 	@Test
 	public void stopBattery() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconCommercialImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -115,7 +115,7 @@ public class FeneconCommercialBatteryImplTest {
 	@Test
 	public void socManipulationMin() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconCommercialImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -138,7 +138,7 @@ public class FeneconCommercialBatteryImplTest {
 	@Test
 	public void socManipulationMax() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+		new ComponentTest(new BatteryFeneconCommercialImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

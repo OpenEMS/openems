@@ -21,7 +21,7 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 	 * @param converter an additional {@link ElementToChannelConverter}
 	 * @return the {@link ElementToChannelConverter}
 	 */
-	public static ElementToChannelConverter from(FeneconCommercialBatteryImpl parent,
+	public static ElementToChannelConverter from(BatteryFeneconCommercialImpl parent,
 			ElementToChannelConverter converter) {
 		if (converter == DIRECT_1_TO_1) {
 			return new IgnoreZeroConverter(parent);
@@ -29,7 +29,7 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 		return ElementToChannelConverter.chain(new IgnoreZeroConverter(parent), converter);
 	}
 
-	private IgnoreZeroConverter(FeneconCommercialBatteryImpl parent) {
+	private IgnoreZeroConverter(BatteryFeneconCommercialImpl parent) {
 		super(value -> {
 			// Is value null?
 			if (value == null) {

@@ -24,7 +24,7 @@ public class GenericOffGridEssTest {
 	@Test
 	public void testStart() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new GenericOffGridEssImpl()) //
+		new ComponentTest(new EssGenericOffGridImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyOffGridBatteryInverter(BATTERY_INVERTER_ID)) //

@@ -23,7 +23,7 @@ public class SurplusFeedToGridControllerImplTest {
 	@Test
 	public void test() throws Exception {
 		final var ess = new DummyHybridEss(ESS_ID);
-		final var test = new ControllerTest(new SurplusFeedToGridControllerImpl()) //
+		final var test = new ControllerTest(new ControllerEssHybridSurplusFeedToGridImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.activate(MyConfig.create() //

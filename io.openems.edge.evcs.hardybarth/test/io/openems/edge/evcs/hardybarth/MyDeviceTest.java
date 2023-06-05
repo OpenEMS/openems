@@ -11,7 +11,7 @@ public class MyDeviceTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new HardyBarthImpl()) //
+		new ComponentTest(new EvcsHardyBarthImpl()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("192.168.8.101") //

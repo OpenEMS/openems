@@ -28,7 +28,7 @@ public class PeakshavingTest {
 
 	@Test
 	public void symmetricMeterTest() throws Exception {
-		new ControllerTest(new PeakShavingImpl()) //
+		new ControllerTest(new ControllerAsymmetricPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySymmetricMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
@@ -99,7 +99,7 @@ public class PeakshavingTest {
 
 	@Test
 	public void asymmetricMeterTest() throws Exception {
-		new ControllerTest(new PeakShavingImpl()) //
+		new ControllerTest(new ControllerAsymmetricPeakShavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //

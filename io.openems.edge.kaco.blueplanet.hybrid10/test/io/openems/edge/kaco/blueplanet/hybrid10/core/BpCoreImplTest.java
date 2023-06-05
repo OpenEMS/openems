@@ -10,7 +10,7 @@ public class BpCoreImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new BpCoreImpl()) //
+		new ComponentTest(new KacoBlueplanetHybrid10CoreImpl()) //
 				.activate(MyConfig.create() //
 						.setId(CORE_ID) //
 						.setIp("192.168.0.1") //

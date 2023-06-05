@@ -66,6 +66,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
 	@Reference
 	private ConfigurationAdmin cm;
 

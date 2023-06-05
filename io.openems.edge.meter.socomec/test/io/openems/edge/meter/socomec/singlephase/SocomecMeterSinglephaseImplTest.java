@@ -14,11 +14,11 @@ public class SocomecMeterSinglephaseImplTest {
 	private static final String METER_ID = "meter0";
 	private static final String MODBUS_ID = "modbus0";
 
-	private static SocomecMeterSinglephaseImpl meter;
+	private static MeterSocomecSinglephaseImpl meter;
 
 	@Before
 	public void setup() throws Exception {
-		meter = new SocomecMeterSinglephaseImpl();
+		meter = new MeterSocomecSinglephaseImpl();
 		new ComponentTest(meter) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

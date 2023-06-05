@@ -46,7 +46,7 @@ public class EvcsControllerImplTest {
 	@Test
 	public void excessChargeTest1() throws Exception {
 
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -72,7 +72,7 @@ public class EvcsControllerImplTest {
 	@Test
 	public void excessChargeTest2() throws Exception {
 
-		final var test = new ControllerTest(new EvcsControllerImpl()) //
+		final var test = new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -100,7 +100,7 @@ public class EvcsControllerImplTest {
 	@Test
 	public void forceChargeTest() throws Exception {
 
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -125,7 +125,7 @@ public class EvcsControllerImplTest {
 	@Test
 	public void chargingDisabledTest() throws Exception {
 
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -147,7 +147,7 @@ public class EvcsControllerImplTest {
 	public void wrongConfigParametersTest() throws Exception {
 
 		var cm = new DummyConfigurationAdmin();
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", cm) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -174,7 +174,7 @@ public class EvcsControllerImplTest {
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
 
-		new ControllerTest(new EvcsControllerImpl(clock)) //
+		new ControllerTest(new ControllerEvcsImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
@@ -223,7 +223,7 @@ public class EvcsControllerImplTest {
 	@Test
 	public void clusterTestDisabledCharging() throws Exception {
 
-		new ControllerTest(new EvcsControllerImpl()) //
+		new ControllerTest(new ControllerEvcsImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
