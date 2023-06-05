@@ -56,7 +56,8 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Timedata.Rrd4j", //
+@Component(//
+		name = "Timedata.Rrd4j", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

@@ -40,7 +40,8 @@ import io.openems.shared.influxdb.InfluxConnector;
  * Provides read and write access to InfluxDB.
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Timedata.InfluxDB", //
+@Component(//
+		name = "Timedata.InfluxDB", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

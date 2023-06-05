@@ -19,10 +19,8 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -38,7 +36,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.GridMeter.Acting", //
+@Component(//
+		name = "Simulator.GridMeter.Acting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -48,30 +47,19 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
+		implements SimulatorGridMeterActing, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT));
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected SimulatorDatasource datasource;
+	private SimulatorDatasource datasource;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private volatile List<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArrayList<>();
@@ -79,13 +67,17 @@ public class GridMeter extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	public SimulatorGridMeterActingImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				SimulatorGridMeterActing.ChannelId.values() //
+		);
+	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
@@ -98,15 +90,6 @@ public class GridMeter extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public GridMeter() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				ChannelId.values() //
-		);
 	}
 
 	@Override
@@ -135,7 +118,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		 */
 		Integer simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER,
 				new ChannelAddress(this.id(), "ActivePower"));
-		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
+		this.channel(SimulatorGridMeterActing.ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		/*
 		 * Calculate Active Power

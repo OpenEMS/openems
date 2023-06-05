@@ -25,7 +25,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Virtual.Symmetric.Subtract", //
+@Component(//
+		name = "Meter.Virtual.Symmetric.Subtract", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //

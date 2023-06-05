@@ -4,6 +4,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -28,26 +29,27 @@ import io.openems.edge.io.api.DigitalOutput;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class DigitalInputOutput extends AbstractOpenemsComponent
-		implements DigitalInput, DigitalOutput, OpenemsComponent {
+public class SimulatorIoDigitalInputOutputImpl extends AbstractOpenemsComponent
+		implements SimulatorIoDigitalInputOutput, DigitalInput, DigitalOutput, OpenemsComponent {
 
 	public static final String CHANNEL_NAME = "INPUT_OUTPUT%d";
 
-	private final Logger log = LoggerFactory.getLogger(DigitalInputOutput.class);
+	private final Logger log = LoggerFactory.getLogger(SimulatorIoDigitalInputOutputImpl.class);
 
 	private BooleanWriteChannel[] writeChannels = {};
 	private BooleanReadChannel[] readChannels = {};
 
-	public DigitalInputOutput() {
+	public SimulatorIoDigitalInputOutputImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				DigitalInput.ChannelId.values() //
+				DigitalInput.ChannelId.values(), //
+				SimulatorIoDigitalInputOutput.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// Generate OutputChannels
@@ -71,6 +73,12 @@ public class DigitalInputOutput extends AbstractOpenemsComponent
 			this.readChannels[i] = channel;
 			this.writeChannels[i] = channel;
 		}
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override

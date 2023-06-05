@@ -34,7 +34,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.ProductionMeter.Acting", //
+@Component(//
+		name = "Simulator.ProductionMeter.Acting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //

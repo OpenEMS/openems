@@ -36,7 +36,8 @@ import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Evcs.Keba.KeContact", //
+@Component(//
+		name = "Evcs.Keba.KeContact", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

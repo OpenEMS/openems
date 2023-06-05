@@ -20,7 +20,8 @@ import io.openems.edge.simulator.datasource.api.AbstractCsvDatasource;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Datasource.CSV.Direct", //
+@Component(//
+		name = "Simulator.Datasource.CSV.Direct", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

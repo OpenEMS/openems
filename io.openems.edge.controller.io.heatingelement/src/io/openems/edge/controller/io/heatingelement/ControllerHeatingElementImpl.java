@@ -38,7 +38,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.IO.HeatingElement", //
+@Component(//
+		name = "Controller.IO.HeatingElement", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

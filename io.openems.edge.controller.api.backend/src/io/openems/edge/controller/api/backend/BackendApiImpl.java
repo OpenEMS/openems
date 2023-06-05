@@ -53,7 +53,8 @@ import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Api.Backend", //
+@Component(//
+		name = "Controller.Api.Backend", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //

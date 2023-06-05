@@ -32,7 +32,8 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Api.MQTT", //
+@Component(//
+		name = "Controller.Api.MQTT", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

@@ -16,12 +16,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.LongReadChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
@@ -35,35 +30,27 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.Evcs", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE //
+@Component(//
+		name = "Simulator.Evcs", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class SimulatedEvcs extends AbstractManagedEvcsComponent
-		implements SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
+		implements SimulatorEvcs, SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));
+	@Reference
+	private ConfigurationAdmin cm;
 
-		private final Doc doc;
+	private Config config;
 
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	public SimulatedEvcs() {
+	public SimulatorEvcsImpl() {
 
 		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
 		// or parts of the Meter Nature
@@ -72,21 +59,15 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		// set and get methods in EVCS and SymmetricMeter.
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				AsymmetricMeterEvcs.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				ChannelId.values() //
+				SimulatorEvcs.ChannelId.values() //
 		);
 	}
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	private Config config;
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this._setPhases(3);
@@ -190,26 +171,6 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 	@Override
 	public boolean applyDisplayText(String text) throws OpenemsException {
 		return false;
-	}
-
-	@Override
-	public Value<Long> getActiveConsumptionEnergy() {
-		return this.getActiveConsumptionEnergyChannel().getNextValue();
-	}
-
-	@Override
-	public void _setActiveConsumptionEnergy(long value) {
-		this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY).setNextValue(value);
-	}
-
-	@Override
-	public void _setActiveConsumptionEnergy(Long value) {
-		this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY).setNextValue(value);
-	}
-
-	@Override
-	public LongReadChannel getActiveConsumptionEnergyChannel() {
-		return this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
 	@Override

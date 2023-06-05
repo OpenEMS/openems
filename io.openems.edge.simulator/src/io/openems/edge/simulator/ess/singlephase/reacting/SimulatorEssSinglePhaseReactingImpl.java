@@ -1,8 +1,6 @@
-package io.openems.edge.simulator.ess.symmetric.reacting;
+package io.openems.edge.simulator.ess.singlephase.reacting;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,102 +18,97 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.EssSymmetric.Reacting", //
+@Component(//
+		name = "Simulator.EssSinglePhase.Reacting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
-
-	/**
-	 * Current Energy in the battery [Wms], based on SoC.
-	 */
-	private long energy = 0;
-
-	private Config config;
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	@Reference
-	private Power power;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+public class SimulatorEssSinglePhaseReactingImpl extends AbstractOpenemsComponent
+		implements SimulatorEssSinglePhaseReacting, ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss,
+		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
+	@Reference
+	private Power power;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected SimulatorDatasource datasource;
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	/** Current state of charge. */
+	private float soc = 0;
+	private Config config;
+	private SinglePhase phase;
+
+	public SimulatorEssSinglePhaseReactingImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricEss.ChannelId.values(), //
+				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
+				SinglePhaseEss.ChannelId.values(), //
+				ManagedSinglePhaseEss.ChannelId.values(), //
+				SimulatorEssSinglePhaseReacting.ChannelId.values() //
+		);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
+	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.phase = config.phase();
+		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
+
+		// update filter for 'datasource'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
+			return;
+		}
 
 		this.config = config;
-		this.energy = (long) ((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-				/ 100 * this.config.initialSoc() /* [current SoC] */);
+		this.soc = config.initialSoc();
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.capacity() * -1);
-		this._setAllowedDischargePower(config.capacity());
+		this._setAllowedChargePower(config.maxApparentPower() * -1);
+		this._setAllowedDischargePower(config.maxApparentPower());
 		this._setGridMode(config.gridMode());
-		this._setCapacity(config.capacity());
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public EssSymmetric() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricEss.ChannelId.values(), //
-				ManagedSymmetricEss.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), //
-				ChannelId.values() //
-		);
 	}
 
 	@Override
@@ -134,8 +127,7 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
-				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischargePower().asString();
+				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
 	@Override
@@ -143,74 +135,71 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 		return this.power;
 	}
 
-	private Instant lastTimestamp = null;
-
 	@Override
-	public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+	public void applyPower(int activePower, int reactivePower) {
 		/*
 		 * calculate State of charge
 		 */
-		var now = Instant.now(this.componentManager.getClock());
-		final int soc;
-		if (this.lastTimestamp == null) {
-			// initial run
-			soc = this.config.initialSoc();
-
-		} else {
-			// calculate duration since last value
-			var duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
-
-			// calculate energy since last run in [Wh]
-			var energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
-
-			// Adding the energy to the initial energy.
-			this.energy -= energy;
-
-			var calculatedSoc = this.energy //
-					/ (this.config.capacity() * 3600. /* [Wsec] */ * 1000 /* [Wmsec] */) //
-					* 100 /* [SoC] */;
-
-			if (calculatedSoc > 100) {
-				soc = 100;
-			} else if (calculatedSoc < 0) {
-				soc = 0;
-			} else {
-				soc = (int) Math.round(calculatedSoc);
-			}
-
-			this._setSoc(soc);
+		var watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		var socChange = watthours / this.config.capacity();
+		this.soc -= socChange;
+		if (this.soc > 100) {
+			this.soc = 100;
+		} else if (this.soc < 0) {
+			this.soc = 0;
 		}
-		this.lastTimestamp = now;
-
+		this._setSoc(Math.round(this.soc));
 		/*
 		 * Apply Active/Reactive power to simulated channels
 		 */
-		if (soc == 0 && activePower > 0) {
+		if (this.soc == 0 && activePower > 0) {
 			activePower = 0;
 		}
-		if (soc == 100 && activePower < 0) {
+		if (this.soc == 100 && activePower < 0) {
 			activePower = 0;
 		}
-		this._setActivePower(activePower);
-		if (soc == 0 && reactivePower > 0) {
+		switch (this.getPhase()) {
+		case L1:
+			this._setActivePowerL1(activePower);
+			break;
+		case L2:
+			this._setActivePowerL2(activePower);
+			break;
+		case L3:
+			this._setActivePowerL3(activePower);
+			break;
+		}
+
+		if (this.soc == 0 && reactivePower > 0) {
 			reactivePower = 0;
 		}
-		if (soc == 100 && reactivePower < 0) {
+		if (this.soc == 100 && reactivePower < 0) {
 			reactivePower = 0;
 		}
-		this._setReactivePower(reactivePower);
+		switch (this.getPhase()) {
+		case L1:
+			this._setReactivePowerL1(activePower);
+			break;
+		case L2:
+			this._setReactivePowerL2(activePower);
+			break;
+		case L3:
+			this._setReactivePowerL3(activePower);
+			break;
+		}
+
 		/*
 		 * Set AllowedCharge / Discharge based on SoC
 		 */
-		if (soc == 100) {
+		if (this.soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(this.config.capacity() * -1);
+			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
 		}
-		if (soc == 0) {
+		if (this.soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(this.config.capacity());
+			this._setAllowedDischargePower(this.config.maxApparentPower());
 		}
 	}
 
@@ -225,9 +214,13 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(EssSymmetric.class, accessMode, 100) //
+				ModbusSlaveNatureTable.of(SimulatorEssSinglePhaseReactingImpl.class, accessMode, 300) //
 						.build());
+	}
+
+	@Override
+	public SinglePhase getPhase() {
+		return this.phase;
 	}
 
 	/**
@@ -254,10 +247,5 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
-	}
-
-	@Override
-	public void setStartStop(StartStop value) {
-		this._setStartStop(value);
 	}
 }

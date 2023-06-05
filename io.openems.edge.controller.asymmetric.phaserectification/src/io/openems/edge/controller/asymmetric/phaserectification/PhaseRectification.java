@@ -25,7 +25,11 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Asymmetric.PhaseRectification", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Asymmetric.PhaseRectification", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class PhaseRectification extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PhaseRectification.class);

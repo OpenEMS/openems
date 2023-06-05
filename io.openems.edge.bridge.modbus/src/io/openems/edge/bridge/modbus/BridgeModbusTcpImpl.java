@@ -31,7 +31,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigTcp.class, factory = true)
-@Component(name = "Bridge.Modbus.Tcp", //
+@Component(//
+		name = "Bridge.Modbus.Tcp", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

@@ -19,7 +19,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -35,7 +34,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.GridMeter.Reacting", //
+@Component(//
+		name = "Simulator.GridMeter.Reacting", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -44,23 +44,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
+public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
+		implements SimulatorGridMeterReacting, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -68,9 +53,10 @@ public class GridMeter extends AbstractOpenemsComponent
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	private final CopyOnWriteArraySet<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArraySet<>();
+	private final CopyOnWriteArraySet<SymmetricMeter> symmetricMeters = new CopyOnWriteArraySet<>();
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -90,8 +76,6 @@ public class GridMeter extends AbstractOpenemsComponent
 		this.symmetricEsss.remove(ess);
 	}
 
-	private final CopyOnWriteArraySet<SymmetricMeter> symmetricMeters = new CopyOnWriteArraySet<>();
-
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -105,6 +89,26 @@ public class GridMeter extends AbstractOpenemsComponent
 	protected void removeMeter(SymmetricMeter meter) {
 		meter.getActivePowerChannel().removeOnSetNextValueCallback(this.updateChannelsCallback);
 		this.symmetricMeters.remove(meter);
+	}
+
+	public SimulatorGridMeterReactingImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
+				SimulatorGridMeterReacting.ChannelId.values() //
+		);
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) throws IOException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override
@@ -181,26 +185,6 @@ public class GridMeter extends AbstractOpenemsComponent
 		} else {
 			return sum - activePower;
 		}
-	}
-
-	@Activate
-	void activate(ComponentContext context, Config config) throws IOException {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
-
-	public GridMeter() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				ChannelId.values() //
-		);
 	}
 
 	@Override

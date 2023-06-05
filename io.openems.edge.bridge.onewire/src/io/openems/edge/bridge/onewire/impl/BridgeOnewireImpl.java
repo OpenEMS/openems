@@ -26,7 +26,8 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Onewire", //
+@Component(//
+		name = "Bridge.Onewire", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

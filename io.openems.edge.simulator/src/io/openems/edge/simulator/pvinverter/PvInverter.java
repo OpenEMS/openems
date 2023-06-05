@@ -33,7 +33,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Simulator.PvInverter", //
+@Component(//
+		name = "Simulator.PvInverter", //
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"type=PRODUCTION" //

@@ -27,18 +27,18 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class SingleDatasourceDirectImpl extends AbstractCsvDatasource
-		implements SingleDatasourceDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
+public class SimulatorDatasourceSingleDirectImpl extends AbstractCsvDatasource
+		implements SimulatorDatasourceSingleDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
 	private ComponentManager componentManager;
 
 	private Config config;
 
-	public SingleDatasourceDirectImpl() {
+	public SimulatorDatasourceSingleDirectImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SingleDatasourceDirect.ChannelId.values() //
+				SimulatorDatasourceSingleDirect.ChannelId.values() //
 		);
 	}
 

@@ -31,7 +31,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigSerial.class, factory = true)
-@Component(name = "Bridge.Modbus.Serial", //
+@Component(//
+		name = "Bridge.Modbus.Serial", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

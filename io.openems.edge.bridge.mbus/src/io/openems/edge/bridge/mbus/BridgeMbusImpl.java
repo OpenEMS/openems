@@ -28,7 +28,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Mbus", //
+@Component(//
+		name = "Bridge.Mbus", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

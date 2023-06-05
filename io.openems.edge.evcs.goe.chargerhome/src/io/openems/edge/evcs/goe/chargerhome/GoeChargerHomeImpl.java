@@ -29,7 +29,8 @@ import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Evcs.Goe.ChargerHome", //
+@Component(//
+		name = "Evcs.Goe.ChargerHome", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
