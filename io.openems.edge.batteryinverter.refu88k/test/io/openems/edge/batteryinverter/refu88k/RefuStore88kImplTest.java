@@ -6,7 +6,6 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.ess.test.DummyPower;
 
 public class RefuStore88kImplTest {
 
@@ -17,7 +16,6 @@ public class RefuStore88kImplTest {
 	public void test() throws Exception {
 		new ComponentTest(new BatteryInverterRefuStore88kImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_INVERTER_ID) //
