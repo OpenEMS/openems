@@ -1,4 +1,4 @@
-package io.openems.edge.battery.dummy.test;
+package io.openems.edge.battery.dummy;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -7,8 +7,6 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.battery.dummy.DummyBattery;
-import io.openems.edge.battery.dummy.DummyBatteryImpl;
 import io.openems.edge.battery.statemachine.StateMachine;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -25,7 +23,8 @@ public class StateMachineTest {
 	@Test
 	public void startBattery() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new DummyBatteryImpl()) //
+		var battery = new DummyBatteryImpl();
+		new ComponentTest(battery) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
@@ -37,7 +36,8 @@ public class StateMachineTest {
 				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase()//
-						.timeleap(clock, 11, ChronoUnit.SECONDS))//
+						.timeleap(clock, 11, ChronoUnit.SECONDS)//
+						.onAfterProcessImage(() -> battery.setMainContactorTarget(true)))//
 				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.RUNNING))//
 		;

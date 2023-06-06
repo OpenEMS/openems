@@ -2,6 +2,7 @@ package io.openems.edge.battery.dummy;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.clusterable.BatteryClusterable;
 import io.openems.edge.battery.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -11,7 +12,16 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent {
+public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent, BatteryClusterable {
+
+	/**
+	 * Gets the main contactor target which set by
+	 * {@link #setMainContactor(Boolean)} method.
+	 * 
+	 * @return main contactor target.
+	 */
+	public boolean getMainContactorTarget();
+
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
 	 *
@@ -109,7 +119,7 @@ public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent 
 	 * @return State {@link State}
 	 */
 	public State getCurrentState();
-	
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //

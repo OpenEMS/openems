@@ -26,11 +26,12 @@ import io.openems.edge.common.startstop.StartStoppable;
  * together with the OpenEMS Component test framework.
  */
 public class DummyBatteryImpl extends AbstractOpenemsComponent
-		implements DummyBattery, Battery, OpenemsComponent, StartStoppable, EventHandler {
+		implements DummyBattery, Battery, OpenemsComponent, StartStoppable, EventHandler, BatteryClusterable {
 
 	private final Logger log = LoggerFactory.getLogger(DummyBatteryImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private StartStop startStopTarget = StartStop.UNDEFINED;
+	private boolean mainContactorTarget = false;
 
 	private ComponentManager componentManager;
 
@@ -209,5 +210,20 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 		case START -> StartStop.START;
 		case STOP -> StartStop.STOP;
 		};
+	}
+
+	@Override
+	public void setHeatingTarget(boolean value) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setMainContactorTarget(boolean value) {
+		this.mainContactorTarget = value;
+	}
+
+	@Override
+	public boolean getMainContactorTarget() {
+		return this.mainContactorTarget;
 	}
 }

@@ -1,7 +1,6 @@
-package io.openems.edge.battery.dummy.test;
+package io.openems.edge.battery.dummy;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.battery.dummy.Config;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
