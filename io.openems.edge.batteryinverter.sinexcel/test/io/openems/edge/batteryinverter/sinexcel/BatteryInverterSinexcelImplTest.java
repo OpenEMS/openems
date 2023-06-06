@@ -24,9 +24,8 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.ess.test.DummyPower;
 
-public class SinexcelImplTest {
+public class BatteryInverterSinexcelImplTest {
 
 	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
 	private static final String BATTERY_ID = "battery0";
@@ -65,7 +64,6 @@ public class SinexcelImplTest {
 		new MyComponentTest(new BatteryInverterSinexcelImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_INVERTER_ID) //
@@ -102,7 +100,6 @@ public class SinexcelImplTest {
 		new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_INVERTER_ID) //
