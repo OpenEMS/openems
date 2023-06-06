@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.rest.readwrite;
+package io.openems.edge.controller.api.websocket;
 
 import io.openems.common.test.AbstractComponentConfig;
 
@@ -6,11 +6,9 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id;
-		private int port;
-		private int connectionlimit;
-		private int apiTimeout;
-		private boolean debugMode;
+		private String id = null;
+		public int port;
+		public int apiTimeout;
 
 		private Builder() {
 		}
@@ -20,23 +18,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPort(int port) {
-			this.port = port;
-			return this;
-		}
-
-		public Builder setConnectionlimit(int connectionlimit) {
-			this.connectionlimit = connectionlimit;
-			return this;
-		}
-
 		public Builder setApiTimeout(int apiTimeout) {
 			this.apiTimeout = apiTimeout;
 			return this;
 		}
-
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
+		public Builder setPort(int port) {
+			this.port = port;
 			return this;
 		}
 
@@ -45,7 +32,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
-	protected static Builder create() {
+	/**
+	 * Create a Config builder.
+	 *
+	 * @return a {@link Builder}
+	 */
+	public static Builder create() {
 		return new Builder();
 	}
 
@@ -62,18 +54,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int connectionlimit() {
-		return this.builder.connectionlimit;
-	}
-
-	@Override
 	public int apiTimeout() {
 		return this.builder.apiTimeout;
 	}
-
-	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
-	}
-
 }
