@@ -259,7 +259,7 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.34.0</version>
+			<version>3.35.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
