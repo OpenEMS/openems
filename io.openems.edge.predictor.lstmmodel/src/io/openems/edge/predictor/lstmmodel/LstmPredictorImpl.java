@@ -33,7 +33,9 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstmmodel.interpolation.LinearInterpolation;
+import io.openems.edge.predictor.lstmmodel.model.ReadModel;
 import io.openems.edge.predictor.lstmmodel.preprocessing.PreprocessingImpl;
 import io.openems.edge.predictor.lstmmodel.util.Engine;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
@@ -51,6 +53,8 @@ import io.openems.edge.timedata.api.Timedata;
 public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predictor24Hours, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
+
+	private static final String MODEL_FILENAME = "modelxxx.txt";
 
 	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::convertListIntegerToListDouble;
 
@@ -127,82 +131,27 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 			return null;
 		}
 
-		System.out.println("adsfgsad" + data);
+		System.out.println(data);
 
 		ArrayList<Double> doubleListData = new ArrayList<>();
-		
+
 		doubleListData = data.stream()//
 				.map(i -> i == null ? Double.NaN : i.doubleValue()) //
 				.collect(Collectors.toCollection(ArrayList::new));
-		
+
 		System.out.println(doubleListData);
 
 		LinearInterpolation interpolation = new LinearInterpolation(doubleListData);
 
-		doubleListData = interpolation.data;
+		// Get the saved model
+		ReadModel rM = new ReadModel();
+		ArrayList<ArrayList<Double>> finalWeight = rM.getFinalWeight(MODEL_FILENAME);
 
-		System.out.println(data);
+		// Get the input for the predictions
 
-//		System.out.println("---");
-//		System.out.println(data);
-//		System.out.println("---");
-//		System.out.println(INTEGER_TO_DOUBLE_LIST.apply(data));
-//		System.out.println("---");
+		// Again save the model may be once a month.
 
-		int windowsSize = 24;
-		PreprocessingImpl preprocessing = new PreprocessingImpl(doubleListData, windowsSize);
-
-		preprocessing.scale(0.2, 0.8);
-
-		double[] result;
-
-		try {
-			double[][] trainData = preprocessing.getFeatureData(preprocessing.trainTestSplit.trainIndexLower,
-					preprocessing.trainTestSplit.trainIndexHigher);
-
-			double[][] validateData = preprocessing.getFeatureData(preprocessing.trainTestSplit.validateIndexLower,
-					preprocessing.trainTestSplit.validateIndexHigher);
-
-			double[][] testData = preprocessing.getFeatureData(preprocessing.trainTestSplit.testIndexLower,
-					preprocessing.trainTestSplit.testIndexHigher);
-
-			double[] trainTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.trainIndexLower,
-					preprocessing.trainTestSplit.trainIndexHigher);
-
-			double[] validateTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.validateIndexLower,
-					preprocessing.trainTestSplit.validateIndexHigher);
-
-			System.out.println("Train Window size   : " + trainData[0].length);
-			System.out.println("Train No of windows : " + trainData.length);
-			System.out.println("Train target Size   : " + trainTarget.length);
-
-			System.out.println("Validate Window size   : " + validateData[0].length);
-			System.out.println("Validate No of windows : " + validateData.length);
-			System.out.println("Validate target Size   : " + validateTarget.length);
-
-			System.out.println("Test Window size   : " + testData[0].length);
-			System.out.println("Test No of windows : " + testData.length);
-
-			Engine model = new EngineBuilder() //
-					.setInputMatrix(trainData) //
-					.setTargetVector(trainTarget) //
-					.setValidateData(validateData) //
-					.setValidateTarget(validateTarget) //
-					.build();
-
-			int epochs = 1000;
-			model.fit(epochs);
-
-			result = model.predict(testData);
-
-			Integer[] perdictedValues = preprocessing.reverseScale(0.2, 0.8, result);
-
-			return new Prediction24Hours(perdictedValues);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return null;
 
 	}
 
@@ -229,5 +178,82 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 	static long zonedDateTimeDifference(ZonedDateTime fromDate, ZonedDateTime nowDate, ChronoUnit unit) {
 		return unit.between(fromDate, nowDate);
 	}
+
+//	System.out.println( data);
+//
+//	ArrayList<Double> doubleListData = new ArrayList<>();
+//	
+//	doubleListData = data.stream()//
+//			.map(i -> i == null ? Double.NaN : i.doubleValue()) //
+//			.collect(Collectors.toCollection(ArrayList::new));
+//	
+//	System.out.println(doubleListData);
+//
+//	LinearInterpolation interpolation = new LinearInterpolation(doubleListData);
+//
+//	doubleListData = interpolation.data;
+//
+//	System.out.println(data);
+//
+////	System.out.println("---");
+////	System.out.println(data);
+////	System.out.println("---");
+////	System.out.println(INTEGER_TO_DOUBLE_LIST.apply(data));
+////	System.out.println("---");
+//
+//	int windowsSize = 24;
+//	PreprocessingImpl preprocessing = new PreprocessingImpl(doubleListData, windowsSize);
+//
+//	preprocessing.scale(0.2, 0.8);
+//
+//	double[] result;
+//
+//	try {
+//		double[][] trainData = preprocessing.getFeatureData(preprocessing.trainTestSplit.trainIndexLower,
+//				preprocessing.trainTestSplit.trainIndexHigher);
+//
+//		double[][] validateData = preprocessing.getFeatureData(preprocessing.trainTestSplit.validateIndexLower,
+//				preprocessing.trainTestSplit.validateIndexHigher);
+//
+//		double[][] testData = preprocessing.getFeatureData(preprocessing.trainTestSplit.testIndexLower,
+//				preprocessing.trainTestSplit.testIndexHigher);
+//
+//		double[] trainTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.trainIndexLower,
+//				preprocessing.trainTestSplit.trainIndexHigher);
+//
+//		double[] validateTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.validateIndexLower,
+//				preprocessing.trainTestSplit.validateIndexHigher);
+//
+//		System.out.println("Train Window size   : " + trainData[0].length);
+//		System.out.println("Train No of windows : " + trainData.length);
+//		System.out.println("Train target Size   : " + trainTarget.length);
+//
+//		System.out.println("Validate Window size   : " + validateData[0].length);
+//		System.out.println("Validate No of windows : " + validateData.length);
+//		System.out.println("Validate target Size   : " + validateTarget.length);
+//
+//		System.out.println("Test Window size   : " + testData[0].length);
+//		System.out.println("Test No of windows : " + testData.length);
+//
+//		Engine model = new EngineBuilder() //
+//				.setInputMatrix(trainData) //
+//				.setTargetVector(trainTarget) //
+//				.setValidateData(validateData) //
+//				.setValidateTarget(validateTarget) //
+//				.build();
+//
+//		int epochs = 1000;
+//		model.fit(epochs);
+//
+//		result = model.predict(testData);
+//
+//		Integer[] perdictedValues = preprocessing.reverseScale(0.2, 0.8, result);
+//
+//		return new Prediction24Hours(perdictedValues);
+//
+//	} catch (Exception e) {
+//		e.printStackTrace();
+//		return null;
+//	}
 
 }

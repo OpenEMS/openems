@@ -228,3 +228,5 @@ gradle-app.setting
 # OpenEMS temp files
 io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
+io.openems.edge.controller.asymmetric.fixactivepower/bin_test/.gitignore
+io.openems.edge.controller.asymmetric.fixactivepower/generated/buildfiles
