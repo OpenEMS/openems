@@ -5,7 +5,7 @@ import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 @Component({
   templateUrl: './overview.html'
 })
-export class ProductionChartOverviewComponent extends AbstractHistoryChartOverview {
+export class OverviewComponent extends AbstractHistoryChartOverview {
   protected chargerComponents: EdgeConfig.Component[] = [];
   protected productionMeterComponents: EdgeConfig.Component[] = [];
 

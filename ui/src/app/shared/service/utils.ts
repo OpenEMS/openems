@@ -663,5 +663,13 @@ export namespace HistoryUtils {
         return 0;
       }
     };
+
+    export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
+      if (value == null) {
+        return null;
+      } else {
+        return Math.abs(Math.min(0, value));
+      }
+    };
   }
 }

@@ -190,6 +190,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
+      this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
@@ -238,6 +239,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       ])
         .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line';
+          this.chartObject = this.getChartData();
           this.fillChart(dataResponse, energyResponse);
           this.setChartLabel();
         });
