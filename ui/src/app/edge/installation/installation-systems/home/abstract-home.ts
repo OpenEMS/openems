@@ -203,7 +203,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   }
 
   public getFields(towerNr: number, numberOfModulesPerTower: number) {
-    // TODO add validation: no duplicate serial number entries
     const fields: FormlyFieldConfig[] = [];
     const emsBoxSerialNumber: string = sessionStorage.getItem('emsBoxSerialNumber');
 
@@ -281,7 +280,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx'
       },
       validators: {
-        validation: ['bmsBoxSerialNumber']
+        validation: ['batteryAndBmsBoxSerialNumber']
       },
       wrappers: ['input-serial-number']
     });
@@ -293,12 +292,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         templateOptions: {
           label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
           required: true,
-          // Note: Edit also validator (substring 12) if removing prefix
-          prefix: '519110001210',
-          placeholder: 'xxxxxxxxxxxx'
+          placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx'
         },
         validators: {
-          validation: ['batterySerialNumber']
+          validation: ['batteryAndBmsBoxSerialNumber']
         },
         wrappers: ['input-serial-number']
       });
@@ -333,6 +330,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         takeUntil(stopOnRequest),
         filter(currentData => currentData != null)
       ).subscribe((currentData) => {
+        let anyNullOrUndefined: boolean = false;
         for (const key in channelAddresses) {
           if (channelAddresses.hasOwnProperty(key)) {
             const channelAddress: ChannelAddress = channelAddresses[key];
@@ -340,27 +338,26 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
             // If one serial number is undefined return
             if (!serialNumber) {
-              return;
+              anyNullOrUndefined = true;
+              continue;
             }
 
-            // Only take a part of the characters if the serial number has a fixed prefix
-            if (key.startsWith('module')) {
-              model[key] = serialNumber.substring(12);
-            } else {
-              model[key] = serialNumber;
-            }
+            // Add serial Number
+            model[key] = serialNumber;
           }
         }
 
-        // Resolve the promise
-        isResolved = true;
-        resolve(model);
+        if (!anyNullOrUndefined) {
+          // Resolve the promise
+          isResolved = true;
+          resolve(model);
+        }
       });
       setTimeout(() => {
         // If data isn't available after the timeout, the
-        // promise gets resolved with an empty object
+        // promise gets resolved with an empty/partially filled object
         if (!isResolved) {
-          resolve({});
+          resolve(model);
         }
 
         // Unsubscribe to currentData and channels after timeout

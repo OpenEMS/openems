@@ -57,7 +57,7 @@ export function registerTranslateExtension(translate: TranslateService) {
                 },
             },
             {
-                name: 'batterySerialNumber',
+                name: 'batteryAndBmsBoxSerialNumber',
                 message(err, field: FormlyFieldConfig) {
                     return serialNumber(translate, field, 24);
                 },
