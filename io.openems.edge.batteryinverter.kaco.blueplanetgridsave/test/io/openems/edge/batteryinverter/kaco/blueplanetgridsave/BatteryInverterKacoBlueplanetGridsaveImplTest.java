@@ -23,10 +23,9 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.TimeLeapClock;
 
-public class KacoBlueplanetGridsaveTest {
+public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 
 	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
 	private static final String BATTERY_ID = "battery0";
@@ -70,7 +69,6 @@ public class KacoBlueplanetGridsaveTest {
 		var sut = new BatteryInverterKacoBlueplanetGridsaveImpl();
 
 		test = new MyComponentTest(sut) //
-				.addReference("cycle", new DummyCycle(1000)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID));
