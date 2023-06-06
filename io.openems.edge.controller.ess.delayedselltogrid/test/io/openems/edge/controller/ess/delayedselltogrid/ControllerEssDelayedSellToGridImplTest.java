@@ -4,13 +4,12 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
-public class DelayedSellToGridImplTest {
+public class ControllerEssDelayedSellToGridImplTest {
 
 	private static final String CTRL_ID = "ctrlDelayedSellToGrid0";
 	private static final String ESS_ID = "ess0";
@@ -24,7 +23,6 @@ public class DelayedSellToGridImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssDelayedSellToGridImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
