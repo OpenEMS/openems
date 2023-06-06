@@ -11,7 +11,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class LimitTotalDischargeControllerTest {
+public class ControllerEssLimitTotalDischargeImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 	private static final ChannelAddress CTRL_AWAITING_HYSTERESIS = new ChannelAddress(CTRL_ID, "AwaitingHysteresis");

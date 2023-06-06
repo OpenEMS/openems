@@ -12,7 +12,7 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 
-public class EssFixActivePowerImplTest {
+public class ControllerEssFixActivePowerImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 	private static final String ESS_ID = "ess0";

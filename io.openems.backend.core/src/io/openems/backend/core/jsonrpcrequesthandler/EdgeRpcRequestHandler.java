@@ -27,9 +27,9 @@ import io.openems.common.session.Role;
 
 public class EdgeRpcRequestHandler {
 
-	private final CoreJsonRpcRequestHandler parent;
+	private final CoreJsonRpcRequestHandlerImpl parent;
 
-	protected EdgeRpcRequestHandler(CoreJsonRpcRequestHandler parent) {
+	protected EdgeRpcRequestHandler(CoreJsonRpcRequestHandlerImpl parent) {
 		this.parent = parent;
 	}
 

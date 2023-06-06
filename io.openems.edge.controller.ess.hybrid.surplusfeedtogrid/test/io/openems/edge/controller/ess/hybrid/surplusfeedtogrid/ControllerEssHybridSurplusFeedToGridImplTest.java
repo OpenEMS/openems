@@ -8,7 +8,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 
-public class SurplusFeedToGridControllerImplTest {
+public class ControllerEssHybridSurplusFeedToGridImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 

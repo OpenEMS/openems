@@ -13,7 +13,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class DelayChargeControllerTest {
+public class ControllerEssDelayChargeImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 	private static final ChannelAddress CTRL_CHARGE_POWER_LIMIT = new ChannelAddress(CTRL_ID, "ChargePowerLimit");

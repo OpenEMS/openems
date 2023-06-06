@@ -43,7 +43,7 @@ import io.openems.common.session.Role;
 		name = "Core.JsonRpcRequestHandler", //
 		immediate = true //
 )
-public class CoreJsonRpcRequestHandler extends AbstractOpenemsBackendComponent implements JsonRpcRequestHandler {
+public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent implements JsonRpcRequestHandler {
 
 	private final Logger log = LoggerFactory.getLogger(JsonRpcRequestHandler.class);
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
@@ -59,7 +59,7 @@ public class CoreJsonRpcRequestHandler extends AbstractOpenemsBackendComponent i
 
 	protected Config config;
 
-	public CoreJsonRpcRequestHandler() {
+	public CoreJsonRpcRequestHandlerImpl() {
 		super("Core.JsonRpcRequestHandler");
 		this.edgeRpcRequestHandler = new EdgeRpcRequestHandler(this);
 	}

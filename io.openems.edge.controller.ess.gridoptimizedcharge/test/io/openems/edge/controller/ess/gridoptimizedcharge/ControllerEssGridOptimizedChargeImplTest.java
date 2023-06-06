@@ -40,7 +40,7 @@ import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 
-public class MyControllerTest {
+public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Ids
 	private static final String CTRL_ID = "ctrlGridOptimizedCharge0";
@@ -1222,7 +1222,7 @@ public class MyControllerTest {
 		 * Initial values
 		 */
 		TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final int targetMinute = MyControllerTest.getValidTargetMinute("17:00");
+		final int targetMinute = ControllerEssGridOptimizedChargeImplTest.getValidTargetMinute("17:00");
 		final DelayChargeRiskLevel riskLevel = DelayChargeRiskLevel.MEDIUM;
 		final int maxApparentPower = 10_000;
 		final int soc = 20;
@@ -1466,11 +1466,11 @@ public class MyControllerTest {
 			int maxApparentPower, int allowedChargePower, DelayChargeRiskLevel riskLevel, Integer[] productionActual,
 			Integer[] consumptionActual, float resultBuffer) {
 		DelayChargeResultState resultState;
-		DelayChargeResult newLogic = MyControllerTest.testOneDay(testDescription, productionPrediction,
+		DelayChargeResult newLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription, productionPrediction,
 				consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower, allowedChargePower, riskLevel,
 				productionActual, consumptionActual, false);
 
-		DelayChargeResult oldLogic = MyControllerTest.testOneDay(testDescription, productionPrediction,
+		DelayChargeResult oldLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription, productionPrediction,
 				consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower, allowedChargePower, riskLevel,
 				productionActual, consumptionActual, true);
 
@@ -1729,7 +1729,7 @@ public class MyControllerTest {
 
 	@Test
 	public void testPredictedChargeStart() throws OpenemsException {
-		int targetMinute = MyControllerTest.getValidTargetMinute("17:00");
+		int targetMinute = ControllerEssGridOptimizedChargeImplTest.getValidTargetMinute("17:00");
 		TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		int capacity = 10_000;
 
@@ -1763,7 +1763,7 @@ public class MyControllerTest {
 		soc = 10;
 		capacity = 44_000;
 		clock = new TimeLeapClock(Instant.parse("2020-01-01T09:00:00.00Z"), ZoneOffset.UTC);
-		targetMinute = MyControllerTest.getValidTargetMinute("16:00");
+		targetMinute = ControllerEssGridOptimizedChargeImplTest.getValidTargetMinute("16:00");
 
 		sutResult = DelayCharge.getPredictedChargeStart(targetMinute, capacity, soc, clock);
 
@@ -1780,7 +1780,7 @@ public class MyControllerTest {
 		 * Initial values
 		 */
 		TimeLeapClock clock = new TimeLeapClock(Instant.parse("2022-04-04T07:05:00.00Z"), ZoneOffset.UTC);
-		final int targetMinute = MyControllerTest.getValidTargetMinute("14:00");
+		final int targetMinute = ControllerEssGridOptimizedChargeImplTest.getValidTargetMinute("14:00");
 		final DelayChargeRiskLevel riskLevel = DelayChargeRiskLevel.MEDIUM;
 		final int maxApparentPower = 10000;
 		final int soc = 10;

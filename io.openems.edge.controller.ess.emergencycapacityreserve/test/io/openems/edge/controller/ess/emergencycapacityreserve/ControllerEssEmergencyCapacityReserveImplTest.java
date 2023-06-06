@@ -12,7 +12,7 @@ import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.Stat
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-public class EmergencyCapacityReserveImplTest {
+public class ControllerEssEmergencyCapacityReserveImplTest {
 
 	private static final String CTRL_ID = "ctrlEmergencyCapacityReserve0";
 	private static final String ESS_ID = "ess0";

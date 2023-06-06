@@ -21,7 +21,7 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class FixStateOfChargeTest {
+public class ControllerEssFixStateOfChargeImplTest {
 
 	// Ids
 	private static final String CTRL_ID = "ctrlFixStateOfCharge0";

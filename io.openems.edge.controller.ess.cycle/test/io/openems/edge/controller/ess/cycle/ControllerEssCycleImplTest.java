@@ -16,7 +16,7 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 
-public class CycleTest {
+public class ControllerEssCycleImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 
