@@ -2,20 +2,24 @@ package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import java.util.ArrayList;
 
-public class InterpolationManager {
+public class interpolationManager {
 
-	ArrayList<Double> interpolated = new ArrayList<Double>();
+	
+	public ArrayList<Double> interpolated = new ArrayList<Double>();
 
-	public InterpolationManager(ArrayList<Double> data) {
+	public interpolationManager(ArrayList<Double> data) {
 		System.out.println("Data" + data.size());
 
-		ArrayList<Double> dataDouble = replaceNullWitNan(data);
+		ArrayList<Double> dataDouble =replaceNullWitNan(data);
 		ArrayList<ArrayList<Double>> interpolatedGroupedData = new ArrayList<ArrayList<Double>>();
-
+		
 		double mean = calculateMean(dataDouble);
 
 		ArrayList<ArrayList<Double>> groupedData = group(dataDouble);
+//		System.out.println("Grouped  data : " + groupedData.size());
+//		System.out.println("Grouped  data : " + groupedData.get(1).size());
 
+//		System.out.println("Ungrouped Data: " + unGroup(groupedData).size());
 		for (int i = 0; i < groupedData.size(); i++) {
 			ArrayList<Double> interpolatedTemp = new ArrayList<Double>();
 			ArrayList<Double> data1 = new ArrayList<Double>();
@@ -31,19 +35,36 @@ public class InterpolationManager {
 					data1.set(data1.size() - 1, mean);
 				}
 
-				CubicalInterpolation cubic = new CubicalInterpolation();
-
-				if (cubic.canInterpolate(data1) == false) {
-
+				if (CubicalInterpolation.canInterpolate(data1) == false) {
+//					System.out.println("Linear");
+//					System.out.println("Passed" + data1);
 					LinearInterpolation linear = new LinearInterpolation(data1);
 					interpolatedTemp = linear.Data;
+//					System.out.println("returned" + interpolatedTemp);
+//					System.out.println("");
+//				System.out.println(
+//							"------------------------------------------------------------------------------------------");
 
 				} else {
-					interpolatedTemp = cubic.Interpolate(data1);
+					System.out.println("Cubical");
+					System.out.println("Passed" + data1);
+					interpolatedTemp = CubicalInterpolation.Interpolate(data1);
+					System.out.println("returned" + interpolatedTemp);
+					System.out.println("");
+					System.out.println(
+							"------------------------------------------------------------------------------------------");
+
 				}
 				interpolatedGroupedData.add(interpolatedTemp);
+				// System.out.println("ArrayListDouble datafterInterpolation"+cubic.data);
+				// System.out.println(cubic.result);
+				// linearInterpolation linear = new linearInterpolation(groupedData.get(i));
 
 			} else {
+//				System.out.println("No interpolation needed" + data1.size());
+//				System.out.println("");
+//				System.out.println(
+//						"------------------------------------------------------------------------------------------");
 
 				interpolatedGroupedData.add(data1);
 
@@ -51,6 +72,12 @@ public class InterpolationManager {
 
 		}
 		interpolated = unGroup(interpolatedGroupedData);
+//		System.out.println("data" + data.size());
+//
+//		System.out.println("inter" + interpolated.size());
+//		System.out.println("");
+//		System.out
+//				.println("------------------------------------------------------------------------------------------");
 
 	}
 
@@ -128,3 +155,5 @@ public class InterpolationManager {
 		return false;
 	}
 }
+
+

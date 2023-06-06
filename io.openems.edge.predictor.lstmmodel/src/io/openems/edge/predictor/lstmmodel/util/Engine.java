@@ -19,7 +19,7 @@ public class Engine implements EngineDriver {
 	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	
-	private ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
+	public ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
 	/**
 	 * This method train the LSTM network. and Update the finalWeight matrix.
@@ -46,8 +46,9 @@ public class Engine implements EngineDriver {
 		this.weights.add(wieghtMatrix);
 
 		for (int i = 1; i < this.inputMatrix.length; i++) {
+			adaptiveLearningRate rate =new adaptiveLearningRate();
 
-			learningRate = this.updateLearningRate(i, this.inputMatrix.length);
+			learningRate = rate.scheduler(i, this.inputMatrix.length);
 
 			ls = new LstmBuilder()//
 					.setInputData(this.inputMatrix[i]) //
@@ -74,7 +75,7 @@ public class Engine implements EngineDriver {
 
 			int percentage = 90;
 			// this.earlyStop(percentage, wieghtMatrix);
-			if (this.weights.size() == 200/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
+			if (this.weights.size() == 50/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
 				int ind = this.selectWeight(this.weights);
 				wieghtMatrix = this.weights.get(ind);
 				System.out.println(ind);

@@ -59,6 +59,14 @@ public class Lstm {
 	 * Backward propagation.
 	 */
 	public void backwardprop() {
+		
+		double localLearningRate1 = 0;
+		double localLearningRate2 = 0;
+		double localLearningRate3 = 0;
+		double localLearningRate4 = 0;
+		double localLearningRate5 = 0;
+		double localLearningRate6 = 0;
+		
 		for (int i = this.cells.size() - 1; i >= 0; i--) {
 			if (i == this.cells.size() - 1) {
 				this.cells.get(i).backwardPropogation();
@@ -76,13 +84,22 @@ public class Lstm {
 			this.derivativeLWrtWi += this.cells.get(i).xT * this.cells.get(i).delI;
 			this.derivativeLWrtWo += this.cells.get(i).xT * this.cells.get(i).delO;
 			this.derivativeLWrtWz += this.cells.get(i).xT * this.cells.get(i).delZ;
+			
+			adaptiveLearningRate rate =new adaptiveLearningRate();
+			localLearningRate1 = rate.adagradOptimizer(learningRate, localLearningRate1, this.derivativeLWrtWi, i);
+			localLearningRate2 = rate.adagradOptimizer(learningRate, localLearningRate2, this.derivativeLWrtWo, i);
+			localLearningRate3 = rate.adagradOptimizer(learningRate, localLearningRate3, this.derivativeLWrtWz, i);
+			localLearningRate4 = rate.adagradOptimizer(learningRate, localLearningRate4, this.derivativeLWrtRi, i);
+			localLearningRate5 = rate.adagradOptimizer(learningRate, localLearningRate5, this.derivativeLWrtRo, i);
+			localLearningRate6 = rate.adagradOptimizer(learningRate, localLearningRate6,  this.derivativeLWrtRz, i);
+			
 
-			this.cells.get(i).setWi(this.cells.get(i).getWi() + this.learningRate * this.derivativeLWrtWi);
-			this.cells.get(i).setWo(this.cells.get(i).getWo() + this.learningRate * this.derivativeLWrtWo);
-			this.cells.get(i).setWz(this.cells.get(i).getWz() + this.learningRate * this.derivativeLWrtWz);
-			this.cells.get(i).setRi(this.cells.get(i).getRi() + this.learningRate * this.derivativeLWrtRi);
-			this.cells.get(i).setRo(this.cells.get(i).getRo() + this.learningRate * this.derivativeLWrtRo);
-			this.cells.get(i).setRz(this.cells.get(i).getRz() + this.learningRate * this.derivativeLWrtRz);
+			this.cells.get(i).setWi(this.cells.get(i).getWi() + localLearningRate1 * this.derivativeLWrtWi);
+			this.cells.get(i).setWo(this.cells.get(i).getWo() +localLearningRate2 * this.derivativeLWrtWo);
+			this.cells.get(i).setWz(this.cells.get(i).getWz() +localLearningRate3 * this.derivativeLWrtWz);
+			this.cells.get(i).setRi(this.cells.get(i).getRi() + localLearningRate4 * this.derivativeLWrtRi);
+			this.cells.get(i).setRo(this.cells.get(i).getRo() + localLearningRate5 * this.derivativeLWrtRo);
+			this.cells.get(i).setRz(this.cells.get(i).getRz() + localLearningRate6 * this.derivativeLWrtRz);
 
 		}
 	}

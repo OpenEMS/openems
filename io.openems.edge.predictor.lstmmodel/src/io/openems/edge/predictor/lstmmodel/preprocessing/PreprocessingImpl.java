@@ -18,7 +18,7 @@ public class PreprocessingImpl implements PreProcessing {
 
 	private double max = 0;
 	private double min = 0;
-	private int windowSize = 24;
+	private int windowSize = 7;
 
 	private ArrayList<Double> dataList;
 	private ArrayList<Double> scaleDataList;
@@ -40,7 +40,7 @@ public class PreprocessingImpl implements PreProcessing {
 		this.max = Collections.max(this.dataList);
 		this.min = Collections.min(this.dataList);
 		// TODO make percentage dynamic
-		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.7);
+		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, .6);
 	}
 
 	/**
