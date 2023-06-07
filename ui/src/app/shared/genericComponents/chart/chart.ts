@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -10,12 +10,12 @@ import { Edge, Service } from "../../shared";
   selector: 'oe-chart',
   templateUrl: './chart.html',
 })
-export class ChartComponent implements OnInit, OnChanges {
+export class ChartComponent implements OnInit, AfterViewChecked {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';
-  @Input() public showPhases: boolean;
-  @Input() public showTotal: boolean;
+  @Input() public showPhases: boolean | null = null;
+  @Input() public showTotal: boolean | null = null;
   @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
   @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
@@ -39,7 +39,8 @@ export class ChartComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnChanges() {
+  ngAfterViewChecked() {
+    this.ref.detectChanges();
     this.checkIfPopoverNeeded();
   }
 

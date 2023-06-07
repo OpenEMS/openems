@@ -168,7 +168,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                 labelString: ""
             },
             ticks: {
-                beginAtZero: true
+                beginAtZero: false
             }
         }],
         xAxes: [{
@@ -272,7 +272,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 }
 
 /**
-  * Returns true if Chart Label should be visible. Defaults to to true.
+  * Returns true if Chart Label should be visible. Defaults to true.
   * 
   * Compares only the first part of the label string - without a value or unit.
   * 
@@ -281,7 +281,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
   * @returns true for visible labels; hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
     let value = sessionStorage.getItem(labelWithoutUnit);
     if (orElse != null && value == null) {
         return orElse;
@@ -300,7 +300,8 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
     if (visible == null) {
         return;
     }
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
+
     sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 

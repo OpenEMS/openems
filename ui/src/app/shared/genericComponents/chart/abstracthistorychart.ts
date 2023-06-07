@@ -61,6 +61,10 @@ export abstract class AbstractHistoryChart implements OnInit {
     });
   }
 
+  ngOnChanges() {
+    this.updateChart()
+  }
+
   ngOnInit() {
     this.startSpinner();
     this.service.setCurrentComponent('', this.route).then(edge => {
@@ -117,7 +121,8 @@ export abstract class AbstractHistoryChart implements OnInit {
 
       if (channelAddress?.toString() in result.data) {
         channelData.data[element.name] =
-          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])
+          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(
+            result.data[channelAddress.toString()])
             ?.map(value => {
               if (value == null) {
                 return null;
@@ -141,7 +146,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       let nameSuffix = null;
 
       // Check if energyResponse is available
-      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse)) {
+      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse) != null) {
         nameSuffix = element.nameSuffix(energyResponse);
       }
 
@@ -150,6 +155,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         let label = this.getLabelName(element.name, nameSuffix);
         let data: number[] | null = element.converter();
 
+        // Dont show dataset if all values are null
         if (data === null) {
           return;
         }
@@ -190,6 +196,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
+      this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
@@ -238,6 +245,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       ])
         .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line';
+          this.chartObject = this.getChartData();
           this.fillChart(dataResponse, energyResponse);
           this.setChartLabel();
         });

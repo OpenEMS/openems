@@ -7,7 +7,6 @@ import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
-import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
@@ -46,6 +45,7 @@ import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './ed
 import { IndexComponent } from './index/index.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },

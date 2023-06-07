@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+
 import { SharedModule } from '../../shared/shared.module';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
@@ -64,12 +65,14 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Common_Consumption } from './common/consumption/Consumption';
 
 @NgModule({
   imports: [
     SharedModule,
     Common_Autarchy,
-    Common_Production
+    Common_Production,
+    Common_Consumption
   ],
   entryComponents: [
     EnergyModalComponent,
@@ -84,13 +87,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
-    ConsumptionChartOverviewComponent,
-    ConsumptionComponent,
-    ConsumptionEvcsChartComponent,
-    ConsumptionMeterChartComponent,
-    ConsumptionOtherChartComponent,
-    ConsumptionSingleChartComponent,
-    ConsumptionTotalChartComponent,
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,

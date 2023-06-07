@@ -5,10 +5,15 @@ import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { QueryHistoricTimeseriesDataRequest } from '../jsonrpc/request/queryHistoricTimeseriesDataRequest';
+import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { ChannelAddress, EdgeConfig } from '../shared';
+import { satisfies } from 'compare-versions';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 export class Utils {
+
 
   constructor() { }
 
@@ -517,6 +522,9 @@ export class Utils {
    * @param value the value to convert
    */
   public static roundSlightlyNegativeValues(value: number) {
+    if (value === null) {
+      return null;
+    }
     return (value > -0.49 && value < 0) ? 0 : value;
   }
 
@@ -564,6 +572,72 @@ export class Utils {
       return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
     }
   }
+
+  /**
+  * Calculates the total other consumption.
+  * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
+  * 
+  * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+  * @param evcsComponents the evcsComponents
+  * @param consumptionMeterComponents the consumptionMeterComponents
+  * @returns the other consumption
+  */
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+
+    let totalEvcsConsumption: number = 0;
+    let totalMeteredConsumption: number = 0;
+    evcsComponents.forEach(component => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy'])
+    })
+
+    consumptionMeterComponents.forEach(meter => {
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy'])
+    })
+
+    return Utils.roundSlightlyNegativeValues(
+      Utils.subtractSafely(
+        Utils.subtractSafely(
+          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
+        totalMeteredConsumption));
+  }
+
+  /**
+   * Calculates the other consumption.
+   * 
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+   * 
+   * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+
+    let totalEvcsConsumption: number[] = [];
+    let totalMeteredConsumption: number[] = [];
+
+    evcsComponents.forEach(component => {
+      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
+        totalEvcsConsumption[index] = value
+      })
+    })
+
+    consumptionMeterComponents.forEach(meter => {
+      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
+        totalMeteredConsumption[index] = value
+      })
+    })
+
+    return channelData['ConsumptionActivePower'].map((value, index) => {
+      if (value != null) {
+        return Utils.roundSlightlyNegativeValues(
+          Utils.subtractSafely(
+            Utils.subtractSafely(
+              value, totalEvcsConsumption[index]),
+            totalMeteredConsumption[index]))
+      }
+    });
+  }
 }
 export namespace HistoryUtils {
 
@@ -600,8 +674,9 @@ export namespace HistoryUtils {
     converter?: (value: number) => number | null,
   }
   export type DisplayValues = {
+    /** The name to be displayed in label and tooltip */
     name: string,
-    /** suffix to the name */
+    /** suffix to the name, if channelValue is null, it will be not shown in the label */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
     /** Convert the values to be displayed in Chart */
     converter: () => number[],
