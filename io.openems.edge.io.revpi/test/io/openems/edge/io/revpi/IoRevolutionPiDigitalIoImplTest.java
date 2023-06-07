@@ -6,15 +6,15 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class IoRevolutionPiDigitalIoImplTest {
 
-//	private static final String COMPONENT_ID = "io0";
+	// private static final String COMPONENT_ID = "io0";
 
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new IoRevolutionPiDigitalIoImpl()) //
-//				.activate(MyConfig.create() //
-//						.setId(COMPONENT_ID) //
-//						.setInitOutputFromHardware(false) //
-//						.build()) //
+		// .activate(MyConfig.create() //
+		// .setId(COMPONENT_ID) //
+		// .setInitOutputFromHardware(false) //
+		// .build()) //
 		;
 	}
 

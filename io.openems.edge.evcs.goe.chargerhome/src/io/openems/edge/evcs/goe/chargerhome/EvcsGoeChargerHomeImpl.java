@@ -47,9 +47,9 @@ public class EvcsGoeChargerHomeImpl extends AbstractManagedEvcsComponent
 	private EvcsPower evcsPower;
 
 	/** Is charger active. */
-	public boolean isActive;
+	protected boolean isActive;
 	/** Actual current. */
-	public int activeCurrent;
+	protected int activeCurrent;
 
 	protected Config config;
 

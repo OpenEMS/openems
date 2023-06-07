@@ -7,14 +7,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public int maxSoc;
-		public int minSoc;
-		public int switchDelay;
-		public boolean invertOnGridOutput;
-		public boolean invertOffGridOutput;
-		public String onGridOutputChannelAddress;
-		public String offGridOutputChannelAddress;
+		private String essId;
+		private int maxSoc;
+		private int minSoc;
+		private int switchDelay;
+		private boolean invertOnGridOutput;
+		private boolean invertOffGridOutput;
+		private String onGridOutputChannelAddress;
+		private String offGridOutputChannelAddress;
 
 		private Builder() {
 		}

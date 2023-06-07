@@ -8,9 +8,9 @@ import io.openems.edge.ess.api.SinglePhase;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public SinglePhase phase;
-		public String coreId;
+		private String id;
+		private SinglePhase phase;
+		private String coreId;
 
 		private Builder() {
 		}

@@ -7,13 +7,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public Mode mode;
-		public String inputChannelAddress;
-		public int threshold;
-		public int switchedLoadPower;
-		public int minimumSwitchingTime;
-		public boolean invert;
-		public String[] outputChannelAddress;
+		private Mode mode;
+		private String inputChannelAddress;
+		private int threshold;
+		private int switchedLoadPower;
+		private int minimumSwitchingTime;
+		private boolean invert;
+		private String[] outputChannelAddress;
 
 		private Builder() {
 		}

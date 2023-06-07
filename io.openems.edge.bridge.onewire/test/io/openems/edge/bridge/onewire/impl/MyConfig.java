@@ -6,8 +6,8 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String port;
+		private String id;
+		private String port;
 
 		private Builder() {
 		}
@@ -16,7 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setPort(String port) {
 			this.port = port;
 			return this;

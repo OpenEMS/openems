@@ -6,18 +6,18 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public int minCellVoltage_mV;
-		public int voltage;
-		public int capacityKWh;
-		public int temperature;
-		public int soh;
-		public int soc;
-		public int chargeMaxCurrent;
-		public int disChargeMaxCurrent;
-		public int chargeMaxVoltage;
-		public int disChargeMinVoltage;
-		public int numberOfSlaves;
+		private String id;
+		private int minCellVoltage;
+		private int voltage;
+		private int capacityKWh;
+		private int temperature;
+		private int soh;
+		private int soc;
+		private int chargeMaxCurrent;
+		private int disChargeMaxCurrent;
+		private int chargeMaxVoltage;
+		private int disChargeMinVoltage;
+		private int numberOfSlaves;
 
 		private Builder() {
 		}
@@ -27,8 +27,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMinCellVoltage_mV(int minCellVoltage_mV) {
-			this.minCellVoltage_mV = minCellVoltage_mV;
+		public Builder setMinCellVoltage_mV(int minCellVoltage) {
+			this.minCellVoltage = minCellVoltage;
 			return this;
 		}
 
@@ -155,6 +155,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int minCellVoltage_mV() {
-		return this.builder.minCellVoltage_mV;
+		return this.builder.minCellVoltage;
 	}
 }

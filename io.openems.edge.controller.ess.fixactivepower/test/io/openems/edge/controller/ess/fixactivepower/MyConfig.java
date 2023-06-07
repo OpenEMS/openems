@@ -9,13 +9,13 @@ import io.openems.edge.ess.power.api.Relationship;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String essId = null;
-		public int power;
-		public Mode mode;
-		public HybridEssMode hybridEssMode;
-		public Phase phase;
-		public Relationship relationship;
+		private String id;
+		private String essId;
+		private int power;
+		private Mode mode;
+		private HybridEssMode hybridEssMode;
+		private Phase phase;
+		private Relationship relationship;
 
 		private Builder() {
 		}

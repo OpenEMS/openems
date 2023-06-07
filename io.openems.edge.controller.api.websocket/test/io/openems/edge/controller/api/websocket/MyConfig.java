@@ -6,9 +6,9 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public int port;
-		public int apiTimeout;
+		private String id;
+		private int port;
+		private int apiTimeout;
 
 		private Builder() {
 		}
@@ -22,6 +22,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.apiTimeout = apiTimeout;
 			return this;
 		}
+
 		public Builder setPort(int port) {
 			this.port = port;
 			return this;

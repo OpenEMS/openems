@@ -34,9 +34,8 @@ public class Error extends BaseState {
 	private boolean enableIpu1;
 	private boolean enableIpu2;
 	private boolean enableIpu3;
-	// private ParameterSet parameterSet;
 
-	long secondsToWait = WAITING_TIME_ERRORS;
+	private long secondsToWait = WAITING_TIME_ERRORS;
 	private LocalDateTime communicationBrokenSince;
 
 	public Error(ComponentManager manager, String gridconPcsId, String b1Id, String b2Id, String b3Id,

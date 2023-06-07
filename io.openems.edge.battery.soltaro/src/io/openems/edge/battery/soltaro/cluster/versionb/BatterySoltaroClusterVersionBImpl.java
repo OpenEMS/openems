@@ -783,12 +783,12 @@ public class BatterySoltaroClusterVersionBImpl extends AbstractOpenemsModbusComp
 
 	// Helper class to get infos about connected racks
 	private static class RackInfo {
-		int addressOffset;
-		SoltaroCluster.ChannelId usageChannelId;
-		BatterySoltaroClusterVersionB.ChannelId positiveContactorChannelId;
-		SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
+		private final int addressOffset;
+		private final SoltaroCluster.ChannelId usageChannelId;
+		private final BatterySoltaroClusterVersionB.ChannelId positiveContactorChannelId;
+		private final SoltaroCluster.ChannelId subMasterCommunicationAlarmChannelId;
 
-		RackInfo(//
+		protected RackInfo(//
 				int addressOffset, //
 				SoltaroCluster.ChannelId usageChannelId, //
 				BatterySoltaroClusterVersionB.ChannelId positiveContactorChannelId, //

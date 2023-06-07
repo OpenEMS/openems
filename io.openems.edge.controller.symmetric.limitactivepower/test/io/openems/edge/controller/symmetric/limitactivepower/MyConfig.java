@@ -30,10 +30,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.maxChargePower = maxChargePower;
 			return this;
 		}
+
 		public Builder setMaxDischargePower(int maxDischargePower) {
 			this.maxDischargePower = maxDischargePower;
 			return this;
 		}
+
 		public Builder setValidatePowerConstraints(boolean validatePowerConstraints) {
 			this.validatePowerConstraints = validatePowerConstraints;
 			return this;

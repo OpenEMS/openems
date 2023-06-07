@@ -37,7 +37,7 @@ public class EssFeneconBydContainerWatchdogControllerImpl extends AbstractOpenem
 	@Reference
 	private ConfigurationAdmin cm;
 
-	public Config config;
+	private Config config;
 
 	public EssFeneconBydContainerWatchdogControllerImpl() {
 		super(//

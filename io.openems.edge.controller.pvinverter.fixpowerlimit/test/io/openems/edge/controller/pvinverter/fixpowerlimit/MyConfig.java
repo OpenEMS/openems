@@ -17,6 +17,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
+
 		public Builder setPvInverterId(String pvInverterId) {
 			this.pvInverterId = pvInverterId;
 			return this;

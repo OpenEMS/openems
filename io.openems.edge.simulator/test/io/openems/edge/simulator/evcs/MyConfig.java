@@ -7,8 +7,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public int maxHwPower;
-		public int minHwPower;
+		private int maxHwPower;
+		private int minHwPower;
 
 		private Builder() {
 		}
@@ -22,12 +22,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.maxHwPower = maxHwPower;
 			return this;
 		}
-		
+
 		public Builder setMinHwPower(int minHwPower) {
 			this.minHwPower = minHwPower;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

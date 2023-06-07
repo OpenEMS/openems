@@ -9,9 +9,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private MeterType type = MeterType.PRODUCTION;
-		private String modbusId = null;
-		public int modbusUnitId;
+		private MeterType type;
+		private String modbusId;
+		private int modbusUnitId;
 
 		private Builder() {
 		}

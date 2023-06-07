@@ -6,8 +6,8 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String[] componentIds;
+		private String id;
+		private String[] componentIds;
 
 		private Builder() {
 		}

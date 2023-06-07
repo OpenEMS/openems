@@ -208,6 +208,11 @@
       <property name="ignoreMethodNamesRegex" value="doc|set.+|build"/>
       <property name="tokens" value="METHOD_DEF"/>
     </module>
+    <module name="VisibilityModifier">
+      <property name="protectedAllowed" value="true"/>
+      <property name="allowPublicFinalFields" value="true"/>
+      <property name="allowPublicImmutableFields" value="true"/>
+    </module>
   </module>
   <module name="LineLength">
     <property name="severity" value="ignore"/>

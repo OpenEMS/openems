@@ -6,9 +6,9 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String portName;
-		public int baudrate;
+		private String id;
+		private String portName;
+		private int baudrate;
 
 		private Builder() {
 		}

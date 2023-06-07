@@ -6,13 +6,13 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String inputChannelAddress;
-		public String outputChannelAddress;
-		public int lowThreshold;
-		public int highThreshold;
-		public int hysteresis;
-		public boolean invert;
+		private String id;
+		private String inputChannelAddress;
+		private String outputChannelAddress;
+		private int lowThreshold;
+		private int highThreshold;
+		private int hysteresis;
+		private boolean invert;
 
 		private Builder() {
 		}

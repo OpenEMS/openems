@@ -7,11 +7,11 @@ import io.openems.common.utils.ConfigUtils;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public boolean enabled;
-		public int port;
-		public String[] componentIds;
-		public int maxConcurrentConnections;
+		private String id;
+		private boolean enabled;
+		private int port;
+		private String[] componentIds;
+		private int maxConcurrentConnections;
 
 		private Builder() {
 		}

@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public boolean enabled;
+		private boolean enabled;
 		private int port;
 		private int connectionlimit;
 		private boolean debugMode;
