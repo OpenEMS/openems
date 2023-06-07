@@ -33,7 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private titleService: Title,
-    private checkForUpdateService: CheckForUpdateService,
+    private checkForUpdateService: CheckForUpdateService
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
     checkForUpdateService.init();
@@ -59,7 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel',
+            role: 'cancel'
           }
         ]
       });

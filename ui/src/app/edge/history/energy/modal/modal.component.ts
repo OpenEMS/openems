@@ -25,7 +25,7 @@ export class EnergyModalComponent implements OnInit {
         private websocket: Websocket,
         private route: ActivatedRoute,
         public translate: TranslateService,
-        public modalCtrl: ModalController,
+        public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {

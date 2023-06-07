@@ -20,12 +20,12 @@ import { SymmetricMeterComponent } from "./symmetric/modal.component";
     declarations: [
         AsymmetricMeterComponent,
         EssChargerComponent,
-        SymmetricMeterComponent,
+        SymmetricMeterComponent
     ],
     exports: [
         AsymmetricMeterComponent,
         EssChargerComponent,
-        SymmetricMeterComponent,
+        SymmetricMeterComponent
     ]
 })
 export class MeterModule { }

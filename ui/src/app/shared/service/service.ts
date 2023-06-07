@@ -71,7 +71,7 @@ export class Service extends AbstractService {
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
     public modalCtrl: ModalController,
-    public translate: TranslateService,
+    public translate: TranslateService
   ) {
     super();
     // add language
@@ -134,7 +134,7 @@ export class Service extends AbstractService {
         } else {
           // Translate from key
           this.translate.get(currentPageTitle.languageKey).pipe(
-            take(1),
+            take(1)
           ).subscribe(title => this.currentPageTitle = title);
         }
       }
@@ -151,7 +151,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve) => {
       this.currentEdge.pipe(
         filter(edge => edge != null),
-        first(),
+        first()
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);

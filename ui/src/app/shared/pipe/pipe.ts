@@ -11,7 +11,7 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        BrowserModule
     ],
     entryComponents: [
         UnitvaluePipe,

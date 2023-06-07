@@ -23,7 +23,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("consumption-other-chart", service, translate);
     }
@@ -99,7 +99,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
+                        borderColor: 'rgba(253,197,7,1)'
                     });
                 }
                 this.datasets = datasets;
@@ -120,7 +120,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ConsumptionActivePower'),
+                new ChannelAddress('_sum', 'ConsumptionActivePower')
             ];
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));

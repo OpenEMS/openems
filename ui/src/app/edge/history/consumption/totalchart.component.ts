@@ -27,7 +27,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("consumption-total-chart", service, translate);
     }
@@ -136,7 +136,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(253,197,7,0.05)',
-                                        borderColor: 'rgba(253,197,7,1)',
+                                        borderColor: 'rgba(253,197,7,1)'
                                     });
                                 }
 
@@ -172,7 +172,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(255,193,193,0.1)',
-                                            borderColor: 'rgba(139,35,35,1)',
+                                            borderColor: 'rgba(139,35,35,1)'
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
@@ -182,7 +182,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(198,226,255,0.1)',
-                                            borderColor: 'rgba(198,226,255,1)',
+                                            borderColor: 'rgba(198,226,255,1)'
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
@@ -192,7 +192,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(121,205,205,0.1)',
-                                            borderColor: 'rgba(121,205,205,1)',
+                                            borderColor: 'rgba(121,205,205,1)'
                                         });
                                     }
                                 }
@@ -288,7 +288,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.00)',
-                                        borderColor: 'rgba(0,223,0,05)',
+                                        borderColor: 'rgba(0,223,0,05)'
                                     });
                                 }
                             }
@@ -324,7 +324,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
             ];
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
                 .filter(component => !(

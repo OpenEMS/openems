@@ -25,8 +25,8 @@ export function registerTranslateExtension(translate: TranslateService) {
         name: 'key',
         message() {
           return translate.stream('Edge.Config.App.Key.invalidPattern');
-        },
-      },
+        }
+      }
     ]
   };
 }
@@ -37,10 +37,10 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlyModule.forRoot({
       wrappers: [
         { name: "formly-safe-input-wrapper", component: FormlySafeInputWrapperComponent },
-        { name: "input-with-unit", component: FormlyInputWithUnitComponent },
+        { name: "input-with-unit", component: FormlyInputWithUnitComponent }
       ],
       types: [
-        { name: "text", component: FormlyTextComponent },
+        { name: "text", component: FormlyTextComponent }
       ],
       validators: [
         { name: 'key', validation: KeyValidator }
@@ -59,17 +59,17 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
     FormlyTextComponent,
-    FormlyInputWithUnitComponent,
+    FormlyInputWithUnitComponent
   ],
   exports: [
     IndexComponent,
     InstallAppComponent,
     SingleAppComponent,
-    UpdateAppComponent,
+    UpdateAppComponent
   ],
   providers: [
     // Use factory for formly. This allows us to use translations in validationMessages.
-    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
-  ],
+    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] }
+  ]
 })
 export class AppModule { }

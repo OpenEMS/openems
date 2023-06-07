@@ -31,7 +31,7 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress('_sum', 'GridActivePower'),
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
-      new ChannelAddress('_sum', 'GridActivePowerL3'),
+      new ChannelAddress('_sum', 'GridActivePowerL3')
     );
     return channelAddresses;
   }

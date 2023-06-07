@@ -5,7 +5,7 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
 
 @Component({
     selector: 'formly-select-extended-wrapper',
-    templateUrl: './formly-select-field.extended.html',
+    templateUrl: './formly-select-field.extended.html'
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
 

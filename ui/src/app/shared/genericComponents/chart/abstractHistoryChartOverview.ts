@@ -25,7 +25,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   constructor(
     public service: Service,
     protected route: ActivatedRoute,
-    public modalCtrl: ModalController,
+    public modalCtrl: ModalController
   ) { }
 
   public ngOnInit() {
