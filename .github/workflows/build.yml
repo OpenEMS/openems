@@ -1,6 +1,5 @@
 name: Build OpenEMS
-on: [push,pull_request_target:
-    types: [opened, reopened]]
+on: [push]
 jobs:
   build-java:
     runs-on: ubuntu-latest
