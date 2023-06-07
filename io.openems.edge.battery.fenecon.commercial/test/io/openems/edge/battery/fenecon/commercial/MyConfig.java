@@ -9,10 +9,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public String batteryStartStopRelay;
-		public StartStopConfig startStop;
+		private String modbusId;
+		private int modbusUnitId;
+		private String batteryStartStopRelay;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}

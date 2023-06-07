@@ -38,7 +38,7 @@ public class MyJsonServer {
 
 	private final Logger log = LoggerFactory.getLogger(MyJsonServer.class);
 
-	private final OcppServerImpl parent;
+	private final EvcsOcppServer parent;
 
 	/**
 	 * The JSON OCPP server.
@@ -56,7 +56,7 @@ public class MyJsonServer {
 	private final ServerReservationProfile reservationProfile = new ServerReservationProfile();
 	private final ServerSmartChargingProfile smartChargingProfile = new ServerSmartChargingProfile();
 
-	public MyJsonServer(OcppServerImpl parent) {
+	public MyJsonServer(EvcsOcppServer parent) {
 		this.parent = parent;
 
 		this.coreProfile = new ServerCoreProfile(new CoreEventHandlerImpl(parent));

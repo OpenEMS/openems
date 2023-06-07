@@ -49,11 +49,11 @@ public class SendChannelValuesWorker {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(SendChannelValuesWorker.class);
-	private final MqttApiControllerImpl parent;
+	private final ControllerApiMqttImpl parent;
 
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
 			new ArrayBlockingQueue<>(1), //
-			new ThreadFactoryBuilder().setNameFormat(MqttApiControllerImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
+			new ThreadFactoryBuilder().setNameFormat(ControllerApiMqttImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	/**
@@ -71,7 +71,7 @@ public class SendChannelValuesWorker {
 	 */
 	private Table<String, String, JsonElement> lastAllValues = ImmutableTable.of();
 
-	protected SendChannelValuesWorker(MqttApiControllerImpl parent) {
+	protected SendChannelValuesWorker(ControllerApiMqttImpl parent) {
 		this.parent = parent;
 	}
 
@@ -196,7 +196,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Update lastUpdate timestamp
-			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
+			this.publish(ControllerApiMqtt.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
 
 			// Successful?
 			if (allSendSuccessful) {
@@ -224,7 +224,7 @@ public class SendChannelValuesWorker {
 		 */
 		private boolean publish(String subTopic, String value) {
 			return this.parent.parent.publish(//
-					/* topic */ MqttApiController.TOPIC_CHANNEL_PREFIX + subTopic, //
+					/* topic */ ControllerApiMqtt.TOPIC_CHANNEL_PREFIX + subTopic, //
 					/* message */ value.toString(), //
 					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
 			);

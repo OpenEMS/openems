@@ -13,13 +13,13 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
-import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEssImpl;
+import io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetricImpl;
 
 public class AllowedChargeDischargeHandlerTest {
 
 	@Test
 	public void testStart() throws Exception {
-		final var ess = new GenericManagedSymmetricEssImpl();
+		final var ess = new EssGenericManagedSymmetricImpl();
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final ClockProvider clockProvider = new DummyComponentManager(clock);
 		new ComponentTest(ess) //

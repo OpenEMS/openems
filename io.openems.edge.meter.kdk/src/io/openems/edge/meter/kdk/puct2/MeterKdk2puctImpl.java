@@ -56,6 +56,12 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	public MeterKdk2puctImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -64,12 +70,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 				MeterKdk2puct.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values() //
 		);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate

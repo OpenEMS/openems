@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.controller.ess.fixstateofcharge.FixStateOfChargeImpl;
+import io.openems.edge.controller.ess.fixstateofcharge.ControllerEssFixStateOfChargeImpl;
 import io.openems.edge.controller.ess.fixstateofcharge.api.AbstractFixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 
@@ -77,7 +77,7 @@ public class AtTargetSocHandler extends StateHandler<State, Context> {
 		}
 
 		// Use latest valid value if not defined
-		return FixStateOfChargeImpl //
+		return ControllerEssFixStateOfChargeImpl //
 				.getLastValidValue(parent.getAtTargetEpochSecondsChannel()) //
 				.orElse(0L);
 	}

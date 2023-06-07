@@ -8,7 +8,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.goodwe.GoodWeConstants;
-import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 
 public class GoodWeEssImplTest {
@@ -19,7 +19,7 @@ public class GoodWeEssImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		var charger = new GoodWeEtCharger1();
+		var charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

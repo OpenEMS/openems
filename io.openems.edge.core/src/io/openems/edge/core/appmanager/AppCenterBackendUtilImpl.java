@@ -29,13 +29,13 @@ import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse;
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundle;
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
 import io.openems.edge.common.user.User;
-import io.openems.edge.controller.api.backend.BackendApi;
+import io.openems.edge.controller.api.backend.ControllerApiBackend;
 
 @Component
 public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile BackendApi backend;
+	private volatile ControllerApiBackend backend;
 
 	@Activate
 	public AppCenterBackendUtilImpl() {
@@ -104,7 +104,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 		}
 	}
 
-	private final BackendApi getBackend() throws OpenemsNamedException {
+	private final ControllerApiBackend getBackend() throws OpenemsNamedException {
 		if (!this.isConnected()) {
 			throw new OpenemsException("Backend not connected!");
 		}

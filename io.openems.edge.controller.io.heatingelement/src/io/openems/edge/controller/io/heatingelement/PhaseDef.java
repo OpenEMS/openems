@@ -17,7 +17,7 @@ import io.openems.edge.controller.io.heatingelement.enums.Phase;
  */
 public class PhaseDef {
 
-	private final ControllerHeatingElementImpl parent;
+	private final ControllerIoHeatingElementImpl parent;
 	private final Phase phase;
 
 	/**
@@ -36,7 +36,7 @@ public class PhaseDef {
 	 */
 	private LocalTime lastSwitchOn = null;
 
-	public PhaseDef(ControllerHeatingElementImpl parent, Phase phase) {
+	public PhaseDef(ControllerIoHeatingElementImpl parent, Phase phase) {
 		this.parent = parent;
 		this.phase = phase;
 	}
