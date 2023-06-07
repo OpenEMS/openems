@@ -11,7 +11,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -29,7 +28,7 @@ public class MyDeviceImpl extends AbstractOpenemsComponent implements MyDevice, 
 
 	private Config config = null;
 
-	public MyDevice() {
+	public MyDeviceImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				MyDevice.ChannelId.values() //
