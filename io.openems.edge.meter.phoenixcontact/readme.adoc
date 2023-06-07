@@ -1,0 +1,8 @@
+= https://www.phoenixcontact.com/de-de/produkte/energiemessgeraet-eem-mb370-24dc-1127061[PhoenixContact Meter]
+
+Implemented Natures
+
+- SymmetricMeter
+- AsymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.phonixcontact[Source Code icon:github[]]

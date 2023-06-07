@@ -36,11 +36,11 @@ public class StartBatteryInOffGridHandler extends StateHandler<OffGridState, Con
 			// Still waiting...
 			return OffGridState.START_BATTERY_IN_OFF_GRID;
 		}
+
 		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
 			// Too many tries
 			ess._setMaxBatteryStartAttemptsFault(true);
 			return OffGridState.UNDEFINED;
-
 		} else {
 			// Trying to start Battery
 			battery.start();
@@ -48,8 +48,6 @@ public class StartBatteryInOffGridHandler extends StateHandler<OffGridState, Con
 			this.lastAttempt = Instant.now();
 			this.attemptCounter++;
 			return OffGridState.START_BATTERY_IN_OFF_GRID;
-
 		}
 	}
-
 }

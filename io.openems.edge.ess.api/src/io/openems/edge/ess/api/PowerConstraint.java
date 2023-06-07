@@ -1,10 +1,8 @@
 package io.openems.edge.ess.api;
 
-import java.util.function.Consumer;
-
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
@@ -15,7 +13,7 @@ import io.openems.edge.ess.power.api.Relationship;
  * is directly validated and only added if the Power problem is still solvable
  * with the new constraint. Otherwise an error is logged.
  */
-public class PowerConstraint implements Consumer<Channel<Integer>> {
+public class PowerConstraint implements ThrowingBiConsumer<ManagedSymmetricEss, Integer, OpenemsNamedException> {
 
 	private final String channelId;
 	private final Phase phase;
@@ -30,11 +28,8 @@ public class PowerConstraint implements Consumer<Channel<Integer>> {
 	}
 
 	@Override
-	public void accept(Channel<Integer> channel) {
-		((IntegerWriteChannel) channel).onSetNextWrite(value -> {
-			var ess = (ManagedSymmetricEss) channel.getComponent();
-			apply(ess, "Channel [" + this.channelId + "]", this.phase, this.pwr, this.relationship, value);
-		});
+	public void accept(ManagedSymmetricEss ess, Integer value) throws OpenemsNamedException {
+		apply(ess, "Channel [" + this.channelId + "]", this.phase, this.pwr, this.relationship, value);
 	}
 
 	/**

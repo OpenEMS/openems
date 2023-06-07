@@ -16,8 +16,9 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
+import io.openems.edge.ess.offgrid.api.OffGridEss;
 
-public interface GenericOffGridEss extends GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
+public interface GenericOffGridEss extends GenericManagedEss, OffGridEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -50,5 +51,4 @@ public interface GenericOffGridEss extends GenericManagedEss, ManagedSymmetricEs
 						.channel(0, GenericOffGridEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
 						.build());
 	}
-
 }

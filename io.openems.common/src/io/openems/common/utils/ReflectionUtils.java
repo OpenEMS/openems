@@ -3,13 +3,13 @@ package io.openems.common.utils;
 import java.lang.reflect.InvocationTargetException;
 
 public class ReflectionUtils {
-	
+
 	private ReflectionUtils() {
 		// no instance needed
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T> boolean setAttribute(Class<? extends T> clazz, T object, String memberName, Object value) 
+	public static <T> boolean setAttribute(Class<? extends T> clazz, T object, String memberName, Object value)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		try {
 			var field = clazz.getDeclaredField(memberName);
@@ -17,7 +17,7 @@ public class ReflectionUtils {
 			field.set(object, value);
 			return true;
 		} catch (NoSuchFieldException e) {
-			// Ignore. 
+			// Ignore.
 		}
 		// If we are here, no matching field or method was found. Search in parent
 		// classes.

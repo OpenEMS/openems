@@ -1,5 +1,8 @@
 package io.openems.edge.pvinverter.solarlog;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,7 +25,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -119,10 +121,8 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506), SCALE_FACTOR_3),
+						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507), SCALE_FACTOR_2),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD,

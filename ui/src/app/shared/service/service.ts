@@ -80,7 +80,7 @@ export class Service extends AbstractService {
     translate.setDefaultLang(Language.DEFAULT.key);
 
     // initialize history period
-    this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+    this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
@@ -242,6 +242,12 @@ export class Service extends AbstractService {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
+
+            // Jump to next request for empty channelAddresses
+            if (source.channels.length == 0) {
+              continue;
+            }
+
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
@@ -387,12 +393,12 @@ export class Service extends AbstractService {
   /**
    * Currently selected history period
    */
-  public historyPeriod: DefaultTypes.HistoryPeriod;
+  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
 
   /**
    * Currently selected history period string
    * 
    * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString = 'day';
+  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }

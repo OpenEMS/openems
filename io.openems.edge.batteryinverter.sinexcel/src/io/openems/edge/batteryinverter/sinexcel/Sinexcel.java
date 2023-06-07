@@ -28,7 +28,6 @@ import io.openems.edge.batteryinverter.sinexcel.enums.StartMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.Switch;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -100,32 +99,24 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		BATTERY_INVERTER_STATE(new BooleanDoc() //
-				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)//
-				.onInit(c -> { //
-					var channel = (BooleanReadChannel) c;
-					var self = (Sinexcel) channel.getComponent();
-					channel.onChange((oldValue, newValue) -> {
-						var value = newValue.asOptional();
-						self._setInverterState(value.orElse(null));
-					});
-				})), //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
+				.<Sinexcel>onChannelChange((self, value) -> self._setInverterState(value.get()))),
+
 		INVERTER_GRID_MODE(new BooleanDoc() //
 				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("On Grid") //
-				.onInit(c -> { //
-					var channel = (BooleanReadChannel) c;
-					var self = (Sinexcel) channel.getComponent();
-					channel.onChange((oldValue, newValue) -> {
-						var value = newValue.asOptional();
-						if (!value.isPresent()) {
-							self._setGridMode(GridMode.UNDEFINED);
-						} else if (value.get()) {
-							self._setGridMode(GridMode.ON_GRID);
-						} else {
-							self._setGridMode(GridMode.OFF_GRID);
-						}
-					});
+				.<Sinexcel>onChannelChange((self, value) -> {
+					final GridMode gridMode;
+					if (!value.isDefined()) {
+						gridMode = GridMode.UNDEFINED;
+					} else if (value.get()) {
+						gridMode = GridMode.ON_GRID;
+					} else {
+						gridMode = GridMode.OFF_GRID;
+					}
+					self._setGridMode(gridMode);
 				})),
+
 		ISLAND_MODE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		DERATING_STATUS(Doc.of(OpenemsType.BOOLEAN) //
@@ -400,10 +391,10 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.unit(Unit.MILLIAMPERE)), //
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		TEMPERATURE_OF_DC_DC_HEAT_SINK(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.DEGREE_CELSIUS)), //

@@ -4,7 +4,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -35,7 +34,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_1(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
 		 *
@@ -59,7 +58,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_2(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Holds writes to Relay Output 3 for debugging.
 		 *
@@ -83,7 +82,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_3(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_3))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_3)),
 		/**
 		 * Holds writes to Relay Output 4 for debugging.
 		 *
@@ -107,7 +106,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_4(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_4))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_4)),
 		/**
 		 * Holds writes to Relay Output 5 for debugging.
 		 *
@@ -131,7 +130,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_5(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_5))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_5)),
 		/**
 		 * Holds writes to Relay Output 6 for debugging.
 		 *
@@ -155,7 +154,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_6(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_6))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_6)),
 		/**
 		 * Holds writes to Relay Output 7 for debugging.
 		 *
@@ -179,7 +178,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_7(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_7))), //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_7)),
 		/**
 		 * Holds writes to Relay Output 8 for debugging.
 		 *
@@ -203,7 +202,7 @@ public interface KmtronicRelay8Port extends DigitalOutput, OpenemsComponent, Mod
 		RELAY_8(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_8))); //
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_8));
 
 		private final Doc doc;
 

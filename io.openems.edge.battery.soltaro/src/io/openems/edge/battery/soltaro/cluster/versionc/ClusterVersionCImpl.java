@@ -1,5 +1,8 @@
 package io.openems.edge.battery.soltaro.cluster.versionc;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
@@ -43,7 +46,6 @@ import io.openems.edge.battery.soltaro.versionc.utils.CellChannelFactory;
 import io.openems.edge.battery.soltaro.versionc.utils.Constants;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -238,10 +240,9 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						// Single Cluster Status Registers
 						new FC3ReadRegistersTask(r.offset + 0x100, Priority.HIGH, //
 								m(this.createChannelId(r, RackChannel.VOLTAGE),
-										new UnsignedWordElement(r.offset + 0x100),
-										ElementToChannelConverter.SCALE_FACTOR_2),
+										new UnsignedWordElement(r.offset + 0x100), SCALE_FACTOR_2),
 								m(this.createChannelId(r, RackChannel.CURRENT), new SignedWordElement(r.offset + 0x101),
-										ElementToChannelConverter.SCALE_FACTOR_2),
+										SCALE_FACTOR_2),
 								m(this.createChannelId(r, RackChannel.CHARGE_INDICATION),
 										new UnsignedWordElement(r.offset + 0x102)),
 								m(this.createChannelId(r, RackChannel.SOC), new UnsignedWordElement(r.offset + 0x103)),
@@ -257,23 +258,19 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 								m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE_ID),
 										new UnsignedWordElement(r.offset + 0x109)),
 								m(this.createChannelId(r, RackChannel.MAX_CELL_TEMPERATURE),
-										new SignedWordElement(r.offset + 0x10A),
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+										new SignedWordElement(r.offset + 0x10A), SCALE_FACTOR_MINUS_1),
 								m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE_ID),
 										new UnsignedWordElement(r.offset + 0x10B)),
 								m(this.createChannelId(r, RackChannel.MIN_CELL_TEMPERATURE),
-										new SignedWordElement(r.offset + 0x10C),
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+										new SignedWordElement(r.offset + 0x10C), SCALE_FACTOR_MINUS_1),
 								m(this.createChannelId(r, RackChannel.AVERAGE_VOLTAGE),
 										new UnsignedWordElement(r.offset + 0x10D)),
 								m(this.createChannelId(r, RackChannel.SYSTEM_INSULATION),
 										new UnsignedWordElement(r.offset + 0x10E)),
 								m(this.createChannelId(r, RackChannel.SYSTEM_MAX_CHARGE_CURRENT),
-										new UnsignedWordElement(r.offset + 0x10F),
-										ElementToChannelConverter.SCALE_FACTOR_2),
+										new UnsignedWordElement(r.offset + 0x10F), SCALE_FACTOR_2),
 								m(this.createChannelId(r, RackChannel.SYSTEM_MAX_DISCHARGE_CURRENT),
-										new UnsignedWordElement(r.offset + 0x110),
-										ElementToChannelConverter.SCALE_FACTOR_2),
+										new UnsignedWordElement(r.offset + 0x110), SCALE_FACTOR_2),
 								m(this.createChannelId(r, RackChannel.POSITIVE_INSULATION),
 										new UnsignedWordElement(r.offset + 0x111)),
 								m(this.createChannelId(r, RackChannel.NEGATIVE_INSULATION),
@@ -418,25 +415,25 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x081)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_ALARM),
-								new UnsignedWordElement(r.offset + 0x082), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x082), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_OVER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x083), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x083), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_ALARM),
-								new UnsignedWordElement(r.offset + 0x084), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x084), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x085), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x085), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x086)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x087)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_ALARM),
-								new UnsignedWordElement(r.offset + 0x088), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x088), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_UNDER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x089), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x089), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_ALARM),
-								new UnsignedWordElement(r.offset + 0x08A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x08A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x08B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x08B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_ALARM),
 								new SignedWordElement(r.offset + 0x08C)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_TEMPERATURE_RECOVER),
@@ -463,9 +460,9 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
 								new UnsignedWordElement(r.offset + 0x099)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM),
-								new UnsignedWordElement(r.offset + 0x09A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x09A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_DIFFERENCE_ALARM_RECOVER),
-								new UnsignedWordElement(r.offset + 0x09B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x09B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM),
 								new SignedWordElement(r.offset + 0x09C)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_TEMPERATURE_HIGH_ALARM_RECOVER),
@@ -493,25 +490,25 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x041)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x042), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x042), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_OVER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x043), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x043), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x044), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x044), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x045), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x045), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x046)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x047)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x048), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x048), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_UNDER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x049), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x049), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x04A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x04A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x04B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x04B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_PROTECTION),
 								new SignedWordElement(r.offset + 0x04C)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_TEMPERATURE_RECOVER),
@@ -538,9 +535,9 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x059)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x05A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x05A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
-								new UnsignedWordElement(r.offset + 0x05B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x05B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new SignedWordElement(r.offset + 0x05C)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
@@ -570,23 +567,23 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x402)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_OVER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x403), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x403), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x404), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x404), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_CHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x405), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x405), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x406)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_UNDER_VOLTAGE_RECOVER),
 								new UnsignedWordElement(r.offset + 0x407)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x408), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x408), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_UNDER_VOLTAGE_RECOVER),
-								new UnsignedWordElement(r.offset + 0x409), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x409), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x40A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x40A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_SYSTEM_DISCHARGE_OVER_CURRENT_RECOVER),
-								new UnsignedWordElement(r.offset + 0x40B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x40B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_PROTECTION),
 								new SignedWordElement(r.offset + 0x40C)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_TEMPERATURE_RECOVER),
@@ -613,9 +610,9 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
 								new UnsignedWordElement(r.offset + 0x419)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION),
-								new UnsignedWordElement(r.offset + 0x41A), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x41A), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_TOTAL_VOLTAGE_DIFFERENCE_PROTECTION_RECOVER),
-								new UnsignedWordElement(r.offset + 0x41B), ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedWordElement(r.offset + 0x41B), SCALE_FACTOR_2), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION),
 								new SignedWordElement(r.offset + 0x41C)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_DISCHARGE_TEMPERATURE_HIGH_PROTECTION_RECOVER),
@@ -829,18 +826,18 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				new FC3ReadRegistersTask(0x1044, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(ClusterVersionC.ChannelId.ORIGINAL_SOC, new UnsignedWordElement(0x1047)), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x104E),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+								SCALE_FACTOR_MINUS_1)), //
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
 						m(new BitsWordElement(0x1081, this) //
 								.bit(0, ClusterVersionC.ChannelId.MASTER_PCS_COMMUNICATION_FAILURE) //
