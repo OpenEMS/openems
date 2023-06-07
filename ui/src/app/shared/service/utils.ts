@@ -9,11 +9,9 @@ import { QueryHistoricTimeseriesDataRequest } from '../jsonrpc/request/queryHist
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { ChannelAddress, EdgeConfig } from '../shared';
-import { satisfies } from 'compare-versions';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 export class Utils {
-
 
   constructor() { }
 
