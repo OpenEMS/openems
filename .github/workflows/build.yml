@@ -1,11 +1,7 @@
 name: Build OpenEMS
 on: 
- push:
-    branches-ignore:
-      - '*'
-  pull_request:
-    types:
-      - opened
+ pull_request:
+  types: [  opened, synchronize, reopened]
 jobs:
   build-java:
     runs-on: ubuntu-latest
