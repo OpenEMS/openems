@@ -27,7 +27,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.port = port;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

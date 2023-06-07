@@ -12,8 +12,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
-import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
+import io.openems.backend.metadata.odoo.MyEdge;
 
 public class PostgresHandler {
 

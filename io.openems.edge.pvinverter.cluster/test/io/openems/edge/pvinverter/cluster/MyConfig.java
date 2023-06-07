@@ -21,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.pvInverterIds = pvInverterIds;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

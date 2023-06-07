@@ -21,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.ip = ip;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}

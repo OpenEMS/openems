@@ -23,7 +23,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.essId = essId;
 			return this;
 		}
-		
+
 		public Builder setPower(int power) {
 			this.power = power;
 			return this;

@@ -1,8 +1,8 @@
 package io.openems.edge.batteryinverter.sinexcel.statemachine;
 
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
-import io.openems.edge.batteryinverter.sinexcel.Config;
 import io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcelImpl;
+import io.openems.edge.batteryinverter.sinexcel.Config;
 import io.openems.edge.common.statemachine.AbstractContext;
 
 public class Context extends AbstractContext<BatteryInverterSinexcelImpl> {

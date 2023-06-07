@@ -1,7 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-import io.openems.edge.battery.soltaro.single.versionc.Config;
 import io.openems.edge.battery.soltaro.single.versionc.BatterySoltaroSingleRackVersionC;
+import io.openems.edge.battery.soltaro.single.versionc.Config;
 import io.openems.edge.common.statemachine.AbstractContext;
 
 public class Context extends AbstractContext<BatterySoltaroSingleRackVersionC> {

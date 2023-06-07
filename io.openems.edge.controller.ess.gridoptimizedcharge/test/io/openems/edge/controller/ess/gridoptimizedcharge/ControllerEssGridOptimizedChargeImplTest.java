@@ -1466,13 +1466,13 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			int maxApparentPower, int allowedChargePower, DelayChargeRiskLevel riskLevel, Integer[] productionActual,
 			Integer[] consumptionActual, float resultBuffer) {
 		DelayChargeResultState resultState;
-		DelayChargeResult newLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription, productionPrediction,
-				consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower, allowedChargePower, riskLevel,
-				productionActual, consumptionActual, false);
+		DelayChargeResult newLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription,
+				productionPrediction, consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower,
+				allowedChargePower, riskLevel, productionActual, consumptionActual, false);
 
-		DelayChargeResult oldLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription, productionPrediction,
-				consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower, allowedChargePower, riskLevel,
-				productionActual, consumptionActual, true);
+		DelayChargeResult oldLogic = ControllerEssGridOptimizedChargeImplTest.testOneDay(testDescription,
+				productionPrediction, consumptionPrediction, soc, targetMinuteOpt, capacity, maxApparentPower,
+				allowedChargePower, riskLevel, productionActual, consumptionActual, true);
 
 		if (newLogic.getFinalSoc() + resultBuffer < oldLogic.getFinalSoc()) {
 			resultState = DelayChargeResultState.WARNING;

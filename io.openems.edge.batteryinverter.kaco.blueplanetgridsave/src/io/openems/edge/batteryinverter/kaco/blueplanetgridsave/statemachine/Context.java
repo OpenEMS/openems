@@ -1,8 +1,8 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.Config;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.Config;
 import io.openems.edge.common.statemachine.AbstractContext;
 
 public class Context extends AbstractContext<BatteryInverterKacoBlueplanetGridsave> {

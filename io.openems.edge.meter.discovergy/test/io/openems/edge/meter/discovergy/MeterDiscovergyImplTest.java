@@ -19,7 +19,7 @@ public class MeterDiscovergyImplTest {
 						.setEmail("x@y.z") //
 						.setSerialNumber("12345678") //
 						.setFullSerialNumber("1ESY1234567890") //
-						.setMeterId("0123456789ABCDEF0123456789ABCDEF")
+						.setMeterId("0123456789ABCDEF0123456789ABCDEF") //
 						.build()) //
 		;
 	}

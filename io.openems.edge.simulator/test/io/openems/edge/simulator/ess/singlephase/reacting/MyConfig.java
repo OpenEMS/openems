@@ -54,7 +54,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.phase = phase;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
