@@ -89,8 +89,7 @@ public final class EvcsProps {
 				.add(JsonFormlyUtil.buildCheckboxFromNameable(acceptProperty) //
 						.isRequired(true) //
 						.requireTrue(language) //
-						.setLabel(TranslationUtil.getTranslation(parameter.bundle,
-								"acceptCondition.label")) //
+						.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
 						.build())
 				.build());
 	}

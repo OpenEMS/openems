@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -28,8 +29,8 @@ import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriConsumer;
-import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.AbstractDataNotification;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -42,7 +43,6 @@ import io.openems.common.types.ChannelAddress;
 public class TimedataManagerImpl extends AbstractOpenemsBackendComponent implements TimedataManager {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataManagerImpl.class);
-
 	private final List<String> _configTimedataIds;
 	private final List<Timedata> _rawTimedatas = new ArrayList<>();
 	private final AtomicReference<ImmutableSortedSet<Timedata>> timedatas = new AtomicReference<>(
@@ -64,6 +64,17 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 			this._rawTimedatas.remove(timedata);
 			this.updateSortedTimedatas();
 		}
+	}
+
+	@Activate
+	public TimedataManagerImpl(Config config) {
+		super("Core.TimedataManager");
+		this._configTimedataIds = Arrays.asList(config.timedata_ids());
+		this.updateSortedTimedatas();
+	}
+
+	@Deactivate
+	private void deactivate() {
 	}
 
 	private void updateSortedTimedatas() {
@@ -94,13 +105,6 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 				return t1.getClass().getSimpleName().compareTo(t2.getClass().getSimpleName());
 			}, this._rawTimedatas));
 		}
-	}
-
-	@Activate
-	public TimedataManagerImpl(Config config) {
-		super("Core.TimedataManager");
-		this._configTimedataIds = Arrays.asList(config.timedata_ids());
-		this.updateSortedTimedatas();
 	}
 
 	/**

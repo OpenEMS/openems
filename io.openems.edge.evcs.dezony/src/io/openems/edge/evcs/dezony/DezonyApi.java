@@ -20,9 +20,9 @@ import io.openems.common.utils.JsonUtils;
 public class DezonyApi {
 
 	private final String baseUrl;
-	private final DezonyImpl parent;
+	private final EvcsDezonyImpl parent;
 
-	public DezonyApi(String ip, int port, DezonyImpl parent) {
+	public DezonyApi(String ip, int port, EvcsDezonyImpl parent) {
 		this.baseUrl = "http://" + ip + ":" + port;
 		this.parent = parent;
 	}

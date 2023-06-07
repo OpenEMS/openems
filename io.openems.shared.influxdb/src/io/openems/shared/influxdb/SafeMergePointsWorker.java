@@ -19,7 +19,7 @@ public class SafeMergePointsWorker extends AbstractMergePointsWorker<WritePoint>
 
 	public static class WritePoint {
 		public final Point point;
-		public int failedCountDown = 3;
+		private int failedCountDown = 3;
 
 		public WritePoint(Point point) {
 			super();

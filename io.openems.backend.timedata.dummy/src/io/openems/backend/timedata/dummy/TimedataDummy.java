@@ -28,7 +28,11 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
-@Component(name = "Timedata.Dummy", configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Timedata.Dummy", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class TimedataDummy extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataDummy.class);

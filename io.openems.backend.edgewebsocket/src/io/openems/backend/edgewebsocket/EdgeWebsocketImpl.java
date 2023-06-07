@@ -69,9 +69,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private static final String COMPONENT_ID = "edgewebsocket";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
-
-	private WebsocketServer server = null;
-
 	private final SystemLogHandler systemLogHandler;
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -90,12 +87,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
 
+	private WebsocketServer server = null;
+	private Config config;
+
 	public EdgeWebsocketImpl() {
 		super("Edge.Websocket");
 		this.systemLogHandler = new SystemLogHandler(this);
 	}
-
-	private Config config;
 
 	@Activate
 	private void activate(Config config) {

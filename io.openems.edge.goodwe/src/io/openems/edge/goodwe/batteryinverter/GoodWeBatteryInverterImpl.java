@@ -55,12 +55,17 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "GoodWe.BatteryInverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
-) //
+)
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
 
 	private static final int MAX_DC_CURRENT = 25; // [A]
+
+	// Fenecon Home Battery Static module min voltage, used to calculate battery
+	// module number per tower
+	// TODO get from Battery
+	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
@@ -69,7 +74,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -77,10 +82,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Reference
 	private Sum sum;
 
-	// Fenecon Home Battery Static module min voltage, used to calculate battery
-	// module number per tower
-	// TODO get from Battery
-	private static final int MODULE_MIN_VOLTAGE = 42;
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	/**
 	 * Holds the latest known Charge-Max-Current. Updated in
@@ -90,10 +96,26 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	private Config config;
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
+	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
+		super(//
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
+				GoodWe.ChannelId.values(), //
+				GoodWeBatteryInverter.ChannelId.values() //
+		);
+		// GoodWe is always started
+		this._setStartStop(StartStop.START);
 	}
 
 	@Activate
@@ -118,28 +140,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
-		super(//
-				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
-				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), //
-				SymmetricBatteryInverter.ChannelId.values(), //
-				ManagedSymmetricBatteryInverter.ChannelId.values(), //
-				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
-				GoodWe.ChannelId.values(), //
-				GoodWeBatteryInverter.ChannelId.values() //
-		);
-		// GoodWe is always started
-		this._setStartStop(StartStop.START);
 	}
 
 	/**

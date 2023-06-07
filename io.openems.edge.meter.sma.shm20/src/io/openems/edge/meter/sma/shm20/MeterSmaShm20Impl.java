@@ -42,10 +42,16 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		implements MeterSmaShm20, AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
-	private MeterType meterType = MeterType.PRODUCTION;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private MeterType meterType = MeterType.PRODUCTION;
 
 	public MeterSmaShm20Impl() {
 		super(//
@@ -57,14 +63,8 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {

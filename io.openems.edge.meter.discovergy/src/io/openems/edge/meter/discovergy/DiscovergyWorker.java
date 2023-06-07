@@ -24,16 +24,14 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 	private static final int LAST_READING_TOO_OLD_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
-	private final MeterDiscovergy parent;
+	private final MeterDiscovergyImpl parent;
 	private final DiscovergyApiClient apiClient;
 	private final Config config;
 
-	/**
-	 * Holds the internal Discovergy meterId.
-	 */
+	/** Holds the internal Discovergy meterId. */
 	private String meterId = null;
 
-	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, Config config) {
+	public DiscovergyWorker(MeterDiscovergyImpl parent, DiscovergyApiClient apiClient, Config config) {
 		this.parent = parent;
 		this.apiClient = apiClient;
 		this.config = config;

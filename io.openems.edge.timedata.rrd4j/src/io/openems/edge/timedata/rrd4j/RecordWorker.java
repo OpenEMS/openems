@@ -26,7 +26,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected static final int DEFAULT_NO_OF_CYCLES = 60;
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
-	private final Rrd4jTimedataImpl parent;
+	private final TimedataRrd4jImpl parent;
 
 	private static class Record {
 		private final long timestamp;
@@ -49,7 +49,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private Instant lastTimestamp = Instant.MIN;
 	private LocalDateTime readChannelValuesSince = LocalDateTime.MIN;
 
-	public RecordWorker(Rrd4jTimedataImpl parent) {
+	public RecordWorker(TimedataRrd4jImpl parent) {
 		this.parent = parent;
 	}
 
@@ -70,7 +70,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 		// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
 		if (Duration.between(this.lastTimestamp, timestamp).getSeconds() //
-				< Rrd4jTimedataImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
+				< TimedataRrd4jImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
 			return;
 		}
 		this.lastTimestamp = timestamp;

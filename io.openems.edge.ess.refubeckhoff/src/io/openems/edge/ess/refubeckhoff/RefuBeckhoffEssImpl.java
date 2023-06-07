@@ -113,7 +113,7 @@ public class RefuBeckhoffEssImpl extends AbstractOpenemsModbusComponent implemen
 		this.errorTrail = this.config.acknowledgeError();
 
 	}
-	
+
 	@Override
 	@Deactivate
 	protected void deactivate() {

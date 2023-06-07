@@ -9,7 +9,7 @@ public final class Flags {
 	}
 
 	private static record FlagRecord(String name) implements Flag {
-		
+
 	}
 
 }

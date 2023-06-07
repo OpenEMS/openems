@@ -24,7 +24,7 @@ import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent implements GoodWeEtCharger,
+public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent implements GoodWeCharger,
 		EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	protected abstract GoodWe getEssOrBatteryInverter();
@@ -37,7 +37,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
-				GoodWeEtCharger.ChannelId.values() //
+				GoodWeCharger.ChannelId.values() //
 		);
 	}
 
@@ -111,7 +111,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GoodWeEtCharger.class, accessMode, 100) //
+				ModbusSlaveNatureTable.of(GoodWeCharger.class, accessMode, 100) //
 						.build());
 	}
 }

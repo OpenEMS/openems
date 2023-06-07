@@ -48,10 +48,16 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, MeterZiehlEfr4001Ip, ModbusComponent, OpenemsComponent {
 
-	private Config config;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private Config config;
 
 	public MeterZiehlEfr4001IpImpl() {
 		super(//
@@ -61,12 +67,6 @@ public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 				MeterZiehlEfr4001Ip.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values() //
 		);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate

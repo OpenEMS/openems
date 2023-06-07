@@ -14,8 +14,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
-import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
-import io.openems.edge.goodwe.charger.GoodWeEtCharger2;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv2;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
@@ -57,14 +57,14 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Registers a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
+	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
 	 */
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
 	/**
 	 * Unregisters a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
+	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
 	 */
 	public void removeCharger(AbstractGoodWeEtCharger charger);
 
