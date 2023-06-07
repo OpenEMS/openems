@@ -1,5 +1,7 @@
 package io.openems.edge.battery.soltaro.single.versiona;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.time.LocalDateTime;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -34,7 +36,6 @@ import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.battery.soltaro.common.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
@@ -1137,13 +1138,13 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				), //
 				new FC3ReadRegistersTask(0x2042, Priority.HIGH, //
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x2042), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x2046, Priority.HIGH, //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)), //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_RECOVER, new UnsignedWordElement(0x2047)), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x2048), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC6WriteRegisterTask(0x2046, //
 						m(SingleRack.ChannelId.CELL_VOLTAGE_PROTECT, new UnsignedWordElement(0x2046)) //
@@ -1153,9 +1154,9 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 				), //
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x2100), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.CURRENT, new SignedWordElement(0x2101), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(SingleRack.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x2102)), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(0x2104)), //
@@ -1164,19 +1165,17 @@ public class SingleRack extends AbstractOpenemsModbusComponent
 						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_VOLTAGE_ID, new UnsignedWordElement(0x2107)), //
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(0x2108)), //
 						m(SingleRack.ChannelId.CLUSTER_1_MAX_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x2109)), //
-						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x210A),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(0x210A), SCALE_FACTOR_MINUS_1), //
 						m(SingleRack.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE_ID, new UnsignedWordElement(0x210B)), //
-						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x210C),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(0x210C), SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SingleRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
 				), //
 				new FC3ReadRegistersTask(0x2160, Priority.HIGH, //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x2160),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2161),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								SCALE_FACTOR_MINUS_1) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						m(new BitsWordElement(0x2140, this) //

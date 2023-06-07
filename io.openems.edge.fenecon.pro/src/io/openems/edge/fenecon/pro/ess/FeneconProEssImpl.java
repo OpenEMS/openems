@@ -1,5 +1,9 @@
 package io.openems.edge.fenecon.pro.ess;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -160,10 +164,8 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 									return value;
 								}, // channel -> element
 								value -> value)), //
-						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111), SCALE_FACTOR_2), //
 						m(FeneconProEss.ChannelId.BATTERY_POWER, new SignedWordElement(112)), //
 						m(new BitsWordElement(113, this) //
 								.bit(0, FeneconProEss.ChannelId.STATE_0) //
@@ -175,18 +177,12 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 								.bit(6, FeneconProEss.ChannelId.STATE_6)), //
 						m(FeneconProEss.ChannelId.PCS_OPERATION_STATE, new UnsignedWordElement(114)), //
 						new DummyRegisterElement(115, 117), //
-						m(FeneconProEss.ChannelId.CURRENT_L1, new SignedWordElement(118),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.CURRENT_L2, new SignedWordElement(119),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.CURRENT_L3, new SignedWordElement(120),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(FeneconProEss.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.CURRENT_L1, new SignedWordElement(118), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.CURRENT_L2, new SignedWordElement(119), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.CURRENT_L3, new SignedWordElement(120), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122), SCALE_FACTOR_2), //
+						m(FeneconProEss.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123), SCALE_FACTOR_2), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(124)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(125)), //
 						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(126)), //
@@ -194,16 +190,12 @@ public class FeneconProEssImpl extends AbstractOpenemsModbusComponent
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(128)), //
 						m(AsymmetricEss.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(129)), //
 						new DummyRegisterElement(130), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L1, new UnsignedWordElement(131),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L2, new UnsignedWordElement(132),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(FeneconProEss.ChannelId.FREQUENCY_L3, new UnsignedWordElement(133),
-								ElementToChannelConverter.SCALE_FACTOR_1), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L1, new UnsignedWordElement(131), SCALE_FACTOR_1), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L2, new UnsignedWordElement(132), SCALE_FACTOR_1), //
+						m(FeneconProEss.ChannelId.FREQUENCY_L3, new UnsignedWordElement(133), SCALE_FACTOR_1), //
 						m(FeneconProEss.ChannelId.SINGLE_PHASE_ALLOWED_APPARENT, new UnsignedWordElement(134)), //
 						new DummyRegisterElement(135, 140), //
-						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(141),
-								ElementToChannelConverter.INVERT), //
+						m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(141), INVERT), //
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(142)), //
 						new DummyRegisterElement(143, 149)), //
 				new FC3ReadRegistersTask(150, Priority.LOW, //

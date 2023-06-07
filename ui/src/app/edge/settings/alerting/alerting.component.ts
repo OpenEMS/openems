@@ -120,7 +120,9 @@ export class AlertingComponent implements OnInit {
   }
 
   private setRemainingUserSettings(userSettings: UserSettingResponse[]) {
-    if (!userSettings || userSettings.length === 0) return;
+    if (!userSettings || userSettings.length === 0) {
+      return;
+    }
 
     userSettings = this.sortedAlphabetically(userSettings);
     let otherUserSettings: RoleUsersSettings[] = [];
@@ -189,7 +191,9 @@ export class AlertingComponent implements OnInit {
    * get if given delay is valid
    */
   protected isInvalidDelay(delay: number): boolean {
-    if (delay === 0) return false;
+    if (delay === 0) {
+      return false;
+    }
     return !AlertingComponent.DELAYS.includes(delay);
   }
 
@@ -325,7 +329,9 @@ export class AlertingComponent implements OnInit {
    * @returns true if any settings are changed, else false
    */
   protected isDirty(): boolean {
-    if (this.error || !this.currentUserForm) return false;
+    if (this.error || !this.currentUserForm) {
+      return false;
+    }
     return this.currentUserForm?.formGroup.dirty || this.otherUserSettings?.findIndex(setting => setting.form.dirty) != -1;
   }
 }

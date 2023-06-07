@@ -1,5 +1,8 @@
 package io.openems.edge.meter.schneider.acti9.smartlink;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,7 +18,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -91,33 +93,33 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3000 - offset, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+								SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3028 - offset, Priority.LOW,
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+								SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3054 - offset, Priority.HIGH,
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
+								INVERT_IF_TRUE(this.inverted)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
+								INVERT_IF_TRUE(this.inverted)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
+								INVERT_IF_TRUE(this.inverted)),
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
+								INVERT_IF_TRUE(this.inverted)),
 						new DummyRegisterElement(3062 - offset, 3067 - offset),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted))),
+								INVERT_IF_TRUE(this.inverted))),
 				new FC4ReadInputRegistersTask(3110 - offset, Priority.LOW,
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+								SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
 						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
 								: SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,

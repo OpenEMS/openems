@@ -1,5 +1,7 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -563,7 +565,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
 						m(SoltaroCluster.ChannelId.CHARGE_INDICATION, new UnsignedWordElement(0x1044)), //
 						m(Battery.ChannelId.CURRENT, new UnsignedWordElement(0x1045), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(0x1046), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1047)) //
 								.onUpdateCallback(val -> {
@@ -571,14 +573,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 								}), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x104E),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+								SCALE_FACTOR_MINUS_1)), //
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
 						m(new BitsWordElement(0x1081, this) //
 								.bit(4, ClusterVersionBChannelId.MASTER_ALARM_LEVEL_2_INSULATION) //

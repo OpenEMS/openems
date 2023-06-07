@@ -146,6 +146,7 @@
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
+	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
 	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
@@ -304,6 +305,7 @@
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
+	io.openems.edge.meter.phoenixcontact;version=snapshot,\
 	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
 	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot,\
@@ -363,7 +365,7 @@
 	io.reactivex.rxjava3.rxjava;version='[3.1.6,3.1.7)',\
 	javax.jmdns;version='[3.4.1,3.4.2)',\
 	javax.xml.soap-api;version='[1.4.0,1.4.1)',\
-	org.apache.commons.commons-csv;version='[1.9.0,1.9.1)',\
+	org.apache.commons.commons-csv;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-fileupload;version='[1.5.0,1.5.1)',\
 	org.apache.commons.commons-io;version='[2.12.0,2.12.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\

@@ -22,7 +22,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 		 * </ul>
 		 */
 		TOTAL_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		/**
 		 * The exponent of the sum of production.
@@ -45,7 +45,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 		 * </ul>
 		 */
 		TOTAL_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		/**
 		 * The exponent of the sum of consumption.
@@ -108,7 +108,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 	}
 
 	/**
-	 * Gets the Total Consumption in [Wh]. See {@link ChannelId#TOTAL_CONSUMPTION}.
+	 * Gets the Total Consumption in [Wh_Σ]. See {@link ChannelId#TOTAL_CONSUMPTION}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -126,7 +126,7 @@ public interface PlexlogDatalogger extends SymmetricMeter, ModbusComponent, Open
 	}
 
 	/**
-	 * Gets the Total Production in [Wh]. See {@link ChannelId#TOTAL_PRODUCTION}.
+	 * Gets the Total Production in [Wh_Σ]. See {@link ChannelId#TOTAL_PRODUCTION}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

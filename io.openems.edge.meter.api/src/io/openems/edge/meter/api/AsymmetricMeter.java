@@ -208,7 +208,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -221,7 +221,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -234,7 +234,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -247,7 +247,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -260,7 +260,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -273,7 +273,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		; //
@@ -795,7 +795,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Production Energy on L1 in [Wh]. This relates to positive
+	 * Gets the Active Production Energy on L1 in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER_L1. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L1}.
 	 *
 	 * @return the Channel {@link Value}
@@ -834,7 +834,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Production Energy on L2 in [Wh]. This relates to positive
+	 * Gets the Active Production Energy on L2 in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER_L2. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L2}.
 	 *
 	 * @return the Channel {@link Value}
@@ -873,7 +873,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Production Energy on L3 in [Wh]. This relates to positive
+	 * Gets the Active Production Energy on L3 in [Wh_Σ]. This relates to positive
 	 * ACTIVE_POWER_L3. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L3}.
 	 *
 	 * @return the Channel {@link Value}
@@ -912,7 +912,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy on L1 in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy on L1 in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER_L1. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY_L1}.
 	 *
 	 * @return the Channel {@link Value}
@@ -951,7 +951,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy on L2 in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy on L2 in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER_L2. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY_L2}.
 	 *
 	 * @return the Channel {@link Value}
@@ -990,7 +990,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy on L3 in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy on L3 in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER_L3. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY_L3}.
 	 *
 	 * @return the Channel {@link Value}
