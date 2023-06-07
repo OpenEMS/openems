@@ -15,7 +15,26 @@ import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.RrdMemoryBackendFactory;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
+
 public class TimedataRrd4jImplTest {
+
+	private static final String COMPONENT_ID = "rrd4j0";
+
+	@Test
+	public void test() throws Exception {
+		new ComponentTest(new TimedataRrd4jImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.activate(MyConfig.create() //
+						.setId(COMPONENT_ID) //
+						.setPersistencePriority(PersistencePriority.MEDIUM) //
+						.build()) //
+				.next(new TestCase()) //
+		;
+	}
 
 	private static final Instant START = Instant.ofEpochSecond(1577836800L); /* starts at 1. January 2020 00:00:00 */
 

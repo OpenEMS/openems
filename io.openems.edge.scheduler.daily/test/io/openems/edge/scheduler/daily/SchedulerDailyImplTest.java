@@ -19,7 +19,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
 
-public class DailySchedulerImplTest {
+public class SchedulerDailyImplTest {
 
 	private static final String SCHEDULER_ID = "scheduler0";
 

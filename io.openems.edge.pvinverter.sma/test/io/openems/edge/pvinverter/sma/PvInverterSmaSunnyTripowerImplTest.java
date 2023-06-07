@@ -7,7 +7,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.pvinverter.sunspec.Phase;
 
-public class SmaPvInverterTest {
+public class PvInverterSmaSunnyTripowerImplTest {
 
 	private static final String PV_INVERTER_ID = "pvInverter0";
 	private static final String MODBUS_ID = "modbus0";

@@ -92,9 +92,6 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent
 	private ConfigurationAdmin cm;
 
 	@Reference
-	private ConfigurationAdmin configurationAdmin;
-
-	@Reference
 	private ComponentManager componentManager;
 
 	private static class CurrentSimulation {
@@ -401,7 +398,7 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent
 	 */
 	private void setCycleTime(int cycleTime) {
 		try {
-			var config = this.configurationAdmin.getConfiguration("Core.Cycle", null);
+			var config = this.cm.getConfiguration("Core.Cycle", null);
 			Dictionary<String, Object> properties = new Hashtable<>();
 			properties.put("cycleTime", cycleTime);
 			config.update(properties);

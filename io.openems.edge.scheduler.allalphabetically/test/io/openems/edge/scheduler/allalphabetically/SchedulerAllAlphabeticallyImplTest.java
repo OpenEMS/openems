@@ -14,7 +14,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
 
-public class AllAlphabeticallyTest {
+public class SchedulerAllAlphabeticallyImplTest {
 
 	private static final String SCHEDULER_ID = "scheduler0";
 
