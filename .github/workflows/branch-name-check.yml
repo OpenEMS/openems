@@ -14,7 +14,7 @@ jobs:
           result-encoding: string
           script: |
             const enforceGitFlow = (branchName) => {
-              const gitFlowFormat = /(feat\W|feature\/|fix\/|chore\/|refactor\/|dependabot\/)/
+              const gitFlowFormat = /(feat\W|feature\/|fix\/|chore\/|refactor\/|test\/|ci\/|docs\/|revert\/|dependabot\/)/
               if (!gitFlowFormat.test(currentBranch)) {
                 core.setFailed(
                   `Branch names in PRs should use Gitflow. e.g. (feat, fix, chore, refactor).  To fix. ` +
