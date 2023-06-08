@@ -30,7 +30,6 @@ public class GenericHttpWorker extends AbstractCycleWorker {
     private int timeout = 1000;
     private OpenemsNamedException last_error;
     
-    
     /**
      * Generates a new GenericHttp Worker
      * 
@@ -112,7 +111,7 @@ public class GenericHttpWorker extends AbstractCycleWorker {
 			    new_url = new_url + ":" + tmp2[i];
 			}
 			/*New Url begin´s with : so remove it*/
-			new_url = new_url.substring(1, new_url.length());		
+			new_url = new_url.substring(1, new_url.length());
 			return new String[] {method,new_url};			
 		    }else {
 			/*The given URL is not created after the Scheme [METHODE]:[URL] 
@@ -123,7 +122,7 @@ public class GenericHttpWorker extends AbstractCycleWorker {
 			/*A for loop is used to be able to create URL´s with more than one "http" in it*/
 			for(int i = 1; i<tmp3.length; i++) {
 			    new_url = new_url + "http" + tmp3[i];
-			}			    
+			}			
 			return new String[] {"GET", new_url};
 		    }
 		}else {
@@ -151,16 +150,22 @@ public class GenericHttpWorker extends AbstractCycleWorker {
      */
     
     public void push_task(String url_to_call) {
-	
-	String tmp_arr = this.add_external_task.toString();
 	/*Make sure a asyn Task dont get called multible times*/
-	if(!tmp_arr.contains(url_to_call)) {
-        	String[] tmp = this.add_external_task;
-        	this.add_external_task = new String[tmp.length + 1];
-        	for(int i = 0; i<tmp.length; i++) {
-        	    this.add_external_task[i] = tmp[i];
-        	}
-        	this.add_external_task[tmp.length] = url_to_call;
+	boolean url_exists = false;
+	for(int i=0; i<this.add_external_task.length; i++) {
+	    String test_element = this.add_external_task[i];
+	    if(test_element.trim().toLowerCase() == url_to_call.trim().toLowerCase()) { /* Trim is needed to remove additional Spaces, toLowerCase ensures that http://123 and HTTP://123 are seen as the same URL */
+		url_exists = true;
+		break;
+	    }
+	}
+	if(!url_exists) {
+	    String[] tmp = this.add_external_task;
+	    this.add_external_task = new String[tmp.length + 1];
+	    for(int i = 0; i<tmp.length; i++) {
+    	    	this.add_external_task[i] = tmp[i];
+	    }
+	    this.add_external_task[tmp.length] = url_to_call;
 	}
     }
     
@@ -170,28 +175,26 @@ public class GenericHttpWorker extends AbstractCycleWorker {
      */
     
     private void delete_task(String element) {
-	String tmp_element = this.add_external_task.toString();
-	if (tmp_element.contains(element)) {
-	    int index = -1;
-	    for (int i = 0; i < this.urls_to_call.length; i++) {
-		String tmp_element2 = this.urls_to_call[i];
-		if (tmp_element2 == element) {
-		    index = i;
-		    break;
-		}
+	if(this.add_external_task.length < 1) return;
+	int index = -1;
+	for(int i=0; i < this.add_external_task.length; i++) {
+	    String tmp_el = this.add_external_task[i];
+	    if(element == tmp_el) {
+		index = i;
+		break;
 	    }
-	    if (index != -1) {
-		String[] tmp_array = new String[this.add_external_task.length - 1];
-		for(int i = 0, k = 0; i<this.add_external_task.length; i++) {
-		    if(i == index) {
-			continue;
-		    }
-		    tmp_array[k] = this.add_external_task[i];
-		    k++;
-		}
-		this.add_external_task = tmp_array;
+	}
+	if(index == -1) return;
+	
+	String[] tmp_array = new String[this.add_external_task.length -1];
+	for(int i=0, k=0; i < this.add_external_task.length; i++) {
+	    if(i == index) {
+		continue;
 	    }
-	} 
+	    tmp_array[k] = this.add_external_task[i];
+	    k++;
+	}
+	this.add_external_task = tmp_array;
     }
     
     /**
@@ -345,17 +348,24 @@ public class GenericHttpWorker extends AbstractCycleWorker {
 			/*Just five external Tasks per Run*/
 			int k = (this.add_external_task.length <= 4 ? this.add_external_task.length : 4);
 			for(int j=0; j<k; j++) {
-			    if(this.add_external_task[j] != null) {
-				String url2 = this.add_external_task[j];
-				
-				String[] parsed_url2 = this.parse_url(url2);
-				
-			    	this.send_external_url(parsed_url2[1], "", parsed_url2[0]);
+			    /*
+			     * We have to use the Value of this.add_external_task[0] every time. 
+			     * E.g. the String[] holds two Elements
+			     * After one Run the this.delete_task() function is called. This Function modifies the this.add_external_task an Reduce the 
+			     * Number of Elements to one. In this case before the this.delete_task() function is called there is a Index 1 after this only Index 0 exists.
+			     * However, if j is now used as a variable for the index, j is increased to 1 after the first run of the for-Loop. 
+			     * The index 1 no longer exists on the next run and therefore a Worker Error is thrown ("ArrayIndexOutOfBoundsException").  
+			     */
+			    if(this.add_external_task[0] != null) {
+				String url2 = this.add_external_task[0];
+				String[] parsed_url2 = this.parse_url(url2);	
+			    	this.send_req(parsed_url2[1], parsed_url2[0]);
 			    	this.delete_task(url2);
 			    }else {
 				break;
 			    }
 			}
+			
 		    }
 		} catch (OpenemsNamedException e) {
 		    this.last_error = e;
