@@ -33,10 +33,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			if (user == null) {
 				// User is not authenticated!
 				this.handleUnauthenticatedLogMessageNotification(LogMessageNotification.from(notification));
-			
-			} else 
-				this.handleLogMessageNotification(user, LogMessageNotification.from(notification));			
-		    }
+
+			} else {
+				this.handleLogMessageNotification(user, LogMessageNotification.from(notification));
+			}
+		}
 		}
 
 		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);

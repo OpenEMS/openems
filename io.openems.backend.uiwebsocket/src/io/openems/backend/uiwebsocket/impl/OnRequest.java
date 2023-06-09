@@ -58,49 +58,58 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		WsData wsData = ws.getAttachment();		
+		WsData wsData = ws.getAttachment();
 		// Start with authentication requests
-		CompletableFuture<? extends JsonrpcResponseSuccess> result =null; 
+		CompletableFuture<? extends JsonrpcResponseSuccess> result = null;
 		var user = this.parent.assertUser(wsData, request);
-		
+
 		result = switch (request.getMethod()) {
-		
-		 case AuthenticateWithTokenRequest.METHOD ->
-		   		this.handleAuthenticateWithTokenRequest(wsData, AuthenticateWithTokenRequest.from(request));			 
-		 case AuthenticateWithPasswordRequest.METHOD -> 
-		   		this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
-		 case RegisterUserRequest.METHOD -> this.handleRegisterUserReuqest(wsData, RegisterUserRequest.from(request));		
-		 
+
+		case AuthenticateWithTokenRequest.METHOD ->
+			this.handleAuthenticateWithTokenRequest(wsData, AuthenticateWithTokenRequest.from(request));
+		case AuthenticateWithPasswordRequest.METHOD ->
+			this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
+		case RegisterUserRequest.METHOD -> this.handleRegisterUserReuqest(wsData, RegisterUserRequest.from(request));
+
 		// should be authenticated
 		case LogoutRequest.METHOD -> this.handleLogoutRequest(wsData, user, LogoutRequest.from(request));
-		  	
-		case EdgeRpcRequest.METHOD -> this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
-		   
-		case AddEdgeToUserRequest.METHOD -> this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
-	
-		case GetUserInformationRequest.METHOD -> this.handleGetUserInformationRequest(user, GetUserInformationRequest.from(request));
 
-		case SetUserInformationRequest.METHOD -> this.handleSetUserInformationRequest(user, SetUserInformationRequest.from(request));
-	
-		case GetSetupProtocolRequest.METHOD -> this.handleGetSetupProtocolRequest(user, GetSetupProtocolRequest.from(request));
-	
-		case SubmitSetupProtocolRequest.METHOD -> this.handleSubmitSetupProtocolRequest(user, SubmitSetupProtocolRequest.from(request));
-			
-		case UpdateUserLanguageRequest.METHOD -> this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
- 			 
-		case GetUserAlertingConfigsRequest.METHOD -> this.handleGetUserAlertingConfigsRequest(user, GetUserAlertingConfigsRequest.from(request));
-			
-		case SetUserAlertingConfigsRequest.METHOD -> this.handleSetUserAlertingConfigsRequest(user, SetUserAlertingConfigsRequest.from(request));
-			
-		case GetSetupProtocolDataRequest.METHOD -> this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
-			
-		case SubscribeEdgesRequest.METHOD -> this.handleSubscribeEdgesRequest(wsData, SubscribeEdgesRequest.from(request));
-			
+		case EdgeRpcRequest.METHOD -> this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
+
+		case AddEdgeToUserRequest.METHOD -> this.handleAddEdgeToUserRequest(user, AddEdgeToUserRequest.from(request));
+
+		case GetUserInformationRequest.METHOD ->
+			this.handleGetUserInformationRequest(user, GetUserInformationRequest.from(request));
+
+		case SetUserInformationRequest.METHOD ->
+			this.handleSetUserInformationRequest(user, SetUserInformationRequest.from(request));
+
+		case GetSetupProtocolRequest.METHOD ->
+			this.handleGetSetupProtocolRequest(user, GetSetupProtocolRequest.from(request));
+
+		case SubmitSetupProtocolRequest.METHOD ->
+			this.handleSubmitSetupProtocolRequest(user, SubmitSetupProtocolRequest.from(request));
+
+		case UpdateUserLanguageRequest.METHOD ->
+			this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
+
+		case GetUserAlertingConfigsRequest.METHOD ->
+			this.handleGetUserAlertingConfigsRequest(user, GetUserAlertingConfigsRequest.from(request));
+
+		case SetUserAlertingConfigsRequest.METHOD ->
+			this.handleSetUserAlertingConfigsRequest(user, SetUserAlertingConfigsRequest.from(request));
+
+		case GetSetupProtocolDataRequest.METHOD ->
+			this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
+
+		case SubscribeEdgesRequest.METHOD ->
+			this.handleSubscribeEdgesRequest(wsData, SubscribeEdgesRequest.from(request));
+
 		case GetEdgesRequest.METHOD -> this.handleGetEdgesRequest(user, GetEdgesRequest.from(request));
 
 		case GetEdgeRequest.METHOD -> this.handleGetEdgeRequest(user, GetEdgeRequest.from(request));
-		
-		default -> throw new IllegalArgumentException("Unexpected value: " + request.getMethod());		    
+
+		default -> throw new IllegalArgumentException("Unexpected value: " + request.getMethod());
 
 		};
 
@@ -211,17 +220,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
 		resultFuture = switch (request.getMethod()) {
 
-		  			case SubscribeChannelsRequest.METHOD ->
-		  				this.handleSubscribeChannelsRequest(wsData, edgeId, user,SubscribeChannelsRequest.from(request));								
+		case SubscribeChannelsRequest.METHOD ->
+			this.handleSubscribeChannelsRequest(wsData, edgeId, user, SubscribeChannelsRequest.from(request));
 
-		  			case SubscribeSystemLogRequest.METHOD ->
-		  				this.handleSubscribeSystemLogRequest(wsData, edgeId, user,SubscribeSystemLogRequest.from(request));
-		
-		  			// unable to handle; try generic handler	
-		  			default -> null;
-		 };
-        if(resultFuture== null)
-        	return null;
+		case SubscribeSystemLogRequest.METHOD ->
+			this.handleSubscribeSystemLogRequest(wsData, edgeId, user, SubscribeSystemLogRequest.from(request));
+
+		// unable to handle; try generic handler
+		default -> null;
+		};
+		if (resultFuture == null) {
+			return null;
+		}
 		// Wrap reply in EdgeRpcResponse
 		var result = new CompletableFuture<EdgeRpcResponse>();
 		resultFuture.whenComplete((r, ex) -> {

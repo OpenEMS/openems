@@ -98,6 +98,7 @@ public class AbstractComponentConfig {
 					continue;
 				}
 				}
+
 			}
 			if (method.getParameterCount() > 0) {
 				// We are looking for methods with zero parameters
