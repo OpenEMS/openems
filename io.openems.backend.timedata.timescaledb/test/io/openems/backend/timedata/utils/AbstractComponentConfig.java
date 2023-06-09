@@ -92,11 +92,11 @@ public class AbstractComponentConfig {
 				switch (method.getName()) {
 				case "id", "alias", "enabled" -> {
 					// these methods are specifically allowed
-				    }
+				}
 				default -> {
 					// This method is inherited, e.g. from java.lang.Object and not interesting
 					continue;
-				    }
+				}
 				}
 			}
 			if (method.getParameterCount() > 0) {
