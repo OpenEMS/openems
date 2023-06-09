@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+
 import { SharedModule } from '../../shared/shared.module';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
@@ -15,6 +16,7 @@ import { ConsumptionOtherChartComponent } from './consumption/otherchart.compone
 import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
 import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
 import { ConsumptionComponent } from './consumption/widget.component';
+import { Controller_SingleThreshold } from './Controller/SingleThreshold/SingleThreshold';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -68,8 +70,13 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
+
+    // Common
     Common_Autarchy,
-    Common_Production
+    Common_Production,
+
+    // Controller
+    Controller_SingleThreshold
   ],
   entryComponents: [
     EnergyModalComponent,
@@ -117,9 +124,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     SelfconsumptionChartOverviewComponent,
     SelfconsumptionWidgetComponent,
     SellToGridLimitChartComponent,
-    SinglethresholdChartComponent,
-    SinglethresholdChartOverviewComponent,
-    SinglethresholdWidgetComponent,
     SocStorageChartComponent,
     StorageChargerChartComponent,
     StorageChartOverviewComponent,

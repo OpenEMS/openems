@@ -1,0 +1,6 @@
+<oe-flat-widget [title]="component.alias" [icon]="{size:'large', name:'aperture-outline'}" button
+    routerLink="/device/{{edge.id}}/history/{{componentId}}/singlethresholdchart" *ngIf="isInitialized">
+
+    <oe-flat-widget-line [name]="'Edge.History.activeDuration'| translate" [channelAddress]="outputChannelAddress"
+        [converter]="Utils.CALCULATE_ACTIVE_TIME_OVER_PERIOD"></oe-flat-widget-line>
+</oe-flat-widget>

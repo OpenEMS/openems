@@ -58,7 +58,7 @@
         </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.ChannelSingleThreshold'">
-          <singlethresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          <singlethresholdWidget [componentId]="widget.componentId">
           </singlethresholdWidget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
@@ -96,7 +96,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfï¿½gbar</ion-label>
           </ion-item>
           <ion-card-content>
             <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
