@@ -48,6 +48,12 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	public MeterPqplusUmd97Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -58,14 +64,8 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,

@@ -58,7 +58,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -83,7 +83,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
 			return;

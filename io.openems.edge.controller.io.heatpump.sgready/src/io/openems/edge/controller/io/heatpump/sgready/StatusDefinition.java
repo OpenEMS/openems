@@ -13,10 +13,11 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 public class StatusDefinition {
 
 	private final Status status;
-	private final HeatPumpImpl parent;
+	private final ControllerIoHeatPumpSgReadyImpl parent;
 	private final CalculateActiveTime calculateActiveTime;
 
-	public StatusDefinition(HeatPumpImpl parent, Status status, HeatPump.ChannelId activeTimeChannelId) {
+	public StatusDefinition(ControllerIoHeatPumpSgReadyImpl parent, Status status,
+			ControllerIoHeatPumpSgReady.ChannelId activeTimeChannelId) {
 		this.parent = parent;
 		this.status = status;
 		this.calculateActiveTime = new CalculateActiveTime(this.parent, activeTimeChannelId);

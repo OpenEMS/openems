@@ -21,8 +21,9 @@ import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
 
 public class Dummy {
+
 	public static class MailerImpl implements Mailer {
-		public Map<ZonedDateTime, String> sentMails = new HashMap<>();
+		public final Map<ZonedDateTime, String> sentMails = new HashMap<>();
 
 		@Override
 		public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
@@ -67,8 +68,8 @@ public class Dummy {
 	}
 
 	public static class MetadataImpl extends SimpleMetadataImpl {
-		public List<Edge> edges;
-		public Map<String, List<AlertingSetting>> settings;
+		private List<Edge> edges;
+		private Map<String, List<AlertingSetting>> settings;
 
 		/**
 		 * Initialize Metadata with test data.
@@ -84,6 +85,10 @@ public class Dummy {
 		@Override
 		public boolean isInitialized() {
 			return true;
+		}
+
+		public Map<String, List<AlertingSetting>> getSettings() {
+			return this.settings;
 		}
 
 		@Override
@@ -103,7 +108,7 @@ public class Dummy {
 	}
 
 	public static class EventAdminImpl implements EventAdmin {
-		public List<Event> lastEvents = new ArrayList<>();
+		private List<Event> lastEvents = new ArrayList<>();
 
 		public EventAdminImpl() {
 

@@ -62,8 +62,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, AsymmetricMeter,
 		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -73,11 +78,6 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	public GoodWeGridMeterImpl() {
 		super(//
@@ -91,7 +91,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

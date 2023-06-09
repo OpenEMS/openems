@@ -16,9 +16,9 @@ import io.openems.common.utils.JsonUtils;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnOpen(B2bWebsocket parent) {
+	public OnOpen(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 

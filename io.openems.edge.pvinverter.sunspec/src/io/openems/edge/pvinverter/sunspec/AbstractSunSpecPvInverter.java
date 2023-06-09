@@ -106,10 +106,10 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 * <p>
 	 * Requires:
 	 *
-	 * <pre>
-	 * property = { //
-	 *   EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-	 * }
+	 * <pre>{@code
+	 * &#64;EventTopics({ //
+	 * 	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+	 * })}
 	 * </pre>
 	 *
 	 */

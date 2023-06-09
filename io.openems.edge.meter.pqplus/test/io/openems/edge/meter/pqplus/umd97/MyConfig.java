@@ -10,8 +10,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String modbusId;
-		public int modbusUnitId;
-		public MeterType type;
+		private int modbusUnitId;
+		private MeterType type;
 
 		private Builder() {
 		}

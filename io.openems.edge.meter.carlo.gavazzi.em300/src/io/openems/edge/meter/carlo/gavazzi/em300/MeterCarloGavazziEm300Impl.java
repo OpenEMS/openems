@@ -25,7 +25,6 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -44,6 +43,12 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	private Config config;
 
 	public MeterCarloGavazziEm300Impl() {
@@ -56,14 +61,8 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -76,21 +75,6 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
 	}
 
 	@Override

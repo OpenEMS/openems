@@ -7,17 +7,17 @@ import io.openems.common.utils.ConfigUtils;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int powerLimitOnPowerDecreaseCausedByOvertemperatureChannel;
-		public boolean readOnlyMode;
-		public int surplusFeedInSocLimit;
-		public int surplusFeedInAllowedChargePowerLimit;
-		public double surplusFeedInIncreasePowerFactor;
-		public int surplusFeedInMaxIncreasePowerFactor;
-		public int surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature;
-		public String surplusFeedInOffTime;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int powerLimitOnPowerDecreaseCausedByOvertemperatureChannel;
+		private boolean readOnlyMode;
+		private int surplusFeedInSocLimit;
+		private int surplusFeedInAllowedChargePowerLimit;
+		private double surplusFeedInIncreasePowerFactor;
+		private int surplusFeedInMaxIncreasePowerFactor;
+		private int surplusFeedInPvLimitOnPowerDecreaseCausedByOvertemperature;
+		private String surplusFeedInOffTime;
 
 		private Builder() {
 		}

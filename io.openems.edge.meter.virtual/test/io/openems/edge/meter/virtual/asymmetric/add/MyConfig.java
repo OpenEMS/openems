@@ -7,11 +7,10 @@ import io.openems.edge.meter.api.MeterType;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-
-		private String id = null;
-		public MeterType type;
-		public boolean addToSum;
-		public String[] meterIds;
+		private String id;
+		private MeterType type;
+		private boolean addToSum;
+		private String[] meterIds;
 
 		private Builder() {
 		}
