@@ -148,12 +148,12 @@ public class OdooUtils {
 				var dataExceptionType = JsonUtils.getAsOptionalString(data, "exception_type");
 
 				switch (dataName) {
-				  case "odoo.exceptions.AccessDenied" , "odoo.http.SessionExpiredException" -> 
-				        throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-			
-				  default -> {
-					   var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
-				 			+ dataMessage + ";" //
+				case "odoo.exceptions.AccessDenied", "odoo.http.SessionExpiredException" ->
+					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+
+				default -> {
+					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
+							+ dataMessage + ";" //
 							+ " Code [" + code + "]" //
 							+ " Code [" + code + "]" //
 							+ " Message [" + message + "]" //
@@ -161,9 +161,10 @@ public class OdooUtils {
 							+ " ExceptionType [" + dataExceptionType.orElse("n/a") + "]" //
 							+ " Arguments [" + dataArguments + "]" //
 							+ " Debug [" + dataDebug + "]";
-			    	throw new OpenemsException(exception);	}			
+					throw new OpenemsException(exception);
 				}
-				
+				}
+
 			} else if (json.has("result")) {
 				return new SuccessResponseAndHeaders(JsonUtils.getSubElement(json, "result"),
 						connection.getHeaderFields());
