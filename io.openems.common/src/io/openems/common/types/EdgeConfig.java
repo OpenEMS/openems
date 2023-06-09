@@ -192,24 +192,22 @@ public class EdgeConfig {
 						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;
 				detail = switch (category) {
-					case OPENEMS_TYPE -> 
-						new ChannelDetailOpenemsType();					
-					case ENUM -> {
-						Map<String, JsonElement> values = new HashMap<>();
-						var optionsOpt = JsonUtils.getAsOptionalJsonObject(json, "options");
-						if (optionsOpt.isPresent()) 
-							for (Entry<String, JsonElement> entry : optionsOpt.get().entrySet()) {
-								values.put(entry.getKey(), entry.getValue());
-							}
-					
-						yield new ChannelDetailEnum(values);
-				}
-					case STATE -> {
-						var level = JsonUtils.getAsEnum(Level.class, json, "level");
-						yield  new ChannelDetailState(level);
+				case OPENEMS_TYPE -> new ChannelDetailOpenemsType();
+				case ENUM -> {
+					Map<String, JsonElement> values = new HashMap<>();
+					var optionsOpt = JsonUtils.getAsOptionalJsonObject(json, "options");
+					if (optionsOpt.isPresent()) {
+						for (Entry<String, JsonElement> entry : optionsOpt.get().entrySet()) {
+							values.put(entry.getKey(), entry.getValue());
+						}
 					}
-					default ->
-						throw new OpenemsException("Unknown Category-Key [" + category + "]");
+					yield new ChannelDetailEnum(values);
+				}
+				case STATE -> {
+					var level = JsonUtils.getAsEnum(Level.class, json, "level");
+					yield new ChannelDetailState(level);
+				}
+				default -> throw new OpenemsException("Unknown Category-Key [" + category + "]");
 				};
 				return new Channel(channelId, type, accessMode, text, unit, detail);
 			}
@@ -515,7 +513,7 @@ public class EdgeConfig {
 					.add("properties", properties); //
 			switch (jsonFormat) {
 			case WITHOUT_CHANNELS -> {
-			}	
+			}
 			case COMPLETE -> {
 				var channels = new JsonObject();
 				for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
@@ -603,10 +601,8 @@ public class EdgeConfig {
 						switch (ad.getID()) {
 						case "webconsole.configurationFactory.nameHint" -> {
 							// ignore ID
-						  }
-						default -> {
-							properties.add(Property.from(ad));
-						  }
+						}
+						default -> properties.add(Property.from(ad));
 						}
 					}
 				}
@@ -654,26 +650,20 @@ public class EdgeConfig {
 
 				final OpenemsType type;
 				type = switch (ad.getType()) {
-						case AttributeDefinition.LONG -> 
-							OpenemsType.LONG;					
-						case AttributeDefinition.INTEGER -> 
-							OpenemsType.INTEGER;			
-						case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> 
-							OpenemsType.SHORT;				
-						case AttributeDefinition.DOUBLE ->  
-							OpenemsType.DOUBLE;					
-						case AttributeDefinition.FLOAT -> 
-							OpenemsType.FLOAT;
-					
-						case AttributeDefinition.BOOLEAN ->
-							OpenemsType.BOOLEAN;				
-						case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD -> 
-							OpenemsType.STRING;						
-						default -> {
-							EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
-							yield OpenemsType.STRING; 
-							}
-					};
+				case AttributeDefinition.LONG -> OpenemsType.LONG;
+				case AttributeDefinition.INTEGER -> OpenemsType.INTEGER;
+				case AttributeDefinition.SHORT, AttributeDefinition.BYTE -> OpenemsType.SHORT;
+				case AttributeDefinition.DOUBLE -> OpenemsType.DOUBLE;
+				case AttributeDefinition.FLOAT -> OpenemsType.FLOAT;
+
+				case AttributeDefinition.BOOLEAN -> OpenemsType.BOOLEAN;
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER, AttributeDefinition.PASSWORD ->
+					OpenemsType.STRING;
+				default -> {
+					EdgeConfig.LOG.warn("AttributeDefinition type [" + ad.getType() + "] is unknown!");
+					yield OpenemsType.STRING;
+				}
+				};
 
 				var defaultValues = ad.getDefaultValue();
 				JsonElement defaultValue;
@@ -719,18 +709,18 @@ public class EdgeConfig {
 				var name = ad.getName();
 				final boolean isRequired;
 				switch (id) {
-					case "alias" -> {
+				case "alias" -> {
 					// Set alias as not-required. If no alias is given it falls back to id.
 					isRequired = false;
-				    }
-					default -> isRequired = ad.getCardinality() == 0;
-					
+				}
+				default -> isRequired = ad.getCardinality() == 0;
+
 				}
 				return new Property(id, name, description, type, isRequired, isPassword, defaultValue, schema);
 			}
 
 			private static JsonObject getSchema(AttributeDefinition ad) {
-				//var schema = new JsonObject();
+				// var schema = new JsonObject();
 				if (//
 				ad.getOptionLabels() != null && ad.getOptionLabels().length > 0 //
 						&& ad.getOptionValues() != null && ad.getOptionValues().length > 0) {
@@ -754,35 +744,33 @@ public class EdgeConfig {
 				}
 				// generate schema from AttributeDefinition Type
 				return switch (ad.getType()) {
-				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER ->
-						JsonUtils.buildJsonObject() //
-							.addProperty("type", "input") //
-							.add("templateOptions", JsonUtils.buildJsonObject() //
-									.addProperty("type", "text") //
-									.build()) //
-							.build();
+				case AttributeDefinition.STRING, AttributeDefinition.CHARACTER -> JsonUtils.buildJsonObject() //
+						.addProperty("type", "input") //
+						.add("templateOptions", JsonUtils.buildJsonObject() //
+								.addProperty("type", "text") //
+								.build()) //
+						.build();
 
-				case AttributeDefinition.LONG, AttributeDefinition.INTEGER, AttributeDefinition.SHORT, 
-				AttributeDefinition.DOUBLE, AttributeDefinition.FLOAT, AttributeDefinition.BYTE ->				    
-					   JsonUtils.buildJsonObject() //
+				case AttributeDefinition.LONG, AttributeDefinition.INTEGER, AttributeDefinition.SHORT,
+						AttributeDefinition.DOUBLE, AttributeDefinition.FLOAT,
+						AttributeDefinition.BYTE ->
+					JsonUtils.buildJsonObject() //
 							.addProperty("type", "input") //
 							.add("templateOptions", JsonUtils.buildJsonObject() //
 									.addProperty("type", "number") //
 									.build()) //
 							.build();
 
-				case AttributeDefinition.PASSWORD ->
-					 JsonUtils.buildJsonObject() //
-							.addProperty("type", "input") //
-							.add("templateOptions", JsonUtils.buildJsonObject() //
-									.addProperty("type", "password") //
-									.build()) //
-							.build();
+				case AttributeDefinition.PASSWORD -> JsonUtils.buildJsonObject() //
+						.addProperty("type", "input") //
+						.add("templateOptions", JsonUtils.buildJsonObject() //
+								.addProperty("type", "password") //
+								.build()) //
+						.build();
 
-				case AttributeDefinition.BOOLEAN ->
-					 JsonUtils.buildJsonObject() //
-							.addProperty("type", "toggle") //
-							.build();
+				case AttributeDefinition.BOOLEAN -> JsonUtils.buildJsonObject() //
+						.addProperty("type", "toggle") //
+						.build();
 				default -> throw new IllegalArgumentException("Unexpected value: " + ad.getType());
 				};
 
@@ -1402,12 +1390,13 @@ public class EdgeConfig {
 	 */
 	public static boolean ignorePropertyKey(String key) {
 		return switch (key) {
-		case OpenemsConstants.PROPERTY_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME,  
-			OpenemsConstants.PROPERTY_FACTORY_PID, OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" -> 
+		case OpenemsConstants.PROPERTY_COMPONENT_ID, OpenemsConstants.PROPERTY_OSGI_COMPONENT_ID,
+				OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME, OpenemsConstants.PROPERTY_FACTORY_PID,
+				OpenemsConstants.PROPERTY_PID, "webconsole.configurationFactory.nameHint", "event.topics" ->
 			true;
-			
-		default-> false;
-			
+
+		default -> false;
+
 		};
 	}
 }

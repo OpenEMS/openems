@@ -181,8 +181,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent imple
 			// TODO set soltaro protect/recover registers
 			this.batteryProtection.apply();
 
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
-			this.handleStateMachine();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStateMachine();
 		}
 	}
 
@@ -207,19 +206,19 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent imple
 		return switch (this.config.startStop()) {
 		case AUTO ->
 			// read StartStop-Channel
-			 this.startStopTarget.get();
+			this.startStopTarget.get();
 		case START ->
 			// force START
-			 StartStop.START;
+			StartStop.START;
 		case STOP ->
 			// force STOP
-			 StartStop.STOP;
-		default ->{
+			StartStop.STOP;
+		default -> {
 			assert false;
-			yield  StartStop.UNDEFINED; // can never happen
-		}		
+			yield StartStop.UNDEFINED; // can never happen
+		}
 		};
-		
+
 	}
 
 	@Override

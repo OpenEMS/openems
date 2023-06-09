@@ -158,14 +158,12 @@ public class EdgeConfigDiff {
 
 		protected ComponentDiff add(String name, OldNewProperty property) {
 			switch (name) {
-			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY ->
-				this.lastChangeBy = property;
-				
-			case OpenemsConstants.PROPERTY_LAST_CHANGE_AT ->
-				this.lastChangeAt = property;
-				
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY -> this.lastChangeBy = property;
+
+			case OpenemsConstants.PROPERTY_LAST_CHANGE_AT -> this.lastChangeAt = property;
+
 			default -> this.properties.put(name, property);
-				
+
 			}
 			return this;
 		}
@@ -326,11 +324,11 @@ public class EdgeConfigDiff {
 			var change = component.properties.entrySet().stream() //
 					.filter(e -> {
 						return switch (e.getKey()) {
-							case "_lastChangeAt", "_lastChangeBy", "org.ops4j.pax.logging.appender.name" -> // ignore	
-							     false;	
-											
-							default -> true;
-								
+						case "_lastChangeAt", "_lastChangeBy", "org.ops4j.pax.logging.appender.name" -> // ignore
+							false;
+
+						default -> true;
+
 						};
 					}) //
 					.map(e -> {
@@ -338,20 +336,16 @@ public class EdgeConfigDiff {
 						String newValue = StringUtils.toShortString(e.getValue().getNew(), 20);
 
 						return switch (component.change) {
-						case CREATED ->
-							 e.getKey() + "=" + newValue;
-						case UPDATED ->
-							 e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
-						case DELETED->
-							 e.getKey() + " [was:" + oldValue + "]";
+						case CREATED -> e.getKey() + "=" + newValue;
+						case UPDATED -> e.getKey() + "=" + newValue + " [was:" + oldValue + "]";
+						case DELETED -> e.getKey() + " [was:" + oldValue + "]";
 						default -> {
 							// can never happen
-							  assert true;
-							  yield "";							 
-							 }
-						};											
-					}) 
-					.collect(Collectors.joining(", "));
+							assert true;
+							yield "";
+						}
+						};
+					}).collect(Collectors.joining(", "));
 			if (change.isEmpty()) {
 				continue;
 			}

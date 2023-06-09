@@ -1555,29 +1555,23 @@ public class JsonUtils {
 
 		if (j.isJsonPrimitive()) {
 			return switch (type) {
-			case BOOLEAN ->
-				 (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
-			case DOUBLE ->
-				 (T) Double.valueOf(JsonUtils.getAsDouble(j));
-			case FLOAT ->
-				 (T) Float.valueOf(JsonUtils.getAsFloat(j));
-			case INTEGER ->
-				 (T) Integer.valueOf(JsonUtils.getAsInt(j));
-			case LONG ->
-				 (T) Long.valueOf(JsonUtils.getAsLong(j));
-			case SHORT ->
-				 (T) Short.valueOf(JsonUtils.getAsShort(j));
-			case STRING ->
-				 (T) JsonUtils.getAsString(j);
+			case BOOLEAN -> (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
+			case DOUBLE -> (T) Double.valueOf(JsonUtils.getAsDouble(j));
+			case FLOAT -> (T) Float.valueOf(JsonUtils.getAsFloat(j));
+			case INTEGER -> (T) Integer.valueOf(JsonUtils.getAsInt(j));
+			case LONG -> (T) Long.valueOf(JsonUtils.getAsLong(j));
+			case SHORT -> (T) Short.valueOf(JsonUtils.getAsShort(j));
+			case STRING -> (T) JsonUtils.getAsString(j);
 			};
 		}
 
 		if (j.isJsonObject() || j.isJsonArray()) {
 			switch (type) {
-			case BOOLEAN, DOUBLE, FLOAT, INTEGER, LONG, SHORT -> {	        
-		         }
-			case STRING ->{
-				return (T) j.toString();}
+			case BOOLEAN, DOUBLE, FLOAT, INTEGER, LONG, SHORT -> {
+			}
+			case STRING -> {
+				return (T) j.toString();
+			}
 			}
 		}
 		throw new NotImplementedException(

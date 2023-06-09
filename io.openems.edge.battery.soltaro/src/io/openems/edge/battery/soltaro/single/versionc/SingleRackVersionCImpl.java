@@ -175,10 +175,8 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE ->
-			this.batteryProtection.apply();
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
-			this.handleStateMachine();
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> this.batteryProtection.apply();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStateMachine();
 		}
 	}
 
@@ -726,18 +724,16 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 		return switch (this.config.startStop()) {
 		case AUTO ->
 			// read StartStop-Channel
-			 this.startStopTarget.get();
+			this.startStopTarget.get();
 		case START ->
 			// force START
-			 StartStop.START;
-		case STOP ->
-			// force STOP
-			 StartStop.STOP;
-		default ->{
+			StartStop.START;
+		case STOP -> StartStop.STOP;
+		default -> {
 			assert false;
-			yield  StartStop.UNDEFINED; // can never happen
+			yield StartStop.UNDEFINED; // can never happen
 		}
-		};	
+		};
 	}
 
 }
