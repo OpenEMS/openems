@@ -1,5 +1,4 @@
 import { Role } from "src/app/shared/type/role";
-import { environment } from "src/environments";
 
 export class Changelog {
 

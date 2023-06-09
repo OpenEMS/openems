@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { filter } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
 import { AbstractModalLine } from 'src/app/shared/genericComponents/modal/abstract-modal-line';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
