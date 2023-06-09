@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
     templateUrl: './modal.html'

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from 'src/environments';
-import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
+import { Edge, Service, Utils } from '../../../shared/shared';
 
 @Component({
   selector: SystemUpdateComponent.SELECTOR,
