@@ -2,5 +2,5 @@
     routerLink="/device/{{edge.id}}/history/{{componentId}}/singlethresholdchart" *ngIf="isInitialized">
 
     <oe-flat-widget-line [name]="'Edge.History.activeDuration'| translate" [channelAddress]="outputChannelAddress"
-        [converter]="Utils.CALCULATE_ACTIVE_TIME_OVER_PERIOD"></oe-flat-widget-line>
+        [converter]="Utils.CONVERT_SECONDS_TO_HOURS_AND_MINUTES"></oe-flat-widget-line>
 </oe-flat-widget>

@@ -21,7 +21,6 @@ import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peak
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
-import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
@@ -46,6 +45,7 @@ import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './ed
 import { IndexComponent } from './index/index.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { OverviewComponent as SinglethresholdChartOverviewComponent } from './edge/history/Controller/SingleThreshold/overview/overview';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },

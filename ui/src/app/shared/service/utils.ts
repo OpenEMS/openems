@@ -414,6 +414,26 @@ export class Utils {
   };
 
   /**
+   * Converts time in seconds to hours and minutes
+   * 
+   * @param value the value
+   * @returns the hours and minutes in a string
+   */
+  public static CONVERT_SECONDS_TO_HOURS_AND_MINUTES = (value: number): string => {
+
+    if (value === null) {
+      return '0h 0m'
+    }
+
+    const totalMinutes = Math.floor(value / 60);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    return hours + 'h' + ' ' + minutes + 'm';
+  };
+
+  /**
    * Gets the image path for storage depending on State-of-Charge.
    * 
    * @param soc the state-of-charge

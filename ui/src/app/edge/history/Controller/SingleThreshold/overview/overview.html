@@ -1,4 +1,4 @@
-<oe-chart [title]="component.alias">
-    <singleThresholdChart [isOnlyChart]="true">
+<oe-chart [period]="service.historyPeriod.value" [title]="component.alias" *ngIf="isInitialized && component">
+    <singleThresholdChart [isOnlyChart]="true" [component]="component">
     </singleThresholdChart>
 </oe-chart>

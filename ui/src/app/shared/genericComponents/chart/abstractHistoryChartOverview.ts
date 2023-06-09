@@ -1,16 +1,18 @@
 import { Directive, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "../../service/defaulttypes";
+import { filter, first } from "rxjs/operators";
 
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public componentId: string;
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
+
+  /** ChartPopover */
   protected showTotal: boolean = true;
   protected showPhases: boolean = false;
 
@@ -26,6 +28,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
     public service: Service,
     protected route: ActivatedRoute,
     public modalCtrl: ModalController,
+    private router: Router
   ) { }
 
   public ngOnInit() {
@@ -34,7 +37,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
         // store important variables publically
         this.edge = edge;
         this.config = config;
-        this.component = config.components[this.componentId];
+        this.component = config.getComponent(this.route.snapshot.params.componentId);
 
         this.period = this.service.historyPeriod.value;
 
@@ -57,9 +60,6 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
-        if (channelAddress.componentId === this.componentId) {
-          thisComponent[channelAddress.channelId] = result.data[ca];
-        }
       }
       this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
     }).catch(() => {
