@@ -31,10 +31,10 @@ export class KeyModalComponent implements OnInit {
     public readonly spinnerId: string = KeyModalComponent.SELECTOR;
 
     private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
-    private registeredKeys: Key[] = []
+    private registeredKeys: Key[] = [];
 
     protected form: FormGroup;
-    protected fields: FormlyFieldConfig[]
+    protected fields: FormlyFieldConfig[];
     protected model;
 
     constructor(
@@ -92,7 +92,7 @@ export class KeyModalComponent implements OnInit {
         if (!this.knownApps) {
             return null;
         }
-        const bundles = key.bundles
+        const bundles = key.bundles;
         if (!bundles) {
             return null;
         }
@@ -134,17 +134,17 @@ export class KeyModalComponent implements OnInit {
     }
 
     private getAppsByCategory(): { [key: string]: GetApps.App[]; } {
-        const map: { [key: string]: GetApps.App[]; } = {}
+        const map: { [key: string]: GetApps.App[]; } = {};
         for (const app of this.knownApps) {
             for (const category of app.categorys) {
-                let appList: GetApps.App[]
+                let appList: GetApps.App[];
                 if (map[category.name]) {
-                    appList = map[category.name]
+                    appList = map[category.name];
                 } else {
-                    appList = []
-                    map[category.name] = appList
+                    appList = [];
+                    map[category.name] = appList;
                 }
-                appList.push(app)
+                appList.push(app);
             }
         }
         return map;
@@ -175,7 +175,7 @@ export class KeyModalComponent implements OnInit {
                 options: []
             },
             expressions: {
-                hide: () => this.registeredKeys.length === 0,
+                "hide": () => this.registeredKeys.length === 0,
                 'props.disabled': field => !field.model.useRegisteredKeys
             },
             wrappers: ['formly-select-extended-wrapper']
@@ -198,11 +198,11 @@ export class KeyModalComponent implements OnInit {
             hooks: {
                 onInit: (field) => {
                     field.formControl.valueChanges.subscribe((next) => {
-                        const nextInput = KeyModalComponent.transformInput(next)
+                        const nextInput = KeyModalComponent.transformInput(next);
                         if (!nextInput) {
                             return;
                         }
-                        field.formControl.setValue(nextInput)
+                        field.formControl.setValue(nextInput);
                     });
                 }
             }
@@ -229,16 +229,24 @@ export class KeyModalComponent implements OnInit {
         }
 
         // remove last dash
-        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-"
+        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
         trimmed = trimmed.replace(/-/g, '');
 
         let numbers = [];
 
         // push single parts into array
         numbers.push(trimmed.substring(0, 4));
-        if (trimmed.substring(4, 8) !== '') numbers.push(trimmed.substring(4, 8));
-        if (trimmed.substring(8, 12) != '') numbers.push(trimmed.substring(8, 12));
-        if (trimmed.substring(12, 16) != '') numbers.push(trimmed.substring(12, 16));
+        if (trimmed.substring(4, 8) !== '') {
+            numbers.push(trimmed.substring(4, 8));
+        }
+
+        if (trimmed.substring(8, 12) != '') {
+            numbers.push(trimmed.substring(8, 12));
+        }
+
+        if (trimmed.substring(12, 16) != '') {
+            numbers.push(trimmed.substring(12, 16));
+        }
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
         let modifiedValue = numbers.join('-');
@@ -301,7 +309,7 @@ export class KeyModalComponent implements OnInit {
                 && this.lastValidKey.result.additionalInfo.registrations.some(registration => {
                     return registration.edgeId === this.edge.id && registration.appId === this.appId;
                 })) {
-                resolve()
+                resolve();
                 return;
             }
             // only register key for this app
@@ -314,7 +322,7 @@ export class KeyModalComponent implements OnInit {
                 resolve();
             }).catch(reason => {
                 reject(reason);
-            })
+            });
         });
     }
 
@@ -325,9 +333,9 @@ export class KeyModalComponent implements OnInit {
      */
     private getSelectedKey() {
         if (this.model['useRegisteredKeys']) {
-            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey())
+            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey());
         } else {
-            return { keyId: this.getRawAppKey() }
+            return { keyId: this.getRawAppKey() };
         }
     }
 
@@ -336,7 +344,7 @@ export class KeyModalComponent implements OnInit {
      */
     protected validateKey(): void {
         if (this.form.invalid) {
-            return
+            return;
         }
         const appKey = this.getRawAppKey();
         const request = new AppCenter.Request({
@@ -390,9 +398,9 @@ export class KeyModalComponent implements OnInit {
      */
     private getRawAppKey(): string {
         if (this.model['useRegisteredKeys']) {
-            return this.model['registeredKey']
+            return this.model['registeredKey'];
         } else {
-            return this.model['key']
+            return this.model['key'];
         }
     }
 
@@ -403,7 +411,7 @@ export class KeyModalComponent implements OnInit {
      */
     protected isKeyValid(): boolean {
         if (this.model['useRegisteredKeys']) {
-            return true
+            return true;
         }
         return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
     };

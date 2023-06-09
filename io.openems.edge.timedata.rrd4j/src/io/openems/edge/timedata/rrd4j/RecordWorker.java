@@ -5,11 +5,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.DoubleStream;
 
 import org.rrd4j.core.RrdDb;
 import org.slf4j.Logger;
@@ -29,7 +26,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected static final int DEFAULT_NO_OF_CYCLES = 60;
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
-	private final Rrd4jTimedataImpl parent;
+	private final TimedataRrd4jImpl parent;
 
 	// Counts the number of Cycles till data is recorded
 	private int cycleCount = 0;
@@ -55,7 +52,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private Instant lastTimestamp = Instant.MIN;
 	private LocalDateTime readChannelValuesSince = LocalDateTime.MIN;
 
-	public RecordWorker(Rrd4jTimedataImpl parent) {
+	public RecordWorker(TimedataRrd4jImpl parent) {
 		this.parent = parent;
 	}
 
@@ -83,7 +80,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		this.cycleCount < Channel.NO_OF_PAST_VALUES
 				// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
 				&& Duration.between(this.lastTimestamp, timestamp)
-						.getSeconds() < Rrd4jTimedataImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
+						.getSeconds() < TimedataRrd4jImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
 			return;
 		}
 		this.cycleCount = 0; // Reset Cycle-Count
@@ -102,7 +99,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				var channelAggregateFunction = this.getChannelAggregateFunction(channel.channelDoc().getUnit());
+				var channelAggregateFunction = channel.channelDoc().getUnit().getChannelAggregateFunction();
 
 				var value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
@@ -179,32 +176,24 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = value -> 0d;
 
 	private ToDoubleFunction<? super Object> getChannelMapFunction(OpenemsType openemsType) {
-		var value = switch (openemsType) {
-		  case BOOLEAN -> MAP_BOOLEAN_TO_DOUBLE;			
-		  case SHORT ->  MAP_SHORT_TO_DOUBLE;			
-		  case INTEGER-> MAP_INTEGER_TO_DOUBLE;			 
-    	  case LONG -> MAP_LONG_TO_DOUBLE;			 
-		  case FLOAT -> MAP_FLOAT_TO_DOUBLE;			 
-		  case DOUBLE -> MAP_DOUBLE_TO_DOUBLE;			
-		  case STRING -> MAP_TO_DOUBLE_NOT_SUPPORTED;// Strings are not supported by RRD4J	
-		};
-		throw new IllegalArgumentException("Type [" + value + "] is not supported.");
+		switch (openemsType) {
+		case BOOLEAN:
+			return MAP_BOOLEAN_TO_DOUBLE;
+		case SHORT:
+			return MAP_SHORT_TO_DOUBLE;
+		case INTEGER:
+			return MAP_INTEGER_TO_DOUBLE;
+		case LONG:
+			return MAP_LONG_TO_DOUBLE;
+		case FLOAT:
+			return MAP_FLOAT_TO_DOUBLE;
+		case DOUBLE:
+			return MAP_DOUBLE_TO_DOUBLE;
+		case STRING:
+			// Strings are not supported by RRD4J
+			return MAP_TO_DOUBLE_NOT_SUPPORTED;
+		}
+		throw new IllegalArgumentException("Type [" + openemsType + "] is not supported.");
 	}
 
-	private Function<DoubleStream, OptionalDouble> getChannelAggregateFunction(Unit channelUnit) {
-		return switch (channelUnit) {
-		
-		case AMPERE,AMPERE_HOURS ,DEGREE_CELSIUS ,DEZIDEGREE_CELSIUS ,EUROS_PER_MEGAWATT_HOUR ,HERTZ , HOUR,KILOAMPERE_HOURS ,KILOOHM,
-		 KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOWATT, MICROOHM, MICROAMPERE,MICROVOLT, MILLIAMPERE_HOURS,MILLIAMPERE,
-		 MILLIHERTZ,MILLIOHM,MILLISECONDS, MILLIVOLT, MILLIWATT, MINUTE, NONE, WATT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE,
-		 WATT_HOURS_BY_WATT_PEAK, OHM, SECONDS, THOUSANDTH, PERCENT, ON_OFF ->			
-			 DoubleStream::average;		
-			 
-		case CUMULATED_SECONDS, WATT_HOURS, KILOWATT_HOURS, VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS,
-		 KILOVOLT_AMPERE_REACTIVE_HOURS -> 
-			 DoubleStream::max;
-			 
-		default -> throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");			 
-		};		
-	}
 }

@@ -1,5 +1,8 @@
 package io.openems.edge.pvinverter.sunspec;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,7 +18,6 @@ import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
@@ -104,10 +106,10 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 * <p>
 	 * Requires:
 	 *
-	 * <pre>
-	 * property = { //
-	 *   EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-	 * }
+	 * <pre>{@code
+	 * &#64;EventTopics({ //
+	 * 	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+	 * })}
 	 * </pre>
 	 *
 	 */
@@ -165,36 +167,36 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.FREQUENCY, //
-				ElementToChannelConverter.SCALE_FACTOR_3, //
+				SCALE_FACTOR_3, //
 				DefaultSunSpecModel.S111.HZ, DefaultSunSpecModel.S112.HZ, DefaultSunSpecModel.S113.HZ,
 				DefaultSunSpecModel.S101.HZ, DefaultSunSpecModel.S102.HZ, DefaultSunSpecModel.S103.HZ);
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S111.W, DefaultSunSpecModel.S112.W, DefaultSunSpecModel.S113.W,
 				DefaultSunSpecModel.S101.W, DefaultSunSpecModel.S102.W, DefaultSunSpecModel.S103.W);
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.REACTIVE_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S111.V_AR, DefaultSunSpecModel.S112.V_AR, DefaultSunSpecModel.S113.V_AR,
 				DefaultSunSpecModel.S101.V_AR, DefaultSunSpecModel.S102.V_AR, DefaultSunSpecModel.S103.V_AR);
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S111.WH, DefaultSunSpecModel.S112.WH, DefaultSunSpecModel.S113.WH,
 				DefaultSunSpecModel.S101.WH, DefaultSunSpecModel.S102.WH, DefaultSunSpecModel.S103.WH);
 
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S120.W_RTG);
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.CURRENT, //
-				ElementToChannelConverter.SCALE_FACTOR_3, //
+				SCALE_FACTOR_3, //
 				DefaultSunSpecModel.S111.A, DefaultSunSpecModel.S112.A, DefaultSunSpecModel.S113.A,
 				DefaultSunSpecModel.S101.A, DefaultSunSpecModel.S102.A, DefaultSunSpecModel.S103.A);
 
@@ -204,7 +206,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		if (!this.isSinglePhase) {
 			this.mapFirstPointToChannel(//
 					SymmetricMeter.ChannelId.VOLTAGE, //
-					ElementToChannelConverter.SCALE_FACTOR_3, //
+					SCALE_FACTOR_3, //
 					DefaultSunSpecModel.S112.PH_VPH_A, DefaultSunSpecModel.S112.PH_VPH_B,
 					DefaultSunSpecModel.S112.PH_VPH_C, //
 					DefaultSunSpecModel.S113.PH_VPH_A, DefaultSunSpecModel.S113.PH_VPH_B,
@@ -224,24 +226,24 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 			// use l1 when 'ALL' is configured and its not a tree phase inverter
 		case L1:
 			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L1, //
-					ElementToChannelConverter.DIRECT_1_TO_1, //
+					DIRECT_1_TO_1, //
 					DefaultSunSpecModel.S101.PH_VPH_A, DefaultSunSpecModel.S111.PH_VPH_A);
 			break;
 		case L2:
 			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L2, //
-					ElementToChannelConverter.DIRECT_1_TO_1, //
+					DIRECT_1_TO_1, //
 					DefaultSunSpecModel.S101.PH_VPH_B, DefaultSunSpecModel.S111.PH_VPH_B);
 			break;
 		case L3:
 			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L3, //
-					ElementToChannelConverter.DIRECT_1_TO_1, //
+					DIRECT_1_TO_1, //
 					DefaultSunSpecModel.S101.PH_VPH_C, DefaultSunSpecModel.S111.PH_VPH_C);
 			break;
 		}
 
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.VOLTAGE, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S101.PH_VPH_A, DefaultSunSpecModel.S111.PH_VPH_A, //
 				DefaultSunSpecModel.S101.PH_VPH_B, DefaultSunSpecModel.S111.PH_VPH_B, //
 				DefaultSunSpecModel.S101.PH_VPH_C, DefaultSunSpecModel.S111.PH_VPH_C);

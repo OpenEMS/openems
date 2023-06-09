@@ -31,7 +31,7 @@ export class EdgeConfig {
             let component = this.components[componentId];
             component.id = componentId;
             if ('enabled' in component.properties) {
-                component.isEnabled = component.properties['enabled']
+                component.isEnabled = component.properties['enabled'];
             } else {
                 component.isEnabled = true;
             }
@@ -94,7 +94,7 @@ export class EdgeConfig {
     /**
      * Nature-PID -> Component-IDs.
      */
-    public readonly natures: { [id: string]: EdgeConfig.Nature } = {}
+    public readonly natures: { [id: string]: EdgeConfig.Nature } = {};
 
     /**
      * UI-Widgets.
@@ -130,7 +130,7 @@ export class EdgeConfig {
         if (nature) {
             for (let factoryId of nature.factoryIds) {
                 if (factoryId in this.factories) {
-                    result.push(this.factories[factoryId])
+                    result.push(this.factories[factoryId]);
                 }
             }
         }
@@ -146,7 +146,7 @@ export class EdgeConfig {
         let result = [];
         for (let factoryId of factoryIds) {
             if (factoryId in this.factories) {
-                result.push(this.factories[factoryId])
+                result.push(this.factories[factoryId]);
             }
         }
         return result;
@@ -479,7 +479,7 @@ export class EdgeConfig {
                 });
                 result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
-        })
+        });
         return result;
     }
 
@@ -494,8 +494,8 @@ export class EdgeConfig {
                 if (factory == availableFactory) {
                     result = availableFactories.category.icon;
                 }
-            })
-        })
+            });
+        });
         return result;
     }
 
@@ -531,9 +531,9 @@ export class EdgeConfig {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
                 });
-                result.push({ category: item.category, components: components })
+                result.push({ category: item.category, components: components });
             }
-        })
+        });
         return result;
     }
 

@@ -218,7 +218,7 @@ export class Controller_EvcsModalComponent implements OnInit {
         currentController.properties.energySessionLimit = oldLimit;
         this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
-      })
+      });
     }
   }
 
@@ -247,7 +247,7 @@ export class Controller_EvcsModalComponent implements OnInit {
         currentController.properties.energySessionLimit = oldLimit;
         this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
         console.warn(reason);
-      })
+      });
     }
   }
 
@@ -332,7 +332,7 @@ export class Controller_EvcsModalComponent implements OnInit {
     if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
 
       let oldMinChargePower = this.controller.properties.forceChargeMinPower;
-      let maxAllowedChargePower = 10 /* Ampere */ * 230 /* Volt */
+      let maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
 
       if (oldMinChargePower < maxAllowedChargePower) {
         if (this.edge != null) {
@@ -356,7 +356,7 @@ export class Controller_EvcsModalComponent implements OnInit {
   getNumberOfPhasesOrThree() {
     let numberOfPhases = this.edge.currentData['_value'].channel[this.componentId + "/Phases"];
     numberOfPhases = numberOfPhases == null ? 3 : numberOfPhases;
-    return numberOfPhases
+    return numberOfPhases;
   }
 
   /**
@@ -393,7 +393,7 @@ export class Controller_EvcsModalComponent implements OnInit {
     });
     modal.onDidDismiss().then(() => {
       this.updateRenaultZoeConfig();
-    })
+    });
     return await modal.present();
   }
 }

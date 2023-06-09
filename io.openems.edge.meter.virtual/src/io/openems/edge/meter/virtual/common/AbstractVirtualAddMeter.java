@@ -51,7 +51,7 @@ public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> exte
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Meter", meterIds)) {
 			return;
 		}
-		
+
 		this.getChannelManager().update(this.meters);
 	}
 

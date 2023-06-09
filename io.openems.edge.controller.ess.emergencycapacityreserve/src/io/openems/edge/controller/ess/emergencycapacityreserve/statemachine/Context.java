@@ -2,9 +2,9 @@ package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve;
+import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 
-public class Context extends AbstractContext<EmergencyCapacityReserve> {
+public class Context extends AbstractContext<ControllerEssEmergencyCapacityReserve> {
 
 	protected final Sum sum;
 
@@ -22,8 +22,8 @@ public class Context extends AbstractContext<EmergencyCapacityReserve> {
 	private Float targetPower;
 	private float rampPower;
 
-	public Context(EmergencyCapacityReserve emergencyCapacityReserve, Sum sum, Integer maxApparentPower, Integer soc,
-			int reserveSoc) {
+	public Context(ControllerEssEmergencyCapacityReserve emergencyCapacityReserve, Sum sum, Integer maxApparentPower,
+			Integer soc, int reserveSoc) {
 		super(emergencyCapacityReserve);
 		this.sum = sum;
 		this.maxApparentPower = maxApparentPower;

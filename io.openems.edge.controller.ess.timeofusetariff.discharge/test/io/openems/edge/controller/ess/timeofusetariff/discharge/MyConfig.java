@@ -9,10 +9,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String essId;
-		public Mode mode;
+		private Mode mode;
 		private int maxStartHour;
 		private int maxEndHour;
-		public DelayDischargeRiskLevel delayDischargeRiskLevel;
+		private DelayDischargeRiskLevel delayDischargeRiskLevel;
 
 		private Builder() {
 		}

@@ -36,7 +36,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setPhase(Phase phase) {
 			this.phase = phase;
 			return this;

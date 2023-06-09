@@ -24,7 +24,7 @@
                     </td>
                 </tr>
             </table>
-            <gridOptimizedChargeChart [component]="component" [period]="service.historyPeriod">
+            <gridOptimizedChargeChart [component]="component" [period]="service.historyPeriod.value">
             </gridOptimizedChargeChart>
         </ion-card-content>
         <!-- Info Text -->
@@ -48,7 +48,7 @@
                     </td>
                 </tr>
             </table>
-            <sellToGridLimitChart [component]="component" [period]="service.historyPeriod">
+            <sellToGridLimitChart [component]="component" [period]="service.historyPeriod.value">
             </sellToGridLimitChart>
         </ion-card-content>
         <!-- Info Text -->

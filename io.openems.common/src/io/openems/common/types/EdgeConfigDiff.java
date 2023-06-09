@@ -255,17 +255,18 @@ public class EdgeConfigDiff {
 	 */
 	public String getAsHtml() {
 		var b = new StringBuilder();
-		b.append("<table border=\"1\" style=\"border-collapse: collapse\"" //
-				+ "	<thead>" //
-				+ "		<tr>" //
-				+ "			<th>Change</th>" //
-				+ "			<th>Component</th>" //
-				+ "			<th>Name</th>"//
-				+ "			<th>Old Value</th>"//
-				+ "			<th>New Value</th>"//
-				+ "		</tr>" //
-				+ "	</thead>" //
-				+ "	<tbody>");
+		b.append("""
+				<table border="1" style="border-collapse: collapse"\
+					<thead>\
+						<tr>\
+							<th>Change</th>\
+							<th>Component</th>\
+							<th>Name</th>\
+							<th>Old Value</th>\
+							<th>New Value</th>\
+						</tr>\
+					</thead>\
+					<tbody>""");
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
 			var componentId = componentEntry.getKey();
 			var component = componentEntry.getValue();

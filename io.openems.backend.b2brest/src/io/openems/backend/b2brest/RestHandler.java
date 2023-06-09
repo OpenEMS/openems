@@ -37,9 +37,9 @@ public class RestHandler extends AbstractHandler {
 
 	private final Logger log = LoggerFactory.getLogger(RestHandler.class);
 
-	private final B2bRest parent;
+	private final Backend2BackendRest parent;
 
-	public RestHandler(B2bRest parent) {
+	public RestHandler(Backend2BackendRest parent) {
 		this.parent = parent;
 	}
 

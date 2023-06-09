@@ -9,9 +9,9 @@ import io.openems.common.exceptions.OpenemsException;
 public class OnClose implements io.openems.common.websocket.OnClose {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnClose(B2bWebsocket parent) {
+	public OnClose(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 

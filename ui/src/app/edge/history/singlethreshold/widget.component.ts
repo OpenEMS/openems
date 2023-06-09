@@ -33,12 +33,12 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -47,7 +47,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     // Gather result & timestamps to calculate effective active time in % 
     protected updateValues() {
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             this.service.getConfig().then(config => {
                 let result = (response as QueryHistoricTimeseriesDataResponse).result;
                 let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];

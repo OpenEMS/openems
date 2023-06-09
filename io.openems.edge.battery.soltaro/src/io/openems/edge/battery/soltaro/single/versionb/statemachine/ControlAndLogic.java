@@ -3,7 +3,7 @@ package io.openems.edge.battery.soltaro.single.versionb.statemachine;
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionB;
+import io.openems.edge.battery.soltaro.single.versionb.BatterySoltaroSingleRackVersionB;
 import io.openems.edge.battery.soltaro.single.versionb.enums.ContactorControl;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -15,7 +15,7 @@ public class ControlAndLogic {
 	protected static final int RETRY_COMMAND_SECONDS = 30;
 	protected static final int RETRY_COMMAND_MAX_ATTEMPTS = 10;
 
-	protected static void stopSystem(SingleRackVersionB singleRackVersionB) throws OpenemsNamedException {
+	protected static void stopSystem(BatterySoltaroSingleRackVersionB singleRackVersionB) throws OpenemsNamedException {
 		// To avoid hardware damages do not send stop command if system has already
 		// stopped
 		if (singleRackVersionB.getContactorControl() != ContactorControl.CUT_OFF) {
@@ -23,7 +23,8 @@ public class ControlAndLogic {
 		}
 	}
 
-	protected static void startSystem(SingleRackVersionB singleRackVersionB) throws OpenemsNamedException {
+	protected static void startSystem(BatterySoltaroSingleRackVersionB singleRackVersionB)
+			throws OpenemsNamedException {
 		// To avoid hardware damages do not send start command if system has already
 		// started
 		if (singleRackVersionB.getContactorControl() != ContactorControl.ON_GRID
@@ -32,61 +33,65 @@ public class ControlAndLogic {
 		}
 	}
 
-	protected static void resetSystem(SingleRackVersionB singleRackVersionB) throws OpenemsNamedException {
+	protected static void resetSystem(BatterySoltaroSingleRackVersionB singleRackVersionB)
+			throws OpenemsNamedException {
 		singleRackVersionB.setSystemReset(SYSTEM_RESET);
 	}
 
-	protected static void sleepSystem(SingleRackVersionB singleRackVersionB) throws OpenemsNamedException {
+	protected static void sleepSystem(BatterySoltaroSingleRackVersionB singleRackVersionB)
+			throws OpenemsNamedException {
 		singleRackVersionB.setSleep(SLEEP);
 	}
 
-	protected static boolean isSystemRunning(SingleRackVersionB singleRackVersionB) {
+	protected static boolean isSystemRunning(BatterySoltaroSingleRackVersionB singleRackVersionB) {
 		return singleRackVersionB.getContactorControl() == ContactorControl.ON_GRID;
 	}
 
-	protected static boolean isSystemStopped(SingleRackVersionB singleRackVersionB) {
+	protected static boolean isSystemStopped(BatterySoltaroSingleRackVersionB singleRackVersionB) {
 		return singleRackVersionB.getContactorControl() == ContactorControl.CUT_OFF;
 	}
 
-	protected static boolean hasError(SingleRackVersionB singleRackVersionB, Optional<Integer> numberOfModules) {
+	protected static boolean hasError(BatterySoltaroSingleRackVersionB singleRackVersionB,
+			Optional<Integer> numberOfModules) {
 		return isAlarmLevel2Error(singleRackVersionB) || isSlaveCommunicationError(singleRackVersionB, numberOfModules);
 	}
 
-	private static boolean isAlarmLevel2Error(SingleRackVersionB singleRackVersionB) {
+	private static boolean isAlarmLevel2Error(BatterySoltaroSingleRackVersionB singleRackVersionB) {
 		return readValueFromBooleanChannel(singleRackVersionB,
-				SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
+				BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CHA_CURRENT_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_LOW)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_LOW)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_DISCHA_CURRENT_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
-				|| readValueFromBooleanChannel(singleRackVersionB, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_SOC_LOW)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_CHA_TEMP_LOW)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_SOC_LOW)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_TEMPERATURE_DIFFERENCE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_POLES_TEMPERATURE_DIFFERENCE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_DIFFERENCE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_INSULATION_LOW)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW);
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
+				|| readValueFromBooleanChannel(singleRackVersionB,
+						BatterySoltaroSingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW);
 	}
 
-	private static boolean isSlaveCommunicationError(SingleRackVersionB singleRackVersionB,
+	private static boolean isSlaveCommunicationError(BatterySoltaroSingleRackVersionB singleRackVersionB,
 			Optional<Integer> numberOfModules) {
 		var b = false;
 		
@@ -183,7 +188,7 @@ public class ControlAndLogic {
 	}
 
 	private static boolean readValueFromBooleanChannel(OpenemsComponent component,
-			SingleRackVersionB.ChannelId singleRackChannelId) {
+			BatterySoltaroSingleRackVersionB.ChannelId singleRackChannelId) {
 		StateChannel r = component.channel(singleRackChannelId);
 		var bOpt = r.value().asOptional();
 		return bOpt.isPresent() && bOpt.get();
@@ -195,7 +200,7 @@ public class ControlAndLogic {
 	 * @param singleRackVersionB the battery
 	 * @param timeSeconds        the time in seconds
 	 */
-	public static void setWatchdog(SingleRackVersionB singleRackVersionB, int timeSeconds) {
+	public static void setWatchdog(BatterySoltaroSingleRackVersionB singleRackVersionB, int timeSeconds) {
 		try {
 			singleRackVersionB.setWatchdog(timeSeconds);
 		} catch (OpenemsNamedException e) {
@@ -209,7 +214,7 @@ public class ControlAndLogic {
 	 * @param singleRackVersionB the battery
 	 * @param soCLowAlarm        the value to set
 	 */
-	public static void setSoCLowAlarm(SingleRackVersionB singleRackVersionB, int soCLowAlarm) {
+	public static void setSoCLowAlarm(BatterySoltaroSingleRackVersionB singleRackVersionB, int soCLowAlarm) {
 		try {
 			singleRackVersionB.setSocLowProtection(soCLowAlarm);
 			singleRackVersionB.setSocLowProtectionRecover(soCLowAlarm);

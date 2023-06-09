@@ -7,8 +7,8 @@ public enum RackUsage implements OptionsEnum {
 	USED(1, "Rack is used"), //
 	UNUSED(2, "Rack is not used");
 
-	int value;
-	String name;
+	private final int value;
+	private final String name;
 
 	private RackUsage(int value, String name) {
 		this.value = value;

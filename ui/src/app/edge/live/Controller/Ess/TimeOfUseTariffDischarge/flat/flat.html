@@ -3,10 +3,8 @@
     <oe-flat-widget-line [name]="'General.mode' | translate" [channelAddress]="component.id + '/_PropertyMode'"
         [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
-        [channelAddress]="component.id + '/QuarterlyPrices'" [converter]="CONVERT_PRICE_TO_CENT_PER_KWH">
+        [value]="priceWithCurrency"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="storageStatuslabel" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
+        [channelAddress]="component.id + '/StateMachine'">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.storageDischarge' | translate"
-        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE" [channelAddress]="component.id + '/StateMachine'">
-    </oe-flat-widget-line>
-
 </oe-flat-widget>

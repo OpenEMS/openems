@@ -55,7 +55,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	protected volatile Timedata timedata = null;
 
 	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();

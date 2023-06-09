@@ -295,7 +295,7 @@ public class EdgeConfig {
 						.addProperty("type", this.type.name()) //
 						.addProperty("accessMode", this.accessMode.getAbbreviation()) //
 						.addProperty("text", this.text) //
-						.addProperty("unit", this.unit.getSymbol()) //
+						.addProperty("unit", this.unit.symbol) //
 						.addProperty("category", this.detail.getCategory().name()) //
 						.build();
 			}

@@ -1,5 +1,7 @@
 package io.openems.edge.meter.pqplus.umd97;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,7 +17,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -47,6 +48,12 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	public MeterPqplusUmd97Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -57,14 +64,8 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -89,22 +90,16 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(19000, Priority.HIGH, //
 						m(new FloatDoublewordElement(19000)) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004), SCALE_FACTOR_3),
 						new DummyRegisterElement(19006, 19011), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014), SCALE_FACTOR_3),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016), SCALE_FACTOR_3),
+						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018), SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(19024)),
@@ -115,8 +110,7 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042)),
 						new DummyRegisterElement(19044, 19049), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050),
-								ElementToChannelConverter.SCALE_FACTOR_3)));
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050), SCALE_FACTOR_3)));
 	}
 
 	@Override

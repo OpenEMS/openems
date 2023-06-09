@@ -8,15 +8,15 @@ import io.openems.edge.battery.bmw.enums.BatteryState;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public BatteryState batteryState;
-		public long errorDelay;
-		public int maxStartAttempts;
-		public int maxStartTime;
-		public int startUnsuccessfulDelay;
-		public int pendingTolerance;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private BatteryState batteryState;
+		private long errorDelay;
+		private int maxStartAttempts;
+		private int maxStartTime;
+		private int startUnsuccessfulDelay;
+		private int pendingTolerance;
 
 		private Builder() {
 		}

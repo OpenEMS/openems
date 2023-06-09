@@ -17,9 +17,9 @@ import io.openems.common.session.Role;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnRequest(B2bWebsocket parent) {
+	public OnRequest(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 

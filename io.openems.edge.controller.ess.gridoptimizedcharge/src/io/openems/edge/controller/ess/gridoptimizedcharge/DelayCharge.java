@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -42,14 +42,14 @@ public class DelayCharge {
 	/**
 	 * Reference to parent controller.
 	 */
-	private final GridOptimizedChargeImpl parent;
+	private final ControllerEssGridOptimizedChargeImpl parent;
 
 	/**
 	 * The whole prediction should only be logged once.
 	 */
 	private boolean predictionDebugLog = true;
 
-	public DelayCharge(GridOptimizedChargeImpl parent) {
+	public DelayCharge(ControllerEssGridOptimizedChargeImpl parent) {
 		this.parent = parent;
 		this.predictionDebugLog = parent.config != null ? this.parent.config.debugMode() : false;
 	}
@@ -82,30 +82,31 @@ public class DelayCharge {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		LocalTime targetTime = DEFAULT_TARGET_TIME;
-
-		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
-		// format that comes from UI.
-		// TODO extract this feature into a DateTimeUtils class and reuse it wherever
-		// feasible
-		try {
-			targetTime = LocalTime.parse(this.parent.config.manualTargetTime());
-		} catch (DateTimeParseException e) {
-			try {
-				targetTime = ZonedDateTime.parse(this.parent.config.manualTargetTime()).toLocalTime();
-
-			} catch (DateTimeParseException i) {
-
-				// Set Info state channel and log
-				StateChannel noValidManualTargetTime = this.parent
-						.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
-				noValidManualTargetTime.setNextValue(true);
-				this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
-			}
+		LocalTime targetTime = parseTime(this.parent.config.manualTargetTime());
+		if (targetTime == null) {
+			targetTime = DEFAULT_TARGET_TIME;
+			StateChannel noValidManualTargetTime = this.parent
+					.channel(ControllerEssGridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
+			noValidManualTargetTime.setNextValue(true);
+			this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
 		}
 
 		var targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute, DelayChargeRiskLevel.MEDIUM);
+	}
+
+	protected static LocalTime parseTime(String time) {
+		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
+		// format that comes from UI.
+		final var localTime = DateUtils.parseLocalTimeOrNull(time);
+		if (localTime != null) {
+			return localTime;
+		}
+		final var zonedDateTime = DateUtils.parseZonedDateTimeOrNull(time);
+		if (zonedDateTime != null) {
+			return zonedDateTime.toLocalTime();
+		}
+		return null;
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class DelayCharge {
 
 		// Set channels
 		this.setDelayChargeStateAndLimit(state, rawDelayChargeMaxChargePower);
-		this.parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
+		this.parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
 	}
 
 	/**
@@ -330,7 +331,8 @@ public class DelayCharge {
 		if (calculatedPower < 0) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			this.parent.logDebug("System would charge from the grid under these constraints");
-			this.parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
+			this.parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT)
+					.setNextValue(true);
 			return null;
 		}
 
@@ -384,15 +386,15 @@ public class DelayCharge {
 	 * @param maxApparentPower         maximum apparent power of the ess
 	 * @param targetMinute             target as minute of the day
 	 * @param minimumChargePower       minimumChargePower configured by the user
-	 * @param parent                   {@link GridOptimizedChargeImpl} to set debug
-	 *                                 channels
+	 * @param parent                   {@link ControllerEssGridOptimizedChargeImpl}
+	 *                                 to set debug channels
 	 * @return the calculated charging power limit or null if no limit should be
 	 *         applied
 	 */
 	protected static Integer getCalculatedPowerLimit(int remainingCapacity, int remainingTime,
 			Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption, Clock clock,
 			DelayChargeRiskLevel riskLevel, int maxApparentPower, int targetMinute, double minimumChargePower,
-			GridOptimizedChargeImpl parent) {
+			ControllerEssGridOptimizedChargeImpl parent) {
 
 		Integer calculatedPower = null;
 
@@ -425,11 +427,11 @@ public class DelayCharge {
 		float remainingCapacityWh = remainingCapacity / 60.0f / 60.0f;
 
 		// Set Channel for historical analysis
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_PREDICTED_ENERGY_LEFT)
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_PREDICTED_ENERGY_LEFT)
 				.setNextValue(predictedAvailEnergy);
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT)
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT)
 				.setNextValue(remainingCapacityWh);
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME_LEFT).setNextValue(remainingTime);
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME_LEFT).setNextValue(remainingTime);
 
 		// The power should be only limited if the predicted available energy is enough
 		if (riskLevel.equals(DelayChargeRiskLevel.LOW) && predictedAvailEnergy <= remainingCapacityWh) {
@@ -510,7 +512,7 @@ public class DelayCharge {
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
 				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i]
-						+ GridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
+						+ ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
 					lastQuarterHour = Optional.of(i);
 				}
 			}

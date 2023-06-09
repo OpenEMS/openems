@@ -19,8 +19,16 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
-        "@typescript-eslint/explicit-member-accessibility": [
+        "semi": [
           "warn",
+          "always"
+        ],
+        "quote-props": [
+          "warn",
+          "consistent"
+        ],
+        "@typescript-eslint/explicit-member-accessibility": [
+          "error",
           {
             "accessibility": "explicit",
             "overrides": {
@@ -43,7 +51,8 @@
             ],
             "style": "camelCase"
           }
-        ]
+        ],
+        "curly": "error"
       }
     },
     {

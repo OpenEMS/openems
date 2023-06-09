@@ -11,19 +11,18 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public ControlMode controlMode;
-		public String modbusId;
-		public int modbusUnitId;
-		public SafetyCountry safetyCountry;
-		public EnableDisable mpptForShadowEnable;
-		public EnableDisable backupEnable;
-		public EnableDisable feedPowerEnable;
-		public int feedPowerPara;
-		public FeedInPowerSettings feedInPowerSettings;
+		private String id;
+		private ControlMode controlMode;
+		private String modbusId;
+		private int modbusUnitId;
+		private SafetyCountry safetyCountry;
+		private EnableDisable mpptForShadowEnable;
+		private EnableDisable backupEnable;
+		private EnableDisable feedPowerEnable;
+		private int feedPowerPara;
+		private FeedInPowerSettings feedInPowerSettings;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
