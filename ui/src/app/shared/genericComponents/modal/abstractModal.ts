@@ -75,15 +75,11 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let allComponents = {};
-                    let thisComponent = {};
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component?.id) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
                     }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                    this.onCurrentData({ allComponents: allComponents });
                 });
                 this.formGroup = this.getFormGroup();
 

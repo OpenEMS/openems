@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({
@@ -24,8 +25,8 @@ export class FlatComponent extends AbstractFlatWidget {
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.thisComponent['_PropertyPower']);
-    this.propertyMode = currentData.thisComponent['_PropertyMode'];
+    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + '/_PropertyPower']);
+    this.propertyMode = currentData.allComponents[this.component.id + '/_PropertyMode'];
   }
 
   async presentModal() {

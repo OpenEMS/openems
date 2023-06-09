@@ -20,7 +20,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.thisComponent['_PropertyPower']);
+    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + '/_PropertyPower']);
   }
 
   protected override getFormGroup(): FormGroup {
