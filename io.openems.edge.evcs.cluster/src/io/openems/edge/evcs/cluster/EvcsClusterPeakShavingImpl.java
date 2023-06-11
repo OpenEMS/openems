@@ -29,6 +29,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -38,8 +39,7 @@ import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -101,7 +101,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	private SymmetricEss ess;
 
 	@Reference
-	private SymmetricMeter meter;
+	private ElectricityMeter meter;
 
 	public EvcsClusterPeakShavingImpl() {
 		super(//
@@ -507,19 +507,15 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return calculated grid power
 	 */
 	private int getGridPower() {
-		int gridPower = this.meter.getActivePower().orElse(0);
-
-		if (this.meter instanceof AsymmetricMeter) {
-			var asymmetricMeter = (AsymmetricMeter) this.meter;
-
-			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
-			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
-			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
-
-			var maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
-			gridPower = maxPowerOnPhase * 3;
+		var maxPowerOnPhase = TypeUtils.max(//
+				this.meter.getActivePowerL1().get(), //
+				this.meter.getActivePowerL2().get(), //
+				this.meter.getActivePowerL3().get());
+		if (maxPowerOnPhase != null) {
+			return maxPowerOnPhase * 3;
+		} else {
+			return this.meter.getActivePower().orElse(0);
 		}
-		return gridPower;
 	}
 
 	/**

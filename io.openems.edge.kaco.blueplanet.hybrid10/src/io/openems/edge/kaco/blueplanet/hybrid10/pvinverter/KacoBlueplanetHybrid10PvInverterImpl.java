@@ -29,11 +29,10 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.KacoBlueplanetHybrid10Core;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -50,14 +49,14 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsComponent
-		implements KacoBlueplanetHybrid10PvInverter, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent,
+		implements KacoBlueplanetHybrid10PvInverter, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent,
 		TimedataProvider, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetHybrid10PvInverterImpl.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected KacoBlueplanetHybrid10Core core;
@@ -73,7 +72,7 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 	public KacoBlueplanetHybrid10PvInverterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ErrorChannelId.values(), //
 				KacoBlueplanetHybrid10PvInverter.ChannelId.values() //
@@ -187,9 +186,7 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(KacoBlueplanetHybrid10PvInverter.class, accessMode, 100) //
-						.build());
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 }

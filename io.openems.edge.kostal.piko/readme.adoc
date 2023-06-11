@@ -1,8 +1,8 @@
 = KOSTAL PIKO
 
-Implemented Natures::
+Implemented Natures:
 - SymmetricEss
-- SymmetricMeter (for Grid meter)
+- ElectricityMeter (for Grid meter)
 - EssDcCharger (for PV)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal.piko[Source Code icon:github[]]

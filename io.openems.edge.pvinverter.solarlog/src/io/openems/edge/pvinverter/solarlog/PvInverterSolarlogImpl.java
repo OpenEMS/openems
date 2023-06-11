@@ -37,11 +37,10 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -59,13 +58,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
-		implements PvInverterSolarlog, ManagedSymmetricPvInverter, SymmetricMeter, ModbusComponent, OpenemsComponent,
+		implements PvInverterSolarlog, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent,
 		EventHandler, ModbusSlave, TimedataProvider {
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -85,7 +84,7 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				PvInverterSolarlog.ChannelId.values() //
 		);
@@ -118,13 +117,13 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
 						m(PvInverterSolarlog.ChannelId.LAST_UPDATE_TIME,
 								new SignedDoublewordElement(3500).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
 						m(PvInverterSolarlog.ChannelId.PDC,
 								new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE, new SignedWordElement(3506), SCALE_FACTOR_3),
 						m(PvInverterSolarlog.ChannelId.UDC, new SignedWordElement(3507), SCALE_FACTOR_2),
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
 						m(PvInverterSolarlog.ChannelId.YESTERDAY_YIELD,
 								new SignedDoublewordElement(3510).wordOrder(WordOrder.LSWMSW)),
@@ -136,7 +135,7 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 								new SignedDoublewordElement(3516).wordOrder(WordOrder.LSWMSW)),
 						m(PvInverterSolarlog.ChannelId.PAC_CONSUMPTION,
 								new SignedDoublewordElement(3518).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new SignedDoublewordElement(3520).wordOrder(WordOrder.LSWMSW)),
 						m(PvInverterSolarlog.ChannelId.YESTERDAY_YIELD_CONS,
 								new SignedDoublewordElement(3522).wordOrder(WordOrder.LSWMSW)),
@@ -204,10 +203,8 @@ public class PvInverterSolarlogImpl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(PvInverterSolarlog.class, accessMode, 100) //
-						.build());
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 
 	@Override

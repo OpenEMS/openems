@@ -14,10 +14,10 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -58,7 +58,7 @@ public class ControllerAsymmetricPeakShavingImpl extends AbstractOpenemsComponen
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
@@ -78,17 +78,13 @@ public class ControllerAsymmetricPeakShavingImpl extends AbstractOpenemsComponen
 		/*
 		 * Calculate 'effective' grid-power (without current ESS charge/discharge)
 		 */
-		int gridPower;
-		if (meter instanceof AsymmetricMeter) {
-			var asymmetricMeter = (AsymmetricMeter) meter;
-
-			int gridPowerL1 = asymmetricMeter.getActivePowerL1().getOrError();
-			int gridPowerL2 = asymmetricMeter.getActivePowerL2().getOrError();
-			int gridPowerL3 = asymmetricMeter.getActivePowerL3().getOrError();
-
-			var maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
+		var gridPowerL1 = meter.getActivePowerL1().get();
+		var gridPowerL2 = meter.getActivePowerL2().get();
+		var gridPowerL3 = meter.getActivePowerL3().get();
+		var maxPowerOnPhase = TypeUtils.max(gridPowerL1, gridPowerL2, gridPowerL3);
+		final int gridPower;
+		if (maxPowerOnPhase != null) {
 			gridPower = maxPowerOnPhase * 3;
-
 		} else {
 			gridPower = meter.getActivePower().getOrError();
 		}
