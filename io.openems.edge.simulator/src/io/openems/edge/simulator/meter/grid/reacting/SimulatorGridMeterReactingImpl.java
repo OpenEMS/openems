@@ -28,6 +28,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.simulator.Constants;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -96,6 +97,9 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				SimulatorGridMeterReacting.ChannelId.values() //
 		);
+
+		// Automatically calculate L1/l2/L3 values from sum
+		ElectricityMeter.calculatePhasesFromActivePower(this);
 	}
 
 	@Activate
@@ -122,14 +126,14 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 	}
 
 	private final Consumer<Value<Integer>> updateChannelsCallback = value -> {
-		Integer sum = null;
+		Integer activePower = null;
 
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			if (ess instanceof MetaEss) {
 				// ignore this Ess
 				continue;
 			}
-			sum = subtract(sum, ess.getActivePowerChannel().getNextValue().get());
+			activePower = subtract(activePower, ess.getActivePowerChannel().getNextValue().get());
 		}
 		for (var m : this.meters) {
 			try {
@@ -139,11 +143,11 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 					// ignore
 					break;
 				case CONSUMPTION_NOT_METERED:
-					sum = add(sum, m.getActivePowerChannel().getNextValue().get());
+					activePower = add(activePower, m.getActivePowerChannel().getNextValue().get());
 					break;
 				case PRODUCTION:
 				case PRODUCTION_AND_CONSUMPTION:
-					sum = subtract(sum, m.getActivePowerChannel().getNextValue().get());
+					activePower = subtract(activePower, m.getActivePowerChannel().getNextValue().get());
 					break;
 				}
 			} catch (NullPointerException e) {
@@ -151,12 +155,18 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		this._setActivePower(sum);
-
-		var simulatedActivePowerByThree = TypeUtils.divide(sum, 3);
-		this._setActivePowerL1(simulatedActivePowerByThree);
-		this._setActivePowerL2(simulatedActivePowerByThree);
-		this._setActivePowerL3(simulatedActivePowerByThree);
+		this._setActivePower(activePower);
+		var voltage = activePower == null ? null : Constants.VOLTAGE; // [mV]
+		this._setVoltage(voltage);
+		this._setVoltageL1(voltage);
+		this._setVoltageL2(voltage);
+		this._setVoltageL3(voltage);
+		var current = activePower == null ? null : Math.round(activePower * 1_000_000F / Constants.VOLTAGE);
+		this._setCurrent(current);
+		var currentPerPhase = TypeUtils.divide(current, 3);
+		this._setCurrentL1(currentPerPhase);
+		this._setCurrentL2(currentPerPhase);
+		this._setCurrentL3(currentPerPhase);
 	};
 
 	private static Integer add(Integer sum, Integer activePower) {
