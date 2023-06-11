@@ -6,11 +6,9 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterWeidmueller525
-		extends AsymmetricMeter, SymmetricMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
+public interface MeterWeidmueller525 extends ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		VOLTAGE_L1_L2(Doc.of(OpenemsType.INTEGER) //

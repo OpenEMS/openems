@@ -28,11 +28,9 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
@@ -49,8 +47,8 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
-		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, SymmetricMeter,
-		ModbusComponent, AsymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
+		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
@@ -91,8 +89,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SunSpecPvInverter.ChannelId.values(), //
 				PvInverterSmaSunnyTripower.ChannelId.values() //
@@ -122,9 +119,7 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(PvInverterSmaSunnyTripowerImpl.class, accessMode, 100) //
-						.build());
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 }

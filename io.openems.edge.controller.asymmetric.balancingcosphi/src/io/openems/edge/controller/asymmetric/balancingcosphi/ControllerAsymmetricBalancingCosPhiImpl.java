@@ -24,7 +24,7 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -71,7 +71,7 @@ public class ControllerAsymmetricBalancingCosPhiImpl extends AbstractOpenemsComp
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		AsymmetricMeter meter = this.componentManager.getComponent(this.meterId);
+		ElectricityMeter meter = this.componentManager.getComponent(this.meterId);
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		this.addConstraint(ess, Phase.L1, meter.getActivePowerL1(), meter.getReactivePowerL1(), ess.getActivePowerL1(),

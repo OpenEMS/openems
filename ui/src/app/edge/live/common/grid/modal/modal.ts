@@ -11,20 +11,13 @@ export class ModalComponent extends AbstractModal {
   protected readonly GridMode = GridMode;
   protected grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number } = { mode: GridMode.UNDEFINED, buyFromGrid: null, sellToGrid: null };
 
-  protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
+  protected meters: EdgeConfig.Component[] = []
 
   protected override getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [];
 
-    const asymmetricMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
-      .filter(comp => comp.isEnabled && this.config.isTypeGrid(comp));
-
-    this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-      .filter(component => component.isEnabled && this.config.isTypeGrid(component))
-      .forEach(component => {
-        var isAsymmetric = asymmetricMeters.filter(element => component.id == element.id).length > 0;
-        this.meters.push({ component: component, isAsymmetric: isAsymmetric });
-      });
+    this.meters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => component.isEnabled && this.config.isTypeGrid(component));
 
     channelAddresses.push(
       new ChannelAddress("_sum", 'GridMode'),

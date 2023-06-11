@@ -1,7 +1,8 @@
-package io.openems.edge.meter.virtual.asymmetric.add;
+package io.openems.edge.meter.virtual.add;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.virtual.add.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

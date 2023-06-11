@@ -5,7 +5,7 @@ import org.junit.Test;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class ControllerAsymmetricPhaseRectificationImplTest {
 
@@ -17,7 +17,7 @@ public class ControllerAsymmetricPhaseRectificationImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerAsymmetricPhaseRectificationImpl()) //
 				.addComponent(new DummyManagedAsymmetricEss(ESS_ID)) //
-				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

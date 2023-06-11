@@ -1,4 +1,4 @@
-package io.openems.edge.meter.virtual.symmetric.subtract;
+package io.openems.edge.meter.virtual.subtract;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,13 +10,13 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public class ChannelManager extends AbstractChannelListenerManager {
+public class SubtractChannelManager extends AbstractChannelListenerManager {
 
-	private final MeterVirtualSymmetricSubtract parent;
+	private final VirtualSubtractMeter parent;
 
-	public ChannelManager(MeterVirtualSymmetricSubtract parent) {
+	public SubtractChannelManager(VirtualSubtractMeter parent) {
 		this.parent = parent;
 	}
 
@@ -28,7 +28,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	protected void activate(OpenemsComponent minuend, List<OpenemsComponent> subtrahends) {
 		// Minuend
-		if (minuend == null || minuend instanceof SymmetricMeter || minuend instanceof SymmetricEss) {
+		if (minuend == null || minuend instanceof ElectricityMeter || minuend instanceof SymmetricEss) {
 			// OK
 		} else {
 			throw new IllegalArgumentException("Minuend [" + minuend.id() + "] is neither a Meter nor a ESS");
@@ -36,32 +36,32 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
-			if (subtrahend instanceof SymmetricMeter || subtrahend instanceof SymmetricEss) {
+			if (subtrahend instanceof ElectricityMeter || subtrahend instanceof SymmetricEss) {
 				// OK
 			} else {
 				throw new IllegalArgumentException("Subtrahend [" + subtrahend.id() + "] is neither a Meter nor a ESS");
 			}
 		}
 
-		this.activateSubtractInteger(minuend, subtrahends, SymmetricMeter.ChannelId.ACTIVE_POWER,
+		this.activateSubtractInteger(minuend, subtrahends, ElectricityMeter.ChannelId.ACTIVE_POWER,
 				SymmetricEss.ChannelId.ACTIVE_POWER);
-		this.activateSubtractInteger(minuend, subtrahends, SymmetricMeter.ChannelId.REACTIVE_POWER,
+		this.activateSubtractInteger(minuend, subtrahends, ElectricityMeter.ChannelId.REACTIVE_POWER,
 				SymmetricEss.ChannelId.REACTIVE_POWER);
 
-		this.activateSubtractLong(minuend, subtrahends, SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+		this.activateSubtractLong(minuend, subtrahends, ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 				SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-		this.activateSubtractLong(minuend, subtrahends, SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+		this.activateSubtractLong(minuend, subtrahends, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 				SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 	}
 
 	private void activateSubtractInteger(OpenemsComponent minuend /* nullable */, List<OpenemsComponent> subtrahends,
-			SymmetricMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
+			ElectricityMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
 		final Consumer<Value<Integer>> callback = (ignore) -> {
 			// Subtrahends
 			Integer subtrahendsSum = null;
 			for (OpenemsComponent subtrahend : subtrahends) {
-				if (subtrahend instanceof SymmetricMeter) {
-					IntegerReadChannel channel = ((SymmetricMeter) subtrahend).channel(meterChannelId);
+				if (subtrahend instanceof ElectricityMeter meter) {
+					IntegerReadChannel channel = meter.channel(meterChannelId);
 					subtrahendsSum = TypeUtils.sum(subtrahendsSum, channel.getNextValue().get());
 				} else if (subtrahend instanceof SymmetricEss) {
 					IntegerReadChannel channel = ((SymmetricEss) subtrahend).channel(essChannelId);
@@ -72,8 +72,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			final Integer minuendValue;
 			if (minuend == null) {
 				minuendValue = 0;
-			} else if (minuend instanceof SymmetricMeter) {
-				IntegerReadChannel channel = ((SymmetricMeter) minuend).channel(meterChannelId);
+			} else if (minuend instanceof ElectricityMeter meter) {
+				IntegerReadChannel channel = meter.channel(meterChannelId);
 				minuendValue = channel.getNextValue().get();
 			} else if (minuend instanceof SymmetricEss) {
 				IntegerReadChannel channel = ((SymmetricEss) minuend).channel(essChannelId);
@@ -98,7 +98,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		// Minuend
 		if (minuend == null) {
 			// no listener for minuend
-		} else if (minuend instanceof SymmetricMeter) {
+		} else if (minuend instanceof ElectricityMeter) {
 			this.addOnSetNextValueListener(minuend, meterChannelId, callback);
 		} else if (minuend instanceof SymmetricEss) {
 			this.addOnSetNextValueListener(minuend, essChannelId, callback);
@@ -106,7 +106,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
-			if (subtrahend instanceof SymmetricMeter) {
+			if (subtrahend instanceof ElectricityMeter) {
 				this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
 			} else if (subtrahend instanceof SymmetricEss) {
 				this.addOnSetNextValueListener(subtrahend, essChannelId, callback);
@@ -115,15 +115,15 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	}
 
 	private void activateSubtractLong(OpenemsComponent minuend /* nullable */, List<OpenemsComponent> subtrahends,
-			SymmetricMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
+			ElectricityMeter.ChannelId meterChannelId, SymmetricEss.ChannelId essChannelId) {
 		final Consumer<Value<Integer>> callback = (ignore) -> {
 			Long result = null;
 
 			// Minuend
 			if (minuend == null) {
 				result = 0L;
-			} else if (minuend instanceof SymmetricMeter) {
-				LongReadChannel channel = ((SymmetricMeter) minuend).channel(meterChannelId);
+			} else if (minuend instanceof ElectricityMeter meter) {
+				LongReadChannel channel = meter.channel(meterChannelId);
 				result = channel.getNextValue().get();
 			} else if (minuend instanceof SymmetricEss) {
 				LongReadChannel channel = ((SymmetricEss) minuend).channel(essChannelId);
@@ -132,8 +132,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 			// Subtrahends
 			for (OpenemsComponent subtrahend : subtrahends) {
-				if (subtrahend instanceof SymmetricMeter) {
-					LongReadChannel channel = ((SymmetricMeter) subtrahend).channel(meterChannelId);
+				if (subtrahend instanceof ElectricityMeter meter) {
+					LongReadChannel channel = meter.channel(meterChannelId);
 					result = TypeUtils.subtract(result, channel.getNextValue().get());
 				} else if (subtrahend instanceof SymmetricEss) {
 					LongReadChannel channel = ((SymmetricEss) subtrahend).channel(essChannelId);
@@ -148,7 +148,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		// Minuend
 		if (minuend == null) {
 			// no listener for minuend
-		} else if (minuend instanceof SymmetricMeter) {
+		} else if (minuend instanceof ElectricityMeter) {
 			this.addOnSetNextValueListener(minuend, meterChannelId, callback);
 		} else if (minuend instanceof SymmetricEss) {
 			this.addOnSetNextValueListener(minuend, essChannelId, callback);
@@ -156,7 +156,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 		// Subtrahends
 		for (OpenemsComponent subtrahend : subtrahends) {
-			if (subtrahend instanceof SymmetricMeter) {
+			if (subtrahend instanceof ElectricityMeter) {
 				this.addOnSetNextValueListener(subtrahend, meterChannelId, callback);
 			} else if (subtrahend instanceof SymmetricEss) {
 				this.addOnSetNextValueListener(subtrahend, essChannelId, callback);

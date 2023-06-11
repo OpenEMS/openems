@@ -15,7 +15,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class ControllerEssBalancingScheduleImplTest {
 
@@ -43,7 +43,7 @@ public class ControllerEssBalancingScheduleImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
-				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //

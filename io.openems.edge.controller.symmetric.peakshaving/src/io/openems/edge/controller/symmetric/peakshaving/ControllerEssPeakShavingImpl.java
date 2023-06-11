@@ -16,7 +16,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -59,7 +59,7 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)

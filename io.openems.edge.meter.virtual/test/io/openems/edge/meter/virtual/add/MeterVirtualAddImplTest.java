@@ -1,4 +1,4 @@
-package io.openems.edge.meter.virtual.asymmetric.add;
+package io.openems.edge.meter.virtual.add;
 
 import org.junit.Test;
 
@@ -7,9 +7,9 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
-public class MeterVirtualAsymmetricAddImplTest {
+public class MeterVirtualAddImplTest {
 
 	private static final String METER_ID = "meter0";
 	private static final ChannelAddress METER_POWER = new ChannelAddress(METER_ID, "ActivePower");
@@ -40,10 +40,10 @@ public class MeterVirtualAsymmetricAddImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterVirtualAsymmetricAddImpl()) //
-				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
-				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_1))
-				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_2)) //
+		new ComponentTest(new MeterVirtualAddImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("addMeter", new DummyElectricityMeter(METER_ID_1))
+				.addReference("addMeter", new DummyElectricityMeter(METER_ID_2)) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2) //

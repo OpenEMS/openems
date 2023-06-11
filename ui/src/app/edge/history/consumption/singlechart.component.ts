@@ -187,19 +187,14 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
-
             for (let meter of consumptionMeters) {
-                // Subscribe to SymmetricMeter 'ActivePower'
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));
-
-                if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
-                    // Subscribe to AsymmetricMeter 'ActivePowerL1/L2/L3'
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
-                }
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
             }
             resolve(result);
         });
