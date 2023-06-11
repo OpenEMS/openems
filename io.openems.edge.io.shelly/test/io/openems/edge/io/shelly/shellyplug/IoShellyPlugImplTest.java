@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SinglePhase;
 
 public class IoShellyPlugImplTest {
 
@@ -14,6 +15,7 @@ public class IoShellyPlugImplTest {
 		new ComponentTest(new IoShellyPlugImpl()) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
+						.setPhase(SinglePhase.L1) //
 						.setIp("127.0.0.1") //
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
