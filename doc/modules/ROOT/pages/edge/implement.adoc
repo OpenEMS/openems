@@ -208,9 +208,9 @@ Afterwards adjust the following content in the template `MeterSimulatedImpl.Java
 ----
 public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent implements MeterSimulated, ElectricityMeter, OpenemsComponent, ModbusComponent {
 ----
-. Eclipse will underline `ElectricityMeter` and show you the error *ElectricityMeter cannot be resolved to a type*. Resolve it by importing adding an `import io.openems.edge.meter.api.ElectricityMeter;`.
+. Eclipse will underline `ElectricityMeter` and show the error *ElectricityMeter cannot be resolved to a type*. Resolve it by adding the line `import io.openems.edge.meter.api.ElectricityMeter;` to the import section of the file.
 +
-NOTE: The easiest way to fix these kind of import errors is to to selecto btn:[Source] → btn:[Organize Imports] in the menu or simply press btn:[Ctrl] + btn:[Shift] + btn:[o]. Alternatively click the 'error light bulb' next to the line with the error and select btn:[Import 'ElectricityMeter' (io.openems.edge.meter.api)].
+NOTE: The easiest way to fix these kind of import errors is to select btn:[Source] → btn:[Organize Imports] in the menu or simply press btn:[Ctrl] + btn:[Shift] + btn:[o]. Alternatively click the 'light bulb' next to the line with the error and select btn:[Import 'ElectricityMeter' (io.openems.edge.meter.api)].
 . Eclipse still complains and now underlines the class name `MeterSimulated` with the error *The type MeterSimulated must implement the inherited abstract method ElectricityMeter.getMeterType()*. Resolve it by adding an implementation of the `getMeterType()` method:
 +
 [source,java]
@@ -364,7 +364,7 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent // <6>
 +
 NOTE: If the device was using another protocol, it is advisable to use the *AbstractOpenemsComponent* class as a convenience layer instead of implementing everything required by the *OpenemsComponent* interface manually.
 <7> The class implements *OpenemsComponent*. This makes it an xref:coreconcepts.adoc#_openems_component[OpenEMS Component].
-The Device that we are is a *ElectricityMeter*. We already defined the required Channels in the _initializeChannels()_ method. Additionally the Component also needs to implement the Nature interface.
+The Device that we are implementing is an *ElectricityMeter*. We already defined the required Channels in the _initializeChannels()_ method. Additionally the Component also needs to implement the Nature interface.
 +
 NOTE: In plain Java it is not required to add `implements OpenemsComponent` if we inherit from 'AbstractOpenemsComponent' or 'AbstractOpenemsModbusComponent'. Be aware that for OSGi dependency injection to function properly, it is still required to mention all implemented interfaces again, as it is not considering the complete inheritance tree.
 +

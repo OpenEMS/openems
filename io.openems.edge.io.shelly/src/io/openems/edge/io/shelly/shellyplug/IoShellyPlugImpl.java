@@ -57,6 +57,8 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlug.ChannelId.RELAY) //
 		};
+
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
 	@Activate

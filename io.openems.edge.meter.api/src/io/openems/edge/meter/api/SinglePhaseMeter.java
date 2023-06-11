@@ -32,6 +32,26 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	public SinglePhase getPhase();
 
 	/**
+	 * Initializes Channel listeners for a Symmetric {@link ElectricityMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
+	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
+	 * {@link ChannelId#ACTIVE_POWER} by evaluating the configured
+	 * {@link SinglePhase}.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculateSinglePhaseFromActivePower(SinglePhaseMeter meter) {
+		meter.getActivePowerChannel().onSetNextValue(value -> {
+			var phase = meter.getPhase();
+			meter.getActivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+		});
+	}
+
+	/**
 	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
 	 * of this Component.
 	 *
