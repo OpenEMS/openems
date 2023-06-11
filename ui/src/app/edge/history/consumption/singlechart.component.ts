@@ -36,7 +36,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -66,7 +66,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000;
                                 }
@@ -83,7 +83,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     this.colors.push({
                                         backgroundColor: 'rgba(253,197,7,0.05)',
                                         borderColor: 'rgba(253,197,7,1)',
-                                    })
+                                    });
                                 }
 
                                 // ConsumptionMeter
@@ -95,7 +95,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     this.colors.push({
                                         backgroundColor: 'rgba(255,64,64,0.1)',
                                         borderColor: 'rgba(255,64,64,1)',
-                                    })
+                                    });
                                 }
 
                                 if (this.showPhases == true) {
@@ -197,7 +197,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                 result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
             }
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -207,7 +207,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

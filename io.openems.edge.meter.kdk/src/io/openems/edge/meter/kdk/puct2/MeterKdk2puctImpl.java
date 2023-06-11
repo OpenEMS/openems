@@ -1,5 +1,8 @@
 package io.openems.edge.meter.kdk.puct2;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE;
+
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,7 +21,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -53,6 +55,12 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	public MeterKdk2puctImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -64,12 +72,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 		// Automatically calculate sum values from L1/L2/L3
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate
@@ -110,109 +112,109 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(0x5002, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, //
 								new FloatDoublewordElement(0x5002), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, //
 								new FloatDoublewordElement(0x5004), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, //
 								new FloatDoublewordElement(0x5006), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.FREQUENCY, //
 								new FloatDoublewordElement(0x5008), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						new DummyRegisterElement(0x500A, 0x500B), //
 						m(MeterKdk2puct.ChannelId.METER_CURRENT_L1, //
 								new FloatDoublewordElement(0x500C), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(MeterKdk2puct.ChannelId.METER_CURRENT_L2, //
 								new FloatDoublewordElement(0x500E), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(MeterKdk2puct.ChannelId.METER_CURRENT_L3, //
 								new FloatDoublewordElement(0x5010), //
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3), //
 						m(MeterKdk2puct.ChannelId.METER_ACTIVE_POWER, //
 								new FloatDoublewordElement(0x5012),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_ACTIVE_POWER_L1, //
 								new FloatDoublewordElement(0x5014),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_ACTIVE_POWER_L2, //
 								new FloatDoublewordElement(0x5016),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_ACTIVE_POWER_L3, //
 								new FloatDoublewordElement(0x5018),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_REACTIVE_POWER, //
 								new FloatDoublewordElement(0x501A),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_REACTIVE_POWER_L1, //
 								new FloatDoublewordElement(0x501C),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_REACTIVE_POWER_L2, //
 								new FloatDoublewordElement(0x501E),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())), //
 						m(MeterKdk2puct.ChannelId.METER_REACTIVE_POWER_L3, //
 								new FloatDoublewordElement(0x5020),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())) //
+								SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.config.invert())) //
 				));
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
-							ElementToChannelConverter.SCALE_FACTOR_3) //
+							SCALE_FACTOR_3) //
 			));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
-							ElementToChannelConverter.SCALE_FACTOR_3), //
+							SCALE_FACTOR_3), //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
-							ElementToChannelConverter.SCALE_FACTOR_3) //
+							SCALE_FACTOR_3) //
 			));
 		}
 

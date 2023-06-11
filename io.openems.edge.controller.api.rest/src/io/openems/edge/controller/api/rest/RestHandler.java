@@ -243,7 +243,7 @@ public class RestHandler extends AbstractHandler {
 			// text
 			j.addProperty("text", channel.channelDoc().getText());
 			// unit
-			j.addProperty("unit", channel.channelDoc().getUnit().getSymbol());
+			j.addProperty("unit", channel.channelDoc().getUnit().symbol);
 			// value
 			if (accessMode != AccessMode.WRITE_ONLY) {
 				j.add("value", channel.value().asJson());
@@ -277,7 +277,7 @@ public class RestHandler extends AbstractHandler {
 		return components.stream() //
 				.filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id())) //
 				.flatMap(component -> component.channels().stream()) //
-				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id()))
+				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id())) //
 				.toList();
 	}
 

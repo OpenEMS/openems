@@ -1,3 +1,4 @@
+
 package io.openems.edge.meter.virtual.subtract;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
@@ -7,10 +8,11 @@ import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter Virtual Subtract", //
-		description = "This is a virtual meter built from subtracting other meters or energy storage systems. " //
-				+ "The logic calculates `Minuend - Subtrahend1 - Subtrahend2 - ...`." //
-				+ "Example use-case: create a virtual Grid-Meter from Production-Meter, Consumption-Meter and " //
-				+ "Energy Storage System by configuring the Consumption-Meter as Minuend and Production-Meter and ESS as Subtrahends.")
+		description = """
+				This is a virtual meter built from subtracting other meters or energy storage systems. \
+				The logic calculates `Minuend - Subtrahend1 - Subtrahend2 - ...`. \
+				Example use-case: create a virtual Grid-Meter from Production-Meter, Consumption-Meter and \
+				Energy Storage System by configuring the Consumption-Meter as Minuend and Production-Meter and ESS as Subtrahends.""")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

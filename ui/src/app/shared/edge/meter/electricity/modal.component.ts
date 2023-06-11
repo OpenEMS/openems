@@ -18,7 +18,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
         { key: "L1", name: "", power: null, current: null, voltage: null },
         { key: "L2", name: "", power: null, current: null, voltage: null },
         { key: "L3", name: "", power: null, current: null, voltage: null },
-    ]
+    ];
 
     protected getChannelAddresses(): ChannelAddress[] {
         let channelAddresses: ChannelAddress[] = [];
@@ -27,7 +27,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
                 new ChannelAddress(this.component.id, 'CurrentL' + phase),
                 new ChannelAddress(this.component.id, 'VoltageL' + phase),
                 new ChannelAddress(this.component.id, 'ActivePowerL' + phase),
-            )
+            );
         }
         return channelAddresses;
     }

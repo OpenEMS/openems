@@ -25,14 +25,14 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
       new ChannelAddress('_sum', 'GridActivePowerL3'),
-    )
+    );
     return channelAddresses;
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
 
-    this.grid.mode = currentData.allComponents["_sum/GridMode"]
-    let gridActivePower = currentData.allComponents['_sum/GridActivePower']
+    this.grid.mode = currentData.allComponents["_sum/GridMode"];
+    let gridActivePower = currentData.allComponents['_sum/GridActivePower'];
     this.grid.buyFromGrid = gridActivePower > 0 ? gridActivePower : 0;
     this.grid.sellToGrid = gridActivePower < 0 ? (gridActivePower * -1) : 0;
   }
@@ -42,5 +42,5 @@ export class ModalComponent extends AbstractModal {
       return "";
     }
     return " " + this.translate.instant(power > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
-  }
+  };
 }

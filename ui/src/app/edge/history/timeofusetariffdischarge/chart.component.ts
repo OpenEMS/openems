@@ -4,8 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
 
@@ -18,8 +19,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
   public component: EdgeConfig.Component = null;
+  public edge: Edge;
+  private currencyLabel: string; // Default
 
   ngOnChanges() {
+    this.edge = this.service.currentEdge.value;
+    this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
     this.updateChart();
   };
 
@@ -36,11 +41,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     this.service.setCurrentComponent('', this.route);
     this.service.getConfig().then(config => {
       this.component = config.getComponent(this.componentId);
-    })
+    });
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -118,21 +123,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             // Dark Green
             backgroundColor: 'rgba(51,102,0,0.8)',
             borderColor: 'rgba(51,102,0,1)',
-          })
-
-          // Set dataset for buy from grid
-          datasets.push({
-            type: 'bar',
-            label: this.translate.instant('General.gridBuy'),
-            data: quarterlyPricesDelayedDischargeData,
-            order: 4,
           });
-          this.colors.push({
-            // Black
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            borderColor: 'rgba(0,0,0,0.9)',
-
-          })
 
           // Set dataset for Quarterly Prices outside zone
           datasets.push({
@@ -145,7 +136,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             // Dark Blue
             backgroundColor: 'rgba(0,0,200,0.7)',
             borderColor: 'rgba(0,0,200,0.9)',
-          })
+          });
 
           // Show charge data only for the new controller.
           if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
@@ -160,7 +151,21 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
               // Sky blue
               backgroundColor: 'rgba(0, 204, 204,0.5)',
               borderColor: 'rgba(0, 204, 204,0.7)',
-            })
+            });
+          } else {
+            // Set dataset for buy from grid
+            datasets.push({
+              type: 'bar',
+              label: this.translate.instant('General.gridBuy'),
+              data: quarterlyPricesDelayedDischargeData,
+              order: 4,
+            });
+            this.colors.push({
+              // Black
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              borderColor: 'rgba(0,0,0,0.9)',
+            });
+
           }
 
           // Predicted SoC is not shown for now, because it is not inteligent enough with the simple prediction
@@ -192,13 +197,13 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         if ('_sum/EssSoc' in result.data) {
           let socData = result.data['_sum/EssSoc'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value > 100 || value < 0) {
               return null;
             } else {
               return value;
             }
-          })
+          });
           datasets.push({
             type: 'line',
             label: this.translate.instant('General.soc'),
@@ -208,11 +213,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             position: 'right',
             borderDash: [10, 10],
             order: 1,
-          })
+          });
           this.colors.push({
             backgroundColor: 'rgba(189, 195, 199,0.2)',
             borderColor: 'rgba(189, 195, 199,1)',
-          })
+          });
         }
 
         this.datasets = datasets;
@@ -261,7 +266,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
       // Channel only in the new controller.
       if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
-        channels.push(new ChannelAddress(this.componentId, 'Charged'))
+        channels.push(new ChannelAddress(this.componentId, 'Charged'));
       }
 
       resolve(channels);
@@ -271,6 +276,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   protected setLabel(config: EdgeConfig) {
     let options = this.createDefaultChartOptions();
     let translate = this.translate;
+    const currencyLabel: string = this.currencyLabel;
 
     // Scale prices y-axis between min-/max-values, not from zero
     options.scales.yAxes[0].ticks.beginAtZero = false;
@@ -294,7 +300,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         padding: -5,
         stepSize: 20
       }
-    })
+    });
     options.layout = {
       padding: {
         left: 2,
@@ -302,20 +308,20 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         top: 0,
         bottom: 0
       }
-    }
+    };
 
     options.scales.xAxes[0].stacked = true;
 
     //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
+    if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
       options.scales.xAxes[0].time.unit = "day";
     } else {
       options.scales.xAxes[0].time.unit = "hour";
     }
 
     //y-axis
-    options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = "Cent / kWh";
+    options.scales.yAxes[0].id = "yAxis1";
+    options.scales.yAxes[0].scaleLabel.labelString = currencyLabel;
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
     options.scales.yAxes[0].ticks.padding = -5;
@@ -331,9 +337,9 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         // } else if (label == 'Predicted Soc without logic') {
         //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + " Cent/kWh";
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
       }
-    }
+    };
     this.options = options;
   }
 

@@ -20,7 +20,7 @@ public class DataTest {
 
 	@Before
 	public void before() {
-		PowerComponent powerComponent = new PowerComponentImpl();
+		EssPower powerComponent = new EssPowerImpl();
 		var ess1 = new DummyManagedSymmetricEss("ess1", powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //

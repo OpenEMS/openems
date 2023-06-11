@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.gridmeter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,7 +57,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -82,7 +84,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
 			return;
@@ -100,30 +102,22 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(11109, Priority.LOW, //
 						m(FeneconDessGridMeter.ChannelId.ORIGINAL_ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedDoublewordElement(11109).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								new UnsignedDoublewordElement(11109).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_2), //
 						m(FeneconDessGridMeter.ChannelId.ORIGINAL_ACTIVE_PRODUCTION_ENERGY,
-								new UnsignedDoublewordElement(11111).wordOrder(WordOrder.MSWLSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)), //
+								new UnsignedDoublewordElement(11111).wordOrder(WordOrder.MSWLSW), SCALE_FACTOR_2)), //
 				new FC3ReadRegistersTask(11136, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11136),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11137),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(11136), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(11137), SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11138), DELTA_10000), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedWordElement(11139), DELTA_10000)), //
 				new FC3ReadRegistersTask(11166, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(11166),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(11167),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(11166), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(11167), SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11168), DELTA_10000), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedWordElement(11169), DELTA_10000)), //
 				new FC3ReadRegistersTask(11196, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(11196),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(11197),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(11196), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(11197), SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11198), DELTA_10000), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedWordElement(11199), DELTA_10000)) //
 		); //

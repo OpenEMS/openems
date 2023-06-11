@@ -13,9 +13,9 @@ public interface FeneconDessGridMeter extends ElectricityMeter, OpenemsComponent
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ORIGINAL_ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		ORIGINAL_ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.CUMULATED_WATT_HOURS));
 
 		private final Doc doc;
 

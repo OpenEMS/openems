@@ -2,8 +2,8 @@ package io.openems.edge.battery.soltaro.versionc.utils;
 
 import io.openems.common.channel.Unit;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.IntegerDoc;
 
 public class CellChannelFactory {

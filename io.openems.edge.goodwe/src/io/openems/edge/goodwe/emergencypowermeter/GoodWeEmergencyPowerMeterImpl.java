@@ -1,5 +1,8 @@
 package io.openems.edge.goodwe.emergencypowermeter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,7 +22,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -52,8 +54,13 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeEmergencyPowerMeter,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -63,11 +70,6 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
-
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	public GoodWeEmergencyPowerMeterImpl() {
 		super(//
@@ -104,29 +106,29 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 				// Power of each backup up phase
 				new FC3ReadRegistersTask(35145, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35148), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
 
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35154), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
 
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+								SCALE_FACTOR_MINUS_1), //
 						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+								SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35160), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(35161))));
 	}

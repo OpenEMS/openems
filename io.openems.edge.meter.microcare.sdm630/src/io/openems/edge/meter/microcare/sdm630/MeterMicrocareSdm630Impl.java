@@ -1,5 +1,8 @@
 package io.openems.edge.meter.microcare.sdm630;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import java.nio.ByteOrder;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,7 +21,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -44,7 +46,13 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	public MeterMicrocareSdm630Impl() {
 		super(//
@@ -58,14 +66,8 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -92,88 +94,88 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(30003 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
 								new FloatDoublewordElement(30005 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(30007 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(30009 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(30011 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						new DummyRegisterElement(30019 - offset, 30024 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1,
 								new FloatDoublewordElement(30025 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2,
 								new FloatDoublewordElement(30027 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3,
 								new FloatDoublewordElement(30029 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						new DummyRegisterElement(30031 - offset, 30048 - offset),
 						m(ElectricityMeter.ChannelId.CURRENT,
 								new FloatDoublewordElement(30049 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						new DummyRegisterElement(30051 - offset, 30052 - offset),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(30053 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						new DummyRegisterElement(30055 - offset, 30060 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 								new FloatDoublewordElement(30061 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						new DummyRegisterElement(30063 - offset, 30070 - offset),
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								DIRECT_1_TO_1),
 						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30073 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30075 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30077 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30079 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3)));
+								SCALE_FACTOR_3)));
 	}
 
 	@Override

@@ -8,17 +8,17 @@ import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int errorLevel2Delay;
-		public int maxStartTime;
-		public int pendingTolerance;
-		public int maxStartAppempts;
-		public int startUnsuccessfulDelay;
-		public int minimalCellVoltage;
-		public int capacity;
-		public BatteryState batteryState;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int errorLevel2Delay;
+		private int maxStartTime;
+		private int pendingTolerance;
+		private int maxStartAppempts;
+		private int startUnsuccessfulDelay;
+		private int minimalCellVoltage;
+		private int capacity;
+		private BatteryState batteryState;
 
 		private Builder() {
 		}

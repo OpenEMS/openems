@@ -25,7 +25,7 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
-    ]
+    ];
 
     // Get consumptionMeterComponents
     this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
@@ -48,7 +48,7 @@ export class FlatComponent extends AbstractFlatWidget {
     for (let component of this.evcss) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ChargePower'),
-      )
+      );
     }
     return channelAddresses;
   }

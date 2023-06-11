@@ -9,11 +9,11 @@ import io.openems.edge.meter.virtual.subtract.Config;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public MeterType type;
-		public boolean addToSum;
-		public String minuendId;
-		public String[] subtrahendsIds;
+		private String id;
+		private MeterType type;
+		private boolean addToSum;
+		private String minuendId;
+		private String[] subtrahendsIds;
 
 		private Builder() {
 		}

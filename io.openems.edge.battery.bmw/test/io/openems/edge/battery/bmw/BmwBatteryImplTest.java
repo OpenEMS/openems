@@ -5,7 +5,6 @@ import org.junit.Test;
 import io.openems.edge.battery.bmw.enums.BatteryState;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BmwBatteryImplTest {
@@ -17,7 +16,6 @@ public class BmwBatteryImplTest {
 	public void test() throws Exception {
 		new ComponentTest(new BmwBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("manager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //

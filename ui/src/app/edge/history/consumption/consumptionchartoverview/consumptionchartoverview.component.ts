@@ -42,8 +42,8 @@ export class ConsumptionChartOverviewComponent implements OnInit {
                 } else {
                     this.isOnlyChart = true;
                 }
-            })
-        })
+            });
+        });
     }
 
     onNotifyPhases(showPhases: boolean): void {

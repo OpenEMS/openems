@@ -7,6 +7,12 @@ export class Changelog {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
     }
 
+    public static app(app: App, ...names: string[]) {
+        return Changelog.link(app.name, app.url)
+            + (names.length === 0 ? "" : " (" + names.join(", ") + ")")
+            + ": ";
+    }
+
     public static openems(version: string) {
         return 'Update auf OpenEMS Version ' + version + '. Mehr Details auf ' + Changelog.link('Github', 'https://github.com/OpenEMS/openems/releases/tag/' + version);
     }
@@ -34,7 +40,16 @@ export class Product {
     }
 }
 
+export class App {
+    // private to disallow creating other instances of this type
+    private constructor(public readonly name: string, public readonly url: any) {
+    }
+}
+
 export class OpenemsComponent {
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Z�hler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Z�hler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
+
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
     }

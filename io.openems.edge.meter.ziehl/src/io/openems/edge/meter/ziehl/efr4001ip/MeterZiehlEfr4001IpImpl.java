@@ -1,5 +1,8 @@
 package io.openems.edge.meter.ziehl.efr4001ip;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -18,7 +21,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -41,10 +43,16 @@ import io.openems.edge.meter.api.MeterType;
 public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, MeterZiehlEfr4001Ip, ModbusComponent, OpenemsComponent {
 
-	private Config config;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private Config config;
 
 	public MeterZiehlEfr4001IpImpl() {
 		super(//
@@ -57,12 +65,6 @@ public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 		// Automatically calculate sum values from L1/L2/L3
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
-	}
-
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate
@@ -89,15 +91,15 @@ public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, //
 								new UnsignedDoublewordElement(startingRegister) //
 										.wordOrder(LSWMSW), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, //
 								new UnsignedDoublewordElement(startingRegister + 2) // 0x00B2
 										.wordOrder(LSWMSW), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, //
 								new UnsignedDoublewordElement(startingRegister + 4) // 0x00B4
 										.wordOrder(LSWMSW), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, //
 								new UnsignedDoublewordElement(startingRegister + 6) // 0x00B6
 										.wordOrder(LSWMSW)), //
@@ -113,36 +115,36 @@ public class MeterZiehlEfr4001IpImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, //
 								new SignedDoublewordElement(startingRegister + 14) // 0x00BE
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, //
 								new SignedDoublewordElement(startingRegister + 16) // 0x00C0
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, //
 								new SignedDoublewordElement(startingRegister + 18) // 0x00C2
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, //
 								new SignedDoublewordElement(startingRegister + 20) // 0x00C4
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, //
 								new SignedDoublewordElement(startingRegister + 22) // 0x00C6
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, //
 								new SignedDoublewordElement(startingRegister + 24) // 0x00C8
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+								INVERT_IF_TRUE(this.config.invert())), //
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, //
 								new SignedDoublewordElement(startingRegister + 26) // 0x00CA
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())),
+								INVERT_IF_TRUE(this.config.invert())),
 						new DummyRegisterElement(startingRegister + 28, startingRegister + 41), // 0x00CC, 0x00D9
 						m(ElectricityMeter.ChannelId.FREQUENCY, //
 								new SignedDoublewordElement(startingRegister + 42) // 0x00DA
 										.wordOrder(LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_1)));
+								SCALE_FACTOR_1)));
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(startingRegisterFeedIn, Priority.LOW, //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //

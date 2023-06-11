@@ -1,5 +1,7 @@
 package io.openems.edge.meter.sma.shm20;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,7 +19,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -39,10 +40,16 @@ import io.openems.edge.meter.api.MeterType;
 public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		implements MeterSmaShm20, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
-	private MeterType meterType = MeterType.PRODUCTION;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private MeterType meterType = MeterType.PRODUCTION;
 
 	public MeterSmaShm20Impl() {
 		super(//
@@ -57,14 +64,8 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -96,12 +97,9 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))),
 				// Voltage, Power and Reactive Power
 				new FC3ReadRegistersTask(31253, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257), SCALE_FACTOR_1),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1, new UnsignedDoublewordElement(31259)),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2, new UnsignedDoublewordElement(31261)),
 						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3, new UnsignedDoublewordElement(31263)),
@@ -119,8 +117,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(31439))),
 				// Frequency
 				new FC3ReadRegistersTask(31447, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447),
-								ElementToChannelConverter.SCALE_FACTOR_1)));
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447), SCALE_FACTOR_1)));
 
 		// Calculates required Channels from other existing Channels.
 		this.addCalculateChannelListeners();

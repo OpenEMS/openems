@@ -17,7 +17,7 @@ public class EdgeApp {
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
 
 	@Activate
-	void activate() {
+	private void activate() {
 		var message = "OpenEMS version [" + OpenemsConstants.VERSION + "] started";
 		var line = Strings.repeat("=", message.length());
 		this.log.info(line);
@@ -34,7 +34,7 @@ public class EdgeApp {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.log.debug("Deactivate EdgeApp");
 	}
 

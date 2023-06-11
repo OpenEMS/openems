@@ -148,7 +148,7 @@ public enum OcppInformations {
 	 */
 	CORE_METER_VALUES_VOLTAGE("Voltage", MeasuringEvcs.ChannelId.VOLTAGE);
 
-	String ocppValue;
+	private final String ocppValue;
 	private final ChannelId channelId;
 
 	private OcppInformations(String ocppValue, ChannelId channelId) {

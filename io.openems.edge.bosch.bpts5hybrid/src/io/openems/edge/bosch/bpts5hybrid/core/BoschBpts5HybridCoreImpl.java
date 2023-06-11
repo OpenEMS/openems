@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bosch.bpts5hybrid.ess.BoschBpts5HybridEss;
@@ -28,22 +28,22 @@ import io.openems.edge.common.event.EdgeEventConstants;
 @Component(//
 		name = "Bosch.BPTS5Hybrid.Core", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 		implements BoschBpts5HybridCore, OpenemsComponent, EventHandler {
+
+	private final AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
+	private final AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
+	private final AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
 
 	@Reference
 	private ConfigurationAdmin cm;
 
 	private BoschBpts5HybridReadWorker worker = null;
-
-	private final AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
-	private final AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
-	private final AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
 
 	public BoschBpts5HybridCoreImpl() {
 		super(//
@@ -52,7 +52,7 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws ConfigurationException, IOException {
+	private void activate(ComponentContext context, Config config) throws ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (!config.enabled()) {
 			return;

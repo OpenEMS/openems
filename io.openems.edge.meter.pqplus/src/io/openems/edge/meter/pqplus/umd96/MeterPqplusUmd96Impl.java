@@ -1,5 +1,7 @@
 package io.openems.edge.meter.pqplus.umd96;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,7 +17,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -48,6 +49,12 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
 	public MeterPqplusUmd96Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -61,14 +68,8 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -93,24 +94,20 @@ public class MeterPqplusUmd96Impl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				// Frequency
 				new FC3ReadRegistersTask(0x1004, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(0x1004),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(0x1004), SCALE_FACTOR_3)),
 				// Voltages
 				new FC3ReadRegistersTask(0x1100, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(0x1100),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(0x1102),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(0x1104),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(0x1100), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(0x1102), SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(0x1104), SCALE_FACTOR_3)),
 				// Currents
 				new FC3ReadRegistersTask(0x1200, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(0x1200), //
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(0x1202), //
-								ElementToChannelConverter.SCALE_FACTOR_3),
+								SCALE_FACTOR_3),
 						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(0x1204), //
-								ElementToChannelConverter.SCALE_FACTOR_3)),
+								SCALE_FACTOR_3)),
 				// Power values
 				new FC3ReadRegistersTask(0x1314, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x1314)),

@@ -18,7 +18,7 @@ export class ModalComponent extends AbstractModal {
     ]
   };
   public evcss: EdgeConfig.Component[] | null = null;
-  public evcsChargePower: { total: number, component: { name: string, value: number }[] } = { total: 0, component: [] }
+  public evcsChargePower: { total: number, component: { name: string, value: number }[] } = { total: 0, component: [] };
   public consumptionMeters: EdgeConfig.Component[] = null;
   public consumptionMetersActivePower: { total: number, component: { name: string, value: number, phases: { name: string, value: number }[] }[] } = { total: 0, component: [] };
   public otherPower: number = null;
@@ -53,7 +53,7 @@ export class ModalComponent extends AbstractModal {
           name: "Phase L3",
           value: 0
         }]
-      })
+      });
     }
     // Get EVCSs
     this.evcss = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -63,7 +63,7 @@ export class ModalComponent extends AbstractModal {
     for (let component of this.evcss) {
       channelAddresses.push(
         new ChannelAddress(component.id, 'ChargePower'),
-      )
+      );
     }
     for (let i = 0; i < this.evcss.length; i++) {
       this.evcsChargePower.component.push({ name: this.evcss[i].alias ?? this.evcss[i].id, value: 0 });
@@ -74,8 +74,8 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
       new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
-    )
-    return channelAddresses
+    );
+    return channelAddresses;
   }
 
   protected override onCurrentData(currentData: CurrentData) {
@@ -85,11 +85,11 @@ export class ModalComponent extends AbstractModal {
 
     this.activePower.total = currentData.allComponents['_sum/ConsumptionActivePower'];
     for (let i of [0, 1, 2]) {
-      this.activePower.phases[i].value = currentData.allComponents['_sum/ConsumptionActivePowerL' + (i + 1)] ?? 0
+      this.activePower.phases[i].value = currentData.allComponents['_sum/ConsumptionActivePowerL' + (i + 1)] ?? 0;
     }
     for (let i = 0; i < this.evcss.length; i++) {
       this.evcsChargePower.total += (currentData.allComponents[this.evcss[i].id + '/ChargePower']) ?? 0;
-      this.evcsChargePower.component[i].value = currentData.allComponents[this.evcss[i].id + '/ChargePower'] ?? 0
+      this.evcsChargePower.component[i].value = currentData.allComponents[this.evcss[i].id + '/ChargePower'] ?? 0;
     }
 
     for (let i = 0; i < this.consumptionMeters.length; i++) {

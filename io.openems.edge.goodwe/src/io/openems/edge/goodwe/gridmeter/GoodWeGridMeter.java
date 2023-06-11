@@ -24,7 +24,7 @@ public interface GoodWeGridMeter extends ElectricityMeter, OpenemsComponent {
 
 		METER_POWER_FACTOR(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE)), //
-		
+
 		HAS_NO_METER(Doc.of(Level.INFO) //
 				.text("This GoodWe has no Grid-Meter. Meter can be deleted or hardware must be checked.")),
 
