@@ -28,7 +28,6 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -119,8 +118,6 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(PvInverterKacoBlueplanetImpl.class, accessMode, 100) //
-						.build());
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 }

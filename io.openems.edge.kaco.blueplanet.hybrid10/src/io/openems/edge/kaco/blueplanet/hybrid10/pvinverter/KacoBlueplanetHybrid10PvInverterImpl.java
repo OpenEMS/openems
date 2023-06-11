@@ -29,7 +29,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.KacoBlueplanetHybrid10Core;
@@ -188,8 +187,6 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(KacoBlueplanetHybrid10PvInverter.class, accessMode, 100) //
-						.build());
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 }

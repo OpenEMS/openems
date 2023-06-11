@@ -473,26 +473,72 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 200) //
+				.channel(0, ChannelId.FREQUENCY, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.ACTIVE_PRODUCTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //
+				// Reserved, to stay compatible with previous Symmetric-/AsymmetricMeter
+				// implementation;
+				// TODO find more elegant solution for this to avoid empty lines in Excel export
+				.uint32Reserved(18) //
+				.uint32Reserved(20).uint32Reserved(22).uint32Reserved(24).uint32Reserved(26).uint32Reserved(28) //
+				.uint32Reserved(30).uint32Reserved(32).uint32Reserved(34).uint32Reserved(36).uint32Reserved(38) //
+				.uint32Reserved(40).uint32Reserved(42).uint32Reserved(44).uint32Reserved(46).uint32Reserved(48) //
+				.uint32Reserved(50).uint32Reserved(52).uint32Reserved(54).uint32Reserved(56).uint32Reserved(58) //
+				.uint32Reserved(60).uint32Reserved(62).uint32Reserved(64).uint32Reserved(66).uint32Reserved(68) //
+				.uint32Reserved(70).uint32Reserved(72).uint32Reserved(74).uint32Reserved(76).uint32Reserved(78) //
+				.uint32Reserved(80).uint32Reserved(82).uint32Reserved(84).uint32Reserved(86).uint32Reserved(88) //
+				.uint32Reserved(90).uint32Reserved(92).uint32Reserved(94).uint32Reserved(96).uint32Reserved(98) //
 
-				// TODO sum values
-				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
-				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
-				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
-				.channel(6, ChannelId.REACTIVE_POWER_L1, ModbusType.FLOAT32) //
-				.channel(8, ChannelId.REACTIVE_POWER_L2, ModbusType.FLOAT32) //
-				.channel(10, ChannelId.REACTIVE_POWER_L3, ModbusType.FLOAT32) //
-				.channel(12, ChannelId.VOLTAGE_L1, ModbusType.FLOAT32) //
-				.channel(14, ChannelId.VOLTAGE_L2, ModbusType.FLOAT32) //
-				.channel(16, ChannelId.VOLTAGE_L3, ModbusType.FLOAT32) //
-				.channel(18, ChannelId.CURRENT_L1, ModbusType.FLOAT32) //
-				.channel(20, ChannelId.CURRENT_L2, ModbusType.FLOAT32) //
-				.channel(22, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
-				.channel(24, ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, ModbusType.FLOAT32) //
-				.channel(26, ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, ModbusType.FLOAT32) //
-				.channel(28, ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, ModbusType.FLOAT32) //
-				.channel(30, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, ModbusType.FLOAT32) //
-				.channel(32, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, ModbusType.FLOAT32) //
-				.channel(34, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, ModbusType.FLOAT32) //
+				.channel(100, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(102, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
+				.channel(104, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.channel(106, ChannelId.REACTIVE_POWER_L1, ModbusType.FLOAT32) //
+				.channel(108, ChannelId.REACTIVE_POWER_L2, ModbusType.FLOAT32) //
+				.channel(110, ChannelId.REACTIVE_POWER_L3, ModbusType.FLOAT32) //
+				.channel(112, ChannelId.VOLTAGE_L1, ModbusType.FLOAT32) //
+				.channel(114, ChannelId.VOLTAGE_L2, ModbusType.FLOAT32) //
+				.channel(116, ChannelId.VOLTAGE_L3, ModbusType.FLOAT32) //
+				.channel(118, ChannelId.CURRENT_L1, ModbusType.FLOAT32) //
+				.channel(120, ChannelId.CURRENT_L2, ModbusType.FLOAT32) //
+				.channel(122, ChannelId.CURRENT_L3, ModbusType.FLOAT32) //
+				.channel(124, ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, ModbusType.FLOAT32) //
+				.channel(126, ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, ModbusType.FLOAT32) //
+				.channel(128, ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, ModbusType.FLOAT32) //
+				.channel(130, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, ModbusType.FLOAT32) //
+				.channel(132, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, ModbusType.FLOAT32) //
+				.channel(134, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, ModbusType.FLOAT32) //
+				.build();
+	}
+
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component - without individual phases.
+	 * 
+	 * <p>
+	 * This method provides a way to stay compatible with previous SymmetricMeter
+	 * implementations that did not support AsymmetricMeter. Do not use for new
+	 * implementations!
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTableWithoutIndividualPhases(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 200) //
+				.channel(0, ChannelId.FREQUENCY, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.MIN_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(4, ChannelId.MAX_ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(10, ChannelId.ACTIVE_PRODUCTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.FLOAT32) //
+				.channel(14, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(16, ChannelId.CURRENT, ModbusType.FLOAT32) //
 				.build();
 	}
 

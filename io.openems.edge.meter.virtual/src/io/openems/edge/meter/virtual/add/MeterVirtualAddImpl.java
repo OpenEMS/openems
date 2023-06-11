@@ -20,7 +20,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -107,9 +106,7 @@ public class MeterVirtualAddImpl extends AbstractOpenemsComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(MeterVirtualAddImpl.class, accessMode, 100) //
-						.build());
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode));
 	}
 
 }

@@ -164,8 +164,7 @@ public class MeterWeidmueller525Impl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
-		);
+				ElectricityMeter.getModbusSlaveNatureTableWithoutIndividualPhases(accessMode));
 	}
 
 }

@@ -107,8 +107,7 @@ public class VirtualSubtractMeterImpl extends AbstractOpenemsComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
-		);
+				ElectricityMeter.getModbusSlaveNatureTableWithoutIndividualPhases(accessMode));
 	}
 
 }
