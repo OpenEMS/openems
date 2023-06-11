@@ -98,16 +98,13 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3847), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3845), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849), SCALE_FACTOR_3), //
 						new DummyRegisterElement(3851, 3852), //
-						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3853), //
-								SCALE_FACTOR_3), //
-						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), //
-								SCALE_FACTOR_3), //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), //
-								SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3853), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), SCALE_FACTOR_3), //
 						new DummyRegisterElement(3859, 3860),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3861), //
 								INVERT_IF_TRUE(this.invert)), //
@@ -127,8 +124,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
 								INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), //
-								SCALE_FACTOR_3)));
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), SCALE_FACTOR_3)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
