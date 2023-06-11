@@ -124,7 +124,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
             ];
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));
-            })
+            });
             config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
                 .forEach(component => {

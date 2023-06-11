@@ -44,6 +44,9 @@ public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
 				ElectricityMeter.ChannelId.values(), //
 				MeterAbbB23.ChannelId.values() //
 		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate

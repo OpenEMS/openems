@@ -94,7 +94,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress(this.componentId, 'ActivePower'),
             ];
             let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let meter of consumptionMeters) {
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));
             }

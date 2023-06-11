@@ -25,8 +25,52 @@ import io.openems.edge.common.type.TypeUtils;
  * Represents an electricity Meter.
  * 
  * <p>
- * This is the parent of everything that measures electricity flow. Consider
- * using {@link SinglePhaseMeter} if only either L1, L2 or L3 can be set
+ * Meaning of positive and negative values for Power and Current depends on the
+ * {@link MeterType} (via {@link #getMeterType()}):
+ * <ul>
+ * <li>{@link MeterType#GRID}
+ * <ul>
+ * <li>positive: buy-from-grid
+ * <li>negative: feed-to-grid
+ * </ul>
+ * <li>{@link MeterType#PRODUCTION}
+ * <ul>
+ * <li>positive: production
+ * <li>negative: (undefined)
+ * </ul>
+ * <li>{@link MeterType#PRODUCTION_AND_CONSUMPTION}
+ * <ul>
+ * <li>positive: production
+ * <li>negative: consumption
+ * </ul>
+ * <li>{@link MeterType#CONSUMPTION_METERED}
+ * <ul>
+ * <li>positive: consumption
+ * <li>negative: (undefined)
+ * </ul>
+ * <li>{@link MeterType#CONSUMPTION_NOT_METERED}
+ * <ul>
+ * <li>positive: consumption
+ * <li>negative: (undefined)
+ * </ul>
+ * </ul>
+ * 
+ * <p>
+ * If values for all phases are equal (i.e. the measured device is 'symmetric'),
+ * consider using the helper methods:
+ * <ul>
+ * <li>{@link #calculateSumActivePowerFromPhases(ElectricityMeter)}
+ * <li>{@link #calculateSumReactivePowerFromPhases(ElectricityMeter)}
+ * <li>{@link #calculatePhasesFromActivePower(ElectricityMeter)}
+ * <li>{@link #calculatePhasesFromReactivePower(ElectricityMeter)}
+ * <li>{@link #calculateSumActiveProductionEnergyFromPhases(ElectricityMeter)}
+ * <li>{@link #calculateAverageVoltageFromPhases(ElectricityMeter)}
+ * <li>{@link #calculateSumCurrentFromPhases(ElectricityMeter)}
+ * </ul>
+ * 
+ * <p>
+ * If only ever L1, L2 or L3 can be set, implement the {@link SinglePhaseMeter}
+ * Nature additionally and consider using its helper methods.
  */
 @ProviderType
 public interface ElectricityMeter extends OpenemsComponent {
@@ -44,9 +88,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#WATT}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		ACTIVE_POWER(new IntegerDoc() //
@@ -91,9 +133,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#WATT}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
@@ -105,9 +145,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#WATT}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
@@ -119,9 +157,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#WATT}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
@@ -133,9 +169,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
 		 * </ul>
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -147,9 +180,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
 		 * </ul>
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
@@ -161,9 +191,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
 		 * </ul>
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
@@ -175,9 +202,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
-		 * <li>Range: negative values for Consumption (power that is 'leaving the
-		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
-		 * the system')
 		 * </ul>
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
@@ -189,6 +213,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
+		 * <li>Range: only positive values
 		 * </ul>
 		 */
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
@@ -200,6 +225,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
+		 * <li>Range: only positive values
 		 * </ul>
 		 */
 		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
@@ -211,6 +237,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
+		 * <li>Range: only positive values
 		 * </ul>
 		 */
 		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
@@ -222,6 +249,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
+		 * <li>Range: only positive values
 		 * </ul>
 		 */
 		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
@@ -233,6 +261,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIAMPERE}
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
@@ -244,6 +273,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIAMPERE}
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
@@ -255,6 +285,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIAMPERE}
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
@@ -266,6 +297,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIAMPERE}
+		 * <li>Range: see {@link ElectricityMeter}
 		 * </ul>
 		 */
 		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
@@ -288,7 +320,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over positive values of {@link #ACTIVE_POWER} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
@@ -299,7 +334,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over positive values of {@link #ACTIVE_POWER_L1} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
@@ -310,7 +348,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over positive values of {@link #ACTIVE_POWER_L2} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
@@ -321,7 +362,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over positive values of {@link #ACTIVE_POWER_L3} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
@@ -332,7 +376,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over negative values of {@link #ACTIVE_POWER} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
@@ -343,7 +390,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over negative values of {@link #ACTIVE_POWER_L1} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
@@ -354,7 +404,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over negative values of {@link #ACTIVE_POWER_L2} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
@@ -365,7 +418,10 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#LONG}
-		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * <li>Unit: {@link Unit#CUMULATED_WATT_HOURS}
+		 * <li>Range: only positive values
+		 * <li>Source: integral over negative values of {@link #ACTIVE_POWER_L1} (see
+		 * {@link ElectricityMeter})
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
@@ -417,10 +473,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 200) //
-				
-				
-				
-				
+
 				// TODO sum values
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //

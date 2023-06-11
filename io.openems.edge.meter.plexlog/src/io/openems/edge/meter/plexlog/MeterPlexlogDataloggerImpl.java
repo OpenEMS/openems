@@ -76,14 +76,15 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final var modbusProtocol = new ModbusProtocol(this, new FC4ReadInputRegistersTask(0, Priority.HIGH, //
-				this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
-				new DummyRegisterElement(2, 7), //
-				this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
-		));
+		final var modbusProtocol = new ModbusProtocol(this, //
+				new FC4ReadInputRegistersTask(0, Priority.HIGH, //
+						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
+						new DummyRegisterElement(2, 7), //
+						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
+				));
 
 		this.getTotalProductionChannel().onSetNextValue(value -> {
 			doIfBothPresent(value, this.getProductionExponent(), this::calculateActiveProductionEnergy);

@@ -27,7 +27,8 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Virtual.Add", //
+@Component(//
+		name = "Meter.Virtual.Add", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
