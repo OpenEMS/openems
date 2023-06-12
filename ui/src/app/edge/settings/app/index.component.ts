@@ -86,7 +86,10 @@ export class IndexComponent implements OnInit, OnDestroy {
       element.appCategories = [];
     });
 
-    this.service.setCurrentComponent(environment.edgeShortName + ' Apps', this.route).then(edge => {
+    this.service.setCurrentComponent({
+      languageKey: 'Edge.Config.App.NAME_WITH_EDGE_NAME',
+      interpolateParams: { edgeShortName: environment.edgeShortName }
+    }, this.route).then(edge => {
       this.edge = edge;
 
       this.service.metadata

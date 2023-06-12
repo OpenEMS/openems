@@ -374,6 +374,8 @@
         }
       },
       "App": {
+        "NAME": "App Center",
+        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "The App Manager is currently in a first test version.",
         "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
         "installed": "Installed",
