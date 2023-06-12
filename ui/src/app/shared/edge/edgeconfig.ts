@@ -235,7 +235,7 @@ export class EdgeConfig {
         switch (natureId) {
             // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
             case "io.openems.edge.meter.api.ElectricityMeter":
-                result.concat(this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+                result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
         return result;
