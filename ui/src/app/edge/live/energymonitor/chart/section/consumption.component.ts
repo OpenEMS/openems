@@ -91,7 +91,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "consumption.png";
+        return "icon/consumption.svg";
     }
 
     protected getValueText(value: number): string {

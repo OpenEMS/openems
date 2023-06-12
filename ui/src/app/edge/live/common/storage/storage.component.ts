@@ -15,7 +15,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     public essComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
-    public storageItem: string = null;
+    public storageIconStyle: string = null;
     public isHybridEss: boolean[] = [];
     public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
     public currentSoc: number[] = [];
@@ -153,7 +153,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Check total State_of_Charge for dynamical icon in widget-header
         let soc = currentData.allComponents['_sum/EssSoc'];
-        this.storageItem = "assets/img/" + Utils.getStorageSocImage(soc);
+        this.storageIconStyle = 'storage-' + Utils.getStorageSocSegment(soc);
 
         for (let essId in this.emergencyReserveComponents) {
             let controller = this.emergencyReserveComponents[essId];

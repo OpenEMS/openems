@@ -92,7 +92,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected getImagePath(): string {
-        return "production.png";
+        return "icon/production.svg";
     }
 
     protected getValueText(value: number): string {

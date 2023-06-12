@@ -149,9 +149,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getImagePath(): string {
         if (this.gridMode == 2) {
-            return "offgrid.png";
+            return "icon/offgrid.svg";
         } else {
-            return "grid.png";
+            return "icon/grid.svg";
         }
     }
 
