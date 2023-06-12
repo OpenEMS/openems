@@ -1,6 +1,5 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 import { GetAppInstances } from "./getAppInstances";
-import { GetApps } from "./getApps";
 
 /**
  * Updates an instance of an {@link OpenemsApp}.

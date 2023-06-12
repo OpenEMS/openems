@@ -12,7 +12,8 @@ import { ChannelAddress } from '../../../../../shared/shared';
 export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
-    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
+    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
     let channels: HistoryUtils.InputChannel[] = [{
@@ -93,7 +94,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 data['ProductionDcActualPower'].forEach((value, index) => {
                   effectiveProduction[index] = Utils.addSafely(data['ProductionAcActivePowerL' + i][index], value / 3);
                 });
-              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
+              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").length > 0) {
                 effectiveProduction = data['ProductionAcActivePowerL' + i];
               }
               return effectiveProduction;

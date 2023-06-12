@@ -14,9 +14,9 @@ import eu.chargetime.ocpp.model.firmware.FirmwareStatusNotificationRequest;
 public class FirmwareManagementEventHandlerImpl implements ServerFirmwareManagementEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(FirmwareManagementEventHandlerImpl.class);
-	private final OcppServerImpl parent;
+	private final EvcsOcppServer parent;
 
-	public FirmwareManagementEventHandlerImpl(OcppServerImpl parent) {
+	public FirmwareManagementEventHandlerImpl(EvcsOcppServer parent) {
 		this.parent = parent;
 	}
 

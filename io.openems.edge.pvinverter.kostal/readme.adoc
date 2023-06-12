@@ -17,7 +17,7 @@ Configuration in Kostal UI:
 Modbus must be active and byte order must be big-endian for sunspec.
 
 Implemented Natures:
-- SymmetricMeter
+- ElectricityMeter
 - ManagedSymmetricPvInverter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.kostal[Source Code icon:github[]]

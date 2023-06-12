@@ -41,8 +41,9 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	private static final byte THREAD_POOL_SIZE = 2;
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
-	private final Logger log = LoggerFactory.getLogger(Alerting.class);
+	protected final Scheduler scheduler;
 
+	private final Logger log = LoggerFactory.getLogger(Alerting.class);
 	private final ThreadPoolExecutor executor;
 
 	@Reference
@@ -51,7 +52,6 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	@Reference
 	protected Mailer mailer;
 
-	protected final Scheduler scheduler;
 	protected Handler<?>[] handlers = {};
 
 	protected Alerting(Scheduler scheduler) {

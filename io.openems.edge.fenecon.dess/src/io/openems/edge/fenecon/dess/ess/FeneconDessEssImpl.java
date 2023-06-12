@@ -68,10 +68,8 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 			HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
 	private final List<FeneconDessCharger> chargers = new ArrayList<>();
 
-	private Config config;
-
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -81,6 +79,8 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
 
 	public FeneconDessEssImpl() {
 		super(//
@@ -100,7 +100,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {

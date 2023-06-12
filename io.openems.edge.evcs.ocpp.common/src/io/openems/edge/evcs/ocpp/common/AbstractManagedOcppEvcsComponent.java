@@ -39,13 +39,14 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * SET_CHARGE_POWER_LIMIT or SET_CHARGE_POWER_LIMIT_WITH_FILTER Channel are
  * usually set by the evcs Controller.
  * 
- * <pre>
+ * <p>
  * Please ensure to add the event topics at in the properties of the subclass:
- * {@code}
- * property = { //
- * 			EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
- * 			EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
- * 	})
+ * 
+ * <pre>{@code
+ * &#64;EventTopics({ //
+ * 	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+ * 	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+ * })}
  * </pre>
  * 
  * <pre>

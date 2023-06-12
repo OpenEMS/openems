@@ -109,11 +109,12 @@ public class SingleRack {
 	private final int rackNumber;
 	private final int numberOfSlaves;
 	private final int addressOffset;
-	private final ClusterVersionB parent;
+	private final BatterySoltaroClusterVersionBImpl parent;
 	private final Map<String, ChannelId> channelIds;
 	private final Map<String, Channel<?>> channelMap;
 
-	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, ClusterVersionB parent) {
+	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset,
+			BatterySoltaroClusterVersionBImpl parent) {
 		this.rackNumber = racknumber;
 		this.numberOfSlaves = numberOfSlaves;
 		this.addressOffset = addressOffset;

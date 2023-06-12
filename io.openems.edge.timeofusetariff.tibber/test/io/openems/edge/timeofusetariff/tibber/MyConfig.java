@@ -7,8 +7,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		public String accessToken;
-		public String filter;
+		private String accessToken;
+		private String filter;
 
 		private Builder() {
 		}

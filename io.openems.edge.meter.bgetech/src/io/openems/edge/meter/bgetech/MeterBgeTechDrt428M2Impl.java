@@ -27,31 +27,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.BGE-TECH.DRT428M2", //
+@Component(//
+		name = "Meter.BGE-TECH.DRT428M2", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent implements MeterBgeTechDrt428M2,
-		SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
-
-	private MeterType meterType = MeterType.PRODUCTION;
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
+		implements MeterBgeTechDrt428M2, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
-
-	public MeterBgeTechDrt428M2Impl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				MeterBgeTechDrt428M2.ChannelId.values() //
-		);
-	}
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -59,8 +48,23 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent imp
 		super.setModbus(modbus);
 	}
 
+	private MeterType meterType = MeterType.PRODUCTION;
+
+	public MeterBgeTechDrt428M2Impl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				MeterBgeTechDrt428M2.ChannelId.values() //
+		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+	}
+
 	@Activate
-	protected void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -82,29 +86,27 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent imp
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
-				new FC3ReadRegistersTask(14, Priority.HIGH,
-						m(new FloatDoublewordElement(14)).m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3)
-								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3).build(),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(16), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(18), SCALE_FACTOR_3), //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+				new FC3ReadRegistersTask(14, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(14), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(16), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(18), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(20), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(20), SCALE_FACTOR_3), //
 
-						m(new FloatDoublewordElement(22)).m(AsymmetricMeter.ChannelId.CURRENT_L1, SCALE_FACTOR_3)
-								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_3).build(),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(24), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(26), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(22), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(24), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(26), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(28), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(30), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(32), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(34), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(28), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(30), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(32), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(34), SCALE_FACTOR_3), //
 
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(36), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(38), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(40), SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(42), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(36), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(38), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(40), SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(42), SCALE_FACTOR_3), //
 
 						m(MeterBgeTechDrt428M2.ChannelId.TOTAL_APPARENT_POWER, new FloatDoublewordElement(44)),
 						m(MeterBgeTechDrt428M2.ChannelId.L1_APPARENT_POWER, new FloatDoublewordElement(46)),
@@ -186,9 +188,9 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent imp
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode),
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode));
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 
 }

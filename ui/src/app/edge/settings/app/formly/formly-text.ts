@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { FieldType, FieldTypeConfig, FieldWrapper } from "@ngx-formly/core";
+import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
 
 @Component({
     selector: 'formly-text',

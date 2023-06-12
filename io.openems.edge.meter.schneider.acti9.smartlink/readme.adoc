@@ -1,9 +1,7 @@
 = Schneider Acti9 Smartlink Meter
 
-Implemented Natures::
-
- * SymmetricMeter  
- * AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 To configure the meter, first add a modbus tcp bridge connecting to the correct IP address, then configure this meter to use the configured modbus bridge. The unit ID is by default 1.
 

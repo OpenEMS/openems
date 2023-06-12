@@ -32,7 +32,7 @@ export class ConsumptionChartOverviewComponent implements OnInit {
                         !(component.factoryId == 'Evcs.Cluster'
                             || component.factoryId == 'Evcs.Cluster.PeakShaving'
                             || component.factoryId == 'Evcs.Cluster.SelfConsumption'));
-                this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                     .filter(component => config.isTypeConsumptionMetered(component));
                 // determine if singlechart is the only chart that is shown
                 // disable total option to choose for chartoptions component
