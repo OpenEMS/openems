@@ -7,7 +7,6 @@ import { Subject, timer } from 'rxjs';
 import { filter, retry, switchMap, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../environments';
-import { CheckForUpdateService } from './appupdateservice';
 import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
@@ -44,11 +43,9 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private titleService: Title,
-    private checkForUpdateService: CheckForUpdateService,
     private globaleRouteChangeHandler: GlobalRouteChangeHandler
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
-    checkForUpdateService.init();
 
     this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
       this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);

@@ -53,14 +53,10 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
     let channelAddresses = this.getChannelAddresses();
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
-      let thisComponent = {};
       let allComponents = {};
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
-        if (channelAddress.componentId === this.componentId) {
-          thisComponent[channelAddress.channelId] = result.data[ca];
-        }
       }
       this.onCurrentData({ allComponents: allComponents });
     }).catch(() => {
