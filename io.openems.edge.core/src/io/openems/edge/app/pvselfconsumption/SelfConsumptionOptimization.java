@@ -32,7 +32,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -114,7 +114,7 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
-								.setOptions(this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class),
+								.setOptions(this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class),
 										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())

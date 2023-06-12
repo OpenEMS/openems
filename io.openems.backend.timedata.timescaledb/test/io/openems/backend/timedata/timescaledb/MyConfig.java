@@ -6,14 +6,14 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String host;
-		public int port;
-		public String user;
-		public String password;
-		public String database;
-		public boolean isReadOnly;
-		public int poolSize;
+		private String id;
+		private String host;
+		private int port;
+		private String user;
+		private String password;
+		private String database;
+		private boolean isReadOnly;
+		private int poolSize;
 
 		private Builder() {
 		}

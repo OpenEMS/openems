@@ -1,4 +1,4 @@
-import { Directive, Inject, Injectable, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';

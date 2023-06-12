@@ -32,9 +32,8 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -43,24 +42,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
-
-	private MeterType meterType = MeterType.PRODUCTION;
-
-	private Config config;
+		implements MeterBControlEM300, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
-	protected ConfigurationAdmin cm;
-
-	public MeterBControlEM300Impl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				MeterBControlEM300.ChannelId.values() //
-		);
-	}
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -68,8 +53,24 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	private MeterType meterType = MeterType.PRODUCTION;
+	private Config config;
+
+	public MeterBControlEM300Impl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				MeterBControlEM300.ChannelId.values() //
+		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		this.config = config;
 
@@ -104,7 +105,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(10, Priority.LOW,
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
 
 				new FC3ReadRegistersTask(40, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
@@ -117,8 +118,8 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(60, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
 
 				new FC3ReadRegistersTask(80, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
@@ -132,8 +133,8 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(100, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
 
 				new FC3ReadRegistersTask(120, Priority.HIGH,
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
@@ -146,20 +147,20 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(140, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))));
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))));
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
 							SCALE_FACTOR_MINUS_1),
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
 							SCALE_FACTOR_MINUS_1)));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
 							SCALE_FACTOR_MINUS_1),
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
 							SCALE_FACTOR_MINUS_1)));
 		}
 
@@ -226,23 +227,23 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 	private void addCalculateChannelListeners() {
 		// Active Power
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.ACTIVE_POWER_POS,
-				MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, SymmetricMeter.ChannelId.ACTIVE_POWER);
+				MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, ElectricityMeter.ChannelId.ACTIVE_POWER);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS,
-				MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, AsymmetricMeter.ChannelId.ACTIVE_POWER_L1);
+				MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, ElectricityMeter.ChannelId.ACTIVE_POWER_L1);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS,
-				MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, AsymmetricMeter.ChannelId.ACTIVE_POWER_L2);
+				MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, ElectricityMeter.ChannelId.ACTIVE_POWER_L2);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS,
-				MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, AsymmetricMeter.ChannelId.ACTIVE_POWER_L3);
+				MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, ElectricityMeter.ChannelId.ACTIVE_POWER_L3);
 
 		// Reactive Power
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.REACTIVE_POWER_POS,
-				MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, SymmetricMeter.ChannelId.REACTIVE_POWER);
+				MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, ElectricityMeter.ChannelId.REACTIVE_POWER);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS,
-				MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, AsymmetricMeter.ChannelId.REACTIVE_POWER_L1);
+				MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, ElectricityMeter.ChannelId.REACTIVE_POWER_L1);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS,
-				MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, AsymmetricMeter.ChannelId.REACTIVE_POWER_L2);
+				MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, ElectricityMeter.ChannelId.REACTIVE_POWER_L2);
 		CalculatePower.of(this, MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS,
-				MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, AsymmetricMeter.ChannelId.REACTIVE_POWER_L3);
+				MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, ElectricityMeter.ChannelId.REACTIVE_POWER_L3);
 
 		// Average Voltage from current L1, L2 and L3
 		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
@@ -278,8 +279,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 

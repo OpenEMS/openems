@@ -247,10 +247,8 @@ export class Utils {
   public static CONVERT_TO_CURRENT = (value: any): string => {
     if (value == null) {
       return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
     } else {
-      return '0 A';
+      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
     }
   };
 

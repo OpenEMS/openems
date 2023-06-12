@@ -40,7 +40,7 @@ public class Data {
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();
 
-	private boolean symmetricMode = PowerComponent.DEFAULT_SYMMETRIC_MODE;
+	private boolean symmetricMode = EssPower.DEFAULT_SYMMETRIC_MODE;
 	private Consumer<Boolean> onStaticConstraintsFailed = null;
 
 	/**
@@ -53,7 +53,7 @@ public class Data {
 	}
 
 	/**
-	 * Adds a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
+	 * Adds a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
 	 *
 	 * @param ess the {@link ManagedSymmetricEss}
 	 */
@@ -63,7 +63,7 @@ public class Data {
 	}
 
 	/**
-	 * Removes a {@link ManagedSymmetricEss}. Called by {@link PowerComponentImpl}.
+	 * Removes a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
 	 *
 	 * @param ess the {@link ManagedSymmetricEss}
 	 */

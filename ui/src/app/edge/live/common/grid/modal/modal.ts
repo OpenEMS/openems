@@ -26,8 +26,7 @@ export class ModalComponent {
   protected fields: FormlyFieldConfig[] = [];
   protected form: FormGroup = new FormGroup({});
 
-  public static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, userRole: Role): FormlyFieldLine[] {
-    let fields: FormlyFieldLine[] = [];
+  protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
 
     ['L1', 'L2', 'L3'].forEach(phase => {
       fields.push(
@@ -64,7 +63,7 @@ export class ModalComponent {
 
   public static generateView(edgeId: string, edgeConfig: EdgeConfig, userRole: Role, translate: TranslateService): FormlyFieldConfig[] {
 
-    const asymmetricMeters = edgeConfig.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+    const asymmetricMeters = edgeConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(comp => comp.isEnabled && edgeConfig.isTypeGrid(comp));
 
     let lines: FormlyFieldLine[] = [

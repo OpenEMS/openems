@@ -31,9 +31,9 @@ import io.openems.edge.common.user.User;
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
-	private final BackendApiImpl parent;
+	private final ControllerApiBackendImpl parent;
 
-	public OnRequest(BackendApiImpl parent) {
+	public OnRequest(ControllerApiBackendImpl parent) {
 		this.parent = parent;
 	}
 

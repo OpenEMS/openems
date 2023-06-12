@@ -15,7 +15,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 
 public class SurplusFeedInHandler {
 
@@ -36,8 +36,7 @@ public class SurplusFeedInHandler {
 		this.parent = parent;
 	}
 
-	protected Integer run(List<EssDcChargerFeneconCommercial40> chargers, Config config,
-			ComponentManager componentManager) {
+	protected Integer run(List<EssFeneconCommercial40Pv> chargers, Config config, ComponentManager componentManager) {
 		var offTime = LocalTime.parse(config.surplusFeedInOffTime());
 
 		var areSurplusConditionsMet = this.areSurplusConditionsMet(this.parent, chargers, config);
@@ -111,7 +110,7 @@ public class SurplusFeedInHandler {
 	 * @param chargers the DC Chargers
 	 * @return pv power
 	 */
-	private int getPvPower(List<EssDcChargerFeneconCommercial40> chargers) {
+	private int getPvPower(List<EssFeneconCommercial40Pv> chargers) {
 		var pvPower = 0;
 		for (EssDcCharger charger : chargers) {
 			pvPower += charger.getActualPower().orElse(0);
@@ -119,8 +118,8 @@ public class SurplusFeedInHandler {
 		return pvPower;
 	}
 
-	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess,
-			List<EssDcChargerFeneconCommercial40> chargers, Config config) {
+	private boolean areSurplusConditionsMet(EssFeneconCommercial40Impl ess, List<EssFeneconCommercial40Pv> chargers,
+			Config config) {
 		if (chargers.isEmpty()) {
 			return false;
 		}
@@ -139,9 +138,9 @@ public class SurplusFeedInHandler {
 		}
 
 		var maxVoltage = 0;
-		for (EssDcChargerFeneconCommercial40 charger : chargers) {
+		for (EssFeneconCommercial40Pv charger : chargers) {
 			int thisVoltage = ((IntegerReadChannel) charger
-					.channel(EssDcChargerFeneconCommercial40.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value().orElse(0);
+					.channel(EssFeneconCommercial40Pv.ChannelId.PV_DCDC_INPUT_VOLTAGE)).value().orElse(0);
 			if (thisVoltage > maxVoltage) {
 				maxVoltage = thisVoltage;
 			}
@@ -155,7 +154,7 @@ public class SurplusFeedInHandler {
 		return true;
 	}
 
-	private void applyPvPowerLimit(List<EssDcChargerFeneconCommercial40> chargers, Config config, boolean limitPv) {
+	private void applyPvPowerLimit(List<EssFeneconCommercial40Pv> chargers, Config config, boolean limitPv) {
 		/*
 		 * Limit PV production power
 		 */
@@ -179,9 +178,9 @@ public class SurplusFeedInHandler {
 			}
 		}
 
-		for (EssDcChargerFeneconCommercial40 charger : chargers) {
+		for (EssFeneconCommercial40Pv charger : chargers) {
 			IntegerWriteChannel setPvPowerLimit = charger
-					.channel(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT);
+					.channel(EssFeneconCommercial40Pv.ChannelId.SET_PV_POWER_LIMIT);
 			try {
 				setPvPowerLimit.setNextWriteValue(pvPowerLimit);
 			} catch (OpenemsNamedException e) {

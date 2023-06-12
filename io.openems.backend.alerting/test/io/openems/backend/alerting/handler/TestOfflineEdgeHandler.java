@@ -98,7 +98,7 @@ public class TestOfflineEdgeHandler {
 		final var msgsch = new Dummy.MessageSchedulerServiceImpl();
 		final var handler = new OfflineEdgeHandler(msgsch, null, this.metadata, 0);
 
-		final var expected = (int) this.metadata.settings.values().stream().filter(e -> e.stream()
+		final var expected = (int) this.metadata.getSettings().values().stream().filter(e -> e.stream()
 				.filter(s -> s.getDelayTime() > 0).filter(s -> s.getLastNotification().isBefore(this.now)).count() != 0)
 				.count();
 		assertEquals(expected, msgsch.find(handler).size());

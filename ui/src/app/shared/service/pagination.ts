@@ -1,8 +1,6 @@
 import { Directive } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
-import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { ChannelAddress, Edge } from '../shared';
 import { Service } from './service';
