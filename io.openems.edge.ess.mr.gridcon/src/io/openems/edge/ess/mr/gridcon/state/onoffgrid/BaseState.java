@@ -14,7 +14,7 @@ import io.openems.edge.ess.mr.gridcon.GridconPcs;
 import io.openems.edge.ess.mr.gridcon.Helper;
 import io.openems.edge.ess.mr.gridcon.StateObject;
 import io.openems.edge.ess.mr.gridcon.WeightingHelper;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class BaseState implements StateObject {
 
@@ -156,7 +156,7 @@ public abstract class BaseState implements StateObject {
 	private boolean isVoltageOnMeter() {
 		boolean ret = false;
 		try {
-			SymmetricMeter meter = this.manager.getComponent(this.meterId);
+			ElectricityMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> voltageValue = meter.getVoltage();
 			int voltage = voltageValue.orElse(0); // voltage is in mV
 			ret = voltage > BaseState.VOLTAGE_GRID;
@@ -169,7 +169,7 @@ public abstract class BaseState implements StateObject {
 	protected float getVoltageOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
-			SymmetricMeter meter = this.manager.getComponent(this.meterId);
+			ElectricityMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> voltageValue = meter.getVoltage();
 			int voltage = voltageValue.orElse(0); // voltage is in mV
 			ret = voltage / 1000.0f;
@@ -182,7 +182,7 @@ public abstract class BaseState implements StateObject {
 	protected float getFrequencyOnMeter() {
 		float ret = Float.MIN_VALUE;
 		try {
-			SymmetricMeter meter = this.manager.getComponent(this.meterId);
+			ElectricityMeter meter = this.manager.getComponent(this.meterId);
 			Value<Integer> frequencyValue = meter.getFrequency();
 			int frequency = frequencyValue.orElse(0); // voltage is in mV
 			ret = frequency / 1000.0f;

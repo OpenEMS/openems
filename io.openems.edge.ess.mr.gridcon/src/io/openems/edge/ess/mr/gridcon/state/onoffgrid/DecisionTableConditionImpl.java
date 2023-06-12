@@ -6,7 +6,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class DecisionTableConditionImpl implements DecisionTableCondition {
 
@@ -112,7 +112,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public VoltageInRange isVoltageInRange() {
 		try {
-			SymmetricMeter meter = this.manager.getComponent(this.meterId);
+			ElectricityMeter meter = this.manager.getComponent(this.meterId);
 			double voltage = meter.getVoltage().get() / 1000;
 			if (voltage > DecisionTableCondition.LOWER_VOLTAGE && voltage < DecisionTableCondition.UPPER_VOLTAGE) {
 				return VoltageInRange.TRUE;

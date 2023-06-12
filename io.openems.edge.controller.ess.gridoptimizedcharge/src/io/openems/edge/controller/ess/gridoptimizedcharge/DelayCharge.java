@@ -42,14 +42,14 @@ public class DelayCharge {
 	/**
 	 * Reference to parent controller.
 	 */
-	private final GridOptimizedChargeImpl parent;
+	private final ControllerEssGridOptimizedChargeImpl parent;
 
 	/**
 	 * The whole prediction should only be logged once.
 	 */
 	private boolean predictionDebugLog = true;
 
-	public DelayCharge(GridOptimizedChargeImpl parent) {
+	public DelayCharge(ControllerEssGridOptimizedChargeImpl parent) {
 		this.parent = parent;
 		this.predictionDebugLog = parent.config != null ? this.parent.config.debugMode() : false;
 	}
@@ -86,7 +86,7 @@ public class DelayCharge {
 		if (targetTime == null) {
 			targetTime = DEFAULT_TARGET_TIME;
 			StateChannel noValidManualTargetTime = this.parent
-					.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
+					.channel(ControllerEssGridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
 			noValidManualTargetTime.setNextValue(true);
 			this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
 		}
@@ -137,7 +137,7 @@ public class DelayCharge {
 
 		// Set channels
 		this.setDelayChargeStateAndLimit(state, rawDelayChargeMaxChargePower);
-		this.parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
+		this.parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(false);
 	}
 
 	/**
@@ -331,7 +331,8 @@ public class DelayCharge {
 		if (calculatedPower < 0) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_CHARGE_LIMIT, null);
 			this.parent.logDebug("System would charge from the grid under these constraints");
-			this.parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT).setNextValue(true);
+			this.parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_NEGATIVE_LIMIT)
+					.setNextValue(true);
 			return null;
 		}
 
@@ -385,15 +386,15 @@ public class DelayCharge {
 	 * @param maxApparentPower         maximum apparent power of the ess
 	 * @param targetMinute             target as minute of the day
 	 * @param minimumChargePower       minimumChargePower configured by the user
-	 * @param parent                   {@link GridOptimizedChargeImpl} to set debug
-	 *                                 channels
+	 * @param parent                   {@link ControllerEssGridOptimizedChargeImpl}
+	 *                                 to set debug channels
 	 * @return the calculated charging power limit or null if no limit should be
 	 *         applied
 	 */
 	protected static Integer getCalculatedPowerLimit(int remainingCapacity, int remainingTime,
 			Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption, Clock clock,
 			DelayChargeRiskLevel riskLevel, int maxApparentPower, int targetMinute, double minimumChargePower,
-			GridOptimizedChargeImpl parent) {
+			ControllerEssGridOptimizedChargeImpl parent) {
 
 		Integer calculatedPower = null;
 
@@ -426,11 +427,11 @@ public class DelayCharge {
 		float remainingCapacityWh = remainingCapacity / 60.0f / 60.0f;
 
 		// Set Channel for historical analysis
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_PREDICTED_ENERGY_LEFT)
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_PREDICTED_ENERGY_LEFT)
 				.setNextValue(predictedAvailEnergy);
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT)
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT)
 				.setNextValue(remainingCapacityWh);
-		parent.channel(GridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME_LEFT).setNextValue(remainingTime);
+		parent.channel(ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME_LEFT).setNextValue(remainingTime);
 
 		// The power should be only limited if the predicted available energy is enough
 		if (riskLevel.equals(DelayChargeRiskLevel.LOW) && predictedAvailEnergy <= remainingCapacityWh) {
@@ -511,7 +512,7 @@ public class DelayCharge {
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
 				if (quarterHourlyProduction[i] > quarterHourlyConsumption[i]
-						+ GridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
+						+ ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER) {
 					lastQuarterHour = Optional.of(i);
 				}
 			}

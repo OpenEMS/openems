@@ -63,17 +63,23 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(EvcsWebastoNext.class);
 
-	private Config config = null;
-
-	/**
-	 * Handles charge states.
-	 */
+	/** Handles charge states. */
 	private final ChargeStateHandler chargeStateHandler = new ChargeStateHandler(this);
-
-	/**
-	 * Processes the controller's writes to this evcs component.
-	 */
+	/** Processes the controller's writes to this evcs component. */
 	private final WriteHandler writeHandler = new WriteHandler(this);
+
+	@Reference
+	private EvcsPower evcsPower;
+
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+
+	private Config config = null;
 
 	public EvcsWebastoNextImpl() {
 		super(//
@@ -82,17 +88,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				EvcsWebastoNext.ChannelId.values());
-	}
-
-	@Reference
-	private EvcsPower evcsPower;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
 	}
 
 	@Activate
@@ -124,6 +119,12 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		this.applyConfig(context, config);
 	}
 
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
 	private void applyConfig(ComponentContext context, Config config) {
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
@@ -135,12 +136,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		 * is no used for now)
 		 */
 		this._setPowerPrecision(230);
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Override

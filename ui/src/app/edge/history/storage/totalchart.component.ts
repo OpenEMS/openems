@@ -96,7 +96,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
                             if (channelAddress.channelId == "EssActivePower") {
                                 datasets.push({
-                                    label: this.translate.instant('General.total'),
+                                    label: this.translate.instant('General.TOTAL'),
                                     data: totalData
                                 });
                                 this.colors.push({

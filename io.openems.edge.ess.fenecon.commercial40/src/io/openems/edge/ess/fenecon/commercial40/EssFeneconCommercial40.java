@@ -14,7 +14,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.fenecon.commercial40.charger.EssDcChargerFeneconCommercial40;
+import io.openems.edge.ess.fenecon.commercial40.charger.EssFeneconCommercial40Pv;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public interface EssFeneconCommercial40
@@ -39,14 +39,14 @@ public interface EssFeneconCommercial40
 	 *
 	 * @param charger the Charger
 	 */
-	public void addCharger(EssDcChargerFeneconCommercial40 charger);
+	public void addCharger(EssFeneconCommercial40Pv charger);
 
 	/**
 	 * Unregisters a Charger from this ESS.
 	 *
 	 * @param charger the Charger
 	 */
-	public void removeCharger(EssDcChargerFeneconCommercial40 charger);
+	public void removeCharger(EssFeneconCommercial40Pv charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels

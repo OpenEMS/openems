@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { GetApps } from '../jsonrpc/getApps';

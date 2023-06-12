@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -45,12 +45,12 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		}
 
 		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > KacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
+				.getSeconds() > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
 		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return State.GO_STOPPED;
 		}
-		if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
+		if (this.attemptCounter > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
 			// Too many tries
 			inverter._setMaxStopAttempts(true);
 			return State.UNDEFINED;

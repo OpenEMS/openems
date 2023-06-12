@@ -5,9 +5,9 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
 
-public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<GenericManagedSymmetricEss> {
+public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<EssGenericManagedSymmetric> {
 
-	public AllowedChargeDischargeHandler(GenericManagedSymmetricEss parent) {
+	public AllowedChargeDischargeHandler(EssGenericManagedSymmetric parent) {
 		super(parent);
 	}
 

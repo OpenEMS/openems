@@ -73,7 +73,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId === 'EssSoc') {
                                     datasets.push({
-                                        label: (moreThanOneESS ? this.translate.instant('General.total') : this.translate.instant('General.soc')),
+                                        label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
                                         data: data
                                     });
                                     this.colors.push({

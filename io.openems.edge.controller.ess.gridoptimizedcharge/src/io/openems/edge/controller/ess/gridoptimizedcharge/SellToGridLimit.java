@@ -13,9 +13,9 @@ public class SellToGridLimit {
 	/**
 	 * Reference to parent controller.
 	 */
-	private final GridOptimizedChargeImpl parent;
+	private final ControllerEssGridOptimizedChargeImpl parent;
 
-	public SellToGridLimit(GridOptimizedChargeImpl parent) {
+	public SellToGridLimit(ControllerEssGridOptimizedChargeImpl parent) {
 		this.parent = parent;
 	}
 

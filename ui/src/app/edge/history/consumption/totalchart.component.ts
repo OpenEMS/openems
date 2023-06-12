@@ -76,7 +76,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     // gather consumptionMetered consumption
                     let totalMeteredConsumption: number[] = [];
-                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                    config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                         .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
                         .forEach(component => {
                             if (result.data[component.id + '/ActivePower']) {
@@ -130,7 +130,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             } else {
                                 if (channelAddress.channelId == 'ConsumptionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.total'),
+                                        label: this.translate.instant('General.TOTAL'),
                                         data: data,
                                         hidden: false
                                     });
@@ -198,9 +198,9 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                 }
 
                                 if (regularEvcsComponents.length > 1 && totalEvcsConsumption.length != 0) {
-                                    if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')' in datasets) {
+                                    if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.TOTAL') + ')' in datasets) {
                                         datasets.push({
-                                            label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')',
+                                            label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.TOTAL') + ')',
                                             data: totalEvcsConsumption,
                                             hidden: false
                                         });
@@ -274,8 +274,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         )).length > 0
                                     ||
 
-                                    // Check if SymmetricMeter is in config
-                                    config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                                    // Check if ElectricityMeter is in config
+                                    config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                                         .filter(component =>
                                             component.isEnabled &&
                                             config.isTypeConsumptionMetered(component)
@@ -335,19 +335,14 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     result.push(new ChannelAddress(component.id, 'ChargePower'));
                 });
 
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
 
             for (let meter of consumptionMeters) {
-                // Subscribe to SymmetricMeter 'ActivePower'
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));
-
-                if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
-                    // Subscribe to AsymmetricMeter 'ActivePowerL1/L2/L3'
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
-                }
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
             }
             resolve(result);
         });

@@ -7,7 +7,6 @@ import { UpdateAppComponent } from './update.component';
 import { KeyModalComponent } from './keypopup/modal.component';
 import { FormControl, ValidationErrors } from '@angular/forms';
 import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core';
-import { TranslateExtension } from 'src/app/shared/translate.extension';
 import { TranslateService } from '@ngx-translate/core';
 import { FormlySafeInputModalComponent } from './formly/safe-input/formly-safe-input-modal.component';
 import { FormlySafeInputWrapperComponent } from './formly/safe-input/formly-safe-input.extended';

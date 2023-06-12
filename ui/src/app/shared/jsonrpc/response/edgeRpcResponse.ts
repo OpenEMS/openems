@@ -1,4 +1,4 @@
-import { JsonrpcRequest, JsonrpcResponse, JsonrpcResponseSuccess } from "../base";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "../base";
 
 /**
  * Wraps a JSON-RPC Response for a EdgeRpcRequest.

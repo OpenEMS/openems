@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.fenecon.commercial.FeneconCommercialBattery;
+import io.openems.edge.battery.fenecon.commercial.BatteryFeneconCommercial;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.statemachine.AbstractContext;
 
-public class Context extends AbstractContext<FeneconCommercialBattery> {
+public class Context extends AbstractContext<BatteryFeneconCommercial> {
 
 	/**
 	 * The Battery-Master-Bms-Start-Up-Relay Channel used to start the battery;
@@ -18,7 +18,7 @@ public class Context extends AbstractContext<FeneconCommercialBattery> {
 
 	private final Logger log = LoggerFactory.getLogger(Context.class);
 
-	public Context(FeneconCommercialBattery parent, BooleanWriteChannel batteryMasterBmsStartUpRelayChannel) {
+	public Context(BatteryFeneconCommercial parent, BooleanWriteChannel batteryMasterBmsStartUpRelayChannel) {
 		super(parent);
 		this.batteryStartStopRelayChannel = batteryMasterBmsStartUpRelayChannel;
 	}

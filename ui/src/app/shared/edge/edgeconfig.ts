@@ -212,6 +212,15 @@ export class EdgeConfig {
                 result.push.apply(result, this.getComponentsByFactory(factoryId));
             }
         }
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.concat(this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
         return result;
     }
 
@@ -244,7 +253,7 @@ export class EdgeConfig {
      * Determines if Edge has a Meter device
      */
     public hasMeter(): boolean {
-        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.SymmetricMeter').length > 0) {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.ElectricityMeter').length > 0) {
             return true;
         } else {
             return false;
@@ -260,7 +269,7 @@ export class EdgeConfig {
             return true;
         }
         // Do we have a Meter with type PRODUCTION?
-        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
+        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")) {
             if (component.isEnabled && this.isProducer(component)) {
                 return true;
             }
@@ -336,6 +345,8 @@ export class EdgeConfig {
             case 'Fenecon.Mini.GridMeter':
             case 'Kostal.Piko.GridMeter':
             case 'SolarEdge.Grid-Meter':
+            case 'Simulator.GridMeter.Acting':
+            case 'Simulator.GridMeter.Reacting':
                 return true;
         }
         return false;
@@ -353,8 +364,9 @@ export class EdgeConfig {
             {
                 category: { title: 'Zähler', icon: 'speedometer-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"),
-                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
+                    this.getFactoriesByNature("io.openems.edge.meter.api.ElectricityMeter"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger"),
                 ]
             },
             {
