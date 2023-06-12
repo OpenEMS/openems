@@ -97,7 +97,7 @@ export class AdvertWidgets {
         /**
          * List of all Widgets.
          */
-        public readonly list: AdvertWidget[],
+        public readonly list: AdvertWidget[]
     ) { }
 }
 

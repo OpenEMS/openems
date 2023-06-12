@@ -20,7 +20,7 @@ export class FlatComponent extends AbstractFlatWidget {
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
             new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-            new ChannelAddress('_sum', 'ProductionActiveEnergy'),
+            new ChannelAddress('_sum', 'ProductionActiveEnergy')
         ];
     }
 }

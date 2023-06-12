@@ -37,11 +37,11 @@ import { UserModule } from './user/user.module';
     ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
     StatusSingleComponent,
-    SystemLogComponent,
+    SystemLogComponent
   ],
   entryComponents: [
     ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
+    PickDatePopoverComponent
   ],
   imports: [
     AngularMyDatePickerModule,
@@ -58,7 +58,7 @@ import { UserModule } from './user/user.module';
     SharedModule,
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
     UserModule,
-    RegistrationModule,
+    RegistrationModule
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -70,7 +70,7 @@ import { UserModule } from './user/user.module';
     Pagination,
     CheckForUpdateService
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

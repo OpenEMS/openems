@@ -23,7 +23,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("chpsoc-chart", service, translate);
     }
@@ -73,11 +73,11 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             });
                             datasets.push({
                                 label: address.channelId,
-                                data: data,
+                                data: data
                             });
                             this.colors.push({
                                 backgroundColor: 'rgba(0,191,255,0.05)',
-                                borderColor: 'rgba(0,191,255,1)',
+                                borderColor: 'rgba(0,191,255,1)'
                             });
                         } else {
                             let data = result.data[channel].map(value => {
@@ -92,11 +92,11 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             if (channel == inputChannel) {
                                 datasets.push({
                                     label: this.translate.instant('General.soc'),
-                                    data: data,
+                                    data: data
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,223,0,1)',
+                                    borderColor: 'rgba(0,223,0,1)'
                                 });
                             }
                             if (channel == lowThreshold) {
@@ -107,7 +107,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    borderColor: 'rgba(0,191,255,1)'
                                 });
                             }
                             if (channel == highThreshold) {
@@ -118,7 +118,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    borderColor: 'rgba(0,191,255,1)'
                                 });
                             }
                         }
@@ -151,7 +151,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                 outputChannel,
                 inputChannel,
                 new ChannelAddress(this.componentId, '_PropertyHighThreshold'),
-                new ChannelAddress(this.componentId, '_PropertyLowThreshold'),
+                new ChannelAddress(this.componentId, '_PropertyLowThreshold')
             ];
             resolve(result);
         });

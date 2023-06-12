@@ -5,7 +5,7 @@ import { ChannelAddress, Currency, CurrentData, EdgeConfig } from 'src/app/share
 
 @Component({
     templateUrl: './modal.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalComponent extends AbstractModal {
 

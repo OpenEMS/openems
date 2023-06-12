@@ -32,7 +32,7 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
     initialSlide: 0,
     preventClicks: false,
     preventClicksPropagation: false,
-    speed: 5000,
+    speed: 5000
   };
 
   constructor(

@@ -76,14 +76,14 @@ export class IbnUtils {
                 iface.model.addresses.push({
                     label: '',
                     address: address[0],
-                    subnetmask: this.getSubnetmaskAsString(address[1]),
+                    subnetmask: this.getSubnetmaskAsString(address[1])
                 });
 
             } else {
                 iface.model.addresses = new Array({
                     label: '',
                     address: address[0],
-                    subnetmask: this.getSubnetmaskAsString(address[1]),
+                    subnetmask: this.getSubnetmaskAsString(address[1])
                 });
             }
 

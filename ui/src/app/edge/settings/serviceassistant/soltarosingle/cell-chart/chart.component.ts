@@ -28,7 +28,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("soltarocell-chart", service, translate);
     }

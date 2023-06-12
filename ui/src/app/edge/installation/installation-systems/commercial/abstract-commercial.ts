@@ -28,7 +28,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         isEnabled: true,
         minValue: 15,
         value: 20,
-        isReserveSocEnabled: false,
+        isReserveSocEnabled: false
     };
 
     // protocol-dynamic-feed-in-limitation
@@ -61,7 +61,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         warrantyLink: WebLinks;
     } = {
             gtcLink: WebLinks.GTC_LINK,
-            warrantyLink: WebLinks.WARRANTY_LINK_COMMERCIAL,
+            warrantyLink: WebLinks.WARRANTY_LINK_COMMERCIAL
         };
 
     public getLineSideMeterFuseFields() {
@@ -123,7 +123,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
                     { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
                 ],
-                required: true,
+                required: true
             }
         });
 
@@ -152,7 +152,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             ? batteryInverterData.push(
                 {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-                    value: feedInLimitation.maximumFeedInPower,
+                    value: feedInLimitation.maximumFeedInPower
                 }
             )
             : batteryInverterData.push(
@@ -288,7 +288,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         protocol.items.push({
             category: this.lineSideMeterFuse.category,
             name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-            value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
+            value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ''
         });
 
         const feedInLimitation = this.feedInLimitation;
@@ -314,7 +314,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
-                    : (0).toString(),
+                    : (0).toString()
             });
         }
 
@@ -327,24 +327,24 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 {
                     category: Category.ADDITIONAL_AC_PRODUCERS,
                     name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
-                    value: element.alias,
+                    value: element.alias
                 },
                 {
                     category: Category.ADDITIONAL_AC_PRODUCERS,
                     name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
-                    value: element.value ? element.value.toString() : '',
+                    value: element.value ? element.value.toString() : ''
                 });
 
             element.orientation && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-                value: element.orientation,
+                value: element.orientation
             });
 
             element.moduleType && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: element.moduleType,
+                value: element.moduleType
             });
 
             element.modulesPerString && protocol.items.push({
@@ -352,13 +352,13 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modulesPerString
                     ? element.modulesPerString.toString()
-                    : '',
+                    : ''
             });
 
             element.meterType && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: Meter.toLabelString(element.meterType),
+                value: Meter.toLabelString(element.meterType)
             });
 
             element.modbusCommunicationAddress && protocol.items.push({
@@ -366,7 +366,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modbusCommunicationAddress
                     ? element.modbusCommunicationAddress.toString()
-                    : '',
+                    : ''
             });
         }
 
@@ -415,7 +415,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     protocol.lots.push({
                         category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS'),
                         name: name,
-                        serialNumber: serialNumber,
+                        serialNumber: serialNumber
                     });
                 }
                 // String 2
@@ -423,7 +423,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     protocol.lots.push({
                         category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 2 }),
                         name: name,
-                        serialNumber: serialNumber,
+                        serialNumber: serialNumber
                     });
                 }
                 // String 3
@@ -431,7 +431,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     protocol.lots.push({
                         category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 3 }),
                         name: name,
-                        serialNumber: serialNumber,
+                        serialNumber: serialNumber
                     });
                 }
                 // String 4
@@ -439,7 +439,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     protocol.lots.push({
                         category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 4 }),
                         name: name,
-                        serialNumber: serialNumber,
+                        serialNumber: serialNumber
                     });
                 }
             }

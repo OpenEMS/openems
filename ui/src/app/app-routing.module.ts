@@ -93,7 +93,7 @@ const routes: Routes = [
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-          { path: 'storagechart', component: StorageChartOverviewComponent },
+          { path: 'storagechart', component: StorageChartOverviewComponent }
         ]
       },
 
@@ -116,7 +116,7 @@ const routes: Routes = [
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
-      { path: 'settings/alerting', component: EdgeSettingsAlerting },
+      { path: 'settings/alerting', component: EdgeSettingsAlerting }
     ]
   },
 

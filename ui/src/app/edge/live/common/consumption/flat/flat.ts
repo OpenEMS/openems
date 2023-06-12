@@ -36,7 +36,7 @@ export class FlatComponent extends AbstractFlatWidget {
         new ChannelAddress(component.id, 'ActivePower'),
         new ChannelAddress(component.id, 'ActivePowerL1'),
         new ChannelAddress(component.id, 'ActivePowerL2'),
-        new ChannelAddress(component.id, 'ActivePowerL3'),
+        new ChannelAddress(component.id, 'ActivePowerL3')
       );
     }
 
@@ -47,7 +47,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     for (let component of this.evcss) {
       channelAddresses.push(
-        new ChannelAddress(component.id, 'ChargePower'),
+        new ChannelAddress(component.id, 'ChargePower')
       );
     }
     return channelAddresses;

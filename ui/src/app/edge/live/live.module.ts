@@ -62,7 +62,7 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_Ess_GridOptimizedCharge,
     Controller_Io_HeatingElement,
     EnergymonitorModule,
-    SharedModule,
+    SharedModule
   ],
   entryComponents: [
     AdministrationComponent,
@@ -82,7 +82,7 @@ import { OfflineComponent } from './offline/offline.component';
     Evcs_Api_ClusterModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
-    StorageModalComponent,
+    StorageModalComponent
   ],
   declarations: [
     AdministrationComponent,
@@ -116,7 +116,7 @@ import { OfflineComponent } from './offline/offline.component';
     LiveComponent,
     OfflineComponent,
     StorageComponent,
-    StorageModalComponent,
+    StorageModalComponent
   ]
 })
 export class LiveModule { }

@@ -113,8 +113,8 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
         { name: "commercialBatteryModuleSerialNumber", validation: CommercialBatteryModuleSerialNumberValidator },
         { name: "commercial30BatteryInverterSerialNumber", validation: Commercial30BatteryInverterSerialNumberValidator },
         { name: "commercial50BatteryInverterSerialNumber", validation: Commercial50BatteryInverterSerialNumberValidator },
-        { name: "defaultAsMinimumValue", validation: DefaultAsMinValueValidator },
-      ],
+        { name: "defaultAsMinimumValue", validation: DefaultAsMinValueValidator }
+      ]
     }),
     SharedModule,
     SettingsModule

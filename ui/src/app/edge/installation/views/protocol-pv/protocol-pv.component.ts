@@ -81,8 +81,8 @@ export class ProtocolPvComponent implements OnInit {
       type: "checkbox",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION'),
-      },
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION')
+      }
     });
 
     //  For 2 DC-PVs
@@ -92,7 +92,7 @@ export class ProtocolPvComponent implements OnInit {
         key: "isSelected",
         type: "checkbox",
         templateOptions: {
-          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { number: forMpptNr }),
+          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { number: forMpptNr })
         }
       },
         {
@@ -134,7 +134,7 @@ export class ProtocolPvComponent implements OnInit {
           type: "input",
           templateOptions: {
             label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
-            description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
+            description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION')
           },
           hideExpression: model => !model.isSelected
         },
@@ -143,7 +143,7 @@ export class ProtocolPvComponent implements OnInit {
           type: "input",
           templateOptions: {
             type: "number",
-            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES')
           },
           parsers: [Number],
           hideExpression: model => !model.isSelected

@@ -17,6 +17,6 @@ export const DIRECTIONS_OPTIONS = (translate: TranslateService) => {
         { label: east, value: east },
         { label: northWest, value: northWest },
         { label: northEast, value: northEast },
-        { label: north, value: north },
+        { label: north, value: north }
     ];
 };

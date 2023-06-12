@@ -17,7 +17,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
     protected readonly phases: { key: string, name: string, power: number | null, current: number | null, voltage: number | null }[] = [
         { key: "L1", name: "", power: null, current: null, voltage: null },
         { key: "L2", name: "", power: null, current: null, voltage: null },
-        { key: "L3", name: "", power: null, current: null, voltage: null },
+        { key: "L3", name: "", power: null, current: null, voltage: null }
     ];
 
     protected getChannelAddresses(): ChannelAddress[] {
@@ -26,7 +26,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
             channelAddresses.push(
                 new ChannelAddress(this.component.id, 'CurrentL' + phase),
                 new ChannelAddress(this.component.id, 'VoltageL' + phase),
-                new ChannelAddress(this.component.id, 'ActivePowerL' + phase),
+                new ChannelAddress(this.component.id, 'ActivePowerL' + phase)
             );
         }
         return channelAddresses;

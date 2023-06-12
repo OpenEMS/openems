@@ -14,7 +14,7 @@ export class ModalComponent extends AbstractModal {
     phases: [
       { name: "Phase L1", value: 0 },
       { name: "Phase L2", value: 0 },
-      { name: "Phase L3", value: 0 },
+      { name: "Phase L3", value: 0 }
     ]
   };
   public evcss: EdgeConfig.Component[] | null = null;
@@ -36,7 +36,7 @@ export class ModalComponent extends AbstractModal {
         new ChannelAddress(meter.id, 'ActivePower'),
         new ChannelAddress(meter.id, 'ActivePowerL1'),
         new ChannelAddress(meter.id, 'ActivePowerL2'),
-        new ChannelAddress(meter.id, 'ActivePowerL3'),
+        new ChannelAddress(meter.id, 'ActivePowerL3')
       );
       this.consumptionMetersActivePower.component.push({
         name: meter.alias ?? meter.id,
@@ -62,7 +62,7 @@ export class ModalComponent extends AbstractModal {
 
     for (let component of this.evcss) {
       channelAddresses.push(
-        new ChannelAddress(component.id, 'ChargePower'),
+        new ChannelAddress(component.id, 'ChargePower')
       );
     }
     for (let i = 0; i < this.evcss.length; i++) {

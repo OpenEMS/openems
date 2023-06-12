@@ -51,7 +51,7 @@ export class IndexComponent implements OnInit {
           entry.id.toLowerCase(),
           entry.name.toLowerCase(),
           entry.description.toLowerCase()
-        ]),
+        ])
       );
       countFilteredEntries += entry.filteredFactories.length;
     }

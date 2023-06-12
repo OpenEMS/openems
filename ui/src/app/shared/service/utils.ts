@@ -418,19 +418,19 @@ export class Utils {
    * @param soc the state-of-charge
    * @returns the image path
    */
-  public static getStorageSocImage(soc: number | null): string {
+  public static getStorageSocSegment(soc: number | null): string {
     if (!soc || soc < 10) {
-      return 'storage_0.png';
+      return '0';
     } else if (soc < 30) {
-      return 'storage_20.png';
+      return '20';
     } else if (soc < 50) {
-      return 'storage_40.png';
+      return '40';
     } else if (soc < 70) {
-      return 'storage_60.png';
+      return '60';
     } else if (soc < 90) {
-      return 'storage_80.png';
+      return '80';
     } else {
-      return 'storage_100.png';
+      return '100';
     }
   }
 

@@ -44,13 +44,13 @@ export class PickDatePopoverComponent implements OnInit {
         inline: true,
         selectorHeight: '225px',
         selectorWidth: '251px',
-        showWeekNumbers: true,
+        showWeekNumbers: true
     };
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService,
+        public translate: TranslateService
     ) { }
 
     ngOnInit() {

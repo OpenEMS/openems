@@ -7,7 +7,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalAcChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class TotalAcChartComponent extends AbstractHistoryChart {
 
@@ -18,19 +18,19 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           {
             name: 'ProductionAcActivePower',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePower'),
-            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy')
           },
           {
             name: 'ProductionAcActivePowerL1',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
           },
           {
             name: 'ProductionAcActivePowerL2',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
           },
           {
             name: 'ProductionAcActivePowerL3',
-            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
+            powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
           }
         ],
       output: (data: HistoryUtils.ChannelData) => {
@@ -57,7 +57,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               }
               return data['ProductionAcActivePowerL' + i] ?? null;
             },
-            color: 'rgb(' + this.phaseColors[i - 1] + ')',
+            color: 'rgb(' + this.phaseColors[i - 1] + ')'
           });
         }
 
@@ -66,7 +66,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY
     };
   }
 }

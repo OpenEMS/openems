@@ -16,7 +16,7 @@ import { Flags } from '../jsonrpc/flag/flags';
 
 @Component({
     selector: KeyModalComponent.SELECTOR,
-    templateUrl: './modal.component.html',
+    templateUrl: './modal.component.html'
 })
 export class KeyModalComponent implements OnInit {
 
@@ -51,7 +51,7 @@ export class KeyModalComponent implements OnInit {
         this.model = {
             'useRegisteredKeys': false,
             'registeredKey': '',
-            'key': '',
+            'key': ''
         };
 
         if (this.behaviour === KeyValidationBehaviour.REGISTER) {
@@ -166,7 +166,7 @@ export class KeyModalComponent implements OnInit {
             props: {
                 label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey')
             },
-            hide: this.registeredKeys.length === 0,
+            hide: this.registeredKeys.length === 0
         });
 
         fields.push({
@@ -196,7 +196,7 @@ export class KeyModalComponent implements OnInit {
                 'templateOptions.disabled': field => field.model.useRegisteredKeys
             },
             validators: {
-                validation: ['key'],
+                validation: ['key']
             },
             hooks: {
                 onInit: (field) => {
@@ -319,7 +319,7 @@ export class KeyModalComponent implements OnInit {
             this.edge.sendRequest(this.websocket, new AppCenter.Request({
                 payload: new AppCenterAddRegisterKeyHistory.Request({
                     key: this.getRawAppKey(),
-                    ...(this.appId && { appId: this.appId }),
+                    ...(this.appId && { appId: this.appId })
                 })
             })).then(() => {
                 resolve();

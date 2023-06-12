@@ -34,7 +34,7 @@ export class ModalComponent extends AbstractModal {
             this.isAtLeastAdmin = true;
             if ('ess.id' in this.component.properties) {
                 channels.push(
-                    new ChannelAddress(this.component.properties['ess.id'], "Capacity"),
+                    new ChannelAddress(this.component.properties['ess.id'], "Capacity")
                 );
             }
         }

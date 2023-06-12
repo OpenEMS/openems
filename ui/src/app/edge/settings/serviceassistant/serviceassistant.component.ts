@@ -24,7 +24,7 @@ export class ServiceAssistantComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     public service: Service,
-    public websocket: Websocket,
+    public websocket: Websocket
   ) { }
 
   ngOnInit() {

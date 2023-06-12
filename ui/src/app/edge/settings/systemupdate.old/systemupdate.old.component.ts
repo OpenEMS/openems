@@ -16,7 +16,7 @@ class Package {
 
   constructor(
     public readonly name: string,
-    public readonly description: string,
+    public readonly description: string
   ) {
   }
 
@@ -64,7 +64,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {
@@ -215,7 +215,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
       color: this.getColor(level),
       level: level,
       source: "",
-      message: message,
+      message: message
     });
   }
 

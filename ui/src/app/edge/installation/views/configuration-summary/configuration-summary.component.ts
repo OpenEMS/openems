@@ -68,7 +68,7 @@ export class ConfigurationSummaryComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.GTC_ACCEPT'),
         required: true,
         description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.gtcLink),
+        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.gtcLink)
       },
       wrappers: ['form-field-checkbox-hyperlink']
     });
@@ -81,7 +81,7 @@ export class ConfigurationSummaryComponent implements OnInit {
         required: true,
         defaultValue: false,
         description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.warrantyLink),
+        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.warrantyLink)
       },
       wrappers: ['form-field-checkbox-hyperlink']
     });
@@ -173,7 +173,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     const batteryData: ComponentData[] = [];
     batteryData.push(
-      { label: this.translate.instant('Index.type'), value: this.ibn.type },
+      { label: this.translate.instant('Index.type'), value: this.ibn.type }
     );
 
     tableData.push({

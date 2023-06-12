@@ -8,6 +8,6 @@ export const environment: Environment = {
         url: "wss://srv0.fenecon.de/ui",
 
         production: false,
-        debugMode: true,
+        debugMode: true
     }
 };

@@ -6,7 +6,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 
 @Component({
     selector: 'selfconsumptionChart',
-    templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+    templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -23,7 +23,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 {
                     name: 'ProductionActivePower',
                     powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-                    energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy'),
+                    energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy')
                 }],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
@@ -41,9 +41,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 }];
             },
             tooltip: {
-                formatNumber: '1.0-0',
+                formatNumber: '1.0-0'
             },
-            unit: HistoryUtils.YAxisTitle.PERCENTAGE,
+            unit: HistoryUtils.YAxisTitle.PERCENTAGE
         };
     }
 }

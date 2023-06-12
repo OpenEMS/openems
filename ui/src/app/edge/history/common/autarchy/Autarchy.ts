@@ -8,10 +8,10 @@ import { OverviewComponent } from './overview/overview';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule,
+    SharedModule
   ],
   entryComponents: [
-    FlatComponent,
+    FlatComponent
   ],
   declarations: [
     FlatComponent,

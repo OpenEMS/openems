@@ -34,13 +34,13 @@ export const theme = {
             },
             commercial: {
                 EN: "#",
-                DE: "#",
+                DE: "#"
             }
         },
 
         gtc: {
             EN: "https://fenecon.de/page/gtc/",
-            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/"
         },
 
         // Currently the links are different with different prefixes. so adding whole url.

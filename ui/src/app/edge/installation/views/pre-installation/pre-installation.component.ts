@@ -12,7 +12,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: PreInstallationComponent.SELECTOR,
-  templateUrl: './pre-installation.component.html',
+  templateUrl: './pre-installation.component.html'
 })
 export class PreInstallationComponent implements OnInit {
   private static readonly SELECTOR = 'pre-installation';
@@ -85,7 +85,7 @@ export class PreInstallationComponent implements OnInit {
         // Update metadata
         this.service.metadata.next({
           user: metadata.user,
-          edges: metadata.edges,
+          edges: metadata.edges
         });
 
         this.service.metadata

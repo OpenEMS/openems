@@ -61,7 +61,7 @@ export class ConfigurationCommercialModbuBridgeComponent implements OnInit {
             type: "radio",
             props: {
                 required: true,
-                options: modbusBridgeLabel,
+                options: modbusBridgeLabel
             },
             defaultValue: ModbusBridgeType.TCP_IP,
             wrappers: ['formly-field-radio-with-image']

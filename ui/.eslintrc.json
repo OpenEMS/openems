@@ -56,7 +56,11 @@
             "style": "camelCase"
           }
         ],
-        "curly": "error"
+        "curly": "error",
+        "comma-dangle": [
+          "error",
+          "never"
+        ]
       }
     },
     {

@@ -21,7 +21,7 @@ export class ExecuteSystemUpdate {
 
     public constructor(
         private edge: Edge,
-        private websocket: Websocket,
+        private websocket: Websocket
     ) {
     }
 

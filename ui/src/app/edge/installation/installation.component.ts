@@ -16,7 +16,7 @@ import { IbnUtils } from './shared/ibnutils';
 
 @Component({
   selector: InstallationComponent.SELECTOR,
-  templateUrl: './installation.component.html',
+  templateUrl: './installation.component.html'
 })
 export class InstallationComponent implements OnInit {
   private static readonly SELECTOR = 'installation';

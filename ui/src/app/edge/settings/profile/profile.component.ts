@@ -31,7 +31,7 @@ export class ProfileComponent implements OnInit {
     private service: Service,
     private route: ActivatedRoute,
     public popoverController: PopoverController,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) { }
 
   public ngOnInit() {

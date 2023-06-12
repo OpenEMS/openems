@@ -23,7 +23,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("channelthreshold-total-chart", service, translate);
   }
@@ -72,7 +72,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
+              borderColor: 'rgba(0,191,255,1)'
             });
             break;
           case 1:
@@ -82,7 +82,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,139,0.05)',
-              borderColor: 'rgba(0,0,139,1)',
+              borderColor: 'rgba(0,0,139,1)'
             });
             break;
         }

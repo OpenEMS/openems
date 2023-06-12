@@ -64,15 +64,15 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
                     { name: 'sellToGridLimitEnabled', value: true },
                     {
                         name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower,
+                        value: this.feedInLimitation.maximumFeedInPower
                     },
                     { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
                     { name: 'mode', value: 'AUTOMATIC' },
                     { name: 'manualTargetTime', value: '17:00' },
                     { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 },
+                    { name: 'sellToGridLimitRampPercentage', value: 2 }
                 ],
-                mode: ConfigurationMode.RemoveAndConfigure,
+                mode: ConfigurationMode.RemoveAndConfigure
             });
         }
 

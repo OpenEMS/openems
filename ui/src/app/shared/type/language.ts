@@ -54,7 +54,7 @@ export class Language {
     constructor(
         public readonly title: string,
         public readonly key: string,
-        public readonly json: any,
+        public readonly json: any
     ) {
     }
 }

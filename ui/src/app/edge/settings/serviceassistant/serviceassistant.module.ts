@@ -7,7 +7,7 @@ import { SoltaroVersionCComponent } from "./soltarosingle/soltaroC.component";
 
 @NgModule({
     imports: [
-        SharedModule,
+        SharedModule
     ],
     entryComponents: [
     ],

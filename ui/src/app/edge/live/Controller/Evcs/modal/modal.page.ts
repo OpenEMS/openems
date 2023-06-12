@@ -29,7 +29,7 @@ export class Controller_EvcsModalComponent implements OnInit {
     public modalCtrl: ModalController,
     public popoverController: PopoverController,
     public modalController: ModalController,
-    public websocket: Websocket,
+    public websocket: Websocket
   ) { }
 
   ngOnInit() {
@@ -124,7 +124,7 @@ export class Controller_EvcsModalComponent implements OnInit {
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, currentController.id, [
         { name: 'chargeMode', value: newChargeMode },
-        { name: 'enabledCharging', value: newEnabledCharging },
+        { name: 'enabledCharging', value: newEnabledCharging }
       ]).then(() => {
         currentController.properties.enabledCharging = newEnabledCharging;
         currentController.properties.chargeMode = newChargeMode;
@@ -388,7 +388,7 @@ export class Controller_EvcsModalComponent implements OnInit {
       component: AdministrationComponent,
       componentProps: {
         evcsComponent: this.evcsComponent,
-        edge: this.edge,
+        edge: this.edge
       }
     });
     modal.onDidDismiss().then(() => {

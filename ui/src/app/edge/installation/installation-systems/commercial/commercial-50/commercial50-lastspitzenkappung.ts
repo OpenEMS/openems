@@ -69,7 +69,7 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'meter.id', value: 'meter0' },
                 { name: 'peakShavingPower', value: entladungÜber },
-                { name: 'rechargePower', value: beladungUnter },
+                { name: 'rechargePower', value: beladungUnter }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
