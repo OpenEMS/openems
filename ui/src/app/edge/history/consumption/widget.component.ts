@@ -23,7 +23,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -78,15 +78,15 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy')
                 );
             }
 
-            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveProductionEnergy'),
+                    new ChannelAddress(component.id, 'ActiveProductionEnergy')
                 );
             }
             resolve(channels);

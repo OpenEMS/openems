@@ -43,7 +43,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime, Validators.compose([
         Validators.min(5),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required,
+        Validators.required
       ])),
       switchedLoadPower: new FormControl(this.component.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^(?:[1-9][0-9]*|0)$'),

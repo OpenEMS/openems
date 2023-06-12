@@ -7,35 +7,36 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
-    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
+    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
     let channels: HistoryUtils.InputChannel[] = [{
       name: 'ProductionDcActualPower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
+      energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy')
     },
     {
       name: 'ProductionAcActivePowerL1',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
+      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
     },
     {
       name: 'ProductionAcActivePowerL2',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
+      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
     },
     {
       name: 'ProductionAcActivePowerL3',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
+      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
     },
     {
       name: 'ProductionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy'),
+      energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy')
     }];
 
     for (let component of productionMeterComponents) {
@@ -50,7 +51,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       channels.push({
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActualPower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy'),
+        energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy')
       });
     }
 
@@ -69,7 +70,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
           noStrokeThroughLegendIfHidden: false,
-          stack: 2,
+          stack: 2
         });
 
         if (!this.showTotal) {
@@ -93,13 +94,13 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 data['ProductionDcActualPower'].forEach((value, index) => {
                   effectiveProduction[index] = Utils.addSafely(data['ProductionAcActivePowerL' + i][index], value / 3);
                 });
-              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
+              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").length > 0) {
                 effectiveProduction = data['ProductionAcActivePowerL' + i];
               }
               return effectiveProduction;
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
-            stack: 3,
+            stack: 3
           });
         }
 
@@ -116,7 +117,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return data[component.id] ?? null;
             },
             color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
-            stack: 1,
+            stack: 1
           });
         }
 
@@ -142,7 +143,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         formatNumber: '1.1-2',
         afterTitle: this.translate.instant('General.TOTAL')
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY
     };
 
     return chartObject;

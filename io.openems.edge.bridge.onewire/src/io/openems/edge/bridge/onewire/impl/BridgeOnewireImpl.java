@@ -26,7 +26,8 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Onewire", //
+@Component(//
+		name = "Bridge.Onewire", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -45,7 +46,7 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent implements Bridg
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.taskWorker = new OneWireTaskWorker(this, config.port());
 

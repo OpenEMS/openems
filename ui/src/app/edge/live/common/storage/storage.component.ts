@@ -34,7 +34,7 @@ export class StorageComponent extends AbstractFlatWidget {
             // TODO should be moved to Modal
             new ChannelAddress('_sum', 'EssActivePowerL1'),
             new ChannelAddress('_sum', 'EssActivePowerL2'),
-            new ChannelAddress('_sum', 'EssActivePowerL3'),
+            new ChannelAddress('_sum', 'EssActivePowerL3')
         ];
 
         this.prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
@@ -52,7 +52,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
-                new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                new ChannelAddress(controller.id, "_PropertyIsRunning")
             );
         }
 
@@ -70,7 +70,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, '_PropertyReserveSoc'),
-                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled'),
+                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled')
             );
         }
         // Get Chargers
@@ -80,7 +80,7 @@ export class StorageComponent extends AbstractFlatWidget {
             .filter(component => component.isEnabled);
         for (let component of this.chargerComponents) {
             channelAddresses.push(
-                new ChannelAddress(component.id, 'ActualPower'),
+                new ChannelAddress(component.id, 'ActualPower')
             );
         }
 
@@ -104,7 +104,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
-                new ChannelAddress(component.id, 'Capacity'),
+                new ChannelAddress(component.id, 'Capacity')
             );
             if (this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.ess.api.AsymmetricEss")) {
                 channelAddresses.push(
@@ -147,7 +147,7 @@ export class StorageComponent extends AbstractFlatWidget {
                     currentData.allComponents[controller.id + '/_PropertyIsRunning'] == 1,
                     currentData.allComponents[controller.id + '/CtrlIsBlockingEss'],
                     currentData.allComponents[controller.id + '/CtrlIsChargingEss'],
-                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss'],
+                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss']
                 ));
         }
 

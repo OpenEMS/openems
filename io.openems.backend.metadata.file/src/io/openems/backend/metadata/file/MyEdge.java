@@ -7,7 +7,7 @@ public class MyEdge extends Edge {
 	private final String apikey;
 	private final String setupPassword;
 
-	public MyEdge(FileMetadata parent, String id, String apikey, String setupPassword, String comment, String version,
+	public MyEdge(MetadataFile parent, String id, String apikey, String setupPassword, String comment, String version,
 			String producttype) {
 		super(parent, id, comment, version, producttype, null);
 		this.apikey = apikey;

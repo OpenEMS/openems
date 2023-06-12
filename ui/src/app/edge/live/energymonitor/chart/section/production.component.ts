@@ -35,7 +35,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('General.production', "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;

@@ -13,7 +13,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Consumption', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: 'translateX(0%)'
             })),
             state('hide', style({
                 opacity: 0.6,
@@ -35,7 +35,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     constructor(
         unitpipe: UnitvaluePipe,
         translate: TranslateService,
-        service: Service,
+        service: Service
     ) {
         super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;

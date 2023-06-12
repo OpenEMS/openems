@@ -96,12 +96,12 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
                             if (channelAddress.channelId == "EssActivePower") {
                                 datasets.push({
-                                    label: this.translate.instant('General.total'),
+                                    label: this.translate.instant('General.TOTAL'),
                                     data: totalData
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,223,0,0.05)',
-                                    borderColor: 'rgba(0,223,0,1)',
+                                    borderColor: 'rgba(0,223,0,1)'
                                 });
                             } if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                 if (channelAddress.channelId == 'EssActivePowerL1') {
@@ -166,7 +166,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(255,215,0,0.05)',
-                                    borderColor: 'rgba(255,215,0,1)',
+                                    borderColor: 'rgba(255,215,0,1)'
                                 });
                             }
                         });
@@ -201,7 +201,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             ];
             config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
                 .filter(component => !component.factoryId.includes("Ess.Cluster"))

@@ -13,7 +13,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('GridBuy', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateX(0%)',
+                transform: 'translateX(0%)'
             })),
             state('hide', style({
                 opacity: 0.1,
@@ -25,7 +25,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('GridSell', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: 'translateX(0%)'
             })),
             state('hide', style({
                 opacity: 0.4,
@@ -49,7 +49,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;

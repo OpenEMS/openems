@@ -24,7 +24,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("consumption-meter-chart", service, translate);
     }
@@ -73,7 +73,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
+                        borderColor: 'rgba(253,197,7,1)'
                     });
                 }
             });
@@ -91,9 +91,9 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let meter of consumptionMeters) {
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));

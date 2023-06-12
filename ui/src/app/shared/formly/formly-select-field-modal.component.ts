@@ -3,7 +3,7 @@ import { ModalController } from "@ionic/angular";
 
 @Component({
     selector: 'formly-select-modal',
-    templateUrl: './formly-select-field-modal.component.html',
+    templateUrl: './formly-select-field-modal.component.html'
 })
 export class FormlySelectFieldModalComponent implements OnInit {
 

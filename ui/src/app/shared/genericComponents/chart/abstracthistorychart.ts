@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
@@ -54,7 +54,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     public service: Service,
     public cdRef: ChangeDetectorRef,
     protected translate: TranslateService,
-    protected route: ActivatedRoute,
+    protected route: ActivatedRoute
   ) {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
@@ -159,17 +159,17 @@ export abstract class AbstractHistoryChart implements OnInit {
           data: data,
           hidden: element.hiddenOnInit ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
           ...(element.stack != null && { stack: element.stack.toString() }),
-          maxBarThickness: 100,
+          maxBarThickness: 100
         });
 
         this.legendOptions.push({
           label: label,
-          strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden,
+          strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden
         });
 
         colors.push({
           backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
-          borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
+          borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)'
         });
       }
     });

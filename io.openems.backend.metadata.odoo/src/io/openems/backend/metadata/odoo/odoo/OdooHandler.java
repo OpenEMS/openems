@@ -28,9 +28,9 @@ import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
 import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
+import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
-import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.OpenemsOEM;
@@ -45,13 +45,13 @@ import io.openems.common.utils.PasswordUtils;
 
 public class OdooHandler {
 
-	protected final OdooMetadata parent;
+	protected final MetadataOdoo parent;
 	private final EdgeCache edgeCache;
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	public OdooHandler(OdooMetadata parent, EdgeCache edgeCache, Config config) {
+	public OdooHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config) {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
