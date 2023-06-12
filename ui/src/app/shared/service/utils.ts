@@ -6,9 +6,8 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { EdgeConfig, GridMode } from '../shared';
+import { ChannelAddress, EdgeConfig, GridMode } from '../shared';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -570,14 +569,14 @@ export class Utils {
       return '0 W';
     }
     return formatNumber(value, 'de', '1.0-1') + ' W';
-  }
+  };
 
   public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
     if (!value || value > 0) {
       return '0 W';
     }
     return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
-  }
+  };
 
   public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
     let name: string = translate.instant('General.phase') + " " + phase;
@@ -593,8 +592,8 @@ export class Utils {
       if (value >= 0) {
         return name + " " + translate.instant('General.gridBuyAdvanced');
       }
-    }
-  }
+    };
+  };
 
   public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
     if (!value) {
@@ -602,7 +601,7 @@ export class Utils {
     }
 
     return formatNumber(Math.abs(value), 'de', '1.0-1') + " W";
-  }
+  };
 
   public static isGridModeOffGrid() {
     return (value: number): boolean => value === GridMode.OFF_GRID;

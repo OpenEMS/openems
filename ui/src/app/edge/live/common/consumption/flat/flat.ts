@@ -37,7 +37,7 @@ export class FlatComponent extends AbstractFlatWidget {
         new ChannelAddress(component.id, 'ActivePowerL1'),
         new ChannelAddress(component.id, 'ActivePowerL2'),
         new ChannelAddress(component.id, 'ActivePowerL3'),
-      )
+      );
     }
 
     // Get EVCSs

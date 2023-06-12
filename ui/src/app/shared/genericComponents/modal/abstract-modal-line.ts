@@ -27,7 +27,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @param value the value from CurrentData
     * @returns converter function
     */
-    @Input() public converter = (value: any): string => { return value }
+    @Input() public converter = (value: any): string => { return value; };
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -35,7 +35,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @param value the value from CurrentData
     * @returns converter function
     */
-    @Input() public filter = (value: any): boolean => { return true }
+    @Input() public filter = (value: any): boolean => { return true; };
 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string | Function;
@@ -134,7 +134,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         }
 
         if (typeof this.name == 'function') {
-            this.displayName = this.name(value)
+            this.displayName = this.name(value);
         } else {
             this.displayName = this.name;
         }

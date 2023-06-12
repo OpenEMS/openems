@@ -32,8 +32,8 @@ export function CustomViewComponent<T extends { new(...args: any[]) }>(baseClass
           .pipe(filter(config => !!config))
           .subscribe((config) => {
             this.fields = baseClass['generateView'](this.edge.id, config, this.edge.role, translate);
-          })
-      })
+          });
+      });
     }
-  }
+  };
 }

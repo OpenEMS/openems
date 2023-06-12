@@ -28,6 +28,8 @@ export class ModalComponent {
 
   protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
 
+  public static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, userRole: Role): FormlyFieldLine[] {
+    let fields: FormlyFieldLine[] = [];
     ['L1', 'L2', 'L3'].forEach(phase => {
       fields.push(
         {
@@ -55,7 +57,7 @@ export class ModalComponent {
               indentation: TextIndentation.SINGLE
             }
           ]
-        })
+        });
     });
 
     return fields;
@@ -85,10 +87,10 @@ export class ModalComponent {
         channel: '_sum/GridActivePower',
         converter: Utils.CONVERT_TO_GRID_SELL_POWER,
       },
-    ]
+    ];
 
     for (let component of Object.values(edgeConfig.components)) {
-      let isMeterAsymmetric: boolean = asymmetricMeters.some((meter) => meter.id == component.id)
+      let isMeterAsymmetric: boolean = asymmetricMeters.some((meter) => meter.id == component.id);
 
       if (edgeConfig?.isTypeGrid(component)) {
         lines.push(
@@ -102,7 +104,7 @@ export class ModalComponent {
           },
           ...(isMeterAsymmetric ?
             this.generateModalMeterPhases(component, translate, userRole) : []),
-        )
+        );
 
       }
     }
@@ -112,7 +114,7 @@ export class ModalComponent {
         type: 'line-info',
         name: translate.instant("Edge.Index.Widgets.phasesInfo"),
       },
-    )
+    );
 
     let fields: FormlyFieldConfig[] = [{
       key: edgeId,
@@ -126,7 +128,7 @@ export class ModalComponent {
         options: [{ lines: lines }],
       },
       wrappers: ['formly-field-modal'],
-    }]
+    }];
     return fields;
   }
 }

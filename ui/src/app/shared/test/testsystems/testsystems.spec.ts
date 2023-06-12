@@ -28,7 +28,7 @@ export abstract class AbstractSystem {
       components: components,
       factories: factories,
     } as EdgeConfig
-    )
+    );
   }
 
   public setConfig(components: { [id: string]: EdgeConfig.Component }, factories: { [id: string]: EdgeConfig.Factory }) {
@@ -57,7 +57,7 @@ export abstract class Widget {
 
 export class Grid extends Widget {
 
-  public key: string = "Grid"
+  public key: string = "Grid";
   public modal: Modal;
   public config: EdgeConfig;
 
@@ -83,7 +83,7 @@ export class ems1 extends AbstractSystem {
       },
       channels: {}
     }
-  }
+  };
 
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
@@ -91,8 +91,7 @@ export class ems1 extends AbstractSystem {
       name: "Meter Socomec Threephase",
       description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
       natureIds: [
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -105,7 +104,7 @@ export class ems1 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
+  };
 
   public override key: string = "ems1";
 
@@ -117,8 +116,8 @@ export class ems1 extends AbstractSystem {
 
   private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{
     "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"]
-  }]
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  }];
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [new Grid(new Modal("GridModal", new Map()
     .set(Role.ADMIN, this.adminAndInstallerGridModal)
@@ -145,7 +144,7 @@ export class ems4 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
@@ -153,8 +152,7 @@ export class ems4 extends AbstractSystem {
       description: "GoodWe Smart Meter.",
       natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -166,10 +164,10 @@ export class ems4 extends AbstractSystem {
         "meter1"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems4", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems4", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems4", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter1/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter1/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter1/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems4", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter1/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter1/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter1/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter1/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -203,7 +201,7 @@ export class ems10004 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
@@ -211,8 +209,7 @@ export class ems10004 extends AbstractSystem {
       description: "GoodWe Smart Meter.",
       natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -224,10 +221,10 @@ export class ems10004 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems10004", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems10004", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems10004", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems10004", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -261,7 +258,7 @@ export class ems12786 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
@@ -269,8 +266,7 @@ export class ems12786 extends AbstractSystem {
       description: "GoodWe Smart Meter.",
       natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -282,10 +278,10 @@ export class ems12786 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems12786", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems12786", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems12786", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems12786", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -321,15 +317,14 @@ export class ems30012 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
       name: "Meter Socomec Threephase",
       description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
       natureIds: [
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -342,10 +337,10 @@ export class ems30012 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30012", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30012", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30012", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30012", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -381,15 +376,14 @@ export class ems30034 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
       name: "Meter Socomec Threephase",
       description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
       natureIds: [
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -402,10 +396,10 @@ export class ems30034 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30034", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30034", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30034", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30034", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -441,15 +435,14 @@ export class ems30048 extends AbstractSystem {
         isEnabled: true,
         channels: {}
       },
-    }
+    };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
       name: "Meter Socomec Threephase",
       description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
       natureIds: [
-        "io.openems.edge.meter.api.AsymmetricMeter",
-        "io.openems.edge.meter.api.SymmetricMeter",
+        "io.openems.edge.meter.api.ElectricityMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
         "io.openems.edge.common.modbusslave.ModbusSlave",
         "io.openems.edge.common.component.OpenemsComponent",
@@ -462,10 +455,10 @@ export class ems30048 extends AbstractSystem {
         "meter0"
       ]
     }
-  }
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30048", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  };
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems30048", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
-  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30048", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems30048", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }];
 
   public widgets: Widget[] = [
     new Grid(
@@ -506,9 +499,9 @@ describe('ExampleSystemsTest', () => {
       it(system.key + "-" + widget.modal.name, () => {
         for (let [key, modelToBeMatched] of widget.modal.fieldsWithRoles) {
           expect(JSON.stringify(
-            ModalComponent.generateView(system.key, system.config, Role.getRole(Role[key]), translate))).toBe(JSON.stringify(modelToBeMatched))
+            ModalComponent.generateView(system.key, system.config, Role.getRole(Role[key]), translate))).toBe(JSON.stringify(modelToBeMatched));
         }
-      })
+      });
     }
   }
 });

@@ -37,7 +37,7 @@ export class ModalComponent extends AbstractModal {
         new ChannelAddress(meter.id, 'ActivePowerL1'),
         new ChannelAddress(meter.id, 'ActivePowerL2'),
         new ChannelAddress(meter.id, 'ActivePowerL3'),
-      )
+      );
       this.consumptionMetersActivePower.component.push({
         name: meter.alias ?? meter.id,
         value: 0,

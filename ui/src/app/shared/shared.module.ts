@@ -143,7 +143,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 export class SharedModule {
 
-  public static injector: Injector
+  public static injector: Injector;
 
   constructor(private injector: Injector) {
     SharedModule.injector = injector;
