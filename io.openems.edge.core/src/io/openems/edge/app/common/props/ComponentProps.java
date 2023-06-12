@@ -17,8 +17,8 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Static method collection for {@link AppDef AppDefs} for selecting different
@@ -134,29 +134,29 @@ public final class ComponentProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a input to select a {@link SymmetricMeter}.
+	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}.
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
 	 * @return the {@link AppDef}
 	 */
 	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickSymmetricMeterId() {
-		return ComponentProps.<APP, SymmetricMeter>pickComponentId(SymmetricMeter.class) //
+	AppDef<APP, Nameable, Parameter.BundleParameter> pickElectricityMeterId() {
+		return ComponentProps.<APP, ElectricityMeter>pickComponentId(ElectricityMeter.class) //
 				.setTranslatedLabel("meterId.label") //
 				.setTranslatedDescription("meterId.description");
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a input to select a {@link SymmetricMeter} with
-	 * the {@link MeterType} {@link MeterType#GRID}.
+	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}
+	 * with the {@link MeterType} {@link MeterType#GRID}.
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
 	 * @return the {@link AppDef}
 	 */
 	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickSymmetricGridMeterId() {
+	AppDef<APP, Nameable, Parameter.BundleParameter> pickElectricityGridMeterId() {
 		return ComponentProps
-				.<APP, SymmetricMeter>pickComponentId(SymmetricMeter.class,
+				.<APP, ElectricityMeter>pickComponentId(ElectricityMeter.class,
 						meter -> meter.getMeterType() == MeterType.GRID) //
 				.setTranslatedLabel("gridMeterId.label") //
 				.setTranslatedDescription("gridMeterId.description");

@@ -71,7 +71,7 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
 						.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
 								ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickSymmetricGridMeterId(),
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(),
 				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
 						.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 								ComponentManagerSupplier::getComponentManager))), //
