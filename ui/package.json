@@ -14,7 +14,7 @@
         "@angular/service-worker": "~15.2.9",
         "@ionic/angular": "^6.7.4",
         "@ngx-formly/core": "^6.1.7",
-        "@ngx-formly/ionic": "^6.1.7",
+        "@ngx-formly/ionic": "^6.1.8",
         "@ngx-formly/schematics": "^6.1.7",
         "@ngx-translate/core": "^14.0.0",
         "angular-mydatepicker": "^0.11.5",
