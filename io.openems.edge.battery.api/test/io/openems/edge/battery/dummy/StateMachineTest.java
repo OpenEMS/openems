@@ -34,6 +34,13 @@ public class StateMachineTest {
 				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase()//
+						.output(STATE_MACHINE, StateMachine.State.GO_STOPPED))//
+				.next(new TestCase()//
+						.timeleap(clock, 11, ChronoUnit.SECONDS)//
+						.onAfterProcessImage(() -> battery.setMainContactorTarget(true)))//
+				.next(new TestCase()//
+						.output(STATE_MACHINE, StateMachine.State.STOPPED))//
+				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.SECONDS)//
