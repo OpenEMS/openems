@@ -366,7 +366,7 @@ export class EdgeConfig {
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
                     this.getFactoriesByNature("io.openems.edge.meter.api.ElectricityMeter"),
-                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 ]
             },
             {

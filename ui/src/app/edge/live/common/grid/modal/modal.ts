@@ -11,7 +11,7 @@ export class ModalComponent extends AbstractModal {
   protected readonly GridMode = GridMode;
   protected grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number } = { mode: GridMode.UNDEFINED, buyFromGrid: null, sellToGrid: null };
 
-  protected meters: EdgeConfig.Component[] = []
+  protected meters: EdgeConfig.Component[] = [];
 
   protected override getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [];
