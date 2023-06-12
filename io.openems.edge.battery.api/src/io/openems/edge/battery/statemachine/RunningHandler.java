@@ -9,15 +9,18 @@ public class RunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		var battery = context.getParent();
+		final var battery = context.getParent();
 
+		// Has Faults -> error handling
 		if (battery.hasFaults()) {
-			return State.UNDEFINED;
+			return State.ERROR;
 		}
 
-		// Mark as started
-		battery._setStartStop(StartStop.START);
+		if (battery.getStartStopTarget() == StartStop.STOP) {
+			return State.GO_STOPPED;
+		}
 
+		battery._setStartStop(StartStop.START);
 		return State.RUNNING;
 	}
 }

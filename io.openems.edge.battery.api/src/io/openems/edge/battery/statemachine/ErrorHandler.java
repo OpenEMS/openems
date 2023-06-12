@@ -19,7 +19,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		var battery = context.getParent();
+		final var battery = context.getParent();
 		battery._setMaxStartAttempts(false);
 		battery._setMaxStopAttempts(false);
 	}

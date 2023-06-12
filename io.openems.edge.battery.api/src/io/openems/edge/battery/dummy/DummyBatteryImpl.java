@@ -197,10 +197,7 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 
 	@Override
 	public synchronized void setStartStop(StartStop value) {
-		if (this.startStopTarget != value) {
-			this.startStopTarget = value;
-			this.stateMachine.forceNextState(State.UNDEFINED);
-		}
+		this.startStopTarget = value;
 	}
 
 	@Override
