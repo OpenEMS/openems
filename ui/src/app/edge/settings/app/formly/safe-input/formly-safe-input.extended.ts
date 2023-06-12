@@ -5,7 +5,7 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 
 @Component({
     selector: 'formly-safe-input-wrapper',
-    templateUrl: './formly-safe-input.extended.html',
+    templateUrl: './formly-safe-input.extended.html'
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 

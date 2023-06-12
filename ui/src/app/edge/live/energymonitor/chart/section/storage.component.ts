@@ -50,7 +50,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;

@@ -32,7 +32,7 @@ export class ModalComponent extends AbstractModal {
                 channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL2'));
                 channelAddresses.push(new ChannelAddress(component.id, 'ActivePowerL3'));
                 this.productionMeters.push(component);
-            })
+            });
 
         return channelAddresses;
     }

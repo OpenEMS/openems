@@ -41,7 +41,7 @@ export class UpdateAppComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private router: Router,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 
@@ -80,7 +80,7 @@ export class UpdateAppComponent implements OnInit {
                   properties: {
                     'ALIAS': instance.alias,
                     ...instance.properties
-                  },
+                  }
                 });
               }
 

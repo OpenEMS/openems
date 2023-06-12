@@ -7,7 +7,7 @@ import { UserComponent } from './user.component';
     SharedModule
   ],
   declarations: [
-    UserComponent,
+    UserComponent
   ]
 })
 export class UserModule { }

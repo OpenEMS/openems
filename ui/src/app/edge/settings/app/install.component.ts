@@ -48,7 +48,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private service: Service,
     private modalController: ModalController,
     private router: Router,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 

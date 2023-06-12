@@ -19,7 +19,7 @@ export class ChangelogComponent implements OnInit {
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {

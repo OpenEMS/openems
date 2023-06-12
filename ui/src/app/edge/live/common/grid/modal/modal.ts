@@ -11,7 +11,7 @@ export class ModalComponent extends AbstractModal {
   protected readonly GridMode = GridMode;
   protected grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number } = { mode: GridMode.UNDEFINED, buyFromGrid: null, sellToGrid: null };
 
-  protected meters: EdgeConfig.Component[] = []
+  protected meters: EdgeConfig.Component[] = [];
 
   protected override getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [];
@@ -24,7 +24,7 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress('_sum', 'GridActivePower'),
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
-      new ChannelAddress('_sum', 'GridActivePowerL3'),
+      new ChannelAddress('_sum', 'GridActivePowerL3')
     );
     return channelAddresses;
   }

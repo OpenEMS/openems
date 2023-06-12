@@ -22,7 +22,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("selfconsumption-chart", service, translate);
     }
