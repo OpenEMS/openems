@@ -77,16 +77,16 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent },
+        { name: 'repeat', component: RepeatTypeComponent }
       ],
       validators: [
         { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator },
+        { name: 'subnetmask', validation: SubnetmaskValidator }
       ],
       validationMessages: [
         { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
-      ],
+        { name: 'subnetmask', message: SubnetmaskValidatorMessage }
+      ]
     }),
     PipeModule,
     Generic_ComponentsModule,
@@ -132,7 +132,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ChartOptionsComponent,
     HeaderComponent,
     HistoryDataErrorComponent,
-    PercentageBarComponent,
+    PercentageBarComponent
   ],
   providers: [
     appRoutingProviders,

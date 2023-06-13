@@ -23,7 +23,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }

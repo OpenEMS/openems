@@ -42,7 +42,7 @@ export class CurrentData {
         effectivePower: null,
         effectiveChargePower: null,
         effectiveDischargePower: null,
-        capacity: null,
+        capacity: null
       }, production: {
         hasDC: false,
         powerRatio: null,

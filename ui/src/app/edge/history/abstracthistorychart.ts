@@ -36,21 +36,21 @@ export abstract class AbstractHistoryChart {
     // Colors for Phase 1-3
     protected phase1Color = {
         backgroundColor: 'rgba(255,127,80,0.05)',
-        borderColor: 'rgba(255,127,80,1)',
+        borderColor: 'rgba(255,127,80,1)'
     };
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
-        borderColor: 'rgba(0,0,255,1)',
+        borderColor: 'rgba(0,0,255,1)'
     };
     protected phase3Color = {
         backgroundColor: 'rgba(128,128,0,0.1)',
-        borderColor: 'rgba(128,128,0,1)',
+        borderColor: 'rgba(128,128,0,1)'
     };
 
     constructor(
         public readonly spinnerId: string,
         protected service: Service,
-        protected translate: TranslateService,
+        protected translate: TranslateService
     ) {
     }
 
@@ -162,7 +162,7 @@ export abstract class AbstractHistoryChart {
         } else if (this.service.periodString == 'month') {
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
         } else {
-            return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit', }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
         }
     }
 

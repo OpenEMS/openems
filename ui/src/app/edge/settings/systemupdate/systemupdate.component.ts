@@ -22,7 +22,7 @@ export class SystemUpdateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {

@@ -26,7 +26,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -78,7 +78,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
                 new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),
-                new ChannelAddress(this.componentId, 'NoLimitationTime'),
+                new ChannelAddress(this.componentId, 'NoLimitationTime')
             ];
             resolve(channeladdresses);
         });

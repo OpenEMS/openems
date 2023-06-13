@@ -72,7 +72,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     Common_Production
   ],
   entryComponents: [
-    EnergyModalComponent,
+    EnergyModalComponent
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -136,7 +136,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent,
+    HistoryParentComponent
   ]
 })
 export class HistoryModule { }

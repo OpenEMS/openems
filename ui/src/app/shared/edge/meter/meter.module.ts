@@ -18,11 +18,11 @@ import { EssChargerComponent } from "./esscharger/modal.component";
     ],
     declarations: [
         ElectricityMeterComponent,
-        EssChargerComponent,
+        EssChargerComponent
     ],
     exports: [
         ElectricityMeterComponent,
-        EssChargerComponent,
+        EssChargerComponent
     ]
 })
 export class MeterModule { }

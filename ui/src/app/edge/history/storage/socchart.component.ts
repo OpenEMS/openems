@@ -78,7 +78,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
@@ -88,7 +88,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(128,128,128,0.05)',
-                                        borderColor: 'rgba(128,128,128,1)',
+                                        borderColor: 'rgba(128,128,128,1)'
                                     });
                                 }
                             }
@@ -97,11 +97,11 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     label:
                                         this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
                                     data: data,
-                                    borderDash: [3, 3],
+                                    borderDash: [3, 3]
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(1, 1, 1,0)',
-                                    borderColor: 'rgba(1, 1, 1,1)',
+                                    borderColor: 'rgba(1, 1, 1,1)'
                                 });
                             }
                         });

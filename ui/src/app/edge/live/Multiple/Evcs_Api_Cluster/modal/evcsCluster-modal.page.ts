@@ -30,7 +30,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
         noSwipingClass: 'swiper-no-swiping',
         //noSwipingSelector: 'ion-range, ion-toggle',
         initialSlide: 0,
-        speed: 1000,
+        speed: 1000
     };
     public firstEvcs: string;
     public lastEvcs: string;

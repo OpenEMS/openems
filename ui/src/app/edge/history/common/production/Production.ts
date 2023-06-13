@@ -41,6 +41,6 @@ import { ProductionChartOverviewComponent } from './overview/overview';
     TotalAcChartComponent,
     TotalChartComponent,
     ChargerChartComponent
-  ],
+  ]
 })
 export class Common_Production { }

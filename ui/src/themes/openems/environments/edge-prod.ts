@@ -8,6 +8,6 @@ export const environment: Environment = {
         url: "ws://" + location.hostname + ":8075",
 
         production: true,
-        debugMode: false,
+        debugMode: false
     }
 };

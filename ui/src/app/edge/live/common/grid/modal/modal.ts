@@ -17,7 +17,7 @@ export class ModalComponent {
   protected fields: FormlyFieldConfig[] = [];
   protected form: FormGroup = new FormGroup({});
 
-  protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
+  protected meters: EdgeConfig.Component[] = []
 
   private static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, role: Role): ModalField[] {
 
