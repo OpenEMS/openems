@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
-import { AbstractFormlyComponent, OeFormlyField } from 'src/app/shared/genericComponents/shared/oe-formly-component';
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
 import { EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
@@ -10,17 +10,19 @@ import { Role } from 'src/app/shared/type/role';
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected generateView(edgeId: string, config: EdgeConfig, role: Role): { title: string; lines: OeFormlyField[]; } {
-    const meters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(comp => comp.isEnabled && config.isTypeGrid(comp));
+  public override generateView(edgeId: string, config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
+    return ModalComponent.getFormlyLines(edgeId, config, role, translate);
+  }
+
+  public static getFormlyLines(edgeId: string, config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
 
     // Grid-Mode
     let lines: OeFormlyField[] = [{
       type: 'line',
-      name: this.translate.instant("General.offGrid"),
+      name: translate.instant("General.offGrid"),
       channel: '_sum/GridMode',
       filter: Utils.isGridModeOffGrid()
-    }]
+    }];
 
     var gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
 
@@ -28,18 +30,17 @@ export class ModalComponent extends AbstractFormlyComponent {
     if (gridMeters.length > 1) {
       lines.push({
         type: 'line',
-        name: this.translate.instant("General.gridBuyAdvanced"),
+        name: translate.instant("General.gridBuyAdvanced"),
         channel: '_sum/GridActivePower',
         converter: Utils.CONVERT_TO_GRID_BUY_POWER
       }, {
         type: 'line',
-        name: this.translate.instant("General.gridSellAdvanced"),
+        name: translate.instant("General.gridSellAdvanced"),
         channel: '_sum/GridActivePower',
         converter: Utils.CONVERT_TO_GRID_SELL_POWER
       }, {
         type: 'line-horizontal'
       });
-      // TODO show phase values from _sum
     }
 
     // Individual Meters
@@ -48,21 +49,21 @@ export class ModalComponent extends AbstractFormlyComponent {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
         lines.push({
           type: 'line',
-          name: this.translate.instant("General.gridBuyAdvanced"),
+          name: translate.instant("General.gridBuyAdvanced"),
           channel: meter.id + '/ActivePower',
-          converter: Utils.CONVERT_TO_GRID_BUY_POWER,
+          converter: Utils.CONVERT_TO_GRID_BUY_POWER
         }, {
           type: 'line',
-          name: this.translate.instant("General.gridSellAdvanced"),
+          name: translate.instant("General.gridSellAdvanced"),
           channel: meter.id + '/ActivePower',
-          converter: Utils.CONVERT_TO_GRID_SELL_POWER,
+          converter: Utils.CONVERT_TO_GRID_SELL_POWER
         });
 
       } else {
         // More than one meter? Show only one line per meter.
         lines.push({
           type: 'line',
-          name: Utils.ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(this.translate, meter.alias),
+          name: Utils.ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
           channel: meter.id + '/ActivePower',
           converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
         });
@@ -70,7 +71,7 @@ export class ModalComponent extends AbstractFormlyComponent {
 
       lines.push(
         // Individual phases: Voltage, Current and Power
-        ...ModalComponent.generateModalMeterPhases(meter, this.translate, role), {
+        ...ModalComponent.generateModalMeterPhases(meter, translate, role), {
         // Line separator
         type: 'line-horizontal'
       });
@@ -79,11 +80,11 @@ export class ModalComponent extends AbstractFormlyComponent {
     // Technical info
     lines.push({
       type: 'line-info',
-      name: this.translate.instant("Edge.Index.Widgets.phasesInfo")
+      name: translate.instant("Edge.Index.Widgets.phasesInfo")
     });
 
     return {
-      title: this.translate.instant('General.grid'),
+      title: translate.instant('General.grid'),
       lines: lines
     };
   }
@@ -104,12 +105,12 @@ export class ModalComponent extends AbstractFormlyComponent {
           Role.isAtLeast(role, Role.INSTALLER) && {
             type: 'line-item',
             channel: component.id + '/Current' + phase,
-            converter: Utils.CONVERT_TO_CURRENT,
+            converter: Utils.CONVERT_TO_CURRENT
           },
           {
             type: 'line-item',
             channel: component.id + '/ActivePower' + phase,
-            converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER,
+            converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
           }
         ]
       });
