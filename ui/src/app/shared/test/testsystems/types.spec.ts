@@ -20,7 +20,7 @@ export abstract class AbstractSystem {
   public createEdgeConfig(edge: Edge, components: { [id: string]: EdgeConfig.Component }, factories: { [id: string]: EdgeConfig.Factory }): EdgeConfig {
     return new EdgeConfig(edge, {
       components: components,
-      factories: factories,
+      factories: factories
     } as EdgeConfig
     );
   }

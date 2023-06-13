@@ -1,4 +1,4 @@
-import { TextIndentation } from "../modal/modal-line/modal-line"
+import { TextIndentation } from "../modal/modal-line/modal-line";
 export type ModalField =
   | ModalFieldLine
   | ModalFieldLineInfo

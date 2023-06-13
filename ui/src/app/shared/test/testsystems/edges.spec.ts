@@ -79,7 +79,7 @@ export class ems4 extends AbstractSystem {
         id: "meter1",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
@@ -136,7 +136,7 @@ export class ems10004 extends AbstractSystem {
         id: "meter0",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
@@ -193,7 +193,7 @@ export class ems12786 extends AbstractSystem {
         id: "meter0",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
@@ -252,7 +252,7 @@ export class ems30012 extends AbstractSystem {
         id: "meter0",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
@@ -311,7 +311,7 @@ export class ems30034 extends AbstractSystem {
         id: "meter0",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
@@ -370,7 +370,7 @@ export class ems30048 extends AbstractSystem {
         id: "meter0",
         isEnabled: true,
         channels: {}
-      },
+      }
     };
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:

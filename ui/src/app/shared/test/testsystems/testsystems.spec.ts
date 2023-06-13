@@ -14,9 +14,9 @@ describe('ExampleSystemsTest', () => {
   beforeEach((() => {
     TestBed.configureTestingModule({
       imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader, }, defaultLanguage: Language.DEFAULT.key }),
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key })
       ],
-      providers: [TranslateService, { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },]
+      providers: [TranslateService, { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] }]
     }).compileComponents();
     translate = TestBed.inject(TranslateService);
   }));
@@ -32,8 +32,8 @@ describe('ExampleSystemsTest', () => {
         for (let [key, modelToBeMatched] of widget.modal.fieldsWithRoles) {
 
           sessionStorage.setItem("first", JSON.stringify(
-            ModalComponent.generateView(system.key, system.config, Role.getRole(Role[key]), translate)))
-          sessionStorage.setItem("second", JSON.stringify(modelToBeMatched))
+            ModalComponent.generateView(system.key, system.config, Role.getRole(Role[key]), translate)));
+          sessionStorage.setItem("second", JSON.stringify(modelToBeMatched));
           expect(JSON.stringify(
             ModalComponent.generateView(system.key, system.config, Role.getRole(Role[key]), translate))).toBe(JSON.stringify(modelToBeMatched));
         }

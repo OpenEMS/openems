@@ -9,7 +9,7 @@ import { EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/generalModal.html',
+  templateUrl: '../../../../../shared/formly/formly-field-modal/generalModal.html'
 })
 @CustomViewComponent
 export class ModalComponent {
@@ -17,7 +17,7 @@ export class ModalComponent {
   protected fields: FormlyFieldConfig[] = [];
   protected form: FormGroup = new FormGroup({});
 
-  protected meters: EdgeConfig.Component[] = []
+  protected meters: EdgeConfig.Component[] = [];
 
   private static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, role: Role): ModalField[] {
 
@@ -33,13 +33,13 @@ export class ModalComponent {
               type: 'line-item',
               channel: component.id + '/Voltage' + phase,
               converter: Utils.CONVERT_TO_VOLT,
-              indentation: TextIndentation.SINGLE,
+              indentation: TextIndentation.SINGLE
             },
             Role.isAtLeast(role, Role.INSTALLER) && {
               type: 'line-item',
               channel: component.id + '/Current' + phase,
               converter: Utils.CONVERT_TO_CURRENT,
-              indentation: TextIndentation.SINGLE,
+              indentation: TextIndentation.SINGLE
             },
             {
               type: 'line-item',
@@ -48,8 +48,8 @@ export class ModalComponent {
               indentation: TextIndentation.SINGLE
             }
           ]
-        }
-      })
+        };
+      });
   }
 
   public static generateView(edgeId: string, edgeConfig: EdgeConfig, userRole: Role, translate: TranslateService): FormlyFieldConfig[] {
@@ -66,14 +66,14 @@ export class ModalComponent {
         type: 'line',
         name: translate.instant("General.gridBuyAdvanced"),
         channel: '_sum/GridActivePower',
-        converter: Utils.CONVERT_TO_GRID_BUY_POWER,
+        converter: Utils.CONVERT_TO_GRID_BUY_POWER
       },
       {
         type: 'line',
         name: translate.instant("General.gridSellAdvanced"),
         channel: '_sum/GridActivePower',
-        converter: Utils.CONVERT_TO_GRID_SELL_POWER,
-      },
+        converter: Utils.CONVERT_TO_GRID_SELL_POWER
+      }
     ];
 
     for (let component of Object.values(edgeConfig.components)) {
@@ -85,11 +85,11 @@ export class ModalComponent {
               type: 'line',
               name: component.id,
               channel: component.id + '/ActivePower',
-              converter: Utils.CONVERT_TO_WATT,
+              converter: Utils.CONVERT_TO_WATT
             });
         }
 
-        lines.push(...ModalComponent.generateModalMeterPhases(component, translate, userRole),
+        lines.push(...ModalComponent.generateModalMeterPhases(component, translate, userRole)
         );
 
       }
@@ -98,8 +98,8 @@ export class ModalComponent {
     lines.push(
       {
         type: 'line-info',
-        name: translate.instant("Edge.Index.Widgets.phasesInfo"),
-      },
+        name: translate.instant("Edge.Index.Widgets.phasesInfo")
+      }
     );
 
     let fields: FormlyFieldConfig[] = [{
@@ -111,9 +111,9 @@ export class ModalComponent {
           title: translate.instant('General.grid')
         },
         required: true,
-        options: [{ lines: lines }],
+        options: [{ lines: lines }]
       },
-      wrappers: ['formly-field-modal'],
+      wrappers: ['formly-field-modal']
     }];
     return fields;
   }

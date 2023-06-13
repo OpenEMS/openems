@@ -5,7 +5,7 @@ import { Role } from "src/app/shared/type/role";
 
 @Component({
     selector: 'formly-field-modal',
-    templateUrl: './formlyfieldmodal.html',
+    templateUrl: './formlyfieldmodal.html'
 })
 export class FormlyFieldModalComponent extends FieldWrapper {
 
