@@ -2,7 +2,14 @@ package io.openems.edge.pvinverter.sunspec;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_101;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_102;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_103;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_111;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_112;
+import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_113;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,6 +27,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S101;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S102;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S103;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S111;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S112;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S113;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S120;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
@@ -33,6 +47,10 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecComponent
 		implements SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler {
+
+	private static final List<DefaultSunSpecModel> SINGLE_PHASE_BLOCKS = Lists.newArrayList(S_101, S_111);
+	private static final List<DefaultSunSpecModel> SPLIT_PHASE_BLOCKS = Lists.newArrayList(S_102, S_112);
+	private static final List<DefaultSunSpecModel> THREE_PHASE_BLOCKS = Lists.newArrayList(S_103, S_113);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecPvInverter.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
@@ -167,37 +185,32 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.FREQUENCY, //
 				SCALE_FACTOR_3, //
-				DefaultSunSpecModel.S111.HZ, DefaultSunSpecModel.S112.HZ, DefaultSunSpecModel.S113.HZ,
-				DefaultSunSpecModel.S101.HZ, DefaultSunSpecModel.S102.HZ, DefaultSunSpecModel.S103.HZ);
+				S111.HZ, S112.HZ, S113.HZ, S101.HZ, S102.HZ, S103.HZ);
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.ACTIVE_POWER, //
 				DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.W, DefaultSunSpecModel.S112.W, DefaultSunSpecModel.S113.W,
-				DefaultSunSpecModel.S101.W, DefaultSunSpecModel.S102.W, DefaultSunSpecModel.S103.W);
+				S111.W, S112.W, S113.W, S101.W, S102.W, S103.W);
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.REACTIVE_POWER, //
 				DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.V_AR, DefaultSunSpecModel.S112.V_AR, DefaultSunSpecModel.S113.V_AR,
-				DefaultSunSpecModel.S101.V_AR, DefaultSunSpecModel.S102.V_AR, DefaultSunSpecModel.S103.V_AR);
+				S111.V_AR, S112.V_AR, S113.V_AR, S101.V_AR, S102.V_AR, S103.V_AR);
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 				DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S111.WH, DefaultSunSpecModel.S112.WH, DefaultSunSpecModel.S113.WH,
-				DefaultSunSpecModel.S101.WH, DefaultSunSpecModel.S102.WH, DefaultSunSpecModel.S103.WH);
+				S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
 
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
 				DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S120.W_RTG);
+				S120.W_RTG);
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.CURRENT, //
 				SCALE_FACTOR_3, //
-				DefaultSunSpecModel.S111.A, DefaultSunSpecModel.S112.A, DefaultSunSpecModel.S113.A,
-				DefaultSunSpecModel.S101.A, DefaultSunSpecModel.S102.A, DefaultSunSpecModel.S103.A);
+				S111.A, S112.A, S113.A, S101.A, S102.A, S103.A);
 
 		/*
 		 * ElectricityMeter
@@ -206,14 +219,10 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 			this.mapFirstPointToChannel(//
 					ElectricityMeter.ChannelId.VOLTAGE, //
 					SCALE_FACTOR_3, //
-					DefaultSunSpecModel.S112.PH_VPH_A, DefaultSunSpecModel.S112.PH_VPH_B,
-					DefaultSunSpecModel.S112.PH_VPH_C, //
-					DefaultSunSpecModel.S113.PH_VPH_A, DefaultSunSpecModel.S113.PH_VPH_B,
-					DefaultSunSpecModel.S113.PH_VPH_C, //
-					DefaultSunSpecModel.S102.PH_VPH_A, DefaultSunSpecModel.S102.PH_VPH_B,
-					DefaultSunSpecModel.S102.PH_VPH_C, //
-					DefaultSunSpecModel.S103.PH_VPH_A, DefaultSunSpecModel.S103.PH_VPH_B,
-					DefaultSunSpecModel.S103.PH_VPH_C);
+					S112.PH_VPH_A, S112.PH_VPH_B, S112.PH_VPH_C, //
+					S113.PH_VPH_A, S113.PH_VPH_B, S113.PH_VPH_C, //
+					S102.PH_VPH_A, S102.PH_VPH_B, S102.PH_VPH_C, //
+					S103.PH_VPH_A, S103.PH_VPH_B, S103.PH_VPH_C);
 			return;
 		}
 
@@ -223,26 +232,24 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		case L1:
 			this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L1, //
 					DIRECT_1_TO_1, //
-					DefaultSunSpecModel.S101.PH_VPH_A, DefaultSunSpecModel.S111.PH_VPH_A);
+					S101.PH_VPH_A, S111.PH_VPH_A);
 			break;
 		case L2:
 			this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L2, //
 					DIRECT_1_TO_1, //
-					DefaultSunSpecModel.S101.PH_VPH_B, DefaultSunSpecModel.S111.PH_VPH_B);
+					S101.PH_VPH_B, S111.PH_VPH_B);
 			break;
 		case L3:
 			this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L3, //
 					DIRECT_1_TO_1, //
-					DefaultSunSpecModel.S101.PH_VPH_C, DefaultSunSpecModel.S111.PH_VPH_C);
+					S101.PH_VPH_C, S111.PH_VPH_C);
 			break;
 		}
 
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.VOLTAGE, //
 				DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S101.PH_VPH_A, DefaultSunSpecModel.S111.PH_VPH_A, //
-				DefaultSunSpecModel.S101.PH_VPH_B, DefaultSunSpecModel.S111.PH_VPH_B, //
-				DefaultSunSpecModel.S101.PH_VPH_C, DefaultSunSpecModel.S111.PH_VPH_C);
+				S101.PH_VPH_A, S111.PH_VPH_A, S101.PH_VPH_B, S111.PH_VPH_B, S101.PH_VPH_C, S111.PH_VPH_C);
 
 	}
 
@@ -250,26 +257,21 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		super.addBlock(startAddress, model, priority);
 
-		if (Lists.newArrayList(DefaultSunSpecModel.S_101, //
-				DefaultSunSpecModel.S_111) //
-				.stream() //
+		if (SINGLE_PHASE_BLOCKS.stream() //
 				.anyMatch(t -> t.equals(model))) {
 			// single phase
 			this.isSinglePhase = true;
-		} else if (Lists.newArrayList(DefaultSunSpecModel.S_102, //
-				DefaultSunSpecModel.S_112) //
-				.stream() //
+
+		} else if (SPLIT_PHASE_BLOCKS.stream() //
 				.anyMatch(t -> t.equals(model))) {
 			// split Phase
 			this.isSinglePhase = false;
-		} else if (Lists.newArrayList(DefaultSunSpecModel.S_103, //
-				DefaultSunSpecModel.S_113) //
-				.stream() //
+
+		} else if (THREE_PHASE_BLOCKS.stream() //
 				.anyMatch(t -> t.equals(model))) {
 			// three Phase
 			this.isSinglePhase = false;
 		}
-
 	}
 
 	protected final boolean isSinglePhase() {
