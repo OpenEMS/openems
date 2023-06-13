@@ -30,6 +30,7 @@ export class UserPermission {
 
     switch (user.id) {
       case 'volta-x':
+      case 'intersolar2023':
         return true;
     }
 
