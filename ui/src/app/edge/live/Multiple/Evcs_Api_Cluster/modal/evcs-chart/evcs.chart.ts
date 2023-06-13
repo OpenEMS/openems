@@ -103,7 +103,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
     line: {
       borderWidth: 2,
       tension: 0.1
-    },
+    }
   },
   hover: {
     mode: 'point',
@@ -123,7 +123,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
         max: 50
       },
       stacked: true
-    }],
+    }]
   },
   tooltips: {
     mode: 'index',

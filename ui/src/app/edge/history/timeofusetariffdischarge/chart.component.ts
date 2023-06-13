@@ -31,7 +31,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("timeOfUseTariffDischarge-chart", service, translate);
   }
@@ -117,12 +117,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             type: 'bar',
             label: this.translate.instant('Edge.Index.Energymonitor.storageDischarge'),
             data: quarterlyPricesNightData,
-            order: 3,
+            order: 3
           });
           this.colors.push({
             // Dark Green
             backgroundColor: 'rgba(51,102,0,0.8)',
-            borderColor: 'rgba(51,102,0,1)',
+            borderColor: 'rgba(51,102,0,1)'
           });
 
           // Set dataset for Quarterly Prices outside zone
@@ -130,12 +130,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             type: 'bar',
             label: this.translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby'),
             data: quarterlyPricesStandbyModeData,
-            order: 3,
+            order: 3
           });
           this.colors.push({
             // Dark Blue
             backgroundColor: 'rgba(0,0,200,0.7)',
-            borderColor: 'rgba(0,0,200,0.9)',
+            borderColor: 'rgba(0,0,200,0.9)'
           });
 
           // Show charge data only for the new controller.
@@ -145,12 +145,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
               type: 'bar',
               label: this.translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING'),
               data: quarterlyPricesChargedData,
-              order: 3,
+              order: 3
             });
             this.colors.push({
               // Sky blue
               backgroundColor: 'rgba(0, 204, 204,0.5)',
-              borderColor: 'rgba(0, 204, 204,0.7)',
+              borderColor: 'rgba(0, 204, 204,0.7)'
             });
           } else {
             // Set dataset for buy from grid
@@ -158,12 +158,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
               type: 'bar',
               label: this.translate.instant('General.gridBuy'),
               data: quarterlyPricesDelayedDischargeData,
-              order: 4,
+              order: 4
             });
             this.colors.push({
               // Black
               backgroundColor: 'rgba(0,0,0,0.8)',
-              borderColor: 'rgba(0,0,0,0.9)',
+              borderColor: 'rgba(0,0,0,0.9)'
             });
 
           }
@@ -212,11 +212,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             yAxisID: 'yAxis2',
             position: 'right',
             borderDash: [10, 10],
-            order: 1,
+            order: 1
           });
           this.colors.push({
             backgroundColor: 'rgba(189, 195, 199,0.2)',
-            borderColor: 'rgba(189, 195, 199,1)',
+            borderColor: 'rgba(189, 195, 199,1)'
           });
         }
 
@@ -260,7 +260,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         new ChannelAddress(this.componentId, 'Delayed'),
         new ChannelAddress(this.componentId, 'QuarterlyPrices'),
         new ChannelAddress(this.componentId, 'StateMachine'),
-        new ChannelAddress('_sum', 'EssSoc'),
+        new ChannelAddress('_sum', 'EssSoc')
         // new ChannelAddress(this.componentId, 'PredictedSocWithoutLogic'),
       ];
 

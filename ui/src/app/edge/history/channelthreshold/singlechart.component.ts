@@ -24,7 +24,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("channelthreshold-single-chart", service, translate);
   }
@@ -69,7 +69,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
+          borderColor: 'rgba(0,191,255,1)'
         });
       }
       this.datasets = datasets;

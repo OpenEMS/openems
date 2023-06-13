@@ -13,6 +13,18 @@ export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 import { User } from "./jsonrpc/shared";
 import { Role } from "./type/role";
 
+import { addIcons } from 'ionicons';
+
+addIcons({
+  'oe-consumption': 'assets/img/icon/consumption.svg',
+  'oe-evcs': 'assets/img/icon/evcs.svg',
+  'oe-grid': 'assets/img/icon/grid.svg',
+  'oe-grid-storage': 'assets/img/icon/gridStorage.svg',
+  'oe-offgrid': 'assets/img/icon/offgrid.svg',
+  'oe-production': 'assets/img/icon/production.svg',
+  'oe-storage': 'assets/img/icon/storage.svg',
+});
+
 export class UserPermission {
   public static isUserAllowedToSeeOverview(user: User): boolean {
     return Role.isAtLeast(user.globalRole, Role.INSTALLER);

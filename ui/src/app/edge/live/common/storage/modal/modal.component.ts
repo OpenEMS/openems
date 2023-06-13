@@ -8,7 +8,7 @@ import { Role } from 'src/app/shared/type/role';
 
 @Component({
     selector: 'storage-modal',
-    templateUrl: './modal.component.html',
+    templateUrl: './modal.component.html'
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
@@ -33,7 +33,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-        public formBuilder: FormBuilder,
+        public formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {
@@ -85,7 +85,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 this.formBuilder.group({
                                     controllerId: new FormControl(controller['id']),
                                     isReserveSocEnabled: new FormControl(isReserveSocEnabled),
-                                    reserveSoc: new FormControl(reserveSoc),
+                                    reserveSoc: new FormControl(reserveSoc)
                                 })
                             );
                         } else if (controller.factoryId == 'Controller.Ess.PrepareBatteryExtension') {

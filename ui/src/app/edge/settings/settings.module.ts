@@ -35,7 +35,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SettingsComponent,
     SystemExecuteComponent,
     SystemUpdateComponent,
-    AlertingComponent,
+    AlertingComponent
   ],
   entryComponents: [
   ],

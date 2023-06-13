@@ -22,7 +22,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("heatpump-chart", service, translate);
     }
@@ -70,7 +70,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
-                    borderColor: 'rgba(200,0,0,1)',
+                    borderColor: 'rgba(200,0,0,1)'
                 });
             }
             this.datasets = datasets;

@@ -24,7 +24,7 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }

@@ -31,7 +31,7 @@ export class Controller_ChpSocModalComponent implements OnInit {
         public websocket: Websocket,
         public router: Router,
         protected translate: TranslateService,
-        public modalCtrl: ModalController,
+        public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {

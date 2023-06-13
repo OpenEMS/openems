@@ -28,7 +28,7 @@ export class GlobalRouteChangeHandler {
         }
 
         return data;
-      }),
+      })
     ).subscribe(e => {
 
       if (e.navbarTitle != null && e.navbarTitleToBeTranslated != null) {
