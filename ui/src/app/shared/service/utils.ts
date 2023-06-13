@@ -578,11 +578,10 @@ export class Utils {
     return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
   };
 
-  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
-    let name: string = translate.instant('General.phase') + " " + phase;
+  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, name: string) => {
     return (value: any): string => {
       if (!value) {
-        return "";
+        return name;
       }
 
       if (value < 0) {
