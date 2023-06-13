@@ -32,6 +32,7 @@ import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
@@ -72,7 +73,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: 'panel', component: PanelWrapperComponent },
-        { name: 'formly-field-modal', component: FormlyFieldRadioWithImageComponent }
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -107,6 +108,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyFieldRadioWithImageComponent,
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyWrapperDefaultValueWithCasesComponent,
+    FormlyFieldModalComponent,
     PanelWrapperComponent
   ],
   exports: [

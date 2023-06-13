@@ -4,18 +4,9 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CustomViewComponent } from 'src/app/shared/decorators';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
+import { ModalField } from 'src/app/shared/genericComponents/shared/types';
 import { EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
-
-export type FormlyFieldLine = {
-  type: string,
-  channel?: string,
-  filter?: Function,
-  converter?: Function,
-  name?: string | Function,
-  indentation?: TextIndentation,
-  children?: FormlyFieldLine[]
-}
 
 @Component({
   templateUrl: '../../../../../shared/formly/formly-field-modal/generalModal.html',
@@ -28,23 +19,23 @@ export class ModalComponent {
 
   protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
 
-  public static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, userRole: Role): FormlyFieldLine[] {
-    let fields: FormlyFieldLine[] = [];
-    ['L1', 'L2', 'L3'].forEach(phase => {
-      fields.push(
-        {
+  private static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, role: Role): ModalField[] {
+
+    return ['L1', 'L2', 'L3']
+      .map(phase => {
+        return {
           type: 'line',
           name: Utils.ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, phase),
           indentation: TextIndentation.SINGLE,
           channel: component.id + '/ActivePower' + phase,
           children: [
-            Role.isAtLeast(userRole, Role.INSTALLER) && {
+            Role.isAtLeast(role, Role.INSTALLER) && {
               type: 'line-item',
               channel: component.id + '/Voltage' + phase,
               converter: Utils.CONVERT_TO_VOLT,
               indentation: TextIndentation.SINGLE,
             },
-            Role.isAtLeast(userRole, Role.INSTALLER) && {
+            Role.isAtLeast(role, Role.INSTALLER) && {
               type: 'line-item',
               channel: component.id + '/Current' + phase,
               converter: Utils.CONVERT_TO_CURRENT,
@@ -57,18 +48,14 @@ export class ModalComponent {
               indentation: TextIndentation.SINGLE
             }
           ]
-        });
-    });
-
-    return fields;
+        }
+      })
   }
 
   public static generateView(edgeId: string, edgeConfig: EdgeConfig, userRole: Role, translate: TranslateService): FormlyFieldConfig[] {
-
-    const asymmetricMeters = edgeConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+    const meters = edgeConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(comp => comp.isEnabled && edgeConfig.isTypeGrid(comp));
-
-    let lines: FormlyFieldLine[] = [
+    let lines: ModalField[] = [
       {
         type: 'line',
         name: translate.instant("General.offGrid"),
@@ -90,20 +77,19 @@ export class ModalComponent {
     ];
 
     for (let component of Object.values(edgeConfig.components)) {
-      let isMeterAsymmetric: boolean = asymmetricMeters.some((meter) => meter.id == component.id);
-
       if (edgeConfig?.isTypeGrid(component)) {
-        lines.push(
-          // Show if multiple GridMeters are installed
-          asymmetricMeters.length > 1 &&
-          {
-            type: 'line',
-            name: component.id,
-            channel: component.id + '/ActivePower',
-            converter: Utils.CONVERT_TO_WATT,
-          },
-          ...(isMeterAsymmetric ?
-            this.generateModalMeterPhases(component, translate, userRole) : []),
+
+        if (meters.length > 1) {
+          lines.push(
+            {
+              type: 'line',
+              name: component.id,
+              channel: component.id + '/ActivePower',
+              converter: Utils.CONVERT_TO_WATT,
+            });
+        }
+
+        lines.push(...ModalComponent.generateModalMeterPhases(component, translate, userRole),
         );
 
       }

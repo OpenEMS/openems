@@ -35,7 +35,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @param value the value from CurrentData
     * @returns converter function
     */
-    @Input() public filter = (value: any): boolean => { return true; };
+    @Input() public filter = (value: number | string | null): boolean => { return true; };
 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string | Function;
@@ -127,10 +127,10 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     /** value defines value of the parameter, displayed on the right */
-    protected setValue(value: number | string) {
+    protected setValue(value: number | string | null) {
 
-        if (value != null && this.filter) {
-            this.show = this.filter(value) ?? true;
+        if (this.filter) {
+            this.show = this.filter(value);
         }
 
         if (typeof this.name == 'function') {
