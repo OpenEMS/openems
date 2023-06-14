@@ -24,7 +24,7 @@ export abstract class AbstractFormlyComponent {
       edge.getConfig(service.websocket)
         .pipe(filter(config => !!config))
         .subscribe((config) => {
-          var view = this.generateView(edge.id, config, edge.role, this.translate);
+          var view = this.generateView(config, edge.role, this.translate);
 
           this.fields = [{
             type: "input",
@@ -45,12 +45,11 @@ export abstract class AbstractFormlyComponent {
   /**
     * Generate the View.
     * 
-    * @param edgeId the Edge-ID
     * @param config the Edge-Config
     * @param role  the Role of the User for this Edge
     * @param translate the Translate-Service
     */
-  protected abstract generateView(edgeId: string, config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView
+  protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView
 }
 
 export type OeFormlyView = {
@@ -59,33 +58,36 @@ export type OeFormlyView = {
 }
 
 export type OeFormlyField =
-  | OeFormlyFieldLine
-  | OeFieldLineInfo
-  | OeFieldLineItem
-  | OeFormlyFieldHorizontalLine
+  | OeFormlyField.Line
+  | OeFormlyField.Info
+  | OeFormlyField.Item
+  | OeFormlyField.Horizontal;
 
-type OeFieldLineInfo = {
-  type: 'line-info',
-  name: string
-}
+export namespace OeFormlyField {
 
-type OeFieldLineItem = {
-  type: 'line-item',
-  channel: string,
-  converter?: Function,
-  filter?: Function,
-}
+  export type Info = {
+    type: 'line-info',
+    name: string
+  }
 
-type OeFormlyFieldLine = {
-  type: 'line',
-  name: string | Function,
-  filter?: Function,
-  channel?: string,
-  converter?: Function,
-  indentation?: TextIndentation,
-  children?: OeFormlyField[]
-}
+  export type Item = {
+    type: 'line-item',
+    channel: string,
+    filter?: (value: number | null) => boolean,
+    converter?: (value: number | null) => string
+  }
 
-type OeFormlyFieldHorizontalLine = {
-  type: 'line-horizontal',
+  export type Line = {
+    type: 'line',
+    name: string | ((value: number) => string),
+    channel?: string,
+    filter?: (value: number | null) => boolean,
+    converter?: (value: number | null) => string
+    indentation?: TextIndentation,
+    children?: OeFormlyField[]
+  }
+
+  export type Horizontal = {
+    type: 'line-horizontal',
+  }
 }

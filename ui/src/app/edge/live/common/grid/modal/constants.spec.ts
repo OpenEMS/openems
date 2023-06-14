@@ -1,6 +1,116 @@
-import { OeFormlyView } from "../../genericComponents/shared/oe-formly-component";
+import { Converter } from "src/app/shared/genericComponents/shared/converter";
+import { TextIndentation } from "../../../../../shared/genericComponents/modal/modal-line/modal-line";
+import { OeFormlyField, OeFormlyView } from "../../../../../shared/genericComponents/shared/oe-formly-component";
+import { OeFormlyViewTester } from "../../../../../shared/genericComponents/shared/tester";
 
-export const ems1adminAndInstallerGridModal: OeFormlyView = {
+// const GRID_MODE_OFF_GRID: OeFormlyViewTester.Field = {
+//   type: "line",
+//   name: "Keine Netzverbindung!",
+// };
+function GRID_BUY_POWER(value: string): OeFormlyViewTester.Field {
+  return {
+    type: "line",
+    name: "Bezug",
+    value: value
+  }
+}
+function GRID_SELL_POWER(id: string): OeFormlyField {
+  return {
+    type: "line",
+    name: "Einspeisung",
+    channel: id + "/ActivePower",
+    converter: Converter.GRID_SELL_POWER
+  }
+}
+function PHASE_VOLTAGE_CURRENT_POWER(phase: string): OeFormlyField {
+  return {
+    "type": "line",
+    "name": phase + " 1 Bezug",
+    "indentation": TextIndentation.SINGLE,
+    "channel": "meter0/ActivePowerL1",
+    "children": [
+      {
+        "type": "line-item",
+        "channel": "meter0/VoltageL1"
+      },
+      {
+        "type": "line-item",
+        "channel": "meter0/CurrentL1"
+      },
+      {
+        "type": "line-item",
+        "channel": "meter0/ActivePowerL1"
+      }
+    ]
+  }
+}
+
+export namespace Constants {
+
+  export const EMS1_ADMIN_AND_INSTALLER: OeFormlyViewTester.View = {
+    title: "Netz",
+    lines: [
+      {
+        type: "line",
+        name: "Bezug",
+        value: "0 W"
+      }, {
+        type: "line",
+        name: "Einspeisung",
+        value: "1.000 W"
+      }, {
+        type: "line",
+        name: "Phase 1 Bezug",
+        indentation: TextIndentation.SINGLE,
+        children: [{
+          type: "line-item",
+          value: "230 V"
+        }, {
+          type: "line-item",
+          value: "2,2 A"
+        }, {
+          type: "line-item",
+          value: "500 W"
+        }]
+      }, {
+        type: "line",
+        name: "Phase 2 Einspeisung",
+        indentation: TextIndentation.SINGLE,
+        children: [{
+          type: "line-item",
+          value: "-"
+        }, {
+          type: "line-item",
+          value: "-"
+        }, {
+          type: "line-item",
+          value: "1.500 W"
+        }]
+      }, {
+        type: "line",
+        name: "Phase 3",
+        indentation: TextIndentation.SINGLE,
+        children: [{
+          type: "line-item",
+          value: "-"
+        }, {
+          type: "line-item",
+          value: "-"
+        }, {
+          type: "line-item",
+          value: "-"
+        }]
+      }, {
+        type: "line-horizontal"
+      }, {
+        type: "line-info",
+        name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
+      }
+    ]
+  };
+}
+
+export const EMS1_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -20,17 +130,12 @@ export const ems1adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        {
-          "type": "line-item",
-          "channel": "meter0/VoltageL1"
-        },
-        {
-          "type": "line-item",
-          "channel": "meter0/CurrentL1"
-        },
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -39,17 +144,12 @@ export const ems1adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        {
-          "type": "line-item",
-          "channel": "meter0/VoltageL2"
-        },
-        {
-          "type": "line-item",
-          "channel": "meter0/CurrentL2"
-        },
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -58,17 +158,12 @@ export const ems1adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        {
-          "type": "line-item",
-          "channel": "meter0/VoltageL3"
-        },
-        {
-          "type": "line-item",
-          "channel": "meter0/CurrentL3"
-        },
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -83,74 +178,9 @@ export const ems1adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems1ownerAndGuestGridModal: OeFormlyView = {
-  "title": "Netz",
-  "lines": [
-    {
-      "type": "line",
-      "name": "Keine Netzverbindung!",
-      "channel": "_sum/GridMode"
-    },
-    {
-      "type": "line",
-      "name": "Bezug",
-      "channel": "meter0/ActivePower"
-    },
-    {
-      "type": "line",
-      "name": "Einspeisung",
-      "channel": "meter0/ActivePower"
-    },
-    {
-      "type": "line",
-      "indentation": "5%",
-      "channel": "meter0/ActivePowerL1",
-      "children": [
-        false,
-        false,
-        {
-          "type": "line-item",
-          "channel": "meter0/ActivePowerL1"
-        }
-      ]
-    },
-    {
-      "type": "line",
-      "indentation": "5%",
-      "channel": "meter0/ActivePowerL2",
-      "children": [
-        false,
-        false,
-        {
-          "type": "line-item",
-          "channel": "meter0/ActivePowerL2"
-        }
-      ]
-    },
-    {
-      "type": "line",
-      "indentation": "5%",
-      "channel": "meter0/ActivePowerL3",
-      "children": [
-        false,
-        false,
-        {
-          "type": "line-item",
-          "channel": "meter0/ActivePowerL3"
-        }
-      ]
-    },
-    {
-      "type": "line-horizontal"
-    },
-    {
-      "type": "line-info",
-      "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
-    }
-  ]
-} as OeFormlyView;
-export const ems4ownerAndGuestGridModal: OeFormlyView = {
+};
+
+export const EMS4_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -170,11 +200,12 @@ export const ems4ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter1/ActivePowerL1"
@@ -183,11 +214,12 @@ export const ems4ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter1/ActivePowerL2"
@@ -196,11 +228,12 @@ export const ems4ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter1/ActivePowerL3"
@@ -215,8 +248,9 @@ export const ems4ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems4adminAndInstallerGridModal: OeFormlyView = {
+};
+
+export const EMS4_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -236,7 +270,8 @@ export const ems4adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL1",
       "children": [
         {
@@ -255,7 +290,8 @@ export const ems4adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL2",
       "children": [
         {
@@ -274,7 +310,8 @@ export const ems4adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter1/ActivePowerL3",
       "children": [
         {
@@ -299,8 +336,9 @@ export const ems4adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems10004ownerAndGuestGridModal: OeFormlyView = {
+};
+
+export const EMS10004_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -320,11 +358,12 @@ export const ems10004ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -333,11 +372,12 @@ export const ems10004ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -346,11 +386,12 @@ export const ems10004ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -365,8 +406,9 @@ export const ems10004ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems10004adminAndInstallerGridModal: OeFormlyView = {
+};
+
+export const EMS10004_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -386,7 +428,8 @@ export const ems10004adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
         {
@@ -405,7 +448,8 @@ export const ems10004adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
         {
@@ -424,7 +468,8 @@ export const ems10004adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
         {
@@ -449,8 +494,9 @@ export const ems10004adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems12786ownerAndGuestGridModal: OeFormlyView = {
+};
+
+export const EMS12786_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -470,11 +516,12 @@ export const ems12786ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -483,11 +530,12 @@ export const ems12786ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -496,11 +544,12 @@ export const ems12786ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -515,8 +564,9 @@ export const ems12786ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems12786adminAndInstallerGridModal: OeFormlyView = {
+}
+
+export const EMS12786_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -536,7 +586,8 @@ export const ems12786adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
         {
@@ -555,7 +606,8 @@ export const ems12786adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
         {
@@ -574,7 +626,8 @@ export const ems12786adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
         {
@@ -599,8 +652,9 @@ export const ems12786adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30012ownerAndGuestGridModal: OeFormlyView = {
+}
+
+export const EMS30012_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -620,11 +674,12 @@ export const ems30012ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -633,11 +688,12 @@ export const ems30012ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -646,11 +702,12 @@ export const ems30012ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -665,8 +722,9 @@ export const ems30012ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30012adminAndInstallerGridModal: OeFormlyView = {
+}
+
+export const EMS30012_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -686,7 +744,8 @@ export const ems30012adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
         {
@@ -705,7 +764,8 @@ export const ems30012adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
         {
@@ -724,7 +784,8 @@ export const ems30012adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
         {
@@ -749,8 +810,9 @@ export const ems30012adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30034ownerAndGuestGridModal: OeFormlyView = {
+}
+
+export const EMS30034_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -770,11 +832,12 @@ export const ems30034ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -783,11 +846,12 @@ export const ems30034ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -796,11 +860,12 @@ export const ems30034ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -815,8 +880,9 @@ export const ems30034ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30034adminAndInstallerGridModal: OeFormlyView = {
+}
+
+export const EMS30034_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -836,7 +902,8 @@ export const ems30034adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
         {
@@ -855,7 +922,8 @@ export const ems30034adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
         {
@@ -874,7 +942,8 @@ export const ems30034adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
         {
@@ -899,8 +968,9 @@ export const ems30034adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30048ownerAndGuestGridModal: OeFormlyView = {
+}
+
+export const EMS30048_OWNER_AND_GUEST: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -920,11 +990,12 @@ export const ems30048ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL1"
@@ -933,11 +1004,12 @@ export const ems30048ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL2"
@@ -946,11 +1018,12 @@ export const ems30048ownerAndGuestGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
-        false,
-        false,
+        undefined,
+        undefined,
         {
           "type": "line-item",
           "channel": "meter0/ActivePowerL3"
@@ -965,8 +1038,9 @@ export const ems30048ownerAndGuestGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
-export const ems30048adminAndInstallerGridModal: OeFormlyView = {
+}
+
+export const EMS30048_ADMIN_AND_INSTALLER: OeFormlyView = {
   "title": "Netz",
   "lines": [
     {
@@ -986,7 +1060,8 @@ export const ems30048adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 1 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL1",
       "children": [
         {
@@ -1005,7 +1080,8 @@ export const ems30048adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 2 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL2",
       "children": [
         {
@@ -1024,7 +1100,8 @@ export const ems30048adminAndInstallerGridModal: OeFormlyView = {
     },
     {
       "type": "line",
-      "indentation": "5%",
+      "name": "Phase 3 Bezug",
+      "indentation": TextIndentation.SINGLE,
       "channel": "meter0/ActivePowerL3",
       "children": [
         {
@@ -1049,4 +1126,4 @@ export const ems30048adminAndInstallerGridModal: OeFormlyView = {
       "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
     }
   ]
-} as OeFormlyView;
+};

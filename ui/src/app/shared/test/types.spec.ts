@@ -1,5 +1,5 @@
-import { FormlyFieldConfig } from "@ngx-formly/core";
-import { Edge, EdgeConfig } from "../../shared";
+import { OeFormlyView } from "../genericComponents/shared/oe-formly-component";
+import { Edge, EdgeConfig } from "../shared";
 
 export abstract class AbstractSystem {
   public edge: Edge | null = null;
@@ -36,11 +36,11 @@ export abstract class AbstractSystem {
 
 export class Modal {
   public name: string;
-  public fieldsWithRoles: Map<number, FormlyFieldConfig[]> = new Map();
+  public views: Map<number, OeFormlyView[]> = new Map();
 
-  constructor(name: string, fieldsWithRoles: Map<number, FormlyFieldConfig[]>) {
+  constructor(name: string, views: Map<number, OeFormlyView[]>) {
     this.name = name;
-    this.fieldsWithRoles = fieldsWithRoles;
+    this.views = views;
   }
 }
 
@@ -49,14 +49,12 @@ export abstract class Widget {
   public abstract modal: Modal;
 }
 
-export class Grid extends Widget {
+export class GridWidget extends Widget {
 
   public key: string = "Grid";
-  public modal: Modal;
   public config: EdgeConfig;
 
-  constructor(modal: Modal) {
+  constructor(public modal: Modal) {
     super();
-    this.modal = modal;
   }
 }

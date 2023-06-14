@@ -564,36 +564,6 @@ export class Utils {
     }
   }
 
-  public static CONVERT_TO_GRID_BUY_POWER = (value: number | null): string => {
-    if (!value || value < 0) {
-      return '0 W';
-    }
-    return formatNumber(value, 'de', '1.0-1') + ' W';
-  };
-
-  public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
-    if (!value || value > 0) {
-      return '0 W';
-    }
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
-  };
-
-  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, name: string) => {
-    return (value: any): string => {
-      if (!value) {
-        return name;
-      }
-
-      if (value < 0) {
-        return name + " " + translate.instant('General.gridSellAdvanced');
-      }
-
-      if (value >= 0) {
-        return name + " " + translate.instant('General.gridBuyAdvanced');
-      }
-    };
-  };
-
   public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
     if (!value) {
       return "0 W";
@@ -601,10 +571,6 @@ export class Utils {
 
     return formatNumber(Math.abs(value), 'de', '1.0-1') + " W";
   };
-
-  public static isGridModeOffGrid() {
-    return (value: number): boolean => value === GridMode.OFF_GRID;
-  }
 }
 export namespace HistoryUtils {
 
