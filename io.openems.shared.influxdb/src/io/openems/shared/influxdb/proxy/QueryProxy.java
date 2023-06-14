@@ -29,7 +29,6 @@ public abstract class QueryProxy {
 		case INFLUX_QL -> influxQl();
 		default -> null; // Will never happen
 		};
-
 	}
 
 	/**
