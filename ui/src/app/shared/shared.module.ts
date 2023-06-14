@@ -9,6 +9,7 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
+
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
@@ -16,6 +17,7 @@ import { MeterModule } from './edge/meter/meter.module';
 import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
 import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
+import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
 import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
@@ -32,7 +34,6 @@ import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };

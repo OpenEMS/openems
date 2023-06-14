@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
+
 import { EdgeConfig, Service } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
@@ -18,6 +19,7 @@ export abstract class AbstractFormlyComponent {
     const service = SharedModule.injector.get<Service>(Service);
     const route = SharedModule.injector.get<ActivatedRoute>(ActivatedRoute);
     this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
+
     service.setCurrentComponent('', route).then(edge => {
       edge.getConfig(service.websocket)
         .pipe(filter(config => !!config))
@@ -40,7 +42,15 @@ export abstract class AbstractFormlyComponent {
     });
   }
 
-  public abstract generateView(edgeId: string, config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView
+  /**
+    * Generate the View.
+    * 
+    * @param edgeId the Edge-ID
+    * @param config the Edge-Config
+    * @param role  the Role of the User for this Edge
+    * @param translate the Translate-Service
+    */
+  protected abstract generateView(edgeId: string, config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView
 }
 
 export type OeFormlyView = {

@@ -4,6 +4,7 @@ import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-transla
 import { ModalComponent } from "src/app/edge/live/common/grid/modal/modal";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
+
 import { Role } from "../../type/role";
 import { ems1, ems10004, ems12786, ems30012, ems30034, ems30048, ems4 } from "./edges.spec";
 import { AbstractSystem } from "./types.spec";
@@ -14,8 +15,7 @@ describe('ExampleSystemsTest', () => {
   beforeEach((() => {
     TestBed.configureTestingModule({
       imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key }),
-
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key })
       ],
       providers: [TranslateService, { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] }]
     }).compileComponents();
@@ -31,7 +31,7 @@ describe('ExampleSystemsTest', () => {
     for (let widget of system.widgets) {
       it(system.key + "-" + widget.modal.name, () => {
         for (let [key, modelToBeMatched] of widget.modal.fieldsWithRoles) {
-          let fields = ModalComponent.getFormlyLines(system.key, system.config, Role.getRole(Role[key]), translate)
+          let fields = ModalComponent.getFormlyLines(system.key, system.config, Role.getRole(Role[key]), translate);
           expect(JSON.stringify(fields)).toBe(JSON.stringify(modelToBeMatched));
         }
       });
