@@ -1,7 +1,8 @@
-import { EdgeConfig, Edge } from "../../shared";
-import { Role } from "../../type/role";
-import { AbstractSystem, Widget, Grid, Modal } from "./types.spec";
 import { OeFormlyView } from "../../genericComponents/shared/oe-formly-component";
+import { Edge, EdgeConfig } from "../../shared";
+import { Role } from "../../type/role";
+import * as viewData from "./formlyViewData.spec";
+import { AbstractSystem, Grid, Modal, Widget } from "./types.spec";
 
 export class ems1 extends AbstractSystem {
   public components: { [id: string]: EdgeConfig.Component; } = {
@@ -50,14 +51,11 @@ export class ems1 extends AbstractSystem {
     super.setConfig(this.components, this.factories);
   }
 
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
   public widgets: Widget[] = [new Grid(new Modal("GridModal", new Map()
-    .set(Role.ADMIN, this.adminAndInstallerGridModal)
-    .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-    .set(Role.OWNER, this.ownerAndGuestGridModal)
-    .set(Role.GUEST, this.ownerAndGuestGridModal)
+    .set(Role.ADMIN, viewData.ems1adminAndInstallerGridModal)
+    .set(Role.INSTALLER, viewData.ems1adminAndInstallerGridModal)
+    .set(Role.OWNER, viewData.ems1ownerAndGuestGridModal)
+    .set(Role.GUEST, viewData.ems1ownerAndGuestGridModal)
   ))];
 }
 
@@ -99,16 +97,13 @@ export class ems4 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter1/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter1/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter1/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter1/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter1/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter1/VoltageL1" }, { "type": "line-item", "channel": "meter1/CurrentL1" }, { "type": "line-item", "channel": "meter1/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter1/VoltageL2" }, { "type": "line-item", "channel": "meter1/CurrentL2" }, { "type": "line-item", "channel": "meter1/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter1/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter1/VoltageL3" }, { "type": "line-item", "channel": "meter1/CurrentL3" }, { "type": "line-item", "channel": "meter1/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems4adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems4adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems4ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems4ownerAndGuestGridModal)
       ))];
 
   constructor() {
@@ -155,17 +150,14 @@ export class ems10004 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
 
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems10004adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems10004adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems10004ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems10004ownerAndGuestGridModal)
       ))];
 
   constructor() {
@@ -212,17 +204,14 @@ export class ems12786 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
 
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems12786adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems12786adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems12786ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems12786ownerAndGuestGridModal)
       ))];
 
   constructor() {
@@ -271,17 +260,14 @@ export class ems30012 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
 
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems30012adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems30012adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems30012ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems30012ownerAndGuestGridModal)
       ))];
 
   constructor() {
@@ -330,17 +316,14 @@ export class ems30034 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
 
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems30034adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems30034adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems30034ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems30034ownerAndGuestGridModal)
       ))];
 
   constructor() {
@@ -389,17 +372,14 @@ export class ems30048 extends AbstractSystem {
       ]
     }
   };
-  private readonly ownerAndGuestGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
-
-  private readonly adminAndInstallerGridModal: OeFormlyView = { "title": "Netz", "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode" }, { "type": "line", "name": "Bezug", "channel": "meter0/ActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "meter0/ActivePower" }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1" }, { "type": "line-item", "channel": "meter0/CurrentL1" }, { "type": "line-item", "channel": "meter0/ActivePowerL1" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2" }, { "type": "line-item", "channel": "meter0/CurrentL2" }, { "type": "line-item", "channel": "meter0/ActivePowerL2" }] }, { "type": "line", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3" }, { "type": "line-item", "channel": "meter0/CurrentL3" }, { "type": "line-item", "channel": "meter0/ActivePowerL3" }] }, { "type": "line-horizontal" }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] } as OeFormlyView;
 
   public widgets: Widget[] = [
     new Grid(
       new Modal("GridModal", new Map()
-        .set(Role.ADMIN, this.adminAndInstallerGridModal)
-        .set(Role.INSTALLER, this.adminAndInstallerGridModal)
-        .set(Role.OWNER, this.ownerAndGuestGridModal)
-        .set(Role.GUEST, this.ownerAndGuestGridModal)
+        .set(Role.ADMIN, viewData.ems30048adminAndInstallerGridModal)
+        .set(Role.INSTALLER, viewData.ems30048adminAndInstallerGridModal)
+        .set(Role.OWNER, viewData.ems30048ownerAndGuestGridModal)
+        .set(Role.GUEST, viewData.ems30048ownerAndGuestGridModal)
       ))];
 
   constructor() {

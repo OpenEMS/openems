@@ -115,5 +115,4 @@ export class ModalComponent extends AbstractFormlyComponent {
         ]
       });
   }
-
 }
