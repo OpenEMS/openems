@@ -96,8 +96,8 @@ export class ModalComponent extends AbstractFormlyComponent {
       .map(phase => <OeFormlyField>{
         type: 'line',
         name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase),
-        indentation: TextIndentation.SINGLE,
         channel: component.id + '/ActivePower' + phase,
+        indentation: TextIndentation.SINGLE,
         children: [
           Role.isAtLeast(role, Role.INSTALLER) && {
             type: 'line-item',

@@ -78,21 +78,16 @@ describe('ExampleSystemsTest', () => {
   // ];
 
   it('ModalComponent.generateView()', () => {
-    var config = new TestSystem.Ems1().config;
-    // expect(Constants.EMS1_ADMIN_AND_INSTALLER).toEqual(ModalComponent.generateView(ems.config, Role.ADMIN, translate));
-
-    var result = OeFormlyViewTester.apply(ModalComponent.generateView(config, Role.ADMIN, translate), {
-      "_sum/GridMode": GridMode.ON_GRID,
-      "meter0/ActivePower": -1000,
-      "meter0/VoltageL1": 230000,
-      "meter0/CurrentL1": 2170,
-      "meter0/ActivePowerL1": -500,
-      "meter0/ActivePowerL2": 1500
-    });
-
-    console.log(JSON.stringify(result, null, 2));
-
-    expect(result).toEqual(Constants.EMS1_ADMIN_AND_INSTALLER);
+    expect(
+      OeFormlyViewTester.apply(ModalComponent.generateView(new TestSystem.Ems1().config, Role.ADMIN, translate), {
+        "_sum/GridMode": GridMode.ON_GRID,
+        "meter0/ActivePower": -1000,
+        "meter0/VoltageL1": 230000,
+        "meter0/CurrentL1": 2170,
+        "meter0/ActivePowerL1": -500,
+        "meter0/ActivePowerL2": 1500
+      })
+    ).toEqual(Constants.EMS1_ADMIN_AND_INSTALLER);
 
   });
 

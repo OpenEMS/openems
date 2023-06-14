@@ -17,7 +17,7 @@ export abstract class AbstractSystem {
    * @param factories the EdgeConfig Factories
    * @returns a valid EdgeConfig
    */
-  public createEdgeConfig(edge: Edge, components: { [id: string]: EdgeConfig.Component }, factories: { [id: string]: EdgeConfig.Factory }): EdgeConfig {
+  public static createEdgeConfig(edge: Edge, components: { [id: string]: EdgeConfig.Component }, factories: { [id: string]: EdgeConfig.Factory }): EdgeConfig {
     return new EdgeConfig(edge, {
       components: components,
       factories: factories
@@ -26,7 +26,7 @@ export abstract class AbstractSystem {
   }
 
   public setConfig(components: { [id: string]: EdgeConfig.Component }, factories: { [id: string]: EdgeConfig.Factory }) {
-    this.config = this.createEdgeConfig(this.edge, components, factories);
+    this.config = AbstractSystem.createEdgeConfig(this.edge, components, factories);
   }
 
   public setEdge(edge: Edge) {

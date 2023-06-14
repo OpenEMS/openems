@@ -77,10 +77,19 @@ export namespace OeFormlyField {
     converter?: (value: number | null) => string
   }
 
+  // TODO should use separate ParentLine
+  // export type ParentLine = {
+  //   type: 'line',
+  //   name: string | ((value: number) => string),
+  //   filter?: (value: number | null) => boolean,
+  //   indentation?: TextIndentation,
+  //   children?: OeFormlyField[]
+  // }
+
   export type Line = {
     type: 'line',
     name: string | ((value: number) => string),
-    channel?: string,
+    channel?: string, // not-optional with ParentLine
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
     indentation?: TextIndentation,

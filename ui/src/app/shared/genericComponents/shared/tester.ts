@@ -3,7 +3,7 @@ import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
 
 export namespace OeFormlyViewTester {
 
-  export type Channels = { [id: string]: number | null };
+  export type Context = { [id: string]: number | null };
 
   export type View = {
     title: string,
@@ -44,22 +44,22 @@ export namespace OeFormlyViewTester {
 
 export class OeFormlyViewTester {
 
-  public static apply(view: OeFormlyView, channels: OeFormlyViewTester.Channels): OeFormlyViewTester.View {
+  public static apply(view: OeFormlyView, context: OeFormlyViewTester.Context): OeFormlyViewTester.View {
     return {
       title: view.title,
       lines: view.lines
-        .map(line => OeFormlyViewTester.applyField(line, channels))
+        .map(line => OeFormlyViewTester.applyField(line, context))
         .filter(line => line)
-    }
+    };
   };
 
-  private static applyField(field: OeFormlyField, channels: OeFormlyViewTester.Channels): OeFormlyViewTester.Field {
+  private static applyField(field: OeFormlyField, context: OeFormlyViewTester.Context): OeFormlyViewTester.Field {
     switch (field.type) {
       /**
        * OeFormlyField.Line 
        */
       case "line": {
-        let tmp = OeFormlyViewTester.applyLineOrItem(field, channels);
+        let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
@@ -75,8 +75,8 @@ export class OeFormlyViewTester {
         // Prepare result
         let result: OeFormlyViewTester.Field.Line = {
           type: field.type,
-          name: name,
-        }
+          name: name
+        };
 
         // Apply properties if available
         if (tmp.value !== null) {
@@ -89,7 +89,7 @@ export class OeFormlyViewTester {
         // Recursive call for children
         if (field.children) {
           result.children = field.children
-            ?.map(field => OeFormlyViewTester.applyField(field, channels));
+            ?.map(child => OeFormlyViewTester.applyField(child, context));
         }
 
         return result;
@@ -99,7 +99,7 @@ export class OeFormlyViewTester {
        * OeFormlyField.Item
        */
       case "line-item": {
-        let tmp = OeFormlyViewTester.applyLineOrItem(field, channels);
+        let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
@@ -117,7 +117,7 @@ export class OeFormlyViewTester {
         return {
           type: field.type,
           name: field.name
-        }
+        };
       }
 
       /**
@@ -126,23 +126,33 @@ export class OeFormlyViewTester {
       case "line-horizontal": {
         return {
           type: field.type
-        }
+        };
       }
     }
   }
 
-  private static applyLineOrItem(line: OeFormlyField.Line | OeFormlyField.Item, channels: OeFormlyViewTester.Channels): { rawValue: number | null, value: string } | null {
+  /**
+   * Common method for Line and Item as they share some fields and logic.
+   * 
+   * @param field the field 
+   * @param context the test context
+   * @returns result or null
+   */
+  private static applyLineOrItem(field: OeFormlyField.Line | OeFormlyField.Item, context: OeFormlyViewTester.Context):
+   /* result */ { rawValue: number | null, value: string }
+   /* filter did not pass */ | null {
+
     // Read value from channels
-    let rawValue = line.channel && line.channel in channels ? channels[line.channel] : null;
+    let rawValue = field.channel && field.channel in context ? context[field.channel] : null;
 
     // Apply filter
-    if (line.filter && line.filter(rawValue) === false) {
+    if (field.filter && field.filter(rawValue) === false) {
       return null;
     }
 
     // Apply converter
-    let value: string = line.converter
-      ? line.converter(rawValue)
+    let value: string = field.converter
+      ? field.converter(rawValue)
       : rawValue === null ? null : "" + rawValue;
 
     return {
