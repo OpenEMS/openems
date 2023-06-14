@@ -1,4 +1,3 @@
-import { OeFormlyView } from "../../genericComponents/shared/oe-formly-component";
 import { Edge, EdgeConfig } from "../../shared";
 import { Role } from "../../type/role";
 import * as viewData from "./formlyViewData.spec";
