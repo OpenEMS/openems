@@ -361,7 +361,7 @@ export namespace TestSystem {
             type: "GRID"
           },
           channels: {}
-        },
+        }
 
       };
     public factories: { [id: string]: EdgeConfig.Factory } = {

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { element } from 'protractor';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Filter } from 'src/app/shared/genericComponents/shared/filter';
@@ -117,14 +116,14 @@ export class ModalComponent extends AbstractFormlyComponent {
           type: 'line-item',
           channel: component.id + '/Current' + phase,
           converter: Utils.CONVERT_TO_CURRENT
-        })
+        });
     }
 
     children.push({
       type: 'line-item',
       channel: component.id + '/ActivePower' + phase,
       converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
-    })
+    });
 
     return children;
   }

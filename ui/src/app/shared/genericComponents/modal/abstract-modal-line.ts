@@ -38,7 +38,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     @Input() public filter = (value: number | string | null): boolean => { return true; };
 
     /** Name for parameter, displayed on the left side*/
-    @Input() public name: string | Function | { channel: ChannelAddress, converter: (value: any) => string }
+    @Input() public name: string | Function | { channel: ChannelAddress, converter: (value: any) => string };
 
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
@@ -127,7 +127,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                     }
 
                     if (typeof this.name == 'object') {
-                        this.setName(currentData.channel[this.name.channel.toString()])
+                        this.setName(currentData.channel[this.name.channel.toString()]);
                     }
 
                     this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });

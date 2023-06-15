@@ -76,7 +76,7 @@ export namespace Constants {
         }
       ]
     }
-  }
+  };
 
 
   export const EMS30093_ADMIN_AND_INSTALLER_TWO_METERS: OeFormlyViewTester.ViewContext = {
@@ -233,7 +233,7 @@ export namespace Constants {
         }
       ]
     }
-  }
+  };
 
   export const EMS1_OWNER_AND_GUEST_SINGLE_METER: OeFormlyViewTester.ViewContext = {
     context: defaultContext,
@@ -292,7 +292,7 @@ export namespace Constants {
         }
       ]
     }
-  }
+  };
   export const EMS30093_OWNER_AND_GUEST_TWO_METERS: OeFormlyViewTester.ViewContext = {
     context: defaultContext,
     view: {
@@ -399,7 +399,7 @@ export namespace Constants {
         }
       ]
     }
-  }
+  };
   export const EMS1_OFF_GRID: OeFormlyViewTester.ViewContext = {
     context: Object.assign({}, defaultContext, { '_sum/GridMode': GridMode.OFF_GRID }),
     view: {
@@ -486,5 +486,5 @@ export namespace Constants {
         }
       ]
     }
-  }
+  };
 }
