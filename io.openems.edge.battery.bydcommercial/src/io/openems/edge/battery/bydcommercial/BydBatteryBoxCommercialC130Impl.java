@@ -137,13 +137,10 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 		}
 		switch (event.getTopic()) {
 
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.batteryProtection.apply();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> this.batteryProtection.apply();
 
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.handleStateMachine();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStateMachine();
+
 		}
 	}
 
@@ -931,21 +928,23 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 	@Override
 	public StartStop getStartStopTarget() {
 		switch (this.config.startStop()) {
-		case AUTO:
+		case AUTO -> {
 			// read StartStop-Channel
 			return this.startStopTarget.get();
-
-		case START:
+		}
+		case START -> {
 			// force START
 			return StartStop.START;
-
-		case STOP:
+		}
+		case STOP -> {
 			// force STOP
 			return StartStop.STOP;
 		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		default -> {
+			assert false;
+			return StartStop.UNDEFINED; // can never happen
+		}
+		}
 	}
 
 	/*
