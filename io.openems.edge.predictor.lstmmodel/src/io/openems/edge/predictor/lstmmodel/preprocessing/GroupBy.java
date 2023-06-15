@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
-public class groupBy {
+public class GroupBy {
+	
 	ArrayList<Double> data = new ArrayList<Double>();
 	ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
 	ArrayList<ArrayList<OffsetDateTime>> groupedDateByYear = new ArrayList<ArrayList<OffsetDateTime>>();
@@ -19,7 +20,7 @@ public class groupBy {
 	public ArrayList<ArrayList<OffsetDateTime>> groupedDateByHour = new ArrayList<ArrayList<OffsetDateTime>>();
 	public ArrayList<ArrayList<Double>> groupedDataByHour = new ArrayList<ArrayList<Double>>();
 
-	public groupBy(List<Double> data2, List<OffsetDateTime> date2) {
+	public GroupBy(List<Double> data2, List<OffsetDateTime> date2) {
 		data = (ArrayList<Double>) data2;
 		date = (ArrayList<OffsetDateTime>) date2;
 	}
@@ -98,7 +99,7 @@ public class groupBy {
 		Set<Integer> uniqueSet = new HashSet<>(hourData);
 		ArrayList<Integer> uniqueList = new ArrayList<>(uniqueSet);
 		Collections.sort(uniqueList);
-		System.out.println(uniqueList);
+//		System.out.println(uniqueList);
 
 		/**
 		 * Chek the unique data in the date Group data and date
@@ -141,7 +142,7 @@ public class groupBy {
 		Set<Integer> uniqueSet = new HashSet<>(minData);
 		ArrayList<Integer> uniqueList = new ArrayList<>(uniqueSet);
 		Collections.sort(uniqueList);
-		System.out.println(uniqueList);
+//		System.out.println(uniqueList);
 
 		/**
 		 * Chek the unique data in the date Group data and date

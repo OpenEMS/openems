@@ -42,10 +42,40 @@ public class Cell {
 	}
 
 	public Cell(double xt, double outputData) {
-		this.dlByDc = this.error = 0;
-		this.wI = this.wO = this.wZ = this.rI = this.rO = this.rZ = 1;
-		this.cT = this.oT = this.zT = 0;
+		this.dlByDc = 0;
+		this.error = 0;
+		this.wI = 1;
+		this.wO = 1;
+		this.wZ = 1;
+		this.rI = 1;
+		this.rO = 1;
+		this.rZ = 1;
+		this.cT = 0;
+		this.oT = 0;
+		this.zT = 0;
 		this.yT = 0;
+		this.dlByDy = this.dlByDo = this.dlByDc = this.dlByDi = this.dlByDz = 0;
+		this.delI = this.delO = this.delZ = 0;
+		this.iT = 0;
+		this.xT = xt;
+		this.outputDataLoc = outputData;
+
+	}
+
+	public Cell(double xt, double outputData, double wI, double wO, double wZ, double rI, double rO, double rZ,
+			double yT) {
+		this.dlByDc = 0;
+		this.error = 0;
+		this.wI = wI;
+		this.wO = wO;
+		this.wZ = wZ;
+		this.rI = rI;
+		this.rO = rO;
+		this.rZ = rZ;
+		this.cT = 0;
+		this.oT = 0;
+		this.zT = 0;
+		this.yT = yT;
 		this.dlByDy = this.dlByDo = this.dlByDc = this.dlByDi = this.dlByDz = 0;
 		this.delI = this.delO = this.delZ = 0;
 		this.iT = 0;
@@ -63,7 +93,7 @@ public class Cell {
 		this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
 		this.cT = this.cT + this.iT * this.zT;
 		this.yT = this.oT * MathUtils.tanh(this.cT);
-		this.error = this.outputDataLoc - this.yT;
+		this.error = this.yT - this.outputDataLoc;
 
 	}
 

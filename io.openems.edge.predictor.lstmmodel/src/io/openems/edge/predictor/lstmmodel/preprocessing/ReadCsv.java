@@ -7,24 +7,22 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
-public class readCsv {
+public class ReadCsv {
+
+	public static final String FILENAME = "\\testResults\\loadValues.csv";
+
 	public ArrayList<Double> data = new ArrayList<Double>();
 	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
 
-	public readCsv() {
-		getData();
+	public ReadCsv() {
+		getDataFromCSV();
 	}
-	void getData() {
-		try {
 
+	public void getDataFromCSV() {
+
+		try {
 			String filename = "\\testResults\\loadValues.csv";
 			String path = new File(".").getCanonicalPath() + filename;
-
-			// String
-			// filename="/io.openems.edge.predictor.lstmmodel/testResults/loadValues.csv";
-
-			// ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
-			// ArrayList<Double> data = new ArrayList<Double>();
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
 
@@ -50,6 +48,7 @@ public class readCsv {
 				line = reader.readLine();
 			}
 
+			System.out.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

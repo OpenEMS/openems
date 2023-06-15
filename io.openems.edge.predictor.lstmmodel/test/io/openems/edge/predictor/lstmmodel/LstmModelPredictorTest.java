@@ -1,51 +1,55 @@
-//package io.openems.edge.predictor.lstmmodel;
+package io.openems.edge.predictor.lstmmodel;
+
+import static org.junit.Assert.assertEquals;
+
+import java.awt.Color;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+
+import org.junit.Test;
+import io.openems.edge.predictor.lstmmodel.LstmPredictorImpl;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.Plot;
+import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.common.test.Plot.AxisFormat;
+import io.openems.edge.timedata.test.DummyTimedata;
+
+public class LstmModelPredictorTest {
+
+	private static final String TIMEDATA_ID = "timedata0";
+	private static final String PREDICTOR_ID = "predictor0";
+
+	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
 //
-//import static org.junit.Assert.assertEquals;
-//
-//import java.awt.Color;
-//import java.io.IOException;
-//import java.time.Instant;
-//import java.time.ZoneId;
-//import java.time.ZoneOffset;
-//import java.time.ZonedDateTime;
-//import java.util.Arrays;
-//
-//import org.junit.Test;
-//
-//import io.openems.common.types.ChannelAddress;
-//import io.openems.edge.common.test.ComponentTest;
-//import io.openems.edge.common.test.DummyComponentManager;
-//import io.openems.edge.common.test.Plot;
-//import io.openems.edge.common.test.TimeLeapClock;
-//import io.openems.edge.common.test.Plot.AxisFormat;
-//import io.openems.edge.timedata.test.DummyTimedata;
-//
-//public class LstmModelPredictorTest {
-//
-//	private static final String TIMEDATA_ID = "timedata0";
-//	private static final String PREDICTOR_ID = "predictor0";
-//
-//	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
-//
-//	@Test
-//	public void test() throws Exception {
+	@Test
+	public void test() throws Exception {
+		LstmPredictorImpl obj1 = new LstmPredictorImpl();
+		
 //
 //		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 //				ZoneOffset.UTC);
 //
 //		var values = Data.data;
+		
 //
 //		System.out.println("length of the Arrayy : " + values.length);
 //		var predictedValues = Data.actualData;
 //
-//		var timedata = new DummyTimedata(TIMEDATA_ID);
+//		var timedata = ne
+//		w DummyTimedata(TIMEDATA_ID);
 //		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 //
 //		for (var i = 0; i < values.length; i++) {
 //			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 //		}
 //
-//		var sut = new LstmPredictorImpl();
+//		var sut = new LstmPredictorImpl()
 //
 //		new ComponentTest(sut) //
 //				.addReference("timedata", timedata) //
@@ -67,7 +71,7 @@
 //		// plotting
 //		//makePlot(predictedValues, p);
 //
-//	}
+	}
 //
 //	private void makePlot(Integer[] predictedValues, Integer[] p) {
 //		Plot.Data dataActualValues = Plot.data();
@@ -101,4 +105,4 @@
 //
 //	}
 //
-//}
+}

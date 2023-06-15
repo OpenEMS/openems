@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
-import io.openems.edge.predictor.lstmmodel.interpolation.interpolationManager;
-import io.openems.edge.predictor.lstmmodel.preprocessing.PreprocessingImpl;
-import io.openems.edge.predictor.lstmmodel.preprocessing.groupBy;
-import io.openems.edge.predictor.lstmmodel.preprocessing.readCsv;
+import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
+import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessingImpl;
+import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
+import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
+import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
+import io.openems.edge.predictor.lstmmodel.preprocessing.Suffle;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
 
 /**
@@ -25,6 +27,7 @@ public class makeMultipleModel {
 	ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 	ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
 	ArrayList<ArrayList<ArrayList<Double>>> weightMatrix = new ArrayList<ArrayList<ArrayList<Double>>>();
+	ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
 
 	/**
 	 * ArrayList to store grouped data and dates according to minutes of hour e.g.
@@ -35,19 +38,19 @@ public class makeMultipleModel {
 
 	public makeMultipleModel() {
 
-		readCsv csv = new readCsv();
+		ReadCsv csv = new ReadCsv();
 		values = csv.data;
 		dates = csv.dates;
 		/**
 		 * compute interpolation
 		 */
-		interpolationManager inter = new interpolationManager(values); // The result of interpolation is in
+		InterpolationManager inter = new InterpolationManager(values); // The result of interpolation is in
 																		// inter.interpolated
 		/**
 		 * Grouping the interpolated data by hour
 		 */
 
-		groupBy groupAsHour = new groupBy(inter.interpolated, dates);// The result are stored in
+		GroupBy groupAsHour = new GroupBy(inter.interpolated, dates);// The result are stored in
 																		// groupAS.groupedDateByHour and
 																		// groupAs.groupedDataByHour
 		groupAsHour.hour();
@@ -57,7 +60,7 @@ public class makeMultipleModel {
 		 */
 
 		for (int i = 0; i < groupAsHour.groupedDataByHour.size(); i++) {
-			groupBy groupAsMinute = new groupBy(groupAsHour.groupedDataByHour.get(i),
+			GroupBy groupAsMinute = new GroupBy(groupAsHour.groupedDataByHour.get(i),
 					groupAsHour.groupedDateByHour.get(i));
 			groupAsMinute.minute();
 			dataGroupedByMinute.add(groupAsMinute.groupedDataByMin);
@@ -70,7 +73,7 @@ public class makeMultipleModel {
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
 				int windowsSize = 7;
-				PreprocessingImpl preprocessing = new PreprocessingImpl(dataGroupedByMinute.get(i).get(j), windowsSize);
+				PreProcessingImpl preprocessing = new PreProcessingImpl(dataGroupedByMinute.get(i).get(j), windowsSize);
 				preprocessing.scale(0.2, 0.8);
 				try {
 
@@ -80,6 +83,7 @@ public class makeMultipleModel {
 					double[][] validateData = preprocessing.getFeatureData(
 							preprocessing.trainTestSplit.validateIndexLower,
 							preprocessing.trainTestSplit.validateIndexHigher);
+					
 					double[][] testData = preprocessing.getFeatureData(preprocessing.trainTestSplit.testIndexLower,
 							preprocessing.trainTestSplit.testIndexHigher);
 
@@ -89,18 +93,47 @@ public class makeMultipleModel {
 					double[] validateTarget = preprocessing.getTargetData(
 							preprocessing.trainTestSplit.validateIndexLower,
 							preprocessing.trainTestSplit.validateIndexHigher);
+					
+					Suffle obj1 = new Suffle(trainData,trainTarget);
+					Suffle obj2 = new Suffle(validateData, validateTarget);
+					
+					EngineBuilder modelTemp = new EngineBuilder();
 
 					Engine model = new EngineBuilder() //
-							.setInputMatrix(trainData) //
-							.setTargetVector(trainTarget) //
-							.setValidateData(validateData) //
-							.setValidateTarget(validateTarget) //
+							.setInputMatrix(obj1.data) //
+							.setTargetVector(obj1.target) //
+							.setValidateData(obj2.data) //
+							.setValidateTarget(obj2.target) //
+							.setValidatorCounter(60)//
 							.build();
+				
 
 					int epochs = 1000;
+//					if (i==0 && j==0) {
+//					
+//						
+//					}
+//					
+//					else {
+//						//System.exit(0);
+//						for(int k=0;k<model.generalLstm.cells.size();k++) {
+//							model.generalLstm.initilizeCells();
+//							model.generalLstm.cells.get(k).setWi(weight1.get(0).get(k));
+//							model.generalLstm.cells.get(k).setWo(weight1.get(1).get(k));
+//							model.generalLstm.cells.get(k).setWz(weight1.get(2).get(k));
+//							model.generalLstm.cells.get(k).setRi(weight1.get(3).get(k));
+//							model.generalLstm.cells.get(k).setRo(weight1.get(4).get(k));
+//							model.generalLstm.cells.get(k).setRz(weight1.get(5).get(k));
+//							
+//						
+//					}
+//					
+//					
+//
+//				}
 					model.fit(epochs);
+					weight1 = model.finalWeight;
 					weightMatrix.add(model.finalWeight);
-
 				}
 
 				catch (Exception e) {

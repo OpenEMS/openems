@@ -2,12 +2,8 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.osgi.service.component.ComponentContext;
@@ -20,11 +16,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -33,14 +25,9 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.lstmmodel.interpolation.LinearInterpolation;
-import io.openems.edge.predictor.lstmmodel.interpolation.interpolationManager;
-import io.openems.edge.predictor.lstmmodel.preprocessing.PreprocessingImpl;
-import io.openems.edge.predictor.lstmmodel.util.Engine;
-import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
+import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
 import io.openems.edge.predictor.lstmmodel.util.makeMultipleModel;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
-import io.openems.edge.timedata.api.Timedata;
 
 //import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
 
@@ -69,8 +56,20 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				LstmPredictor.ChannelId.values() //
+
 		);
-		
+		// ToDo: make this dynamic
+		double minOfTrainingData = -1255.666667;
+		double maxOfTrainingData = 10694.0;
+
+		ZonedDateTime t1 = ZonedDateTime.now();
+		ZonedDateTime t2 = ZonedDateTime.now();
+
+		makeMultipleModel models = new makeMultipleModel();
+		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
+		System.out.println(predict.predictedAndScaledBack);
+		System.out.println(predict.dataShouldBe);
+
 	}
 
 	@Activate
@@ -218,11 +217,9 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 //			e.printStackTrace();
 //			return null;
 //		}
-		
-		
-		//x[][] = makeMultipleModel();
-		 makeMultipleModel models = new makeMultipleModel();
-		
+
+		// x[][] = makeMultipleModel();
+
 		return null;
 
 	}

@@ -15,10 +15,13 @@ public class Engine implements EngineDriver {
 	private double[] targetVector;
 	private double[][] validateData;
 	private double[] validateTarget;
+	private int validatorCounter = 50;
+	private double learningRate;
+	public Lstm generalLstm;
 
 	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
-	
+
 	public ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
 	/**
@@ -30,13 +33,14 @@ public class Engine implements EngineDriver {
 
 		ArrayList<ArrayList<Double>> wieghtMatrix = new ArrayList<ArrayList<Double>>();
 
-		double learningRate = 1;
+		adaptiveLearningRate rate = new adaptiveLearningRate();
 
-		Lstm ls = new LstmBuilder()//
-				.setInputData(this.inputMatrix[0]) //
-				.setOutputData(this.targetVector[0]) //
-				.setLearningRate(learningRate) //
-				.setEpoch(epochs) //
+		double perc = ((double) (0 + 1) / inputMatrix.length) * 100.00;
+		this.learningRate = rate.scheduler(perc);
+
+		Lstm ls = new LstmBuilder(this.inputMatrix[0], this.targetVector[0])//
+				.setLearningRate(this.learningRate) //
+				.setEpoch(epochs)//
 				.build();
 
 		ls.initilizeCells();
@@ -46,18 +50,20 @@ public class Engine implements EngineDriver {
 		this.weights.add(wieghtMatrix);
 
 		for (int i = 1; i < this.inputMatrix.length; i++) {
-			adaptiveLearningRate rate =new adaptiveLearningRate();
 
-			learningRate = rate.scheduler(i, this.inputMatrix.length);
+			perc = ((double) (i + 1) / inputMatrix.length) * 100.00;
+			this.learningRate = rate.scheduler(perc);
 
-			ls = new LstmBuilder()//
-					.setInputData(this.inputMatrix[i]) //
-					.setOutputData(this.targetVector[i]) //
-					.setLearningRate(learningRate) //
+			ls = new LstmBuilder(this.inputMatrix[i], this.targetVector[i])// double[] inputData, double outputData
+
+					.setLearningRate(this.learningRate) //
 					.setEpoch(epochs) //
+
 					.build();
 
 			ls.initilizeCells();
+			generalLstm = ls;// ---------------------------------------------------------------------------------------------this
+								// was added to implement make multiple model
 
 			for (int j = 0; j < ls.cells.size(); j++) {
 
@@ -75,7 +81,8 @@ public class Engine implements EngineDriver {
 
 			int percentage = 90;
 			// this.earlyStop(percentage, wieghtMatrix);
-			if (this.weights.size() == 50/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
+			if (this.weights
+					.size() == this.validatorCounter/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
 				int ind = this.selectWeight(this.weights);
 				wieghtMatrix = this.weights.get(ind);
 				System.out.println(ind);
@@ -110,24 +117,24 @@ public class Engine implements EngineDriver {
 	 * @param learningRate learning rate.
 	 * @return updated learning rate
 	 */
-	private double updateLearningRate(int iterations, int length) {
-		double learningRate = 1.0;
-		double perc = 0.0;
-		perc = ((double) (iterations + 1) / length) * 100.0;
-
-		if (perc < 15) {
-			return learningRate / 10;
-		} else if (15 < perc && perc < 30) {
-			return learningRate / 100;
-		} else if (30 < perc && perc < 60) {
-			return learningRate / 1000;
-		} else if (60 < perc && perc < 90) {
-			return learningRate / 10000;
-		} else {
-			return learningRate / 100000;
-		}
-
-	}
+//	private double updateLearningRate(int iterations, int length) {
+//		double learningRate = 1.0;
+//		double perc = 0.0;
+//		perc = ((double) (iterations + 1) / length) * 100.0;
+//
+//		if (perc < 15) {
+//			return learningRate / 10;
+//		} else if (15 < perc && perc < 30) {
+//			return learningRate / 100;
+//		} else if (30 < perc && perc < 60) {
+//			return learningRate / 1000;
+//		} else if (60 < perc && perc < 90) {
+//			return learningRate / 10000;
+//		} else {
+//			return learningRate / 100000;
+//		}
+//
+//	}
 
 	/**
 	 * Predict using the model and the input data.
@@ -264,6 +271,7 @@ public class Engine implements EngineDriver {
 		this.targetVector = builder.targetVector;
 		this.validateData = builder.validateData;
 		this.validateTarget = builder.validateTarget;
+		this.validatorCounter = builder.validatorCounter;
 	}
 
 	public static class EngineBuilder {
@@ -272,14 +280,16 @@ public class Engine implements EngineDriver {
 		public double[] targetVector;
 		public double[][] validateData;
 		public double[] validateTarget;
+		public int validatorCounter;
 		public int epoch = 100;
 
 		public EngineBuilder(double[][] inputMatrix, double[] targetVector, double[][] validateData,
-				double[] validateTarget) {
+				double[] validateTarget, int validatorCounter) {
 			this.inputMatrix = inputMatrix;
 			this.targetVector = targetVector;
 			this.validateData = validateData;
 			this.validateTarget = validateTarget;
+			this.validatorCounter = validatorCounter;
 		}
 
 		public EngineBuilder() {
@@ -303,6 +313,11 @@ public class Engine implements EngineDriver {
 
 		public EngineBuilder setValidateTarget(double[] validateTarget) {
 			this.validateTarget = validateTarget;
+			return this;
+		}
+
+		public EngineBuilder setValidatorCounter(int validatorCounter) {
+			this.validatorCounter = validatorCounter;
 			return this;
 		}
 

@@ -10,12 +10,33 @@ public class TrainTestSplit {
 	public int testIndexHigher;
 	public int totalSize;
 
+	public TrainTestSplit(int size, int windowSize, double percentage, double valSplit) {
+
+		this.totalSize = size;
+
+		this.trainIndexLower = 0;
+		this.trainIndexHigher = (int) (percentage * size);
+		
+		this.validateIndexLower =0; //trainIndexHigher+1 ;
+		this.validateIndexHigher = size-1;//validateIndexLower + (int) (valSplit * size);
+
+		this.testIndexLower = validateIndexLower ;
+		this.testIndexHigher = testIndexLower + (int) (valSplit * size);
+		//this.validateIndexHigher = this.testIndexHigher;// here we are ignoring the test data 
+
+
+
+		System.out.println(this.printTrainSplitPerc());
+	}
+	
 	public TrainTestSplit(int size, int windowSize, double percentage) {
 
 		this.totalSize = size - 1;
 
 		this.trainIndexLower = 0;
 		this.trainIndexHigher = (int) (percentage * size);
+		
+		
 
 		this.testIndexLower = size - (96 + windowSize);
 		this.testIndexHigher = this.totalSize;

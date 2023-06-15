@@ -2,13 +2,13 @@ package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import java.util.ArrayList;
 
-public class interpolationManager {
+public class InterpolationManager {
 
 	
 	public ArrayList<Double> interpolated = new ArrayList<Double>();
 
-	public interpolationManager(ArrayList<Double> data) {
-		System.out.println("Data" + data.size());
+	public InterpolationManager(ArrayList<Double> data) {
+		//System.out.println("Data" + data.size());
 
 		ArrayList<Double> dataDouble =replaceNullWitNan(data);
 		ArrayList<ArrayList<Double>> interpolatedGroupedData = new ArrayList<ArrayList<Double>>();
@@ -46,13 +46,13 @@ public class interpolationManager {
 //							"------------------------------------------------------------------------------------------");
 
 				} else {
-					System.out.println("Cubical");
-					System.out.println("Passed" + data1);
+//					System.out.println("Cubical");
+//					System.out.println("Passed" + data1);
 					interpolatedTemp = CubicalInterpolation.Interpolate(data1);
-					System.out.println("returned" + interpolatedTemp);
-					System.out.println("");
-					System.out.println(
-							"------------------------------------------------------------------------------------------");
+//					System.out.println("returned" + interpolatedTemp);
+//					System.out.println("");
+//					System.out.println(
+//							"------------------------------------------------------------------------------------------");
 
 				}
 				interpolatedGroupedData.add(interpolatedTemp);
