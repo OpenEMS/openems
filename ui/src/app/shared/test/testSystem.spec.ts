@@ -380,7 +380,8 @@ export namespace TestSystem {
         properties: [],
         id: "Meter.Socomec.Threephase",
         componentIds: [
-          "meter0"
+          "meter10",
+          "meter11"
         ]
       }
     };
