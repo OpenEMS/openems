@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { element } from 'protractor';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Filter } from 'src/app/shared/genericComponents/shared/filter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
-import { EdgeConfig, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
@@ -92,29 +93,39 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   private static generatePhasesView(component: EdgeConfig.Component, translate: TranslateService, role: Role): OeFormlyField[] {
+
     return ['L1', 'L2', 'L3']
       .map(phase => <OeFormlyField>{
-        type: 'line',
-        name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase),
-        channel: component.id + '/ActivePower' + phase,
+        type: 'line-with-children',
+        name: { channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase), converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase) },
         indentation: TextIndentation.SINGLE,
         children: [
-          Role.isAtLeast(role, Role.INSTALLER) && {
-            type: 'line-item',
-            channel: component.id + '/Voltage' + phase,
-            converter: Utils.CONVERT_TO_VOLT
-          },
-          Role.isAtLeast(role, Role.INSTALLER) && {
-            type: 'line-item',
-            channel: component.id + '/Current' + phase,
-            converter: Utils.CONVERT_TO_CURRENT
-          },
-          {
-            type: 'line-item',
-            channel: component.id + '/ActivePower' + phase,
-            converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
-          }
+          ...ModalComponent.getChildrenOfLine(role, phase, component)
         ]
       });
+  }
+
+  private static getChildrenOfLine(role: Role, phase: string, component: EdgeConfig.Component) {
+    let children: OeFormlyField[] = [];
+    if (Role.isAtLeast(role, Role.INSTALLER)) {
+      children.push({
+        type: 'line-item',
+        channel: component.id + '/Voltage' + phase,
+        converter: Utils.CONVERT_TO_VOLT
+      },
+        {
+          type: 'line-item',
+          channel: component.id + '/Current' + phase,
+          converter: Utils.CONVERT_TO_CURRENT
+        })
+    }
+
+    children.push({
+      type: 'line-item',
+      channel: component.id + '/ActivePower' + phase,
+      converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
+    })
+
+    return children;
   }
 }

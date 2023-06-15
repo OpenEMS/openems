@@ -329,4 +329,66 @@ export namespace TestSystem {
     }
   }
 
+  export class Ems30093 extends AbstractSystem {
+    public widgets: Widget[];
+    public override key: string = "ems30093";
+    public components: { [id: string]: EdgeConfig.Component; } =
+      {
+        meter10: {
+          alias: "meter10",
+          factoryId: "Meter.Socomec.Threephase",
+          id: "meter10",
+          isEnabled: true,
+          properties: {
+            alias: "",
+            enabled: true,
+            invert: false,
+            modbusUnitId: "7",
+            type: "GRID"
+          },
+          channels: {}
+        },
+        meter11: {
+          alias: "meter11",
+          factoryId: "Meter.Socomec.Threephase",
+          id: "meter11",
+          isEnabled: true,
+          properties: {
+            alias: "",
+            enabled: true,
+            invert: false,
+            modbusUnitId: "8",
+            type: "GRID"
+          },
+          channels: {}
+        },
+
+      };
+    public factories: { [id: string]: EdgeConfig.Factory } = {
+      ['Meter.Socomec.Threephase']:
+      {
+        name: "Meter Socomec Threephase",
+        description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
+        natureIds: [
+          "io.openems.edge.meter.api.ElectricityMeter",
+          "io.openems.edge.bridge.modbus.api.ModbusComponent",
+          "io.openems.edge.common.modbusslave.ModbusSlave",
+          "io.openems.edge.common.component.OpenemsComponent",
+          "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
+          "io.openems.edge.meter.socomec.SocomecMeter"
+        ],
+        properties: [],
+        id: "Meter.Socomec.Threephase",
+        componentIds: [
+          "meter0"
+        ]
+      }
+    };
+
+    constructor() {
+      super();
+      super.setEdge(new Edge(this.key, "", "", "2023.3.5", Role.ADMIN, true, new Date()));
+      super.setConfig(this.components, this.factories);
+    }
+  }
 }

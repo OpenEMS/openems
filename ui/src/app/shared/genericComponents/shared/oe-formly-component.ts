@@ -4,7 +4,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
 
-import { EdgeConfig, Service } from "../../shared";
+import { ChannelAddress, EdgeConfig, Service } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { TextIndentation } from "../modal/modal-line/modal-line";
@@ -61,7 +61,8 @@ export type OeFormlyField =
   | OeFormlyField.Line
   | OeFormlyField.Info
   | OeFormlyField.Item
-  | OeFormlyField.Horizontal;
+  | OeFormlyField.Horizontal
+  | OeFormlyField.LineWithChildren;
 
 export namespace OeFormlyField {
 
@@ -77,14 +78,12 @@ export namespace OeFormlyField {
     converter?: (value: number | null) => string
   }
 
-  // TODO should use separate ParentLine
-  // export type ParentLine = {
-  //   type: 'line',
-  //   name: string | ((value: number) => string),
-  //   filter?: (value: number | null) => boolean,
-  //   indentation?: TextIndentation,
-  //   children?: OeFormlyField[]
-  // }
+  export type LineWithChildren = {
+    type: 'line-with-children',
+    name: string | ((value: number) => string) | { channel: ChannelAddress, converter: ((value: number) => string) },
+    indentation?: TextIndentation,
+    children: Item[],
+  }
 
   export type Line = {
     type: 'line',
@@ -93,7 +92,6 @@ export namespace OeFormlyField {
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
     indentation?: TextIndentation,
-    children?: OeFormlyField[]
   }
 
   export type Horizontal = {
