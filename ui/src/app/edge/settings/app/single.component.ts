@@ -42,13 +42,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   private key: string | null = null;
 
-  protected canEnterKey: boolean | undefined
-  protected hasPredefinedKey: boolean | undefined
+  protected canEnterKey: boolean | undefined;
+  protected hasPredefinedKey: boolean | undefined;
 
-  private stopOnDestroy: Subject<void> = new Subject<void>()
-  protected keyForFreeApps: string
-  protected isFreeApp: boolean = false
-  protected isPreInstalledApp: boolean = false
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+  protected keyForFreeApps: string;
+  protected isFreeApp: boolean = false;
+  protected isPreInstalledApp: boolean = false;
 
   public constructor(
     private route: ActivatedRoute,
@@ -90,8 +90,8 @@ export class SingleAppComponent implements OnInit, OnDestroy {
           filter(config => config !== null),
           takeUntil(this.stopOnDestroy)
         ).subscribe(next => {
-          let appManager = next.getComponent("_appManager")
-          let newKeyForFreeApps = appManager.properties["keyForFreeApps"]
+          let appManager = next.getComponent("_appManager");
+          let newKeyForFreeApps = appManager.properties["keyForFreeApps"];
           if (!newKeyForFreeApps) {
             // no key in config
             this.increaseReceivedResponse();
@@ -99,7 +99,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
           if (this.keyForFreeApps === newKeyForFreeApps) {
             return;
           }
-          this.keyForFreeApps = newKeyForFreeApps
+          this.keyForFreeApps = newKeyForFreeApps;
           // update free apps
           this.edge.sendRequest(this.websocket, new AppCenter.Request({
             payload: new AppCenterGetPossibleApps.Request({
@@ -109,13 +109,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             const result = (response as AppCenterGetPossibleApps.Response).result;
             this.isPreInstalledApp = result.bundles.some(bundle => {
               return bundle.some(app => {
-                return app.appId == this.appId
-              })
-            })
+                return app.appId == this.appId;
+              });
+            });
           }).finally(() => {
             this.increaseReceivedResponse();
-          })
-        })
+          });
+        });
       } else {
         this.isPreInstalledApp = false;
         this.increaseReceivedResponse();
@@ -129,13 +129,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         });
 
       // set appname, image ...
-      const state = history?.state
+      const state = history?.state;
       if (state && 'app' in history.state) {
         if ('app' in history.state) {
-          this.setApp(history.state['app'])
+          this.setApp(history.state['app']);
         }
         if ('appKey' in history.state) {
-          this.key = history.state['appKey']
+          this.key = history.state['appKey'];
         }
       } else {
         edge.sendRequest(this.websocket,
@@ -144,7 +144,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             payload: new GetApp.Request({ appId: appId })
           })).then(response => {
             let app = (response as GetApp.Response).result.app;
-            this.setApp(app)
+            this.setApp(app);
           }).catch(reason => {
             console.error(reason.error);
             this.service.toast('Error while receiving App[' + appId + ']: ' + reason.error.message, 'danger');
@@ -219,7 +219,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   protected installApp(appId: string) {
     if (this.key != null) {
-      let key = this.key
+      let key = this.key;
       // if key already set navigate directly to installation view
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
         , { queryParams: { name: this.appName }, state: { appKey: key } });
@@ -232,11 +232,11 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       return;
     }
     // show modal to let the user enter a key
-    this.presentModal(appId, KeyValidationBehaviour.NAVIGATE)
+    this.presentModal(appId, KeyValidationBehaviour.NAVIGATE);
   }
 
   protected registerKey(appId: string) {
-    this.presentModal(appId, KeyValidationBehaviour.REGISTER)
+    this.presentModal(appId, KeyValidationBehaviour.REGISTER);
   }
 
 }

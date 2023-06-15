@@ -15,7 +15,7 @@ export class ChartOptionsPopoverComponent {
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService,
+        public translate: TranslateService
     ) { }
 
     public setPhases() {

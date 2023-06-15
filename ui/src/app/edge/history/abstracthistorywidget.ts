@@ -13,7 +13,7 @@ export abstract class AbstractHistoryWidget {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
-        protected service: Service,
+        protected service: Service
     ) { }
 
     /**
@@ -64,7 +64,7 @@ export abstract class AbstractHistoryWidget {
                             }
                         }).catch(reason => reject(reason));
                     }).catch(reason => reject(reason));
-                })
+                });
             });
         });
     }

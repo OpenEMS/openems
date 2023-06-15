@@ -25,12 +25,12 @@ export class FlatComponent extends AbstractFlatWidget {
                 -1
             ),
             currentData.allComponents['_sum/ProductionActivePower']
-        )
+        );
     }
 
     async presentModal() {
         const modal = await this.modalController.create({
-            component: ModalComponent,
+            component: ModalComponent
         });
         return await modal.present();
     }

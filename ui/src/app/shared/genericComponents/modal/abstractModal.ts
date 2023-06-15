@@ -125,6 +125,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /** Gets the FormGroup of the current Component */
     protected getFormGroup(): FormGroup | null {
-        return null
+        return null;
     }
 }

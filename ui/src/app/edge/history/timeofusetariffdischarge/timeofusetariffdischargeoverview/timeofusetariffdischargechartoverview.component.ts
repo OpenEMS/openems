@@ -16,7 +16,7 @@ export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -24,7 +24,7 @@ export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
+            });
         });
     }
 }

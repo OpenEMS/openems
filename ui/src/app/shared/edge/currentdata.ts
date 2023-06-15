@@ -40,7 +40,7 @@ export class CurrentData {
         effectivePower: null,
         effectiveChargePower: null,
         effectiveDischargePower: null,
-        capacity: null,
+        capacity: null
       }, production: {
         hasDC: false,
         powerRatio: null,
@@ -246,9 +246,9 @@ export class CurrentData {
               )
             )
           ) * 100, 0
-        ), 0)
+        ), 0);
     } else {
-      return null
+      return null;
     }
   }
 

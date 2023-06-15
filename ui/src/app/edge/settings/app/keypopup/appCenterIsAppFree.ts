@@ -1,5 +1,4 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { App } from "./app";
 
 
 /**

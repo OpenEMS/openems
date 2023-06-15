@@ -52,7 +52,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -60,8 +60,8 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.filteredEdges = [];
     this.limitReached = false;
     this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
-      this.init()
-    })
+      this.init();
+    });
   }
 
   async ionViewWillEnter() {
@@ -72,9 +72,9 @@ export class IndexComponent implements OnInit, OnDestroy {
       // Wait for Websocket
       await new Promise((resolve) => setTimeout(() => {
         if (this.websocket.status == 'waiting for credentials') {
-          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })))
+          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })));
         }
-      }, 2000)).then(() => { this.service.setCurrentComponent('', this.route) });
+      }, 2000)).then(() => { this.service.setCurrentComponent('', this.route); });
     } else {
       this.service.setCurrentComponent('', this.route);
     }
@@ -85,18 +85,15 @@ export class IndexComponent implements OnInit, OnDestroy {
    * 
    * @param event from template passed event
    */
-  protected searchOnChange(event) {
+  protected searchOnChange() {
     this.filteredEdges = [];
     this.page = 0;
     this.limitReached = false;
 
-    const query = event.target.value.toLowerCase();
-    this.query = query;
-
     this.loadNextPage().then((edges) => {
-      this.filteredEdges = edges
+      this.filteredEdges = edges;
       this.page++;
-    })
+    });
   }
 
   /**
@@ -105,12 +102,12 @@ export class IndexComponent implements OnInit, OnDestroy {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-
+    this.query = "";
     this.limitReached = false;
 
     // Prevent that user submits via keyevent 'enter' multiple times
     if (this.formIsDisabled) {
-      return
+      return;
     }
 
     this.formIsDisabled = true;
@@ -119,7 +116,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
         // Unclean
         this.ngOnInit();
-        this.formIsDisabled = false
+        this.formIsDisabled = false;
       });
   }
 
@@ -143,11 +140,11 @@ export class IndexComponent implements OnInit, OnDestroy {
           if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
             let edge = metadata.edges[edgeIds[0]];
             this.router.navigate(['/device', edge.id]);
-            return
+            return;
           }
           this.filteredEdges = edges;
-        })
-    })
+        });
+    });
   }
 
   /**
@@ -163,7 +160,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         infiniteScroll.target.complete();
       }).catch(() => {
         infiniteScroll.target.complete();
-      })
+      });
     }, 200);
   }
 
@@ -177,17 +174,17 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.loading = true;
     return new Promise<Edge[]>((resolve, reject) => {
       if (this.limitReached) {
-        resolve([])
-        return
+        resolve([]);
+        return;
       }
       this.service.getEdges(this.page, this.query, this.limit)
         .then((edges) => {
           this.limitReached = edges.length < this.limit;
-          resolve(edges)
+          resolve(edges);
         }).catch((err) => {
-          reject(err)
-        })
+          reject(err);
+        });
     }).finally(() =>
-      this.loading = false)
+      this.loading = false);
   }
 }

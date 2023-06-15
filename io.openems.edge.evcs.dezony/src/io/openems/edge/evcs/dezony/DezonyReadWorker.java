@@ -18,7 +18,7 @@ import io.openems.edge.evcs.api.Status;
 
 public class DezonyReadWorker extends AbstractCycleWorker {
 
-	private final DezonyImpl parent;
+	private final EvcsDezonyImpl parent;
 
 	private final Map<String, Status> dezonyToOpenemsState = Map.of(//
 			"IDLE", Status.NOT_READY_FOR_CHARGING, //
@@ -29,7 +29,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 
 	private int chargingFinishedCounter = 0;
 
-	public DezonyReadWorker(DezonyImpl parent) {
+	public DezonyReadWorker(EvcsDezonyImpl parent) {
 		this.parent = parent;
 	}
 
@@ -74,8 +74,8 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	}
 
 	private Status getStatus(JsonElement json) {
-		final var rawChargeStatus = (String) this.getValueFromJson(Dezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
-				value -> {
+		final var rawChargeStatus = (String) this.getValueFromJson(EvcsDezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT,
+				json, value -> {
 					final String state = TypeUtils.getAsType(OpenemsType.STRING, value);
 					return state == null ? "" : state;
 				}, "state");

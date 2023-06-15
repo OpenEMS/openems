@@ -82,15 +82,10 @@ public interface OffGridSwitch extends OpenemsComponent {
 	 * @return the Channel {@link Value}
 	 */
 	public default Optional<Contactor> getMainContactor() {
-		var value = this.getMainContactorChannel().value();
-		if (!value.isDefined()) {
-			return Optional.empty();
-		}
-		if (value.get()) {
-			return Optional.of(Contactor.OPEN);
-		} else {
-			return Optional.of(Contactor.CLOSE);
-		}
+		var mainContactor = this.getMainContactorChannel().value();
+		return mainContactor.asOptional().map(value -> {
+			return value ? Contactor.OPEN : Contactor.CLOSE;
+		});
 	}
 
 	/**
@@ -119,15 +114,10 @@ public interface OffGridSwitch extends OpenemsComponent {
 	 * @return the Channel {@link Value}
 	 */
 	public default Optional<Contactor> getGroundingContactor() {
-		var value = this.getGroundingContactorChannel().value();
-		if (!value.isDefined()) {
-			return Optional.empty();
-		}
-		if (value.get()) {
-			return Optional.of(Contactor.CLOSE);
-		} else {
-			return Optional.of(Contactor.OPEN);
-		}
+		var groundingContactor = this.getMainContactorChannel().value();
+		return groundingContactor.asOptional().map(value -> {
+			return value ? Contactor.CLOSE : Contactor.OPEN;
+		});
 	}
 
 	/**

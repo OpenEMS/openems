@@ -26,7 +26,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   private static readonly SELECTOR = 'app-install';
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
-  private stopOnDestroy: Subject<void> = new Subject<void>()
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   protected form: FormGroup | null = null;
   protected fields: FormlyFieldConfig[] = null;
@@ -48,7 +48,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private service: Service,
     private modalController: ModalController,
     private router: Router,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 
@@ -62,7 +62,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     let appName = this.route.snapshot.queryParams['name'];
     this.appId = appId;
     this.service.setCurrentComponent(appName, this.route).then(edge => {
-      this.edge = edge
+      this.edge = edge;
 
       this.edge.sendRequest(this.websocket,
         new AppCenter.Request({
@@ -141,7 +141,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         });
       }
 
-      this.isInstalling = true
+      this.isInstalling = true;
       this.edge.sendRequest(this.websocket, request).then(response => {
         let result = (response as AddAppInstance.Response).result;
 
@@ -152,20 +152,20 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(';'), 'warning');
         } else {
-          this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success')
+          this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success');
         }
 
         this.form.markAsPristine();
         this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
       }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger')
+        this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger');
       }).finally(() => {
-        this.isInstalling = false
+        this.isInstalling = false;
         this.service.stopSpinner(this.appId);
       });
     }).catch(() => {
       // can not get key => dont install
-    })
+    });
   }
 
   /**
@@ -189,7 +189,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       }
       this.presentModal()
         .then(resolve)
-        .catch(reject)
+        .catch(reject);
     });
   }
 
@@ -213,7 +213,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           return; // no key selected
         }
         resolve(event.data.key["keyId"]);
-      })
+      });
     });
 
     await modal.present();

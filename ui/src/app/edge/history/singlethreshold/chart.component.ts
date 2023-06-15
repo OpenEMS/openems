@@ -24,7 +24,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("singlethreshold-chart", service, translate);
   }
@@ -35,7 +35,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -49,7 +49,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
-        let yAxisID
+        let yAxisID;
 
         // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
         if (result.data["_sum/EssSoc"]) {
@@ -73,7 +73,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             let address = ChannelAddress.fromString(channel);
             let data = result.data[channel].map(value => {
               if (value == null) {
-                return null
+                return null;
               } else {
                 return value * 100; // convert to % [0,100]
               }
@@ -87,8 +87,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
-            })
+              borderColor: 'rgba(0,191,255,1)'
+            });
           }
           if (channel == inputChannel) {
             let inputLabel: string = null;
@@ -107,21 +107,21 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
                 break;
             }
-            let data
+            let data;
             if (address.channelId == 'EssSoc') {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else if (value > 100 || value < 0) {
                   return null;
                 } else {
                   return value;
                 }
-              })
+              });
             } else if (address.channelId == 'ProductionActivePower' || address.channelId == 'GridActivePower') {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else {
                   return value / 1000; // convert to kW
                 }
@@ -129,7 +129,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             } else {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else {
                   return value;
                 }
@@ -146,21 +146,21 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
               this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.05)',
-                borderColor: 'rgba(189, 195, 199,1)',
-              })
+                borderColor: 'rgba(189, 195, 199,1)'
+              });
             } else {
               datasets.push({
                 label: inputLabel,
                 data: data,
                 hidden: false,
                 yAxisID: 'yAxis1',
-                position: 'left',
+                position: 'left'
               });
 
               this.colors.push({
                 backgroundColor: 'rgba(0,0,0,0.05)',
                 borderColor: 'rgba(0,0,0,1)'
-              })
+              });
             }
           }
         }
@@ -210,15 +210,15 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     if (inputChannel.channelId == 'EssSoc') {
       labelString = '%';
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
       labelString = 'kW';
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     } else {
       labelString = config.getChannel(inputChannel)['unit'];
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     }
 
@@ -240,7 +240,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           padding: -5,
           stepSize: 20
         }
-      })
+      });
     }
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
@@ -252,7 +252,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
       }
-    }
+    };
     this.options = options;
   }
 

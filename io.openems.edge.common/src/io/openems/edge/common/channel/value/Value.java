@@ -2,6 +2,7 @@ package io.openems.edge.common.channel.value;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 
@@ -128,6 +129,18 @@ public class Value<T> {
 	 */
 	public boolean isDefined() {
 		return this.asOptional().isPresent();
+	}
+
+	/**
+	 * If a value is present, performs the given action with the value, otherwise
+	 * does nothing.
+	 *
+	 * @param action the action to be performed, if a value is present
+	 * @throws NullPointerException if value is present and the given action is
+	 *                              {@code null}
+	 */
+	public void ifPresent(Consumer<? super T> action) {
+		this.asOptional().ifPresent(action);
 	}
 
 	/**

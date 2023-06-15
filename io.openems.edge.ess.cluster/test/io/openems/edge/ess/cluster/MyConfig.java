@@ -7,9 +7,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public boolean isOn;
-		public String outputChannelAddress;
-		public String[] essIds;
+		private boolean isOn;
+		private String outputChannelAddress;
+		private String[] essIds;
 
 		private Builder() {
 		}

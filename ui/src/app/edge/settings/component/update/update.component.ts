@@ -54,9 +54,9 @@ export class ComponentUpdateComponent implements OnInit {
           templateOptions: {
             label: property.name,
             description: property.description,
-            required: property.isRequired,
+            required: property.isRequired
           }
-        }
+        };
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);

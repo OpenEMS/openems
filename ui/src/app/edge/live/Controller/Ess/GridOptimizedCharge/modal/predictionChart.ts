@@ -29,7 +29,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("prediction-chart", service, translate);
     }
@@ -40,7 +40,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -74,7 +74,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     } else {
                         return value;
                     }
-                })
+                });
 
                 // Calculate start soc
                 let startSoc = null;
@@ -134,11 +134,11 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                         for (let i = currIndex; i <= targetIndex; i++) {
                             // Predicted SoC increases only after charge start time, when channel is not zero (e.g. for older versions).
                             if (isChargeStartPresent && i < chargeStartIndex) {
-                                predictedSocData[i] = +(predictedSoc + dataSteps).toFixed(2)
+                                predictedSocData[i] = +(predictedSoc + dataSteps).toFixed(2);
                                 continue;
                             }
                             predictedSoc = predictedSoc + dataSteps;
-                            predictedSocData[i] = +predictedSoc.toFixed(2)
+                            predictedSocData[i] = +predictedSoc.toFixed(2);
                         }
                     }
                 }
@@ -174,23 +174,23 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     data: socData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
+                    position: 'right'
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
-                })
+                    position: 'right'
+                });
 
                 // Push the depending colors 
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)',
+                    borderColor: 'rgba(189, 195, 199,1)'
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)',
-                })
+                    borderColor: 'rgba(0,223,0,1)'
+                });
             }
 
             this.datasets = datasets;
@@ -208,13 +208,13 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc'),
+                new ChannelAddress('_sum', 'EssSoc')
             ];
             if (this.component != null && this.component.id) {
-                result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'))
+                result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
             }
             resolve(result);
-        })
+        });
     }
 
     public getChartHeight(): number {
@@ -248,7 +248,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     padding: -5,
                     stepSize: 20
                 }
-            })
+            });
 
         options.layout = {
             padding: {
@@ -257,7 +257,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 top: 0,
                 bottom: 0
             }
-        }
+        };
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";
 
@@ -270,7 +270,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             } else {
                 return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
             }
-        }
+        };
         this.options = options;
     }
 

@@ -1,7 +1,28 @@
 plugins {
 	id 'java'
-	id 'biz.aQute.bnd.workspace'
+	id 'java-library'
 	id 'com.github.node-gradle.node'
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url = uri('https://repo.maven.apache.org/maven2/')
+	}
+}
+
+dependencies {
+	// Use JUnit test framework.
+	testImplementation 'junit:junit:4.13.2'
+	
+	// This dependency is used by the application.	
+	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
 /*
@@ -12,13 +33,13 @@ allprojects {
 		mavenCentral()
 		gradlePluginPortal()
 	}
-
+	
 	tasks.withType(JavaCompile) {
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
-	}	
-
+	}
+	
 	tasks.withType(Test) {
 		maxParallelForks = 2
 		forkEvery = 100
@@ -26,7 +47,24 @@ allprojects {
 			html.required = false
 			junitXml.required = false
 		}
-	}	
+	}
+}
+
+task cleanEdge() {
+	group 'OpenEMS-Build'
+	description 'Clean all Edge-Bundles'
+}
+task cleanBackend() {
+	group 'OpenEMS-Build'
+	description 'Clean all Backend-Bundles'
+}
+task assembleEdge() {
+	group 'OpenEMS-Build'
+	description 'Assemble all Edge-Bundles'
+}
+task assembleBackend() {
+	group 'OpenEMS-Build'
+	description 'Assemble all Backend-Bundles'
 }
 
 /*
@@ -35,23 +73,41 @@ allprojects {
 subprojects {
 	if (plugins.hasPlugin("biz.aQute.bnd")) {	
 		apply plugin: 'checkstyle'
-
+	
 		checkstyle {
-			toolVersion = '10.4'
+			toolVersion = '10.11.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures false
 		}
-
+	
 		tasks.withType(Checkstyle) {
 			reports {
 				xml.required = false
 				html.required = false
 			}
 		}
-
+	
 		tasks.withType(aQute.bnd.gradle.Export) {
 			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
+		}
+	}
+	
+	if ( it.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
+		def clean = tasks.findByName('clean')
+		def assemble = tasks.findByName('assemble')
+		if( clean && assemble ) {
+			rootProject.tasks.findByPath(':cleanEdge').dependsOn(clean)
+			rootProject.tasks.findByPath(':assembleEdge').dependsOn(assemble)
+		}
+	}
+	
+	if ( it.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+		def clean = tasks.findByName('clean')
+		def assemble = tasks.findByName('assemble')
+		if( clean && assemble ) {
+			rootProject.tasks.findByPath(':cleanBackend').dependsOn(clean)
+			rootProject.tasks.findByPath(':assembleBackend').dependsOn(assemble)
 		}
 	}
 }
@@ -76,11 +132,25 @@ task buildComponents() {
 	}
 }
 
-/*
- * Build OpenEMS Edge fat-jar
- */
 task buildEdge() {
-	dependsOn ':io.openems.edge.application:export.EdgeApp'
+	group 'OpenEMS-Build'
+	description 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
+	
+	def assemble = tasks.findByPath(':assembleEdge')
+	def export = tasks.findByPath(':io.openems.edge.application:export.EdgeApp')
+	def resolve = tasks.findByPath(':io.openems.edge.application:resolve.EdgeApp')
+	
+	dependsOn assemble
+	dependsOn export
+	dependsOn resolve
+	
+	resolve.mustRunAfter assemble
+	export.mustRunAfter resolve
+	
+	/* force rebuild */
+	export.outputs.upToDateWhen { false }
+	outputs.upToDateWhen { false }
+	
 	doLast {
 		file("${buildDir}/openems-edge.jar").delete()
 		copy {
@@ -91,11 +161,25 @@ task buildEdge() {
 	}
 }
 
-/*
- * Build OpenEMS Backend fat-jar
- */
 task buildBackend() {
-	dependsOn ":io.openems.backend.application:export.BackendApp"
+	group 'OpenEMS-Build'
+	description 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
+	
+	def assemble = tasks.findByPath(':assembleBackend')
+	def export = tasks.findByPath(':io.openems.backend.application:export.BackendApp')
+	def resolve = tasks.findByPath(':io.openems.backend.application:resolve.BackendApp')
+	
+	dependsOn assemble
+	dependsOn export
+	dependsOn resolve
+	
+	resolve.mustRunAfter assemble
+	export.mustRunAfter resolve
+	
+	/* force rebuild */
+	export.outputs.upToDateWhen { false }
+	outputs.upToDateWhen { false }
+
 	doLast {
 		file("${buildDir}/openems-backend.jar").delete()
 		copy {
@@ -137,13 +221,13 @@ task copyBundleReadmes() {
 		def targetBridge = basePath + "edge/bridge.adoc.d"
 		def targetDeviceService = basePath + "edge/device_service.adoc.d"
 		def targetTimedata = basePath + "edge/timedata.adoc.d"
-
+	
 		// initialize target files and directories
 		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
 			delete fileTree(dir: target, include: '**/*.adoc') 
 			new File(target + "/_include.adoc").write('')
 		}
-
+	
 		subprojects.each { proj ->
 			// in each subproject (= bundle)...
 			proj.file(".").listFiles().each { sourceFile ->
@@ -168,21 +252,21 @@ task copyBundleReadmes() {
 					} else {
 						target = targetDeviceService
 					}
-
+	
 					} else if(bundle.startsWith("io.openems.backend.")) {
 						// ignore
 						return
-
+	
 					} else if(bundle.startsWith("io.openems.wrapper")) {
 						// ignore
 						return
 					}
-
+	
 					// could we exactly evaluate the bundle type and set the targetFile?
 					if(target == null) {
 						throw new Exception("Bundle type is unknown for " + bundle)
 					}
-
+	
 					// copy the readme file to "target.d" folder
 					copy {
 						from (sourceFile.toPath())
@@ -191,7 +275,7 @@ task copyBundleReadmes() {
 							return bundle + ".adoc"
 						}
 					}
-
+	
 					// append content of source file to target file
 					File targetFile = new File(target + "/_include.adoc")
 					targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
@@ -205,6 +289,8 @@ task copyBundleReadmes() {
  * Build Antora docs
  */
 task buildAntoraDocs(dependsOn: copyBundleReadmes) {
+	group 'Documentation'
+	
 	dependsOn ":doc:buildAntoraDocs"
 	doLast {
 		copy {

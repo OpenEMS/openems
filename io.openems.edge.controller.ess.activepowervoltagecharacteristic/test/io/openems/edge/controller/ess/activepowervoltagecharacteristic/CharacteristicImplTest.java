@@ -14,7 +14,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class CharacteristicImplTest {
 
@@ -27,10 +27,10 @@ public class CharacteristicImplTest {
 	@Test
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ActivePowerVoltageCharacteristicImpl())//
+		new ControllerTest(new ControllerEssActivePowerVoltageCharacteristicImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("meter", new DummyAsymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//

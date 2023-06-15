@@ -22,7 +22,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("selfconsumption-chart", service, translate);
     }
@@ -33,7 +33,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -72,7 +72,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 }
                 dischargeData = effectivePower.map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else if (value > 0) {
                         return value;
                     } else {
@@ -87,7 +87,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                  */
                 sellToGridData = result.data['_sum/GridActivePower'].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else if (value < 0) {
                         return value * -1; // invert value
                     } else {
@@ -102,7 +102,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                  */
                 productionData = result.data['_sum/ProductionActivePower'].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value;
                     }
@@ -114,21 +114,21 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
             */
             let selfConsumption = productionData.map((value, index) => {
                 if (value == null) {
-                    return null
+                    return null;
                 } else {
                     return Utils.calculateSelfConsumption(sellToGridData[index], value);
                 }
-            })
+            });
 
             datasets.push({
                 label: this.translate.instant('General.selfConsumption'),
                 data: selfConsumption,
                 hidden: false
-            })
+            });
             this.colors.push({
                 backgroundColor: 'rgba(253,197,7,0.05)',
                 borderColor: 'rgba(253,197,7,1)'
-            })
+            });
             this.stopSpinner();
             this.datasets = datasets;
             this.loading = false;
@@ -149,7 +149,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 new ChannelAddress('_sum', 'ProductionDcActualPower')
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -159,7 +159,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-        }
+        };
         options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }

@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
 import { Service } from '../../../shared/shared';
 import { Role } from '../../../shared/type/role';
-import { Changelog, Library, OpenemsComponent, Product } from './changelog.constants';
+import { Changelog } from './changelog.constants';
 
 @Component({
   selector: 'changelog',
@@ -19,7 +19,7 @@ export class ChangelogComponent implements OnInit {
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -38,7 +38,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: 'x.y.z',
         changes: [
-          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases') 
+          Changelog.link("OpenEMS Releases", 'https://github.com/OpenEMS/openems/releases')
         ]
       }
     ];

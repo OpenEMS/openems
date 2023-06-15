@@ -342,11 +342,12 @@ public class OneWireContainer26 extends OneWireContainer
 	 */
 	@Override
 	public String getDescription() {
-		return "1-Wire device that integrates the total current charging or "
-				+ "discharging through a battery and stores it in a register. "
-				+ "It also returns the temperature (accurate to 2 degrees celsius),"
-				+ " as well as the instantaneous current and voltage and also "
-				+ "provides 40 bytes of EEPROM storage.";
+		return """
+				1-Wire device that integrates the total current charging or \
+				discharging through a battery and stores it in a register. \
+				It also returns the temperature (accurate to 2 degrees celsius), \
+				as well as the instantaneous current and voltage and also \
+				provides 40 bytes of EEPROM storage.""";
 	}
 
 	/**

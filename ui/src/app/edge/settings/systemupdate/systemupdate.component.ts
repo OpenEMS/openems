@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from 'src/environments';
-import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
+import { Edge, Service, Utils } from '../../../shared/shared';
 
 @Component({
   selector: SystemUpdateComponent.SELECTOR,
@@ -22,13 +22,13 @@ export class SystemUpdateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {
     this.service.setCurrentComponent("", this.route).then(edge => {
       this.edge = edge;
-    })
+    });
   }
 
 }

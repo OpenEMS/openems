@@ -20,7 +20,7 @@ export class SinglethresholdChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -29,7 +29,7 @@ export class SinglethresholdChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
-            })
+            });
         });
     }
 }

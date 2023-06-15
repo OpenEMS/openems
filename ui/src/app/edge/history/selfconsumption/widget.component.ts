@@ -19,7 +19,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -31,7 +31,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -47,9 +47,9 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
                         result.data['_sum/ProductionActiveEnergy']);
                 }).catch(() => {
                     this.selfconsumptionValue = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

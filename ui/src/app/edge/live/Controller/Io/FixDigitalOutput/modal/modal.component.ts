@@ -18,7 +18,7 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     protected translate: TranslateService,
     public modalCtrl: ModalController,
     public router: Router,
-    public websocket: Websocket,
+    public websocket: Websocket
   ) { }
 
   /**  

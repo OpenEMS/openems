@@ -27,8 +27,8 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
                 }
             }
             this.ioComponentCount = this.ioComponents.length;
-        })
-        return channels
+        });
+        return channels;
     }
 
     async presentModal() {
@@ -36,7 +36,7 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
             component: Io_Api_DigitalInput_ModalComponent,
             componentProps: {
                 edge: this.edge,
-                ioComponents: this.ioComponents,
+                ioComponents: this.ioComponents
             }
         });
         return await modal.present();

@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-	public OnOpen(WebsocketApi parent) {
+	public OnOpen(ControllerApiWebsocket parent) {
 	}
 
 	@Override

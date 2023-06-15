@@ -1,8 +1,6 @@
 <ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/consumptionchart">
     <ion-item lines="full" color="light">
-        <ion-avatar slot="start">
-            <img src="assets/img/consumption.png">
-        </ion-avatar>
+        <ion-icon slot="start" name="oe-consumption" color="warning" size="large"></ion-icon>
         <ion-label translate>General.consumption</ion-label>
     </ion-item>
     <ion-card-content>

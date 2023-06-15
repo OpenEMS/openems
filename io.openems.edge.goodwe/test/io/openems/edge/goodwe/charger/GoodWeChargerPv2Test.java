@@ -14,7 +14,7 @@ public class GoodWeChargerPv2Test {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new GoodWeEtCharger2()) //
+		new ComponentTest(new GoodWeChargerPv2()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

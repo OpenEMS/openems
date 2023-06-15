@@ -58,7 +58,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     let index = 0;
     for (let evcsId in this.evcsMap) {
       let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0
+      let chargePowerKW = chargePower / 1000.0;
       let alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({
@@ -103,7 +103,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
     line: {
       borderWidth: 2,
       tension: 0.1
-    },
+    }
   },
   hover: {
     mode: 'point',
@@ -123,7 +123,7 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
         max: 50
       },
       stacked: true
-    }],
+    }]
   },
   tooltips: {
     mode: 'index',
