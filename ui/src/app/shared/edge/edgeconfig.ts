@@ -196,6 +196,17 @@ export class EdgeConfig {
                 result.push.apply(result, this.getComponentIdsByFactory(factoryId));
             }
         }
+
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.push(...this.getComponentIdsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
+
         return result;
     }
 
@@ -218,7 +229,7 @@ export class EdgeConfig {
         switch (natureId) {
             // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
             case "io.openems.edge.meter.api.ElectricityMeter":
-                result.concat(this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+                result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
         return result;
