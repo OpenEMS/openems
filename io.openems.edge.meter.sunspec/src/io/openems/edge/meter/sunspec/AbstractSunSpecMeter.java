@@ -91,10 +91,7 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.VOLTAGE, //
 				SCALE_FACTOR_3, //
-				S204.PH_V, S203.PH_V, S202.PH_V, S201.PH_V, //
-				S204.PH_VPH_A, S203.PH_VPH_A, S202.PH_VPH_A, S201.PH_VPH_A, //
-				S204.PH_VPH_B, S203.PH_VPH_B, S202.PH_VPH_B, S201.PH_VPH_B, //
-				S204.PH_VPH_C, S203.PH_VPH_C, S202.PH_VPH_C, S201.PH_VPH_C);
+				S204.PH_V, S203.PH_V, S202.PH_V, S201.PH_V);
 		this.mapFirstPointToChannel(//
 				ElectricityMeter.ChannelId.CURRENT, //
 				SCALE_FACTOR_3, //
