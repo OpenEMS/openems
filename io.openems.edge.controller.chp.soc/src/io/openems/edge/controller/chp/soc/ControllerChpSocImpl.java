@@ -6,6 +6,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,9 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -29,12 +35,17 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerChpSocImpl extends AbstractOpenemsComponent
-		implements ControllerChpSoc, Controller, OpenemsComponent {
+		implements ControllerChpSoc, Controller, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerChpSocImpl.class);
+	private final CalculateActiveTime cumulatedActiveTime = new CalculateActiveTime(this,
+			ControllerChpSoc.ChannelId.CUMULATED_ACTIVE_TIME);
 
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private ChannelAddress inputChannelAddress;
 	private ChannelAddress outputChannelAddress;
@@ -174,13 +185,17 @@ public class ControllerChpSocImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Helper function to switch an output if it was not switched before.
+	 * Helper function to switch an output if it was not switched before; Updates
+	 * the cumulated active time channel.
 	 *
 	 * @param value true to switch ON, false to switch OFF;
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
 	private void setOutput(Boolean value) throws IllegalArgumentException, OpenemsNamedException {
+		// Update the cumulated time
+		this.cumulatedActiveTime.update(value);
+
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			var currentValueOpt = outputChannel.value().asOptional();
@@ -205,5 +220,10 @@ public class ControllerChpSocImpl extends AbstractOpenemsComponent
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
