@@ -14,6 +14,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,10 +42,12 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsComponent
-		implements ControllerIoChannelSingleThreshold, Controller, OpenemsComponent {
+		implements ControllerIoChannelSingleThreshold, Controller, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerIoChannelSingleThresholdImpl.class);
 	private final Set<ChannelAddress> outputChannelAdresses = new HashSet<>();
+	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
+			ControllerIoChannelSingleThreshold.ChannelId.CUMULATED_ACTIVE_TIME);
 
 	@Reference
 	private ComponentManager componentManager;
@@ -48,6 +56,9 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 	/** The current state in the State Machine. */
 	private State state = State.UNDEFINED;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerIoChannelSingleThresholdImpl() {
 		super(//
@@ -262,13 +273,17 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 	}
 
 	/**
-	 * Helper function to switch multiple outputs if they were not switched before.
+	 * Helper function to switch multiple outputs if they were not switched before;
+	 * Updates the cumulated active time channel.
 	 *
 	 * @param outputChannels the output channels
 	 * @param value          true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setOutputs(List<WriteChannel<Boolean>> outputChannels, boolean value) throws OpenemsNamedException {
+		// Update the cumulated Time.
+		this.calculateCumulatedActiveTime.update(value);
+
 		for (WriteChannel<Boolean> outputChannel : outputChannels) {
 			var currentValue = outputChannel.value();
 			if (!currentValue.isDefined() || currentValue.get() != value) {
@@ -276,5 +291,10 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 				outputChannel.setNextWriteValue(value);
 			}
 		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

@@ -9,6 +9,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -18,6 +21,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -26,7 +32,10 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerIoFixDigitalOutputImpl extends AbstractOpenemsComponent
-		implements ControllerIoFixDigitalOutput, Controller, OpenemsComponent {
+		implements ControllerIoFixDigitalOutput, Controller, OpenemsComponent, TimedataProvider {
+
+	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
+			ControllerIoFixDigitalOutput.ChannelId.CUMULATED_ACTIVE_TIME);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -36,8 +45,12 @@ public class ControllerIoFixDigitalOutputImpl extends AbstractOpenemsComponent
 
 	/** Stores the ChannelAddress of the WriteChannel. */
 	private ChannelAddress outputChannelAddress = null;
+
 	/** Takes the configured "isOn" setting. */
 	private boolean isOn = false;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerIoFixDigitalOutputImpl() {
 		super(//
@@ -64,6 +77,7 @@ public class ControllerIoFixDigitalOutputImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
+
 		if (this.isOn) {
 			this.switchOn();
 		} else {
@@ -91,12 +105,28 @@ public class ControllerIoFixDigitalOutputImpl extends AbstractOpenemsComponent
 		this.setOutput(false);
 	}
 
+	/**
+	 * Helper function to switch an output if it was not switched before; Updates
+	 * the cumulated active time channel.
+	 * 
+	 * @param value true to switch ON, false to switch OFF;
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
+	 */
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+		// Update the cumulated active time.
+		this.calculateCumulatedActiveTime.update(value);
+
 		WriteChannel<Boolean> channel = this.componentManager.getChannel(this.outputChannelAddress);
 		if (channel.value().asOptional().equals(Optional.of(value))) {
 			// it is already in the desired state
 		} else {
 			channel.setNextWriteValue(value);
 		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
