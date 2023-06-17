@@ -62,6 +62,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 	 * {@link ChannelId#ACTIVE_POWER} by evaluating the provided
 	 * {@link SinglePhase}.
 	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
 	 * @param meter         a {@link ElectricityMeter}
 	 * @param phaseProvider a provider for {@link SinglePhase}
 	 */
