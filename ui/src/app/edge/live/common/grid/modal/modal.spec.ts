@@ -41,7 +41,7 @@ describe('ExampleSystemsTest', () => {
         Constants.EMS30093_ADMIN_AND_INSTALLER_TWO_METERS.context)
     ).toEqual(Constants.EMS30093_ADMIN_AND_INSTALLER_TWO_METERS.view);
 
-    // // Owner and Guest -> single meter
+    // Owner and Guest -> single meter
     expect(
       OeFormlyViewTester.apply(ModalComponent
         .generateView(new TestSystem.Ems1().config, Role.OWNER, translate),
@@ -55,7 +55,7 @@ describe('ExampleSystemsTest', () => {
         Constants.EMS30093_OWNER_AND_GUEST_TWO_METERS.context)
     ).toEqual(Constants.EMS30093_OWNER_AND_GUEST_TWO_METERS.view);
 
-    // // Offgrid
+    // Offgrid
     expect(
       OeFormlyViewTester.apply(ModalComponent
         .generateView(new TestSystem.Ems1().config, Role.ADMIN, translate),

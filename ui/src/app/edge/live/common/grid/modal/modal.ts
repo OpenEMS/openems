@@ -23,7 +23,8 @@ export class ModalComponent extends AbstractFormlyComponent {
       type: 'line',
       name: translate.instant("General.offGrid"),
       channel: '_sum/GridMode',
-      filter: Filter.GRID_MODE_IS_OFF_GRID
+      filter: Filter.GRID_MODE_IS_OFF_GRID,
+      converter: Converter.HIDE_VALUE
     }];
 
     var gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));

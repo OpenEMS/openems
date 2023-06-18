@@ -27,4 +27,14 @@ export namespace Converter {
     }
     return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
   };
+
+  /**
+   * Hides the actual value, always returns empty string.
+   * 
+   * @param value the value
+   * @returns always ""
+   */
+  export const HIDE_VALUE = (ignore: any): string => {
+    return '';
+  };
 }
