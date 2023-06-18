@@ -239,13 +239,13 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 		// Voltage
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L1, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.PH_VPH_A, S112.PH_VPH_A, S113.PH_VPH_A, S101.PH_VPH_A, S102.PH_VPH_A, S103.PH_VPH_A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L2, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.PH_VPH_B, S112.PH_VPH_B, S113.PH_VPH_B, S101.PH_VPH_B, S102.PH_VPH_B, S103.PH_VPH_B);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L3, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.PH_VPH_C, S112.PH_VPH_C, S113.PH_VPH_C, S101.PH_VPH_C, S102.PH_VPH_C, S103.PH_VPH_C);
 
 		// Current
@@ -254,13 +254,13 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 				SCALE_FACTOR_3, //
 				S111.A, S112.A, S113.A, S101.A, S102.A, S103.A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L1, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.APH_A, S112.APH_A, S113.APH_A, S101.APH_A, S102.APH_A, S103.APH_A);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L2, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.APH_B, S112.APH_B, S113.APH_B, S101.APH_B, S102.APH_B, S103.APH_B);
 		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L3, //
-				DIRECT_1_TO_1, //
+				SCALE_FACTOR_3, //
 				S111.APH_C, S112.APH_C, S113.APH_C, S101.APH_C, S102.APH_C, S103.APH_C);
 	}
 
