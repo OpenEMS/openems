@@ -55,7 +55,10 @@
       <message key="ws.notFollowed" value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
     </module>
     <module name="OneStatementPerLine"/>
-    <module name="MultipleVariableDeclarations"/>
+    <module name="MultipleVariableDeclarations">
+      <property name="severity" value="ignore"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+    </module>
     <module name="ArrayTypeStyle"/>
     <module name="MissingSwitchDefault">
       <property name="severity" value="ignore"/>

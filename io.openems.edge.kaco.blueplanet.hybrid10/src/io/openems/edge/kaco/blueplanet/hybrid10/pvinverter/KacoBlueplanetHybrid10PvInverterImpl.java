@@ -78,6 +78,10 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 				KacoBlueplanetHybrid10PvInverter.ChannelId.values() //
 		);
 		this._setMaxApparentPower(KacoBlueplanetHybrid10PvInverter.MAX_APPARENT_POWER);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -121,9 +125,11 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 	}
 
 	private void updateChannels() {
-		Integer activePower = null;
-		Integer reactivePower = null;
-		Integer activePowerLimit = null;
+		Integer activePowerL1 = null, activePowerL2 = null, activePowerL3 = null, //
+				voltageL1 = null, voltageL2 = null, voltageL3 = null, //
+				currentL1 = null, currentL2 = null, currentL3 = null, //
+				reactivePowerL1 = null, reactivePowerL2 = null, reactivePowerL3 = null, //
+				activePowerLimit = null, frequency = null;
 
 		var bpData = this.core.getBpData();
 
@@ -150,16 +156,46 @@ public class KacoBlueplanetHybrid10PvInverterImpl extends AbstractOpenemsCompone
 			Stream.of(ErrorChannelId.values()) //
 					.forEach(c -> this.channel(c).setNextValue(errors.contains(c.getErrorCode())));
 
-			activePower = Math.round(bpData.inverter.getPvPower());
-			reactivePower = 0;
+			activePowerL1 = Math.round(bpData.inverter.getAcPower(0));
+			activePowerL2 = Math.round(bpData.inverter.getAcPower(1));
+			activePowerL3 = Math.round(bpData.inverter.getAcPower(2));
+
+			voltageL1 = Math.round(bpData.inverter.getAcVoltage(0) * 1000);
+			voltageL2 = Math.round(bpData.inverter.getAcVoltage(1) * 1000);
+			voltageL3 = Math.round(bpData.inverter.getAcVoltage(2) * 1000);
+
+			currentL1 = Math.round(bpData.inverter.getAcPower(0) / bpData.inverter.getAcVoltage(0) * 1000);
+			currentL2 = Math.round(bpData.inverter.getAcPower(1) / bpData.inverter.getAcVoltage(1) * 1000);
+			currentL3 = Math.round(bpData.inverter.getAcPower(2) / bpData.inverter.getAcVoltage(2) * 1000);
+
+			reactivePowerL1 = Math.round(bpData.inverter.getReactivPower(0));
+			reactivePowerL2 = Math.round(bpData.inverter.getReactivPower(1));
+			reactivePowerL3 = Math.round(bpData.inverter.getReactivPower(2));
+
+			frequency = Math.round(bpData.inverter.getGridFrequency() * 1000);
 		}
 
-		this._setActivePower(activePower);
-		this._setReactivePower(reactivePower);
+		this._setActivePowerL1(activePowerL1);
+		this._setActivePowerL2(activePowerL2);
+		this._setActivePowerL3(activePowerL3);
+
+		this._setVoltageL1(voltageL1);
+		this._setVoltageL2(voltageL2);
+		this._setVoltageL3(voltageL3);
+
+		this._setCurrentL1(currentL1);
+		this._setCurrentL2(currentL2);
+		this._setCurrentL3(currentL3);
+
+		this._setReactivePowerL1(reactivePowerL1);
+		this._setReactivePowerL2(reactivePowerL2);
+		this._setReactivePowerL3(reactivePowerL3);
+
 		this._setActivePowerLimit(activePowerLimit);
+		this._setFrequency(frequency);
 
 		// Calculate Energy
-		this.calculateEnergy.update(activePower);
+		this.calculateEnergy.update(this.getActivePower().get());
 	}
 
 	@Override
