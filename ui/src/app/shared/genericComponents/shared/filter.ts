@@ -10,7 +10,7 @@ export namespace Filter {
    * @param value the value
    * @returns always true
    */
-  export const NO_FILTER: Filter = (value): boolean => { return true; }
+  export const NO_FILTER: Filter = (value): boolean => { return true; };
 
   /**
    * Filter passes only if GridMode is OFF_GRID.

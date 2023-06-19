@@ -59,43 +59,43 @@ export type OeFormlyView = {
 }
 
 export type OeFormlyField =
-  | OeFormlyField.Line
-  | OeFormlyField.Info
+  | OeFormlyField.InfoLine
   | OeFormlyField.Item
-  | OeFormlyField.Horizontal
-  | OeFormlyField.LineWithChildren;
+  | OeFormlyField.ChildrenLine
+  | OeFormlyField.ChannelLine
+  | OeFormlyField.HorizontalLine;
 
 export namespace OeFormlyField {
 
-  export type Info = {
-    type: 'line-info',
+  export type InfoLine = {
+    type: 'info-line',
     name: string
   }
 
   export type Item = {
-    type: 'line-item',
+    type: 'item',
     channel: string,
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
   }
 
-  export type LineWithChildren = {
-    type: 'line-with-children',
+  export type ChildrenLine = {
+    type: 'children-line',
     name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
     indentation?: TextIndentation,
     children: Item[],
   }
 
-  export type Line = {
-    type: 'line',
+  export type ChannelLine = {
+    type: 'channel-line',
     name: /* actual name string */ string | /* name string derived from channel value */ Converter,
-    channel?: string, // not-optional with ParentLine
+    channel: string,
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
     indentation?: TextIndentation,
   }
 
-  export type Horizontal = {
-    type: 'line-horizontal',
+  export type HorizontalLine = {
+    type: 'horizontal-line',
   }
 }

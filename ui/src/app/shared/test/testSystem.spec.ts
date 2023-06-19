@@ -3,6 +3,20 @@ import { Role } from "../type/role";
 import { AbstractSystem, Widget } from "./types.spec";
 
 export namespace TestSystem {
+
+  export class EmptyEms extends AbstractSystem {
+    public widgets: Widget[];
+    public override key: string = "ems30093";
+    public components: { [id: string]: EdgeConfig.Component; } = {};
+    public factories: { [id: string]: EdgeConfig.Factory } = {};
+
+    constructor() {
+      super();
+      super.setEdge(new Edge(this.key, "", "", "2023.3.5", Role.ADMIN, true, new Date()));
+      super.setConfig(this.components, this.factories);
+    }
+  }
+
   export class Ems1 extends AbstractSystem {
     public components: { [id: string]: EdgeConfig.Component; } = {
       meter0: {

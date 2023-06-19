@@ -17,48 +17,105 @@ export namespace Converter {
     return "" + value;
   };
 
-  const POWER_IN_WATT = (value: number) => {
+  const FORMAT_WATT = (value: number) => {
     // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-1') + " W";
+    return formatNumber(value, 'de', '1.0-0') + " W";
+  };
+
+  const FORMAT_VOLT = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-0') + " V";
+  };
+
+  const FORMAT_AMPERE = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.1-1') + " A";
+  };
+
+  const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
+    if (typeof value === 'number') {
+      return callback(value);
+    }
+    return "-"; // null or string
   };
 
   /**
    * Converter for Grid-Buy-Power.
    * 
    * @param value the ActivePower value (positive, negative or null)
-   * @returns formatted value "1.000 W"
+   * @returns formatted positive value; zero for negative; '-' for null
    */
-  export const GRID_BUY_POWER: Converter = (value): string => {
-    if (typeof value === 'number' && value >= 0) {
-      return POWER_IN_WATT(value);
-    }
-    return '0 W';
+  export const GRID_BUY_POWER_OR_ZERO: Converter = (raw): string => {
+    return IF_NUMBER(raw, value =>
+      value >= 0
+        ? FORMAT_WATT(value)
+        : FORMAT_WATT(0));
   };
 
   /**
    * Converter for Grid-Sell-Power.
    * 
    * @param value the ActivePower value (positive, negative or null)
-   * @returns formatted value "1.000 W"
+   * @returns formatted inverted negative value; zero for positive; '-' for null
    */
-  export const GRID_SELL_POWER: Converter = (value): string => {
-    if (typeof value === 'number' && value <= 0) {
-      return POWER_IN_WATT(Math.abs(value));
-    }
-    return '0 W';
+  export const GRID_SELL_POWER_OR_ZERO: Converter = (raw): string => {
+    return IF_NUMBER(raw, value =>
+      value <= 0
+        ? FORMAT_WATT(Math.abs(value))
+        : FORMAT_WATT(0));
   };
 
   /**
-   * Converter for 'ActivePower'.
+   * Converter for ActivePower; always returns the formatted positive value.
    * 
    * @param value the ActivePower value (positive, negative or null)
-   * @returns formatted value "1.000 W" or "0 W" if undefined
+   * @returns formatted absolute value; '-' for null
    */
-  export const POWER_IN_WATT_OR_ZERO: Converter = (value) => {
-    if (typeof value === 'number') {
-      return POWER_IN_WATT(value);
-    }
-    return '0 W';
+  export const POSITIVE_POWER: Converter = (raw): string => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_WATT(Math.abs(value)));
+  };
+
+  /**
+   * Formats a Power value as Watt [W]. 
+   * 
+   * Value 1000 -> "1.000 W".
+   * Value null -> "-".
+   * 
+   * @param value the power value
+   * @returns formatted value; '-' for null
+   */
+  export const POWER_IN_WATT: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_WATT(value));
+  };
+
+  /**
+   * Formats a Voltage value as Volt [V]. 
+   * 
+   * Value 1000 -> "1.000 V".
+   * Value null -> "-".
+   * 
+   * @param value the voltage value
+   * @returns formatted value; '-' for null
+   */
+  export const VOLTAGE_IN_MILLIVOLT_TO_VOLT: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_VOLT(value / 1000));
+  };
+
+  /**
+   * Formats a Current value as Ampere [A]. 
+   * 
+   * Value 1000 -> "1.000 A".
+   * Value null -> "-".
+   * 
+   * @param value the current value
+   * @returns formatted value; '-' for null
+   */
+  export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_AMPERE(value / 1000));
   };
 
   /**
@@ -67,7 +124,7 @@ export namespace Converter {
    * @param value the value
    * @returns always ""
    */
-  export const HIDE_VALUE: Converter = (ignore: any): string => {
+  export const HIDE_VALUE: Converter = (ignore): string => {
     return '';
   };
 }

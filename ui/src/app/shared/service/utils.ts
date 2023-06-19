@@ -227,36 +227,6 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_VOLT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.0-0') + ' V';
-    } else {
-      return '0 V';
-    }
-  };
-
-  /**
-   * Converts a value in Milliampere [mA] to Ampere[A].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_TO_CURRENT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else {
-      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
-    }
-  };
-
-  /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
       return '-';

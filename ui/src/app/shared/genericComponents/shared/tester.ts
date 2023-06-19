@@ -18,11 +18,11 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Line 
        */
-      case 'line-with-children':
+      case 'children-line':
         let tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.LineWithChildren = {
+        let result: OeFormlyViewTester.Field.ChildrenLine = {
           type: field.type,
           name: tmp.value
         };
@@ -41,7 +41,7 @@ export class OeFormlyViewTester {
         return result;
 
 
-      case "line": {
+      case "channel-line": {
         let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
@@ -56,7 +56,7 @@ export class OeFormlyViewTester {
         }
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.Line = {
+        let result: OeFormlyViewTester.Field.ChannelLine = {
           type: field.type,
           name: name
         };
@@ -77,7 +77,7 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Item
        */
-      case "line-item": {
+      case "item": {
         let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {
           return null; // filter did not pass
@@ -92,7 +92,7 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Info
        */
-      case "line-info": {
+      case "info-line": {
         return {
           type: field.type,
           name: field.name
@@ -102,7 +102,7 @@ export class OeFormlyViewTester {
       /**
        * OeFormlyField.Horizontal
        */
-      case "line-horizontal": {
+      case "horizontal-line": {
         return {
           type: field.type
         };
@@ -117,7 +117,7 @@ export class OeFormlyViewTester {
    * @param context the test context
    * @returns result or null
    */
-  private static applyLineOrItem(field: OeFormlyField.Line | OeFormlyField.Item, context: OeFormlyViewTester.Context):
+  private static applyLineOrItem(field: OeFormlyField.ChannelLine | OeFormlyField.Item, context: OeFormlyViewTester.Context):
    /* result */ { rawValue: number | null, value: string }
    /* filter did not pass */ | null {
 
@@ -156,44 +156,44 @@ export namespace OeFormlyViewTester {
   }
 
   export type Field =
-    | Field.Line
-    | Field.Info
+    | Field.InfoLine
     | Field.Item
-    | Field.Horizontal
-    | Field.LineWithChildren;
+    | Field.ChannelLine
+    | Field.ChildrenLine
+    | Field.HorizontalLine;
 
   export namespace Field {
 
-    export type Info = {
-      type: 'line-info',
+    export type InfoLine = {
+      type: 'info-line',
       name: string
     }
 
     export type Item = {
-      type: 'line-item',
+      type: 'item',
       value: string
     }
 
-    export type Line = {
-      type: 'line',
+    export type ChannelLine = {
+      type: 'channel-line',
       name: string,
       value?: string,
       indentation?: TextIndentation,
     }
 
-    export type LineWithChildren = {
-      type: 'line-with-children',
+    export type ChildrenLine = {
+      type: 'children-line',
       name: string,
       indentation?: TextIndentation,
       children?: Field[]
     }
 
-    export type Horizontal = {
-      type: 'line-horizontal',
+    export type HorizontalLine = {
+      type: 'horizontal-line',
     }
   }
 
-  export function applyLineWithChildren(field: OeFormlyField.LineWithChildren, context: Context): { rawValue: number | null, value: string }
+  export function applyLineWithChildren(field: OeFormlyField.ChildrenLine, context: Context): { rawValue: number | null, value: string }
     | null {
 
     let value: string | null = null;

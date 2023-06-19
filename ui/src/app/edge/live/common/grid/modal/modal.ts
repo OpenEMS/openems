@@ -5,7 +5,7 @@ import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Filter } from 'src/app/shared/genericComponents/shared/filter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
-import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
@@ -20,7 +20,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
     // Grid-Mode
     let lines: OeFormlyField[] = [{
-      type: 'line',
+      type: 'channel-line',
       name: translate.instant("General.offGrid"),
       channel: '_sum/GridMode',
       filter: Filter.GRID_MODE_IS_OFF_GRID,
@@ -32,17 +32,17 @@ export class ModalComponent extends AbstractFormlyComponent {
     // Sum Channels (if more than one meter)
     if (gridMeters.length > 1) {
       lines.push({
-        type: 'line',
+        type: 'channel-line',
         name: translate.instant("General.gridBuyAdvanced"),
         channel: '_sum/GridActivePower',
-        converter: Converter.GRID_BUY_POWER
+        converter: Converter.GRID_BUY_POWER_OR_ZERO
       }, {
-        type: 'line',
+        type: 'channel-line',
         name: translate.instant("General.gridSellAdvanced"),
         channel: '_sum/GridActivePower',
-        converter: Converter.GRID_SELL_POWER
+        converter: Converter.GRID_SELL_POWER_OR_ZERO
       }, {
-        type: 'line-horizontal'
+        type: 'horizontal-line'
       });
     }
 
@@ -51,24 +51,24 @@ export class ModalComponent extends AbstractFormlyComponent {
       if (gridMeters.length == 1) {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
         lines.push({
-          type: 'line',
+          type: 'channel-line',
           name: translate.instant("General.gridBuyAdvanced"),
           channel: meter.id + '/ActivePower',
-          converter: Converter.GRID_BUY_POWER
+          converter: Converter.GRID_BUY_POWER_OR_ZERO
         }, {
-          type: 'line',
+          type: 'channel-line',
           name: translate.instant("General.gridSellAdvanced"),
           channel: meter.id + '/ActivePower',
-          converter: Converter.GRID_SELL_POWER
+          converter: Converter.GRID_SELL_POWER_OR_ZERO
         });
 
       } else {
         // More than one meter? Show only one line per meter.
         lines.push({
-          type: 'line',
+          type: 'channel-line',
           name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
           channel: meter.id + '/ActivePower',
-          converter: Converter.POWER_IN_WATT_OR_ZERO
+          converter: Converter.POWER_IN_WATT
         });
       }
 
@@ -76,15 +76,17 @@ export class ModalComponent extends AbstractFormlyComponent {
         // Individual phases: Voltage, Current and Power
         ...ModalComponent.generatePhasesView(meter, translate, role), {
         // Line separator
-        type: 'line-horizontal'
+        type: 'horizontal-line'
       });
     }
 
-    // Technical info
-    lines.push({
-      type: 'line-info',
-      name: translate.instant("Edge.Index.Widgets.phasesInfo")
-    });
+    if (gridMeters.length > 0) {
+      // Technical info
+      lines.push({
+        type: 'info-line',
+        name: translate.instant("Edge.Index.Widgets.phasesInfo")
+      });
+    }
 
     return {
       title: translate.instant('General.grid'),
@@ -93,37 +95,33 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   private static generatePhasesView(component: EdgeConfig.Component, translate: TranslateService, role: Role): OeFormlyField[] {
-
     return ['L1', 'L2', 'L3']
       .map(phase => <OeFormlyField>{
-        type: 'line-with-children',
+        type: 'children-line',
         name: { channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase), converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase) },
         indentation: TextIndentation.SINGLE,
-        children: [
-          ...ModalComponent.getChildrenOfLine(role, phase, component)
-        ]
+        children: ModalComponent.generatePhasesLineItems(role, phase, component)
       });
   }
 
-  private static getChildrenOfLine(role: Role, phase: string, component: EdgeConfig.Component) {
+  private static generatePhasesLineItems(role: Role, phase: string, component: EdgeConfig.Component) {
     let children: OeFormlyField[] = [];
     if (Role.isAtLeast(role, Role.INSTALLER)) {
       children.push({
-        type: 'line-item',
+        type: 'item',
         channel: component.id + '/Voltage' + phase,
-        converter: Utils.CONVERT_TO_VOLT
-      },
-        {
-          type: 'line-item',
-          channel: component.id + '/Current' + phase,
-          converter: Utils.CONVERT_TO_CURRENT
-        });
+        converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT
+      }, {
+        type: 'item',
+        channel: component.id + '/Current' + phase,
+        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE
+      });
     }
 
     children.push({
-      type: 'line-item',
+      type: 'item',
       channel: component.id + '/ActivePower' + phase,
-      converter: Converter.POWER_IN_WATT_OR_ZERO
+      converter: Converter.POSITIVE_POWER
     });
 
     return children;
