@@ -1,0 +1,32 @@
+## This is a directory/file filter template for WinMerge
+name: OpenEMS
+desc: OpenEMS-Filter
+
+## Select if filter is inclusive or exclusive
+## Inclusive (loose) filter lets through all items not matching rules
+## Exclusive filter lets through only items that match to rule
+## include or exclude
+def: include
+
+## Filters for filenames begin with f:
+## Filters for directories begin with d:
+## (Inline comments begin with " ##" and extend to the end of the line)
+
+d: \\bin$
+d: \\bin_test$
+d: \\generated$
+d: \\build$
+d: \\node_modules$
+d: \\target$
+d: \\\.settings$
+d: \\\.github$
+d: \\\.git$
+d: \\\.metadata$
+d: \\\www$
+d: \\cache$
+d: \\.gradle$
+f: \.class$
+f: \.project$
+#f: \.classpath$
+f: \index.xml$
+f: \index.xml.sha$

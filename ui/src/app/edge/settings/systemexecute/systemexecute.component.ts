@@ -1,10 +1,10 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/executeCommandRequest';
 import { ExecuteSystemCommandResponse } from 'src/app/shared/jsonrpc/response/executeSystemCommandResponse';
 import { Service, Utils, Websocket } from '../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
@@ -53,10 +53,11 @@ export class SystemExecuteComponent implements OnInit {
           }
           this.stderr = result.stderr;
         }).catch(reason => {
-          this.stderr = ["Error executing system command:" + reason.error.message];
-        })
+          this.loading = false;
+          this.stderr = ["Error executing system command:", reason.error.message];
+        });
+      this.commandLogs.unshift({ username: username, password: password, timeoutSeconds: timeout, runInBackground: background, command: command });
     });
-    this.commandLogs.unshift({ username: username, password: password, timeoutSeconds: timeout, runInBackground: background, command: command });
   }
 
 }

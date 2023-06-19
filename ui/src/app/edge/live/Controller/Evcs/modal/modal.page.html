@@ -180,13 +180,13 @@
                                     <ion-segment (ionChange)="priorityChanged($event, controller)"
                                         value="{{controller.properties['priority']}}" scrollable="false">
                                         <ion-segment-button value="CAR" layout="icon-start">
-                                            <img style="width:40px" src="assets/img/evcs.png">
+                                            <ion-icon style="width:40px" name="oe-evcs" color="environmental" />
                                             <ion-label translate>
                                                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.car
                                             </ion-label>
                                         </ion-segment-button>
                                         <ion-segment-button value="STORAGE" layout="icon-start">
-                                            <img style="width:40px" src="assets/img/storage.png">
+                                            <ion-icon style="width:40px" name="oe-storage" color="success" />
                                             <ion-label translate>
                                                 Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.storage
                                             </ion-label>

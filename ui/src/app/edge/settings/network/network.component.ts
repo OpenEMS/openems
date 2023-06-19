@@ -51,7 +51,7 @@ export class NetworkComponent implements OnInit {
 
             if (this.edge.roleIsAtLeast(Role.ADMIN)) {
               // Display all interfaces available for user with role Admin.
-              this.generateInterface(name, iface)
+              this.generateInterface(name, iface);
             } else {
               // Display only eth0 (LAN) interface for user with role less than Admin.
               if (name === 'eth0') {
@@ -61,7 +61,7 @@ export class NetworkComponent implements OnInit {
           }
         }).catch(reason => {
           this.service.toast(this.translate.instant('Edge.Network.errorReading') + reason.error.message, 'danger');
-        })
+        });
     });
   }
 
@@ -88,7 +88,7 @@ export class NetworkComponent implements OnInit {
       addressJson.push({
         label: '', //TODO with specific labels with specific systems.
         address: ip[0],
-        subnetmask: subnetmask,
+        subnetmask: subnetmask
       });
     }
 
@@ -103,7 +103,7 @@ export class NetworkComponent implements OnInit {
       addressJson.push({
         label: 'static',
         address: iface.model.ip,
-        subnetmask: iface.model.subnetmask,
+        subnetmask: iface.model.subnetmask
       });
     }
 
@@ -124,7 +124,7 @@ export class NetworkComponent implements OnInit {
         this.service.toast(this.translate.instant('Edge.Network.successUpdate') + '[' + interfaceName + '].', 'success');
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Network.errorUpdating') + '[' + interfaceName + ']:' + reason.error.message, 'danger');
-      })
+      });
   }
 
   /**
@@ -191,8 +191,8 @@ export class NetworkComponent implements OnInit {
       name: name,
       fields: this.fillFields(addressArray),
       formGroup: new FormGroup({}),
-      model: source,
-    })
+      model: source
+    });
   }
 
   /**
@@ -207,7 +207,7 @@ export class NetworkComponent implements OnInit {
         type: 'checkbox',
         defaultValue: true,
         templateOptions: {
-          label: 'DHCP',
+          label: 'DHCP'
         }
       },
       {
@@ -218,11 +218,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: this.translate.instant('Edge.Network.ipAddress'),
           placeholder: 'z.B. 192.168.0.50',
-          required: true,
+          required: true
         },
         validators: {
-          validation: ['ip'],
-        },
+          validation: ['ip']
+        }
       },
       {
         hideExpression: 'model.dhcp',
@@ -232,11 +232,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: this.translate.instant('Edge.Network.subnetmask'),
           placeholder: 'z.B. 255.255.255.0',
-          required: true,
+          required: true
         },
         validators: {
-          validation: ['subnetmask'],
-        },
+          validation: ['subnetmask']
+        }
       },
       {
         hideExpression: 'model.dhcp',
@@ -246,11 +246,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: 'Gateway',
           placeholder: 'z.B. 192.168.0.1',
-          required: true,
+          required: true
         },
         validators: {
-          validation: ['ip'],
-        },
+          validation: ['ip']
+        }
       },
       {
         hideExpression: 'model.dhcp',
@@ -260,11 +260,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: 'DNS-Server',
           placeholder: 'z.B. 192.168.0.1',
-          required: true,
+          required: true
         },
         validators: {
-          validation: ['ip'],
-        },
+          validation: ['ip']
+        }
       },
       {
         key: 'linkLocalAddressing',
@@ -282,13 +282,13 @@ export class NetworkComponent implements OnInit {
         resetOnHide: false,
         defaultValue: addressArray,
         templateOptions: {
-          label: this.translate.instant('Edge.Network.addIP'),
+          label: this.translate.instant('Edge.Network.addIP')
         },
         fieldArray: {
           type: 'input',
-          resetOnHide: false,
+          resetOnHide: false
         }
-      },
+      }
     ];
 
     return fields;

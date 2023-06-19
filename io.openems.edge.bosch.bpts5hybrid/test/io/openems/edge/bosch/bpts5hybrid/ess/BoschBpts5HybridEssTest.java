@@ -23,7 +23,7 @@ public class BoschBpts5HybridEssTest {
 						.setInterval(2) //
 						.build()); //
 
-		new ComponentTest(new BoschBpts5HybridEss()) //
+		new ComponentTest(new BoschBpts5HybridEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("core", core) //
 				.activate(MyConfig.create() //

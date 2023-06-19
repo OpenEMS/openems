@@ -35,7 +35,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('General.production', "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
@@ -53,7 +53,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     get stateName() {
-        return this.showAnimation ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -92,7 +92,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected getImagePath(): string {
-        return "production.png";
+        return "icon/production.svg";
     }
 
     protected getValueText(value: number): string {
@@ -108,8 +108,8 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -122,7 +122,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
             middleTop: { x: 0, y: r * -1 + v }
-        }
+        };
         if (ratio < 0) {
             // towards top
             p.topLeft.y = p.topLeft.y + v;
@@ -143,7 +143,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
             middleTop: { x: 0, y: r * -1 + v }
-        }
+        };
         if (ratio > 0) {
             // towards bottom
             p.bottomRight.y = p.topRight.y + animationWidth * 0.2;

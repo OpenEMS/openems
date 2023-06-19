@@ -19,7 +19,7 @@ export class MyErrorHandler implements ErrorHandler {
                 metadata: {
                     browser: navigator.userAgent
                 }
-            }
+            };
 
             logger.error(JSON.stringify(json));
         }

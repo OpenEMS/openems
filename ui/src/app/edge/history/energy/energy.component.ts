@@ -47,7 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   public chartType: string = "line";
 
-  @Output() public setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter()
+  @Output() public setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter();
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
@@ -74,7 +74,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   public exportToXlxs() {
     this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
-      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
+      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
         let r = response as Base64PayloadResponse;
         var binary = atob(r.result.payload.replace(/\s/g, ''));
         var len = binary.length;
@@ -88,8 +88,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
 
         let fileName = "Export-" + edge.id + "-";
-        let dateFrom = this.service.historyPeriod.from;
-        let dateTo = this.service.historyPeriod.to;
+        let dateFrom = this.service.historyPeriod.value.from;
+        let dateTo = this.service.historyPeriod.value.to;
         if (isSameDay(dateFrom, dateTo)) {
           fileName += format(dateFrom, "dd.MM.yyyy");
         } else if (isSameMonth(dateFrom, dateTo)) {
@@ -104,8 +104,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
       }).catch(reason => {
         console.warn(reason);
-      })
-    })
+      });
+    });
     this.stopSpinner();
   }
 
@@ -117,8 +117,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
         this.updateChart();
-      })
-    })
+      });
+    });
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
   }
@@ -160,7 +160,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           } else {
             this.loadLineChart(chartLabels);
           }
-        })
+        });
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
@@ -178,7 +178,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
 
       if (Utils.isDataEmpty(response)) {
-        return
+        return;
       }
 
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
@@ -197,13 +197,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       if ('_sum/EssSoc' in result.data) {
         let socData = result.data['_sum/EssSoc'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 100 || value < 0) {
             return null;
           } else {
             return value;
           }
-        })
+        });
         datasets.push({
           label: chartLabels.stateOfCharge,
           data: socData,
@@ -211,11 +211,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           yAxisID: 'yAxis2',
           position: 'right',
           borderDash: [10, 10]
-        })
+        });
         this.colors.push({
           backgroundColor: 'rgba(189, 195, 199,0.05)',
-          borderColor: 'rgba(189, 195, 199,1)',
-        })
+          borderColor: 'rgba(189, 195, 199,1)'
+        });
       }
 
       // push data for left y-axis
@@ -225,7 +225,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         */
         let productionData = result.data['_sum/ProductionActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value / 1000; // convert to kW
           }
@@ -240,7 +240,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         this.colors.push({
           backgroundColor: 'rgba(45,143,171,0.05)',
           borderColor: 'rgba(45,143,171,1)'
-        })
+        });
       }
 
       if ('_sum/GridActivePower' in result.data) {
@@ -249,7 +249,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
          */
         let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 0) {
             return value / 1000; // convert to kW
           } else {
@@ -267,14 +267,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         this.colors.push({
           backgroundColor: 'rgba(0,0,0,0.05)',
           borderColor: 'rgba(0,0,0,1)'
-        })
+        });
 
         /*
         * Sell To Grid
         */
         let sellToGridData = result.data['_sum/GridActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value < 0) {
             return value / -1000; // convert to kW and invert value
           } else {
@@ -290,8 +290,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(0,0,200,0.05)',
-          borderColor: 'rgba(0,0,200,1)',
-        })
+          borderColor: 'rgba(0,0,200,1)'
+        });
       }
 
       if ('_sum/ConsumptionActivePower' in result.data) {
@@ -300,7 +300,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
          */
         let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value / 1000; // convert to kW
           }
@@ -314,8 +314,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(253,197,7,0.05)',
-          borderColor: 'rgba(253,197,7,1)',
-        })
+          borderColor: 'rgba(253,197,7,1)'
+        });
       }
 
       if ('_sum/EssActivePower' in result.data) {
@@ -332,7 +332,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         }
         let chargeData = effectivePower.map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value < 0) {
             return value / -1000; // convert to kW;
           } else {
@@ -348,14 +348,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(0,223,0,0.05)',
-          borderColor: 'rgba(0,223,0,1)',
-        })
+          borderColor: 'rgba(0,223,0,1)'
+        });
         /*
          * Storage Discharge
          */
         let dischargeData = effectivePower.map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 0) {
             return value / 1000; // convert to kW
           } else {
@@ -371,8 +371,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(200,0,0,0.05)',
-          borderColor: 'rgba(200,0,0,1)',
-        })
+          borderColor: 'rgba(200,0,0,1)'
+        });
       }
 
       // Save Original OnClick because calling onClick overwrites default function
@@ -384,16 +384,16 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         // Set @Angular SessionStorage for Labels to check if they are hidden
         setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItemIndex));
         original.call(this, event, legendItem);
-      }
+      };
 
       this.datasets = datasets;
       this.loading = false;
       this.stopSpinner();
-      this.setErrorResponse.emit(null)
+      this.setErrorResponse.emit(null);
 
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.setErrorResponse.emit(reason)
+      this.setErrorResponse.emit(reason);
       return;
     });
   }
@@ -404,7 +404,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses).then(response => {
 
         if (Utils.isDataEmpty(response)) {
-          return
+          return;
         }
 
         let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse).result;
@@ -429,9 +429,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           });
           directConsumptionData = directConsumption.map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value < 0) {
-              return 0
+              return 0;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -475,7 +475,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if ('_sum/ProductionActiveEnergy' in result.data) {
           let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -511,7 +511,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         /*
@@ -520,7 +520,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if ('_sum/EssDcChargeEnergy' in result.data) {
           let chargeData = result.data['_sum/EssDcChargeEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -536,7 +536,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         /*
@@ -545,7 +545,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if ('_sum/GridSellActiveEnergy' in result.data) {
           let gridSellData = result.data['_sum/GridSellActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -561,7 +561,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         // right stack
@@ -581,7 +581,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         /*
@@ -590,7 +590,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if ('_sum/EssDcDischargeEnergy' in result.data) {
           let dischargeData = result.data['_sum/EssDcDischargeEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -606,7 +606,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         /*
@@ -615,7 +615,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if ('_sum/GridBuyActiveEnergy' in result.data) {
           let gridBuyData = result.data['_sum/GridBuyActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -631,14 +631,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         // Consumption
         if ('_sum/ConsumptionActiveEnergy' in result.data) {
           let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -661,8 +661,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         this.colors = [];
         this.loading = false;
         this.stopSpinner();
-      })
-    })
+      });
+    });
   }
 
   private getEnergyChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -677,18 +677,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             result.push(new ChannelAddress('_sum', 'GridSellActiveEnergy'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'))
+            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'));
             result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
             break;
           case 'Common_Production':
             result.push(
-              new ChannelAddress('_sum', 'ProductionActiveEnergy'))
+              new ChannelAddress('_sum', 'ProductionActiveEnergy'));
             break;
         };
         return false;
       });
-      resolve(result)
-    })
+      resolve(result);
+    });
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -703,7 +703,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssSoc'))
+            result.push(new ChannelAddress('_sum', 'EssSoc'));
             result.push(new ChannelAddress('_sum', 'EssActivePower'));
             break;
           case 'Common_Production':
@@ -715,7 +715,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         return false;
       });
       resolve(result);
-    })
+    });
   }
 
 
@@ -731,7 +731,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         consumption: this.translate.instant('General.consumption'),
         directConsumption: this.translate.instant('General.directConsumption'),
         stateOfCharge: this.translate.instant('General.soc')
-      }
+      };
 
       // Generate kWh labels
       this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
@@ -764,18 +764,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
             && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
             && response.result.data["_sum/GridSellActiveEnergy"]) {
-            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
             let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
             let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
             let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
             labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
           }
-          resolve(labels)
+          resolve(labels);
         }).catch((error) => {
-          resolve(error)
-        })
-      })
-    })
+          resolve(error);
+        });
+      });
+    });
   }
 
   private setKwhLabel() {
@@ -789,10 +789,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         top: 0,
         bottom: 0
       }
-    }
+    };
 
     // X-Axis for Chart: Calculate Time-Unit for normal sized window
-    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.from, this.service.historyPeriod.to).timeFormat;
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
 
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;
@@ -829,7 +829,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         consumptionLabelText,
         gridBuyLabelText,
         dischargeLabelText
-      ]
+      ];
 
       // set correct value (label + total kWh) for reorder
       chart.data.datasets.forEach((dataset, datasetIndex) => {
@@ -874,15 +874,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             // Consumption and Production should always be shown as visible, without line-through style
             hidden: ((text.includes(consumptionLabelText) || text.includes(productionLabelText)) ? false : !chart.isDatasetVisible(datasetIndex)),
             lineWidth: lineWidth,
-            strokeStyle: strokeStyle,
-          })
+            strokeStyle: strokeStyle
+          });
         }
-      })
+      });
       chartLegendLabelItems.sort(function (a, b) {
         return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
       });
       return chartLegendLabelItems;
-    }
+    };
 
     // used to hide both DirectConsumption-legend-Items by clicking one of them
     options.legend.onClick = function (event: MouseEvent, legendItem: ChartLegendLabelItem) {
@@ -906,14 +906,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "1") {
           secondDirectConsumptionStackDatasetIndex = index;
         }
-      })
+      });
       datasets.forEach((value, datasetIndex) => {
 
         let meta = chart.getDatasetMeta(datasetIndex);
         let directConsumptionMetaArr = [
           chart.getDatasetMeta(firstDirectConsumptionStackDatasetIndex),
           chart.getDatasetMeta(secondDirectConsumptionStackDatasetIndex)
-        ]
+        ];
 
         if (legendItemIndex == datasetIndex &&
           (datasetIndex == firstDirectConsumptionStackDatasetIndex || datasetIndex == secondDirectConsumptionStackDatasetIndex)) {
@@ -922,13 +922,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           directConsumptionMetaArr.forEach(meta => {
             meta.hidden = meta.hidden === null ?
               !datasets[firstDirectConsumptionStackDatasetIndex].hidden && !datasets[secondDirectConsumptionStackDatasetIndex].hidden : null;
-          })
+          });
         } else if (legendItemIndex == datasetIndex) {
           meta.hidden = meta.hidden === null ? !datasets[datasetIndex].hidden : null;
         }
-      })
+      });
       chart.update();
-    }
+    };
     //  
     // Tooltips
     // +-----------------------------------------+
@@ -953,17 +953,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       } else {
         return null;
       }
-    }
+    };
 
     options.tooltips.itemSort = function (a: ChartTooltipItem, b: ChartTooltipItem) {
       return b.datasetIndex - a.datasetIndex;
-    }
+    };
 
     // 1: Date
     options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
       let date = new Date(tooltipItems[0].xLabel);
       return this.toTooltipTitle(this.period.from, this.period.to, date);
-    }
+    };
 
     // 2: Production / Consumption
     options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
@@ -976,16 +976,16 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
             isProduction = false;
           }
-        })
+        });
         if (isNaN(totalValue) == false) {
           return isProduction == true
             ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh"
             : consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
         }
       } else {
-        return null
+        return null;
       }
-    }
+    };
     this.options = options;
   }
 
@@ -1012,7 +1012,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         padding: -5,
         stepSize: 20
       }
-    })
+    });
     options.layout = {
       padding: {
         left: 2,
@@ -1020,13 +1020,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         top: 0,
         bottom: 0
       }
-    }
+    };
 
     //x-axis
     options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     //y-axis
-    options.scales.yAxes[0].id = "yAxis1"
+    options.scales.yAxes[0].id = "yAxis1";
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
@@ -1043,7 +1043,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
       }
-    }
+    };
     this.options = options;
   }
 
@@ -1054,7 +1054,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   async presentModal() {
     const modal = await this.modalCtrl.create({
-      component: EnergyModalComponent,
+      component: EnergyModalComponent
     });
     return await modal.present();
   }

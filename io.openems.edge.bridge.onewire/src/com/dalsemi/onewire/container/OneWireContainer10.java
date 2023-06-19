@@ -226,10 +226,13 @@ public class OneWireContainer10 extends OneWireContainer implements TemperatureC
 	 */
 	@Override
 	public String getDescription() {
-		return "Digital thermometer measures temperatures from " + "-55C to 100C in typically 0.2 seconds.  +/- 0.5C "
-				+ "Accuracy between 0C and 70C. 0.5C standard "
-				+ "resolution, higher resolution through interpolation.  "
-				+ "Contains high and low temperature set points for " + "generation of alarm.";
+		return """
+				Digital thermometer measures temperatures from \
+				-55C to 100C in typically 0.2 seconds.  +/- 0.5C \
+				Accuracy between 0C and 70C. 0.5C standard \
+				resolution, higher resolution through interpolation. \
+				Contains high and low temperature set points for \
+				generation of alarm.""";
 	}
 
 	// --------

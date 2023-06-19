@@ -5,34 +5,23 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.SymmetricEss;
 
-public interface FeneconProEss {
+public interface FeneconProEss extends SymmetricEss, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// EnumReadChannels
 		WORK_MODE(Doc.of(WorkMode.values())), //
 		SYSTEM_STATE(Doc.of(SystemState.values()) //
-				.onInit(channel -> { //
-					// on each update set Grid-Mode channel
-					channel.onChange((oldValue, newValue) -> {
-						SystemState systemState = newValue.asEnum();
-						var parent = (SymmetricEss) channel.getComponent();
-						switch (systemState) {
-						case STANDBY:
-						case START:
-						case FAULT:
-							parent._setGridMode(GridMode.ON_GRID);
-							break;
-						case START_OFF_GRID:
-						case OFF_GRID_PV:
-							parent._setGridMode(GridMode.OFF_GRID);
-							break;
-						case UNDEFINED:
-							parent._setGridMode(GridMode.UNDEFINED);
-							break;
-						}
+				.<FeneconProEss>onChannelChange((self, value) -> {
+					// on each change set Grid-Mode channel
+					SystemState systemState = value.asEnum();
+					self._setGridMode(switch (systemState) {
+					case STANDBY, START, FAULT -> GridMode.ON_GRID;
+					case START_OFF_GRID, OFF_GRID_PV -> GridMode.OFF_GRID;
+					case UNDEFINED -> GridMode.UNDEFINED;
 					});
 				})), //
 
@@ -88,9 +77,9 @@ public interface FeneconProEss {
 
 		// IntegerReadChannels
 		TOTAL_BATTERY_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		TOTAL_BATTERY_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)), //
+				.unit(Unit.CUMULATED_WATT_HOURS)), //
 		BATTERY_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //

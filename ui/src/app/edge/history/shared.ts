@@ -77,6 +77,7 @@ export type ChartOptions = {
         yAxes: [{
             id?: string,
             position: string,
+            stacked?: boolean,
             scaleLabel: {
                 display: boolean,
                 labelString: string,
@@ -152,7 +153,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             tension: 0.1
         },
         rectangle: {
-            borderWidth: 2,
+            borderWidth: 2
         }
     },
     hover: {
@@ -187,7 +188,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
                     year: 'YYYY' // 2015,
                 }
-            },
+            }
         }]
     },
     tooltips: {
@@ -229,7 +230,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
     if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
+        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
@@ -241,7 +242,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
+            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 6) {
@@ -267,7 +268,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         // >> show Months
         resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
     }
-    return resolution
+    return resolution;
 }
 
 /**
@@ -321,7 +322,6 @@ export type ChartData = {
         name: string,
         powerChannel: ChannelAddress,
         energyChannel: ChannelAddress
-        filter?: ChannelFilter
     }[],
     displayValue: {
         /** Name displayed in Label */
@@ -342,9 +342,4 @@ export type ChartData = {
     /** Name to be displayed on the left y-axis */
     yAxisTitle: string,
 }
-// Should be renamed
-export enum ChannelFilter {
-    NOT_NULL,
-    NOT_NULL_OR_NEGATIVE,
-    NOT_NULL_OR_POSITIVE
-}
+

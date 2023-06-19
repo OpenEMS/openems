@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ProductType } from 'src/app/shared/type/widget';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';
@@ -14,7 +13,7 @@ export class SettingsComponent implements OnInit {
   public edge: Edge = null;
   public environment = environment;
 
-  public canSeeAppCenter: boolean | undefined
+  public canSeeAppCenter: boolean | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,8 +24,8 @@ export class SettingsComponent implements OnInit {
 
   public ngOnInit() {
     this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
-      this.edge = edge
-      this.canSeeAppCenter = canSeeAppCenter(this.edge)
+      this.edge = edge;
+      this.canSeeAppCenter = canSeeAppCenter(this.edge);
     });
   }
 }

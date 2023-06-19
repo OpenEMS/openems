@@ -7,7 +7,7 @@ import { Mode, WorkMode } from 'src/app/shared/type/general';
 
 @Component({
     selector: 'heatingelement-modal',
-    templateUrl: './modal.html',
+    templateUrl: './modal.html'
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
@@ -36,8 +36,8 @@ export class ModalComponent extends AbstractModal implements OnInit {
             outputChannelPhaseThree,
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, '_PropertyWorkMode')
-        ]
-        return channelAddresses
+        ];
+        return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
@@ -50,7 +50,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             if (currentData.allComponents[element.toString()] == 1) {
                 value += 1;
             }
-        })
+        });
 
         // Get current state
         this.activePhases.next(value);
@@ -69,7 +69,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             workMode: new FormControl(this.component.properties.workMode),
             defaultLevel: new FormControl(this.component.properties.defaultLevel),
             mode: new FormControl(this.mode)
-        })
+        });
     }
 
     // allowMinimumHeating == workMode: none
@@ -77,10 +77,10 @@ export class ModalComponent extends AbstractModal implements OnInit {
     switchAllowMinimumHeating(event: CustomEvent) {
         if (event.detail.checked == true) {
             this.formGroup.controls['workMode'].setValue('TIME');
-            this.formGroup.controls['workMode'].markAsDirty()
+            this.formGroup.controls['workMode'].markAsDirty();
         } else if (event.detail.checked == false) {
             this.formGroup.controls['workMode'].setValue('NONE');
-            this.formGroup.controls['workMode'].markAsDirty()
+            this.formGroup.controls['workMode'].markAsDirty();
         }
     }
 }

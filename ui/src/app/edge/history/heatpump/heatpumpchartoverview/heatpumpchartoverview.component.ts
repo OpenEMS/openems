@@ -17,7 +17,7 @@ export class HeatPumpChartOverviewComponent implements OnInit {
     constructor(
         public service: Service,
         public modalCtrl: ModalController,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -27,8 +27,8 @@ export class HeatPumpChartOverviewComponent implements OnInit {
                 this.service.getConfig().then(config => {
                     this.edge = edge;
                     this.component = config.getComponent(this.route.snapshot.params.componentId);
-                })
-            })
-        })
+                });
+            });
+        });
     }
 }

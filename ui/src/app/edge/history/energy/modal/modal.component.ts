@@ -25,7 +25,7 @@ export class EnergyModalComponent implements OnInit {
         private websocket: Websocket,
         private route: ActivatedRoute,
         public translate: TranslateService,
-        public modalCtrl: ModalController,
+        public modalCtrl: ModalController
     ) { }
 
     ngOnInit() {
@@ -37,7 +37,7 @@ export class EnergyModalComponent implements OnInit {
      */
     public exportToXlxs() {
         this.service.getCurrentEdge().then(edge => {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
+            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
                 let r = response as Base64PayloadResponse;
                 var binary = atob(r.result.payload.replace(/\s/g, ''));
                 var len = binary.length;
@@ -51,8 +51,8 @@ export class EnergyModalComponent implements OnInit {
                 });
 
                 let fileName = "Export-" + edge.id + "-";
-                let dateFrom = this.service.historyPeriod.from;
-                let dateTo = this.service.historyPeriod.to;
+                let dateFrom = this.service.historyPeriod.value.from;
+                let dateTo = this.service.historyPeriod.value.to;
                 if (isSameDay(dateFrom, dateTo)) {
                     fileName += format(dateFrom, "dd.MM.yyyy");
                 } else if (isSameMonth(dateFrom, dateTo)) {
@@ -67,7 +67,7 @@ export class EnergyModalComponent implements OnInit {
 
             }).catch(reason => {
                 console.warn(reason);
-            })
-        })
+            });
+        });
     }
 }

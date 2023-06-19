@@ -17,7 +17,7 @@ export class ChpSocChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -26,7 +26,7 @@ export class ChpSocChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.config = config;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
-        })
+            });
+        });
     }
 }

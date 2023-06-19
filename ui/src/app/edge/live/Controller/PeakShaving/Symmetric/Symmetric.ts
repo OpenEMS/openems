@@ -19,7 +19,7 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
             new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
             new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
             new ChannelAddress(this.componentId, '_PropertyRechargePower')
-        ]
+        ];
     }
 
     protected onCurrentData(currentData: CurrentData) {

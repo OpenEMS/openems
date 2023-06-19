@@ -20,7 +20,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -32,7 +32,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -46,16 +46,16 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
                     this.data = response.result.data;
                 }).catch(() => {
                     this.data = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-                new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+                new ChannelAddress('_sum', 'GridSellActiveEnergy')
             ];
             resolve(channels);
         });

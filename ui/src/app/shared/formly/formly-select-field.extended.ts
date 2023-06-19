@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
 import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
 
 @Component({
     selector: 'formly-select-extended-wrapper',
-    templateUrl: './formly-select-field.extended.html',
+    templateUrl: './formly-select-field.extended.html'
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
 
@@ -40,11 +40,11 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
                 // nothing selected
                 return;
             }
-            const selectedValue = event.data.selectedValue
+            const selectedValue = event.data.selectedValue;
             if (!selectedValue) {
                 return;
             }
-            this.formControl.setValue(selectedValue)
+            this.formControl.setValue(selectedValue);
         });
         return await modal.present();
     }

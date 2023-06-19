@@ -24,7 +24,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("consumption-evcs-chart", service, translate);
     }
@@ -36,7 +36,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     }
 
     public ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -61,7 +61,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
                 let address = ChannelAddress.fromString(channel);
                 let chargeData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -74,10 +74,10 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
-                    })
+                        borderColor: 'rgba(253,197,7,1)'
+                    });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -92,10 +92,10 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ChargePower'),
+                new ChannelAddress(this.componentId, 'ChargePower')
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -105,7 +105,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

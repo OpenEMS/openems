@@ -33,7 +33,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigSerial.class, factory = true)
-@Component(name = "Bridge.Modbus.Serial", //
+@Component(//
+		name = "Bridge.Modbus.Serial", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -44,29 +45,19 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
-	/**
-	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3').
-	 */
+	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
 
-	/**
-	 * The configured Baudrate (e.g. 9600).
-	 */
+	/** The configured Baudrate (e.g. 9600). */
 	private int baudrate;
 
-	/**
-	 * The configured Databits (e.g. 8).
-	 */
+	/** The configured Databits (e.g. 8). */
 	private int databits;
 
-	/**
-	 * The configured Stopbits.
-	 */
+	/** The configured Stopbits. */
 	private Stopbit stopbits;
 
-	/**
-	 * The configured parity.
-	 */
+	/** The configured parity. */
 	private Parity parity;
 
 	public BridgeModbusSerialImpl() {
@@ -78,7 +69,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigSerial config) {
+	private void activate(ComponentContext context, ConfigSerial config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
 		this.portName = config.portName();

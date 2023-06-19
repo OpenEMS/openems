@@ -16,6 +16,7 @@ import { MeterModule } from './edge/meter/meter.module';
 import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
 import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
+import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
 import { InputTypeComponent } from './formly/input';
@@ -67,22 +68,23 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
         { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
+        { name: 'formly-field-radio-with-image', component: FormlyFieldRadioWithImageComponent },
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: 'panel', component: PanelWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent },
+        { name: 'repeat', component: RepeatTypeComponent }
       ],
       validators: [
         { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator },
+        { name: 'subnetmask', validation: SubnetmaskValidator }
       ],
       validationMessages: [
         { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
-      ],
+        { name: 'subnetmask', message: SubnetmaskValidatorMessage }
+      ]
     }),
     PipeModule,
     Generic_ComponentsModule,
@@ -101,6 +103,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperInputSerialNumber,
     FormlySelectFieldExtendedWrapperComponent,
     FormlySelectFieldModalComponent,
+    FormlyFieldRadioWithImageComponent,
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyWrapperDefaultValueWithCasesComponent,
     PanelWrapperComponent
@@ -126,7 +129,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ChartOptionsComponent,
     HeaderComponent,
     HistoryDataErrorComponent,
-    PercentageBarComponent,
+    PercentageBarComponent
   ],
   providers: [
     appRoutingProviders,

@@ -576,7 +576,7 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
 					Thread.sleep(2000);
 					break;
 				} // nothing to send ?
-				// Raw data telegrams
+					// Raw data telegrams
 				if (flushRaw) { // clear old data
 					pack.clear();
 					cdp = null;

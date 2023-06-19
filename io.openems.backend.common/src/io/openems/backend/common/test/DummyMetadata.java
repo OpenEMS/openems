@@ -138,7 +138,8 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions) throws OpenemsNamedException {
+	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
@@ -146,5 +147,5 @@ public class DummyMetadata implements Metadata {
 	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
-	
+
 }

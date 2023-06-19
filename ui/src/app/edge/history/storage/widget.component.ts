@@ -24,7 +24,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
 
     ) {
         super(service);
@@ -37,7 +37,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -51,9 +51,9 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
                     this.data = response.result.data;
                 }).catch(() => {
                     this.data = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -61,8 +61,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
             let channels: ChannelAddress[] = [];
             channels.push(
                 new ChannelAddress('_sum', 'EssDcChargeEnergy'),
-                new ChannelAddress('_sum', 'EssDcDischargeEnergy'),
-            )
+                new ChannelAddress('_sum', 'EssDcDischargeEnergy')
+            );
             resolve(channels);
         });
     }

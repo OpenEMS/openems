@@ -7,6 +7,8 @@ import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 
+import { DataService } from "../shared/dataservice";
+
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
@@ -31,7 +33,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(ActivatedRoute) protected route: ActivatedRoute,
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalController: ModalController,
-        @Inject(TranslateService) protected translate: TranslateService
+        @Inject(TranslateService) protected translate: TranslateService,
+        private dataService: DataService
     ) {
     }
 
@@ -52,22 +55,10 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 for (let channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.componentId, channelId));
                 }
-                if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
-                }
 
-                // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    let allComponents = {};
-                    let thisComponent = {};
-                    for (let channelAddress of channelAddresses) {
-                        let ca = channelAddress.toString();
-                        allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.componentId) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
-                    }
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                this.dataService.getValues(channelAddresses, this.edge, this.componentId);
+                this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
+                    this.onCurrentData(value);
                 });
             });
         });

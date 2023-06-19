@@ -20,7 +20,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);
-
+    protected readonly DefaultTypes = DefaultTypes;
     public locale: string = 'de';
     public showCustomDate: boolean = false;
 
@@ -44,13 +44,13 @@ export class PickDatePopoverComponent implements OnInit {
         inline: true,
         selectorHeight: '225px',
         selectorWidth: '251px',
-        showWeekNumbers: true,
+        showWeekNumbers: true
     };
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService,
+        public translate: TranslateService
     ) { }
 
     ngOnInit() {
@@ -66,25 +66,25 @@ export class PickDatePopoverComponent implements OnInit {
      */
     public setPeriod(period: DefaultTypes.PeriodString) {
         switch (period) {
-            case 'day': {
+            case DefaultTypes.PeriodString.DAY: {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;
             }
-            case 'week': {
+            case DefaultTypes.PeriodString.WEEK: {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;
             }
-            case 'month': {
+            case DefaultTypes.PeriodString.MONTH: {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
                 break;
             }
-            case 'year': {
+            case DefaultTypes.PeriodString.YEAR: {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
                 this.service.periodString = period;
                 this.popoverCtrl.dismiss();
@@ -100,12 +100,12 @@ export class PickDatePopoverComponent implements OnInit {
      * @returns the 'IMyDate'
      */
     private toIMyDate(date: Date): IMyDate {
-        return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
+        return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) };
     }
 
     public onDateChanged(event: IMyDateRangeModel) {
-        this.service.historyPeriod = new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate);
-        this.service.periodString = 'custom';
+        this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));
+        this.service.periodString = DefaultTypes.PeriodString.CUSTOM;
         this.popoverCtrl.dismiss();
     }
 }

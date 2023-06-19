@@ -23,7 +23,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("timeslotpeakshaving-chart", service, translate);
     }
@@ -34,7 +34,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -57,9 +57,9 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                             if (value != 3) {
                                 result.data[key][stateIndex] = null;
                             }
-                        })
+                        });
                     }
-                })
+                });
 
                 // convert labels
                 let labels: Date[] = [];
@@ -74,7 +74,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 if (meterIdActivePower in result.data) {
                     let data = result.data[meterIdActivePower].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -89,12 +89,12 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0.05)',
                         borderColor: 'rgba(0,0,0,1)'
-                    })
+                    });
                 }
                 if (rechargePower in result.data) {
                     let data = result.data[rechargePower].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -109,13 +109,13 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(0,223,0,1)',
-                    })
+                        borderColor: 'rgba(0,223,0,1)'
+                    });
                 }
                 if (peakshavingPower in result.data) {
                     let data = result.data[peakshavingPower].map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value == 0) {
                             return 0;
                         } else {
@@ -130,8 +130,8 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(200,0,0,1)',
-                    })
+                        borderColor: 'rgba(200,0,0,1)'
+                    });
                 }
                 if ('_sum/EssActivePower' in result.data) {
                     /*
@@ -147,7 +147,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     }
                     let chargeData = effectivePower.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value < 0) {
                             return value / -1000; // convert to kW;
                         } else {
@@ -161,14 +161,14 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
-                    })
+                        borderColor: 'rgba(0,223,0,1)'
+                    });
                     /*
                      * Storage Discharge
                      */
                     let dischargeData = effectivePower.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else if (value > 0) {
                             return value / 1000; // convert to kW
                         } else {
@@ -182,8 +182,8 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(200,0,0,0.05)',
-                        borderColor: 'rgba(200,0,0,1)',
-                    })
+                        borderColor: 'rgba(200,0,0,1)'
+                    });
                 }
                 this.datasets = datasets;
                 this.loading = false;
@@ -213,7 +213,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 new ChannelAddress('_sum', 'EssActivePower')
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -223,7 +223,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

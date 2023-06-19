@@ -89,13 +89,13 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export type PeriodString = 'day' | 'week' | 'month' | 'year' | 'custom';
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', CUSTOM = 'custom' };
 
   export class HistoryPeriod {
 
     constructor(
       public from: Date = new Date(),
-      public to: Date = new Date(),
+      public to: Date = new Date()
     ) { }
 
     public getText(translate: TranslateService): string {
@@ -128,7 +128,7 @@ export module DefaultTypes {
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
           value2: format(this.to, translate.instant('General.dateFormat'))
-        })
+        });
       }
     }
 

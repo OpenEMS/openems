@@ -1,4 +1,3 @@
-import { Edge } from "../../edge/edge";
 import { JsonrpcRequest } from "../base";
 
 /**

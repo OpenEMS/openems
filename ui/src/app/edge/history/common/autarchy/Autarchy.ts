@@ -6,22 +6,22 @@ import { ChartComponent } from './chart/chart';
 import { AutarchyChartOverviewComponent } from './overview/overview';
 
 @NgModule({
-    imports: [
-        BrowserModule,
-        SharedModule,
-    ],
-    entryComponents: [
-        FlatComponent,
-    ],
-    declarations: [
-        FlatComponent,
-        ChartComponent,
-        AutarchyChartOverviewComponent
-    ],
-    exports: [
-        FlatComponent,
-        ChartComponent,
-        AutarchyChartOverviewComponent
-    ]
+  imports: [
+    BrowserModule,
+    SharedModule
+  ],
+  entryComponents: [
+    FlatComponent
+  ],
+  declarations: [
+    FlatComponent,
+    ChartComponent,
+    AutarchyChartOverviewComponent
+  ],
+  exports: [
+    FlatComponent,
+    ChartComponent,
+    AutarchyChartOverviewComponent
+  ]
 })
-export class Autarchy { }
+export class Common_Autarchy { }

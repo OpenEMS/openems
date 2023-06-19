@@ -1,9 +1,9 @@
 = FENECON Mini 3-3 | 3-6
 
-Implemented Natures::
+Implemented Natures:
 - SinglePhaseEss
 - AsymmetricEss
 - SymmetricEss
-- SymmetricMeter (for Grid and PV)
+- ElectricityMeter (for Grid and PV)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fenecon.mini[Source Code icon:github[]]

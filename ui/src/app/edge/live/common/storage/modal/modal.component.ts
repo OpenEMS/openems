@@ -8,7 +8,7 @@ import { Role } from 'src/app/shared/type/role';
 
 @Component({
     selector: 'storage-modal',
-    templateUrl: './modal.component.html',
+    templateUrl: './modal.component.html'
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
@@ -33,23 +33,23 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-        public formBuilder: FormBuilder,
+        public formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {
 
         // Future Work: Remove when all fems are at least at this version
-        this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5')
+        this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
-        let emergencyReserveCtrl = this.config.getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve')
-        let prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
+        let emergencyReserveCtrl = this.config.getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve');
+        let prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         let components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl].filter(component => component.isEnabled).reduce((result, component) => {
             let essId = component.properties['ess.id'];
             if (result[essId] == null) {
-                result[essId] = []
+                result[essId] = [];
             }
-            result[essId].push(component)
+            result[essId].push(component);
             return result;
         }, {});
 
@@ -63,7 +63,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                 new ChannelAddress(controller.id, "_PropertyTargetSoc"),
                 new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
                 new ChannelAddress(controller.id, "ExpectedStartEpochSeconds")
-            )
+            );
         }
         this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
 
@@ -72,7 +72,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
                 let controls: FormGroup = new FormGroup({});
                 for (let essId of Object.keys(components)) {
-                    let controllers = components[essId]
+                    let controllers = components[essId];
 
                     let controllerFrmGrp: FormGroup = new FormGroup({});
                     for (let controller of (controllers as EdgeConfig.Component[])) {
@@ -85,22 +85,22 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 this.formBuilder.group({
                                     controllerId: new FormControl(controller['id']),
                                     isReserveSocEnabled: new FormControl(isReserveSocEnabled),
-                                    reserveSoc: new FormControl(reserveSoc),
+                                    reserveSoc: new FormControl(reserveSoc)
                                 })
-                            )
+                            );
                         } else if (controller.factoryId == 'Controller.Ess.PrepareBatteryExtension') {
 
-                            let isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1
+                            let isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
 
                             // Because of ionic segment buttons only accepting a string value, i needed to convert it
                             let targetTimeSpecified = (currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1).toString();;
-                            let targetTime = currentData.channel[controller.id + "/_PropertyTargetTime"]
-                            let targetSoc = currentData.channel[controller.id + "/_PropertyTargetSoc"]
-                            let targetTimeBuffer = currentData.channel[controller.id + "/_PropertyTargetTimeBuffer"]
+                            let targetTime = currentData.channel[controller.id + "/_PropertyTargetTime"];
+                            let targetSoc = currentData.channel[controller.id + "/_PropertyTargetSoc"];
+                            let targetTimeBuffer = currentData.channel[controller.id + "/_PropertyTargetTimeBuffer"];
                             let epochSeconds = currentData.channel[controller.id + "/ExpectedStartEpochSeconds"];
 
-                            let expectedStartOfPreparation = new Date(0)
-                            expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0)
+                            let expectedStartOfPreparation = new Date(0);
+                            expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
 
                             // If targetTime not set, not equals 0 or targetTime is no valid time, 
                             // then set targetTime to null
@@ -133,16 +133,16 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                     targetTimeBuffer: new FormControl(targetTimeBuffer),
                                     expectedStartOfPreparation: new FormControl(expectedStartOfPreparation)
                                 })
-                            )
+                            );
                         }
                     }
-                    controls.addControl(essId, controllerFrmGrp)
+                    controls.addControl(essId, controllerFrmGrp);
                 }
 
                 if (!this.formGroup.dirty) {
                     this.formGroup = controls;
                 }
-            })
+            });
     }
 
     applyChanges() {
@@ -158,7 +158,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             for (let essGroup of Object.keys(emergencyReserveController)) {
                 if (emergencyReserveController[essGroup].dirty) {
                     if (updateArray.get(emergencyReserveController['controllerId'].value)) {
-                        updateArray.get(emergencyReserveController['controllerId'].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value))
+                        updateArray.get(emergencyReserveController['controllerId'].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
                     } else {
                         updateArray.set(emergencyReserveController['controllerId'].value, [new Map().set(essGroup, emergencyReserveController[essGroup].value)]);
                     }
@@ -171,7 +171,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
                     // For simplicity, split targetTimeSpecified in 2 for template formControlName
                     if (updateArray.get(prepareBatteryExtensionController['controllerId'].value)) {
-                        updateArray.get(prepareBatteryExtensionController['controllerId'].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value))
+                        updateArray.get(prepareBatteryExtensionController['controllerId'].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
                     } else {
                         updateArray.set(prepareBatteryExtensionController['controllerId'].value, [new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value)]);
                     }
@@ -180,16 +180,16 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         }
 
         for (let controllerId of updateArray.keys()) {
-            let controllers = updateArray.get(controllerId)
+            let controllers = updateArray.get(controllerId);
             let properties: { name: string, value: any }[] = [];
             controllers.forEach((element) => {
-                let name = element.keys().next().value
-                let value = element.values().next().value
+                let name = element.keys().next().value;
+                let value = element.values().next().value;
                 properties.push({
                     name: name,
                     value: value
-                })
-            })
+                });
+            });
 
             this.edge.updateComponentConfig(this.websocket, controllerId, properties).then(() => {
                 this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -201,6 +201,6 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, "storage")
+        this.edge.unsubscribeChannels(this.websocket, "storage");
     }
 }
