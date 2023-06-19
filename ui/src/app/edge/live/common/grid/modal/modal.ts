@@ -9,7 +9,7 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/generalModal.html'
+  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html'
 })
 export class ModalComponent extends AbstractFormlyComponent {
 

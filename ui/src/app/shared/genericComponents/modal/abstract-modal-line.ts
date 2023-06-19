@@ -8,6 +8,8 @@ import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 import { Role } from "../../type/role";
+import { Converter } from "../shared/converter";
+import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
@@ -24,18 +26,18 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
-    * @param value the value from CurrentData
+    * @param value the current data value
     * @returns converter function
     */
-    @Input() public converter = (value: any): string => { return value; };
+    @Input() public converter: Converter = Converter.TO_STRING;
 
     /**
-    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+    * Use `filter` to remove a line depending on a value.
     * 
-    * @param value the value from CurrentData
+    * @param value the current data value
     * @returns converter function
     */
-    @Input() public filter = (value: number | string | null): boolean => { return true; };
+    @Input() public filter: Filter = Filter.NO_FILTER;
 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string | Function | { channel: ChannelAddress, converter: (value: any) => string };

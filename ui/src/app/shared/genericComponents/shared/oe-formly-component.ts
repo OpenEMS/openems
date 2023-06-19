@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { TextIndentation } from "../modal/modal-line/modal-line";
+import { Converter } from "./converter";
 
 export abstract class AbstractFormlyComponent {
 
@@ -80,14 +81,14 @@ export namespace OeFormlyField {
 
   export type LineWithChildren = {
     type: 'line-with-children',
-    name: string | ((value: number) => string) | { channel: ChannelAddress, converter: ((value: number) => string) },
+    name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
     indentation?: TextIndentation,
     children: Item[],
   }
 
   export type Line = {
     type: 'line',
-    name: string | ((value: number) => string),
+    name: /* actual name string */ string | /* name string derived from channel value */ Converter,
     channel?: string, // not-optional with ParentLine
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string

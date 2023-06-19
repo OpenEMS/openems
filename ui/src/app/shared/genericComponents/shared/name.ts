@@ -1,8 +1,6 @@
-import { TranslateService } from "@ngx-translate/core";
-
 export namespace Name {
 
-  export const SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, name: string) => {
+  export const SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate, name) => {
     return (value: any): string => {
       if (!value) {
         return name;
