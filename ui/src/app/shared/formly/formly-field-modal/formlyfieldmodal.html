@@ -3,10 +3,12 @@
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
 
+                <!-- OeFormlyField.Line -->
                 <oe-modal-line *ngSwitchCase="'line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
                     [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
                 </oe-modal-line>
 
+                <!-- OeFormlyField.LineWithChildren -->
                 <oe-modal-line *ngSwitchCase="'line-with-children'" [filter]="line.filter"
                     [textIndent]="line.indentation ?? '0%'" [name]="line.name">
                     <ng-container *ngFor="let lineItem of line.children">
@@ -16,9 +18,11 @@
                     </ng-container>
                 </oe-modal-line>
 
+                <!-- OeFormlyField.Info -->
                 <oe-modal-info-line *ngSwitchCase="'line-info'" [info]="line.name">
                 </oe-modal-info-line>
 
+                <!-- OeFormlyField.Horizontal -->
                 <oe-modal-horizontal-line *ngSwitchCase="'line-horizontal'"></oe-modal-horizontal-line>
 
             </ng-container>

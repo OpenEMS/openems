@@ -68,7 +68,7 @@ export class ModalComponent extends AbstractFormlyComponent {
           type: 'line',
           name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
           channel: meter.id + '/ActivePower',
-          converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
+          converter: Converter.POWER_IN_WATT_OR_ZERO
         });
       }
 
@@ -123,7 +123,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     children.push({
       type: 'line-item',
       channel: component.id + '/ActivePower' + phase,
-      converter: Utils.CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER
+      converter: Converter.POWER_IN_WATT_OR_ZERO
     });
 
     return children;

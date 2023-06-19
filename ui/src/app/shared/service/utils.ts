@@ -563,14 +563,6 @@ export class Utils {
       return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
     }
   }
-
-  public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
-    if (!value) {
-      return "0 W";
-    }
-
-    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W";
-  };
 }
 export namespace HistoryUtils {
 

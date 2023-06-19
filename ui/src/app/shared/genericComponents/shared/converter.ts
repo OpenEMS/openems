@@ -17,6 +17,11 @@ export namespace Converter {
     return "" + value;
   };
 
+  const POWER_IN_WATT = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-1') + " W";
+  };
+
   /**
    * Converter for Grid-Buy-Power.
    * 
@@ -25,7 +30,7 @@ export namespace Converter {
    */
   export const GRID_BUY_POWER: Converter = (value): string => {
     if (typeof value === 'number' && value >= 0) {
-      return formatNumber(value, 'de', '1.0-1') + ' W';
+      return POWER_IN_WATT(value);
     }
     return '0 W';
   };
@@ -38,7 +43,20 @@ export namespace Converter {
    */
   export const GRID_SELL_POWER: Converter = (value): string => {
     if (typeof value === 'number' && value <= 0) {
-      return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W';
+      return POWER_IN_WATT(Math.abs(value));
+    }
+    return '0 W';
+  };
+
+  /**
+   * Converter for 'ActivePower'.
+   * 
+   * @param value the ActivePower value (positive, negative or null)
+   * @returns formatted value "1.000 W" or "0 W" if undefined
+   */
+  export const POWER_IN_WATT_OR_ZERO: Converter = (value) => {
+    if (typeof value === 'number') {
+      return POWER_IN_WATT(value);
     }
     return '0 W';
   };
