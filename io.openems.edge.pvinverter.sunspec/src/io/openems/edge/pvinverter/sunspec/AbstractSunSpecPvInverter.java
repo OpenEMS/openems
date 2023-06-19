@@ -1,7 +1,5 @@
 package io.openems.edge.pvinverter.sunspec;
 
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_101;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_102;
 import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_103;
@@ -12,7 +10,6 @@ import static io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S_113;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,6 +23,7 @@ import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S101;
@@ -42,42 +40,30 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
-import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecComponent
-		implements SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler {
+public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecComponent implements SunSpecPvInverter,
+		ManagedSymmetricPvInverter, AsymmetricMeter, SymmetricMeter, OpenemsComponent, EventHandler {
 
-	private static enum InverterType {
-		SINGLE_PHASE(S_101, S_111), //
-		SPLIT_PHASE(S_102, S_112), //
-		THREE_PHASE(S_103, S_113);
-
-		private final List<DefaultSunSpecModel> blocks;
-
-		private InverterType(DefaultSunSpecModel... blocks) {
-			this.blocks = Lists.newArrayList(blocks);
-		}
-	}
+	private static final List<DefaultSunSpecModel> SINGLE_PHASE_BLOCKS = Lists.newArrayList(S_101, S_111);
+	private static final List<DefaultSunSpecModel> SPLIT_PHASE_BLOCKS = Lists.newArrayList(S_102, S_112);
+	private static final List<DefaultSunSpecModel> THREE_PHASE_BLOCKS = Lists.newArrayList(S_103, S_113);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecPvInverter.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
 
 	private boolean readOnly;
+	private boolean isSinglePhase;
 	private Phase phase;
-	private InverterType inverterType = null;
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 		this._setActiveConsumptionEnergy(0);
-
-		// Automatically calculate sum values from L1/L2/L3
-		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	/**
@@ -137,10 +123,10 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 * <p>
 	 * Requires:
 	 *
-	 * <pre>{@code
-	 * &#64;EventTopics({ //
-	 * 	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-	 * })}
+	 * <pre>
+	 * property = { //
+	 *   EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+	 * }
 	 * </pre>
 	 *
 	 */
@@ -193,86 +179,109 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.channel(SunSpecPvInverter.ChannelId.WRONG_PHASE_CONFIGURED).setNextValue(
-				this.inverterType == InverterType.SINGLE_PHASE ? this.phase == Phase.ALL : this.phase != Phase.ALL);
+		this.channel(SunSpecPvInverter.ChannelId.WRONG_PHASE_CONFIGURED)
+				.setNextValue(this.isSinglePhase() ? this.phase == Phase.ALL : this.phase != Phase.ALL);
 
 		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.FREQUENCY, //
-				SCALE_FACTOR_3, //
+				SymmetricMeter.ChannelId.FREQUENCY, //
+				ElementToChannelConverter.SCALE_FACTOR_3, //
 				S111.HZ, S112.HZ, S113.HZ, S101.HZ, S102.HZ, S103.HZ);
 
 		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_POWER, //
-				DIRECT_1_TO_1, //
+				SymmetricMeter.ChannelId.ACTIVE_POWER, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
 				S111.W, S112.W, S113.W, S101.W, S102.W, S103.W);
+
 		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.REACTIVE_POWER, //
-				DIRECT_1_TO_1, //
+				SymmetricMeter.ChannelId.REACTIVE_POWER, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
 				S111.V_AR, S112.V_AR, S113.V_AR, S101.V_AR, S102.V_AR, S103.V_AR);
 
-		// Individual Phases Power
-		switch (this.inverterType) {
-		case SINGLE_PHASE -> {
-			var phase = switch (this.phase) {
-			case ALL, L1 -> SinglePhase.L1; // Fallback to L1 on wrong configuration
-			case L2 -> SinglePhase.L2;
-			case L3 -> SinglePhase.L3;
-			};
-			if (phase != null) {
-				SinglePhaseMeter.calculateSinglePhaseFromActivePower(this, (meter) -> phase);
-			}
-		}
-		case SPLIT_PHASE, THREE_PHASE -> {
-			ElectricityMeter.calculatePhasesFromActivePower(this);
-			ElectricityMeter.calculatePhasesFromReactivePower(this);
-		}
-		}
-
 		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				DIRECT_1_TO_1, //
+				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
 				S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
+
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
-				DIRECT_1_TO_1, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
 				S120.W_RTG);
 
-		// Voltage
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L1, //
-				SCALE_FACTOR_3, //
-				S111.PH_VPH_A, S112.PH_VPH_A, S113.PH_VPH_A, S101.PH_VPH_A, S102.PH_VPH_A, S103.PH_VPH_A);
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L2, //
-				SCALE_FACTOR_3, //
-				S111.PH_VPH_B, S112.PH_VPH_B, S113.PH_VPH_B, S101.PH_VPH_B, S102.PH_VPH_B, S103.PH_VPH_B);
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.VOLTAGE_L3, //
-				SCALE_FACTOR_3, //
-				S111.PH_VPH_C, S112.PH_VPH_C, S113.PH_VPH_C, S101.PH_VPH_C, S102.PH_VPH_C, S103.PH_VPH_C);
-
-		// Current
 		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.CURRENT, //
-				SCALE_FACTOR_3, //
+				SymmetricMeter.ChannelId.CURRENT, //
+				ElementToChannelConverter.SCALE_FACTOR_3, //
 				S111.A, S112.A, S113.A, S101.A, S102.A, S103.A);
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L1, //
-				SCALE_FACTOR_3, //
-				S111.APH_A, S112.APH_A, S113.APH_A, S101.APH_A, S102.APH_A, S103.APH_A);
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L2, //
-				SCALE_FACTOR_3, //
-				S111.APH_B, S112.APH_B, S113.APH_B, S101.APH_B, S102.APH_B, S103.APH_B);
-		this.mapFirstPointToChannel(ElectricityMeter.ChannelId.CURRENT_L3, //
-				SCALE_FACTOR_3, //
-				S111.APH_C, S112.APH_C, S113.APH_C, S101.APH_C, S102.APH_C, S103.APH_C);
+
+		/*
+		 * SymmetricMeter
+		 */
+		if (!this.isSinglePhase) {
+			this.mapFirstPointToChannel(//
+					SymmetricMeter.ChannelId.VOLTAGE, //
+					ElementToChannelConverter.SCALE_FACTOR_3, //
+					S112.PH_VPH_A, S112.PH_VPH_B, S112.PH_VPH_C, //
+					S113.PH_VPH_A, S113.PH_VPH_B, S113.PH_VPH_C, //
+					S102.PH_VPH_A, S102.PH_VPH_B, S102.PH_VPH_C, //
+					S103.PH_VPH_A, S103.PH_VPH_B, S103.PH_VPH_C);
+			return;
+		}
+
+		/*
+		 * AsymmetricMeter
+		 */
+		switch (this.phase) {
+		case ALL:
+			// use l1 when 'ALL' is configured and its not a tree phase inverter
+		case L1:
+			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L1, //
+					ElementToChannelConverter.DIRECT_1_TO_1, //
+					S101.PH_VPH_A, S111.PH_VPH_A);
+			break;
+		case L2:
+			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L2, //
+					ElementToChannelConverter.DIRECT_1_TO_1, //
+					S101.PH_VPH_B, S111.PH_VPH_B);
+			break;
+		case L3:
+			this.mapFirstPointToChannel(AsymmetricMeter.ChannelId.VOLTAGE_L3, //
+					ElementToChannelConverter.DIRECT_1_TO_1, //
+					S101.PH_VPH_C, S111.PH_VPH_C);
+			break;
+		}
+
+		this.mapFirstPointToChannel(//
+				SymmetricMeter.ChannelId.VOLTAGE, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				S101.PH_VPH_A, S111.PH_VPH_A, //
+				S101.PH_VPH_B, S111.PH_VPH_B, //
+				S101.PH_VPH_C, S111.PH_VPH_C);
+
 	}
 
 	@Override
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		super.addBlock(startAddress, model, priority);
 
-		// Can we evaluate the InverterType from this Block?
-		Stream.of(InverterType.values()) //
-				.filter(type -> type.blocks.stream().anyMatch(t -> t.equals(model))) //
-				.findFirst() //
-				.ifPresent(type -> this.inverterType = type);
+		if (SINGLE_PHASE_BLOCKS.stream() //
+				.anyMatch(t -> t.equals(model))) {
+			// single phase
+			this.isSinglePhase = true;
+
+		} else if (SPLIT_PHASE_BLOCKS.stream() //
+				.anyMatch(t -> t.equals(model))) {
+			// split Phase
+			this.isSinglePhase = false;
+
+		} else if (THREE_PHASE_BLOCKS.stream() //
+				.anyMatch(t -> t.equals(model))) {
+			// three Phase
+			this.isSinglePhase = false;
+		}
+
+	}
+
+	protected final boolean isSinglePhase() {
+		return this.isSinglePhase;
 	}
 
 	@Override

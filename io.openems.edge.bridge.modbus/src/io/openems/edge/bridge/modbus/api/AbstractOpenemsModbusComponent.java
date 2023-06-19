@@ -121,6 +121,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		var modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
 	}
@@ -164,6 +165,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		modbus.removeProtocol(this.id());
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
 	}

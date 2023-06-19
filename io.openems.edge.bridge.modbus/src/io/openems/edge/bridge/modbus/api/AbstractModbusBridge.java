@@ -87,6 +87,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	@Override
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.worker.addProtocol(sourceId, protocol);
+		this.retryModbusCommunication(sourceId);
 	}
 
 	/**

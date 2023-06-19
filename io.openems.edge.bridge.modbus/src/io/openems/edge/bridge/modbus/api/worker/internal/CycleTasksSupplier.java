@@ -1,20 +1,13 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
@@ -28,9 +21,6 @@ import io.openems.edge.common.type.Tuple;
  */
 public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTasks> {
 
-	private final Logger log = LoggerFactory.getLogger(CycleTasksSupplier.class);
-	private final AtomicReference<LogVerbosity> logVerbosity;
-
 	/**
 	 * Source-ID -> TasksManager for {@link Task}s.
 	 */
@@ -40,10 +30,6 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 	 * Queue of LOW priority {@link ReadTask}s.
 	 */
 	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
-
-	public CycleTasksSupplier(AtomicReference<LogVerbosity> logVerbosity) {
-		this.logVerbosity = logVerbosity;
-	}
 
 	/**
 	 * Adds the protocol.
@@ -131,23 +117,6 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 						.forEach(this.nextLowPriorityTasks::add);
 			});
 			refilledBefore = true;
-		}
-	}
-
-	// TODO remove before release
-	private final Instant start = Instant.now();
-
-	// TODO remove before release
-	private void log(String message) {
-		switch (this.logVerbosity.get()) {
-		case DEV_REFACTORING:
-			System.out.println(//
-					String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));
-			break;
-		case NONE:
-		case READS_AND_WRITES:
-		case WRITES:
-			break;
 		}
 	}
 }

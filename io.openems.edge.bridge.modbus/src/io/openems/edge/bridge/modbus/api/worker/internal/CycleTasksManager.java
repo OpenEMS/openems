@@ -4,6 +4,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
@@ -17,6 +20,8 @@ import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
  * <li>{@link #onExecuteWrite()} puts Write-Tasks as highest priority
  */
 public class CycleTasksManager {
+
+	private final Logger log = LoggerFactory.getLogger(CycleTasksManager.class);
 
 	private final Function<DefectiveComponents, CycleTasks> cycleTasksSupplier;
 	private final DefectiveComponents defectiveComponents;
@@ -61,20 +66,24 @@ public class CycleTasksManager {
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 */
 	public synchronized void onBeforeProcessImage() {
+		// Calculate Delay
+		this.waitDelayHandler.onBeforeProcessImage();
+
 		// Evaluate Cycle-Time-Is-Too-Short and stop early
-		if (this.state != StateMachine.FINISHED) {
-			this.cycleTimeIsTooShortCallback.accept(true);
+		var cycleTimeIsTooShort = this.state != StateMachine.FINISHED;
+		this.cycleTimeIsTooShortCallback.accept(cycleTimeIsTooShort);
+		if (cycleTimeIsTooShort) {
+			this.log("onBeforeProcessImage: stop early. State: " + this.state);
 			return;
-		} else {
-			this.cycleTimeIsTooShortCallback.accept(false);
 		}
 
 		// Fill queues for this Cycle
 		this.cycleTasks = this.cycleTasksSupplier.apply(this.defectiveComponents);
 
-		// Calculate Delay
-		this.waitDelayHandler.onBeforeProcessImage(//
-				this.cycleTasks.containsDefectiveComponent(this.defectiveComponents));
+		// Inform about cycleTimeIsTooShort or defectiveComponents
+		if (cycleTimeIsTooShort || this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
+			this.waitDelayHandler.timeIsInvalid();
+		}
 
 		// Initialize next Cycle
 		this.state = StateMachine.INITIAL_WAIT;
@@ -170,5 +179,18 @@ public class CycleTasksManager {
 		// Unexpected (the State has been unexpectedly changed in-between)
 		default -> this.state;
 		};
+	}
+
+	// TODO remove before release
+	private void log(String message) {
+		switch (this.logVerbosity.get()) {
+		case DEV_REFACTORING:
+			this.log.info("CycleTasksManager: " + message);
+			break;
+		case NONE:
+		case READS_AND_WRITES:
+		case WRITES:
+			break;
+		}
 	}
 }

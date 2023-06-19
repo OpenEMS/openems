@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -74,7 +72,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.logVerbosity = logVerbosity;
 
 		this.defectiveComponents = new DefectiveComponents();
-		this.cycleTasksSupplier = new CycleTasksSupplier(logVerbosity);
+		this.cycleTasksSupplier = new CycleTasksSupplier();
 		this.cycleTasksManager = new CycleTasksManager(this.cycleTasksSupplier, this.defectiveComponents,
 				cycleTimeIsTooShortCallback, logVerbosity);
 	}
@@ -106,14 +104,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	}
 
 	// TODO remove before release
-	private final Instant start = Instant.now();
-
-	// TODO remove before release
 	private void log(String message) {
 		switch (this.logVerbosity.get()) {
 		case DEV_REFACTORING:
-			System.out.println(//
-					String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));
+			this.log.info(message);
 			break;
 		case NONE:
 		case READS_AND_WRITES:

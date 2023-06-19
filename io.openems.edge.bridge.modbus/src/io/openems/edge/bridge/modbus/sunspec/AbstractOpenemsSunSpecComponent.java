@@ -167,8 +167,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					}
 
 					// Handle SunSpec Block
-					int length = values.get(1);
-
 					if (blockId == 1 /* SunSpecModel.S_1 */) {
 						this.commonBlockCounter++;
 					}
@@ -199,8 +197,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						}
 					}
 
+					// Stop reading if all expectedBlocks have been read
+					if (remainingBlocks.isEmpty()) {
+						finished.complete(null);
+						return;
+					}
+
 					// Read next block recursively
-					var nextBlockStartAddress = startAddress + 2 + length;
+					var nextBlockStartAddress = startAddress + 2 + values.get(1);
 					try {
 
 						final var readNextBlockFuture = this.readNextBlock(nextBlockStartAddress, remainingBlocks);

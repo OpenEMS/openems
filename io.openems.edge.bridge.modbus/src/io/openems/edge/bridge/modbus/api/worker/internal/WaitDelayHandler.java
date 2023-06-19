@@ -2,6 +2,9 @@ package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.EvictingQueue;
@@ -13,6 +16,8 @@ public class WaitDelayHandler {
 
 	private static final int BUFFER_MS = 20;
 
+	private final Logger log = LoggerFactory.getLogger(WaitDelayHandler.class);
+
 	private final Runnable onWaitDelayTaskFinished;
 	private final Stopwatch stopwatch;
 
@@ -23,7 +28,11 @@ public class WaitDelayHandler {
 
 	private WaitDelayTask waitDelayTask;
 
-	private boolean previousCycleContainedDefectiveComponents;
+	/**
+	 * Marker for invalid time, e.g. CycleTasks span multiple Cycles, Tasks
+	 * contained defective Components, etc.
+	 */
+	private boolean timeIsInvalid = false;
 
 	protected WaitDelayHandler(Ticker ticker, AtomicReference<LogVerbosity> logVerbosity,
 			Runnable onWaitDelayTaskFinished) {
@@ -43,18 +52,15 @@ public class WaitDelayHandler {
 
 	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
-	 * 
-	 * @param nextCycleContainsDefectiveComponents true if the {@link CycleTasks}
-	 *                                             contain tasks of a defective
-	 *                                             component
 	 */
-	public void onBeforeProcessImage(boolean nextCycleContainsDefectiveComponents) {
-		if (this.previousCycleContainedDefectiveComponents) {
+	public synchronized void onBeforeProcessImage() {
+		if (this.timeIsInvalid) {
 			// Do not add possibleDelay if previous Cycle contained a defective component
-			this.log("onBeforeProcessImage: previous Cycle contained a defective component");
+			this.log("onBeforeProcessImage: time is invalid");
 			this.stopwatch.reset();
 
 		} else {
+			// Calculate possible delay
 			final long possibleDelay;
 			if (this.stopwatch.isRunning()) {
 				// Coming from FINISHED state -> it's possible to increase delay
@@ -62,6 +68,7 @@ public class WaitDelayHandler {
 				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
 				this.log("onBeforeProcessImage: measured possible delay [" + this.waitDelayTask.initialDelay + " + "
 						+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]");
+
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
 				this.log("onBeforeProcessImage: FINISHED state has not happened -> reduce possible delay");
@@ -72,20 +79,36 @@ public class WaitDelayHandler {
 		}
 
 		// Initialize a new WaitDelayTask.
-		if (nextCycleContainsDefectiveComponents) {
-			this.waitDelayTask = this.generateZeroWaitDelayTask();
-		} else {
-			this.waitDelayTask = this.generateWaitDelayTask();
-		}
+		this.waitDelayTask = this.generateWaitDelayTask();
 
-		this.previousCycleContainedDefectiveComponents = nextCycleContainsDefectiveComponents;
+		// Reset 'timeIsInvalid'
+		this.timeIsInvalid = false;
+	}
+
+	/**
+	 * Announce, that the Cycle measurement time is invalid.
+	 * 
+	 * <ul>
+	 * <li>WaitDelayTask will be set to 'zero-wait'
+	 * <li>Internal marker 'previousCycleContainedDefectiveComponents' is set. This
+	 * causes the time measurement for this Cycle to be ignored
+	 * </ul>
+	 * 
+	 * <p>
+	 * This method is called shortly after 'onBeforeProcessImage()'
+	 */
+	public synchronized void timeIsInvalid() {
+		this.waitDelayTask = this.generateZeroWaitDelayTask();
+		this.timeIsInvalid = true;
 	}
 
 	/**
 	 * Called when waiting finished.
 	 */
-	public void onFinished() {
-		// Measure duration between FINISHED and ON_BEFORE_PROCESS_IMAGE eventT
+	public synchronized void onFinished() {
+		this.log("onFinished");
+		// Measure duration between FINISHED and ON_BEFORE_PROCESS_IMAGE event
+		this.stopwatch.reset();
 		this.stopwatch.start();
 	}
 
@@ -94,7 +117,7 @@ public class WaitDelayHandler {
 	 * 
 	 * @return the task
 	 */
-	public WaitDelayTask getWaitDelayTask() {
+	public synchronized WaitDelayTask getWaitDelayTask() {
 		return this.waitDelayTask;
 	}
 
@@ -130,7 +153,7 @@ public class WaitDelayHandler {
 	private void log(String message) {
 		switch (this.logVerbosity.get()) {
 		case DEV_REFACTORING:
-			System.out.println("WaitDelayHandler: " + message);
+			this.log.info(message);
 			break;
 		case NONE:
 		case READS_AND_WRITES:
