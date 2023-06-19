@@ -48,6 +48,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
+	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
@@ -202,6 +203,7 @@
 	io.openems.edge.batteryinverter.sinexcel;version=snapshot,\
 	io.openems.edge.batteryinverter.sunspec;version=snapshot,\
 	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
+	io.openems.edge.bridge.http;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
@@ -361,6 +363,7 @@
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
+	io.openems.wrapper.reqwest4j;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.reactivex.rxjava3.rxjava;version='[3.1.6,3.1.7)',\
 	javax.jmdns;version='[3.4.1,3.4.2)',\

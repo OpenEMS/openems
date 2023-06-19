@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -23,6 +24,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyApi;
+import io.openems.edge.bridge.http.HttpBridge;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -39,6 +41,9 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly25Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
+	
+	@Reference
+	private HttpBridge httpBridge;
 
 	private ShellyApi shellyApi = null;
 
@@ -57,7 +62,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
+		this.shellyApi = new ShellyApi(config.ip(), httpBridge);
 	}
 
 	@Override
@@ -117,7 +122,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		Boolean relay1IsOn;
 		Boolean relay2IsOn;
 		try {
-			var json = this.shellyApi.getStatus();
+			var json = this.shellyApi.getState();
 			var relays = JsonUtils.getAsJsonArray(json, "relays");
 			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
 			relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
@@ -161,7 +166,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			// read value = write value
 			return;
 		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
+		this.shellyApi.setRelayState(index, writeValue.get());
 	}
 
 }

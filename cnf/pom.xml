@@ -169,6 +169,11 @@
 			<artifactId>jna</artifactId>
 			<version>5.13.0</version>
 		</dependency>
+		<dependency>
+		    <groupId>rocks.kavin</groupId>
+		    <artifactId>reqwest4j</artifactId>
+		    <version>1.0.3</version>
+		</dependency>
 		<!-- org -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>

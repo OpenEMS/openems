@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.bridge.http.HttpBridge;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -43,6 +45,9 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlugImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
+	@Reference
+	private HttpBridge httpBridge;
+	
 	private ShellyApi shellyApi = null;
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
@@ -64,7 +69,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
+		this.shellyApi = new ShellyApi(config.ip(), httpBridge);
 		this.meterType = config.type();
 		this.phase = config.phase();
 	}
@@ -119,7 +124,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		Integer power = null;
 		Long energy = null;
 		try {
-			var json = this.shellyApi.getStatus();
+			var json = this.shellyApi.getState();
 			var relays = JsonUtils.getAsJsonArray(json, "relays");
 			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
 			relayIson = JsonUtils.getAsBoolean(relay1, "ison");
@@ -163,7 +168,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			// read value = write value
 			return;
 		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
+		this.shellyApi.setRelayState(index, writeValue.get());
 	}
 
 	@Override

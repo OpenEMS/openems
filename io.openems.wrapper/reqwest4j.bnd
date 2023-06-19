@@ -1,0 +1,17 @@
+Bundle-Name: reqwest4j
+Bundle-Description: Blazing fast request library using JNI. 
+Bundle-DocURL: https://github.com/TeamPiped/reqwest4j
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 1.0.3
+
+Include-Resource: \
+	@reqwest4j-1.0.3.jar,\
+
+-sources: false
+
+-classpath: @reqwest4j-1.0.3.jar
+
+Export-Package: \
+	rocks.kavin,\
+	rocks.kavin.reqwest4j,\
+	
