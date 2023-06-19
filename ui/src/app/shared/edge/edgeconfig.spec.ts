@@ -55,6 +55,9 @@ namespace Factory {
     };
 }
 
+/**
+ * Components
+ */
 type Component = {
     id: string,
     alias: string, // defaults to id

@@ -3,7 +3,6 @@ import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
 
 export class OeFormlyViewTester {
 
-
   public static apply(view: OeFormlyView, context: OeFormlyViewTester.Context): OeFormlyViewTester.View {
     return {
       title: view.title,
