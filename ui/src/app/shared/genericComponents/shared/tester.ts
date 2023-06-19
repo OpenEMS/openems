@@ -145,11 +145,6 @@ export namespace OeFormlyViewTester {
 
   export type Context = { [id: string]: number | null };
 
-  export type ViewContext = {
-    view: View,
-    context: Context
-  }
-
   export type View = {
     title: string,
     lines: Field[]

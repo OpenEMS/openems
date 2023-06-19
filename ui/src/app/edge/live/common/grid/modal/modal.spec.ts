@@ -1,58 +1,139 @@
-import { registerLocaleData } from "@angular/common";
-import localeDe from '@angular/common/locales/de';
-import localeDeExtra from '@angular/common/locales/extra/de';
-import { TestBed } from "@angular/core/testing";
-import { FORMLY_CONFIG } from "@ngx-formly/core";
-import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
+import { DummyConfig, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
-import { TestSystem } from "src/app/shared/test/testSystem.spec";
-import { AbstractSystem } from "src/app/shared/test/types.spec";
-import { registerTranslateExtension } from "src/app/shared/translate.extension";
-import { Language, MyTranslateLoader } from "src/app/shared/type/language";
+import { GridMode } from "src/app/shared/shared";
+import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
-import { Constants } from "./constants.spec";
-import { ModalComponent } from "./modal";
+import { CHANNEL_LINE, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, expectView } from "./constants.spec";
 
-export const EXPECT_VIEW = (system: AbstractSystem, role: Role, viewContext: OeFormlyViewTester.ViewContext, translate: TranslateService): void => {
-  expect(
-    OeFormlyViewTester.apply(ModalComponent
-      .generateView(system.config, role, translate),
-      viewContext.context)
-  ).toEqual(viewContext.view);
-};
+const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
+  "_sum/GridMode": GridMode.ON_GRID,
+  "_sum/GridActivePower": -1000,
+  "meter0/ActivePower": -1000,
+  "meter0/VoltageL1": 230000,
+  "meter0/CurrentL1": 2170,
+  "meter0/ActivePowerL1": -500,
+  "meter0/ActivePowerL2": 1500,
+  ...properties
+});
 
 describe('ExampleSystemsTest', () => {
-
-  let translate: TranslateService;
-  beforeEach((() => {
-    TestBed.configureTestingModule({
-      imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key })
-      ],
-      providers: [TranslateService, { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] }]
-    }).compileComponents();
-    registerLocaleData(localeDe, 'de', localeDeExtra);
-    translate = TestBed.inject(TranslateService);
-  }));
+  let TEST_CONTEXT;
+  beforeEach(() => TEST_CONTEXT = sharedSetup());
 
   it('ModalComponent.generateView() GridModal', () => {
+    {
+      // No Meters
+      const EMS = DummyConfig.from();
 
-    // Empty EMS
-    EXPECT_VIEW(new TestSystem.EmptyEms(), Role.ADMIN, Constants.EMPTY_EMS, translate);
+      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+        ]
+      });
+    }
 
-    // Admin and Installer -> singleMeter
-    EXPECT_VIEW(new TestSystem.Ems1(), Role.ADMIN, Constants.EMS1_ADMIN_AND_INSTALLER_SINGLE_METER, translate);
+    {
+      // Single Meter
+      const EMS = DummyConfig.from(
+        SOCOMEC_GRID_METER("meter0", "Netzzähler")
+      );
 
-    // Admin and Installer -> two meters
-    EXPECT_VIEW(new TestSystem.Ems30093(), Role.ADMIN, Constants.EMS30093_ADMIN_AND_INSTALLER_TWO_METERS, translate);
+      // Admin and Installer
+      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+          CHANNEL_LINE("Bezug", "0 W"),
+          CHANNEL_LINE("Einspeisung", "1.000 W"),
+          PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
+          PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
+          PHASE_ADMIN("Phase L3", "-", "-", "-"),
+          LINE_HORIZONTAL,
+          LINE_INFO_PHASES_DE
+        ]
+      });
 
-    // Owner and Guest -> single meter
-    EXPECT_VIEW(new TestSystem.Ems1(), Role.OWNER, Constants.EMS1_OWNER_AND_GUEST_SINGLE_METER, translate);
+      // Owner and Guest
+      expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+          CHANNEL_LINE("Bezug", "0 W"),
+          CHANNEL_LINE("Einspeisung", "1.000 W"),
+          PHASE_GUEST("Phase L1 Einspeisung", "500 W"),
+          PHASE_GUEST("Phase L2 Bezug", "1.500 W"),
+          PHASE_GUEST("Phase L3", "-"),
+          LINE_HORIZONTAL,
+          LINE_INFO_PHASES_DE
+        ]
+      });
 
-    // Owner and Guest -> two meters
-    EXPECT_VIEW(new TestSystem.Ems30093(), Role.OWNER, Constants.EMS30093_OWNER_AND_GUEST_TWO_METERS, translate);
+      // Offgrid
+      expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ '_sum/GridMode': GridMode.OFF_GRID }), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+          {
+            type: "channel-line",
+            name: "Keine Netzverbindung!",
+            value: ""
+          },
+          CHANNEL_LINE("Bezug", "0 W"),
+          CHANNEL_LINE("Einspeisung", "1.000 W"),
+          PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
+          PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
+          PHASE_ADMIN("Phase L3", "-", "-", "-"),
+          LINE_HORIZONTAL,
+          LINE_INFO_PHASES_DE
+        ]
+      });
+    }
 
-    // Offgrid
-    EXPECT_VIEW(new TestSystem.Ems1(), Role.ADMIN, Constants.EMS1_OFF_GRID, translate);
+    {
+      // Two Meters
+      const EMS = DummyConfig.from(
+        SOCOMEC_GRID_METER("meter10"),
+        SOCOMEC_GRID_METER("meter11")
+      );
+
+      // Admin and Installer -> two meters
+      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+          CHANNEL_LINE("Bezug", "0 W"),
+          CHANNEL_LINE("Einspeisung", "1.000 W"),
+          LINE_HORIZONTAL,
+          CHANNEL_LINE("meter10", "-"),
+          PHASE_ADMIN("Phase L1", "-", "-", "-"),
+          PHASE_ADMIN("Phase L2", "-", "-", "-"),
+          PHASE_ADMIN("Phase L3", "-", "-", "-"),
+          LINE_HORIZONTAL,
+          CHANNEL_LINE("meter11", "-"),
+          PHASE_ADMIN("Phase L1", "-", "-", "-"),
+          PHASE_ADMIN("Phase L2", "-", "-", "-"),
+          PHASE_ADMIN("Phase L3", "-", "-", "-"),
+          LINE_HORIZONTAL,
+          LINE_INFO_PHASES_DE
+        ]
+      });
+
+      // Owner and Guest -> two meters
+      expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
+        title: "Netz",
+        lines: [
+          CHANNEL_LINE("Bezug", "0 W"),
+          CHANNEL_LINE("Einspeisung", "1.000 W"),
+          LINE_HORIZONTAL,
+          CHANNEL_LINE("meter10", "-"),
+          PHASE_GUEST("Phase L1", "-"),
+          PHASE_GUEST("Phase L2", "-"),
+          PHASE_GUEST("Phase L3", "-"),
+          LINE_HORIZONTAL,
+          CHANNEL_LINE("meter11", "-"),
+          PHASE_GUEST("Phase L1", "-"),
+          PHASE_GUEST("Phase L2", "-"),
+          PHASE_GUEST("Phase L3", "-"),
+          LINE_HORIZONTAL,
+          LINE_INFO_PHASES_DE
+        ]
+      });
+    }
   });
 });
