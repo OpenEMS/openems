@@ -6,6 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -14,7 +15,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStoppable {
+public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
