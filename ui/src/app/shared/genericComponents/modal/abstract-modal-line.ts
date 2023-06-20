@@ -152,6 +152,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string | null) {
 
+        /** Prevent undefined values */
+        value = value != null ? value : null;
+
         if (this.filter) {
             this.show = this.filter(value);
         }
