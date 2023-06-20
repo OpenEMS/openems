@@ -89,7 +89,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         })).then(response => {
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
 
-          this.fields = appAssistant.fields;
+          this.fields = GetAppAssistant.setInitialModel(appAssistant.fields, {});
           this.appName = appAssistant.name;
           this.model = {};
           this.form = new FormGroup({});
