@@ -29,13 +29,13 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.formly.enums.Validation;
 
 /**
  * Describes a App for a Janitza meter.
@@ -142,7 +142,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(InputType.NUMBER) //
 								.setDefaultValue(1) //
 								.setMin(0) //
 								.isRequired(true) //

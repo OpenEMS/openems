@@ -2,7 +2,6 @@ package io.openems.edge.ess.refubeckhoff;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.refubeckhoff.Config;
 import io.openems.edge.ess.refubeckhoff.enums.EssState;
 import io.openems.edge.ess.refubeckhoff.enums.SetOperationMode;
 

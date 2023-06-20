@@ -10,15 +10,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String apikey;
-		public String uri;
-		public String proxyAddress;
-		public int proxyPort;
-		public Type proxyType;
-		public int apiTimeout;
-		public PersistencePriority persistencePriority;
-		public PersistencePriority aggregationPriority;
-		public boolean debugMode;
+		private String apikey;
+		private String uri;
+		private String proxyAddress;
+		private int proxyPort;
+		private Type proxyType;
+		private int apiTimeout;
+		private PersistencePriority persistencePriority;
+		private PersistencePriority aggregationPriority;
+		private boolean debugMode;
 
 		private Builder() {
 		}

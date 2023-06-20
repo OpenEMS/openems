@@ -16,6 +16,6 @@ export const COUNTRY_OPTIONS = (translate: TranslateService) => {
         { value: Country.SWITZERLAND, label: translate.instant('General.Country.switzerland') },
         { value: Country.SWEDEN, label: translate.instant('General.Country.sweden') },
         { value: Country.NETHERLANDS, label: translate.instant('General.Country.netherlands') },
-        { value: Country.CZECH_REPUBLIK, label: translate.instant('General.Country.czech') },
+        { value: Country.CZECH_REPUBLIK, label: translate.instant('General.Country.czech') }
     ];
 };

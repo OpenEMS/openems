@@ -5,8 +5,8 @@ import { environment } from 'src/environments';
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
-import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
-import { ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
+import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -20,7 +20,6 @@ import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
-import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
@@ -50,6 +49,7 @@ import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './ed
 import { IndexComponent } from './index/index.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -93,7 +93,7 @@ const routes: Routes = [
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-          { path: 'storagechart', component: StorageChartOverviewComponent },
+          { path: 'storagechart', component: StorageChartOverviewComponent }
         ]
       },
 
@@ -116,7 +116,7 @@ const routes: Routes = [
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
-      { path: 'settings/alerting', component: EdgeSettingsAlerting },
+      { path: 'settings/alerting', component: EdgeSettingsAlerting }
     ]
   },
 

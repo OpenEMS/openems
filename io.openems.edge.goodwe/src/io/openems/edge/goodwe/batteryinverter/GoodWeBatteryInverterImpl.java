@@ -29,7 +29,6 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -55,12 +54,17 @@ import io.openems.edge.timedata.api.Timedata;
 		name = "GoodWe.BatteryInverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
-) //
+)
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
 
-	private static final int MAX_DC_CURRENT = 25; // [A]
+	protected static final int MAX_DC_CURRENT = 25; // [A]
+
+	// Fenecon Home Battery Static module min voltage, used to calculate battery
+	// module number per tower
+	// TODO get from Battery
+	private static final int MODULE_MIN_VOLTAGE = 42;
 
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
@@ -69,7 +73,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -77,23 +81,43 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Reference
 	private Sum sum;
 
-	// Fenecon Home Battery Static module min voltage, used to calculate battery
-	// module number per tower
-	// TODO get from Battery
-	private static final int MODULE_MIN_VOLTAGE = 42;
-
-	/**
-	 * Holds the latest known Charge-Max-Current. Updated in
-	 * {@link #run(Battery, int, int)}.
-	 */
-	private Value<Integer> lastChargeMaxCurrent = null;
-
-	private Config config;
-
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
+	}
+
+	/**
+	 * We don't want to hold an actual Reference to the {@link Battery} Component,
+	 * so we keep the latest data here. Updated in {@link #run(Battery, int, int)}.
+	 */
+	private BatteryData latestBatteryData = new BatteryData(null, null);
+
+	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
+	}
+
+	private Config config;
+
+	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
+		super(//
+				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
+				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
+				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
+				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
+				GoodWe.ChannelId.values(), //
+				GoodWeBatteryInverter.ChannelId.values() //
+		);
+		// GoodWe is always started
+		this._setStartStop(StartStop.START);
 	}
 
 	@Activate
@@ -118,28 +142,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
-		super(//
-				SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
-				SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
-				SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
-				HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), //
-				SymmetricBatteryInverter.ChannelId.values(), //
-				ManagedSymmetricBatteryInverter.ChannelId.values(), //
-				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
-				GoodWe.ChannelId.values(), //
-				GoodWeBatteryInverter.ChannelId.values() //
-		);
-		// GoodWe is always started
-		this._setStartStop(StartStop.START);
 	}
 
 	/**
@@ -394,23 +396,24 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public Integer getSurplusPower() {
+		var productionPower = this.calculatePvProduction();
+		return calculateSurplusPower(this.latestBatteryData, productionPower);
+	}
+
+	protected static Integer calculateSurplusPower(BatteryData battery, Integer productionPower) {
 		// Is DC Charge Current available?
-		if (this.lastChargeMaxCurrent == null || !this.lastChargeMaxCurrent.isDefined()
-				|| this.lastChargeMaxCurrent.get() >= MAX_DC_CURRENT) {
+		if (battery.chargeMaxCurrent == null || battery.chargeMaxCurrent >= MAX_DC_CURRENT) {
 			return null;
 		}
 
 		// Is DC PV Production available?
-		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower <= 0) {
 			return null;
 		}
 
 		// Reduce PV Production power by DC max charge power
-		IntegerReadChannel wbmsVoltageChannel = this.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
 		var surplusPower = productionPower //
-				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
-						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
+				- TypeUtils.orElse(TypeUtils.multiply(battery.chargeMaxCurrent, battery.voltage), 0);
 
 		if (surplusPower <= 0) {
 			// PV Production is less than the maximum charge power -> no surplus power
@@ -432,7 +435,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.updatePowerAndEnergyChannels();
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
-		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
+		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),

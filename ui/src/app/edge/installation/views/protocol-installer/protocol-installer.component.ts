@@ -22,7 +22,7 @@ type UserInformation = {
 
 @Component({
   selector: ProtocolInstallerComponent.SELECTOR,
-  templateUrl: './protocol-installer.component.html',
+  templateUrl: './protocol-installer.component.html'
 })
 export class ProtocolInstallerComponent implements OnInit {
   private static readonly SELECTOR = 'protocol-installer';
@@ -75,48 +75,48 @@ export class ProtocolInstallerComponent implements OnInit {
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.LAST_NAME'),
-              required: true,
-            },
+              required: true
+            }
           },
           {
             key: 'firstName',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.FIRST_NAME'),
-              required: true,
-            },
+              required: true
+            }
           },
           {
             key: 'companyName',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
-              disabled: true,
-            },
+              disabled: true
+            }
           },
           {
             key: 'street',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS'),
-              disabled: true,
-            },
+              disabled: true
+            }
           },
           {
             key: 'zip',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
-              disabled: true,
-            },
+              disabled: true
+            }
           },
           {
             key: 'city',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY'),
-              disabled: true,
-            },
+              disabled: true
+            }
           },
           {
             key: 'country',
@@ -124,30 +124,30 @@ export class ProtocolInstallerComponent implements OnInit {
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY'),
               options: COUNTRY_OPTIONS(this.translate),
-              disabled: true,
-            },
+              disabled: true
+            }
           },
           {
             key: 'email',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
-              disabled: true,
+              disabled: true
             },
             validators: {
-              validation: [Validators.email],
-            },
+              validation: [Validators.email]
+            }
           },
           {
             key: 'phone',
             type: 'input',
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
-              disabled: true,
-            },
-          },
-        ],
-      },
+              disabled: true
+            }
+          }
+        ]
+      }
     ];
   }
 
@@ -167,7 +167,7 @@ export class ProtocolInstallerComponent implements OnInit {
             city: user.address.city,
             country: user.address.country,
             email: user.email,
-            phone: user.phone,
+            phone: user.phone
           });
         })
         .catch(() => {
@@ -180,7 +180,7 @@ export class ProtocolInstallerComponent implements OnInit {
             city: '',
             country: '',
             email: '',
-            phone: '',
+            phone: ''
           });
         });
     });

@@ -95,7 +95,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION')
       }
     });
 
@@ -104,7 +104,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES')
       },
       parsers: [Number],
       validators: {

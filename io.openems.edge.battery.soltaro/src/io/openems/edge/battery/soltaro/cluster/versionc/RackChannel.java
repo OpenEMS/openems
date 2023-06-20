@@ -5,12 +5,12 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.battery.soltaro.common.enums.EmsBaudrate;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 
 /**

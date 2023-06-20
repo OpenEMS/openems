@@ -17,7 +17,7 @@ export class PartnerComponent implements OnInit, OnDestroy {
     public service: Service,
     private websocket: Websocket,
     private route: ActivatedRoute,
-    public modalCtrl: ModalController,
+    public modalCtrl: ModalController
   ) { }
 
   ngOnInit() {

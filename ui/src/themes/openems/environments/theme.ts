@@ -32,7 +32,7 @@ export const theme = {
             },
             commercial: {
                 EN: "#",
-                DE: "#",
+                DE: "#"
             }
         },
 

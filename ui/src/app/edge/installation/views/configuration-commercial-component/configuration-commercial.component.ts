@@ -57,8 +57,8 @@ export class ConfigurationCommercialComponent implements OnInit {
             className: 'line-break',
             templateOptions: {
                 options: componentLabel,
-                required: true,
-            },
+                required: true
+            }
         });
         return fields;
     }

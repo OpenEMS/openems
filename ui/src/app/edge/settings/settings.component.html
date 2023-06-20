@@ -145,7 +145,8 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
-            <ion-label translate>{{ environment.edgeShortName }} App Center</ion-label>
+            <ion-label>{{ 'Edge.Config.App.NAME_WITH_EDGE_NAME' | translate:
+              {edgeShortName: environment.edgeShortName} }}</ion-label>
           </ion-item>
           <ion-card-content>
             <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">

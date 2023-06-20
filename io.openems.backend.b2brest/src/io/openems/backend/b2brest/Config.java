@@ -9,7 +9,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 
 	@AttributeDefinition(name = "Port", description = "The port of the REST server.")
-	int port() default B2bRest.DEFAULT_PORT;
+	int port() default Backend2BackendRest.DEFAULT_PORT;
 
 	String webconsole_configurationFactory_nameHint() default "Backend2Backend Rest";
 

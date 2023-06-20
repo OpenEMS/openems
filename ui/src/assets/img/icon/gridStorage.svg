@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="71.496mm" height="95.832mm" version="1.1" viewBox="0 0 71.496 95.832" xml:space="preserve"
+  xmlns="http://www.w3.org/2000/svg" id="root">
+  <defs>
+        <rect stroke-width="0.5" id="segment" y="155.21" width="2.6458" height="8.4667"></rect>
+  </defs>
+  <g transform="translate(16.719 -89.623)">
+    <g transform="translate(-82.35 -126.65)">
+      <g transform="matrix(.75674 0 0 .74873 8.002 203.41)" fill="none" stroke="currentColor">
+        <g>
+          <g stroke-width="3.5">
+            <path d="m77.742 32.692 17.992-13.758h42.333l17.992 13.758" />
+            <path d="m78.8 31.634h76.2" />
+            <path d="m114.78 18.934-33.867 123.83" />
+            <path d="m118.49 18.934 14.597 55.684" />
+          </g>
+          <path d="m76.154 142.49h10.054" stroke-width="5" />
+        </g>
+        <path d="m80.917 32.692v10.583" stroke-linecap="round" stroke-width="3.5" />
+        <path d="m152.88 32.692v10.583" stroke-linecap="round" stroke-width="3.5" />
+        <g>
+          <g stroke-width="3">
+            <path d="m76.154 35.867h10.583" />
+            <path d="m76.154 40.101h10.583" />
+            <path d="m147.06 35.867h10.583" />
+            <path d="m147.06 40.101h10.583" />
+          </g>
+          <path d="m97.585 53.33h38.365" stroke-width="3.5" />
+          <path d="m88.325 91.959 44.7 0.01595" stroke-width="4.2718" />
+          <g stroke-width="3.5">
+            <path d="m112.67 32.692 12.7 20.108" />
+            <path d="m121.13 32.692-12.7 20.108" />
+            <path d="m105.26 53.859 26.459 31.445" />
+            <path d="m128.54 53.859-32.808 38.1" />
+            <path d="m96.792 93.017 34.768 23.492" />
+            <path d="m131.58 95.888-45.898 29.938" />
+          </g>
+        </g>
+      </g>
+      <g transform="matrix(0 -2.4368 2.4368 0 -267.18 685.79)" fill="var(--ion-color-success)" stroke="var(--ion-color-success)" stroke-linecap="square"
+        stroke-miterlimit="10">
+        <path
+          d="m155.85 153.63h17.992a1.8521 1.8521 45 0 1 1.8521 1.8521v7.9375a1.8521 1.8521 135 0 1-1.8521 1.8521h-17.992a1.8521 1.8521 45 0 1-1.8521-1.8521v-7.9375a1.8521 1.8521 135 0 1 1.8521-1.8521z"
+          fill="none" stroke-linejoin="round" stroke-width="1.3" style="mix-blend-mode:normal;paint-order:normal" />
+        <rect x="176.23" y="157.33" width="1.5875" height="4.7625" stroke-linejoin="round"
+          stroke-width=".42426" />
+        <use id="segment-0" x="155.59" href="#segment" />
+      </g>
+    </g>
+  </g>
+</svg>

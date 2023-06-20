@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		public String zipcode;
+		private String zipcode;
 
 		private Builder() {
 		}

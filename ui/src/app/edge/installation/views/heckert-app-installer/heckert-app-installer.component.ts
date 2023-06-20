@@ -116,9 +116,9 @@ export class HeckertAppInstallerComponent implements OnInit {
         text: this.translate.instant('INSTALLATION.FORWARD'),
         handler: () => {
           this.saveConfirmedApp();
-        },
+        }
       }],
-      cssClass: 'alertController',
+      cssClass: 'alertController'
     });
     (await alert).present();
   }

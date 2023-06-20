@@ -7,12 +7,12 @@ import io.openems.common.utils.ConfigUtils;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String essId;
-		public int minPower;
-		public int maxPower;
-		public int adjustPower;
-		public StartDirection startDirection;
+		private String id;
+		private String essId;
+		private int minPower;
+		private int maxPower;
+		private int adjustPower;
+		private StartDirection startDirection;
 
 		private Builder() {
 		}

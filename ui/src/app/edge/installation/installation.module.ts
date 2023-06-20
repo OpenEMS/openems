@@ -61,13 +61,9 @@ export function BoxSerialNumberValidator(control: FormControl): ValidationErrors
   return /^\d{9}$/.test(control.value) ? null : { "boxSerialNumber": true };
 }
 
-export function BmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
-  return /^\d{24}$/.test(control.value) ? null : { "batterySerialNumber": true };
-}
-
-export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
+export function BatteryAndBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
-  return /^\d{12}$/.test(control.value) ? null : { "batterySerialNumber": true };
+  return /^\d{24}$/.test(control.value) ? null : { "batteryAndBmsBoxSerialNumber": true };
 }
 
 export function CommercialBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -111,15 +107,14 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
         { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
         { name: "emsBoxNetztrennstelleSerialNumber", validation: EmsBoxNetztrennstelleSerialNumberValidator },
         { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
-        { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
-        { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
+        { name: "batteryAndBmsBoxSerialNumber", validation: BatteryAndBmsBoxSerialNumberValidator },
         { name: "onlyPositiveInteger", validation: OnlyPositiveIntegerValidator },
         { name: "commercialBmsBoxSerialNumber", validation: CommercialBmsBoxSerialNumberValidator },
         { name: "commercialBatteryModuleSerialNumber", validation: CommercialBatteryModuleSerialNumberValidator },
         { name: "commercial30BatteryInverterSerialNumber", validation: Commercial30BatteryInverterSerialNumberValidator },
         { name: "commercial50BatteryInverterSerialNumber", validation: Commercial50BatteryInverterSerialNumberValidator },
-        { name: "defaultAsMinimumValue", validation: DefaultAsMinValueValidator },
-      ],
+        { name: "defaultAsMinimumValue", validation: DefaultAsMinValueValidator }
+      ]
     }),
     SharedModule,
     SettingsModule

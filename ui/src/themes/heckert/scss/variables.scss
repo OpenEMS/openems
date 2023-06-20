@@ -82,4 +82,40 @@ $font-family: var(--ion-font-family);
 
   /** font **/
   --ion-font-family: "Calibri";
+  --ion-background-color: #fff;
+}
+
+/** Custom Colors **/
+:root {
+  --ion-color-environmental: #8abd46;
+  --ion-color-environmental-rgb: 138, 189, 70;
+  --ion-color-environmental-contrast: #fff;
+  --ion-color-environmental-contrast-rgb: 255, 255, 255;
+  --ion-color-environmental-shade: #527029;
+  --ion-color-environmental-tint: #bbff5d;
+
+  .ion-color-environmental {
+    --ion-color-base: var(--ion-color-environmental);
+    --ion-color-base-rgb: var(--ion-color-environmental-rgb);
+    --ion-color-contrast: var(--ion-color-environmental-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-environmental-contrast-rgb);
+    --ion-color-shade: var(--ion-color-environmental-shade);
+    --ion-color-tint: var(--ion-color-environmental-tint);
+  }
+
+  --ion-color-production: #36aed1;
+  --ion-color-production-rgb: 54, 174, 209;
+  --ion-color-production-contrast: #fff;
+  --ion-color-production-contrast-rgb: 255, 255, 255;
+  --ion-color-production-shade: #226e84;
+  --ion-color-production-tint: #41d4ff;
+
+  .ion-color-production {
+    --ion-color-base: var(--ion-color-production);
+    --ion-color-base-rgb: var(--ion-color-production-rgb);
+    --ion-color-contrast: var(--ion-color-production-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-production-contrast-rgb);
+    --ion-color-shade: var(--ion-color-production-shade);
+    --ion-color-tint: var(--ion-color-production-tint);
+  }
 }

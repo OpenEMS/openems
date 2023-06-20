@@ -67,7 +67,7 @@ public class UpdateAppInstance {
 		}
 
 		public final UUID instanceId;
-		public String alias;
+		public final String alias;
 		public final JsonObject properties;
 
 		private Request(JsonrpcRequest request, UUID instanceId, String alias, JsonObject properties) {

@@ -76,12 +76,14 @@ export class AdvertWidgets {
 
 
         // If EmergencyreserveController not installed
-        if (edge.producttype == ProductType.HOME && config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve").length == 0) {
+        if (edge.producttype == ProductType.HOME) {
+
             list.push({
-                name: 'FeneconAvu',
-                title: 'FENECON AVU'
+                name: 'Extended-Warranty',
+                title: 'Garantieverlängerung für Bestandssysteme'
             });
         }
+
         list.push({
             name: 'Fems-App-Center',
             title: 'FEMS App Center'
@@ -95,7 +97,7 @@ export class AdvertWidgets {
         /**
          * List of all Widgets.
          */
-        public readonly list: AdvertWidget[],
+        public readonly list: AdvertWidget[]
     ) { }
 }
 

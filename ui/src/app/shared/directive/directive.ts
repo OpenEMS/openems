@@ -4,7 +4,7 @@ import { VarDirective } from './ngvar';
 
 @NgModule({
     imports: [
-        BrowserModule,
+        BrowserModule
     ],
     entryComponents: [
         VarDirective

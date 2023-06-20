@@ -32,16 +32,16 @@ export const theme = {
             },
             commercial: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/08/V2022.03_EN_Warranty_conditions_for-FENECON-Commercial_30_50.pdf",
-                DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf",
+                DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf"
             }
         },
 
         gtc: {
             EN: "https://fenecon.de/page/gtc/",
-            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/"
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
         METER_SOCOMEC: 'https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
-    },
+    }
 };

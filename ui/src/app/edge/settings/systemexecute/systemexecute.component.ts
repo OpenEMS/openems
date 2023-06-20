@@ -23,7 +23,7 @@ export class SystemExecuteComponent implements OnInit {
   public fields: FormlyFieldConfig[] = [{
     key: 'predefined',
     type: 'radio',
-    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] },
+    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] }
   }, {
     key: 'ping',
     hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'ping',
@@ -31,14 +31,14 @@ export class SystemExecuteComponent implements OnInit {
       key: 'ip',
       type: 'input',
       templateOptions: {
-        label: 'IP-Address', placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/,
+        label: 'IP-Address', placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/
       },
       validation: {
         messages: {
-          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`,
-        },
-      },
-    }],
+          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`
+        }
+      }
+    }]
   }, {
     key: 'predefined',
     type: 'radio',

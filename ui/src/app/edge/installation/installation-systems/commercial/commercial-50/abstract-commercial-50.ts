@@ -290,7 +290,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
-                { name: 'startStop', value: 'AUTO' },
+                { name: 'startStop', value: 'AUTO' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

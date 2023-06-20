@@ -73,7 +73,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	protected BundleContext bundleContext;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile ClockProvider clockProvider = null;
+	private volatile ClockProvider clockProvider = null;
 
 	@Reference
 	protected MetaTypeService metaTypeService;

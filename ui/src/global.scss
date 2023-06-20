@@ -316,3 +316,60 @@ ion-modal.auto-height {
 ion-modal.full-width {
     --width: 100%;
 }
+
+/** SVG Variables **/
+:root {
+  --storage-segment-0: block;
+  --storage-segment-1: block;
+  --storage-segment-2: block;
+  --storage-segment-3: block;
+  --storage-segment-4: none;
+}
+
+.storage-0 {
+  --storage-segment-0: none;
+  --storage-segment-1: none;
+  --storage-segment-2: none;
+  --storage-segment-3: none;
+  --storage-segment-4: none;
+}
+
+.storage-20 {
+  --storage-segment-0: block;
+  --storage-segment-1: none;
+  --storage-segment-2: none;
+  --storage-segment-3: none;
+  --storage-segment-4: none;
+}
+
+.storage-40 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: none;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-60 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: none;
+    --storage-segment-4: none;
+}
+
+.storage-80 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: block;
+    --storage-segment-4: none;
+}
+
+.storage-100 {
+    --storage-segment-0: block;
+    --storage-segment-1: block;
+    --storage-segment-2: block;
+    --storage-segment-3: block;
+    --storage-segment-4: block;
+}

@@ -59,8 +59,8 @@ export class ConfigurationPeakShavingComponent implements OnInit {
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_VALUE'),
                 type: 'number',
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_DESCRIPTION'),
-                required: true,
-            },
+                required: true
+            }
         });
 
         fields.push({
@@ -71,7 +71,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_VALUE'),
                 type: 'number',
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_DESCRIPTION'),
-                required: true,
+                required: true
             },
             expressionProperties: {
                 // "beladungUnter" value cannot be greater than "entladungÜber" value

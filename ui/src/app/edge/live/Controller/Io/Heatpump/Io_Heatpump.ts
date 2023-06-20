@@ -1,8 +1,9 @@
-import { BehaviorSubject } from 'rxjs';
-import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
-import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
+import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
+
+import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Io_Heatpump',
@@ -49,7 +50,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     }
 
     // Mode
-    switch (currentData.thisComponent[Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
+    switch (currentData.allComponents[this.component.id + '/' + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
       case 'AUTOMATIC': {
         this.mode = this.translate.instant('General.automatic');
         break;

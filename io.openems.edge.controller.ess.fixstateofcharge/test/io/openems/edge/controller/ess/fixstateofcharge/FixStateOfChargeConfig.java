@@ -9,16 +9,16 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public boolean isRunning;
-		public int targetSoc;
-		public boolean targetTimeSpecified;
-		public String targetTime;
-		public int targetTimeBuffer;
-		public boolean selfTermination;
-		public int terminationBuffer;
-		public boolean conditionalTermination;
-		public EndCondition endCondition;
+		private String essId;
+		private boolean isRunning;
+		private int targetSoc;
+		private boolean targetTimeSpecified;
+		private String targetTime;
+		private int targetTimeBuffer;
+		private boolean selfTermination;
+		private int terminationBuffer;
+		private boolean conditionalTermination;
+		private EndCondition endCondition;
 
 		private Builder() {
 		}

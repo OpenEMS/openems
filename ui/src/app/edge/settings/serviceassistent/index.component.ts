@@ -46,7 +46,7 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
   ) { }
 
   public customAlertOptions: any = {
-    cssClass: 'wide-alert',
+    cssClass: 'wide-alert'
   };
 
   ngOnInit() {

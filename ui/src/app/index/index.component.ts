@@ -52,7 +52,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {

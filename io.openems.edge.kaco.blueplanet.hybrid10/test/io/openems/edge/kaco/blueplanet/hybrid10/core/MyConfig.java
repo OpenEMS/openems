@@ -6,7 +6,7 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
+		private String id;
 		private String serialnumber;
 		private String ip;
 		private String userkey;

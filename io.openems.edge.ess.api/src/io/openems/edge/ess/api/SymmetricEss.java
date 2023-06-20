@@ -110,7 +110,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Discharge Energy.
@@ -122,7 +122,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Voltage.
@@ -440,7 +440,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. See
+	 * Gets the Active Charge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -479,7 +479,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. See
+	 * Gets the Active Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

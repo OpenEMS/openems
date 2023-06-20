@@ -20,9 +20,15 @@ export class KeyMaskDirective {
         let numbers = [];
 
         numbers.push(trimmed.substr(0, 4));
-        if (trimmed.substr(4, 4) !== '') numbers.push(trimmed.substr(4, 4));
-        if (trimmed.substr(8, 4) != '') numbers.push(trimmed.substr(8, 4));
-        if (trimmed.substr(12, 4) != '') numbers.push(trimmed.substr(12, 4));
+        if (trimmed.substr(4, 4) !== '') {
+            numbers.push(trimmed.substr(4, 4));
+        }
+        if (trimmed.substr(8, 4) != '') {
+            numbers.push(trimmed.substr(8, 4));
+        }
+        if (trimmed.substr(12, 4) != '') {
+            numbers.push(trimmed.substr(12, 4));
+        }
 
         let result = numbers.join('-').toUpperCase();
         if (hasDashAsLastChar) {

@@ -14,11 +14,15 @@
         ],
         "createDefaultProgram": true
       },
+      "plugins": [
+        "unused-imports"
+      ],
       "extends": [
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "unused-imports/no-unused-imports": "error",
         "semi": [
           "error",
           "always"
@@ -51,6 +55,11 @@
             ],
             "style": "camelCase"
           }
+        ],
+        "curly": "error",
+        "comma-dangle": [
+          "error",
+          "never"
         ]
       }
     },

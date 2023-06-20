@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
-import { AlertingComponent } from './alerting/alerting';
-import { FeneconAvuComponent } from './avu/feneconAvu';
+import { ExtendedWarrantyComponent } from './extended-warranty/extended-warranty';
 import { FemsAppCenterComponent } from './fems-app-center/fems-app-center';
-import { FeneconHomeExtensionComponent } from './feneconHomeExtension/feneconHomeExtension';
 
 @NgModule({
     imports: [
@@ -12,10 +10,8 @@ import { FeneconHomeExtensionComponent } from './feneconHomeExtension/feneconHom
     ],
     declarations: [
         AdvertisementComponent,
-        AlertingComponent,
-        FeneconHomeExtensionComponent,
-        FeneconAvuComponent,
-        FemsAppCenterComponent
+        FemsAppCenterComponent,
+        ExtendedWarrantyComponent
     ],
     exports: [
         AdvertisementComponent

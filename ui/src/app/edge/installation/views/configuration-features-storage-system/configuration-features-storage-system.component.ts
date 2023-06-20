@@ -60,8 +60,8 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
             templateOptions: {
                 options: label,
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_FEATURES_STORAGE_SYSTEM.FEATURE_DESCRIPTION'),
-                required: true,
-            },
+                required: true
+            }
         });
         return fields;
     }

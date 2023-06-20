@@ -18,7 +18,8 @@ import io.openems.edge.ess.refubeckhoff.enums.SetOperationMode;
 import io.openems.edge.ess.refubeckhoff.enums.StopStart;
 import io.openems.edge.ess.refubeckhoff.enums.SystemState;
 
-public interface RefuBeckhoffEss extends SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
+public interface RefuBeckhoffEss
+		extends SymmetricEss, ManagedSymmetricEss, EventHandler, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -29,8 +30,7 @@ public interface RefuBeckhoffEss extends SymmetricEss, ManagedSymmetricEss, Even
 				.accessMode(AccessMode.READ_ONLY)), //
 		WORK_STATE(Doc.of(StopStart.values()) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		
-		
+
 		SET_SYSTEM_ERROR_RESET(Doc.of(StopStart.values()) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
 		SET_OPERATION_MODE(Doc.of(SetOperationMode.values()) //

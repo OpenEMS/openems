@@ -23,7 +23,7 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public formBuilder: FormBuilder,
-        public websocket: Websocket,
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {

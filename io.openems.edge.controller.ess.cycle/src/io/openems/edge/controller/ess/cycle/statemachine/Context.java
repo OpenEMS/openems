@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
-import io.openems.edge.controller.ess.cycle.EssCycle;
+import io.openems.edge.controller.ess.cycle.ControllerEssCycle;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Context extends AbstractContext<EssCycle> {
+public class Context extends AbstractContext<ControllerEssCycle> {
 
 	private final Logger log = LoggerFactory.getLogger(Context.class);
 
@@ -26,7 +26,7 @@ public class Context extends AbstractContext<EssCycle> {
 	protected final State previousState;
 	private final LocalDateTime lastStateChange;
 
-	public Context(EssCycle parent, Config config, ComponentManager componentManager, ManagedSymmetricEss ess,
+	public Context(ControllerEssCycle parent, Config config, ComponentManager componentManager, ManagedSymmetricEss ess,
 			int maxChargePower, int maxDischargePower, State previousState, LocalDateTime lastStateChange) {
 		super(parent);
 		this.config = config;

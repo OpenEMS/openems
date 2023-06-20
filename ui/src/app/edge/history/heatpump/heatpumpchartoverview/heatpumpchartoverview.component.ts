@@ -17,7 +17,7 @@ export class HeatPumpChartOverviewComponent implements OnInit {
     constructor(
         public service: Service,
         public modalCtrl: ModalController,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {

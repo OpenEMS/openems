@@ -93,7 +93,7 @@ export class NetworkOldComponent implements OnInit {
           templateOptions: {
             label: 'Gateway',
             placeholder: 'z.B. "192.168.0.1"'
-          },
+          }
         },
         {
           hideExpression: 'model.dhcp',
@@ -102,25 +102,25 @@ export class NetworkOldComponent implements OnInit {
           templateOptions: {
             label: 'DNS',
             input: 'z.B. "192.168.0.1"'
-          },
+          }
         },
         {
           key: 'linkLocalAddressing',
           type: 'checkbox',
           templateOptions: {
             label: 'Link-Local Address (z. B. "169.254.XXX.XXX")'
-          },
+          }
         },
         {
           key: 'addresses',
           type: 'repeat',
           templateOptions: {
-            label: 'Statische IP-Adresse hinzufügen',
+            label: 'Statische IP-Adresse hinzufügen'
           },
           fieldArray: {
             type: 'input'
           }
-        },
+        }
       ]
     };
   }

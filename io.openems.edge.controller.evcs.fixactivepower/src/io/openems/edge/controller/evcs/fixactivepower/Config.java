@@ -22,7 +22,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Charge power [W]", description = "Fix value that should be charged")
 	int power();
-	
+
 	@AttributeDefinition(name = "Update Frequency [s]", description = "Timeout to write the value to the EVCS. Recommended minimum: 60s or more for optimal settings.")
 	int updateFrequency() default 60;
 

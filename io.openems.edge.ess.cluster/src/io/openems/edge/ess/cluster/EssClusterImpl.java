@@ -59,7 +59,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();
 
 	@Reference
-	private Power power = null;
+	private Power power;
 
 	@Reference
 	protected ComponentManager componentManager;

@@ -5,10 +5,10 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 public final class MeterProps {
 

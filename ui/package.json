@@ -1,6 +1,6 @@
 {
     "name": "openems-ui",
-    "version": "2023.5.3",
+    "version": "2023.6.1",
     "license": "AGPL-3.0",
     "private": true,
     "dependencies": {
@@ -21,7 +21,7 @@
         "chart.js": "^2.9.4",
         "classlist.js": "^1.1.20150312",
         "compare-versions": "^5.0.3",
-        "d3": "^7.8.4",
+        "d3": "^7.8.5",
         "date-fns": "^2.30.0",
         "file-saver-es": "^2.0.5",
         "ng2-charts": "^2.4.3",
@@ -54,6 +54,7 @@
         "eslint-plugin-import": "2.27.5",
         "eslint-plugin-jsdoc": "45.0.0",
         "eslint-plugin-prefer-arrow": "1.2.3",
+        "eslint-plugin-unused-imports": "^2.0.0",
         "jasmine-core": "~4.5.0",
         "jasmine-spec-reporter": "~7.0.0",
         "karma": "~6.4.2",

@@ -25,7 +25,7 @@ export class ConfigurationSystemComponent implements OnInit {
   protected fields: FormlyFieldConfig[];
   protected model;
 
-  constructor(private translate: TranslateService,) { }
+  constructor(private translate: TranslateService) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});

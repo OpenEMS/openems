@@ -4,7 +4,7 @@ import { SwUpdate } from "@angular/service-worker";
 import { Service } from "./shared/shared";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CheckForUpdateService {
 

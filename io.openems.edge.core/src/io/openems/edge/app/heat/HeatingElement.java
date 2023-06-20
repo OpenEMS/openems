@@ -1,5 +1,9 @@
 package io.openems.edge.app.heat;
 
+import static io.openems.common.channel.Unit.SECONDS;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -17,7 +21,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
@@ -35,7 +38,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -45,6 +47,7 @@ import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -130,8 +133,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
 				.setDefaultValue(2000) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-							.setUnit(Unit.WATT, l) //
+					field.setInputType(NUMBER) //
+							.setUnit(WATT, l) //
 							.isRequired(true) //
 							.setMin(0);
 				})), //
@@ -140,8 +143,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
 				.setDefaultValue(60) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-							.setUnit(Unit.SECONDS, l) //
+					field.setInputType(NUMBER) //
+							.setUnit(SECONDS, l) //
 							.isRequired(true) //
 							.setMin(0);
 				}) //

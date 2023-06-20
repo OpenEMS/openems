@@ -56,7 +56,7 @@ export class ProtocolSystemComponent implements OnInit {
       key: "isEqualToCustomerData",
       type: "checkbox",
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.LOCATION_SAME_AS_ADDRESS'),
+        label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.LOCATION_SAME_AS_ADDRESS')
       }
     });
 
@@ -64,7 +64,7 @@ export class ProtocolSystemComponent implements OnInit {
       key: "isCorporateClient",
       type: "checkbox",
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER'),
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER')
       },
       hideExpression: model => model.isEqualToCustomerData
     });
@@ -170,8 +170,8 @@ export class ProtocolSystemComponent implements OnInit {
       ],
       validators: {
         validation: [
-          { name: "emailMatch", options: { errorPath: "emailConfirm" } },
-        ],
+          { name: "emailMatch", options: { errorPath: "emailConfirm" } }
+        ]
       },
       hideExpression: model => model.isEqualToCustomerData
     });

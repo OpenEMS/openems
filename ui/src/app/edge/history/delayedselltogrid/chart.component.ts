@@ -23,7 +23,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("delayedsellTogrid-chart", service, translate);
     }
@@ -96,7 +96,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                 }
                 if (continuousSellToGridPower in result.data) {
@@ -117,7 +117,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(200,0,0,1)',
+                        borderColor: 'rgba(200,0,0,1)'
                     });
                 }
                 if ('_sum/EssActivePower' in result.data) {
@@ -148,7 +148,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                     /*
                      * Storage Discharge
@@ -169,7 +169,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(200,0,0,0.05)',
-                        borderColor: 'rgba(200,0,0,1)',
+                        borderColor: 'rgba(200,0,0,1)'
                     });
                 }
                 this.datasets = datasets;

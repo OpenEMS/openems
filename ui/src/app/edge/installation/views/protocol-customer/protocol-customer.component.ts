@@ -55,8 +55,8 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'isCorporateClient',
       type: 'checkbox',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER'),
-      },
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER')
+      }
     });
 
     fields.push({
@@ -66,7 +66,7 @@ export class ProtocolCustomerComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
         required: true
       },
-      hideExpression: model => !model.isCorporateClient,
+      hideExpression: model => !model.isCorporateClient
     });
 
     fields.push({
@@ -75,7 +75,7 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.LAST_NAME'),
         required: true
-      },
+      }
     });
 
     fields.push({
@@ -153,8 +153,8 @@ export class ProtocolCustomerComponent implements OnInit {
       ],
       validators: {
         validation: [
-          { name: 'emailMatch', options: { errorPath: 'emailConfirm' } },
-        ],
+          { name: 'emailMatch', options: { errorPath: 'emailConfirm' } }
+        ]
       }
     });
 
@@ -163,7 +163,7 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
-        required: true,
+        required: true
       }
     });
     return fields;

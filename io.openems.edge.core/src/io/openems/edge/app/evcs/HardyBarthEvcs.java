@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.formly.enums.Wrappers.PANEL;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,13 +41,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Case;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.DefaultValueOptions;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder.Operator;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Wrappers;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -55,6 +50,12 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.formly.Case;
+import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
+import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -101,20 +102,23 @@ public class HardyBarthEvcs extends
 		WRAPPER_FIRST_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 1)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(Wrappers.PANEL) //
+					field.addWrapper(PANEL) //
 							.setFieldGroup(SubPropertyFirstChargepoint.fields(app, l, parameter)) //
-							.setLabelExpression(
-									ExpressionBuilder.of(Property.NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "1"), //
-									"", TranslationUtil.getTranslation(parameter.bundle,
-											"App.Evcs.chargingStation.label", 1))
+							.setLabelExpression(Exp.ifElse(
+									Exp.currentModelValue(Property.NUMBER_OF_CHARGING_STATIONS)
+											.equal(Exp.staticValue(1)),
+									StringExpression.of(""), //
+									StringExpression.of(TranslationUtil.getTranslation(parameter.bundle,
+											"App.Evcs.chargingStation.label", 1))))
 							.hideKey(); //
 				})), //
 		WRAPPER_SECOND_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 2)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(Wrappers.PANEL) //
+					field.addWrapper(PANEL) //
 							.setFieldGroup(SubPropertySecondChargepoint.fields(app, l, parameter)) //
-							.onlyShowIfValueEquals(NUMBER_OF_CHARGING_STATIONS, "2") //
+							.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+									.equal(Exp.staticValue(2)))
 							.hideKey();
 				})), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
@@ -127,15 +131,15 @@ public class HardyBarthEvcs extends
 					final var existingEvcs = EvcsProps.getEvcsComponents(app.componentUtil);
 
 					if (existingEvcs.isEmpty()) {
-						field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "2"));
+						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+								.equal(Exp.staticValue(2)));
 						return;
 					}
-
-					final var expressionForSingleUpdate = ExpressionBuilder.ofNotIn(EVCS_ID,
-							existingEvcs.stream().map(OpenemsComponent::id) //
-									.toArray(String[]::new));
-					field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "2") //
-							.or(expressionForSingleUpdate));
+					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+							.equal(Exp.staticValue(2)) //
+							.or(existingEvcs.stream().map(OpenemsComponent::id) //
+									.collect(Exp.toArrayExpression()) //
+									.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
 				})), //
 		;
 

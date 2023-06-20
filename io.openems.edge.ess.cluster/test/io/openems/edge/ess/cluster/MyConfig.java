@@ -7,8 +7,8 @@ import io.openems.edge.common.startstop.StartStopConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
-		public String[] essIds;
-		public StartStopConfig startStop;
+		private String[] essIds;
+		private StartStopConfig startStop;
 
 		private Builder() {
 		}

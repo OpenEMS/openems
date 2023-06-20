@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -18,16 +20,15 @@ import io.openems.edge.core.appmanager.AppManagerImpl;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FieldGroupBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FieldGroupBuilder.DisplayType;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
+import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 
 public final class EvcsProps {
 
@@ -77,7 +78,7 @@ public final class EvcsProps {
 				.add(JsonFormlyUtil.buildInputFromNameable(property) //
 						.setLabel(TranslationUtil.getTranslation(parameter.bundle,
 								"App.Evcs.Cluster.maxChargeFromGrid.short.label"))
-						.setInputType(InputBuilder.Type.NUMBER) //
+						.setInputType(NUMBER) //
 						.setMin(0) //
 						.isRequired(true) //
 						.setUnit(Unit.WATT, language) //
@@ -89,8 +90,7 @@ public final class EvcsProps {
 				.add(JsonFormlyUtil.buildCheckboxFromNameable(acceptProperty) //
 						.isRequired(true) //
 						.requireTrue(language) //
-						.setLabel(TranslationUtil.getTranslation(parameter.bundle,
-								"acceptCondition.label")) //
+						.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
 						.build())
 				.build());
 	}
@@ -147,9 +147,10 @@ public final class EvcsProps {
 					if (existingEvcs.isEmpty()) {
 						return;
 					}
-					final var expression = ExpressionBuilder.ofNotIn(evcsIdProperty,
-							existingEvcs.stream().map(OpenemsComponent::id) //
-									.toArray(String[]::new));
+
+					final var expression = existingEvcs.stream().map(OpenemsComponent::id) //
+							.collect(Exp.toArrayExpression()) //
+							.every(v -> v.notEqual(Exp.currentModelValue(evcsIdProperty)));
 
 					field.onlyShowIf(expression);
 				});

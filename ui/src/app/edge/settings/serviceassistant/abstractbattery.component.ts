@@ -22,7 +22,7 @@ export abstract class AbstractBattery {
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        public websocket: Websocket,
+        public websocket: Websocket
     ) {
         this.service.startSpinner(this._abstractBatterySpinner);
         this.importantWriteChannelDescriptions = this.getImportantWriteChannelDescriptions();

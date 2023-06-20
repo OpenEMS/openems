@@ -22,7 +22,7 @@ export class AliasUpdateComponent implements OnInit {
         private route: ActivatedRoute,
         private websocket: Websocket,
         private translate: TranslateService,
-        private formBuilder: FormBuilder,
+        private formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {

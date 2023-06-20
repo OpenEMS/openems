@@ -32,7 +32,7 @@ import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundl
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
-import io.openems.edge.controller.api.backend.BackendApi;
+import io.openems.edge.controller.api.backend.ControllerApiBackend;
 
 @Component
 public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
@@ -40,7 +40,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile BackendApi backend;
+	private volatile ControllerApiBackend backend;
 
 	private final ComponentManager componentManager;
 
@@ -111,7 +111,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 		}
 	}
 
-	private final BackendApi getBackendOrError() throws OpenemsNamedException {
+	private final ControllerApiBackend getBackendOrError() throws OpenemsNamedException {
 		final var backendApi = this.getBackend();
 		if (backendApi == null || !backendApi.isConnected()) {
 			throw new OpenemsException("Backend not connected!");
@@ -119,17 +119,16 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 		return backendApi;
 	}
 
-	private final BackendApi getBackend() {
+	private final ControllerApiBackend getBackend() {
 		if (this.backend != null) {
 			return this.backend;
 		}
-		final var backendApis = this.componentManager.getEnabledComponentsOfType(BackendApi.class);
+		final var backendApis = this.componentManager.getEnabledComponentsOfType(ControllerApiBackend.class);
 		if (backendApis.isEmpty()) {
 			return null;
 		}
 		this.log.warn("BackendApi Controller exists but was not injected!");
 		return backendApis.get(0);
-
 	}
 
 	private static final OpenemsNamedException getOpenemsException(Throwable e) {

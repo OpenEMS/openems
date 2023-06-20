@@ -5,7 +5,7 @@ import { Edge, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
   selector: PreInstallationUpdateComponent.SELECTOR,
-  templateUrl: './pre-installation-update.component.html',
+  templateUrl: './pre-installation-update.component.html'
 })
 export class PreInstallationUpdateComponent {
   private static readonly SELECTOR = 'pre-installation-update';

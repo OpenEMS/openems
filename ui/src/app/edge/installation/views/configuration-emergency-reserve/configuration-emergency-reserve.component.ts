@@ -55,7 +55,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'isEnabled',
       type: 'checkbox',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ENABLED'),
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ENABLED')
       }
     });
 
@@ -63,7 +63,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'isReserveSocEnabled',
       type: 'toggle',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED')
       },
       hideExpression: model => !model.isEnabled
     });

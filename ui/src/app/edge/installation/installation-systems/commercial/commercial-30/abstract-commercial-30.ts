@@ -227,7 +227,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus2' },
                 { name: 'type', value: 'GRID' },
-                { name: 'modbusUnitId', value: 5 },
+                { name: 'modbusUnitId', value: 5 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
@@ -256,7 +256,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
                 { name: 'countryCode', value: 'GERMANY' },
-                { name: 'startStop', value: 'AUTO' },
+                { name: 'startStop', value: 'AUTO' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
@@ -277,15 +277,15 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     { name: 'sellToGridLimitEnabled', value: true },
                     {
                         name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower,
+                        value: this.feedInLimitation.maximumFeedInPower
                     },
                     { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
                     { name: 'mode', value: 'AUTOMATIC' },
                     { name: 'manualTargetTime', value: '17:00' },
                     { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 },
+                    { name: 'sellToGridLimitRampPercentage', value: 2 }
                 ],
-                mode: ConfigurationMode.RemoveAndConfigure,
+                mode: ConfigurationMode.RemoveAndConfigure
             });
         }
 

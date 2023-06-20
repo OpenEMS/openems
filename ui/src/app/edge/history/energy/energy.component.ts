@@ -215,7 +215,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(189, 195, 199,0.05)',
-          borderColor: 'rgba(189, 195, 199,1)',
+          borderColor: 'rgba(189, 195, 199,1)'
         });
       }
 
@@ -291,7 +291,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(0,0,200,0.05)',
-          borderColor: 'rgba(0,0,200,1)',
+          borderColor: 'rgba(0,0,200,1)'
         });
       }
 
@@ -315,7 +315,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(253,197,7,0.05)',
-          borderColor: 'rgba(253,197,7,1)',
+          borderColor: 'rgba(253,197,7,1)'
         });
       }
 
@@ -349,7 +349,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(0,223,0,0.05)',
-          borderColor: 'rgba(0,223,0,1)',
+          borderColor: 'rgba(0,223,0,1)'
         });
         /*
          * Storage Discharge
@@ -372,7 +372,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         });
         this.colors.push({
           backgroundColor: 'rgba(200,0,0,0.05)',
-          borderColor: 'rgba(200,0,0,1)',
+          borderColor: 'rgba(200,0,0,1)'
         });
       }
 
@@ -875,7 +875,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             // Consumption and Production should always be shown as visible, without line-through style
             hidden: ((text.includes(consumptionLabelText) || text.includes(productionLabelText)) ? false : !chart.isDatasetVisible(datasetIndex)),
             lineWidth: lineWidth,
-            strokeStyle: strokeStyle,
+            strokeStyle: strokeStyle
           });
         }
       });
@@ -1055,7 +1055,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   async presentModal() {
     const modal = await this.modalCtrl.create({
-      component: EnergyModalComponent,
+      component: EnergyModalComponent
     });
     return await modal.present();
   }

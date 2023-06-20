@@ -56,13 +56,13 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
     public addCustomBatteryData(batteryData: ComponentData[]) {
         batteryData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
-            value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
+            value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
         });
 
         if (this.emergencyReserve.isEnabled) {
             batteryData.push({
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_VALUE'),
-                value: this.emergencyReserve.value,
+                value: this.emergencyReserve.value
             });
         }
         return batteryData;
@@ -198,12 +198,12 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'isReserveSocEnabled', value: this.emergencyReserve.isReserveSocEnabled },
                 {
                     name: 'reserveSoc',
-                    value: this.emergencyReserve.value ?? 5 /* minimum allowed value */,
-                },
+                    value: this.emergencyReserve.value ?? 5 /* minimum allowed value */
+                }
             ],
             mode: this.emergencyReserve.isEnabled
                 ? ConfigurationMode.RemoveAndConfigure
-                : ConfigurationMode.RemoveOnly,
+                : ConfigurationMode.RemoveOnly
         }, 12);
 
         return componentConfigurator;
@@ -277,14 +277,14 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         protocol.items.push({
             category: Category.EMERGENCY_RESERVE,
             name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '?' }),
-            value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
+            value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
         });
 
         if (emergencyReserve.isEnabled) {
             protocol.items.push({
                 category: Category.EMERGENCY_RESERVE,
                 name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '[%]' }),
-                value: emergencyReserve.value ? emergencyReserve.value.toString() : '',
+                value: emergencyReserve.value ? emergencyReserve.value.toString() : ''
             });
         }
 
@@ -294,7 +294,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         protocol.items.push({
             category: this.lineSideMeterFuse.category,
             name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-            value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
+            value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ''
         });
 
         const feedInLimitation = this.feedInLimitation;
@@ -320,7 +320,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
-                    : (0).toString(),
+                    : (0).toString()
             });
         }
 
@@ -334,24 +334,24 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 {
                     category: additionalAcCategory,
                     name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
-                    value: element.alias,
+                    value: element.alias
                 },
                 {
                     category: additionalAcCategory,
                     name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
-                    value: element.value ? element.value.toString() : '',
+                    value: element.value ? element.value.toString() : ''
                 });
 
             element.orientation && protocol.items.push({
                 category: additionalAcCategory,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-                value: element.orientation,
+                value: element.orientation
             });
 
             element.moduleType && protocol.items.push({
                 category: additionalAcCategory,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: element.moduleType,
+                value: element.moduleType
             });
 
             element.modulesPerString && protocol.items.push({
@@ -359,13 +359,13 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modulesPerString
                     ? element.modulesPerString.toString()
-                    : '',
+                    : ''
             });
 
             element.meterType && protocol.items.push({
                 category: additionalAcCategory,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: Meter.toLabelString(element.meterType),
+                value: Meter.toLabelString(element.meterType)
             });
 
             element.modbusCommunicationAddress && protocol.items.push({
@@ -373,7 +373,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modbusCommunicationAddress
                     ? element.modbusCommunicationAddress.toString()
-                    : '',
+                    : ''
             });
         }
 
@@ -440,7 +440,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                         value: Coupler.WEIDMUELLER,
                         url: Coupler.toImageUrl(Coupler.WEIDMUELLER)
                     }
-                ],
+                ]
             },
             wrappers: ['formly-field-radio-with-image'],
             defaultValue: this.emergencyReserve.coupler
