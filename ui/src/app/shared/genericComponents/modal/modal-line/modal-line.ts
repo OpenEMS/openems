@@ -29,6 +29,6 @@ export class ModalLineComponent extends AbstractModalLine {
 
 export enum TextIndentation {
     NONE = '0%',
-    SIMPLE = '5%',
+    SINGLE = '5%',
     DOUBLE = '10%'
 }

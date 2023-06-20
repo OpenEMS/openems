@@ -1,0 +1,33 @@
+<oe-modal [title]="props.attributes.title" *ngIf="props">
+    <ng-container *ngFor="let entry of props.options">
+        <ng-container *ngFor="let line of entry.lines">
+            <ng-container [ngSwitch]="line.type">
+
+                <!-- OeFormlyField.ChannelLine -->
+                <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
+                    [converter]="line.converter">
+                </oe-modal-line>
+
+                <!-- OeFormlyField.ChildrenLine -->
+                <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+                    <ng-container *ngFor="let lineItem of line.children">
+                        <!-- OeFormlyField.Item -->
+                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+                            [converter]="lineItem.converter">
+                        </oe-modal-line-item>
+                    </ng-container>
+                </oe-modal-line>
+
+                <!-- OeFormlyField.InfoLine -->
+                <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
+                </oe-modal-info-line>
+
+                <!-- OeFormlyField.HorizontalLine -->
+                <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
+
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</oe-modal>
