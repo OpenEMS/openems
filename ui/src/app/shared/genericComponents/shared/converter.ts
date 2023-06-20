@@ -11,7 +11,7 @@ export namespace Converter {
    * @returns the value or empty string for null
    */
   export const TO_STRING: Converter = (value): string => {
-    if (value === null) {
+    if (value === null || value === undefined) {
       return "";
     }
     return "" + value;
