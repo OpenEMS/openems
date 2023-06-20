@@ -197,7 +197,6 @@ export class EdgeConfig {
             }
         }
 
-
         // Backwards compatibilty
         // TODO drop after full migration to ElectricityMeter
         switch (natureId) {
@@ -205,7 +204,6 @@ export class EdgeConfig {
             case "io.openems.edge.meter.api.ElectricityMeter":
                 result.push(...this.getComponentIdsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
-
 
         return result;
     }
