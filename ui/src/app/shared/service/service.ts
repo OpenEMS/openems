@@ -1,3 +1,4 @@
+import { registerLocaleData } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
@@ -6,6 +7,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
+
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -91,6 +93,7 @@ export class Service extends AbstractService {
 
   public setLang(language: Language) {
     if (language !== null) {
+      registerLocaleData(Language.getLocale(language.key));
       this.translate.use(language.key);
     } else {
       this.translate.use(Language.DEFAULT.key);
