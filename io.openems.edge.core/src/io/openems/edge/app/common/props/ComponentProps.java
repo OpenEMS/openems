@@ -1,5 +1,8 @@
 package io.openems.edge.app.common.props;
 
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_LABEL;
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_VALUE;
+
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -12,10 +15,10 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -90,8 +93,7 @@ public final class ComponentProps {
 				.setLabel("Component-ID") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(supplyComponents.apply(app), //
-							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE);
+							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE);
 				}).setDefaultValue((app, property, l, parameter) -> {
 					final var components = supplyComponents.apply(app);
 					if (components.isEmpty()) {

@@ -30,13 +30,14 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -128,10 +129,10 @@ public class GridOptimizedCharge extends AbstractEnumOpenemsApp<Property> implem
 										this.getAppId() + ".sellToGridLimitEnabled.label")) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(InputType.NUMBER) //
 								.isRequired(true) //
 								.setMin(0) //
-								.onlyShowIfChecked(Property.SELL_TO_GRID_LIMIT_ENABLED) //
+								.onlyShowIf(Exp.currentModelValue(Property.SELL_TO_GRID_LIMIT_ENABLED).notNull())
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".maximumSellToGridPower.label")) //
 								.build())

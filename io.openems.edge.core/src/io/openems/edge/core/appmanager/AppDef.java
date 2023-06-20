@@ -18,9 +18,9 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 
 /**
  * AppDef short for definition of a property for an app.

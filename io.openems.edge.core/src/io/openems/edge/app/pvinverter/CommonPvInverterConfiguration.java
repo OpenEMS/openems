@@ -1,5 +1,8 @@
 package io.openems.edge.app.pvinverter;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+import static io.openems.edge.core.appmanager.formly.enums.Validation.IP;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,10 +13,10 @@ import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 public final class CommonPvInverterConfiguration {
 
@@ -37,7 +40,7 @@ public final class CommonPvInverterConfiguration {
 				.setDefaultValue("192.168.178.85") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
 				f.isRequired(true) //
-						.setValidation(JsonFormlyUtil.InputBuilder.Validation.IP));
+						.setValidation(IP));
 	}
 
 	/**
@@ -51,7 +54,7 @@ public final class CommonPvInverterConfiguration {
 				.setTranslatedDescription("App.PvInverter.port.description") //
 				.setDefaultValue(502) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+				f.setInputType(NUMBER) //
 						.setMin(0));
 	}
 
@@ -65,7 +68,7 @@ public final class CommonPvInverterConfiguration {
 				.setTranslatedLabel("modbusUnitId") //
 				.setTranslatedDescription("App.PvInverter.modbusUnitId.description") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+				f.setInputType(NUMBER) //
 						.setMin(0));
 	}
 

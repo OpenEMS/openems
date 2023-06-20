@@ -1,9 +1,11 @@
 package io.openems.edge.app.common.props;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+import static io.openems.edge.core.appmanager.formly.enums.Validation.IP;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonPrimitive;
 
@@ -11,15 +13,15 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Case;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.DefaultValueOptions;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder.Operator;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.Case;
+import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 
 public final class CommunicationProps {
 
@@ -36,7 +38,7 @@ public final class CommunicationProps {
 				def -> def.setTranslatedLabel("ipAddress") //
 						.setDefaultValue("192.168.178.85") //
 						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-						f.setValidation(JsonFormlyUtil.InputBuilder.Validation.IP)));
+						f.setValidation(IP)));
 	}
 
 	/**
@@ -50,7 +52,7 @@ public final class CommunicationProps {
 						.setTranslatedDescription("port.description") //
 						.setDefaultValue(502) //
 						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-						f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+						f.setInputType(NUMBER) //
 								.setMin(0)));
 	}
 
@@ -65,7 +67,7 @@ public final class CommunicationProps {
 						.setTranslatedDescription("modbusUnitId.description") //
 						.setDefaultValue(0) //
 						.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-						f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+						f.setInputType(NUMBER) //
 								.setMin(0) //
 								.onlyPositiveNumbers()));
 	}
@@ -113,35 +115,53 @@ public final class CommunicationProps {
 						continue;
 					}
 
-					final var strings = Arrays.stream(alreadyUsedIds) //
+					final var usedIdStrings = Arrays.stream(alreadyUsedIds) //
 							.distinct() //
 							.sorted() //
 							.mapToObj(Integer::toString) //
 							.toArray(String[]::new);
-					final var expression = ExpressionBuilder.of(modbusId, Operator.NEQ, componentId) //
-							.or(ExpressionBuilder.ofNotIn(modbusUnitId, strings).inBrackets());
 
-					final var collectedStrings = Arrays.stream(strings).collect(Collectors.joining(", "));
-					final String errorMessage;
-					if (strings.length == 1) {
-						errorMessage = TranslationUtil.getTranslation(parameter.getBundle(),
-								"modbusUnitId.alreadTaken.singular", collectedStrings, componentId);
-					} else {
-						errorMessage = TranslationUtil.getTranslation(parameter.getBundle(),
-								"modbusUnitId.alreadTaken.plural", collectedStrings, componentId);
-					}
-					field.setCustomValidation(componentId, expression, errorMessage, modbusUnitId);
+					// checks if the current modbus component is selected
+					final var expression = Exp.currentModelValue(modbusId).notEqual(Exp.staticValue(componentId)) //
+							// checks if the current selected unit id is not the initial value
+							.or(Exp.initialModelValue(modbusUnitId) //
+									.equal(Exp.currentValue(modbusUnitId))) //
+							// checks if the current selected unit id is not already used
+							.or(Exp.array(usedIdStrings).every(v -> v.notEqual(Exp.currentModelValue(modbusUnitId))));
+
+					final var filteredArray = Exp.array(usedIdStrings) //
+							.filter(v -> v.notEqual(Exp.initialModelValue(modbusUnitId)) //
+									.or(Exp.initialModelValue(modbusId) //
+											.notEqual(Exp.currentModelValue(modbusId))));
+
+					final var message = Exp.ifElse(filteredArray.length().equal(Exp.staticValue(1)), //
+							StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
+									"modbusUnitId.alreadTaken.singular", filteredArray.join(", ").insideTranslation(),
+									componentId)), //
+							StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
+									"modbusUnitId.alreadTaken.plural", filteredArray.join(", ").insideTranslation(),
+									componentId)));
+
+					field.setCustomValidation(componentId, expression, message, modbusUnitId);
 
 					cases.add(new Case(new JsonPrimitive(componentId),
 							new JsonPrimitive(getFirstPossibleValue(defaultValue, alreadyUsedIds))));
 				}
 
+				final var modbusIdFieldBuilder = modbusIdDef.getField().get(app, modbusId, l, parameter);
+				final var overridenDefaultForModbusId = cases.stream() //
+						.filter(c -> c.value().equals(modbusIdFieldBuilder.getDefaultValue())) //
+						.findFirst() //
+						.map(Case::defaultValue) //
+						.orElse(new JsonPrimitive(defaultValue));
+
 				field.setFieldGroup(JsonUtils.buildJsonArray() //
-						.add(modbusIdDef.getField().get(app, modbusId, l, parameter).build())
+						.add(modbusIdFieldBuilder.build())
 						.add(modbusUnitIdDef.getField().get(app, modbusUnitId, l, parameter) //
 								.onlyIf(!cases.isEmpty(),
 										b -> b.setDefaultValueCases(
 												new DefaultValueOptions(modbusId, cases.toArray(Case[]::new)))) //
+								.setDefaultValue(overridenDefaultForModbusId) //
 								.build())
 						.build()) //
 						.hideKey();

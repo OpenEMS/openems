@@ -1,5 +1,9 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_LABEL;
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_VALUE;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,8 +45,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -52,6 +54,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a evcs cluster.
@@ -87,12 +90,10 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setTranslatedLabelWithAppPrefix(".evcsIds.label") //
 				.setTranslatedDescriptionWithAppPrefix(".evcsIds.description") //
 				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
-					f.setOptions(app.getComponentUtil() //
-							.getEnabledComponentsOfStartingId("evcs").stream()
-							.filter(t -> !t.id().startsWith("evcsCluster")) //
-							.toList(), //
-							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+					f.setOptions(
+							app.getComponentUtil().getEnabledComponentsOfStartingId("evcs").stream()
+									.filter(t -> !t.id().startsWith("evcsCluster")).toList(),
+							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
 							.isRequired(true) //
 							.isMulti(true);
 				}) //
@@ -103,11 +104,10 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setTranslatedDescriptionWithAppPrefix(".maxChargeFromGrid.description") //
 				.setDefaultValue(7000) //
 				.appendIsAllowedToEdit(AppDef.ofLeastRole(Role.INSTALLER)) //
-				.setField(JsonFormlyUtil::buildInput,
-						(app, property, l, parameter, field) -> field.setInputType(InputBuilder.Type.NUMBER) //
-								.setMin(0) //
-								.isRequired(true) //
-								.setUnit(Unit.WATT, l)) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field.setInputType(NUMBER) //
+						.setMin(0) //
+						.isRequired(true) //
+						.setUnit(Unit.WATT, l)) //
 				.bidirectional(EVCS_CLUSTER_ID, "hardwarePowerLimitPerPhase",
 						ComponentManagerSupplier::getComponentManager, AppDef.multiplyWith(3)))), //
 		;

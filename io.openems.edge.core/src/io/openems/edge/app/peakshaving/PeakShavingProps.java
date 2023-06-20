@@ -1,17 +1,18 @@
 package io.openems.edge.app.peakshaving;
 
-import io.openems.common.channel.Unit;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder.Operator;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 public final class PeakShavingProps {
 
@@ -26,9 +27,9 @@ public final class PeakShavingProps {
 						.setTranslatedDescription("App.PeakShaving.power.description") //
 						.setDefaultValue(0) //
 						.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-							field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+							field.setInputType(NUMBER) //
 									.setMin(0) //
-									.setUnit(Unit.WATT, l);
+									.setUnit(WATT, l);
 						}));
 	}
 
@@ -54,9 +55,9 @@ public final class PeakShavingProps {
 						.setTranslatedDescription("App.PeakShaving.rechargePower.description") //
 						.setDefaultValue(0) //
 						.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-							field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+							field.setInputType(NUMBER) //
 									.setMin(0) //
-									.setUnit(Unit.WATT, l);
+									.setUnit(WATT, l);
 						}));
 	}
 
@@ -92,9 +93,9 @@ public final class PeakShavingProps {
 					final var validationText = TranslationUtil.getTranslation(parameter.getBundle(),
 							"App.PeakShaving.peakShavingGreaterThanRecharge");
 					field.hideKey() //
-							.setCustomValidation("peakShavingValidation",
-									ExpressionBuilder.of(peakShavingPowerProp, Operator.GT, rechargePowerProp),
-									validationText, peakShavingPowerProp) //
+							.setCustomValidation("peakShavingValidation", Exp.currentModelValue(peakShavingPowerProp) //
+									.greaterThan(Exp.currentModelValue(rechargePowerProp)), validationText,
+									peakShavingPowerProp) //
 							.setFieldGroup(JsonUtils.buildJsonArray() //
 									.add(peakShavingPowerProp.def().getField()
 											.get(app, peakShavingPowerProp, l, parameter) //

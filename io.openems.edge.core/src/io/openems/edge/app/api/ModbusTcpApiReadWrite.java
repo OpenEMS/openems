@@ -1,5 +1,9 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_LABEL;
+import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_VALUE;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,14 +30,13 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for ReadWrite Modbus/TCP Api.
@@ -90,7 +93,7 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setDefaultValue(60) //
 								.isRequired(true) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(NUMBER) //
 								.setMin(0) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.COMPONENT_IDS) //
@@ -101,8 +104,7 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".componentIds.description")) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ModbusSlave.class), //
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL, //
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE)
+										DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE)
 								.setDefaultValue(JsonUtils.buildJsonArray() //
 										.add("_sum") //
 										.build()) //

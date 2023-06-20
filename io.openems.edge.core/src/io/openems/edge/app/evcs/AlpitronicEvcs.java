@@ -40,13 +40,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Case;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.DefaultValueOptions;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder.Operator;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.StaticNameable;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Wrappers;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -54,6 +48,12 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.Case;
+import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.Wrappers;
+import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 
 /**
  * Describes a Alpitronic evcs app.
@@ -111,14 +111,16 @@ public class AlpitronicEvcs extends
 						final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
 
 						if (existingEvcs.isEmpty()) {
-							field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CONNECTORS, Operator.GTE, "2"));
+							field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS) //
+									.greaterThanEqual(Exp.staticValue(2)));
 							return;
 						}
+						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id) //
+								.collect(Exp.toArrayExpression())
+								.every(v -> v.notEqual(Exp.currentModelValue(Nameable.of(EVCS_ID.apply(0)))));
 
-						final var expressionForSingleUpdate = ExpressionBuilder.ofNotIn(
-								new StaticNameable(EVCS_ID.apply(0)), existingEvcs.stream().map(OpenemsComponent::id) //
-										.toArray(String[]::new));
-						field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CONNECTORS, Operator.GTE, "2") //
+						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS) //
+								.greaterThanEqual(Exp.staticValue(2)) //
 								.or(expressionForSingleUpdate));
 					}); //
 				})), //
@@ -138,14 +140,14 @@ public class AlpitronicEvcs extends
 					.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
 						field.addWrapper(Wrappers.PANEL) //
 								.hideKey() //
-								.onlyIf(number == 1,
-										b -> b.setLabelExpression(
-												ExpressionBuilder.of(Property.NUMBER_OF_CONNECTORS, Operator.EQ, "1"), //
-												"",
-												TranslationUtil.getTranslation(parameter.getBundle(),
-														"App.Evcs.chargingStation.label", number)))
-								.onlyShowIf(ExpressionBuilder
-										.of(Property.NUMBER_OF_CONNECTORS, Operator.GTE, Integer.toString(number)))
+								.onlyIf(number == 1, b -> b.setLabelExpression(Exp.ifElse(
+										Exp.currentModelValue(Property.NUMBER_OF_CONNECTORS) //
+												.equal(Exp.staticValue(1)),
+										StringExpression.of(""),
+										StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
+												"App.Evcs.chargingStation.label", number)))))
+								.onlyShowIf(Exp.currentModelValue(Property.NUMBER_OF_CONNECTORS)
+										.greaterThanEqual(Exp.staticValue(number))) //
 								.setFieldGroup(JsonUtils.buildJsonArray() //
 										.add(CommonProps.alias().getField().get(app, property, l, parameter) //
 												.setDefaultValue(TranslationUtil.getTranslation(parameter.getBundle(),

@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -28,7 +30,6 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -37,6 +38,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a IES Keywatt evcs App.
@@ -80,7 +82,7 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 				.setTranslatedDescriptionWithAppPrefix(".connector.description") //
 				.setDefaultValue(1) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
-				field.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
+				field.setInputType(NUMBER) //
 						.isRequired(true) //
 						.setMin(0))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //

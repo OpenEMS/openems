@@ -16,13 +16,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.ComponentUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.formly.enums.Validation;
 
 public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Nameable>
 		extends AbstractEnumOpenemsApp<PROPERTY> {
@@ -66,7 +66,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 		return JsonFormlyUtil.buildInput(Property.PORT) //
 				.setLabel(TranslationUtil.getTranslation(bundle, "port")) //
 				.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
-				.setInputType(Type.NUMBER) //
+				.setInputType(InputType.NUMBER) //
 				.setDefaultValue(502) //
 				.setMin(0) //
 				.isRequired(true);
@@ -78,7 +78,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 		return JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 				.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
 				.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.modbusUnitId.description")) //
-				.setInputType(Type.NUMBER) //
+				.setInputType(InputType.NUMBER) //
 				.setMin(0) //
 				.isRequired(true);
 	}
