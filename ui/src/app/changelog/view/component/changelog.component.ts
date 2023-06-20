@@ -36,6 +36,23 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.6.1',
+        changes: [
+          Changelog.openems('2023.6.0'),
+          Changelog.UI,
+          "App Center: Allgemeine Verbesserungen",
+          Changelog.product(Product.HOME) + "Anpassung des Regelverhaltens bei Überschusseinspeisung. In Ausnahmefällen wurde im SMART-Mode die Überschussleistung bei voller Batterie falsch berechnet.",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.UI + "Fehlerbehebung bei der Formatierung von Zahlen in einigen Sprachen",
+          Changelog.app(App.PV_INVERTER, App.KACO, App.SMA, App.KOSTAL, App.FRONIUS, App.SOLAREDGE) + "Dreiphasige Darstellung der Erzeugungsleistung",
+          { roleIsAtLeast: Role.ADMIN, change: "FEMS App Manuelle Relaissteuerung, Blockheizkraftwerk (BHKW), Manuelle Relaissteuerung: Verbesserung der Berechnung der kumulierten Betriebszeit" },
+          { roleIsAtLeast: Role.ADMIN, change: "Energiewerte werden, wenn sie einmal gesetzt waren, nicht mehr auf UNDEFINED gesetzt" },
+          { roleIsAtLeast: Role.ADMIN, change: "KACO Blueplanet Hybrid 10 als PV-Wechselrichter: dreiphasige Darstellung von Spannung, Strom und Leistung" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Phoenix Contact EEM-MA370-24DC und EEM-MB370-24DC Zähler" },
+          Changelog.library(Library.D3, Library.INFLUXDB, Library.FASTEXCEL, Library.GUAVA)
+        ]
+      },
+      {
         version: '2023.5.3',
         changes: [
           Changelog.app(App.EVCS_AC, App.KEBA) + "Fehlerbehebung"
