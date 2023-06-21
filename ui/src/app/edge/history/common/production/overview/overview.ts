@@ -17,7 +17,7 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
 
     // Get productionMeters
     this.productionMeterComponents =
-      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }

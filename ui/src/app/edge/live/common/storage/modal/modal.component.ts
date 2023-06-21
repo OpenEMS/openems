@@ -42,7 +42,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
-        let emergencyReserveCtrl = this.config.getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve');
+        let emergencyReserveCtrl = this.config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve');
         let prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         let components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl].filter(component => component.isEnabled).reduce((result, component) => {
             let essId = component.properties['ess.id'];
