@@ -58,7 +58,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Get emergencyReserves
         this.emergencyReserveComponents = this.config
-            .getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve')
+            .getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
             .filter(component => component.isEnabled)
             .reduce((result, component) => {
                 return {
