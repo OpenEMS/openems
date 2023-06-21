@@ -1,10 +1,10 @@
 <ng-container *ngFor="let phase of phases">
   <oe-modal-line [name]="phase.name" [textIndent]="TextIndentation.SINGLE">
     <oe-modal-line-item [channelAddress]="component.id + '/Voltage' + phase.key" [roleIsAtLeast]="Role.INSTALLER"
-      [converter]="Utils.CONVERT_TO_VOLT">
+      [converter]="Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT">
     </oe-modal-line-item>
     <oe-modal-line-item [channelAddress]="component.id + '/Current' + phase.key" [roleIsAtLeast]="Role.INSTALLER"
-      [converter]="Utils.CONVERT_TO_CURRENT">
+      [converter]="Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE">
     </oe-modal-line-item>
     <oe-modal-line-item [channelAddress]="component.id + '/ActivePower' + phase.key"
       [converter]="CONVERT_TO_POSITIVE_WATT">

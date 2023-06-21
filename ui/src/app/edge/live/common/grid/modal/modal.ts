@@ -18,6 +18,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
+
     // Grid-Mode
     let lines: OeFormlyField[] = [{
       type: 'channel-line',
@@ -98,7 +99,10 @@ export class ModalComponent extends AbstractFormlyComponent {
     return ['L1', 'L2', 'L3']
       .map(phase => <OeFormlyField>{
         type: 'children-line',
-        name: { channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase), converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase) },
+        name: {
+          channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase),
+          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase)
+        },
         indentation: TextIndentation.SINGLE,
         children: ModalComponent.generatePhasesLineItems(role, phase, component)
       });
