@@ -6,8 +6,12 @@ import { Language } from "../../type/language";
 import { Role } from "../../type/role";
 import { AbstractService } from "../abstractservice";
 import { DefaultTypes } from "../defaulttypes";
+import { AdvertWidgets } from "../../type/widget";
 
 export class DummyService extends AbstractService {
+    override showAdvertWidgets(advertWidgets: AdvertWidgets) {
+        throw new Error("Method not implemented.");
+    }
 
     private readonly edge = new Edge("edge0", "comment", "productype"
         , "1234.56.78", Role.ADMIN, true, new Date());
@@ -60,7 +64,7 @@ export class DummyService extends AbstractService {
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
-    handleError(error: any): void {
+    override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }
 
