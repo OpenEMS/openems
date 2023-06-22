@@ -2,7 +2,7 @@ package io.openems.edge.battery.dummy;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.clusterable.BatteryClusterable;
+import io.openems.edge.battery.api.BatteryInhibitable;
 import io.openems.edge.battery.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -12,7 +12,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent, BatteryClusterable {
+public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent, BatteryInhibitable {
 
 	/**
 	 * Gets the main contactor target which set by

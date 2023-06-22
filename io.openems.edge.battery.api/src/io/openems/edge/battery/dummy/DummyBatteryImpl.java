@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.clusterable.BatteryClusterable;
+import io.openems.edge.battery.api.BatteryInhibitable;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.statemachine.Context;
 import io.openems.edge.battery.statemachine.StateMachine;
@@ -26,7 +26,7 @@ import io.openems.edge.common.startstop.StartStoppable;
  * together with the OpenEMS Component test framework.
  */
 public class DummyBatteryImpl extends AbstractOpenemsComponent
-		implements DummyBattery, Battery, OpenemsComponent, StartStoppable, EventHandler, BatteryClusterable {
+		implements DummyBattery, Battery, OpenemsComponent, StartStoppable, EventHandler, BatteryInhibitable {
 
 	private final Logger log = LoggerFactory.getLogger(DummyBatteryImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -42,7 +42,6 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Battery.ChannelId.values(), //
-				BatteryClusterable.ChannelId.values(), //
 				BatteryProtection.ChannelId.values(), //
 				DummyBattery.ChannelId.values()//
 		);
@@ -210,12 +209,7 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void setHeatingTarget(boolean value) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void setMainContactorTarget(boolean value) {
+	public void setMainContactorUnlocked(boolean value) {
 		this.mainContactorTarget = value;
 	}
 
