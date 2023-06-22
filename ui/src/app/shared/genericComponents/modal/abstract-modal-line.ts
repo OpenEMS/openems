@@ -8,6 +8,8 @@ import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 import { Role } from "../../type/role";
+import { Converter } from "../shared/converter";
+import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
@@ -24,21 +26,32 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
-    * @param value the value from CurrentData
+    * @param value the current data value
     * @returns converter function
     */
-    @Input()
-    public converter = (value: any): string => { return value; };
+    @Input() public converter: Converter = Converter.TO_STRING;
+
+    /**
+    * Use `filter` to remove a line depending on a value.
+    * 
+    * @param value the current data value
+    * @returns converter function
+    */
+    @Input() public filter: Filter = Filter.NO_FILTER;
 
     /** Name for parameter, displayed on the left side*/
-    @Input() public name: string;
+    @Input() public name: string | Function | { channel: ChannelAddress, converter: (value: any) => string };
+
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
+    protected show: boolean = true;
 
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
-        this.subscribe(ChannelAddress.fromString(channelAddress));
+        if (channelAddress) {
+            this.subscribe(ChannelAddress.fromString(channelAddress));
+        }
     }
 
     /** Selector needed for Subscribe (Identifier) */
@@ -48,8 +61,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
+    public displayName: string = null;
 
-    /** Checks if any value of this line can be seen => hides line if false */
+    /** Checks if any value of this line can be seen => hides line if false
+     * 
+     * @deprecated can be remove in future when live-view is refactored with formlyfield
+     */
     protected isAllowedToBeSeen: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
@@ -85,7 +102,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 this.config = config;
 
                 // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
+                let channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
+
+                if (typeof this.name == 'object') {
+                    channelAddresses.push(this.name.channel);
+                }
+
                 let channelIds = this.getChannelIds();
                 for (let channelId of channelIds) {
                     channelAddresses.push(new ChannelAddress(this.component.id, channelId));
@@ -101,19 +123,47 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component.id) {
+                        if (channelAddress.componentId === this.component?.id) {
                             thisComponent[channelAddress.channelId] = currentData.channel[ca];
                         }
                     }
+
+                    if (typeof this.name == 'object') {
+                        this.setName(currentData.channel[this.name.channel.toString()]);
+                    }
+
                     this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
                 });
             });
         });
     }
 
+    /** Implemented due to callback type on name input property, changes name without changing value */
+    protected setName(value: number | string | null) {
+        if (typeof this.name == 'function') {
+            this.displayName = this.name(value);
+        } else if (typeof this.name == 'string') {
+            this.displayName = this.name;
+        } else if (typeof this.name == 'object') {
+            this.displayName = this.name?.converter(value);
+        }
+    }
+
     /** value defines value of the parameter, displayed on the right */
-    protected setValue(value: number | string) {
-        this.displayValue = this.converter(value);
+    protected setValue(value: number | string | null) {
+
+        /** Prevent undefined values */
+        value = value != null ? value : null;
+
+        if (this.filter) {
+            this.show = this.filter(value);
+        }
+
+        this.setName(value);
+
+        if (this.converter) {
+            this.displayValue = this.converter(value);
+        }
     }
 
     /** Subscribe on HTML passed Channels */
@@ -173,4 +223,3 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         return [];
     }
 }
-
