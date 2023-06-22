@@ -1,5 +1,9 @@
 package io.openems.edge.controller.io.channelsinglethreshold;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.CUMULATED_SECONDS;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -11,7 +15,12 @@ public interface ControllerIoChannelSingleThreshold extends Controller, OpenemsC
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
-				.text("Would change State, but hystesis is active")); //
+				.text("Would change State, but hystesis is active")),
+
+		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS) //
+				.persistencePriority(HIGH)) //
+		; //
 
 		private final Doc doc;
 
