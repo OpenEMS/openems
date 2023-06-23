@@ -39,8 +39,17 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     */
     @Input() public filter: Filter = Filter.NO_FILTER;
 
+    private _name: string | ((value: any) => string);
+
     /** Name for parameter, displayed on the left side*/
-    @Input() public name: string | Function | { channel: ChannelAddress, converter: (value: any) => string };
+    @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
+        if (typeof value === 'object') {
+            this.subscribe(value.channel);
+            this._name = value.converter;
+        } else {
+            this._name = value;
+        }
+    };
 
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
@@ -74,6 +83,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     protected readonly Role = Role;
     protected readonly Utils = Utils;
+    protected readonly Converter = Converter;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -119,34 +129,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                 // call onCurrentData() with latest data
                 edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                     let allComponents = {};
-                    let thisComponent = {};
                     for (let channelAddress of channelAddresses) {
                         let ca = channelAddress.toString();
                         allComponents[ca] = currentData.channel[ca];
-                        if (channelAddress.componentId === this.component?.id) {
-                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                        }
                     }
-
-                    if (typeof this.name == 'object') {
-                        this.setName(currentData.channel[this.name.channel.toString()]);
-                    }
-
-                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                    this.onCurrentData({ allComponents: allComponents });
                 });
             });
         });
-    }
-
-    /** Implemented due to callback type on name input property, changes name without changing value */
-    protected setName(value: number | string | null) {
-        if (typeof this.name == 'function') {
-            this.displayName = this.name(value);
-        } else if (typeof this.name == 'string') {
-            this.displayName = this.name;
-        } else if (typeof this.name == 'object') {
-            this.displayName = this.name?.converter(value);
-        }
     }
 
     /** value defines value of the parameter, displayed on the right */
@@ -159,10 +149,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
             this.show = this.filter(value);
         }
 
-        this.setName(value);
+        if (typeof this._name == 'function') {
+            this.displayName = this._name(value);
 
-        if (this.converter) {
-            this.displayValue = this.converter(value);
+        } else {
+            this.displayName = this._name;
+            if (this.converter) {
+                this.displayValue = this.converter(value);
+            }
         }
     }
 
