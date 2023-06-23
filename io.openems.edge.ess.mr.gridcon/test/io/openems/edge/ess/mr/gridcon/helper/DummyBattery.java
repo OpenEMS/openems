@@ -6,23 +6,23 @@ import io.openems.edge.common.startstop.StartStop;
 
 public class DummyBattery extends io.openems.edge.battery.test.DummyBattery implements Battery {
 
-	public static int DEFAULT_SOC = 50;
-	public static int DEFAULT_SOH = 99;
-	public static int DEFAULT_CAPACITY = 50_000;
-	public static int DEFAULT_MIN_CELL_VOLTAGE = 3280;
-	public static int DEFAULT_MAX_CELL_VOLTAGE = 3380;
-	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
-	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
-	public static int DEFAULT_AVG_CELL_TEMPERATURE = 29;
-	public static int DEFAULT_MAX_INTERNAL_RESISTANCE = 29;
+	public static final int DEFAULT_SOC = 50;
+	public static final int DEFAULT_SOH = 99;
+	public static final int DEFAULT_CAPACITY = 50_000;
+	public static final int DEFAULT_MIN_CELL_VOLTAGE = 3280;
+	public static final int DEFAULT_MAX_CELL_VOLTAGE = 3380;
+	public static final int DEFAULT_MIN_CELL_TEMPERATURE = 25;
+	public static final int DEFAULT_MAX_CELL_TEMPERATURE = 33;
+	public static final int DEFAULT_AVG_CELL_TEMPERATURE = 29;
+	public static final int DEFAULT_MAX_INTERNAL_RESISTANCE = 29;
 
-	public static int DEFAULT_VOLTAGE = 800;
-	public static int DEFAULT_CURRENT = 0;
-	public static int DEFAULT_MAX_CHARGE_CURRENT = 80;
-	public static int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
+	public static final int DEFAULT_VOLTAGE = 800;
+	public static final int DEFAULT_CURRENT = 0;
+	public static final int DEFAULT_MAX_CHARGE_CURRENT = 80;
+	public static final int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
 
-	public static int DEFAULT_MIN_VOLTAGE = 700;
-	public static int DEFAULT_MAX_VOLTAGE = 900;
+	public static final int DEFAULT_MIN_VOLTAGE = 700;
+	public static final int DEFAULT_MAX_VOLTAGE = 900;
 
 	public DummyBattery(//
 	) { //
