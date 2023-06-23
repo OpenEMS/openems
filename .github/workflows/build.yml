@@ -70,11 +70,11 @@ jobs:
           coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
 
           color=red;
-          if [ $coverage > 95 ]; then
+          if (( $(echo "$coverage > 95" | bc -l) )); then
             color=success;
-          elif [ $coverage > 80 ]; then
+          elif (( $(echo "$coverage > 80" | bc -l) )); then
             color=green;
-          elif [ $coverage > 50 ]; then
+          elif (( $(echo "$coverage > 50" | bc -l) )); then
             color=yellow;
           fi;
 
