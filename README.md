@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/OpenEMS/openems/actions/workflows/build.yml/badge.svg)](https://github.com/OpenEMS/openems/actions/workflows/build.yml)
-[![Coverage](.github/badges/jacoco.svg)](https://github.com/da-Kai/openems/actions/workflows/build.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/da-Kai/openems/develop/.github/badges/jacoco.json)](https://github.com/da-Kai/openems/actions/workflows/build.yml)
 [![Gitpod live-demo](https://img.shields.io/badge/Gitpod-live--demo-blue?logo=gitpod)](https://gitpod.io/#https://github.com/OpenEMS/openems/tree/main)
 [![Cite via Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.4440884.svg)](https://doi.org/10.5281/zenodo.4440883)
 
