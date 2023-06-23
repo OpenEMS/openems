@@ -1,5 +1,8 @@
 name: Build OpenEMS
 on:
+  push:
+    branches: 
+      - '**'
   pull_request:
     types: [opened, synchronize, reopened]
   
