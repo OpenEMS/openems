@@ -1,16 +1,23 @@
 package io.openems.edge.battery.api;
 
-import io.openems.edge.common.startstop.StartStop;
-
-public interface BatteryInhibitable extends Battery {
+public interface BatteryInhibitable {
 	/**
-	 * A helper in deciding whether to turn on the main contactor of the batteries.
-	 * Particularly for parallel clusters, it is necessary. By
-	 * {@link StartStop#START} Batteries can be started in order to communicate with
-	 * them, but after the voltage comparison decision has been made, the primary
-	 * contactor of the second, third... batteries can be closed.
+	 * Sets the main contactor to an unlocked state. This method is used to indicate
+	 * whether the main contactor switch can be unlocked or not.
 	 * 
-	 * @param value true to turn on the main contactor
+	 * <p>
+	 * This method allows unlocking the main contactor, which is an electrical
+	 * switch used to control the flow of battery current.
+	 * </p>
+	 * 
+	 * <p>
+	 * When the main contactor is unlocked, it lets the battery operate on
+	 * {@link Battery.ChannelId#MAIN_CONTACTOR}. And when the main contactor turned
+	 * on, it enables the flow of current through the circuit.
+	 * </p>
+	 * 
+	 * @param value {@code true} if the main contactor switch can be unlocked,
+	 *              {@code false} otherwise.
 	 */
 	public void setMainContactorUnlocked(boolean value);
 }
