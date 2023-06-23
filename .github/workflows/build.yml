@@ -67,15 +67,18 @@ jobs:
 
       - name: Write to Job Summary
         run: |
+          coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
+
           color=red;
-          if [ ${{ steps.jacoco.outputs.coverage }} > 95 ]; then
+          if [ $coverage > 95 ]; then
             color=success;
-          elif [ ${{ steps.jacoco.outputs.coverage }} > 80 ]; then
+          elif [ $coverage > 80 ]; then
             color=green;
-          elif [ ${{ steps.jacoco.outputs.coverage }} > 50 ]; then
+          elif [ $coverage > 50 ]; then
             color=yellow;
-          fi;      
-          echo "![Code Coverage](https://img.shields.io/badge/Code%20Coverage-${{ steps.jacoco.outputs.coverage }}%25-${color}?style=flat)" >> $GITHUB_STEP_SUMMARY
+          fi;
+
+          echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" >> $GITHUB_STEP_SUMMARY
 
       #
       # Is this a Tag? Prepare release assets
