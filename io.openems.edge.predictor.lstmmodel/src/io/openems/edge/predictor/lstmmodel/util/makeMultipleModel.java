@@ -21,6 +21,9 @@ import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
  *
  */
 public class makeMultipleModel {
+	
+	
+	
 
 	ArrayList<Double> values;
 	ArrayList<OffsetDateTime> dates;
@@ -28,7 +31,8 @@ public class makeMultipleModel {
 	ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
 	ArrayList<ArrayList<ArrayList<Double>>> weightMatrix = new ArrayList<ArrayList<ArrayList<Double>>>();
 	ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
-
+	ArrayList<ArrayList<Double>> weight2 = new ArrayList<ArrayList<Double>>();
+   
 	/**
 	 * ArrayList to store grouped data and dates according to minutes of hour e.g.
 	 * the data of 2:15 pm of entire year are stored in one arraylist
@@ -37,6 +41,8 @@ public class makeMultipleModel {
 	ArrayList<ArrayList<Double>> modle = new ArrayList<ArrayList<Double>>();
 
 	public makeMultipleModel() {
+		// weight1 =  generateInitialWeightMatrix(7);
+		 weight2 =  generateInitialWeightMatrix(7);
 
 		ReadCsv csv = new ReadCsv();
 		values = csv.data;
@@ -131,9 +137,14 @@ public class makeMultipleModel {
 //					
 //
 //				}
-					model.fit(epochs);
+					//System.out.println(weight1.size());
+					
+					model.fit(epochs,weight2);
+					
 					weight1 = model.finalWeight;
 					weightMatrix.add(model.finalWeight);
+					
+					
 				}
 
 				catch (Exception e) {
@@ -176,4 +187,54 @@ public class makeMultipleModel {
 		}
 
 	}
+public ArrayList<ArrayList<Double>> generateInitialWeightMatrix(int windowSize){
+	ArrayList<ArrayList<Double>> initialWeight = new ArrayList<ArrayList<Double>>();
+	ArrayList<Double> temp1 = new ArrayList<Double>();
+	ArrayList<Double> temp2 = new ArrayList<Double>();
+	ArrayList<Double> temp3 = new ArrayList<Double>();
+	ArrayList<Double> temp4 = new ArrayList<Double>();
+	ArrayList<Double> temp5 = new ArrayList<Double>();
+	ArrayList<Double> temp6 = new ArrayList<Double>();
+	ArrayList<Double> temp7 = new ArrayList<Double>();
+	ArrayList<Double> temp8 = new ArrayList<Double>();
+	
+	for(int i =1; i<=windowSize;i++)
+	
+	{
+		double wi=1.00;
+		double wo=1.00;
+		double wz=1.00;
+		double ri=1.00;
+		double ro=1.00;
+		double rz=1.00;
+		double ct = 0.00;
+		double yt=0.00;
+		
+		temp1.add(wi);
+		temp2.add(wo);
+		temp3.add(wz);
+		temp4.add(ri);
+		temp5.add(ro);
+		temp6.add(rz);
+		temp7.add(yt);
+		temp8.add(ct);
+		
+		
+		
+	}
+	initialWeight.add(temp1);
+	initialWeight.add(temp2);
+	initialWeight.add(temp3);
+	initialWeight.add(temp4);
+	initialWeight.add(temp5);
+	initialWeight.add(temp6);
+	initialWeight.add(temp7);
+	initialWeight.add(temp8);
+	
+	
+	return initialWeight;
+	
+	
+}
+
 }

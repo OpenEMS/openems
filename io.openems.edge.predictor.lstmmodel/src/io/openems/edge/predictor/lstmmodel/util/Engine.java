@@ -29,7 +29,7 @@ public class Engine implements EngineDriver {
 	 * 
 	 * @param epochs Number of times the forward and backward propagation.
 	 */
-	public void fit(int epochs) {
+	public void fit(int epochs,ArrayList<ArrayList<Double>> val) {
 
 		ArrayList<ArrayList<Double>> wieghtMatrix = new ArrayList<ArrayList<Double>>();
 
@@ -44,6 +44,16 @@ public class Engine implements EngineDriver {
 				.build();
 
 		ls.initilizeCells();
+		ls.setWi(val);
+		ls.setWo(val);
+		ls.setWz(val);
+		ls.setRi(val);
+		ls.setRo(val);
+		ls.setRz(val);
+		ls.setCt(val);
+		ls.setYt(val);		
+	
+	
 
 		wieghtMatrix = ls.train();
 
@@ -320,10 +330,20 @@ public class Engine implements EngineDriver {
 			this.validatorCounter = validatorCounter;
 			return this;
 		}
+		
+//		public EngineBuilder  setWi() {
+//			return this;
+//		}
 
 		public Engine build() {
 			return new Engine(this);
 		}
 
+	}
+
+	@Override
+	public void fit(int epochs) {
+		// TODO Auto-generated method stub
+		
 	}
 }

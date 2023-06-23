@@ -127,7 +127,7 @@ public class Data {
 
 	public void dataForWeekN(int n) { // Pass n less than 358
 		int dataPointsForday = 288;
-		int sevenDaysdDataPoint = dataPointsForday * 4;
+		int sevenDaysdDataPoint = dataPointsForday * 7;
 		int startingpoint = n * (sevenDaysdDataPoint-1);
 		int endPoint = startingpoint + sevenDaysdDataPoint-1 ;
 

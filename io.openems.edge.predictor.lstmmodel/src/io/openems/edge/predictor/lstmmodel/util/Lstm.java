@@ -126,6 +126,8 @@ public class Lstm {
 			ArrayList<Double> temp5 = new ArrayList<Double>();
 			ArrayList<Double> temp6 = new ArrayList<Double>();
 			ArrayList<Double> temp7 = new ArrayList<Double>();
+			ArrayList<Double> temp8 = new ArrayList<Double>();
+			
 			for (int j = 0; j < this.cells.size(); j++) {
 				temp1.add(this.cells.get(j).getWi()); // wi
 				temp2.add(this.cells.get(j).getWo()); // wo
@@ -134,6 +136,7 @@ public class Lstm {
 				temp5.add(this.cells.get(j).getRo()); // Ro
 				temp6.add(this.cells.get(j).getRz()); // Rz
 				temp7.add(this.cells.get(j).yT);
+				temp8.add(this.cells.get(j).getCt());
 			}
 
 			mW.errorList.add(this.cells.get(this.cells.size() - 1).getError());
@@ -144,6 +147,7 @@ public class Lstm {
 			mW.rO.add(temp5);
 			mW.rZ.add(temp6);
 			mW.out.add(temp7);
+			mW.cT.add(temp8);
 		}
 
 		int ind = findGlobalMinima(mW.errorList);
@@ -156,6 +160,7 @@ public class Lstm {
 		returnArray.add(mW.rO.get(ind));
 		returnArray.add(mW.rZ.get(ind));
 		returnArray.add(mW.out.get(ind));
+		returnArray.add(mW.cT.get(ind));
 
 		ArrayList<Double> err = new ArrayList<Double>();
 		err.add(mW.errorList.get(ind));
@@ -233,6 +238,64 @@ public class Lstm {
 	public ArrayList<Cell> getCells() {
 		return this.cells;
 	}
+	public void setWi(ArrayList<ArrayList<Double>> val) {
+		for(int i = 0; i<this.cells.size();i++)
+		{
+			this.cells.get(i).setWi(val.get(0).get(i));
+		}
+	}
+public void setWo(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).setWo(val.get(1).get(i));
+	}
+	
+	
+}
+public void setWz(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).setWz(val.get(2).get(i));
+	}
+	
+}
+public void setRi(ArrayList<ArrayList<Double>> val) {
+	
+	
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).setRi(val.get(3).get(i));
+	}
+}
+public void setRo(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).setRo(val.get(4).get(i));
+	}
+	
+}
+public void setRz(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).setRz(val.get(5).get(i));
+	}
+	
+}
+public void setYt(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+	{
+		this.cells.get(i).yT=val.get(6).get(i);
+	}
+	
+
+}
+public void setCt(ArrayList<ArrayList<Double>> val) {
+	for(int i = 0; i<this.cells.size();i++)
+ 
+	{
+		this.cells.get(i).cT=val.get(7).get(i);
+	}
+}
 
 	/**
 	 * Please build the model with input and target.
@@ -271,7 +334,13 @@ public class Lstm {
 			this.epoch = epoch;
 			return this;
 		}
-
+		
+		public LstmBuilder setWi(ArrayList<ArrayList<Double>> val) {
+			
+			return this;
+		}
+		
+		
 		public Lstm build() {
 			return new Lstm(this);
 		}
@@ -289,5 +358,7 @@ public class Lstm {
 		}
 
 	}
+
+	
 
 }

@@ -44,13 +44,13 @@ public class Cell {
 	public Cell(double xt, double outputData) {
 		this.dlByDc = 0;
 		this.error = 0;
-		this.wI = 1;
-		this.wO = 1;
-		this.wZ = 1;
-		this.rI = 1;
-		this.rO = 1;
-		this.rZ = 1;
-		this.cT = 0;
+		this.wI = 2;
+		this.wO = 2;
+		this.wZ = 2;
+		this.rI = 2;
+		this.rO = 2;
+		this.rZ = 2;
+		this.cT =0;
 		this.oT = 0;
 		this.zT = 0;
 		this.yT = 0;
@@ -165,6 +165,9 @@ public class Cell {
 
 	public void setRz(double rz) {
 		this.rZ = rz;
+	}
+	public double getCt() {
+		return this.cT;
 	}
 
 	/**

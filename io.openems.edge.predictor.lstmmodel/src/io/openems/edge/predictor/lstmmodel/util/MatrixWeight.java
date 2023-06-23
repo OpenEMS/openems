@@ -10,7 +10,9 @@ public class MatrixWeight {
 	public ArrayList<ArrayList<Double>> rI = new ArrayList<ArrayList<Double>>();
 	public ArrayList<ArrayList<Double>> rO = new ArrayList<ArrayList<Double>>();
 	public ArrayList<ArrayList<Double>> rZ = new ArrayList<ArrayList<Double>>();
+	
 	public ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
+	public ArrayList<ArrayList<Double>> cT = new ArrayList<ArrayList<Double>>();
 	public ArrayList<Double> errorList = new ArrayList<Double>();
 
 }

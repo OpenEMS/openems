@@ -29,7 +29,7 @@ public class Prediction {
 		ArrayList<Double> predicted = new ArrayList<Double>();
 		//ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
 
-		Data obj = new Data(4);
+		Data obj = new Data(10);
 		
 
 		ArrayList<Double> dataToPredict = obj.sevenDaysData;

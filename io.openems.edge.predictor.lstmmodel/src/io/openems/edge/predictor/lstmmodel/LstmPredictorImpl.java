@@ -58,17 +58,6 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				LstmPredictor.ChannelId.values() //
 
 		);
-		// ToDo: make this dynamic
-		double minOfTrainingData = -1255.666667;
-		double maxOfTrainingData = 10694.0;
-
-		ZonedDateTime t1 = ZonedDateTime.now();
-		ZonedDateTime t2 = ZonedDateTime.now();
-
-		makeMultipleModel models = new makeMultipleModel();
-		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
-		System.out.println(predict.predictedAndScaledBack);
-		System.out.println(predict.dataShouldBe);
 
 	}
 
@@ -219,6 +208,18 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 //		}
 
 		// x[][] = makeMultipleModel();
+
+		// ToDo: make this dynamic
+		double minOfTrainingData = -1255.666667;
+		double maxOfTrainingData = 10694.0;
+
+		ZonedDateTime t1 = ZonedDateTime.now();
+		ZonedDateTime t2 = ZonedDateTime.now();
+
+		makeMultipleModel models = new makeMultipleModel();
+		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
+		System.out.println(predict.predictedAndScaledBack);
+		System.out.println(predict.dataShouldBe);
 
 		return null;
 

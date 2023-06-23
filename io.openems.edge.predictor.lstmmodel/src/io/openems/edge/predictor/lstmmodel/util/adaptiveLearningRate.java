@@ -33,15 +33,15 @@ public class adaptiveLearningRate {
 
 			learningRate = learningRate / 1000;
 		} else if (15 < perc && perc < 30) {
-			learningRate = learningRate / 1000;
+			learningRate = learningRate / 2000;
 		} else if (30 < perc && perc < 45) {
-			learningRate = learningRate / 1000;
+			learningRate = learningRate / 3000;
 		} else if (45 < perc && perc < 60) {
-			learningRate = learningRate / 1000;
+			learningRate = learningRate / 4000;
 		} else if (60 < perc && perc < 75) {
-			learningRate = learningRate / 1000;
+			learningRate = learningRate / 5000;
 		} else {
-			learningRate = learningRate / 1000;
+			learningRate = learningRate / 6000;
 		}
 		return learningRate;
 
@@ -74,7 +74,7 @@ public class adaptiveLearningRate {
 			double temp2 = Math.pow(temp1, 2);
 			double temp3 = temp2 + Math.pow(gradient, 2);
 			if (temp3 == 0) {
-				if (localLearningRate == Double.NaN || localLearningRate == 0.0) {
+				if (globalLearningRate == Double.NaN || localLearningRate == 0.0) {
 					System.out.println(i + " " + localLearningRate);
 				}
 
