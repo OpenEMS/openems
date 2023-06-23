@@ -1,8 +1,5 @@
 name: Build OpenEMS
 on:
-  push:
-    branches: 
-      - '**'
   pull_request:
     types: [opened, synchronize, reopened]
   
@@ -43,7 +40,7 @@ jobs:
         run: ./gradlew --build-cache build
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve.EdgeApp resolve.BackendApp
+        run: ./gradlew resolve
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
