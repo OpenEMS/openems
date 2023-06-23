@@ -82,11 +82,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.addLabels({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ${{ steps.jacoco-badge.outputs.badge }}
+              body: `${{ steps.jacoco-badge.outputs.badge }}`
             })
 
       #
