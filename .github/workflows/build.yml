@@ -64,6 +64,8 @@ jobs:
 
       - name: Generate JaCoCo Badge
         id: jacoco-badge
+        env:
+          PR_NUMBER: ${{ github.event.number }}
         run: |
           coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
 
@@ -76,18 +78,13 @@ jobs:
             color=yellow;
           fi;
 
-          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" >> $GITHUB_OUTPUT
-
-      - name: Add comment to Pull-Request
-        uses: actions/github-script@v6
+          mkdir -p ./pr
+          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./pr/pr_badge
+          echo $PR_NUMBER > ./pr/pr_number
+      - uses: actions/upload-artifact@v3
         with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `${{ steps.jacoco-badge.outputs.badge }}`
-            })
+          name: pr_comment
+          path: pr/
 
       #
       # Is this a Tag? Prepare release assets
