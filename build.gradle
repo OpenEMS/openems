@@ -1,7 +1,9 @@
 plugins {
+	id 'base'
 	id 'java'
 	id 'java-library'
 	id 'com.github.node-gradle.node'
+	id 'jacoco-report-aggregation' 
 }
 
 repositories {
@@ -17,12 +19,30 @@ dependencies {
 	
 	// This dependency is used by the application.	
 	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
+	
+	subprojects.findAll { project -> 
+		project.name.startsWith('io.openems')
+	}.each { project ->
+		jacocoAggregation project
+	}
 }
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
+}
+
+reporting {
+	reports {
+		testCodeCoverageReport(JacocoCoverageReport) { 
+			testType = TestSuiteType.UNIT_TEST
+		}
+	}
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('testCodeCoverageReport', JacocoReport) 
 }
 
 /*
@@ -71,8 +91,17 @@ task assembleBackend() {
  * setup bnd tasks
  */
 subprojects {
-	if (plugins.hasPlugin("biz.aQute.bnd")) {	
+	if (plugins.hasPlugin("biz.aQute.bnd")) {
 		apply plugin: 'checkstyle'
+		apply plugin: 'jacoco'
+		
+		jacocoTestReport {
+			reports {
+				xml.required = false
+				csv.required = true
+				html.required = false
+			}
+		}
 	
 		checkstyle {
 			toolVersion = '10.11.0'
