@@ -1,7 +1,7 @@
 name: Comment Pull_Request
 on:
   workflow_run:
-    workflows: [Upload data]
+    workflows: [Build OpenEMS]
     types:
       - completed
 
