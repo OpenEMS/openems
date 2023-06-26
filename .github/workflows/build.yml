@@ -16,15 +16,18 @@ jobs:
           java-version: "17"
           java-package: jdk
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.1.1
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
       - name: Setup Cache for Java/Maven
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
 
       #- uses: kiancross/checkstyle-annotations-action@v1
 
@@ -141,6 +144,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.1.1
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
 
       - name: Generate JaCoCo Code-coverage-report
         run: ./gradlew test jacocoTestReport --build-cache
