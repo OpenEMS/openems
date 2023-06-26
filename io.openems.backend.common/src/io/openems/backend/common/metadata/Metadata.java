@@ -132,6 +132,13 @@ public interface Metadata {
 	 * @return collection of Edges.
 	 */
 	public abstract Collection<Edge> getAllOfflineEdges();
+	
+	/**
+	 * Gets all Edges that do not contain Sum State OK.
+	 *
+	 * @return collection of Edges.
+	 */
+	public abstract Collection<Edge> getAllSumNotOkEdges();
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.

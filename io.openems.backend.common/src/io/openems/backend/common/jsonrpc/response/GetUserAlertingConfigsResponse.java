@@ -23,7 +23,11 @@ import io.openems.common.utils.JsonUtils;
  *          {
  *           userId: string,
  *           role: {@link Role},
- *           delayTime": number
+ *           offlineAlertDelayTime: number,
+ *           offlineAlertEnabled: boolean,
+ *           sumStateAlertDelayTime: number,
+ *           sumStateAlertEnabled: boolean,
+ *           sumStateAlertLevel: number
  *          }
  *      ]
  *   }
@@ -32,26 +36,29 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
-	private final List<AlertingSetting> settings;
+    private final List<AlertingSetting> settings;
 
-	public GetUserAlertingConfigsResponse(UUID id, List<AlertingSetting> settings) {
-		super(id);
-		this.settings = settings;
-	}
+    public GetUserAlertingConfigsResponse(UUID id, List<AlertingSetting> settings) {
+	super(id);
+	this.settings = settings;
+    }
 
-	@Override
-	public JsonObject getResult() {
-		return JsonUtils.buildJsonObject() //
-				.add("userSettings", JsonUtils.generateJsonArray(this.settings, this::toJson)) //
-				.build();
-	}
+    @Override
+    public JsonObject getResult() {
+	return JsonUtils.buildJsonObject() //
+		.add("userSettings", JsonUtils.generateJsonArray(this.settings, this::toJson)) //
+		.build();
+    }
 
-	private JsonElement toJson(AlertingSetting setting) {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("userId", setting.getUserId()) //
-				.add("role", setting.getUserRole().asJson()) //
-				.addProperty("delayTime", setting.getDelayTime()) //
-				.build(); //
-	}
+    private JsonElement toJson(AlertingSetting setting) {
+	return JsonUtils.buildJsonObject() //
+		.addProperty("userId", setting.getUserId()) //
+		.add("role", setting.getUserRole().asJson()) //
+		.addProperty("offlineAlertDelayTime", setting.getOfflineAlertDelayTime()) //
+		.addProperty("sumStateAlertDelayTime", setting.getSumStateAlertDelayTime()) //
+		.addProperty("sumStateAlertLevel", setting.getSumStateAlertLevel().getValue()) //
+		.build(); //
+
+    }
 
 }

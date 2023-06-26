@@ -61,6 +61,7 @@ public interface Field {
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LASTMESSAGE("lastmessage", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
+		OPENEMS_LAST_SUM_STATE_CHANGE("openems_last_sum_state_change", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
 		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false);
 
@@ -163,8 +164,11 @@ public interface Field {
 		DEVICE_ODOO_ID("device_id", false), //
 		USER_ODOO_ID("user_id", true), //
 		ROLE("role", false), //
-		TIME_TO_WAIT("time_to_wait", true), //
-		LAST_NOTIFICATION("last_notification", true), //
+		OFFLINE_ALERT_TIME_TO_WAIT("offline_alert_time_to_wait", true), //	     // int
+		LAST_NOTIFICATION("last_notification", true), //                             //date string
+		SUM_STATE_ALERT_TIME_TO_WAIT("sum_state_alert_time_to_wait", true), //       // int
+		SUM_STATE_ALERT_NOTIFICATION("sum_state_alert_last_notification", true), //  //date string
+		SUM_STATE_ALERT_LEVEL("sum_state_alert_level", true), //                     // int
 		; //
 
 		public static final String ODOO_MODEL = "openems.device_user_role";

@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.openems.common.channel.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,23 +22,24 @@ public class Edge {
 	private final Logger log = LoggerFactory.getLogger(Edge.class);
 	private final Metadata parent;
 
-	private final String id;
-	private String comment;
-	private SemanticVersion version;
-	private String producttype;
-	private ZonedDateTime lastmessage = null;
-	private boolean isOnline = false;
+    private final String id;
+    private String comment;
+    private SemanticVersion version;
+    private String producttype;
+    private Level sumState = Level.FAULT;
+    private ZonedDateTime lastmessage = null;
+    private ZonedDateTime lastSumStateChange = null;
+    private boolean isOnline = false;
 
 	private final List<EdgeUser> user;
 
 	public Edge(Metadata parent, String id, String comment, String version, String producttype,
-			ZonedDateTime lastmessage) {
+			ZonedDateTime lastmessage, ZonedDateTime lastSumStateChange) {
 		this.id = id;
 		this.comment = comment;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
 		this.lastmessage = lastmessage;
-
 		this.parent = parent;
 		this.user = new ArrayList<>();
 	}
@@ -69,6 +71,7 @@ public class Edge {
 				.addProperty("version", this.version.toString()) //
 				.addProperty("producttype", this.producttype) //
 				.addProperty("online", this.isOnline) //
+				.addProperty("sumState", this.sumState) //
 				.addPropertyIfNotNull("lastmessage", this.lastmessage) //
 				.build();
 	}
@@ -82,6 +85,7 @@ public class Edge {
 				+ "producttype=" + this.producttype + ", " //
 				+ "lastmessage=" + this.lastmessage + ", " //
 				+ "isOnline=" + this.isOnline //
+				+ "sumState=" + this.sumState //
 				+ "]";
 	}
 
@@ -92,6 +96,11 @@ public class Edge {
 	public boolean isOffline() {
 		return !this.isOnline;
 	}
+
+	public Level getSumState() {
+		return this.sumState;
+	}
+
 
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
@@ -110,6 +119,22 @@ public class Edge {
 	}
 
 	/**
+	 * Sets the SumState of this Edge.
+	 * @param state the current SumState
+	 */
+	public synchronized void setSumState(Level state) {
+		if (this.sumState != state) {
+			this.sumState = state;
+			this.lastSumStateChange = ZonedDateTime.now(ZoneOffset.UTC);
+		}
+		EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_SUM_STATE) //
+				.addArg(Events.OnSetSumState.EDGE, this) //
+				.addArg(Events.OnSetSumState.SUM_STATE, state) //
+				.send();
+
+	}
+
+	/**
 	 * Sets the Last-Message-Timestamp to now() and calls the
 	 * setLastmessage-Listeners.
 	 */
@@ -119,7 +144,7 @@ public class Edge {
 
 	/**
 	 * Sets the Last-Message-Timestamp and calls the setLastmessage-Listeners.
-	 * 
+	 *
 	 * @param timestamp the Last-Message-Timestamp
 	 */
 	public synchronized void setLastmessage(ZonedDateTime timestamp) {
@@ -188,6 +213,15 @@ public class Edge {
 		}
 	}
 
+    /**
+     * Returns the LastSumStateChange-Timestamp.
+     *
+     * @return SumStateChange-Timestamp in UTC Timezone
+     */
+    public ZonedDateTime getLastSumStateChange() {
+	return this.lastSumStateChange;
+    }
+
 	/*
 	 * Producttype
 	 */
@@ -224,6 +258,7 @@ public class Edge {
 			this.producttype = producttype;
 		}
 	}
+
 
 	/**
 	 * Add User to UserList.
@@ -275,12 +310,15 @@ public class Edge {
 			public static final String PRODUCTTYPE = "Producttype:String";
 		}
 
-		public static final String ON_SET_SUM_STATE = Events.TOPIC_BASE + "ON_SET_SUM_STATE";
+
+
+	public static final String ON_SET_SUM_STATE = Events.TOPIC_BASE + "ON_SET_SUM_STATE";
 
 		public static final class OnSetSumState {
 			public static final String EDGE = "Edge:Edge";
 			public static final String SUM_STATE = "SumState:Level";
 		}
+
 
 		public static final String ON_SET_CONFIG = Events.TOPIC_BASE + "ON_SET_CONFIG";
 

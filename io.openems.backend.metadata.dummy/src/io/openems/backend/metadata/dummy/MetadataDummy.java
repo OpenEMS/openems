@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import io.openems.common.channel.Level;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -169,6 +170,11 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
 		return this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
+	}
+
+	@Override
+	public Collection<Edge> getAllSumNotOkEdges() {
+		return this.edges.values().stream().filter(edge -> edge.getSumState() != Level.OK).collect(Collectors.toUnmodifiableList());
 	}
 
 	private static Optional<Integer> parseNumberFromName(String name) {

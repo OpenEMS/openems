@@ -356,6 +356,9 @@
       },
       "Alerting": {
         "activate": "Aktivieren",
+        "activateSumState": "Statusänderungen aktivieren",
+        "activateOffline": "System Offline aktivieren",
+        "levels": "System Status",
         "delay": "Verzögerung",
         "save": "Speichern",
         "toast": {

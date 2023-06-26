@@ -59,11 +59,12 @@ public class EdgeCache {
 		var version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
 		var producttype = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCTTYPE, "");
 		var lastmessage = PgUtils.getAsDateOrElse(rs, EdgeDevice.LASTMESSAGE, null);
+		var lastSumStateChange = PgUtils.getAsDateOrElse(rs, EdgeDevice.OPENEMS_LAST_SUM_STATE_CHANGE, null);
 
 		var edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge
-			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, producttype, lastmessage);
+			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, producttype, lastmessage, lastSumStateChange);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
 			this.apikeyToEdgeId.put(apikey, edgeId);

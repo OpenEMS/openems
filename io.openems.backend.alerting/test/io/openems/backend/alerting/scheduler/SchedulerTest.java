@@ -138,6 +138,11 @@ public class SchedulerTest {
 		public JsonObject getParams() {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public boolean update() {
+			return true;
+		}
 	}
 
 	private static class DummyHandler implements Handler<DummyMessage> {

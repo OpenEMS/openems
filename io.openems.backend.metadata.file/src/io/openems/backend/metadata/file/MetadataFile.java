@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import io.openems.common.channel.Level;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -174,6 +175,13 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 		this.refreshData();
 		return this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
+
+	@Override
+	public Collection<Edge> getAllSumNotOkEdges() {
+		this.refreshData();
+		return this.edges.values().stream().filter(edge -> edge.getSumState() != Level.OK).collect(Collectors.toUnmodifiableList());
+	}
+
 
 	private synchronized void refreshData() {
 		if (this.edges.isEmpty()) {

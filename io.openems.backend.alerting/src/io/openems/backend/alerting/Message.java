@@ -61,4 +61,11 @@ public abstract class Message implements Comparable<Message> {
 		}
 		return this.getNotifyStamp().compareTo(o.getNotifyStamp());
 	}
+
+	/**
+	 * Transform message to use for next cycle.
+	 *
+	 * @return next Message with updated Recipients
+	 */
+	public abstract boolean update();
 }

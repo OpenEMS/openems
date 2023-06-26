@@ -357,6 +357,9 @@
       },
       "Alerting": {
         "activate": "Activate",
+        "activateSumState": "Activate System State",
+        "activateOffline": "Activate System Offline",
+        "levels": "System Status",
         "delay": "Delay",
         "save": "Save",
         "options": {},

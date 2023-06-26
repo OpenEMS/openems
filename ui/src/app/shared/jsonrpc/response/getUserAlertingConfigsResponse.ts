@@ -5,23 +5,29 @@ import { Role } from "../../type/role";
 export interface UserSettingResponse {
     userId: string,
     role: Role,
-    delayTime: number;
+    offlineAlertDelayTime: number,
+    offlineAlertEnabled: boolean,
+    sumStateAlertDelayTime: number,
+    sumStateAlertEnabled: boolean,
+    sumStateAlertLevel: number;
 }
 /**
- * JSON-RPC Response to "GetUserAlertingConfigsRequest" Request.
- *
- * <p>
+ * Represents a JSON-RPC Response for 'getAlertingConfig'.
  *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *      "userSettings?": [
+ *      userSettings: [
  *          {
- *           "userId": "string",
- *           "role": "shared.Role"
- *           "timeToWait": "number"
+ *           userId: string,
+ *           role: {@link Role},
+ *           offlineAlertDelayTime: number,
+ *           offlineAlertEnabled: boolean,
+ *           sumStateAlertDelayTime: number,
+ *           sumStateAlertEnabled: boolean,
+ *           sumStateAlertLevel: number
  *          }
  *      ]
  *   }

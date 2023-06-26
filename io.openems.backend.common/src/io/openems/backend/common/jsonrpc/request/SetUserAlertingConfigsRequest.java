@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -24,7 +25,11 @@ import io.openems.common.utils.JsonUtils;
  *      "userSettings": [
  *          {
  *           userId: string,
- *           delayTime": number
+ *           offlineAlertDelayTime: number,
+ *           offlineAlertEnabled: boolean,
+ *           sumStateAlertDelayTime: number,
+ *           sumStateAlertEnabled: boolean,
+ *           sumStateAlertLevel: number
  *          }
  *      ]
  *   }
@@ -32,72 +37,77 @@ import io.openems.common.utils.JsonUtils;
  */
 public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 
-	public static final String METHOD = "setUserAlertingConfigs";
+    public static final String METHOD = "setUserAlertingConfigs";
 
-	/**
-	 * Create {@link SetUserAlertingConfigsRequest} from a template
-	 * {@link JsonrpcRequest}.
-	 *
-	 * @param request the template {@link JsonrpcRequest}
-	 * @return the {@link SetUserAlertingConfigsRequest}
-	 * @throws OpenemsNamedException on parse error
-	 */
-	public static SetUserAlertingConfigsRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		return new SetUserAlertingConfigsRequest(request);
-	}
+    /**
+     * Create {@link SetUserAlertingConfigsRequest} from a template
+     * {@link JsonrpcRequest}.
+     *
+     * @param request the template {@link JsonrpcRequest}
+     * @return the {@link SetUserAlertingConfigsRequest}
+     * @throws OpenemsNamedException on parse error
+     */
+    public static SetUserAlertingConfigsRequest from(JsonrpcRequest request) throws OpenemsNamedException {
+	return new SetUserAlertingConfigsRequest(request);
+    }
 
-	private final String edgeId;
-	private final List<AlertingSetting> userSettings = new ArrayList<>();
+    private final String edgeId;
+    private final List<AlertingSetting> userSettings = new ArrayList<>();
 
-	private SetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
-		super(request, SetUserAlertingConfigsRequest.METHOD);
-		var params = request.getParams();
+    private SetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
+	super(request, SetUserAlertingConfigsRequest.METHOD);
+	var params = request.getParams();
 
-		this.edgeId = JsonUtils.getAsString(params, "edgeId");
-		JsonUtils.getAsJsonArray(params, "userSettings").forEach(user -> {
-			var userJsonObject = user.getAsJsonObject();
-			try {
-				var userId = JsonUtils.getAsString(userJsonObject, "userId");
-				var timeToWait = JsonUtils.getAsInt(userJsonObject, "delayTime");
+	this.edgeId = JsonUtils.getAsString(params, "edgeId");
+	JsonUtils.getAsJsonArray(params, "userSettings").forEach(user -> {
+	    var userJsonObject = user.getAsJsonObject();
+	    try {
+		var userId = JsonUtils.getAsString(userJsonObject, "userId");
+		var offlineAlertDelayTime = JsonUtils.getAsInt(userJsonObject, "offlineAlertDelayTime");
+		var sumStateAlertDelayTime = JsonUtils.getAsInt(userJsonObject, "sumStateAlertDelayTime");
+		var sumStateAlertLevel = JsonUtils.getAsInt(userJsonObject, "sumStateAlertLevel");
+		var sumLevel = Level.fromValue(sumStateAlertLevel).get();
+		this.userSettings.add(new AlertingSetting(0, userId, null, null,
+			offlineAlertDelayTime, null, sumStateAlertDelayTime, sumLevel));
+	    } catch (OpenemsNamedException e) {
+		e.printStackTrace();
+	    }
+	});
+    }
 
-				this.userSettings.add(new AlertingSetting(userId, timeToWait));
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+    /**
+     * Get the Edge-ID.
+     *
+     * @return the Edge-ID
+     */
+    public String getEdgeId() {
+	return this.edgeId;
+    }
 
-	/**
-	 * Get the Edge-ID.
-	 *
-	 * @return the Edge-ID
-	 */
-	public String getEdgeId() {
-		return this.edgeId;
-	}
+    /**
+     * Get list of {@link UserAlertingSetting}.
+     *
+     * @return list of {@link UserAlertingSetting}
+     */
+    public List<AlertingSetting> getUserSettings() {
+	return this.userSettings;
+    }
 
-	/**
-	 * Get list of {@link UserAlertingSetting}.
-	 *
-	 * @return list of {@link UserAlertingSetting}
-	 */
-	public List<AlertingSetting> getUserSettings() {
-		return this.userSettings;
-	}
+    @Override
+    public JsonObject getParams() {
+	return JsonUtils.buildJsonObject() //
+		.addProperty("edgeId", this.edgeId) //
+		.add("userSettings", JsonUtils.generateJsonArray(this.userSettings, this::toJson)) //
+		.build();
+    }
 
-	@Override
-	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("edgeId", this.edgeId) //
-				.add("userSettings", JsonUtils.generateJsonArray(this.userSettings, this::toJson)) //
-				.build();
-	}
-
-	private JsonElement toJson(AlertingSetting setting) {
-		return JsonUtils.buildJsonObject() //
-				.addProperty("userId", setting.getUserId()) //
-				.addProperty("delayTime", setting.getDelayTime()) //
-				.build();
-	}
+    private JsonElement toJson(AlertingSetting setting) {
+	return JsonUtils.buildJsonObject() //
+		.addProperty("userId", setting.getUserId()) //
+		.addProperty("offlineAlertDelayTime", setting.getOfflineAlertDelayTime()) //
+		.addProperty("sumStateAlertDelayTime", setting.getSumStateAlertDelayTime()) //
+		.addProperty("sumStateAlertLevel", setting.getSumStateAlertLevel().getValue()) //
+		.build();
+    }
 
 }

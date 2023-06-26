@@ -38,6 +38,11 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
+	public Collection<Edge> getAllSumNotOkEdges() {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
 	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -192,6 +193,12 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
 		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).toList();
+	}
+
+	@Override
+	public Collection<Edge> getAllSumNotOkEdges() {
+		return this.edgeCache.getAllEdges().stream().filter(edge -> edge.getSumState().isAtLeast(Level.INFO))
+				.collect(Collectors.toList());
 	}
 
 	/**

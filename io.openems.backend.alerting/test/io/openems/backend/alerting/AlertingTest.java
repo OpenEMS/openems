@@ -12,90 +12,111 @@ import io.openems.backend.common.test.DummyMetadata;
 
 public class AlertingTest {
 
-	private static final Config testConf = new Config() {
+    private static final Config testConf = new Config() {
 
-		@Override
-		public Class<? extends Annotation> annotationType() {
-			return null;
-		}
-
-		@Override
-		public String webconsole_configurationFactory_nameHint() {
-			return null;
-		}
-
-		@Override
-		public int initialDelay() {
-			return 15;
-		}
-	};
-
-	private static Config conf = new Config() {
-		@Override
-		public Class<? extends Annotation> annotationType() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String webconsole_configurationFactory_nameHint() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int initialDelay() {
-			return 15;
-		}
-	};
-
-	@Test
-	public void testActivateAndDeactivate() {
-		var alerting = new DummyAlerting();
-		alerting.metadata = new DummyMetadata();
-
-		// Activate
-		alerting.activate(conf);
-
-		assertEquals(1, alerting.handlerCount());
-
-		// Deactivate
-		alerting.deactivate();
-
-		assertEquals(0, alerting.handlerCount());
+	@Override
+	public Class<? extends Annotation> annotationType() {
+	    return null;
 	}
 
-	@Test
-	public void testHandleEvent() {
-		final var alerting = new DummyAlerting();
-		final var event = new Event("TestEvent", Map.of());
-
-		alerting.activate(testConf);
-
-		assertEquals(null, alerting.lastEvent);
-
-		alerting.handleEvent(event);
-
-		assertEquals(event, alerting.lastEvent);
+	@Override
+	public String webconsole_configurationFactory_nameHint() {
+	    return null;
 	}
 
-	/* ********** */
-	static class DummyAlerting extends Alerting {
-		private Event lastEvent;
-
-		public DummyAlerting() {
-			super.metadata = new DummyMetadata();
-		}
-
-		private int handlerCount() {
-			if (super.handlers == null) {
-				return 0;
-			}
-			return super.handlers.length;
-		}
-
-		@Override
-		public void handleEvent(Event event) {
-			this.lastEvent = event;
-			super.handleEvent(event);
-		}
+	@Override
+	public int initialDelay() {
+	    return 15;
 	}
+
+	@Override
+	public boolean notifyOnOffline() {
+	    return true;
+	}
+
+	@Override
+	public boolean notifyOnSumStateChange() {
+	    return false;
+	}
+
+    };
+
+    private static Config conf = new Config() {
+	@Override
+	public Class<? extends Annotation> annotationType() {
+	    throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String webconsole_configurationFactory_nameHint() {
+	    throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int initialDelay() {
+	    return 15;
+	}
+
+	@Override
+	public boolean notifyOnOffline() {
+	    return true;
+	}
+
+	@Override
+	public boolean notifyOnSumStateChange() {
+	    return false;
+	}
+
+    };
+
+    @Test
+    public void testActivateAndDeactivate() {
+	var alerting = new DummyAlerting();
+	alerting.metadata = new DummyMetadata();
+
+	// Activate
+	alerting.activate(conf);
+
+	assertEquals(2, alerting.handlerCount());
+
+	// Deactivate
+	alerting.deactivate();
+
+	assertEquals(0, alerting.handlerCount());
+    }
+
+    @Test
+    public void testHandleEvent() {
+	final var alerting = new DummyAlerting();
+	final var event = new Event("TestEvent", Map.of());
+	alerting.activate(testConf);
+
+	assertEquals(null, alerting.lastEvent);
+
+	alerting.handleEvent(event);
+
+	assertEquals(event, alerting.lastEvent);
+    }
+
+    /* ********** */
+    static class DummyAlerting extends Alerting {
+	private Event lastEvent;
+
+	public DummyAlerting() {
+	    super.metadata = new DummyMetadata();
+	}
+
+	private int handlerCount() {
+	    if (super.handlers == null) {
+		return 0;
+	    }
+	    return super.handlers.length;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+	    this.lastEvent = event;
+	    super.handleEvent(event);
+	}
+    }
 }

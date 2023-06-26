@@ -3,7 +3,11 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
 export interface UserSettingRequest {
     userId: string,
-    timeToWait: number;
+    offlineAlertDelayTime: number,
+    offlineAlertEnabled: boolean,
+    sumStateAlertDelayTime: number,
+    sumStateAlertEnabled: boolean,
+    sumStateAlertLevel: number;
 }
 /**
  * Represents a JSON-RPC Request to execute a change to alerting settings for edge with edgeId.
@@ -16,9 +20,13 @@ export interface UserSettingRequest {
  *   "params": {
  *     "edgeId": "string",
  *      "userSettings": [
- *          {
- *           "userId": "string",
- *           "timeToWait": "number"
+ *           {
+ *           userId: string,
+ *           offlineAlertDelayTime: number,
+ *           offlineAlertEnabled: boolean,
+ *           sumStateAlertDelayTime: number,
+ *           sumStateAlertEnabled: boolean,
+ *           sumStateAlertLevel: number
  *          }
  *      ]
  *   }

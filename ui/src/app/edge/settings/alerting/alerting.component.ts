@@ -10,10 +10,16 @@ import { User } from 'src/app/shared/jsonrpc/shared';
 import { Role } from 'src/app/shared/type/role';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 
-export type UserSetting = { userId: string, delayTime: number }
+export type UserSetting = {
+  userId: string,
+  offlineAlertDelayTime: number,
+  sumStateAlertDelayTime: number,
+  sumStateAlertLevel: number;
+}
 
 type Delay = { value: number, label: string }
-type UserSettingOptions = UserSetting & { options: Delay[] }
+type Level = { value: number, label: string }
+type UserSettingOptions = UserSetting & { optionsOffline: Delay[] } & { optionsSumState: Delay[] } & { optionsSumStateLevel: Level[] }
 type UserSettingRole = UserSetting & { role: Role };
 type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOptions[] }
 
@@ -24,7 +30,9 @@ type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOpt
 export class AlertingComponent implements OnInit {
   protected static readonly SELECTOR = "alerting";
   public readonly spinnerId: string = AlertingComponent.SELECTOR;
-  protected static readonly DELAYS: number[] = [15, 60, 1440];
+  protected static readonly DELAYS: number[] = [2, 5, 15, 60, 1440];
+  //No need to Alert when OpenEMS Level is ok
+  protected static readonly LEVELS: number[] = [1, 2, 3];
 
   protected edge: Edge;
   protected user: User;
@@ -76,15 +84,19 @@ export class AlertingComponent implements OnInit {
     if (currentUserIndex != -1) {
       this.currentUserInformation = userSettings.splice(currentUserIndex, 1)[0];
     } else {
-      this.currentUserInformation = { delayTime: 0, userId: this.user.id, role: Role.getRole(this.user.globalRole) };
+      this.currentUserInformation = { offlineAlertDelayTime: 15, sumStateAlertDelayTime: 15, sumStateAlertLevel: 1, userId: this.user.id, role: Role.getRole(this.user.globalRole) };
     }
     this.currentUserForm = this.generateFormFor(this.currentUserInformation);
   }
 
   private generateFormFor(userSettings: UserSettingRole): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: Delay[] = this.Delays;
-    if (this.isInvalidDelay(userSettings.delayTime)) {
-      delays.push({ value: userSettings.delayTime, label: this.getLabelToDelay(userSettings.delayTime) });
+    let delays: Delay[] = this.Delays
+    let levels: Level[] = this.Levels
+    if (this.isInvalidDelay(userSettings.offlineAlertDelayTime) && !isNaN(userSettings.offlineAlertDelayTime)) {
+      delays.push({ value: userSettings.offlineAlertDelayTime, label: this.getLabelToDelay(userSettings.offlineAlertDelayTime) })
+    }
+    if (this.isInvalidDelay(userSettings.sumStateAlertDelayTime) && !isNaN(userSettings.sumStateAlertDelayTime)) {
+      delays.push({ value: userSettings.sumStateAlertDelayTime, label: this.getLabelToDelay(userSettings.sumStateAlertDelayTime) })
     }
     return {
       formGroup: new FormGroup({}),
@@ -94,18 +106,21 @@ export class AlertingComponent implements OnInit {
         }
       },
       model: {
-        isActivated: userSettings.delayTime > 0,
-        delayTime: userSettings.delayTime
+        isActivatedOffline: userSettings.offlineAlertDelayTime > 0,
+        delayTimeOffline: userSettings.offlineAlertDelayTime,
+        isActivatedSumState: userSettings.sumStateAlertDelayTime > 0,
+        delayTimeSumState: userSettings.sumStateAlertDelayTime,
+        sumStateLevel: userSettings.sumStateAlertLevel
       },
       fields: [{
-        key: 'isActivated',
+        key: 'isActivatedOffline',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate')
-        }
+          label: this.translate.instant('Edge.Config.Alerting.activateOffline'),
+        },
       },
       {
-        key: 'delayTime',
+        key: 'delayTimeOffline',
         type: 'radio',
         templateOptions: {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
@@ -113,7 +128,36 @@ export class AlertingComponent implements OnInit {
           required: true,
           options: delays
         },
-        hideExpression: model => !model.isActivated
+        hideExpression: model => !model.isActivatedOffline,
+      },
+      {
+        key: 'isActivatedSumState',
+        type: 'checkbox',
+        templateOptions: {
+          label: this.translate.instant('Edge.Config.Alerting.activateSumState'),
+        },
+      },
+      {
+        key: 'delayTimeSumState',
+        type: 'radio',
+        templateOptions: {
+          label: this.translate.instant('Edge.Config.Alerting.delay'),
+          type: 'number',
+          required: true,
+          options: delays,
+        },
+        hideExpression: model => !model.isActivatedSumState,
+      },
+      {
+        key: 'sumStateLevel',
+        type: 'radio',
+        templateOptions: {
+          label: this.translate.instant('Edge.Config.Alerting.levels'),
+          type: 'number',
+          required: true,
+          options: levels,
+        },
+        hideExpression: model => !model.isActivatedSumState,
       }
       ]
     };
@@ -164,21 +208,41 @@ export class AlertingComponent implements OnInit {
    * @param roleSetting settings to add user to
    */
   private addUserToRoleUserSettings(userSetting: UserSettingResponse, roleSetting: RoleUsersSettings) {
-    let activated = userSetting.delayTime > 0;
-    let delay = userSetting.delayTime == 0 ? 15 : userSetting.delayTime;
-    roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) });
+    let activatedOffline = userSetting.offlineAlertDelayTime > 0;
+    let delayOffline = userSetting.offlineAlertDelayTime == 0 ? 15 : userSetting.offlineAlertDelayTime;
+    let activatedSumState = userSetting.sumStateAlertDelayTime > 0;
+    let delaySumState = userSetting.sumStateAlertDelayTime == 0 ? 15 : userSetting.sumStateAlertDelayTime;
+    let sumStateAlertLevel = userSetting.sumStateAlertLevel < 1 ? 3 : userSetting.sumStateAlertLevel;
+    roleSetting.settings.push({
+      userId: userSetting.userId,
+      offlineAlertDelayTime: userSetting.offlineAlertDelayTime,
+      optionsOffline: this.getDelayOptions(delayOffline),
+      sumStateAlertDelayTime: userSetting.sumStateAlertDelayTime,
+      sumStateAlertLevel: userSetting.sumStateAlertLevel,
+      optionsSumState: this.getDelayOptions(delaySumState),
+      optionsSumStateLevel: this.getSumStateLevelOptions()
+    })
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
-      isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay)
+      isActivatedOffline: new FormControl(activatedOffline),
+      delayTimeOffline: new FormControl(delayOffline),
+      isActivatedSumState: new FormControl(activatedSumState),
+      delayTimeSumState: new FormControl(delaySumState),
+      sumStateLevel: new FormControl(sumStateAlertLevel)
     }));
   }
 
   private getDelayOptions(delay: number): Delay[] {
     let delays: Delay[] = this.Delays;
     if (this.isInvalidDelay(delay)) {
-      delays.push({ value: delay, label: this.getLabelToDelay(delay) });
+      if (!isNaN(delay)) {
+        delays.push({ value: delay, label: this.getLabelToDelay(delay) })
+      }
     }
     return delays;
+  }
+  private getSumStateLevelOptions(): Level[] {
+    let levels: Level[] = this.Levels
+    return levels;
   }
 
   private sortedByRole(roleUsersSettings: RoleUsersSettings[]): RoleUsersSettings[] {
@@ -201,7 +265,13 @@ export class AlertingComponent implements OnInit {
    * get list of delays with translated labels.
    */
   protected get Delays() {
-    return AlertingComponent.DELAYS.map((delay) => { return { value: delay, label: this.getLabelToDelay(delay) }; });
+    return AlertingComponent.DELAYS.map((delay) => {
+      return { value: delay, label: this.getLabelToDelay(delay) }
+    });
+  }
+
+  protected get Levels() {
+    return AlertingComponent.LEVELS.map((level) => { return { value: level, label: this.getLabelToLevel(level) } });
   }
 
   /**
@@ -212,21 +282,40 @@ export class AlertingComponent implements OnInit {
    * @returns label as string
    */
   private getLabelToDelay(delay: number): string {
-    if (delay >= 1440) {
-      delay = delay / 1440;
-      return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.day")
-        : this.translate.instant("Edge.Config.Alerting.interval.days"));
-    } else if (delay >= 60) {
-      delay = delay / 60;
-      return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.hour")
-        : this.translate.instant("Edge.Config.Alerting.interval.hours"));
-    } else {
-      return delay + ' ' + (delay == 1
-        ? this.translate.instant("Edge.Config.Alerting.interval.minute")
-        : this.translate.instant("Edge.Config.Alerting.interval.minutes"));
+    if (!isNaN(delay)) {
+      if (delay >= 1440) {
+        delay = delay / 1440
+        return delay + ' ' + (delay == 1
+          ? this.translate.instant("Edge.Config.Alerting.interval.day")
+          : this.translate.instant("Edge.Config.Alerting.interval.days"));
+      } else if (delay >= 60) {
+        delay = delay / 60
+        return delay + ' ' + (delay == 1
+          ? this.translate.instant("Edge.Config.Alerting.interval.hour")
+          : this.translate.instant("Edge.Config.Alerting.interval.hours"));
+      } else {
+        return delay + ' ' + (delay == 1
+          ? this.translate.instant("Edge.Config.Alerting.interval.minute")
+          : this.translate.instant("Edge.Config.Alerting.interval.minutes"));
+      }
     }
+  }
+
+  /**
+   * Get the Translation of AlertLevel to OpenEMS State.
+   * @param level the OpenEMS Level to generate label for
+   * @returns label as string
+   */
+  private getLabelToLevel(level: number): string {
+    let edgeLevel = ""
+    if (level === 1) {
+      edgeLevel = "INFO";
+    } else if (level === 2) {
+      edgeLevel = "WARNING";
+    } else {
+      edgeLevel = "FAULT";
+    }
+    return level + ' ' + edgeLevel;
   }
 
   protected setUsersAlertingConfig() {
@@ -236,28 +325,33 @@ export class AlertingComponent implements OnInit {
     let changedUserSettings: UserSetting[] = [];
 
     if (this.currentUserForm.formGroup.dirty) {
-      dirtyformGroups.push(this.currentUserForm.formGroup);
-
+      dirtyformGroups.push(this.currentUserForm.formGroup)
       changedUserSettings.push({
-        delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        userId: this.currentUserInformation.userId
-      });
+        offlineAlertDelayTime: this.currentUserForm.formGroup.controls['delayTimeOffline']?.value ?? 0,
+        sumStateAlertDelayTime: this.currentUserForm.formGroup.controls['delayTimeSumeState']?.value ?? 0,
+        sumStateAlertLevel: this.currentUserForm.formGroup.controls['sumStateAlertLevel']?.value ?? 3,
+        userId: this.currentUserInformation.userId,
+      })
     }
 
     let userOptions: UserSettingOptions[] = [];
     if (this.otherUserSettings) {
       for (let setting of this.otherUserSettings) {
         if (setting.form.dirty) {
-          dirtyformGroups.push(setting.form);
-
+          dirtyformGroups.push(setting.form)
           for (let user of setting.settings) {
             let control = setting.form.controls[user.userId];
             if (control.dirty) {
-              let delayTime = control.value['delayTime'];
-              let isActivated = control.value['isActivated'];
+              let delayTimeOffline = control.value['delayTimeOffline']
+              let delayTimeSumState = control.value['delayTimeSumState']
+              let isActivatedOffline = control.value['isActivatedOffline']
+              let isActivatedSumState = control.value['isActivatedSumState']
+              let sumStateLevel = control.value['sumStateLevel']
               changedUserSettings.push({
-                delayTime: isActivated ? delayTime : 0,
-                userId: user.userId
+                offlineAlertDelayTime: isActivatedOffline ? delayTimeOffline : 0,
+                sumStateAlertDelayTime: isActivatedSumState ? delayTimeSumState : 0,
+                sumStateAlertLevel: isActivatedSumState ? sumStateLevel : 3,
+                userId: user.userId,
               });
               userOptions.push(user);
             }
@@ -272,8 +366,14 @@ export class AlertingComponent implements OnInit {
     // reset options for users with a non-default option.
     var defaultSettingsCount = this.Delays.length;
     userOptions.forEach(user => {
-      if (user.options.length > defaultSettingsCount) {
-        user.options = this.getDelayOptions(user.delayTime);
+      if (user.optionsOffline.length > defaultSettingsCount) {
+        user.optionsOffline = this.getDelayOptions(user.offlineAlertDelayTime);
+      }
+      if (user.optionsSumState.length > defaultSettingsCount) {
+        user.optionsSumState = this.getDelayOptions(user.sumStateAlertDelayTime);
+      }
+      if (user.optionsSumStateLevel.length > defaultSettingsCount) {
+        user.optionsSumStateLevel = this.getDelayOptions(user.sumStateAlertLevel);
       }
     });
   }

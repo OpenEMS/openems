@@ -55,6 +55,10 @@ public class MessageTest {
 		public JsonObject getParams() {
 			throw new UnsupportedOperationException();
 		}
-
+		
+		@Override
+		public boolean update() {
+			return true;
+		}
 	}
 }

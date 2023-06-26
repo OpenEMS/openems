@@ -9,7 +9,7 @@ public class MyEdge extends Edge {
 
 	public MyEdge(MetadataFile parent, String id, String apikey, String setupPassword, String comment, String version,
 			String producttype) {
-		super(parent, id, comment, version, producttype, null);
+		super(parent, id, comment, version, producttype, null, null);
 		this.apikey = apikey;
 		this.setupPassword = setupPassword;
 	}

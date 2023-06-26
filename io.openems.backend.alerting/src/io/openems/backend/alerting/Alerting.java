@@ -4,6 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.openems.backend.alerting.handler.SumStateEdgeHandler;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -71,8 +72,11 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.logInfo(this.log, "Activate");
 		this.scheduler.start();
 
-		this.handlers = new Handler[] {
-				new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()) };
+		this.handlers = new Handler[]{
+				new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay(),
+						config.notifyOnOffline()),
+				new SumStateEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay(),
+						config.notifyOnSumStateChange())};
 	}
 
 	@Deactivate
