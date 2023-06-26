@@ -49,7 +49,7 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       #
-      # Generate Code-coverage-report
+      # Generate JaCoCo-Code-coverage-report
       #
       - name: Generate JaCoCo Code-coverage-report
         run: ./gradlew jacocoTestReport
