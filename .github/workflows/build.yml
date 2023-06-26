@@ -41,7 +41,7 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       #
-      # Is this a Tag? Prepare release assets
+      # Is this a Tag? Prepare release assets 
       #
       - name: Prepare Edge+Backend assets
         if: startsWith(github.ref, 'refs/tags/')
