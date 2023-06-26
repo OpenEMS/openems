@@ -163,6 +163,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	}
 
 	/**
+	 * Retry Modbus communication to given Component-ID.
+	 * 
+	 * <p>
+	 * See {@link BridgeModbus#retryModbusCommunication(String)}
+	 * 
+	 * @param sourceId Component-ID of the source
+	 */
+	public void retryModbusCommunication(String sourceId) {
+		// TODO
+	}
+
+	/**
 	 * Called on EXECUTE_WRITE event.
 	 */
 	public void onExecuteWrite() {
@@ -175,5 +187,4 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	public void onBeforeProcessImage() {
 		this.cycleTasksManager.onBeforeProcessImage();
 	}
-
 }

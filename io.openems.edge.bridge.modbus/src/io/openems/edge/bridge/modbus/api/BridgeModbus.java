@@ -4,7 +4,6 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -18,11 +17,9 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.INFO) //
-				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		EXECUTION_DURATION(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.MILLISECONDS)//
-				.persistencePriority(PersistencePriority.HIGH));
+				.unit(Unit.MILLISECONDS)); //
 
 		private final Doc doc;
 

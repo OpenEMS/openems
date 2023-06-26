@@ -57,6 +57,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
+	@Override
+	@Deprecated
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() method.");
 	}
@@ -158,6 +160,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	@Override
 	public void retryModbusCommunication(String sourceId) {
-		// TODO Auto-generated method stub
+		this.worker.retryModbusCommunication(sourceId);
 	}
 }

@@ -7,6 +7,9 @@ import java.util.Map;
 
 import io.openems.edge.common.type.TypeUtils;
 
+// TODO add method to inform about repeated read/write error for a Component.
+// Use this information to dynamically increase delay.
+
 public class DefectiveComponents {
 	/**
 	 * Do not retry reading from/writing to a defective Component for PAUSE_SECONDS.
@@ -23,9 +26,6 @@ public class DefectiveComponents {
 	protected DefectiveComponents(Clock clock) {
 		this.clock = clock;
 	}
-
-	// TODO add method to inform about repeated read/write error for a Component.
-	// Use this information to dynamically increase delay.
 
 	/**
 	 * Adds a defective Component and sets retry time to now() +

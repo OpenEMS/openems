@@ -128,6 +128,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 			var transport = (ModbusSerialTransport) this._connection.getModbusTransport();
 			transport.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+
+			// Sometimes read after write happens too quickly and causes read errors.
 			// Add 1ms additional waiting time between write request and read response
 			transport.addListener(new AbstractSerialTransportListener() {
 				public void afterMessageWrite(AbstractSerialConnection port, ModbusMessage msg) {

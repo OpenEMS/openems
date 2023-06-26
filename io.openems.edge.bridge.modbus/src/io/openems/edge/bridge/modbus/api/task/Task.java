@@ -14,29 +14,28 @@ public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, Wa
 	 *
 	 * @return an array of ModbusElements
 	 */
-	// TODO limit access
-	ModbusElement<?>[] getElements();
+	public ModbusElement<?>[] getElements();
 
 	/**
 	 * Gets the start Modbus register address.
 	 *
 	 * @return the address
 	 */
-	int getStartAddress();
+	public int getStartAddress();
 
 	/**
 	 * Gets the length from first to last Modbus register address.
 	 *
 	 * @return the address
 	 */
-	int getLength();
+	public int getLength();
 
 	/**
 	 * Sets the parent.
 	 *
 	 * @param parent the parent {@link AbstractOpenemsModbusComponent}.
 	 */
-	void setParent(AbstractOpenemsModbusComponent parent);
+	public void setParent(AbstractOpenemsModbusComponent parent);
 
 	/**
 	 * Gets the parent.
@@ -49,7 +48,7 @@ public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, Wa
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
 	 * any references like listeners.
 	 */
-	void deactivate();
+	public void deactivate();
 
 	/**
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
@@ -60,6 +59,6 @@ public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, Wa
 	 * @throws OpenemsException on error
 	 * @return the number of executed Sub-Tasks
 	 */
-	<T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
+	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
 }

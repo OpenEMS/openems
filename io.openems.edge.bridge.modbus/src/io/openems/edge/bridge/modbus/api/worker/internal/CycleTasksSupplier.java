@@ -94,7 +94,7 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 	}
 
 	/**
-	 * Get one LOW priority task; avoid defective components.
+	 * Get one LOW priority task.
 	 *
 	 * @return the next task; null if there is no available task
 	 */

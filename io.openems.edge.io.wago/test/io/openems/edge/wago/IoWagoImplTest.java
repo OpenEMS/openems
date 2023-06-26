@@ -1,6 +1,7 @@
 package io.openems.edge.wago;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -9,8 +10,6 @@ import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
-import io.openems.edge.bridge.modbus.api.task.ReadTask;
-import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -74,42 +73,20 @@ public class IoWagoImplTest {
 		assertEquals(Fieldbus523RO1Ch.class, modules.get(1).getClass());
 
 		sut.createProtocolFromModules(modules);
+		var tasks = sut.protocol.getTaskManager().getTasks();
 
-		{
-			var tasks = sut.protocol.getTaskManager().getTasks();
-			{
-				var t = (ReadTask) tasks.get(0);
-				assertEquals(FC1ReadCoilsTask.class, t.getClass());
-				assertEquals(0, t.getStartAddress());
-				assertEquals(2, t.getLength());
-			}
-			{
-				var t = (ReadTask) tasks.get(1);
-				assertEquals(FC1ReadCoilsTask.class, t.getClass());
-				assertEquals(512, t.getStartAddress());
-				assertEquals(4, t.getLength());
-			}
-			{
-				var t = (WriteTask) tasks.get(0);
-				assertEquals(FC5WriteCoilTask.class, t.getClass());
-				assertEquals(512, t.getStartAddress());
-			}
-			{
-				var t = (WriteTask) tasks.get(1);
-				assertEquals(FC5WriteCoilTask.class, t.getClass());
-				assertEquals(513, t.getStartAddress());
-			}
-			{
-				var t = (WriteTask) tasks.get(2);
-				assertEquals(FC5WriteCoilTask.class, t.getClass());
-				assertEquals(514, t.getStartAddress());
-			}
-			{
-				var t = (WriteTask) tasks.get(3);
-				assertEquals(FC5WriteCoilTask.class, t.getClass());
-				assertEquals(515, t.getStartAddress());
-			}
-		}
-
+		assertEquals(6, tasks.size());
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC1ReadCoilsTask && t.getStartAddress() == 0 && t.getLength() == 2));
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC1ReadCoilsTask && t.getStartAddress() == 512 && t.getLength() == 4));
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC5WriteCoilTask && t.getStartAddress() == 512 && t.getLength() == 1));
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC5WriteCoilTask && t.getStartAddress() == 513 && t.getLength() == 1));
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC5WriteCoilTask && t.getStartAddress() == 514 && t.getLength() == 1));
+		assertTrue(tasks.stream() //
+				.anyMatch(t -> t instanceof FC5WriteCoilTask && t.getStartAddress() == 515 && t.getLength() == 1));
 	}
 }
