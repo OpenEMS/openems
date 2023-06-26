@@ -16,17 +16,6 @@ jobs:
           java-version: "17"
           java-package: jdk
 
-      - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/native
-            ~/.gradle/notifications
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
       - name: Setup Cache for Java/Maven
         uses: actions/cache@v3
         with:
@@ -34,10 +23,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - uses: kiancross/checkstyle-annotations-action@v1
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      #- uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Build all Java packages
-        run: ./gradlew --build-cache build
+        run: ./gradlew build --build-cache
 
       - name: Resolve OpenEMS bundles
         run: ./gradlew resolve
@@ -147,8 +139,11 @@ jobs:
           java-version: "17"
           java-package: jdk
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Generate JaCoCo Code-coverage-report
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport --build-cache
         
       - name: Generate JaCoCo Report
         id: jacoco
