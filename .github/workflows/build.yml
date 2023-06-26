@@ -14,20 +14,13 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-          java-package: jdk
+          cache: "maven"
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 8.1.1
           cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
-
-      - name: Setup Cache for Java/Maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
 
       #- uses: kiancross/checkstyle-annotations-action@v1
 
@@ -140,7 +133,6 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-          java-package: jdk
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
