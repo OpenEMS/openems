@@ -33,10 +33,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private titleService: Title,
-    private checkForUpdateService: CheckForUpdateService
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
-    checkForUpdateService.init();
 
     this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
       this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
