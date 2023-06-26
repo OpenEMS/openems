@@ -148,7 +148,7 @@ jobs:
           java-package: jdk
 
       - name: Generate JaCoCo Code-coverage-report
-        run: ./gradlew jacocoTestReport
+        run: ./gradlew test jacocoTestReport
         
       - name: Generate JaCoCo Report
         id: jacoco
