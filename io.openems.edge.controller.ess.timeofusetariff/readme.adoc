@@ -1,0 +1,5 @@
+= ESS Time-of-Use Tariff
+
+This Controller optimizes the behavior of an energy storage system in combination with a Time-Of-Use (ToU) Tariff.
+
+This controller works every 15 minutes and sets the schedule of the ESS for the rest of the day in every 15 minute intervals.
