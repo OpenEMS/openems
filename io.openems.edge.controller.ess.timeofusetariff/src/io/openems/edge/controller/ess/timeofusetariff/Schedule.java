@@ -7,11 +7,6 @@ import java.util.Objects;
 
 import io.openems.edge.common.type.TypeUtils;
 
-// IDEAS
-// - Add energy buffer for prediction inaccuracy
-// - Handle timespans instead of periods with same price
-// - Config-parameter: ControlMode Enum (DELAY_DISCHARGE, CHARGE_FOR_CONSUMPTION, DISCHARGE_TO_GRID)
-
 public class Schedule {
 
 	/*
@@ -33,7 +28,7 @@ public class Schedule {
 	private int maxChargeEnergyPerPeriod;
 
 	/* Maximum Charge energy of the battery from grid in a period. */
-	private int maxAllowedChargeEnergyFromGridPerPeriod;
+	private int maxAllowedChargeEnergyFromGrid;
 
 	/* Control mode defined by user while configuring. */
 	private ControlMode controlMode;
@@ -114,18 +109,16 @@ public class Schedule {
 		}
 	}
 
-	public Schedule(ControlMode controlMode, int essUsableEnergy, int currentAvailableEnergy, int dischargePower,
-			int chargePower, Float[] prices, Integer[] consumptionPrediciton, Integer[] productionPrediction,
-			int maxAllowedChargeEnergyFromGridPerPeriod) {
+	public Schedule(ControlMode controlMode, int essUsableEnergy, int currentAvailableEnergy, int dischargeEnergy,
+			int chargeEnergy, Float[] prices, Integer[] consumptionPrediciton, Integer[] productionPrediction,
+			int maxAllowedChargeEnergyFromGrid) {
 
 		this.controlMode = controlMode;
 		this.essUsableEnergy = essUsableEnergy;
 		this.currentAvailableEnergy = currentAvailableEnergy;
-
-		// power to 15 minute energy.
-		this.maxDischargeEnergyPerPeriod = dischargePower / 4;
-		this.maxChargeEnergyPerPeriod = chargePower / 4;
-		this.maxAllowedChargeEnergyFromGridPerPeriod = maxAllowedChargeEnergyFromGridPerPeriod / 4;
+		this.maxDischargeEnergyPerPeriod = dischargeEnergy;
+		this.maxChargeEnergyPerPeriod = chargeEnergy;
+		this.maxAllowedChargeEnergyFromGrid = maxAllowedChargeEnergyFromGrid;
 
 		// Filtering non null values.
 		var priceValues = Arrays.stream(prices) //
@@ -154,8 +147,6 @@ public class Schedule {
 		}
 
 		this.simulateSchedule();
-		System.out.println(this.toString());
-
 	}
 
 	/**
@@ -184,8 +175,6 @@ public class Schedule {
 			// Simulates and updates the schedule.
 			this.simulateSchedule();
 		}
-
-		System.out.println(this.toString());
 	}
 
 	/**
@@ -253,6 +242,7 @@ public class Schedule {
 		}
 
 		if (gridEnergy != null && chargeDischargeEnergy != null) {
+			// Not initial run.
 			switch (this.controlMode) {
 			case CHARGE_CONSUMPTION:
 				if (period.isChargeFromGridScheduled()) {
@@ -394,7 +384,7 @@ public class Schedule {
 
 		var currentChargeDischargeEnergy = period.chargeDischargeEnergy;
 		var maxChargeEnergy = (period.requiredEnergy > 0)
-				? -TypeUtils.max(0, this.maxAllowedChargeEnergyFromGridPerPeriod - period.consumptionPrediction)
+				? -TypeUtils.max(0, this.maxAllowedChargeEnergyFromGrid - period.consumptionPrediction)
 				: this.maxChargeEnergyPerPeriod;
 
 		if (currentChargeDischargeEnergy < 0) {

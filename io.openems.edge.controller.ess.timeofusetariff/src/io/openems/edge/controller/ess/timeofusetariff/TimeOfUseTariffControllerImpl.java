@@ -70,9 +70,9 @@ import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, JsonApi {
 
+	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
-	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
 
 	/**
 	 * Delayed Time is aggregated also after restart of OpenEMS.
@@ -98,7 +98,12 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	@Reference
 	private TimeOfUseTariff timeOfUseTariff;
 
+	private Config config = null;
 	private Schedule schedule;
+	private ZonedDateTime nextQuarter = null;
+	private static final int PERIODS_PER_HOUR = 4;
+	private static final int MINUTES_PER_PERIOD = 15;
+	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -117,11 +122,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
-
-	private Config config = null;
-	private ZonedDateTime nextQuarter = null;
-	private static final int MINUTES_FOR_EACH_INTERVAL = 15;
-	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_FOR_EACH_INTERVAL);
 
 	public TimeOfUseTariffControllerImpl() {
 		super(//
@@ -152,8 +152,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 
 		// Current Date Time rounded off to NUMBER_OF_MINUTES.
-		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(),
-				MINUTES_FOR_EACH_INTERVAL);
+		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), MINUTES_PER_PERIOD);
 
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
@@ -219,14 +218,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				return;
 			}
 
-			System.out.println("netCapacity: " + netEssCapacity + " soc:" + soc);
-			System.out.println("maxPower: " + dischargePower + " minPower:" + chargePower);
-			System.out.println("netCapacityUsable: " + netUsableEnergy + " availableEnergy: " + currentAvailableEnergy);
+			// Power to Energy.
+			var dischargeEnergy = dischargePower / PERIODS_PER_HOUR;
+			var chargeEnergy = chargePower / PERIODS_PER_HOUR;
+			var allowedChargeEnergyFromGrid = this.config.maxPower() / PERIODS_PER_HOUR;
 
 			// Initialize Schedule
 			this.schedule = new Schedule(this.config.controlMode(), netUsableEnergy, currentAvailableEnergy,
-					dischargePower, chargePower, prices.getValues(), predictionConsumption, predictionProduction,
-					this.config.maxPower());
+					dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption, predictionProduction,
+					allowedChargeEnergyFromGrid);
 
 			// Generate Final schedule.
 			this.schedule.createSchedule();
@@ -251,7 +251,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		}
 
 		final var period = this.schedule.periods.get(0);
-		var stateMachine = period.getStateMachine(this.config.controlMode());
+		final var stateMachine = period.getStateMachine(this.config.controlMode());
 		var charged = false;
 		var delayed = false;
 		Integer chargeValue = null;
@@ -260,7 +260,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		switch (stateMachine) {
 		case CHARGING:
 			charged = true;
-			chargeValue = period.chargeDischargeEnergy * 4; // 15 minutes energy resolution to power
+			chargeValue = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 
 			// Force Charging with charge energy.
 			this.ess.setActivePowerLessOrEquals(chargeValue);
@@ -269,7 +269,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			delayed = true;
 
 			// If there is complete delay discharge ('0') or partial delay from battery.
-			dischargeValue = period.chargeDischargeEnergy * 4; // 15 minutes energy resolution to power
+			dischargeValue = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 
 			if (this.ess instanceof HybridEss) {
 				// DC or Hybrid system: limit AC export power to DC production power
@@ -342,7 +342,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.calculateDelayedTime.update(this.getDelayedChannel().getNextValue().orElse(false));
 
 		// First period is always the current period.
-		var period = this.schedule.periods.get(0);
+		final var period = this.schedule.periods.get(0);
 
 		// Set the channels
 		this._setQuarterlyPrices(period.price);
@@ -383,8 +383,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
 			GetScheduleRequest request) {
 
-		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(),
-				MINUTES_FOR_EACH_INTERVAL);
+		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), MINUTES_PER_PERIOD);
 		var fromDate = now.minusHours(3);
 
 		var channeladdressPrices = new ChannelAddress("ctrlEssTimeOfUseTariff0", "QuarterlyPrices");
