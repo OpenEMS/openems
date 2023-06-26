@@ -18,11 +18,11 @@ public class CycleTasksTest {
 	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT_CALLBACK = (cycleTimeIsTooShort) -> {
 	};
 
-	public static DummyReadTask RT_H_1;
-	public static DummyReadTask RT_H_2;
-	public static DummyReadTask RT_L_1;
-	public static DummyReadTask RT_L_2;
-	public static DummyWriteTask WT_1;
+	private static DummyReadTask RT_H_1;
+	private static DummyReadTask RT_H_2;
+	private static DummyReadTask RT_L_1;
+	private static DummyReadTask RT_L_2;
+	private static DummyWriteTask WT_1;
 
 	@Before
 	public void before() {

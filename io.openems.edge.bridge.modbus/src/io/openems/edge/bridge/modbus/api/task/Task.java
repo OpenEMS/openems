@@ -56,8 +56,8 @@ public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, Wa
 	 *
 	 * @param bridge the Modbus-Bridge
 	 * @param <T>    the Modbus-Element
-	 * @throws OpenemsException on error
 	 * @return the number of executed Sub-Tasks
+	 * @throws OpenemsException on error
 	 */
 	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
