@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../environments';
-import { CheckForUpdateService } from './appupdateservice';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
@@ -32,7 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title,
+    private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
