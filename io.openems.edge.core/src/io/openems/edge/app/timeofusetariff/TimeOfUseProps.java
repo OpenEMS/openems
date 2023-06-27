@@ -43,14 +43,14 @@ public final class TimeOfUseProps {
 	/**
 	 * Creates the commonly used components for a Time-of-Use.
 	 * 
-	 * @param ctrlEssTimeOfUseTariffId The id of the ToU controller.
-	 * @param controllerAlias          the alias of the ToU controller.
-	 * @param providerFactoryId        the factoryId of the ToU provider.
-	 * @param providerAlias            the alias of the ToU provider.
-	 * @param ctrlEssTimeOfUseTariffId the id of the ToU controller.
-	 * @param mode                     The control mode of the ToU controller.
-	 * @param additionalProperties     Consumer for additional configuration of the
-	 *                                 provider.
+	 * @param ctrlEssTimeOfUseTariffId  The id of the ToU controller.
+	 * @param controllerAlias           the alias of the ToU controller.
+	 * @param providerFactoryId         the factoryId of the ToU provider.
+	 * @param providerAlias             the alias of the ToU provider.
+	 * @param timeOfUseTariffProviderId the id of the ToU provider.
+	 * @param mode                      The control mode of the ToU controller.
+	 * @param additionalProperties      Consumer for additional configuration of the
+	 *                                  provider.
 	 * @return the components.
 	 */
 	public static final ArrayList<Component> getComponents(//
@@ -71,9 +71,9 @@ public final class TimeOfUseProps {
 		providerProperties.onlyIf(additionalProperties != null, additionalProperties);
 
 		return Lists.newArrayList(//
-				new EdgeConfig.Component("ctrlTimeOfUseTariff0", providerAlias, "Controller.Ess.Time-Of-Use-Tariff",
+				new EdgeConfig.Component("ctrlTimeOfUseTariff0", controllerAlias, "Controller.Ess.Time-Of-Use-Tariff",
 						controllerProperties.build()), //
-				new EdgeConfig.Component(timeOfUseTariffProviderId, controllerAlias, providerFactoryId,
+				new EdgeConfig.Component(timeOfUseTariffProviderId, providerAlias, providerFactoryId,
 						providerProperties.build())//
 		);
 	}
