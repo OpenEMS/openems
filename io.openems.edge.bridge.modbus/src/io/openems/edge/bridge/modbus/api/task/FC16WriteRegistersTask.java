@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		super("FC16WriteRegisters", startAddress, elements);
 	}
 
-	private static class CombinedWriteRegisters {
+	protected static class CombinedWriteRegisters {
 		public final int startAddress;
 		private final List<Register> registers = new ArrayList<>();
 
@@ -55,7 +56,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	@Override
 	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		var noOfWrittenRegisters = 0;
-		var writes = this.mergeWriteRegisters();
+		var writes = mergeWriteRegisters(this.elements, message -> this.log.warn(message));
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {
 			var registers = write.getRegisters();
@@ -109,29 +110,38 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	/**
 	 * Combine WriteRegisters without holes in between.
-	 *
+	 * 
+	 * @param elements the {@link ModbusElement}s
 	 * @return a list of CombinedWriteRegisters
 	 */
-	private List<CombinedWriteRegisters> mergeWriteRegisters() {
-		List<CombinedWriteRegisters> writes = new ArrayList<>();
-		for (var element : this.elements) {
-			if (element instanceof ModbusRegisterElement) {
-				var valueOpt = ((ModbusRegisterElement<?>) element).getNextWriteValueAndReset();
-				if (valueOpt.isPresent()) {
-					// found value -> add to 'writes'
-					CombinedWriteRegisters write;
-					if (writes.isEmpty() /* no writes created yet */
-							|| writes.get(writes.size() - 1).getLastAddress() + 1 != element
-									.getStartAddress() /* there is a hole between last element and current element */) {
+	protected static List<CombinedWriteRegisters> mergeWriteRegisters(ModbusElement<?>[] elements,
+			Consumer<String> logWarn) {
+		final var writes = new ArrayList<CombinedWriteRegisters>();
+		for (var element : elements) {
+			if (element instanceof ModbusRegisterElement<?> e) {
+				e.getNextWriteValueAndReset().ifPresent(registers -> {
+					// found value registers -> add to 'writes'
+					final CombinedWriteRegisters write;
+					if (writes.isEmpty()) {
+						// no writes created yet
 						write = new CombinedWriteRegisters(element.getStartAddress());
 						writes.add(write);
 					} else {
-						write = writes.get(writes.size() - 1); // no hole -> combine writes
+						var lastWrite = writes.get(writes.size() - 1);
+						if (lastWrite.getLastAddress() + 1 != element.getStartAddress()) {
+							// there is a hole between last element and current element
+							write = new CombinedWriteRegisters(element.getStartAddress());
+							writes.add(write);
+						} else {
+							// no hole -> combine writes
+							write = writes.get(writes.size() - 1);
+						}
 					}
-					write.add(valueOpt.get());
-				}
+					write.add(registers);
+				});
 			} else {
-				this.log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
+				logWarn.accept(
+						"Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
 			}
 		}
 		return writes;

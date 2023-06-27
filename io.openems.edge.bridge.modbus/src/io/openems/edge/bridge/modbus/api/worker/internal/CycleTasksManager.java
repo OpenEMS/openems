@@ -86,6 +86,7 @@ public class CycleTasksManager {
 		}
 
 		// Initialize next Cycle
+		this.log("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT + " (in onBeforeProcessImage)");
 		this.state = StateMachine.INITIAL_WAIT;
 
 		// Interrupt wait
@@ -96,8 +97,9 @@ public class CycleTasksManager {
 	 * Called on EXECUTE_WRITE event.
 	 */
 	public synchronized void onExecuteWrite() {
-		this.state = StateMachine.WRITE;
+		this.log("State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
 
+		this.state = StateMachine.WRITE;
 		this.waitMutexTask.release();
 	}
 
@@ -112,7 +114,8 @@ public class CycleTasksManager {
 			return this.waitMutexTask;
 		}
 
-		return switch (this.state) {
+		var previousState = this.state;
+		var nextTask = switch (this.state) {
 
 		case INITIAL_WAIT ->
 			// Waiting for planned waiting time to pass
@@ -164,14 +167,19 @@ public class CycleTasksManager {
 			// Waiting for BEFORE_PROCESS_IMAGE event
 			yield this.waitMutexTask;
 		}
-
 		};
+
+		if (this.state != previousState) {
+			this.log("State: " + previousState + " -> " + this.state + " (getNextTask)");
+		}
+		return nextTask;
 	}
 
 	/**
 	 * Waiting in INITIAL_WAIT or WAIT_BEFORE_READ finished.
 	 */
 	private synchronized void onWaitDelayTaskFinished() {
+		var previousState = this.state;
 		this.state = switch (this.state) {
 		// Expected
 		case INITIAL_WAIT -> StateMachine.READ_BEFORE_WRITE;
@@ -179,13 +187,17 @@ public class CycleTasksManager {
 		// Unexpected (the State has been unexpectedly changed in-between)
 		default -> this.state;
 		};
+
+		if (this.state != previousState) {
+			this.log("State: " + previousState + " -> " + this.state + " (onWaitDelayTaskFinished)");
+		}
 	}
 
 	// TODO remove before release
 	private void log(String message) {
 		switch (this.logVerbosity.get()) {
 		case DEV_REFACTORING:
-			this.log.info("CycleTasksManager: " + message);
+			this.log.info(message);
 			break;
 		case NONE:
 		case READS_AND_WRITES:

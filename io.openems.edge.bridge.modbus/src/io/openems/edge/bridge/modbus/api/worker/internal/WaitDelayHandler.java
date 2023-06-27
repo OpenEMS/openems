@@ -54,9 +54,11 @@ public class WaitDelayHandler {
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 */
 	public synchronized void onBeforeProcessImage() {
+		final String log;
+
 		if (this.timeIsInvalid) {
 			// Do not add possibleDelay if previous Cycle contained a defective component
-			this.log("onBeforeProcessImage: time is invalid");
+			log = "time is invalid";
 			this.stopwatch.reset();
 
 		} else {
@@ -66,12 +68,12 @@ public class WaitDelayHandler {
 				// Coming from FINISHED state -> it's possible to increase delay
 				this.stopwatch.stop();
 				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
-				this.log("onBeforeProcessImage: measured possible delay [" + this.waitDelayTask.initialDelay + " + "
-						+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]");
+				log = "measured possible delay [" + this.waitDelayTask.initialDelay + " + "
+						+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]";
 
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
-				this.log("onBeforeProcessImage: FINISHED state has not happened -> reduce possible delay");
+				log = "FINISHED state has not happened -> reduce possible delay to zero";
 				possibleDelay = 0;
 			}
 
@@ -83,6 +85,8 @@ public class WaitDelayHandler {
 
 		// Reset 'timeIsInvalid'
 		this.timeIsInvalid = false;
+
+		this.log("onBeforeProcessImage: " + log + "; delay=" + this.waitDelayTask.initialDelay);
 	}
 
 	/**
@@ -106,7 +110,6 @@ public class WaitDelayHandler {
 	 * Called when waiting finished.
 	 */
 	public synchronized void onFinished() {
-		this.log("onFinished");
 		// Measure duration between FINISHED and ON_BEFORE_PROCESS_IMAGE event
 		this.stopwatch.reset();
 		this.stopwatch.start();
@@ -131,10 +134,10 @@ public class WaitDelayHandler {
 		var shortestPossibleDelay = this.possibleDelays.stream() //
 				.min(Long::compare) //
 				.orElseGet(() -> 0L);
-		this.log("generateWaitDelayTask: PossibleDelays " //
-				+ "[" + this.possibleDelays.size() + "/"
-				+ (this.possibleDelays.size() + this.possibleDelays.remainingCapacity()) + "] " //
-				+ this.possibleDelays + " -> " + shortestPossibleDelay);
+//		this.log("generateWaitDelayTask: PossibleDelays " //
+//				+ "[" + this.possibleDelays.size() + "/"
+//				+ (this.possibleDelays.size() + this.possibleDelays.remainingCapacity()) + "] " //
+//				+ this.possibleDelays + " -> " + shortestPossibleDelay);
 		final long delay;
 		if (shortestPossibleDelay == null || shortestPossibleDelay < BUFFER_MS) {
 			delay = 0;

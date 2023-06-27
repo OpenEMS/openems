@@ -89,7 +89,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 			if (noOfExecutedSubTasks > 0) {
 				// TODO remove before merge
-				this.log("Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+				this.log("  Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				// no exception & at least one sub-task executed
 				this.markComponentAsDefective(task.getParent(), false);
 			}
