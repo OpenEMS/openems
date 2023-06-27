@@ -5,7 +5,7 @@ import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 @Component({
   templateUrl: './overview.html'
 })
-export class ProductionChartOverviewComponent extends AbstractHistoryChartOverview {
+export class OverviewComponent extends AbstractHistoryChartOverview {
   protected chargerComponents: EdgeConfig.Component[] = [];
   protected productionMeterComponents: EdgeConfig.Component[] = [];
 
@@ -17,7 +17,7 @@ export class ProductionChartOverviewComponent extends AbstractHistoryChartOvervi
 
     // Get productionMeters
     this.productionMeterComponents =
-      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }

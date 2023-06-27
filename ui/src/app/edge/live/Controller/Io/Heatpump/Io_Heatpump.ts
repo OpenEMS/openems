@@ -49,7 +49,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     }
 
     // Mode
-    switch (currentData.thisComponent[Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
+    switch (currentData.allComponents[this.component.id + '/' + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
       case 'AUTOMATIC': {
         this.mode = this.translate.instant('General.automatic');
         break;

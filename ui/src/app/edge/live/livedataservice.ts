@@ -28,16 +28,12 @@ export class LiveDataService extends DataService implements OnDestroy {
         // call onCurrentData() with latest data
         edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
             let allComponents = this.currentValue.value.allComponents;
-            let thisComponent = this.currentValue.value.thisComponent;
             for (let channelAddress of channelAddresses) {
                 let ca = channelAddress.toString();
                 allComponents[ca] = currentData.channel[ca];
-                if (channelAddress.componentId === componentId) {
-                    thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                }
             }
 
-            this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
+            this.currentValue.next({ allComponents: allComponents });
         });
     }
 
