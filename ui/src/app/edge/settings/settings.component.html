@@ -189,7 +189,7 @@
             </ion-card>
           </ion-col>
         </ng-template>
-        <ion-col size="12" size-sm="4">
+        <ion-col size="12" size-sm="4" *ngIf="!isEdgeBackend">
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>
