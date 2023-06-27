@@ -5,7 +5,7 @@ import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
@@ -16,7 +16,7 @@ public class FC3ReadRegistersTask
 		extends AbstractReadInputRegistersTask<ReadMultipleRegistersRequest, ReadMultipleRegistersResponse>
 		implements ReadTask {
 
-	public FC3ReadRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?, ?>... elements) {
+	public FC3ReadRegistersTask(int startAddress, Priority priority, ModbusElement<?>... elements) {
 		super("FC3ReadHoldingRegisters", ReadMultipleRegistersResponse.class, startAddress, priority, elements);
 	}
 

@@ -7,7 +7,6 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.common.taskmanager.Priority;
@@ -16,7 +15,7 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 		extends AbstractReadTask<REQUEST, RESPONSE, InputRegister> {
 
 	public AbstractReadInputRegistersTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, AbstractModbusElement<?, ?>... elements) {
+			Priority priority, ModbusElement<?>... elements) {
 		super(name, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 

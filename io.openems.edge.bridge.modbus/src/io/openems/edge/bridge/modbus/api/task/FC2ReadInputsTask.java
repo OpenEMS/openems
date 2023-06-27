@@ -4,7 +4,7 @@ import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputDiscretesResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
@@ -14,7 +14,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public class FC2ReadInputsTask extends
 		AbstractReadDigitalInputsTask<ReadInputDiscretesRequest, ReadInputDiscretesResponse> implements ReadTask {
 
-	public FC2ReadInputsTask(int startAddress, Priority priority, AbstractModbusElement<?, ?>... elements) {
+	public FC2ReadInputsTask(int startAddress, Priority priority, ModbusElement<?>... elements) {
 		super("FC2ReadCoils", ReadInputDiscretesResponse.class, startAddress, priority, elements);
 	}
 

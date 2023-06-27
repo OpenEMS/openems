@@ -6,7 +6,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,8 +15,8 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -253,11 +252,11 @@ public class SingleRack {
 
 		// Cell voltages
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?, ?>> elements = new ArrayList<>();
+			var elements = new ArrayList<ModbusElement<?>>();
 			for (var j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + VOLTAGE;
 				var uwe = this.getUnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?, ?> ame = this.parent.map(this.channelIds.get(key), uwe);
+				var ame = this.parent.map(this.channelIds.get(key), uwe);
 				elements.add(ame);
 			}
 
@@ -267,7 +266,7 @@ public class SingleRack {
 			for (var x = 0; x < taskCount; x++) {
 				var subElements = elements.subList(x * maxElementsPerTask,
 						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?, ?>[0]);
+				var taskElements = subElements.toArray(new ModbusElement<?>[0]);
 				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
 			}
 
@@ -275,12 +274,12 @@ public class SingleRack {
 
 		// Cell temperatures
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?, ?>> elements = new ArrayList<>();
+			var elements = new ArrayList<ModbusElement<?>>();
 			for (var j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + TEMPERATURE;
 
 				var swe = this.getSignedWordElement(TEMPERATURE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?, ?> ame = this.parent.map(this.channelIds.get(key), swe);
+				var ame = this.parent.map(this.channelIds.get(key), swe);
 				elements.add(ame);
 			}
 
@@ -290,7 +289,7 @@ public class SingleRack {
 			for (var x = 0; x < taskCount; x++) {
 				var subElements = elements.subList(x * maxElementsPerTask,
 						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?, ?>[0]);
+				var taskElements = subElements.toArray(new ModbusElement<?>[0]);
 				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
 			}
 		}

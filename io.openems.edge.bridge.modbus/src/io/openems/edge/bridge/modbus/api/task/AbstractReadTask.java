@@ -35,7 +35,7 @@ public abstract class AbstractReadTask<//
 	private final Class<RESPONSE> responseClazz;
 
 	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<?> elementClazz, int startAddress,
-			Priority priority, AbstractModbusElement<?, ?>... elements) {
+			Priority priority, ModbusElement<?>... elements) {
 		super(name, startAddress, elements);
 		this.responseClazz = responseClazz;
 		this.elementClazz = elementClazz;

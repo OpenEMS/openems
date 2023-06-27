@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -282,15 +283,15 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		AbstractModbusElement<?, ?>[] elements = new AbstractModbusElement[model.points().length];
+		var elements = new ModbusElement<?>[model.points().length];
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			AbstractModbusElement<?, ?> element = point.get().generateModbusElement(startAddress);
+			var element = point.get().generateModbusElement(startAddress);
 			startAddress += element.getLength();
 			elements[i] = element;
 
-			SunSChannelId<?> channelId = point.getChannelId();
+			var channelId = point.getChannelId();
 			this.addChannel(channelId);
 
 			if (point.get().scaleFactor.isPresent()) {
@@ -298,7 +299,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				// - find the ScaleFactor-Point
 				var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
 				SunSpecPoint scaleFactorPoint = null;
-				for (SunSpecPoint sfPoint : model.points()) {
+				for (var sfPoint : model.points()) {
 					if (sfPoint.name().equals(scaleFactorName)) {
 						scaleFactorPoint = sfPoint;
 						break;

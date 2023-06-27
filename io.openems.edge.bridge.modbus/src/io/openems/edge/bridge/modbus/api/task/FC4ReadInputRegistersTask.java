@@ -5,7 +5,7 @@ import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
@@ -15,7 +15,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public class FC4ReadInputRegistersTask extends
 		AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> implements ReadTask {
 
-	public FC4ReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?, ?>... elements) {
+	public FC4ReadInputRegistersTask(int startAddress, Priority priority, ModbusElement<?>... elements) {
 		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
 	}
 

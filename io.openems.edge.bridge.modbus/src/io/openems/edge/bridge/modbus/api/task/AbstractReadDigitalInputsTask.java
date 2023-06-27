@@ -5,7 +5,6 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
@@ -14,7 +13,7 @@ public abstract class AbstractReadDigitalInputsTask<REQUEST extends ModbusReques
 		extends AbstractReadTask<REQUEST, RESPONSE, Boolean> {
 
 	public AbstractReadDigitalInputsTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, AbstractModbusElement<?, ?>... elements) {
+			Priority priority, ModbusElement<?>... elements) {
 		super(name, responseClazz, ModbusCoilElement.class, startAddress, priority, elements);
 	}
 
