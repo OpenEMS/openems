@@ -90,13 +90,13 @@ export class AlertingComponent implements OnInit {
   }
 
   private generateFormFor(userSettings: UserSettingRole): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: Delay[] = this.Delays
-    let levels: Level[] = this.Levels
+    let delays: Delay[] = this.Delays;
+    let levels: Level[] = this.Levels;
     if (this.isInvalidDelay(userSettings.offlineAlertDelayTime) && !isNaN(userSettings.offlineAlertDelayTime)) {
-      delays.push({ value: userSettings.offlineAlertDelayTime, label: this.getLabelToDelay(userSettings.offlineAlertDelayTime) })
+      delays.push({ value: userSettings.offlineAlertDelayTime, label: this.getLabelToDelay(userSettings.offlineAlertDelayTime) });
     }
     if (this.isInvalidDelay(userSettings.sumStateAlertDelayTime) && !isNaN(userSettings.sumStateAlertDelayTime)) {
-      delays.push({ value: userSettings.sumStateAlertDelayTime, label: this.getLabelToDelay(userSettings.sumStateAlertDelayTime) })
+      delays.push({ value: userSettings.sumStateAlertDelayTime, label: this.getLabelToDelay(userSettings.sumStateAlertDelayTime) });
     }
     return {
       formGroup: new FormGroup({}),
@@ -116,8 +116,8 @@ export class AlertingComponent implements OnInit {
         key: 'isActivatedOffline',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activateOffline'),
-        },
+          label: this.translate.instant('Edge.Config.Alerting.activateOffline')
+        }
       },
       {
         key: 'delayTimeOffline',
@@ -128,14 +128,14 @@ export class AlertingComponent implements OnInit {
           required: true,
           options: delays
         },
-        hideExpression: model => !model.isActivatedOffline,
+        hideExpression: model => !model.isActivatedOffline
       },
       {
         key: 'isActivatedSumState',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activateSumState'),
-        },
+          label: this.translate.instant('Edge.Config.Alerting.activateSumState')
+        }
       },
       {
         key: 'delayTimeSumState',
@@ -144,9 +144,9 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
           type: 'number',
           required: true,
-          options: delays,
+          options: delays
         },
-        hideExpression: model => !model.isActivatedSumState,
+        hideExpression: model => !model.isActivatedSumState
       },
       {
         key: 'sumStateLevel',
@@ -155,9 +155,9 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.levels'),
           type: 'number',
           required: true,
-          options: levels,
+          options: levels
         },
-        hideExpression: model => !model.isActivatedSumState,
+        hideExpression: model => !model.isActivatedSumState
       }
       ]
     };
@@ -221,7 +221,7 @@ export class AlertingComponent implements OnInit {
       sumStateAlertLevel: userSetting.sumStateAlertLevel,
       optionsSumState: this.getDelayOptions(delaySumState),
       optionsSumStateLevel: this.getSumStateLevelOptions()
-    })
+    });
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
       isActivatedOffline: new FormControl(activatedOffline),
       delayTimeOffline: new FormControl(delayOffline),
@@ -235,13 +235,13 @@ export class AlertingComponent implements OnInit {
     let delays: Delay[] = this.Delays;
     if (this.isInvalidDelay(delay)) {
       if (!isNaN(delay)) {
-        delays.push({ value: delay, label: this.getLabelToDelay(delay) })
+        delays.push({ value: delay, label: this.getLabelToDelay(delay) });
       }
     }
     return delays;
   }
   private getSumStateLevelOptions(): Level[] {
-    let levels: Level[] = this.Levels
+    let levels: Level[] = this.Levels;
     return levels;
   }
 
@@ -266,12 +266,12 @@ export class AlertingComponent implements OnInit {
    */
   protected get Delays() {
     return AlertingComponent.DELAYS.map((delay) => {
-      return { value: delay, label: this.getLabelToDelay(delay) }
+      return { value: delay, label: this.getLabelToDelay(delay) };
     });
   }
 
   protected get Levels() {
-    return AlertingComponent.LEVELS.map((level) => { return { value: level, label: this.getLabelToLevel(level) } });
+    return AlertingComponent.LEVELS.map((level) => { return { value: level, label: this.getLabelToLevel(level) }; });
   }
 
   /**
@@ -284,12 +284,12 @@ export class AlertingComponent implements OnInit {
   private getLabelToDelay(delay: number): string {
     if (!isNaN(delay)) {
       if (delay >= 1440) {
-        delay = delay / 1440
+        delay = delay / 1440;
         return delay + ' ' + (delay == 1
           ? this.translate.instant("Edge.Config.Alerting.interval.day")
           : this.translate.instant("Edge.Config.Alerting.interval.days"));
       } else if (delay >= 60) {
-        delay = delay / 60
+        delay = delay / 60;
         return delay + ' ' + (delay == 1
           ? this.translate.instant("Edge.Config.Alerting.interval.hour")
           : this.translate.instant("Edge.Config.Alerting.interval.hours"));
@@ -307,7 +307,7 @@ export class AlertingComponent implements OnInit {
    * @returns label as string
    */
   private getLabelToLevel(level: number): string {
-    let edgeLevel = ""
+    let edgeLevel = "";
     if (level === 1) {
       edgeLevel = "INFO";
     } else if (level === 2) {
@@ -325,33 +325,33 @@ export class AlertingComponent implements OnInit {
     let changedUserSettings: UserSetting[] = [];
 
     if (this.currentUserForm.formGroup.dirty) {
-      dirtyformGroups.push(this.currentUserForm.formGroup)
+      dirtyformGroups.push(this.currentUserForm.formGroup);
       changedUserSettings.push({
         offlineAlertDelayTime: this.currentUserForm.formGroup.controls['delayTimeOffline']?.value ?? 0,
         sumStateAlertDelayTime: this.currentUserForm.formGroup.controls['delayTimeSumeState']?.value ?? 0,
         sumStateAlertLevel: this.currentUserForm.formGroup.controls['sumStateAlertLevel']?.value ?? 3,
-        userId: this.currentUserInformation.userId,
-      })
+        userId: this.currentUserInformation.userId
+      });
     }
 
     let userOptions: UserSettingOptions[] = [];
     if (this.otherUserSettings) {
       for (let setting of this.otherUserSettings) {
         if (setting.form.dirty) {
-          dirtyformGroups.push(setting.form)
+          dirtyformGroups.push(setting.form);
           for (let user of setting.settings) {
             let control = setting.form.controls[user.userId];
             if (control.dirty) {
-              let delayTimeOffline = control.value['delayTimeOffline']
-              let delayTimeSumState = control.value['delayTimeSumState']
-              let isActivatedOffline = control.value['isActivatedOffline']
-              let isActivatedSumState = control.value['isActivatedSumState']
-              let sumStateLevel = control.value['sumStateLevel']
+              let delayTimeOffline = control.value['delayTimeOffline'];
+              let delayTimeSumState = control.value['delayTimeSumState'];
+              let isActivatedOffline = control.value['isActivatedOffline'];
+              let isActivatedSumState = control.value['isActivatedSumState'];
+              let sumStateLevel = control.value['sumStateLevel'];
               changedUserSettings.push({
                 offlineAlertDelayTime: isActivatedOffline ? delayTimeOffline : 0,
                 sumStateAlertDelayTime: isActivatedSumState ? delayTimeSumState : 0,
                 sumStateAlertLevel: isActivatedSumState ? sumStateLevel : 3,
-                userId: user.userId,
+                userId: user.userId
               });
               userOptions.push(user);
             }
