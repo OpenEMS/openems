@@ -4,7 +4,9 @@ A battery that is connected to a battery inverter.
 
 == Battery Coolable 
 
- * Cooling channel required to activate and deactivate the external cooling mechanism.
+ * Declares an OpenEMS Battery Component as being able to get cooled.
+ * Cooling channel gives current status of cooling valve state.
+ * It is required in order to activate and deactivate the external cooling system in accordance with the cooling valve's actual condition.
 
 == Battery Heatable
 
