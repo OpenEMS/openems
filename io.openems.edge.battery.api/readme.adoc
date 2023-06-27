@@ -2,10 +2,25 @@
 
 A battery that is connected to a battery inverter.
 
-== Battery Clusterable
+== Battery Coolable 
+
+ * Cooling channel required to activate and deactivate the external cooling mechanism.
+
+== Battery Heatable
+
+ * Declares an OpenEMS Battery Component as being able to get heated.
+
+
+== Battery Inhibitable
+
+ * Declares an OpenEMS Battery Component as being able inhibitable. 
+ * It indicates whether the battery main contactor can be unlocked or not.
+
  
- * To get the necessary data from each cluster-able battery, read channels are needed. 
+== Battery Balancable
+ 
+ * To get the necessary data from each balance-able battery, read channels are needed. 
  * The acquired data must be used to make a choice before each battery balancing application is launched. 
  * Batteries must meet all prerequisites in order for the balancing to be activated. 
- * To turn on and off battery balancing, the set channels must be written on each battery. 
- * Cooling channel required to activate and deactivate the external cooling mechanism.
+ * To turn on and off battery balancing, the set channels must be written on each battery.
+	 

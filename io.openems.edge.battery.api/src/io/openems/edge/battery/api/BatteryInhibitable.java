@@ -3,7 +3,7 @@ package io.openems.edge.battery.api;
 public interface BatteryInhibitable {
 	/**
 	 * Sets the main contactor to an unlocked state. This method is used to indicate
-	 * whether the main contactor switch can be unlocked or not.
+	 * whether the main contactor can be unlocked or not.
 	 * 
 	 * <p>
 	 * This method allows unlocking the main contactor, which is an electrical
