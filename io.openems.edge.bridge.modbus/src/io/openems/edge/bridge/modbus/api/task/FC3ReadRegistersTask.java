@@ -21,8 +21,8 @@ public class FC3ReadRegistersTask extends AbstractReadInputRegistersTask impleme
 	}
 
 	@Override
-	protected ModbusRequest getRequest() {
-		return new ReadMultipleRegistersRequest(this.getStartAddress(), this.getLength());
+	protected ModbusRequest createModbusRequest(int startAddress, int length) {
+		return new ReadMultipleRegistersRequest(startAddress, length);
 	}
 
 	@Override

@@ -12,10 +12,10 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  */
 public abstract class AbstractTask {
 
-	private final int length;
-	private final int startAddress;
+	protected final int startAddress;
+	protected final int length;
+	protected final ModbusElement<?>[] elements;
 
-	private final ModbusElement<?>[] elements;
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
 	public AbstractTask(int startAddress, ModbusElement<?>... elements) {
@@ -31,14 +31,17 @@ public abstract class AbstractTask {
 		this.length = length;
 	}
 
+	// Override for Task.getElements()
 	public ModbusElement<?>[] getElements() {
 		return this.elements;
 	}
 
+	// Override for Task.getLength()
 	public int getLength() {
 		return this.length;
 	}
 
+	// Override for Task.getStartAddress()
 	public int getStartAddress() {
 		return this.startAddress;
 	}
@@ -112,11 +115,11 @@ public abstract class AbstractTask {
 		sb.append(";unitid=");
 		sb.append(this.parent.getUnitId());
 		sb.append(";ref=");
-		sb.append(this.getStartAddress());
+		sb.append(this.startAddress);
 		sb.append("/0x");
-		sb.append(Integer.toHexString(this.getStartAddress()));
+		sb.append(Integer.toHexString(this.startAddress));
 		sb.append(";length=");
-		sb.append(this.getLength());
+		sb.append(this.length);
 		sb.append("]");
 		return sb.toString();
 	}

@@ -31,8 +31,8 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 	}
 
 	@Override
-	protected ModbusRequest getRequest() {
-		return new ReadCoilsRequest(this.getStartAddress(), this.getLength());
+	protected ModbusRequest createModbusRequest(int startAddress, int length) {
+		return new ReadCoilsRequest(startAddress, length);
 	}
 
 	@Override

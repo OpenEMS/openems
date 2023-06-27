@@ -26,8 +26,8 @@ public class FC4ReadInputRegistersTask extends AbstractReadInputRegistersTask im
 	}
 
 	@Override
-	protected ModbusRequest getRequest() {
-		return new ReadInputRegistersRequest(this.getStartAddress(), this.getLength());
+	protected ModbusRequest createModbusRequest(int startAddress, int length) {
+		return new ReadInputRegistersRequest(startAddress, length);
 	}
 
 	@Override

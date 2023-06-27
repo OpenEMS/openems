@@ -36,7 +36,7 @@ public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements 
 	}
 
 	@Override
-	protected ModbusRequest getRequest() {
-		return new ReadInputDiscretesRequest(this.getStartAddress(), this.getLength());
+	protected ModbusRequest createModbusRequest(int startAddress, int length) {
+		return new ReadInputDiscretesRequest(startAddress, length);
 	}
 }

@@ -12,17 +12,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boolean> {
 
 	public AbstractReadDigitalInputsTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);
-	}
-
-	@Override
-	protected boolean isCorrectElementInstance(ModbusElement<?> modbusElement) {
-		return modbusElement instanceof ModbusCoilElement;
-	}
-
-	@Override
-	protected String getRequiredElementName() {
-		return "ModbusCoilElement";
+		super(ModbusCoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override

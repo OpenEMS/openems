@@ -27,7 +27,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 	@Override
 	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		var noOfWrittenCoils = 0;
-		ModbusElement<?> element = this.getElements()[0];
+		ModbusElement<?> element = this.elements[0];
 		if (element instanceof ModbusCoilElement) {
 			var valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {

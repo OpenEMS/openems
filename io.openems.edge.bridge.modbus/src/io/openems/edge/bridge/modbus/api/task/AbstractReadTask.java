@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +27,12 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
 	private final Priority priority;
+	private final Class<?> elementClazz;
 
-	public AbstractReadTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
+	public AbstractReadTask(Class<?> elementClazz, int startAddress, Priority priority,
+			AbstractModbusElement<?>... elements) {
 		super(startAddress, elements);
+		this.elementClazz = elementClazz;
 		this.priority = priority;
 	}
 
@@ -50,9 +54,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 				response = this.readElements(bridge);
 
 			} catch (ModbusException e2) {
-				for (ModbusElement<?> elem : this.getElements()) {
-					elem.invalidate(bridge);
-				}
+				// Invalidate Elements
+				Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
+
 				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 			}
 		}
@@ -68,7 +72,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	}
 
 	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
-		var request = this.getRequest();
+		var request = this.createModbusRequest(this.startAddress, this.length);
 		int unitId = this.getParent().getUnitId();
 		var response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
 
@@ -78,8 +82,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
 			bridge.logInfo(this.log, this.getActiondescription() //
-					+ " [" + unitId + ":" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
-					+ "]: " //
+					+ " [" + unitId + ":" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "]: " //
 					+ Arrays.stream(result).map(r -> {
 						if (r instanceof InputRegister) {
 							return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
@@ -104,17 +107,22 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 
 	protected void fillElements(T[] response) {
 		var position = 0;
-		for (ModbusElement<?> modbusElement : this.getElements()) {
-			if (!this.isCorrectElementInstance(modbusElement)) {
-				this.doErrorLog(modbusElement);
-			} else {
+
+		for (var element : this.elements) {
+			if (this.elementClazz.isInstance(element)) {
 				try {
-					this.doElementSetInput(modbusElement, position, response);
+					this.doElementSetInput(element, position, response);
 				} catch (OpenemsException e) {
-					this.doWarnLog(e);
+					this.log.warn("Unable to fill modbus element. UnitId [" + this.getParent().getUnitId()
+							+ "] Address [" + this.getStartAddress() + "] Length [" + this.getLength() + "]: "
+							+ e.getMessage());
 				}
+
+			} else {
+				this.log.error("A " + this.elementClazz.getSimpleName() + " is required for a "
+						+ this.getActiondescription() + "Task! Element [" + element + "]");
 			}
-			position = this.increasePosition(position, modbusElement);
+			position = this.increasePosition(position, element);
 		}
 	}
 
@@ -128,22 +136,15 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	protected abstract void doElementSetInput(ModbusElement<?> modbusElement, int position, T[] response)
 			throws OpenemsException;
 
-	protected abstract String getRequiredElementName();
-
-	protected abstract boolean isCorrectElementInstance(ModbusElement<?> modbusElement);
-
-	protected abstract ModbusRequest getRequest();
+	/**
+	 * Factory for a {@link ModbusRequest}.
+	 * 
+	 * @param startAddress the startAddress of the modbus register
+	 * @param length       the length
+	 * @return a new {@link ModbusRequest}
+	 */
+	protected abstract ModbusRequest createModbusRequest(int startAddress, int length);
 
 	protected abstract T[] handleResponse(ModbusResponse response) throws OpenemsException;
-
-	private void doWarnLog(OpenemsException e) {
-		this.log.warn("Unable to fill modbus element. UnitId [" + this.getParent().getUnitId() + "] Address ["
-				+ this.getStartAddress() + "] Length [" + this.getLength() + "]: " + e.getMessage());
-	}
-
-	private void doErrorLog(ModbusElement<?> modbusElement) {
-		this.log.error("A " + this.getRequiredElementName() + " is required for a " + this.getActiondescription()
-				+ "Task! Element [" + modbusElement + "]");
-	}
 
 }

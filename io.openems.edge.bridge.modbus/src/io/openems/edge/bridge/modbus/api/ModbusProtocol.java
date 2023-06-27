@@ -1,7 +1,6 @@
 package io.openems.edge.bridge.modbus.api;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.TasksManager;
 
@@ -51,7 +50,7 @@ public class ModbusProtocol {
 		// add the the parent to the Task
 		task.setParent(this.parent);
 		// check abstractTask for plausibility
-		this.checkTask(task);
+		checkTask(task);
 		// fill taskManager
 		this.taskManager.addTask(task);
 	}
@@ -80,9 +79,9 @@ public class ModbusProtocol {
 	 * @param task the Task that should be checked
 	 * @throws OpenemsException on error
 	 */
-	private synchronized void checkTask(Task task) throws OpenemsException {
+	protected static synchronized void checkTask(Task task) throws OpenemsException {
 		var address = task.getStartAddress();
-		for (ModbusElement<?> element : task.getElements()) {
+		for (var element : task.getElements()) {
 			if (element.getStartAddress() != address) {
 				throw new OpenemsException("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
 						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"

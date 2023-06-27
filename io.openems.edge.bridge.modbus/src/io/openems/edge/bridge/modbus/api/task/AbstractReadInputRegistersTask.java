@@ -13,12 +13,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<InputRegister> {
 
 	public AbstractReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);
-	}
-
-	@Override
-	protected boolean isCorrectElementInstance(ModbusElement<?> modbusElement) {
-		return modbusElement instanceof ModbusRegisterElement;
+		super(ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 
 	@Override
@@ -26,11 +21,6 @@ public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<In
 			throws OpenemsException {
 		((ModbusRegisterElement<?>) modbusElement)
 				.setInputRegisters(Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
-	}
-
-	@Override
-	protected String getRequiredElementName() {
-		return "ModbusRegisterElement";
 	}
 
 	@Override

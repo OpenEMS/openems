@@ -17,7 +17,6 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
 /**
@@ -115,8 +114,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	 */
 	private List<CombinedWriteRegisters> mergeWriteRegisters() {
 		List<CombinedWriteRegisters> writes = new ArrayList<>();
-		var elements = this.getElements();
-		for (ModbusElement<?> element : elements) {
+		for (var element : this.elements) {
 			if (element instanceof ModbusRegisterElement) {
 				var valueOpt = ((ModbusRegisterElement<?>) element).getNextWriteValueAndReset();
 				if (valueOpt.isPresent()) {
