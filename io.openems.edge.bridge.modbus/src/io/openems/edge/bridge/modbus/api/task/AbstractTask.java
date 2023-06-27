@@ -12,20 +12,22 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  */
 public abstract class AbstractTask {
 
+	protected final String name;
 	protected final int startAddress;
 	protected final int length;
 	protected final ModbusElement<?>[] elements;
 
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
-	public AbstractTask(int startAddress, ModbusElement<?>... elements) {
+	public AbstractTask(String name, int startAddress, ModbusElement<?>... elements) {
+		this.name = name;
 		this.startAddress = startAddress;
 		this.elements = elements;
-		for (ModbusElement<?> element : elements) {
+		for (var element : elements) {
 			element.setModbusTask(this);
 		}
 		var length = 0;
-		for (ModbusElement<?> element : elements) {
+		for (var element : elements) {
 			length += element.getLength();
 		}
 		this.length = length;
@@ -109,7 +111,7 @@ public abstract class AbstractTask {
 	@Override
 	public String toString() {
 		var sb = new StringBuilder();
-		sb.append(this.getActiondescription());
+		sb.append(this.name);
 		sb.append(" [");
 		sb.append(this.parent.id());
 		sb.append(";unitid=");
@@ -123,6 +125,4 @@ public abstract class AbstractTask {
 		sb.append("]");
 		return sb.toString();
 	}
-
-	protected abstract String getActiondescription();
 }

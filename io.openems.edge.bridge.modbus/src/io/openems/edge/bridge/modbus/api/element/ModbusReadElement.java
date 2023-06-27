@@ -10,6 +10,6 @@ public interface ModbusReadElement<T> extends ModbusElement<T> {
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
-	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback);
+	public AbstractModbusElement<ModbusReadElement<T>, T> onUpdateCallback(Consumer<T> onUpdateCallback);
 
 }

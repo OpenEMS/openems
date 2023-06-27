@@ -253,11 +253,11 @@ public class SingleRack {
 
 		// Cell voltages
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?>> elements = new ArrayList<>();
+			List<AbstractModbusElement<?, ?>> elements = new ArrayList<>();
 			for (var j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + VOLTAGE;
 				var uwe = this.getUnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?> ame = this.parent.map(this.channelIds.get(key), uwe);
+				AbstractModbusElement<?, ?> ame = this.parent.map(this.channelIds.get(key), uwe);
 				elements.add(ame);
 			}
 
@@ -267,7 +267,7 @@ public class SingleRack {
 			for (var x = 0; x < taskCount; x++) {
 				var subElements = elements.subList(x * maxElementsPerTask,
 						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
+				var taskElements = subElements.toArray(new AbstractModbusElement<?, ?>[0]);
 				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
 			}
 
@@ -275,12 +275,12 @@ public class SingleRack {
 
 		// Cell temperatures
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?>> elements = new ArrayList<>();
+			List<AbstractModbusElement<?, ?>> elements = new ArrayList<>();
 			for (var j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + TEMPERATURE;
 
 				var swe = this.getSignedWordElement(TEMPERATURE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?> ame = this.parent.map(this.channelIds.get(key), swe);
+				AbstractModbusElement<?, ?> ame = this.parent.map(this.channelIds.get(key), swe);
 				elements.add(ame);
 			}
 
@@ -290,7 +290,7 @@ public class SingleRack {
 			for (var x = 0; x < taskCount; x++) {
 				var subElements = elements.subList(x * maxElementsPerTask,
 						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
+				var taskElements = subElements.toArray(new AbstractModbusElement<?, ?>[0]);
 				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
 			}
 		}

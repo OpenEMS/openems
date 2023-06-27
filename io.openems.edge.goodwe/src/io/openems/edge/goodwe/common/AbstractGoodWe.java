@@ -1688,7 +1688,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	protected AbstractModbusElement<?> getSocModbusElement(int address) throws NotImplementedException {
+	protected AbstractModbusElement<?, ?> getSocModbusElement(int address) throws NotImplementedException {
 		if (this instanceof HybridEss) {
 			return m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(address), new ElementToChannelConverter(
 					// element -> channel

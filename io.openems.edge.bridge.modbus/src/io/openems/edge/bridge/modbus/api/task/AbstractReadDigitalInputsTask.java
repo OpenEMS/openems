@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
@@ -9,10 +10,12 @@ import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
-public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boolean> {
+public abstract class AbstractReadDigitalInputsTask<REQUEST extends ModbusRequest, RESPONSE extends ModbusResponse>
+		extends AbstractReadTask<REQUEST, RESPONSE, Boolean> {
 
-	public AbstractReadDigitalInputsTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(ModbusCoilElement.class, startAddress, priority, elements);
+	public AbstractReadDigitalInputsTask(String name, Class<RESPONSE> responseClazz, int startAddress,
+			Priority priority, AbstractModbusElement<?, ?>... elements) {
+		super(name, responseClazz, ModbusCoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override
@@ -27,16 +30,9 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	}
 
 	@Override
-	protected Boolean[] handleResponse(ModbusResponse response) throws OpenemsException {
-		try {
-			return Utils.toBooleanArray(this.getBitVector(response));
-		} catch (ClassCastException e) {
-			throw new OpenemsException("Unexpected Modbus response. Expected [" + this.getExpectedInputClassname()
-					+ "], got [" + response.getClass().getSimpleName() + "]");
-		}
+	protected Boolean[] handleResponse(RESPONSE response) throws OpenemsException {
+		return Utils.toBooleanArray(this.convertToBitVector(response));
 	}
 
-	protected abstract String getExpectedInputClassname();
-
-	protected abstract BitVector getBitVector(ModbusResponse response) throws OpenemsException;
+	protected abstract BitVector convertToBitVector(RESPONSE response) throws OpenemsException;
 }

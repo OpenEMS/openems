@@ -16,7 +16,7 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
 /**
@@ -27,8 +27,8 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
-	public FC16WriteRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
-		super(startAddress, elements);
+	public FC16WriteRegistersTask(int startAddress, ModbusElement<?>... elements) {
+		super("FC16WriteRegisters", startAddress, elements);
 	}
 
 	private static class CombinedWriteRegisters {
@@ -84,13 +84,13 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 	private void writeMultipleRegisters(AbstractModbusBridge bridge, int unitId, int startAddress, Register[] registers)
 			throws ModbusException, OpenemsException {
 		var request = new WriteMultipleRegistersRequest(startAddress, registers);
-		var response = Utils.getResponse(request, unitId, bridge);
+		var response = Utils.getResponse(WriteMultipleRegistersResponse.class, request, unitId, bridge);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			bridge.logInfo(this.log, "FC16WriteRegisters " //
-					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
+			bridge.logInfo(this.log, this.name //
+					+ " [" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ Arrays.stream(registers) //
 							.map(r -> String.format("%4s", Integer.toHexString(r.getValue())).replace(' ', '0')) //
 							.collect(Collectors.joining(" ")));
@@ -135,10 +135,5 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 			}
 		}
 		return writes;
-	}
-
-	@Override
-	protected String getActiondescription() {
-		return "FC16 Write Registers";
 	}
 }

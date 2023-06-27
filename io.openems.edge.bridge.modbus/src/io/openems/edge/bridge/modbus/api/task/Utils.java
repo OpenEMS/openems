@@ -47,18 +47,27 @@ public class Utils {
 	/**
 	 * Build a {@link ModbusResponse} from a {@link ModbusRequest}.
 	 * 
-	 * @param request the {@link ModbusRequest}
-	 * @param unitId  the Modbus Unit-ID
-	 * @param bridge  the {@link AbstractModbusBridge}
+	 * @param <RESPONSE> the type of the response
+	 * @param clazz      the class of the response
+	 * @param request    the {@link ModbusRequest}
+	 * @param unitId     the Modbus Unit-ID
+	 * @param bridge     the {@link AbstractModbusBridge}
 	 * @return the {@link ModbusResponse}
 	 */
-	public static ModbusResponse getResponse(ModbusRequest request, int unitId, AbstractModbusBridge bridge)
-			throws OpenemsException, ModbusException {
+	public static <RESPONSE extends ModbusResponse> RESPONSE getResponse(Class<RESPONSE> clazz, ModbusRequest request,
+			int unitId, AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
 		request.setUnitID(unitId);
 		var transaction = bridge.getNewModbusTransaction();
 		transaction.setRequest(request);
 		transaction.execute();
-		return transaction.getResponse();
+
+		var response = transaction.getResponse();
+		if (clazz.isInstance(response)) {
+			return (RESPONSE) clazz.cast(response);
+		}
+		throw new OpenemsException("Unexpected Modbus response. " //
+				+ "Expected [" + clazz.getSimpleName() + "], " //
+				+ "got [" + response.getClass().getSimpleName() + "]");
 	}
 
 	/**

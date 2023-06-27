@@ -16,9 +16,10 @@ import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 /**
  * A ModbusElement represents one row of a Modbus definition table.
  *
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
+public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T> {
 
 	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
@@ -59,7 +60,7 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
-	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback) {
+	public AbstractModbusElement<SELF, T> onUpdateCallback(Consumer<T> onUpdateCallback) {
 		this.onUpdateCallbacks.add(onUpdateCallback);
 		return this;
 	}
@@ -108,7 +109,7 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 * 
 	 * @return myself
 	 */
-	public AbstractModbusElement<T> debug() {
+	public AbstractModbusElement<?, ?> debug() {
 		this.isDebug = true;
 		return this;
 	}

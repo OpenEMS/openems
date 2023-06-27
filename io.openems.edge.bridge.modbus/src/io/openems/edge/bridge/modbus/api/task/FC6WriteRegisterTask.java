@@ -10,7 +10,6 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
@@ -18,17 +17,16 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC6WriteRegisterTask.class);
 
-	public FC6WriteRegisterTask(int startAddress, AbstractModbusElement<?> element) {
-		super(startAddress, element);
+	public FC6WriteRegisterTask(int startAddress, ModbusElement<?> element) {
+		super("FC6WriteRegister", startAddress, element);
 	}
 
 	@Override
 	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		var noOfWrittenRegisters = 0;
+
 		ModbusElement<?> element = this.elements[0];
-
 		if (element instanceof AbstractWordElement<?, ?>) {
-
 			var valueOpt = ((AbstractWordElement<?, ?>) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 				var registers = valueOpt.get();
@@ -67,15 +65,10 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 		return noOfWrittenRegisters;
 	}
 
-	@Override
-	protected String getActiondescription() {
-		return "FC6 WriteRegister";
-	}
-
 	private void writeSingleRegister(AbstractModbusBridge bridge, int unitId, int startAddress, Register register)
 			throws ModbusException, OpenemsException {
 		var request = new WriteSingleRegisterRequest(startAddress, register);
-		var response = Utils.getResponse(request, unitId, bridge);
+		var response = Utils.getResponse(WriteSingleRegisterResponse.class, request, unitId, bridge);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {

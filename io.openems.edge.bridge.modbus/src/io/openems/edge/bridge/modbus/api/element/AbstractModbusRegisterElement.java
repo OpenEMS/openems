@@ -15,10 +15,10 @@ import io.openems.common.types.OpenemsType;
 /**
  * A ModbusRegisterElement represents one or more Modbus Registers.
  *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbusElement<T>
+public abstract class AbstractModbusRegisterElement<SELF, T> extends AbstractModbusElement<SELF, T>
 		implements ModbusRegisterElement<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusRegisterElement.class);
@@ -34,7 +34,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	 *
 	 * @return myself
 	 */
-	protected abstract E self();
+	protected abstract SELF self();
 
 	protected void setNextWriteValueRegisters(Optional<Register[]> writeValueOpt) throws OpenemsException {
 		if (writeValueOpt.isPresent() && writeValueOpt.get().length != this.getLength()) {
@@ -61,7 +61,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	 * @param byteOrder the ByteOrder
 	 * @return myself
 	 */
-	public final E byteOrder(ByteOrder byteOrder) {
+	public final SELF byteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;
 		return this.self();
 	}

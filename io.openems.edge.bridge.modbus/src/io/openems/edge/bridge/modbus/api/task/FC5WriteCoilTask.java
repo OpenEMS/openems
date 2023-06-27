@@ -21,7 +21,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 	private final Logger log = LoggerFactory.getLogger(FC5WriteCoilTask.class);
 
 	public FC5WriteCoilTask(int startAddress, ModbusCoilElement element) {
-		super(startAddress, element);
+		super("FC5WriteCoil", startAddress, element);
 	}
 
 	@Override
@@ -60,14 +60,11 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-		var request = new WriteCoilRequest(startAddress, value);
-		var response = Utils.getResponse(request, unitId, bridge);
-
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			bridge.logInfo(this.log, "FC5WriteCoil " //
-					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
+			bridge.logInfo(this.log, this.name //
+					+ " [" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ value);
 			break;
 		case WRITES:
@@ -76,14 +73,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 			break;
 		}
 
-		if (!(response instanceof WriteCoilResponse)) {
-			throw new OpenemsException("Unexpected Modbus response. Expected [WriteCoilResponse], got ["
-					+ response.getClass().getSimpleName() + "]");
-		}
-	}
-
-	@Override
-	protected String getActiondescription() {
-		return "FC5 WriteCoil";
+		var request = new WriteCoilRequest(startAddress, value);
+		Utils.getResponse(WriteCoilResponse.class, request, unitId, bridge); // ignore actual result
 	}
 }

@@ -19,7 +19,7 @@ public abstract class AbstractDummyTask extends AbstractTask {
 	private boolean isDefective = false;
 
 	public AbstractDummyTask(String name, long delay) {
-		super(0);
+		super(name, 0);
 		this.name = name;
 		this.delay = delay;
 	}
@@ -55,10 +55,5 @@ public abstract class AbstractDummyTask extends AbstractTask {
 		}
 
 		return 1;
-	}
-
-	@Override
-	protected String getActiondescription() {
-		return "";
 	}
 }

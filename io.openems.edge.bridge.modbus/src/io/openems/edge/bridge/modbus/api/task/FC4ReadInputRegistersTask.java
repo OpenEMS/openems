@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import com.ghgande.j2mod.modbus.msg.ModbusRequest;
-import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
@@ -14,29 +12,20 @@ import io.openems.edge.common.taskmanager.Priority;
  * Implements a Read Input Register Task, implementing Modbus function code 4
  * (http://www.simplymodbus.ca/FC04.htm).
  */
-public class FC4ReadInputRegistersTask extends AbstractReadInputRegistersTask implements ReadTask {
+public class FC4ReadInputRegistersTask extends
+		AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> implements ReadTask {
 
-	public FC4ReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);
+	public FC4ReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?, ?>... elements) {
+		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
 	}
 
 	@Override
-	protected String getActiondescription() {
-		return "FC4ReadInputRegisters";
-	}
-
-	@Override
-	protected ModbusRequest createModbusRequest(int startAddress, int length) {
+	protected ReadInputRegistersRequest createModbusRequest(int startAddress, int length) {
 		return new ReadInputRegistersRequest(startAddress, length);
 	}
 
 	@Override
-	protected InputRegister[] handleResponse(ModbusResponse response) throws OpenemsException {
-		if (response instanceof ReadInputRegistersResponse) {
-			var registersResponse = (ReadInputRegistersResponse) response;
-			return registersResponse.getRegisters();
-		}
-		throw new OpenemsException("Unexpected Modbus response. Expected [ReadInputRegistersResponse], got ["
-				+ response.getClass().getSimpleName() + "]");
+	protected InputRegister[] handleResponse(ReadInputRegistersResponse response) throws OpenemsException {
+		return response.getRegisters();
 	}
 }

@@ -23,15 +23,21 @@ import io.openems.edge.common.taskmanager.Priority;
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
  */
-public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
+public abstract class AbstractReadTask<//
+		REQUEST extends ModbusRequest, //
+		RESPONSE extends ModbusResponse, //
+		T> //
+		extends AbstractTask implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
 	private final Priority priority;
 	private final Class<?> elementClazz;
+	private final Class<RESPONSE> responseClazz;
 
-	public AbstractReadTask(Class<?> elementClazz, int startAddress, Priority priority,
-			AbstractModbusElement<?>... elements) {
-		super(startAddress, elements);
+	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<?> elementClazz, int startAddress,
+			Priority priority, AbstractModbusElement<?, ?>... elements) {
+		super(name, startAddress, elements);
+		this.responseClazz = responseClazz;
 		this.elementClazz = elementClazz;
 		this.priority = priority;
 	}
@@ -74,14 +80,14 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
 		var request = this.createModbusRequest(this.startAddress, this.length);
 		int unitId = this.getParent().getUnitId();
-		var response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
+		RESPONSE response = Utils.getResponse(responseClazz, request, this.getParent().getUnitId(), bridge);
 
 		var result = this.handleResponse(response);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
 		case READS_AND_WRITES:
-			bridge.logInfo(this.log, this.getActiondescription() //
+			bridge.logInfo(this.log, this.name //
 					+ " [" + unitId + ":" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "]: " //
 					+ Arrays.stream(result).map(r -> {
 						if (r instanceof InputRegister) {
@@ -117,10 +123,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 							+ "] Address [" + this.getStartAddress() + "] Length [" + this.getLength() + "]: "
 							+ e.getMessage());
 				}
-
 			} else {
-				this.log.error("A " + this.elementClazz.getSimpleName() + " is required for a "
-						+ this.getActiondescription() + "Task! Element [" + element + "]");
+				this.log.error("A " + this.elementClazz.getSimpleName() + " is required for a " + this.name
+						+ "Task! Element [" + element + "]");
 			}
 			position = this.increasePosition(position, element);
 		}
@@ -133,7 +138,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 
 	protected abstract int increasePosition(int position, ModbusElement<?> modbusElement);
 
-	protected abstract void doElementSetInput(ModbusElement<?> modbusElement, int position, T[] response)
+	protected abstract void doElementSetInput(ModbusElement<?> element, int position, T[] response)
 			throws OpenemsException;
 
 	/**
@@ -143,8 +148,15 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	 * @param length       the length
 	 * @return a new {@link ModbusRequest}
 	 */
-	protected abstract ModbusRequest createModbusRequest(int startAddress, int length);
+	protected abstract REQUEST createModbusRequest(int startAddress, int length);
 
-	protected abstract T[] handleResponse(ModbusResponse response) throws OpenemsException;
+	/**
+	 * Handles a {@link ModbusResponse}.
+	 * 
+	 * @param response the {@link ModbusResponse}
+	 * @return array of results
+	 * @throws OpenemsException on error
+	 */
+	protected abstract T[] handleResponse(RESPONSE response) throws OpenemsException;
 
 }

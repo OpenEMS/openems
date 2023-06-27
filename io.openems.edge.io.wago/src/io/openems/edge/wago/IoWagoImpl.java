@@ -251,11 +251,11 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 		}
 		if (!readCoilElements0.isEmpty()) {
 			this.protocol.addTask(new FC1ReadCoilsTask(0, Priority.LOW,
-					readCoilElements0.toArray(new AbstractModbusElement<?>[readCoilElements0.size()])));
+					readCoilElements0.toArray(new AbstractModbusElement<?, ?>[readCoilElements0.size()])));
 		}
 		if (!readCoilElements512.isEmpty()) {
 			this.protocol.addTask(new FC1ReadCoilsTask(512, Priority.LOW,
-					readCoilElements512.toArray(new AbstractModbusElement<?>[readCoilElements512.size()])));
+					readCoilElements512.toArray(new AbstractModbusElement<?, ?>[readCoilElements512.size()])));
 		}
 	}
 
