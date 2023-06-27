@@ -122,14 +122,18 @@ export namespace Converter {
     return '';
   };
 
-
-  // export const CALCULATE_CONSUMPTION_OTHER_POWER = (currentData: CurrentData)=> {
-  //   return ""
-  // }
+  /**
+   * Calculates the otherPower: the power, that can't be assigned to a consumer
+   * 
+   * @param evcss the evcss
+   * @param consumptionMeters the "CONSUMPTION_METERED" meters 
+   * @param currentData the currentData
+   * @returns the otherPower
+   */
   export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EdgeConfig.Component[], consumptionMeters: EdgeConfig.Component[], currentData: CurrentData): number => {
-    debugger;
     let activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
     let evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+
     let consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
     return Utils.subtractSafely(activePowerTotal,
       Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
