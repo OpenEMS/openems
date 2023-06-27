@@ -1,3 +1,6 @@
+import { element } from "protractor";
+
+import { CurrentData } from "../../shared";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
 
@@ -40,22 +43,55 @@ export class OeFormlyViewTester {
         return result;
 
 
-      case "channel-line": {
-        let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
+      case "channel-line":
+        {
+          let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
+          if (tmp == null) {
+            return null; // filter did not pass
+          }
+
+          // Read or generate name
+          let name: string;
+          if (typeof (field.name) === 'function') {
+            name = field.name(tmp.rawValue);
+          } else {
+            name = field.name;
+          }
+
+          // Prepare result
+          let result: OeFormlyViewTester.Field.ChannelLine = {
+            type: field.type,
+            name: name
+          };
+
+          // Apply properties if available
+          if (tmp.value !== null) {
+            result.value = tmp.value;
+          }
+          if (field.indentation) {
+            result.indentation = field.indentation;
+          }
+
+          // Recursive call for children
+
+          return result;
+        }
+
+
+      /**
+       * {@link OeFormlyField.ValueLineFromMultipleChannels}
+       */
+      case "value-from-channels-line": {
+        let tmp = OeFormlyViewTester.applyValueLineFromChannels(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
 
         // Read or generate name
-        let name: string;
-        if (typeof (field.name) === 'function') {
-          name = field.name(tmp.rawValue);
-        } else {
-          name = field.name;
-        }
+        let name: string = field.name;
 
         // Prepare result
-        let result: OeFormlyViewTester.Field.ChannelLine = {
+        let result: OeFormlyViewTester.Field.ValueLine = {
           type: field.type,
           name: name
         };
@@ -67,8 +103,6 @@ export class OeFormlyViewTester {
         if (field.indentation) {
           result.indentation = field.indentation;
         }
-
-        // Recursive call for children
 
         return result;
       }
@@ -154,7 +188,8 @@ export namespace OeFormlyViewTester {
     | Field.Item
     | Field.ChannelLine
     | Field.ChildrenLine
-    | Field.HorizontalLine;
+    | Field.HorizontalLine
+    | Field.ValueLine;
 
   export namespace Field {
 
@@ -170,6 +205,13 @@ export namespace OeFormlyViewTester {
 
     export type ChannelLine = {
       type: 'channel-line',
+      name: string,
+      value?: string,
+      indentation?: TextIndentation,
+    }
+
+    export type ValueLine = {
+      type: 'value-from-channels-line',
       name: string,
       value?: string,
       indentation?: TextIndentation,
@@ -204,6 +246,29 @@ export namespace OeFormlyViewTester {
 
     return {
       rawValue: rawValue,
+      value: value
+    };
+  }
+
+  export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
+
+    // Read values from channels
+    let rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null)
+
+    // Apply filter
+    if (field.filter && field.filter(rawValues) === false) {
+      return null;
+    }
+
+    let currentData: CurrentData = { thisComponent: {}, allComponents: context }
+
+    // Apply converter
+    let value: string = field.value
+      ? field.value(currentData)
+      : rawValues === null ? null : "";
+
+    return {
+      rawValues: rawValues,
       value: value
     };
   }

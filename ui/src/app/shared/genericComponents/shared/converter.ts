@@ -1,5 +1,8 @@
 import { formatNumber } from "@angular/common";
 
+import { CurrentData, EdgeConfig, Utils } from "../../shared";
+import { Formatter } from "./formatter";
+
 export type Converter = (value: number | string | null) => string;
 
 export namespace Converter {
@@ -15,21 +18,6 @@ export namespace Converter {
       return "";
     }
     return "" + value;
-  };
-
-  const FORMAT_WATT = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-0') + " W";
-  };
-
-  const FORMAT_VOLT = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-0') + " V";
-  };
-
-  const FORMAT_AMPERE = (value: number) => {
-    // TODO apply correct locale
-    return formatNumber(value, 'de', '1.1-1') + " A";
   };
 
   const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
@@ -48,8 +36,8 @@ export namespace Converter {
   export const GRID_BUY_POWER_OR_ZERO: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
       value >= 0
-        ? FORMAT_WATT(value)
-        : FORMAT_WATT(0));
+        ? Formatter.FORMAT_WATT(value)
+        : Formatter.FORMAT_WATT(0));
   };
 
   /**
@@ -61,8 +49,8 @@ export namespace Converter {
   export const GRID_SELL_POWER_OR_ZERO: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
       value <= 0
-        ? FORMAT_WATT(Math.abs(value))
-        : FORMAT_WATT(0));
+        ? Formatter.FORMAT_WATT(Math.abs(value))
+        : Formatter.FORMAT_WATT(0));
   };
 
   /**
@@ -73,7 +61,7 @@ export namespace Converter {
    */
   export const POSITIVE_POWER: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
-      FORMAT_WATT(Math.abs(value)));
+      Formatter.FORMAT_WATT(Math.abs(value)));
   };
 
   /**
@@ -87,7 +75,7 @@ export namespace Converter {
    */
   export const POWER_IN_WATT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_WATT(value));
+      Formatter.FORMAT_WATT(value));
   };
 
   /**
@@ -101,7 +89,7 @@ export namespace Converter {
    */
   export const VOLTAGE_IN_MILLIVOLT_TO_VOLT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_VOLT(value / 1000));
+      Formatter.FORMAT_VOLT(value / 1000));
   };
 
   /**
@@ -115,9 +103,15 @@ export namespace Converter {
    */
   export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      FORMAT_AMPERE(value / 1000));
+      Formatter.FORMAT_AMPERE(value / 1000));
   };
 
+  export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      value <= 0
+        ? Formatter.FORMAT_WATT(0)
+        : Formatter.FORMAT_WATT(value));
+  }
   /**
    * Hides the actual value, always returns empty string.
    * 
@@ -126,5 +120,18 @@ export namespace Converter {
    */
   export const HIDE_VALUE: Converter = (ignore): string => {
     return '';
+  };
+
+
+  // export const CALCULATE_CONSUMPTION_OTHER_POWER = (currentData: CurrentData)=> {
+  //   return ""
+  // }
+  export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EdgeConfig.Component[], consumptionMeters: EdgeConfig.Component[], currentData: CurrentData): number => {
+    debugger;
+    let activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
+    let evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    let consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    return Utils.subtractSafely(activePowerTotal,
+      Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
   };
 }
