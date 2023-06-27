@@ -23,7 +23,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
-	@AttributeDefinition(name = "Max charge power", description = "Maximum Chargeable power from the grid")
+	@AttributeDefinition(name = "Max charge power [W]", description = "Maximum Chargeable power from the grid")
 	int maxPower() default 5000;
 
 	@AttributeDefinition(name = "Control-Mode", description = "Set the control-mode.")

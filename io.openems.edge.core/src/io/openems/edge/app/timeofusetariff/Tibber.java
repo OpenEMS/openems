@@ -8,6 +8,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -113,13 +114,16 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID);
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_ID);
 			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
+
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
 			}
 
-			return TimeOfUseProps.getAppConfiguration(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
+			var comp = TimeOfUseProps.getComponents(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
 					this.getName(l), timeOfUseTariffProviderId, mode,
 					b -> b.addPropertyIfNotNull("accessToken", accessToken));
+
+			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
 		};
 	}
 
