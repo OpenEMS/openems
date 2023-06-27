@@ -25,7 +25,6 @@ import io.openems.edge.common.taskmanager.Priority;
 public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
-
 	private final Priority priority;
 
 	public AbstractReadTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
@@ -52,9 +51,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 
 			} catch (ModbusException e2) {
 				for (ModbusElement<?> elem : this.getElements()) {
-					if (!elem.isIgnored()) {
-						elem.invalidate(bridge);
-					}
+					elem.invalidate(bridge);
 				}
 				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
 			}
@@ -112,9 +109,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 				this.doErrorLog(modbusElement);
 			} else {
 				try {
-					if (!modbusElement.isIgnored()) {
-						this.doElementSetInput(modbusElement, position, response);
-					}
+					this.doElementSetInput(modbusElement, position, response);
 				} catch (OpenemsException e) {
 					this.doWarnLog(e);
 				}

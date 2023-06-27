@@ -26,7 +26,6 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	private final OpenemsType type;
 	private final int startAddress;
-	private final boolean isIgnored;
 
 	// Counts for how many cycles no valid value was
 	private int invalidValueCounter = 0;
@@ -34,13 +33,8 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	protected AbstractTask abstractTask = null;
 
 	public AbstractModbusElement(OpenemsType type, int startAddress) {
-		this(type, startAddress, false);
-	}
-
-	public AbstractModbusElement(OpenemsType type, int startAddress, boolean isIgnored) {
 		this.type = type;
 		this.startAddress = startAddress;
-		this.isIgnored = isIgnored;
 	}
 
 	@Override
@@ -76,11 +70,6 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public boolean isIgnored() {
-		return this.isIgnored;
-	}
-
-	@Override
 	public void setModbusTask(AbstractTask abstractTask) {
 		this.abstractTask = abstractTask;
 	}
@@ -102,13 +91,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public boolean invalidate(AbstractModbusBridge bridge) {
+	public void invalidate(AbstractModbusBridge bridge) {
 		this.invalidValueCounter++;
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
 			this.setValue(null);
-			return true;
 		}
-		return false;
 	}
 
 	/*

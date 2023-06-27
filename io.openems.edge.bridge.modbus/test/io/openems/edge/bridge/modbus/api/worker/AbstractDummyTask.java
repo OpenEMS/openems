@@ -10,15 +10,22 @@ import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 public abstract class AbstractDummyTask extends AbstractTask {
 
 	protected final String name;
-	protected final long delay;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDummyTask.class);
 
+	protected long delay;
+
 	private Runnable onExecuteCallback;
+	private boolean isDefective = false;
 
 	public AbstractDummyTask(String name, long delay) {
 		super(0);
 		this.name = name;
+		this.delay = delay;
+	}
+
+	public void setDefective(boolean isDefective, long delay) {
+		this.isDefective = isDefective;
 		this.delay = delay;
 	}
 
@@ -42,6 +49,11 @@ public abstract class AbstractDummyTask extends AbstractTask {
 		} catch (InterruptedException e) {
 			this.log.warn(e.getMessage());
 		}
+
+		if (this.isDefective) {
+			throw new OpenemsException("Modbus-Task is defective");
+		}
+
 		return 1;
 	}
 

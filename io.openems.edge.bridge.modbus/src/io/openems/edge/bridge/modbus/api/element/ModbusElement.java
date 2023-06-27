@@ -39,13 +39,6 @@ public interface ModbusElement<T> {
 	public void setModbusTask(AbstractTask abstractTask);
 
 	/**
-	 * Whether this Element should be ignored (= DummyElement).
-	 *
-	 * @return true for ignored elements
-	 */
-	public boolean isIgnored();
-
-	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
 	 *
 	 * @return the OpenemsType
@@ -75,9 +68,8 @@ public interface ModbusElement<T> {
 	 * 'invalidateElementsAfterReadErrors' config setting of the bridge.
 	 *
 	 * @param bridge the {@link AbstractModbusBridge}
-	 * @return true if Channel was invalidated
 	 */
-	public boolean invalidate(AbstractModbusBridge bridge);
+	public void invalidate(AbstractModbusBridge bridge);
 
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear
