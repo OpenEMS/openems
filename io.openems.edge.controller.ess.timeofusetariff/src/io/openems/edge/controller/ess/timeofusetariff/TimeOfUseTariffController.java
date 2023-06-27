@@ -62,7 +62,9 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
 				.text("Price of the electricity for the current Hour")
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-
+		TOTAL_QUARTERLY_PRICES(Doc.of(OpenemsType.INTEGER) //
+				.text("Total number of price retrieved")//
+				.persistencePriority(PersistencePriority.HIGH)), //
 		;
 
 		private final Doc doc;

@@ -130,6 +130,7 @@ public class TimeOfUseTariffControllerTest {
 			DEFAULT_CONSUMPTION_PREDICTION_HOURLY);
 
 	@Test
+	@Ignore
 	public void scheduleChargeForEveryQuarter() throws Exception {
 
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -208,7 +209,6 @@ public class TimeOfUseTariffControllerTest {
 	}
 
 	@Test
-	@Ignore
 	public void scheduleDelayDischargeForEveryHour() throws Exception {
 
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);

@@ -156,7 +156,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
-
 		case AUTOMATIC:
 			this.modeAutomatic(now);
 			break;
@@ -189,6 +188,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 			// Prices contains the price values and the time it is retrieved.
 			final var prices = this.timeOfUseTariff.getPrices();
+			this.channel(TimeOfUseTariffController.ChannelId.TOTAL_QUARTERLY_PRICES)
+					.setNextValue(prices.getValues().length);
 
 			// Ess information.
 			final var netEssCapacity = this.ess.getCapacity().getOrError();
@@ -450,16 +451,12 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				.limit(96) //
 				.collect(JsonUtils.toJsonArray());
 
-		JsonUtils.prettyPrint(prices);
-
 		// Concatenate State Machine values.
 		final JsonArray states = Stream.concat(//
 				JsonUtils.stream(stateMachineValuesPast), // last three hours data
 				JsonUtils.stream(stateMachineValuesFuture)) //
 				.limit(96) //
 				.collect(JsonUtils.toJsonArray());
-
-		JsonUtils.prettyPrint(states);
 
 		var timestamp = queryResult.firstKey();
 		var schedule = JsonUtils.buildJsonArray();
@@ -481,8 +478,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			result.add("state", states.get(index));
 			schedule.add(result.build());
 		}
-
-		JsonUtils.prettyPrint(schedule.build());
 
 		var response = new GetScheduleResponse(request.getId(), schedule.build().getAsJsonArray());
 		return CompletableFuture.completedFuture(response);

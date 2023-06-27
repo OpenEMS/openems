@@ -69,9 +69,9 @@ public class Schedule {
 		 * @return True if delaying discharge is scheduled and False otherwise.
 		 */
 		public boolean isDelayDischargeScheduled() {
-			return this.gridEnergy > 0 //
+			return this.chargeDischargeEnergy < this.essInitialEnergy //
+					&& this.gridEnergy > 0 //
 					&& this.requiredEnergy < this.essInitialEnergy //
-					&& this.chargeDischargeEnergy < this.essInitialEnergy //
 					&& this.chargeDischargeEnergy != this.maxDischargeEnergyPerPeriod;
 		}
 
@@ -109,9 +109,9 @@ public class Schedule {
 		}
 	}
 
-	public Schedule(ControlMode controlMode, int essUsableEnergy, int currentAvailableEnergy, int dischargeEnergy,
-			int chargeEnergy, Float[] prices, Integer[] consumptionPrediciton, Integer[] productionPrediction,
-			int maxAllowedChargeEnergyFromGrid) {
+	public Schedule(ControlMode controlMode, int essUsableEnergy, int currentAvailableEnergy, //
+			int dischargeEnergy, int chargeEnergy, Float[] prices, Integer[] consumptionPrediciton, //
+			Integer[] productionPrediction, int maxAllowedChargeEnergyFromGrid) {
 
 		this.controlMode = controlMode;
 		this.essUsableEnergy = essUsableEnergy;
@@ -146,14 +146,14 @@ public class Schedule {
 			this.periods.add(period);
 		}
 
+		// Creates the initial schedule based on balancing.
 		this.simulateSchedule();
 	}
 
 	/**
-	 * Creates the schedule for every period.
+	 * Creates the schedule with periods.
 	 */
 	public void createSchedule() {
-
 		for (int index = 0; index < this.periods.size(); index++) {
 			var period = this.periods.get(index);
 			var requiredEnergy = period.requiredEnergy;
@@ -162,16 +162,10 @@ public class Schedule {
 			if (requiredEnergy >= essInitialEnergy) {
 				// recalculate the required energy needed.
 				var requiredEnergyFromGrid = requiredEnergy - essInitialEnergy;
-
-				// Maximum required energy manageable from grid is maximum chargeable energy in
-				// battery.
-				requiredEnergy = TypeUtils.min(TypeUtils.abs(this.maxChargeEnergyPerPeriod), requiredEnergyFromGrid);
-
-				if (requiredEnergy > 0) {
-					this.calculateSchedule(requiredEnergy, index);
+				if (requiredEnergyFromGrid > 0) {
+					this.calculateSchedule(requiredEnergyFromGrid, index);
 				}
 			}
-
 			// Simulates and updates the schedule.
 			this.simulateSchedule();
 		}
@@ -199,7 +193,7 @@ public class Schedule {
 			// Update the value.
 			period.essInitialEnergy = essInitialEnergyForCurrentPeriod;
 
-			// updates Ess chargeDischarge energy and Grid buy/sell energy value.
+			// updates 'chargeDischarge energy' and 'Grid energy' values.
 			this.updateEssAndGridEnergyInPeriod(index);
 
 			// estimating initial Energy for next period.
@@ -211,10 +205,10 @@ public class Schedule {
 	}
 
 	/**
-	 * Updates the Ess chargeDischarge energy and Grid buy/sell energy value for the
-	 * period.
+	 * Updates the 'chargeDischarge energy' and 'Grid energy' values for the
+	 * appropriate period mentioned by index.
 	 * 
-	 * @param index the index of the period.
+	 * @param index The index of the period.
 	 */
 	private void updateEssAndGridEnergyInPeriod(int index) {
 
@@ -268,23 +262,23 @@ public class Schedule {
 	/**
 	 * Calculates and schedules the required energy before the index period.
 	 * 
-	 * @param requiredEnergy The energy needed to be scheduled in battery.
-	 * @param index          current period index.
+	 * @param requiredEnergy  The energy needed to be scheduled in battery.
+	 * @param expensivePeriod Expensive period index.
 	 */
-	private void calculateSchedule(int requiredEnergy, int index) {
+	private void calculateSchedule(int requiredEnergy, int expensivePeriod) {
 
 		// Cheapest period index with available charge energy.
-		var cheapHour = this.getCheapestHourBeforePeriod(index, this.periods, this.essUsableEnergy);
+		var cheapHour = this.getCheapestHourBeforePeriod(expensivePeriod, this.periods, this.essUsableEnergy);
 
 		if (cheapHour == null) {
 			// no cheap hour Calculated
 			return;
 		}
 
-		var period = this.periods.get(cheapHour);
+		var cheapPeriod = this.periods.get(cheapHour);
 
 		// schedule
-		if (period.price < this.periods.get(index).price) {
+		if (cheapPeriod.price < this.periods.get(expensivePeriod).price) {
 
 			// available 'charge' energy when the mode is CHARGE_CONSUMPTION.
 			// available 'discharge' energy when the mode is DELAY_DISCAHRGE.
@@ -294,13 +288,12 @@ public class Schedule {
 			// energy.
 			if (requiredEnergy > availableEnergy) {
 
-				var remainingEnergy = requiredEnergy - availableEnergy;
-
 				// update schedule
 				this.updateSchedule(availableEnergy, cheapHour);
 
 				// Calculate to schedule remaining energy.
-				this.calculateSchedule(remainingEnergy, index);
+				var remainingEnergy = requiredEnergy - availableEnergy;
+				this.calculateSchedule(remainingEnergy, expensivePeriod);
 			} else {
 				// update schedule
 				this.updateSchedule(requiredEnergy, cheapHour);
@@ -312,17 +305,16 @@ public class Schedule {
 	 * Returns the cheapest period with available charge energy before the specified
 	 * period index.
 	 * 
-	 * @param currentPeriodIndex The period index before which the cheap hour should
-	 *                           be found.
-	 * @param periods            The list of periods.
-	 * @param essUsableEnergy    The usable energy in the battery.
+	 * @param expensivePeriodIndex The period index before which the cheap hour
+	 *                             should be found.
+	 * @param periods              The list of periods.
+	 * @param essUsableEnergy      The usable energy in the battery.
 	 * @return The index of the cheapest hour, or null if none is found.
 	 */
-	private Integer getCheapestHourBeforePeriod(int currentPeriodIndex, List<Period> periods, int essUsableEnergy) {
+	private Integer getCheapestHourBeforePeriod(int expensivePeriodIndex, List<Period> periods, int essUsableEnergy) {
 
 		Integer cheapHourIndex = null;
-		for (int index = 0; index < currentPeriodIndex; index++) {
-
+		for (int index = 0; index < expensivePeriodIndex; index++) {
 			var availableEnergy = this.getAvailableEnergy(index);
 			if (availableEnergy <= 0) {
 				continue;
@@ -330,9 +322,9 @@ public class Schedule {
 
 			// Checks if the battery gets full after the cheap period and before the current
 			// period.
-			var batteryCapacityGetsFull = this.batteryCapacityGetsFull(index, currentPeriodIndex, periods,
+			var batteryCapacityisFull = this.batteryCapacityisFull(index, expensivePeriodIndex, periods,
 					essUsableEnergy);
-			if (!batteryCapacityGetsFull) {
+			if (batteryCapacityisFull) {
 				continue;
 			}
 
@@ -347,11 +339,10 @@ public class Schedule {
 	/**
 	 * Redirects to the appropriate method based on the control mode selected.
 	 * 
-	 * @param cheapHourIndex Index of the cheapest hour.
+	 * @param cheapHourIndex Index of the cheapest period.
 	 * @return the available charge/Discharge energy.
 	 */
 	private int getAvailableEnergy(Integer cheapHourIndex) {
-
 		var availableEnergy = 0;
 
 		switch (this.controlMode) {
@@ -422,7 +413,8 @@ public class Schedule {
 	}
 
 	/**
-	 * Updates the schedule for specific period.
+	 * Updates the 'chargeDischarge energy' and 'Grid energy' values for cheap hour
+	 * period.
 	 * 
 	 * @param energy    the energy to schedule.
 	 * @param cheapHour index of the cheap period.
@@ -456,27 +448,26 @@ public class Schedule {
 	}
 
 	/**
-	 * Checks if the battery gets full within cheap hour and the current index.
+	 * Checks if the battery gets full within cheap period and the current period
+	 * index.
 	 * 
 	 * @param fromIndex       Index of the cheap hour.
 	 * @param toIndex         The current index.
 	 * @param periods         The list of periods.
 	 * @param essUsableEnergy The Usable energy in the battery.
-	 * @return true if the battery is not full within the index range.
+	 * @return True if the battery is full within the index range, False otherwise.
 	 */
-	private boolean batteryCapacityGetsFull(int fromIndex, int toIndex, List<Period> periods, int essUsableEnergy) {
+	private boolean batteryCapacityisFull(int fromIndex, int toIndex, List<Period> periods, int essUsableEnergy) {
 
 		fromIndex++; // Exclude the cheap hour index (first index) from the search.
 
 		for (int index = fromIndex; index <= toIndex; index++) {
-
-			var initialEnergy = periods.get(index).essInitialEnergy;
-			if (initialEnergy == essUsableEnergy) {
-				return false;
+			if (periods.get(index).essInitialEnergy == essUsableEnergy) {
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override
