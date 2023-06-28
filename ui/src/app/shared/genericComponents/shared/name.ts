@@ -1,4 +1,3 @@
-import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 
 import { EdgeConfig } from "../../shared";
@@ -24,5 +23,5 @@ export namespace Name {
    * @param meter the meter: {@link EdgeConfig.Component}
    * @returns the meter alias if existing, else meter id 
    */
-  export const METER_ALIAS_OR_ID = (meter: EdgeConfig.Component): string => meter.alias ?? meter.id
+  export const METER_ALIAS_OR_ID = (meter: EdgeConfig.Component): string => meter.alias ?? meter.id;
 }

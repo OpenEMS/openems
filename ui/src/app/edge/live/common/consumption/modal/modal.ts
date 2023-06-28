@@ -1,18 +1,13 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { element } from 'protractor';
-import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
-import { Filter } from 'src/app/shared/genericComponents/shared/filter';
-import { Formatter } from 'src/app/shared/genericComponents/shared/formatter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
 import { Phase } from 'src/app/shared/genericComponents/shared/phase';
-import { HistoryUtils } from 'src/app/shared/service/utils';
 import { Role } from 'src/app/shared/type/role';
 
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../../shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
   templateUrl: '../../../../../shared/formly/formly-field-modal/template.html'
@@ -34,6 +29,7 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     let lines: OeFormlyField[] = [];
 
+    // Total
     lines.push({
       type: 'channel-line',
       name: translate.instant('General.TOTAL'),
@@ -48,72 +44,79 @@ export class ModalComponent extends AbstractFormlyComponent {
         indentation: TextIndentation.SINGLE,
         channel: '_sum/ConsumptionActivePower' + phase,
         converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
-      })
-    })
+      });
+    });
 
     if (evcss.length > 0) {
       lines.push({
         type: 'horizontal-line'
-      })
+      });
     }
 
-    for (let i = 0; i < evcss.length; i++) {
+    // Evcss
+    evcss.forEach((evcs, index) => {
       lines.push({
         type: 'channel-line',
-        name: Name.METER_ALIAS_OR_ID(evcss[i]),
-        channel: evcss[i].id + '/ChargePower',
-        converter: Converter.POWER_IN_WATT
+        name: Name.METER_ALIAS_OR_ID(evcs),
+        channel: evcs.id + '/ChargePower',
+        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
       });
 
-      if (i < (evcss.length - 1)) {
-        lines.push({ type: 'horizontal-line' })
+      if (index < (evcss.length - 1)) {
+        lines.push({ type: 'horizontal-line' });
       }
-    }
+    });
 
     if (consumptionMeters.length > 0) {
-      lines.push({ type: 'horizontal-line' })
+      lines.push({ type: 'horizontal-line' });
     }
 
-    for (let consumptionMeter of consumptionMeters) {
+    // Consumptionmeters
+    consumptionMeters.forEach((meter, index) => {
       lines.push({
         type: 'channel-line',
-        name: Name.METER_ALIAS_OR_ID(consumptionMeter),
-        channel: consumptionMeter.id + '/ActivePower',
-        converter: Converter.POWER_IN_WATT
-      })
+        name: Name.METER_ALIAS_OR_ID(meter),
+        channel: meter.id + '/ActivePower',
+        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+      });
       Phase.THREE_PHASE.forEach(phase => {
         lines.push({
           type: 'channel-line',
           name: 'Phase ' + phase,
-          channel: consumptionMeter.id + '/ActivePower' + phase,
+          channel: meter.id + '/ActivePower' + phase,
           indentation: TextIndentation.SINGLE,
           converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
-        })
-      })
-      lines.push({
-        type: 'horizontal-line',
-      })
-    }
+        });
+      });
+
+      if (index < (consumptionMeters.length - 1)) {
+        lines.push({
+          type: 'horizontal-line'
+        });
+      }
+    });
+
+    lines.push({ type: 'horizontal-line' });
 
     // OtherPower
     let channelsToSubscribe: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActivePower')];
 
-    evcss.forEach(evcs => channelsToSubscribe.push(new ChannelAddress(evcs.id, 'ChargePower')))
+    evcss.forEach(evcs => channelsToSubscribe.push(new ChannelAddress(evcs.id, 'ChargePower')));
     consumptionMeters.forEach(meter => {
-      channelsToSubscribe.push(...[new ChannelAddress(meter.id, 'ActivePower')])
-    })
+      channelsToSubscribe.push(...[new ChannelAddress(meter.id, 'ActivePower')]);
+    });
 
     lines.push({
       type: 'value-from-channels-line',
       name: translate.instant('General.otherConsumption'),
       value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
-      channelsToSubscribe: channelsToSubscribe,
-    })
+      channelsToSubscribe: channelsToSubscribe
+    });
 
     lines.push({
       type: 'info-line',
       name: translate.instant('Edge.Index.Widgets.phasesInfo')
-    })
+    });
 
     return {
       title: translate.instant('General.consumption'),

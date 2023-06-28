@@ -20,5 +20,5 @@ export namespace Filter {
    */
   export const GRID_MODE_IS_OFF_GRID: Filter = (value): boolean => value === GridMode.OFF_GRID;
 
-  export const HIDE_NEGATIVE_VALUES: Filter = (value: number): boolean => value < 0
+  export const HIDE_NEGATIVE_VALUES: Filter = (value: number): boolean => value < 0;
 }

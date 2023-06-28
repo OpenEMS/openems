@@ -6,14 +6,14 @@ import { ModalComponent } from "./modal";
 
 export const VIEW_CONTEXT: OeFormlyViewTester.Context = ({});
 
-export function expectView(testContext: TestContext, viewContext: OeFormlyViewTester.Context, view: OeFormlyViewTester.View,): void {
+export function expectView(testContext: TestContext, viewContext: OeFormlyViewTester.Context, view: OeFormlyViewTester.View): void {
   expect(OeFormlyViewTester.apply(ModalComponent.generateView(testContext.translate), viewContext))
     .toEqual(view);
 };
 
 describe('SelfConsumption - Modal', () => {
   let TEST_CONTEXT;
-  beforeEach(() => TEST_CONTEXT = sharedSetup())
+  beforeEach(() => TEST_CONTEXT = sharedSetup());
 
   it('generateView()', () => {
     {
@@ -24,5 +24,5 @@ describe('SelfConsumption - Modal', () => {
         ]
       });
     }
-  })
+  });
 });

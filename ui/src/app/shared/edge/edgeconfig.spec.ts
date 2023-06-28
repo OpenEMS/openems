@@ -23,7 +23,7 @@ export namespace DummyConfig {
         components.forEach(obj => {
             const component = obj as unknown;
             if (factories[component['factoryId']]) {
-                factories[component['factoryId']].componentIds = [...factories[component['factoryId']].componentIds, ...component['factory'].componentIds]//.push(...component['factory'].componentIds)
+                factories[component['factoryId']].componentIds = [...factories[component['factoryId']].componentIds, ...component['factory'].componentIds];//.push(...component['factory'].componentIds)
             } else {
                 factories[component['factoryId']] = {
                     componentIds: component['factory'].componentIds,
@@ -34,11 +34,11 @@ export namespace DummyConfig {
                     properties: []
                 };
             }
-        })
+        });
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
-            components: <unknown>edgeConfig.components,
-            factories: <unknown>factories
+            components: edgeConfig.components,
+            factories: factories
         });
     }
 }
@@ -102,7 +102,7 @@ type Component = {
 
 export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
-    alias: alias,
+    alias: alias ?? id,
     factory: Factory.METER_SOCOMEC_THREEPHASE,
     properties: {
         invert: false,
@@ -114,7 +114,7 @@ export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
 
 export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
     id: id,
-    alias: alias,
+    alias: alias ?? id,
     factory: Factory.METER_SOCOMEC_THREEPHASE,
     factoryId: Factory.METER_SOCOMEC_THREEPHASE.id,
     properties: {
@@ -127,7 +127,7 @@ export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component
 
 export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
-    alias: alias,
+    alias: alias ?? id,
     factory: Factory.METER_GOODWE_GRID,
     properties: {
         invert: false,
@@ -137,14 +137,15 @@ export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
     channels: {}
 });
 
-export const KEBA_KECONTACT_EVCS = (id: string, alias?: string): Component => ({
+export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
     id: id,
-    alias: alias,
+    alias: alias ?? id,
     factory: Factory.EVCS_KEBA_KECONTACT,
     properties: {
         invert: false,
         modbusUnitId: 5,
-        type: "GRID"
+        // TODO
+        type: "CONSUMPTION_METERED"
     },
     channels: {}
 });

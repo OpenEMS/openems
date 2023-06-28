@@ -19,6 +19,6 @@ export class ModalComponent extends AbstractFormlyComponent {
         type: 'info-line',
         name: translate.instant("Edge.Index.Widgets.autarchyInfo")
       }]
-    }
+    };
   }
 }

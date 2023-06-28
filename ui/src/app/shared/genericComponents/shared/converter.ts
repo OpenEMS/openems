@@ -1,4 +1,3 @@
-import { formatNumber } from "@angular/common";
 
 import { CurrentData, EdgeConfig, Utils } from "../../shared";
 import { Formatter } from "./formatter";
@@ -111,7 +110,7 @@ export namespace Converter {
       value <= 0
         ? Formatter.FORMAT_WATT(0)
         : Formatter.FORMAT_WATT(value));
-  }
+  };
   /**
    * Hides the actual value, always returns empty string.
    * 

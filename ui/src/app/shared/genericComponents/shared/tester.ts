@@ -1,4 +1,3 @@
-import { element } from "protractor";
 
 import { CurrentData } from "../../shared";
 import { TextIndentation } from "../modal/modal-line/modal-line";
@@ -253,14 +252,14 @@ export namespace OeFormlyViewTester {
   export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
 
     // Read values from channels
-    let rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null)
+    let rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
 
     // Apply filter
     if (field.filter && field.filter(rawValues) === false) {
       return null;
     }
 
-    let currentData: CurrentData = { thisComponent: {}, allComponents: context }
+    let currentData: CurrentData = { thisComponent: {}, allComponents: context };
 
     // Apply converter
     let value: string = field.value
