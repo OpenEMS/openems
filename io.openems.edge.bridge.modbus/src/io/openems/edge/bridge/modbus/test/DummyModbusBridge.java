@@ -43,19 +43,17 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	@Override
 	public InetAddress getIpAddress() {
-		return null;
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
 	public void closeModbusConnection() {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 }

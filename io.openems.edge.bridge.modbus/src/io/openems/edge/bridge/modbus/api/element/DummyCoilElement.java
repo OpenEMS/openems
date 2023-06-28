@@ -36,4 +36,9 @@ public class DummyCoilElement extends AbstractModbusElement<DummyCoilElement, Bo
 	public Optional<Boolean> getNextWriteValue() {
 		return Optional.empty();
 	}
+
+	@Override
+	protected DummyCoilElement self() {
+		return this;
+	}
 }

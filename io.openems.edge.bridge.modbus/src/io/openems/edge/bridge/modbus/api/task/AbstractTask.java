@@ -1,26 +1,39 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import org.slf4j.Logger;
+
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link ModbusElement} which have register addresses in the same range.
  */
-public abstract class AbstractTask {
+public non-sealed abstract class AbstractTask<//
+		REQUEST extends ModbusRequest, //
+		RESPONSE extends ModbusResponse> implements Task {
+
+//	private final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
 	protected final String name;
+	protected final Class<RESPONSE> responseClazz;
 	protected final int startAddress;
 	protected final int length;
 	protected final ModbusElement<?>[] elements;
 
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
-	public AbstractTask(String name, int startAddress, ModbusElement<?>... elements) {
+	public AbstractTask(String name, Class<RESPONSE> responseClazz, int startAddress, ModbusElement<?>... elements) {
 		this.name = name;
+		this.responseClazz = responseClazz;
 		this.startAddress = startAddress;
 		this.elements = elements;
 		for (var element : elements) {
@@ -62,9 +75,42 @@ public abstract class AbstractTask {
 	 *
 	 * @param bridge the Modbus-Bridge
 	 * @return the number of executed Sub-Tasks
+	 */
+	public abstract ExecuteState execute(AbstractModbusBridge bridge);
+
+	/**
+	 * Actually executes a {@link ModbusRequest} and returns its
+	 * {@link ModbusResponse}.
+	 * 
+	 * <p>
+	 * If first request fails, the implementation reconnects the Modbus connection
+	 * and tries again.
+	 * 
+	 * @param bridge  the {@link AbstractModbusBridge}
+	 * @param request the typed {@link ModbusRequest}
+	 * @return the typed {@link ModbusResponse}
 	 * @throws OpenemsException on error
 	 */
-	public abstract int execute(AbstractModbusBridge bridge) throws OpenemsException;
+	protected RESPONSE executeRequest(AbstractModbusBridge bridge, REQUEST request) throws OpenemsException {
+		// TODO reicht BridgeModbus?
+		var unitId = this.getParent().getUnitId();
+		var logVerbosity = this.getLogVerbosity(bridge);
+		try {
+			// First try
+			return sendRequest(bridge, unitId, this.responseClazz, request, logVerbosity);
+
+		} catch (OpenemsException | ModbusException e) {
+
+			try {
+				// Second try; with new connection
+				bridge.closeModbusConnection();
+				return sendRequest(bridge, unitId, this.responseClazz, request, logVerbosity);
+
+			} catch (ModbusException e2) {
+				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
+			}
+		}
+	}
 
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging. TODO:
@@ -77,7 +123,7 @@ public abstract class AbstractTask {
 	 * 
 	 * @return myself
 	 */
-	public AbstractTask debug() {
+	public AbstractTask<REQUEST, RESPONSE> debug() {
 		this.isDebug = true;
 		return this;
 	}
@@ -124,5 +170,63 @@ public abstract class AbstractTask {
 		sb.append(this.length);
 		sb.append("]");
 		return sb.toString();
+	}
+
+	protected void logError(AbstractModbusBridge bridge, Logger log, String message) {
+		OpenemsComponent.logError(bridge, log, "[" + this.name + "] " + message);
+	}
+
+	protected void logInfo(AbstractModbusBridge bridge, Logger log, String message) {
+		OpenemsComponent.logInfo(bridge, log, "[" + this.name + "] " + message);
+	}
+
+	/**
+	 * Sends a {@link ModbusRequest} and returns the {@link ModbusResponse}.
+	 * 
+	 * @param <RESPONSE> the type of the response
+	 * @param bridge     the {@link AbstractModbusBridge}
+	 * @param unitId     the Modbus Unit-ID
+	 * @param clazz      the class of the response
+	 * @param request    the {@link ModbusRequest}
+	 * @return the {@link ModbusResponse}
+	 */
+	private static <RESPONSE extends ModbusResponse> RESPONSE sendRequest(AbstractModbusBridge bridge, int unitId,
+			Class<RESPONSE> clazz, ModbusRequest request, LogVerbosity logVerbosity)
+			throws OpenemsException, ModbusException {
+//		try {
+		request.setUnitID(unitId);
+		var transaction = bridge.getNewModbusTransaction();
+		transaction.setRequest(request);
+		transaction.execute();
+
+		var response = transaction.getResponse();
+		if (clazz.isInstance(response)) {
+			return (RESPONSE) clazz.cast(response);
+		}
+
+		// TODO schöne Lösung für Logs; je nach Log-Level können unterschiedliche Infos
+		// angezeigt werden (z. B. Dauer, detaillierte Hex Request/Response)
+//			
+//		} finally {
+//			switch (logVerbosity) {
+//			case READS_AND_WRITES, WRITES -> 
+//			
+//			}
+////			case READS_AND_WRITES:
+////				bridge.logInfo(this.log, this.name //
+////						+ " [" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
+////						+ Arrays.stream(registers) //
+////								.map(r -> String.format("%4s", Integer.toHexString(r.getValue())).replace(' ', '0')) //
+////								.collect(Collectors.joining(" ")));
+////				break;
+////			case WRITES:
+////			case DEV_REFACTORING:
+////			case NONE:
+////				break;
+////			}
+//		}
+		throw new OpenemsException("Unexpected Modbus response. " //
+				+ "Expected [" + clazz.getSimpleName() + "] " //
+				+ "Got [" + response.getClass().getSimpleName() + "]");
 	}
 }

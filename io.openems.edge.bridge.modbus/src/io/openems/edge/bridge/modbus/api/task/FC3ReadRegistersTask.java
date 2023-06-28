@@ -13,8 +13,7 @@ import io.openems.edge.common.taskmanager.Priority;
  * (http://www.simplymodbus.ca/FC03.htm).
  */
 public class FC3ReadRegistersTask
-		extends AbstractReadInputRegistersTask<ReadMultipleRegistersRequest, ReadMultipleRegistersResponse>
-		implements ReadTask {
+		extends AbstractReadInputRegistersTask<ReadMultipleRegistersRequest, ReadMultipleRegistersResponse> {
 
 	public FC3ReadRegistersTask(int startAddress, Priority priority, ModbusElement<?>... elements) {
 		super("FC3ReadHoldingRegisters", ReadMultipleRegistersResponse.class, startAddress, priority, elements);
@@ -26,7 +25,7 @@ public class FC3ReadRegistersTask
 	}
 
 	@Override
-	protected InputRegister[] handleResponse(ReadMultipleRegistersResponse response) throws OpenemsException {
+	protected InputRegister[] parseResponse(ReadMultipleRegistersResponse response) throws OpenemsException {
 		return response.getRegisters();
 	}
 }

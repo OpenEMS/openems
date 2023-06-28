@@ -12,8 +12,8 @@ import io.openems.edge.common.taskmanager.Priority;
  * Implements a Read Input Register Task, implementing Modbus function code 4
  * (http://www.simplymodbus.ca/FC04.htm).
  */
-public class FC4ReadInputRegistersTask extends
-		AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> implements ReadTask {
+public class FC4ReadInputRegistersTask
+		extends AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> {
 
 	public FC4ReadInputRegistersTask(int startAddress, Priority priority, ModbusElement<?>... elements) {
 		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
@@ -25,7 +25,7 @@ public class FC4ReadInputRegistersTask extends
 	}
 
 	@Override
-	protected InputRegister[] handleResponse(ReadInputRegistersResponse response) throws OpenemsException {
+	protected InputRegister[] parseResponse(ReadInputRegistersResponse response) throws OpenemsException {
 		return response.getRegisters();
 	}
 }

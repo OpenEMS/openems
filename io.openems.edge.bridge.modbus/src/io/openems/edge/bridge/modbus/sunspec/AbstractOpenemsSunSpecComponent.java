@@ -341,6 +341,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			case READ_WRITE:
 			case WRITE_ONLY:
 				// Add a Write-Task
+				// TODO create one FC16WriteRegistersTask for entire block
 				final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
 				this.modbusProtocol.addTask(writeTask);
 				break;

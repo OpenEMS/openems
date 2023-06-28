@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.task.AbstractTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
  * A ModbusElement represents one row of a Modbus definition table.
@@ -31,12 +31,19 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	// Counts for how many cycles no valid value was
 	private int invalidValueCounter = 0;
 
-	protected AbstractTask abstractTask = null;
+	protected Task task = null;
 
 	public AbstractModbusElement(OpenemsType type, int startAddress) {
 		this.type = type;
 		this.startAddress = startAddress;
 	}
+
+	/**
+	 * Gets an instance of the correct subclass of myself.
+	 *
+	 * @return myself
+	 */
+	protected abstract SELF self();
 
 	@Override
 	public final void onSetNextWrite(Consumer<Optional<T>> callback) {
@@ -60,9 +67,9 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
-	public AbstractModbusElement<SELF, T> onUpdateCallback(Consumer<T> onUpdateCallback) {
+	public SELF onUpdateCallback(Consumer<T> onUpdateCallback) {
 		this.onUpdateCallbacks.add(onUpdateCallback);
-		return this;
+		return this.self();
 	}
 
 	@Override
@@ -71,12 +78,12 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	}
 
 	@Override
-	public void setModbusTask(AbstractTask abstractTask) {
-		this.abstractTask = abstractTask;
+	public void setModbusTask(Task task) {
+		this.task = task;
 	}
 
-	public AbstractTask getModbusTask() {
-		return this.abstractTask;
+	public Task getModbusTask() {
+		return this.task;
 	}
 
 	protected void setValue(T value) {

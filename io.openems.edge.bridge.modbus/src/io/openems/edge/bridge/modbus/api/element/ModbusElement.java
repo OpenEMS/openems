@@ -7,6 +7,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
  * A ModbusElement represents one or more registers or coils in an
@@ -29,14 +30,14 @@ public interface ModbusElement<T> {
 	public abstract int getLength();
 
 	/**
-	 * Set the {@link AbstractTask}, where this Element belongs to.
+	 * Set the {@link Task}, where this Element belongs to.
 	 *
 	 * <p>
 	 * This is called by the {@link AbstractTask} constructor.
 	 *
-	 * @param abstractTask the AbstractTask
+	 * @param task the {@link Task}
 	 */
-	public void setModbusTask(AbstractTask abstractTask);
+	public void setModbusTask(Task task);
 
 	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
@@ -76,4 +77,10 @@ public interface ModbusElement<T> {
 	 * any references like listeners.
 	 */
 	public void deactivate();
+
+	public static String toString(ModbusElement<?> element) {
+		return "Address [" + element.getStartAddress() + "] " //
+				+ "Length [" + element.getLength() + "] " //
+				+ "Type [" + element.getType() + "]"; //
+	}
 }

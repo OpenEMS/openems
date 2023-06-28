@@ -682,17 +682,17 @@ public class BatterySoltaroClusterVersionBImpl extends AbstractOpenemsModbusComp
 		return addressOffsetRack + OFFSET_CONTACTOR_CONTROL;
 	}
 
-	protected final AbstractModbusElement<?, ?> map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?, ?> element) {
+	protected final <T extends AbstractModbusElement<?, ?>> T map(io.openems.edge.common.channel.ChannelId channelId,
+			T element) {
 		return this.m(channelId, element);
 	}
 
-	protected final AbstractModbusElement<?, ?> map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?, ?> element, ElementToChannelConverter converter) {
+	protected final <T extends AbstractModbusElement<?, ?>> T map(io.openems.edge.common.channel.ChannelId channelId,
+			T element, ElementToChannelConverter converter) {
 		return this.m(channelId, element, converter);
 	}
 
-	protected final AbstractModbusElement<?, ?> map(BitsWordElement bitsWordElement) {
+	protected final BitsWordElement map(BitsWordElement bitsWordElement) {
 		return super.m(bitsWordElement);
 	}
 

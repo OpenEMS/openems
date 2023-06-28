@@ -9,15 +9,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.DummyModbusComponent;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class CycleTasksTest {
+public class CycleTasksManagerTest {
 
 	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT_CALLBACK = (cycleTimeIsTooShort) -> {
 	};
 
+	private static final String CMP = "foo";
 	private static DummyReadTask RT_H_1;
 	private static DummyReadTask RT_H_2;
 	private static DummyReadTask RT_L_1;
@@ -34,7 +38,7 @@ public class CycleTasksTest {
 	}
 
 	@Test
-	public void test() throws OpenemsException, InterruptedException {
+	public void testIdealConditions() throws OpenemsException, InterruptedException {
 		var cycle1 = CycleTasks.create() //
 				.reads(RT_L_1, RT_H_1, RT_H_2) //
 				.writes(WT_1) //
@@ -51,7 +55,7 @@ public class CycleTasksTest {
 		// Cycle 1
 		sut.onBeforeProcessImage();
 		var task = sut.getNextTask();
-		assertTrue(task instanceof WaitDelayTask);
+		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -64,7 +68,7 @@ public class CycleTasksTest {
 		task.execute(null);
 
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitDelayTask);
+		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -76,13 +80,13 @@ public class CycleTasksTest {
 		task.execute(null);
 
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitMutexTask);
+		assertTrue(task instanceof WaitTask.Mutex);
 		// task.execute(null); -> this would block in single-threaded JUnit test
 
 		// Cycle 2
 		sut.onBeforeProcessImage();
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitDelayTask);
+		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -95,7 +99,7 @@ public class CycleTasksTest {
 		task.execute(null);
 
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitDelayTask);
+		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -109,8 +113,69 @@ public class CycleTasksTest {
 		// Cycle 3
 		sut.onBeforeProcessImage();
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitMutexTask);
+		assertTrue(task instanceof WaitTask.Mutex);
 		// task.execute(null); -> this would block in single-threaded JUnit test
 	}
 
+	@Test
+	public void testDefective() throws OpenemsException, InterruptedException {
+		var bridge = new DummyModbusBridge("modbus0");
+		var foo = new DummyModbusComponent(CMP, bridge);
+		RT_L_1.setParent(foo);
+
+		var cycle1 = CycleTasks.create() //
+				.reads(RT_L_1, RT_H_1, RT_H_2) //
+				.writes(WT_1) //
+				.build();
+		var cycle2 = CycleTasks.create() //
+				.reads(RT_L_2, RT_H_1, RT_H_2) //
+				.writes(WT_1) //
+				.build();
+		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1, cycle2);
+		var defectiveComponents = new DefectiveComponents();
+		defectiveComponents.add(CMP);
+
+		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+
+		// Cycle 1
+		sut.onBeforeProcessImage();
+		var task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Delay);
+		task.execute(null);
+
+		task = sut.getNextTask();
+		assertEquals(RT_L_1, task);
+		task.execute(null);
+
+		sut.getNextTask().execute(null);
+		sut.getNextTask().execute(null);
+		sut.onExecuteWrite();
+		sut.getNextTask().execute(null);
+		sut.getNextTask().execute(null);
+		sut.getNextTask();
+
+		// Cycle 2
+		sut.onBeforeProcessImage();
+	}
+
+	@Test
+	public void testNoTasks() throws OpenemsException, InterruptedException {
+		var cycle1 = CycleTasks.create() //
+				.build();
+		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1);
+		var defectiveComponents = new DefectiveComponents();
+
+		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+
+		// Cycle 1
+		sut.onBeforeProcessImage();
+		var task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Delay);
+		task.execute(null);
+
+		sut.onBeforeProcessImage();
+
+		task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Mutex);
+	}
 }

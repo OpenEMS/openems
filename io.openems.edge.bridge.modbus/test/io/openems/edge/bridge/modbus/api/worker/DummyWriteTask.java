@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.taskmanager.Priority;
 
 public class DummyWriteTask extends AbstractDummyTask implements WriteTask {
 
@@ -11,6 +12,11 @@ public class DummyWriteTask extends AbstractDummyTask implements WriteTask {
 	@Override
 	public String toString() {
 		return "DummyWriteTask [name=" + this.name + ", delay=" + this.delay + "]";
+	}
+
+	@Override
+	public Priority getPriority() {
+		return Priority.HIGH;
 	}
 
 }

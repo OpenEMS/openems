@@ -37,7 +37,7 @@ public class CycleTasksSupplierTest {
 	}
 
 	@Test
-	public void test() throws OpenemsException {
+	public void testFull() throws OpenemsException {
 		var clock = new TimeLeapClock();
 		var defectiveComponents = new DefectiveComponents(clock);
 		var sut = new CycleTasksSupplier();
@@ -84,6 +84,28 @@ public class CycleTasksSupplierTest {
 		// 5th Cycle -> back to normal
 		tasks = sut.apply(defectiveComponents);
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
+
+		// Finish
+		sut.removeProtocol(CMP);
+	}
+
+	@Test
+	public void testHighOnly() throws OpenemsException {
+		var clock = new TimeLeapClock();
+		var defectiveComponents = new DefectiveComponents(clock);
+		var sut = new CycleTasksSupplier();
+
+		var bridge = new DummyModbusBridge("modbus0");
+		var foo = new DummyModbusComponent(CMP, bridge);
+		var protocol = foo.getModbusProtocol();
+		protocol.addTasks(RT_H_1, RT_H_2, WT_1);
+		sut.addProtocol(CMP, protocol);
+
+		var tasks = sut.apply(defectiveComponents);
+		assertEquals(3, tasks.reads().size() + tasks.writes().size());
+		assertTrue(tasks.reads().contains(RT_H_1));
+		assertTrue(tasks.reads().contains(RT_H_2));
+		assertTrue(tasks.writes().contains(WT_1));
 	}
 
 }

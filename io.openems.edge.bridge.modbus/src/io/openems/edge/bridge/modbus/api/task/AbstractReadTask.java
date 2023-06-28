@@ -1,16 +1,13 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
@@ -26,106 +23,103 @@ import io.openems.edge.common.taskmanager.Priority;
 public abstract class AbstractReadTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse, //
+		ELEMENT extends ModbusElement<?>, //
 		T> //
-		extends AbstractTask implements ReadTask {
+		extends AbstractTask<REQUEST, RESPONSE> implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadTask.class);
 	private final Priority priority;
 	private final Class<?> elementClazz;
-	private final Class<RESPONSE> responseClazz;
 
-	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<?> elementClazz, int startAddress,
+	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<ELEMENT> elementClazz, int startAddress,
 			Priority priority, ModbusElement<?>... elements) {
-		super(name, startAddress, elements);
-		this.responseClazz = responseClazz;
+		super(name, responseClazz, startAddress, elements);
 		this.elementClazz = elementClazz;
 		this.priority = priority;
 	}
 
 	@Override
-	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
-		T[] response;
+	public ExecuteState execute(AbstractModbusBridge bridge) {
 		try {
-			/*
-			 * First try
-			 */
-			response = this.readElements(bridge);
+			var response = this.parseResponse(//
+					this.executeRequest(bridge, //
+							createModbusRequest(this.startAddress, this.length)));
+			validateResponse(response, this.length);
+			this.fillElements(response, (message) -> this.logError(bridge, this.log, message));
+			return ExecuteState.OK;
 
-		} catch (OpenemsException | ModbusException e) {
-			/*
-			 * Second try: with new connection
-			 */
-			bridge.closeModbusConnection();
-			try {
-				response = this.readElements(bridge);
+		} catch (OpenemsException e) {
+			// Invalidate Elements
+			Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
 
-			} catch (ModbusException e2) {
-				// Invalidate Elements
-				Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
-
-				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
-			}
+			this.logError(bridge, this.log, "Execute failed: " + e.getMessage());
+			return ExecuteState.ERROR;
 		}
 
-		// Verify response length
-		if (response.length < this.getLength()) {
-			throw new OpenemsException("Received message is too short. Expected [" + this.getLength() + "], got ["
-					+ response.length + "]");
-		}
-
-		this.fillElements(response);
-		return 1;
+//		// debug output
+//		switch (this.getLogVerbosity(bridge)) {
+//		case READS_AND_WRITES:
+//			this.logInfo(bridge, //
+//					"[" + unitId + ":" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "]: " //
+//							+ Arrays.stream(result).map(r -> {
+//								if (r instanceof InputRegister) {
+//									return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
+//											.replace(' ', '0');
+//								}
+//								if (r instanceof Boolean) {
+//									return (Boolean) r ? "x" : "-";
+//								} else {
+//									return r.toString();
+//								}
+//							}) //
+//									.collect(Collectors.joining(" ")));
+//			break;
+//		case WRITES:
+//		case DEV_REFACTORING:
+//		case NONE:
+//			break;
+//		}
 	}
 
-	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
-		var request = this.createModbusRequest(this.startAddress, this.length);
-		int unitId = this.getParent().getUnitId();
-		RESPONSE response = Utils.getResponse(responseClazz, request, this.getParent().getUnitId(), bridge);
-
-		var result = this.handleResponse(response);
-
-		// debug output
-		switch (this.getLogVerbosity(bridge)) {
-		case READS_AND_WRITES:
-			bridge.logInfo(this.log, this.name //
-					+ " [" + unitId + ":" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "]: " //
-					+ Arrays.stream(result).map(r -> {
-						if (r instanceof InputRegister) {
-							return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
-									.replace(' ', '0');
-						}
-						if (r instanceof Boolean) {
-							return (Boolean) r ? "x" : "-";
-						} else {
-							return r.toString();
-						}
-					}) //
-							.collect(Collectors.joining(" ")));
-			break;
-		case WRITES:
-		case DEV_REFACTORING:
-		case NONE:
-			break;
+	/**
+	 * Verify length of response array.
+	 * 
+	 * @param response response array
+	 * @param length   expected length
+	 * @throws OpenemsException on failed validation
+	 */
+	private static void validateResponse(Object[] response, int length) throws OpenemsException {
+		if (response.length < length) {
+			throw new OpenemsException("Received message is too short. " //
+					+ "Expected [" + length + "] " //
+					+ "Got [" + response.length + "]");
 		}
-
-		return result;
 	}
 
-	protected void fillElements(T[] response) {
+	/**
+	 * Fills {@link ModbusElement}s with values from response.
+	 * 
+	 * @param response the response values
+	 * @param logError callback to log a error message
+	 */
+	@SuppressWarnings("unchecked")
+	private void fillElements(T[] response, Consumer<String> logError) {
 		var position = 0;
 
 		for (var element : this.elements) {
 			if (this.elementClazz.isInstance(element)) {
 				try {
-					this.doElementSetInput(element, position, response);
+					this.doElementSetInput((ELEMENT) element, position, response);
 				} catch (OpenemsException e) {
-					this.log.warn("Unable to fill modbus element. UnitId [" + this.getParent().getUnitId()
-							+ "] Address [" + this.getStartAddress() + "] Length [" + this.getLength() + "]: "
-							+ e.getMessage());
+					logError.accept("Unable to fill Modbus Element. " //
+							+ ModbusElement.toString(element) //
+							+ ": " + e.getMessage());
 				}
 			} else {
-				this.log.error("A " + this.elementClazz.getSimpleName() + " is required for a " + this.name
-						+ "Task! Element [" + element + "]");
+				logError.accept("Wrong type while filling Modbus Element. " //
+						+ ModbusElement.toString(element) + " " //
+						+ "Expected [" + elementClazz.getSimpleName() + "] " //
+						+ "Got [" + element.getClass().getSimpleName() + "]");
 			}
 			position = this.increasePosition(position, element);
 		}
@@ -138,8 +132,7 @@ public abstract class AbstractReadTask<//
 
 	protected abstract int increasePosition(int position, ModbusElement<?> modbusElement);
 
-	protected abstract void doElementSetInput(ModbusElement<?> element, int position, T[] response)
-			throws OpenemsException;
+	protected abstract void doElementSetInput(ELEMENT element, int position, T[] response) throws OpenemsException;
 
 	/**
 	 * Factory for a {@link ModbusRequest}.
@@ -151,12 +144,12 @@ public abstract class AbstractReadTask<//
 	protected abstract REQUEST createModbusRequest(int startAddress, int length);
 
 	/**
-	 * Handles a {@link ModbusResponse}.
+	 * Parses a {@link ModbusResponse} to an array of values.
 	 * 
 	 * @param response the {@link ModbusResponse}
 	 * @return array of results
 	 * @throws OpenemsException on error
 	 */
-	protected abstract T[] handleResponse(RESPONSE response) throws OpenemsException;
+	protected abstract T[] parseResponse(RESPONSE response) throws OpenemsException;
 
 }

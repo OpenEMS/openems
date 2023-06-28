@@ -2,16 +2,14 @@ package io.openems.edge.bridge.modbus.api.worker;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingFunction;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -19,6 +17,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasks;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksSupplier;
@@ -41,9 +40,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
 
 	// Callbacks
-	private final ThrowingFunction<Task, Integer, OpenemsException> execute;
+	private final Function<Task, ExecuteState> execute;
 	private final Consumer<ModbusElement<?>[]> invalidate;
-	private final BiConsumer<Logger, String> logWarn;
 
 	private final AtomicReference<LogVerbosity> logVerbosity;
 	private final DefectiveComponents defectiveComponents;
@@ -63,12 +61,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param logWarn                     logs a warning
 	 * @param logVerbosity                the configured {@link LogVerbosity}
 	 */
-	public ModbusWorker(ThrowingFunction<Task, Integer, OpenemsException> execute,
-			Consumer<ModbusElement<?>[]> invalidate, Consumer<Boolean> cycleTimeIsTooShortCallback,
-			BiConsumer<Logger, String> logWarn, AtomicReference<LogVerbosity> logVerbosity) {
+	public ModbusWorker(Function<Task, ExecuteState> execute, Consumer<ModbusElement<?>[]> invalidate,
+			Consumer<Boolean> cycleTimeIsTooShortCallback, AtomicReference<LogVerbosity> logVerbosity) {
 		this.execute = execute;
 		this.invalidate = invalidate;
-		this.logWarn = logWarn;
 		this.logVerbosity = logVerbosity;
 
 		this.defectiveComponents = new DefectiveComponents();
@@ -81,26 +77,30 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	protected void forever() throws InterruptedException {
 		var task = this.cycleTasksManager.getNextTask();
 
-		try {
-			// execute the task
-			var stopwatch = Stopwatch.createStarted();
-			var noOfExecutedSubTasks = this.execute.apply(task);
-			stopwatch.stop();
+		// execute the task
+		var stopwatch = Stopwatch.createStarted();
+		var result = this.execute.apply(task);
+		stopwatch.stop();
 
-			if (noOfExecutedSubTasks > 0) {
-				// TODO remove before merge
-				this.log("  Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-				// no exception & at least one sub-task executed
-				this.markComponentAsDefective(task.getParent(), false);
-			}
+		switch (result) {
+		case OK -> {
+			// TODO remove before merge
+			this.log("  Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+			// no exception & at least one sub-task executed
+			this.markComponentAsDefective(task.getParent(), false);
+		}
 
-		} catch (OpenemsException e) {
-			this.logWarn.accept(this.log, task.toString() + " execution failed: " + e.getMessage());
+		case ERROR -> {
 			this.markComponentAsDefective(task.getParent(), true);
 
 			// invalidate elements of this task
 			this.invalidate.accept(task.getElements());
 		}
+
+		case NO_OP -> {
+		}
+		}
+
 	}
 
 	// TODO remove before release
@@ -171,7 +171,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void retryModbusCommunication(String sourceId) {
-		// TODO
+		this.defectiveComponents.remove(sourceId);
 	}
 
 	/**

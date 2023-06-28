@@ -29,13 +29,6 @@ public abstract class AbstractModbusRegisterElement<SELF, T> extends AbstractMod
 		super(type, startAddress);
 	}
 
-	/**
-	 * Gets an instance of the correct subclass of myself.
-	 *
-	 * @return myself
-	 */
-	protected abstract SELF self();
-
 	protected void setNextWriteValueRegisters(Optional<Register[]> writeValueOpt) throws OpenemsException {
 		if (writeValueOpt.isPresent() && writeValueOpt.get().length != this.getLength()) {
 			throw new OpenemsException("Modbus Element [" + this + "]: write registers length ["

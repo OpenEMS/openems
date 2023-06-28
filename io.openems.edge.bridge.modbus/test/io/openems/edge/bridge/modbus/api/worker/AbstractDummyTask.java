@@ -3,11 +3,13 @@ package io.openems.edge.bridge.modbus.api.worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
-public abstract class AbstractDummyTask extends AbstractTask {
+public abstract class AbstractDummyTask extends AbstractTask<ModbusRequest, ModbusResponse> {
 
 	protected final String name;
 
@@ -19,7 +21,7 @@ public abstract class AbstractDummyTask extends AbstractTask {
 	private boolean isDefective = false;
 
 	public AbstractDummyTask(String name, long delay) {
-		super(name, 0);
+		super(name, ModbusResponse.class, 0);
 		this.name = name;
 		this.delay = delay;
 	}
@@ -39,7 +41,7 @@ public abstract class AbstractDummyTask extends AbstractTask {
 	}
 
 	@Override
-	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public ExecuteState execute(AbstractModbusBridge bridge) {
 		if (this.onExecuteCallback != null) {
 			this.onExecuteCallback.run();
 		}
@@ -51,9 +53,8 @@ public abstract class AbstractDummyTask extends AbstractTask {
 		}
 
 		if (this.isDefective) {
-			throw new OpenemsException("Modbus-Task is defective");
+			return ExecuteState.ERROR;
 		}
-
-		return 1;
+		return ExecuteState.OK;
 	}
 }

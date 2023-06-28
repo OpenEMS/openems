@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 
 /**
@@ -29,7 +30,7 @@ public class CycleTasksManager {
 	private final AtomicReference<LogVerbosity> logVerbosity;
 
 	private final WaitDelayHandler waitDelayHandler;
-	private final WaitMutexTask waitMutexTask = new WaitMutexTask();
+	private final WaitTask.Mutex waitMutexTask = new WaitTask.Mutex();
 
 	private CycleTasks cycleTasks;
 
@@ -69,10 +70,11 @@ public class CycleTasksManager {
 		// Calculate Delay
 		this.waitDelayHandler.onBeforeProcessImage();
 
-		// Evaluate Cycle-Time-Is-Too-Short and stop early
+		// Evaluate Cycle-Time-Is-Too-Short, invalidate time measurement and stop early
 		var cycleTimeIsTooShort = this.state != StateMachine.FINISHED;
 		this.cycleTimeIsTooShortCallback.accept(cycleTimeIsTooShort);
 		if (cycleTimeIsTooShort) {
+			this.waitDelayHandler.timeIsInvalid();
 			this.log("onBeforeProcessImage: stop early. State: " + this.state);
 			return;
 		}
@@ -80,8 +82,8 @@ public class CycleTasksManager {
 		// Fill queues for this Cycle
 		this.cycleTasks = this.cycleTasksSupplier.apply(this.defectiveComponents);
 
-		// Inform about cycleTimeIsTooShort or defectiveComponents
-		if (cycleTimeIsTooShort || this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
+		// On defectiveComponents invalidate time measurement
+		if (this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
 			this.waitDelayHandler.timeIsInvalid();
 		}
 
@@ -114,7 +116,8 @@ public class CycleTasksManager {
 			return this.waitMutexTask;
 		}
 
-		var previousState = this.state;
+		var previousState = this.state; // drop before release
+
 		var nextTask = switch (this.state) {
 
 		case INITIAL_WAIT ->

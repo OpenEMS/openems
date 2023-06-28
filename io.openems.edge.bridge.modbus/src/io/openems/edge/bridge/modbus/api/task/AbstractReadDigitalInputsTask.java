@@ -9,18 +9,20 @@ import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
-public abstract class AbstractReadDigitalInputsTask<REQUEST extends ModbusRequest, RESPONSE extends ModbusResponse>
-		extends AbstractReadTask<REQUEST, RESPONSE, Boolean> {
+public abstract class AbstractReadDigitalInputsTask<//
+		REQUEST extends ModbusRequest, //
+		RESPONSE extends ModbusResponse> //
+		extends AbstractReadTask<REQUEST, RESPONSE, ModbusCoilElement, Boolean> {
 
 	public AbstractReadDigitalInputsTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, ModbusElement<?>... elements) {
+			Priority priority, ModbusCoilElement... elements) {
 		super(name, responseClazz, ModbusCoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, Boolean[] response)
+	protected void doElementSetInput(ModbusCoilElement element, int position, Boolean[] response)
 			throws OpenemsException {
-		((ModbusCoilElement) modbusElement).setInputCoil(response[position]);
+		element.setInputCoil(response[position]);
 	}
 
 	@Override
@@ -29,9 +31,9 @@ public abstract class AbstractReadDigitalInputsTask<REQUEST extends ModbusReques
 	}
 
 	@Override
-	protected Boolean[] handleResponse(RESPONSE response) throws OpenemsException {
-		return Utils.toBooleanArray(this.convertToBitVector(response));
+	protected final Boolean[] parseResponse(RESPONSE response) throws OpenemsException {
+		return Utils.toBooleanArray(this.parseBitResponse(response));
 	}
 
-	protected abstract BitVector convertToBitVector(RESPONSE response) throws OpenemsException;
+	protected abstract BitVector parseBitResponse(RESPONSE response) throws OpenemsException;
 }

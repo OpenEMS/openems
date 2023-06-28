@@ -28,9 +28,9 @@ public class FC16WriteRegistersTaskTest {
 			var result = FC16WriteRegistersTask.mergeWriteRegisters(elements, (message) -> System.out.println(message));
 
 			assertEquals(2, result.size()); // Two individual requests
-			assertEquals(0, result.get(0).startAddress);
+			assertEquals(0, result.get(0).startAddress());
 			assertEquals(1, result.get(0).getRegisters().length);
-			assertEquals(2, result.get(1).startAddress);
+			assertEquals(2, result.get(1).startAddress());
 			assertEquals(1, result.get(1).getRegisters().length);
 		}
 
@@ -42,7 +42,7 @@ public class FC16WriteRegistersTaskTest {
 			var result = FC16WriteRegistersTask.mergeWriteRegisters(elements, (message) -> System.out.println(message));
 
 			assertEquals(1, result.size()); // One combined request
-			assertEquals(0, result.get(0).startAddress);
+			assertEquals(0, result.get(0).startAddress());
 			assertEquals(3, result.get(0).getRegisters().length);
 		}
 	}

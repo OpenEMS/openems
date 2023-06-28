@@ -11,8 +11,9 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.common.taskmanager.Priority;
 
+@SuppressWarnings("rawtypes")
 public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusRequest, RESPONSE extends ModbusResponse>
-		extends AbstractReadTask<REQUEST, RESPONSE, InputRegister> {
+		extends AbstractReadTask<REQUEST, RESPONSE, ModbusRegisterElement, InputRegister> {
 
 	public AbstractReadInputRegistersTask(String name, Class<RESPONSE> responseClazz, int startAddress,
 			Priority priority, ModbusElement<?>... elements) {
@@ -20,10 +21,11 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, InputRegister[] response)
+	protected void doElementSetInput(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {
-		((ModbusRegisterElement<?>) modbusElement)
-				.setInputRegisters(Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
+		// TODO Element type
+		// TODO rename method
+		element.setInputRegisters(Arrays.copyOfRange(response, position, position + element.getLength()));
 	}
 
 	@Override

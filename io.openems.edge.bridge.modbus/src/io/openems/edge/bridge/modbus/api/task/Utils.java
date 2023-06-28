@@ -4,14 +4,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.msg.ModbusRequest;
-import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.util.BitVector;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 
 public class Utils {
 
@@ -42,32 +36,6 @@ public class Utils {
 			bools[i] = (bytes[byteIndex] & (byte) (128 / Math.pow(2, i % 8))) != 0;
 		}
 		return bools;
-	}
-
-	/**
-	 * Build a {@link ModbusResponse} from a {@link ModbusRequest}.
-	 * 
-	 * @param <RESPONSE> the type of the response
-	 * @param clazz      the class of the response
-	 * @param request    the {@link ModbusRequest}
-	 * @param unitId     the Modbus Unit-ID
-	 * @param bridge     the {@link AbstractModbusBridge}
-	 * @return the {@link ModbusResponse}
-	 */
-	public static <RESPONSE extends ModbusResponse> RESPONSE getResponse(Class<RESPONSE> clazz, ModbusRequest request,
-			int unitId, AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
-		request.setUnitID(unitId);
-		var transaction = bridge.getNewModbusTransaction();
-		transaction.setRequest(request);
-		transaction.execute();
-
-		var response = transaction.getResponse();
-		if (clazz.isInstance(response)) {
-			return (RESPONSE) clazz.cast(response);
-		}
-		throw new OpenemsException("Unexpected Modbus response. " //
-				+ "Expected [" + clazz.getSimpleName() + "], " //
-				+ "got [" + response.getClass().getSimpleName() + "]");
 	}
 
 	/**

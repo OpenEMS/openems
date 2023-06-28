@@ -52,4 +52,9 @@ public class CoilElement extends AbstractModbusElement<CoilElement, Boolean> imp
 		// set value
 		super.setValue(coil);
 	}
+
+	@Override
+	protected CoilElement self() {
+		return this;
+	}
 }

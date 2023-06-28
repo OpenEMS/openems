@@ -46,8 +46,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
 			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
 			state -> this._setCycleTimeIsTooShort(state),
-			// Log Warning
-			(logger, message) -> this.logWarn(logger, message),
 			// LogVerbosity
 			this.logVerbosity //
 	);
@@ -135,7 +133,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 
 	@Override
-	public void logInfo(Logger log, String message) {
+	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
 

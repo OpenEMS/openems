@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class WaitDelayHandler {
 	/** Delays that would have been possible. */
 	private final EvictingQueue<Long> possibleDelays = EvictingQueue.create(10 /* TODO size? */);
 
-	private WaitDelayTask waitDelayTask;
+	private WaitTask.Delay waitDelayTask;
 
 	/**
 	 * Marker for invalid time, e.g. CycleTasks span multiple Cycles, Tasks
@@ -39,7 +40,7 @@ public class WaitDelayHandler {
 		this.logVerbosity = logVerbosity;
 		this.stopwatch = Stopwatch.createUnstarted(ticker);
 		this.onWaitDelayTaskFinished = onWaitDelayTaskFinished;
-		this.waitDelayTask = this.generateZeroWaitDelayTask();
+		this.waitDelayTask = generateZeroWaitDelayTask(onWaitDelayTaskFinished);
 	}
 
 	protected WaitDelayHandler(Ticker ticker, Runnable onWaitDelayTaskFinished) {
@@ -81,7 +82,7 @@ public class WaitDelayHandler {
 		}
 
 		// Initialize a new WaitDelayTask.
-		this.waitDelayTask = this.generateWaitDelayTask();
+		this.waitDelayTask = generateWaitDelayTask(this.possibleDelays, this.onWaitDelayTaskFinished);
 
 		// Reset 'timeIsInvalid'
 		this.timeIsInvalid = false;
@@ -94,15 +95,15 @@ public class WaitDelayHandler {
 	 * 
 	 * <ul>
 	 * <li>WaitDelayTask will be set to 'zero-wait'
-	 * <li>Internal marker 'previousCycleContainedDefectiveComponents' is set. This
-	 * causes the time measurement for this Cycle to be ignored
+	 * <li>Internal marker 'timeIsInvalid' is set. This causes the time measurement
+	 * for this Cycle to be ignored
 	 * </ul>
 	 * 
 	 * <p>
 	 * This method is called shortly after 'onBeforeProcessImage()'
 	 */
 	public synchronized void timeIsInvalid() {
-		this.waitDelayTask = this.generateZeroWaitDelayTask();
+		this.waitDelayTask = generateZeroWaitDelayTask(this.onWaitDelayTaskFinished);
 		this.timeIsInvalid = true;
 	}
 
@@ -116,40 +117,44 @@ public class WaitDelayHandler {
 	}
 
 	/**
-	 * Gets the {@link WaitDelayTask}.
+	 * Gets the {@link WaitTask.Delay}.
 	 * 
 	 * @return the task
 	 */
-	public synchronized WaitDelayTask getWaitDelayTask() {
+	public synchronized WaitTask.Delay getWaitDelayTask() {
 		return this.waitDelayTask;
 	}
 
 	/**
-	 * Gets the {@link WaitTask} with the minimum of all possible waiting times in
-	 * the queue; or null if possible waiting time is zero.
+	 * Generates a {@link WaitDelayTask} with the minimum of all possible waiting
+	 * times in the queue - minus {@link #BUFFER_MS}.
 	 * 
-	 * @return the {@link WaitTask} or null
+	 * @param possibleDelays          the collected possible delays of the last
+	 *                                Cycles
+	 * @param onWaitDelayTaskFinished callback on wait-delay finished
+	 * @return the {@link WaitDelayTask}
 	 */
-	private WaitDelayTask generateWaitDelayTask() {
-		var shortestPossibleDelay = this.possibleDelays.stream() //
+	protected static WaitTask.Delay generateWaitDelayTask(Collection<Long> possibleDelays,
+			Runnable onWaitDelayTaskFinished) {
+		var shortestPossibleDelay = (long) possibleDelays.stream() //
 				.min(Long::compare) //
-				.orElseGet(() -> 0L);
-//		this.log("generateWaitDelayTask: PossibleDelays " //
-//				+ "[" + this.possibleDelays.size() + "/"
-//				+ (this.possibleDelays.size() + this.possibleDelays.remainingCapacity()) + "] " //
-//				+ this.possibleDelays + " -> " + shortestPossibleDelay);
-		final long delay;
-		if (shortestPossibleDelay == null || shortestPossibleDelay < BUFFER_MS) {
-			delay = 0;
-		} else {
-			delay = shortestPossibleDelay - BUFFER_MS;
+				.orElse(0L);
+
+		if (shortestPossibleDelay < BUFFER_MS) {
+			return generateZeroWaitDelayTask(onWaitDelayTaskFinished);
 		}
-		return new WaitDelayTask(delay, this.onWaitDelayTaskFinished);
+
+		return new WaitTask.Delay(shortestPossibleDelay - BUFFER_MS, onWaitDelayTaskFinished);
 	}
 
-	private WaitDelayTask generateZeroWaitDelayTask() {
-		this.log("generateZeroWaitDelayTask");
-		return new WaitDelayTask(0, this.onWaitDelayTaskFinished);
+	/**
+	 * Generates a {@link WaitDelayTask} with zero waiting time.
+	 * 
+	 * @param onWaitDelayTaskFinished callback on wait-delay finished
+	 * @return the {@link WaitDelayTask}
+	 */
+	private static WaitTask.Delay generateZeroWaitDelayTask(Runnable onWaitDelayTaskFinished) {
+		return new WaitTask.Delay(0, onWaitDelayTaskFinished);
 	}
 
 	// TODO remove before release

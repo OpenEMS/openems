@@ -45,7 +45,6 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
@@ -251,11 +250,11 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 		}
 		if (!readCoilElements0.isEmpty()) {
 			this.protocol.addTask(new FC1ReadCoilsTask(0, Priority.LOW,
-					readCoilElements0.toArray(new AbstractModbusElement<?, ?>[readCoilElements0.size()])));
+					readCoilElements0.stream().toArray(ModbusCoilElement[]::new)));
 		}
 		if (!readCoilElements512.isEmpty()) {
 			this.protocol.addTask(new FC1ReadCoilsTask(512, Priority.LOW,
-					readCoilElements512.toArray(new AbstractModbusElement<?, ?>[readCoilElements512.size()])));
+					readCoilElements512.stream().toArray(ModbusCoilElement[]::new)));
 		}
 	}
 

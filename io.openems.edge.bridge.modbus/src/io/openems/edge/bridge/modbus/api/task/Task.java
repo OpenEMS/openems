@@ -1,13 +1,12 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
 
-public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, WaitTask {
+public sealed interface Task extends ManagedTask permits AbstractTask<?, ?>, ReadTask, WriteTask, WaitTask {
 
 	/**
 	 * Gets the ModbusElements.
@@ -56,9 +55,16 @@ public sealed interface Task extends ManagedTask permits ReadTask, WriteTask, Wa
 	 *
 	 * @param bridge the Modbus-Bridge
 	 * @param <T>    the Modbus-Element
-	 * @return the number of executed Sub-Tasks
-	 * @throws OpenemsException on error
+	 * @return {@link ExecuteState}
 	 */
-	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
+	public ExecuteState execute(AbstractModbusBridge bridge);
 
+	public static enum ExecuteState {
+		/** Successfully executed request(s) */
+		OK,
+		/** No available requests -> no operation */
+		NO_OP,
+		/** Executing request(s) failed */
+		ERROR;
+	}
 }
