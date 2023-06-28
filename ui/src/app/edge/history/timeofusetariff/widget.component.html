@@ -1,10 +1,10 @@
-<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/timeOfUseTariffDischargeChart"
+<ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/timeOfUseTariffChart"
   *ngIf="component && edge">
   <ion-item lines="full" color="light">
     <ion-icon slot="start" color="primary" size="large" name="cloud-outline"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
-  <ng-container *ngIf="component.factoryId  === 'Controller.Ess.Time-Of-Use-Tariff'; else discharge">
+  <ng-container *ngIf="component.properties.controlMode  === 'CHARGE_CONSUMPTION'; else discharge">
     <ion-card-content>
       <table class="full_width">
         <tr>

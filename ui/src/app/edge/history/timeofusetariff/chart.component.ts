@@ -11,10 +11,10 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
 
 @Component({
-  selector: 'timeOfUseTariffDischargeChart',
+  selector: 'timeOfUseTariffChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+export class TimeOfUseTariffChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
@@ -33,7 +33,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     protected translate: TranslateService,
     private route: ActivatedRoute
   ) {
-    super("timeOfUseTariffDischarge-chart", service, translate);
+    super("timeOfUseTariff-chart", service, translate);
   }
 
   ngOnInit() {
@@ -138,8 +138,8 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             borderColor: 'rgba(0,0,200,0.9)'
           });
 
-          // Show charge data only for the new controller.
-          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
+          // Show data based on control modes selected.
+          if (this.component.properties.controlMode === 'CHARGE_CONSUMPTION') {
             // Set dataset for Quarterly Prices being charged.
             datasets.push({
               type: 'bar',

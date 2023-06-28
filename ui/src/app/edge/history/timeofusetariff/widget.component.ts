@@ -5,15 +5,15 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/share
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
-    selector: TimeOfUseTariffDischargeWidgetComponent.SELECTOR,
+    selector: TimeOfUseTariffWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
+export class TimeOfUseTariffWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    private static readonly SELECTOR = "timeOfUseTariffDischargeWidget";
+    private static readonly SELECTOR = "timeOfUseTariffWidget";
 
     public delayedActiveTimeOverPeriod: number = null;
     public chargedActiveTimeOverPeriod: number = null;

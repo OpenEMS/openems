@@ -59,9 +59,9 @@ import { SocStorageChartComponent } from './storage/socchart.component';
 import { StorageChartOverviewComponent } from './storage/storagechartoverview/storagechartoverview.component';
 import { StorageTotalChartComponent } from './storage/totalchart.component';
 import { StorageComponent } from './storage/widget.component';
-import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
-import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
-import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { TimeOfUseTariffChartComponent } from './timeofusetariff/chart.component';
+import { TimeOfUseTariffChartOverviewComponent } from './timeofusetariff/timeofusetariffoverview/timeofusetariffchartoverview.component';
+import { TimeOfUseTariffWidgetComponent } from './timeofusetariff/widget.component';
 
 @NgModule({
   imports: [
@@ -126,9 +126,9 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,
-    TimeOfUseTariffDischargeChartComponent,
-    TimeOfUseTariffDischargeChartOverviewComponent,
-    TimeOfUseTariffDischargeWidgetComponent,
+    TimeOfUseTariffChartComponent,
+    TimeOfUseTariffChartOverviewComponent,
+    TimeOfUseTariffWidgetComponent,
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
