@@ -1,5 +1,11 @@
 = ESS Time-of-Use Tariff
 
-This Controller optimizes the behavior of an energy storage system in combination with a Time-Of-Use (ToU) Tariff.
+This Controller optimizes the performance of an energy storage system (ESS) in conjunction with a Time-Of-Use (ToU) Tariff provider. 
 
-This controller works every 15 minutes and sets the schedule of the ESS for the rest of the day in every 15 minute intervals.
+It operates every 15 minutes, setting the ESS schedule for the remaining day in 15-minute intervals. 
+
+Additionally, the controller includes two Control modes for flexible operation.
+
+	- CHARGE_CONSUMPTION: This mode is suitable for markets where charging from the grid is allowed and preferred.
+	
+	- DELAY_DISCHARGE: This mode is designed for markets where charging from the grid is restricted, and the discharge is delayed accordingly.
