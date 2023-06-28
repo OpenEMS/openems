@@ -21,4 +21,4 @@ import { ModalComponent } from "./modal/modal";
         FlatComponent
     ]
 })
-export class Controller_Ess_TimeOfUseTariff_Discharge { }
+export class Controller_Ess_TimeOfUseTariff { }
