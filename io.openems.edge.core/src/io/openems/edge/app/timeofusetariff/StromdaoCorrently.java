@@ -77,7 +77,6 @@ public class StromdaoCorrently extends
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
 				}));
-		;
 
 		private final AppDef<? super StromdaoCorrently, ? super Property, ? super Type.Parameter.BundleParameter> def;
 

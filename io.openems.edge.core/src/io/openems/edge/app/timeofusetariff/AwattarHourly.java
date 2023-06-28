@@ -87,7 +87,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 		@Override
 		public Function<GetParameterValues<AwattarHourly>, BundleParameter> getParamter() {
 			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
-		};
+		}
 	}
 
 	@Activate
