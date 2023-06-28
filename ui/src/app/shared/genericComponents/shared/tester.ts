@@ -1,4 +1,3 @@
-
 import { CurrentData } from "../../shared";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
@@ -259,7 +258,7 @@ export namespace OeFormlyViewTester {
       return null;
     }
 
-    let currentData: CurrentData = { thisComponent: {}, allComponents: context };
+    let currentData: CurrentData = { allComponents: context };
 
     // Apply converter
     let value: string = field.value
