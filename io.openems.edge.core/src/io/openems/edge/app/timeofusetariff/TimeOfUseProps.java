@@ -66,9 +66,7 @@ public final class TimeOfUseProps {
 				.addProperty("ess.id", "ess0")//
 				.addProperty("controlMode", mode);
 
-		var providerProperties = JsonUtils.buildJsonObject();
-
-		providerProperties.onlyIf(additionalProperties != null, additionalProperties);
+		var providerProperties = JsonUtils.buildJsonObject().onlyIf(additionalProperties != null, additionalProperties);
 
 		return Lists.newArrayList(//
 				new EdgeConfig.Component("ctrlTimeOfUseTariff0", controllerAlias, "Controller.Ess.Time-Of-Use-Tariff",

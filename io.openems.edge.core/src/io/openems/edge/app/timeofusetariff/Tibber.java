@@ -61,7 +61,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	public static enum Property implements Type<Property, Tibber, Type.Parameter.BundleParameter>, Nameable {
 		// Components
 		CTRL_ESS_TIME_OF_USE_TARIF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
-		TIME_OF_USE_TARIF_ID(AppDef.componentId("timeOfUseTariff0")), //
+		TIME_OF_USE_TARIF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
@@ -111,7 +111,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 		return (t, p, l) -> {
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
-			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID);
+			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_PROVIDER_ID);
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_ID);
 			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
