@@ -14,7 +14,7 @@ import { StorageSectionComponent } from './chart/section/storage.component';
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
-    SharedModule,
+    SharedModule
   ],
   declarations: [
     ConsumptionSectionComponent,
@@ -22,7 +22,7 @@ import { StorageSectionComponent } from './chart/section/storage.component';
     EnergymonitorComponent,
     GridSectionComponent,
     ProductionSectionComponent,
-    StorageSectionComponent,
+    StorageSectionComponent
   ],
   exports: [
     EnergymonitorComponent

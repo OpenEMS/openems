@@ -147,7 +147,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
         controller: this.controller,
         edge: this.edge,
         componentId: this.componentId,
-        evcsComponent: this.evcsComponent,
+        evcsComponent: this.evcsComponent
         // getState: this.getState
       }
     });

@@ -1,5 +1,7 @@
 package io.openems.edge.meter.api;
 
+import java.util.function.Function;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
@@ -7,7 +9,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 
 @ProviderType
-public interface SinglePhaseMeter extends AsymmetricMeter {
+public interface SinglePhaseMeter extends ElectricityMeter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -25,37 +27,53 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 	}
 
 	/**
-	 * Gets the Phase this ESS is connected to.
+	 * Gets the Phase this Meter is connected to.
 	 *
 	 * @return the Phase
 	 */
 	public SinglePhase getPhase();
 
 	/**
-	 * Initializes Channel listeners. Copies the Active-Power Phase-Channel value to
-	 * Active-Power Channel.
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
+	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
+	 * {@link ChannelId#ACTIVE_POWER} by evaluating the configured
+	 * {@link SinglePhase} via {@link SinglePhaseMeter#getPhase()}.
 	 *
-	 * @param meter the {@link AsymmetricMeter}
-	 * @param phase the {@link SinglePhase}
+	 * @param meter the {@link SinglePhaseMeter}
 	 */
-	public static void initializeCopyPhaseChannel(AsymmetricMeter meter, SinglePhase phase) {
-		switch (phase) {
-		case L1:
-			meter.getActivePowerL1Channel().onSetNextValue(value -> {
-				meter._setActivePower(value.get());
-			});
-			break;
-		case L2:
-			meter.getActivePowerL2Channel().onSetNextValue(value -> {
-				meter._setActivePower(value.get());
-			});
-			break;
-		case L3:
-			meter.getActivePowerL3Channel().onSetNextValue(value -> {
-				meter._setActivePower(value.get());
-			});
-			break;
-		}
+	public static void calculateSinglePhaseFromActivePower(SinglePhaseMeter meter) {
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(meter, SinglePhaseMeter::getPhase);
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Use this method if it is not known at compile time, that the
+	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
+	 * implementing {@link SinglePhaseMeter}.
+	 * 
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
+	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
+	 * {@link ChannelId#ACTIVE_POWER} by evaluating the provided
+	 * {@link SinglePhase}.
+	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
+	 * @param meter         a {@link ElectricityMeter}
+	 * @param phaseProvider a provider for {@link SinglePhase}
+	 */
+	public static <METER extends ElectricityMeter> void calculateSinglePhaseFromActivePower(METER meter,
+			Function<METER, SinglePhase> phaseProvider) {
+		meter.getActivePowerChannel().onSetNextValue(value -> {
+			var phase = phaseProvider.apply(meter);
+			meter.getActivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
+			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+		});
 	}
 
 	/**

@@ -34,7 +34,7 @@ import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -93,7 +93,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected ManagedSymmetricEss ess;
 
 	@Reference
-	protected SymmetricMeter meter;
+	protected ElectricityMeter meter;
 
 	@Reference
 	private ConfigurationAdmin cm;

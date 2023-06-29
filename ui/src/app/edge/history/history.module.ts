@@ -9,6 +9,7 @@ import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common_Autarchy } from './common/autarchy/Autarchy';
 import { Common_Production } from './common/production/Production';
+import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -42,9 +43,6 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
 import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
-import { SelfconsumptionChartComponent } from './selfconsumption/chart.component';
-import { SelfconsumptionChartOverviewComponent } from './selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
-import { SelfconsumptionWidgetComponent } from './selfconsumption/widget.component';
 import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
 import { SinglethresholdChartOverviewComponent } from './singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { SinglethresholdWidgetComponent } from './singlethreshold/widget.component';
@@ -65,10 +63,11 @@ import { Common_Consumption } from './common/consumption/Consumption';
     SharedModule,
     Common_Autarchy,
     Common_Production,
-    Common_Consumption
+    Common_Consumption,
+Common_Selfconsumption
   ],
   entryComponents: [
-    EnergyModalComponent,
+    EnergyModalComponent
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -102,9 +101,6 @@ import { Common_Consumption } from './common/consumption/Consumption';
     HeatPumpChartOverviewComponent,
     HeatpumpWidgetComponent,
     HistoryComponent,
-    SelfconsumptionChartComponent,
-    SelfconsumptionChartOverviewComponent,
-    SelfconsumptionWidgetComponent,
     SellToGridLimitChartComponent,
     SinglethresholdChartComponent,
     SinglethresholdChartOverviewComponent,
@@ -125,7 +121,7 @@ import { Common_Consumption } from './common/consumption/Consumption';
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent,
+    HistoryParentComponent
   ]
 })
 export class HistoryModule { }

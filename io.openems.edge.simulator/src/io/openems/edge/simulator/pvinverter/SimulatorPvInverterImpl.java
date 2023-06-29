@@ -22,8 +22,8 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
@@ -42,12 +42,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class SimulatorPvInverterImpl extends AbstractOpenemsComponent implements SimulatorPvInverter,
-		ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -61,7 +61,7 @@ public class SimulatorPvInverterImpl extends AbstractOpenemsComponent implements
 	public SimulatorPvInverterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SimulatorPvInverter.ChannelId.values() //
 		);

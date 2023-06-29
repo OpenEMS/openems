@@ -23,7 +23,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }

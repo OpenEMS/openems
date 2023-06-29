@@ -31,9 +31,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,8 +40,8 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent implements MeterMicrocareSdm630,
-		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
+		implements MeterMicrocareSdm630, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -59,10 +58,12 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent imp
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				MeterMicrocareSdm630.ChannelId.values() //
 		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate
@@ -90,81 +91,80 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent imp
 		final var offset = 30001;
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,
-						m(new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
-								.byteOrder(ByteOrder.BIG_ENDIAN))
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, SCALE_FACTOR_3)//
-								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_3)//
-								.build(),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
+								new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
+										.byteOrder(ByteOrder.BIG_ENDIAN),
+								SCALE_FACTOR_3),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(30003 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
 								new FloatDoublewordElement(30005 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L1,
+						m(ElectricityMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(30007 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2,
+						m(ElectricityMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(30009 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3,
+						m(ElectricityMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(30011 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
 						new DummyRegisterElement(30019 - offset, 30024 - offset),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1,
 								new FloatDoublewordElement(30025 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2,
 								new FloatDoublewordElement(30027 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3,
 								new FloatDoublewordElement(30029 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
 						new DummyRegisterElement(30031 - offset, 30048 - offset),
-						m(SymmetricMeter.ChannelId.CURRENT,
+						m(ElectricityMeter.ChannelId.CURRENT,
 								new FloatDoublewordElement(30049 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
 						new DummyRegisterElement(30051 - offset, 30052 - offset),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(30053 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
 						new DummyRegisterElement(30055 - offset, 30060 - offset),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 								new FloatDoublewordElement(30061 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
 						new DummyRegisterElement(30063 - offset, 30070 - offset),
-						m(SymmetricMeter.ChannelId.FREQUENCY,
+						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30073 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30075 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
@@ -187,8 +187,7 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent imp
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 }

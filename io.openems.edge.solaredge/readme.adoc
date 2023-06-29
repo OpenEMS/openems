@@ -2,8 +2,7 @@
 
 Implementation of the SolarEdge PV inverters.
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.solaredge[Source Code icon:github[]]

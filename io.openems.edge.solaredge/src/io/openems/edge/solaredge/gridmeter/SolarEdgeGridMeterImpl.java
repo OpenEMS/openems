@@ -25,9 +25,8 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -42,7 +41,7 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
-		implements SolarEdgeGridMeter, AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
+		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
@@ -70,8 +69,7 @@ public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				SolarEdgeGridMeter.ChannelId.values() //
 		);
 	}

@@ -8,7 +8,7 @@ import { Edge, Service } from "../../shared";
 
 @Component({
   selector: 'oe-chart',
-  templateUrl: './chart.html',
+  templateUrl: './chart.html'
 })
 export class ChartComponent implements OnInit, AfterViewChecked {
 
@@ -63,7 +63,7 @@ export class ChartComponent implements OnInit, AfterViewChecked {
       componentProps: {
         showPhases: this.showPhases,
         showTotal: this.showTotal
-      },
+      }
     });
 
     await popover.present();

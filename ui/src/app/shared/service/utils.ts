@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesDataRequest } from '../jsonrpc/request/queryHistoricTimeseriesDataRequest';
@@ -229,38 +230,6 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_VOLT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.0-0') + ' V';
-    } else {
-      return '0 V';
-    }
-  };
-
-  /**
-   * Converts a value in Milliampere [mA] to Ampere[A].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_TO_CURRENT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
-    } else {
-      return '0 A';
-    }
-  };
-
-  /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -422,19 +391,19 @@ export class Utils {
    * @param soc the state-of-charge
    * @returns the image path
    */
-  public static getStorageSocImage(soc: number | null): string {
+  public static getStorageSocSegment(soc: number | null): string {
     if (!soc || soc < 10) {
-      return 'storage_0.png';
+      return '0';
     } else if (soc < 30) {
-      return 'storage_20.png';
+      return '20';
     } else if (soc < 50) {
-      return 'storage_40.png';
+      return '40';
     } else if (soc < 70) {
-      return 'storage_60.png';
+      return '60';
     } else if (soc < 90) {
-      return 'storage_80.png';
+      return '80';
     } else {
-      return 'storage_100.png';
+      return '100';
     }
   }
 
@@ -733,6 +702,14 @@ export namespace HistoryUtils {
         return value;
       } else {
         return 0;
+      }
+    };
+
+    export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
+      if (value == null) {
+        return null;
+      } else {
+        return Math.abs(Math.min(0, value));
       }
     };
   }

@@ -1,5 +1,9 @@
 package io.openems.edge.controller.chp.soc;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.CUMULATED_SECONDS;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -11,7 +15,10 @@ public interface ControllerChpSoc extends Controller, OpenemsComponent {
 				.initialValue(Mode.AUTOMATIC) //
 				.text("Configured Mode")), //
 		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine"));
+				.text("Current State of State-Machine")),
+		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS) //
+				.persistencePriority(HIGH));
 
 		private final Doc doc;
 

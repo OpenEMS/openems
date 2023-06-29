@@ -2,8 +2,7 @@ import { ChannelAddress } from "../../../shared/type/channeladdress";
 import { format } from 'date-fns';
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
-import { DefaultTypes } from "../../service/defaulttypes";
-import { Resolution, Unit } from "src/app/edge/history/shared";
+import { Resolution } from "src/app/edge/history/shared";
 
 /**
  * Represents a JSON-RPC Request to query Historic Timeseries Data.

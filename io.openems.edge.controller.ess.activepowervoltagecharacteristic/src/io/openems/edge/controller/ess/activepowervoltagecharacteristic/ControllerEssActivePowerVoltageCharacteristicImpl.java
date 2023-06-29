@@ -24,7 +24,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,7 +41,7 @@ public class ControllerEssActivePowerVoltageCharacteristicImpl extends AbstractO
 	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
+	private ElectricityMeter meter;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;

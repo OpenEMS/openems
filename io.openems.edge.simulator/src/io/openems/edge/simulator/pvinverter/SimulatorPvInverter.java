@@ -6,12 +6,12 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public interface SimulatorPvInverter
-		extends ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		extends ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //

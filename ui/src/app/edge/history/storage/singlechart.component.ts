@@ -129,7 +129,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
@@ -186,7 +186,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             ];
             resolve(result);
         });

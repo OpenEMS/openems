@@ -1,9 +1,9 @@
-<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen">
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen && show">
     <tr *ngIf="textIndent" [style.text-indent]="textIndent">
 
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">
-            <ng-container *ngIf="name">{{ name }}</ng-container>
+            <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
         </td>
 
         <!-- Value of Parameter on the right side -->

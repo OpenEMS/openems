@@ -21,7 +21,7 @@ import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -62,7 +62,7 @@ public class ControllerAsymmetricPhaseRectificationImpl extends AbstractOpenemsC
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		AsymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)

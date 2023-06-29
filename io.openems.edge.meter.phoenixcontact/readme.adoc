@@ -2,7 +2,6 @@
 
 Implemented Natures
 
-- SymmetricMeter
-- AsymmetricMeter
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.phonixcontact[Source Code icon:github[]]

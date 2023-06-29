@@ -23,7 +23,7 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket,
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {
@@ -60,7 +60,7 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
             thursday: new FormControl(this.component.properties.thursday),
             friday: new FormControl(this.component.properties.friday),
             saturday: new FormControl(this.component.properties.saturday),
-            sunday: new FormControl(this.component.properties.sunday),
+            sunday: new FormControl(this.component.properties.sunday)
         });
     }
 

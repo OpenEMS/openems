@@ -26,8 +26,8 @@ import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, MeterPlexlogDatalogger, ModbusComponent, OpenemsComponent {
+		implements ElectricityMeter, MeterPlexlogDatalogger, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -48,8 +48,10 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				MeterPlexlogDatalogger.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values() //
+				ElectricityMeter.ChannelId.values() //
 		);
+
+		ElectricityMeter.calculatePhasesFromActivePower(this);
 	}
 
 	@Activate
@@ -74,14 +76,15 @@ public class MeterPlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final var modbusProtocol = new ModbusProtocol(this, new FC4ReadInputRegistersTask(0, Priority.HIGH, //
-				this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
-				new DummyRegisterElement(2, 7), //
-				this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
-				this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
-		));
+		final var modbusProtocol = new ModbusProtocol(this, //
+				new FC4ReadInputRegistersTask(0, Priority.HIGH, //
+						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0)), //
+						new DummyRegisterElement(2, 7), //
+						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_PRODUCTION, new SignedDoublewordElement(8)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.PRODUCTION_EXPONENT, new SignedWordElement(10)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.TOTAL_CONSUMPTION, new SignedDoublewordElement(11)), //
+						this.m(MeterPlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
+				));
 
 		this.getTotalProductionChannel().onSetNextValue(value -> {
 			doIfBothPresent(value, this.getProductionExponent(), this::calculateActiveProductionEnergy);

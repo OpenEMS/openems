@@ -21,9 +21,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements a meter using values from a gridcon.
@@ -38,7 +37,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class MeterGridconImpl extends AbstractOpenemsComponent
-		implements MeterGridcon, SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave, EventHandler {
+		implements MeterGridcon, ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -52,8 +51,7 @@ public class MeterGridconImpl extends AbstractOpenemsComponent
 	public MeterGridconImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				MeterGridcon.ChannelId.values() //
 		);
 	}
@@ -125,8 +123,7 @@ public class MeterGridconImpl extends AbstractOpenemsComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 }

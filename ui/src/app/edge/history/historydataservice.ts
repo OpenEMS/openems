@@ -33,12 +33,11 @@ export class HistoryDataService extends DataService {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(date.from, date.to, Object.values(this.channelAddresses)))
               .then((response) => {
                 let allComponents = {};
-                let thisComponent = {};
                 let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
                 for (let [key, value] of Object.entries(result.data)) {
                   allComponents[key] = value;
                 }
-                this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
+                this.currentValue.next({ allComponents: allComponents });
               }).catch(err => console.warn(err))
               .finally(() => {
               });

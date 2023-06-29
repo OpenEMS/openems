@@ -14,7 +14,7 @@ import { environment } from 'src/environments';
 export class RegistrationModalComponent implements OnInit {
 
   protected formGroup: FormGroup;
-  protected activeSegment: string = "owner";
+  protected activeSegment: string = "installer";
   protected readonly countries = COUNTRY_OPTIONS(this.translate);
 
   constructor(
@@ -117,7 +117,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     } else {
       return this.formBuilder.group({
@@ -131,7 +131,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     }
   }

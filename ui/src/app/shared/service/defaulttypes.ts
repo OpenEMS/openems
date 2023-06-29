@@ -95,7 +95,7 @@ export module DefaultTypes {
 
     constructor(
       public from: Date = new Date(),
-      public to: Date = new Date(),
+      public to: Date = new Date()
     ) { }
 
     public getText(translate: TranslateService): string {

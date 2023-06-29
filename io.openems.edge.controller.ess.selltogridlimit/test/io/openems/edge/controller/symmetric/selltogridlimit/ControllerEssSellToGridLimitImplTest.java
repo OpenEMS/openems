@@ -7,7 +7,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class ControllerEssSellToGridLimitImplTest {
 
@@ -28,7 +28,7 @@ public class ControllerEssSellToGridLimitImplTest {
 		new ControllerTest(new ControllerEssSellToGridLimitImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
-				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //

@@ -1,6 +1,5 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Service, Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',

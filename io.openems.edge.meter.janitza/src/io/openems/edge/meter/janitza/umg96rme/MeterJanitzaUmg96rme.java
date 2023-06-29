@@ -4,8 +4,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
  * Implements the Janitza UMG 96RM-E power analyzer.
@@ -13,8 +12,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
  * <p>
  * https://www.janitza.com/umg-96rm-e.html
  */
-public interface MeterJanitzaUmg96rme
-		extends SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public interface MeterJanitzaUmg96rme extends ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

@@ -26,8 +26,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.fenecon.mini.FeneconMiniConstants;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -44,10 +44,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent implements FeneconMiniPvMeter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -65,9 +65,12 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				FeneconMiniPvMeter.ChannelId.values() //
 		);
+
+		// Automatically calculate L1/l2/L3 values from sum
+		ElectricityMeter.calculatePhasesFromActivePower(this);
 	}
 
 	@Activate
@@ -88,7 +91,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4006, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
 	}
 
 	@Override

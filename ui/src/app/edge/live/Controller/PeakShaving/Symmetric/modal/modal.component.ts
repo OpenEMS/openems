@@ -22,7 +22,7 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket,
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {

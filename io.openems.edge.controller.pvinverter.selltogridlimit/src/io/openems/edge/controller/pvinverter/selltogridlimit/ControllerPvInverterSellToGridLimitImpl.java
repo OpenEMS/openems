@@ -14,8 +14,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -64,7 +63,7 @@ public class ControllerPvInverterSellToGridLimitImpl extends AbstractOpenemsComp
 	 * @return the required power
 	 * @throws InvalidValueException on error
 	 */
-	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter,
+	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, ElectricityMeter meter,
 			boolean asymmetricMode) throws InvalidValueException {
 
 		/*
@@ -72,13 +71,11 @@ public class ControllerPvInverterSellToGridLimitImpl extends AbstractOpenemsComp
 		 */
 		var gridPower = 0;
 		var maximumSellToGridPower = this.config.maximumSellToGridPower();
-		if (asymmetricMode && meter instanceof AsymmetricMeter) {
-			var asymmetricMeter = (AsymmetricMeter) meter;
-
+		if (asymmetricMode) {
 			// TODO: Optimize for Single-Phase PV-Inverter
-			var gridPowerL1 = asymmetricMeter.getActivePowerL1().getOrError();
-			var gridPowerL2 = asymmetricMeter.getActivePowerL2().getOrError();
-			var gridPowerL3 = asymmetricMeter.getActivePowerL3().getOrError();
+			var gridPowerL1 = meter.getActivePowerL1().getOrError();
+			var gridPowerL2 = meter.getActivePowerL2().getOrError();
+			var gridPowerL3 = meter.getActivePowerL3().getOrError();
 
 			var minPowerOnPhase = Math.min(Math.min(gridPowerL1, gridPowerL2), gridPowerL3);
 			gridPower = minPowerOnPhase * 3;
@@ -94,7 +91,7 @@ public class ControllerPvInverterSellToGridLimitImpl extends AbstractOpenemsComp
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricPvInverter pvInverter = this.componentManager.getComponent(this.config.pvInverter_id());
-		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		// Calculates required charge/discharge power
 		var calculatedPower = this.calculateRequiredPower(pvInverter, meter, this.config.asymmetricMode());

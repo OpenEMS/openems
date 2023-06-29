@@ -6,6 +6,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,9 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -29,9 +35,11 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerChannelThresholdImpl extends AbstractOpenemsComponent
-		implements ControllerChannelThreshold, Controller, OpenemsComponent {
+		implements ControllerChannelThreshold, Controller, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerChannelThresholdImpl.class);
+	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
+			ControllerChannelThreshold.ChannelId.CUMULATED_ACTIVE_TIME);
 
 	@Reference
 	private ComponentManager componentManager;
@@ -49,6 +57,9 @@ public class ControllerChannelThresholdImpl extends AbstractOpenemsComponent
 	private boolean applyHighHysteresis = true;
 	/** Should the hysteresis be applied on passing low threshold?. */
 	private boolean applyLowHysteresis = true;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerChannelThresholdImpl() {
 		super(//
@@ -237,24 +248,36 @@ public class ControllerChannelThresholdImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Helper function to switch an output if it was not switched before.
+	 * Helper function to switch an output if it was not switched before; Updates
+	 * the cumulated active time channel.
 	 *
-	 * @param value true to switch ON, false to switch ON; is inverted if
+	 * @param value true to switch ON, false to switch OFF; is inverted if
 	 *              'invertOutput' config is set
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
+		var outputValue = value ^ this.invertOutput;
+
+		// Update the cumulated active time.
+		this.calculateCumulatedActiveTime.update(outputValue);
+
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
 			var currentValueOpt = outputChannel.value().asOptional();
-			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
-				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
-						+ (value ^ this.invertOutput ? "ON" : "OFF") + ".");
-				outputChannel.setNextWriteValue(value ^ this.invertOutput);
+			if (!currentValueOpt.isPresent() || currentValueOpt.get() != outputValue) {
+				this.logInfo(this.log,
+						"Set output [" + outputChannel.address() + "] " + (outputValue ? "ON" : "OFF") + ".");
+				outputChannel.setNextWriteValue(outputValue);
 			}
+
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());
 		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

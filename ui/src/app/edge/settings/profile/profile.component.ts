@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PopoverController, ViewWillEnter } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
@@ -31,7 +31,7 @@ export class ProfileComponent implements OnInit {
     private service: Service,
     private route: ActivatedRoute,
     public popoverController: PopoverController,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) { }
 
   public ngOnInit() {

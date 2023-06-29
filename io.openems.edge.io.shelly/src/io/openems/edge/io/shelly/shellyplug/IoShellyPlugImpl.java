@@ -22,8 +22,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyApi;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.SinglePhase;
+import io.openems.edge.meter.api.SinglePhaseMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,24 +38,27 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPlugImpl extends AbstractOpenemsComponent
-		implements IoShellyPlug, DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements IoShellyPlug, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlugImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private ShellyApi shellyApi = null;
 	private MeterType meterType = null;
+	private SinglePhase phase = null;
 
 	public IoShellyPlugImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				IoShellyPlug.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlug.ChannelId.RELAY) //
 		};
+
+		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
 
 	@Activate
@@ -61,6 +66,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.shellyApi = new ShellyApi(config.ip());
 		this.meterType = config.type();
+		this.phase = config.phase();
 	}
 
 	@Override
@@ -163,6 +169,11 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.meterType;
+	}
+
+	@Override
+	public SinglePhase getPhase() {
+		return this.phase;
 	}
 
 }
