@@ -85,10 +85,12 @@ public class TasksSupplierImpl implements TasksSupplier {
 		});
 		return new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
-						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast)
+						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+						// Sort HIGH priority to the end
+						.sorted((a, b) -> b.getPriority().compareTo(a.getPriority())) //
 						.collect(Collectors.toCollection(LinkedList::new)),
 				tasks.values().stream().flatMap(LinkedList::stream) //
-						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast)
+						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast) //
 						.collect(Collectors.toCollection(LinkedList::new)));
 	}
 

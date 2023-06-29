@@ -51,20 +51,20 @@ public class TasksSupplierImplTest {
 		// 1st Cycle
 		var tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
-		assertTrue(tasks.reads().contains(RT_H_1));
-		assertTrue(tasks.reads().contains(RT_H_2));
-		assertTrue(tasks.reads().contains(RT_L_1));
+		assertEquals(RT_L_1, tasks.reads().get(0));
+		assertEquals(RT_H_1, tasks.reads().get(1));
+		assertEquals(RT_H_2, tasks.reads().get(2));
+		assertEquals(WT_1, tasks.writes().get(0));
 		assertFalse(tasks.reads().contains(RT_L_2)); // -> not
-		assertTrue(tasks.writes().contains(WT_1));
 
 		// 2nd Cycle
 		tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
-		assertTrue(tasks.reads().contains(RT_H_1));
-		assertTrue(tasks.reads().contains(RT_H_2));
+		assertEquals(RT_L_2, tasks.reads().get(0));
+		assertEquals(RT_H_1, tasks.reads().get(1));
+		assertEquals(RT_H_2, tasks.reads().get(2));
+		assertEquals(WT_1, tasks.writes().get(0));
 		assertFalse(tasks.reads().contains(RT_L_1)); // -> not
-		assertTrue(tasks.reads().contains(RT_L_2));
-		assertTrue(tasks.writes().contains(WT_1));
 
 		// Add to defective
 		defectiveComponents.add(CMP);
