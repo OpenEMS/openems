@@ -41,44 +41,27 @@ public abstract class AbstractReadTask<//
 	@Override
 	public ExecuteState execute(AbstractModbusBridge bridge) {
 		try {
-			var response = this.parseResponse(//
-					this.executeRequest(bridge, //
-							createModbusRequest(this.startAddress, this.length)));
-			validateResponse(response, this.length);
-			this.fillElements(response, (message) -> this.logError(bridge, this.log, message));
+			var response = this.executeRequest(bridge, //
+					this.createModbusRequest(this.startAddress, this.length));
+			// On error a log message has already been logged
+
+			try {
+				var result = this.parseResponse(response);
+				validateResponse(result, this.length);
+				this.fillElements(result, (message) -> this.logError(this.log, "", message));
+
+			} catch (OpenemsException e1) {
+				this.logError(this.log, "", "Execute failed: " + e1.getMessage());
+				throw e1;
+			}
 			return ExecuteState.OK;
 
 		} catch (OpenemsException e) {
 			// Invalidate Elements
 			Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
 
-			this.logError(bridge, this.log, "Execute failed: " + e.getMessage());
 			return ExecuteState.ERROR;
 		}
-
-//		// debug output
-//		switch (this.getLogVerbosity(bridge)) {
-//		case READS_AND_WRITES:
-//			this.logInfo(bridge, //
-//					"[" + unitId + ":" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "]: " //
-//							+ Arrays.stream(result).map(r -> {
-//								if (r instanceof InputRegister) {
-//									return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
-//											.replace(' ', '0');
-//								}
-//								if (r instanceof Boolean) {
-//									return (Boolean) r ? "x" : "-";
-//								} else {
-//									return r.toString();
-//								}
-//							}) //
-//									.collect(Collectors.joining(" ")));
-//			break;
-//		case WRITES:
-//		case DEV_REFACTORING:
-//		case NONE:
-//			break;
-//		}
 	}
 
 	/**
@@ -109,19 +92,18 @@ public abstract class AbstractReadTask<//
 		for (var element : this.elements) {
 			if (this.elementClazz.isInstance(element)) {
 				try {
-					this.doElementSetInput((ELEMENT) element, position, response);
+					this.handleResponse((ELEMENT) element, position, response);
 				} catch (OpenemsException e) {
 					logError.accept("Unable to fill Modbus Element. " //
-							+ ModbusElement.toString(element) //
-							+ ": " + e.getMessage());
+							+ element.toString() + " Error: " + e.getMessage());
 				}
 			} else {
 				logError.accept("Wrong type while filling Modbus Element. " //
-						+ ModbusElement.toString(element) + " " //
-						+ "Expected [" + elementClazz.getSimpleName() + "] " //
+						+ element.toString() + " " //
+						+ "Expected [" + this.elementClazz.getSimpleName() + "] " //
 						+ "Got [" + element.getClass().getSimpleName() + "]");
 			}
-			position = this.increasePosition(position, element);
+			position = this.calculateNextPosition(element, position);
 		}
 	}
 
@@ -130,9 +112,24 @@ public abstract class AbstractReadTask<//
 		return this.priority;
 	}
 
-	protected abstract int increasePosition(int position, ModbusElement<?> modbusElement);
+	/**
+	 * Handle a Response, e.g. set the internal value.
+	 * 
+	 * @param element  the {@link ModbusElement}
+	 * @param position the current position
+	 * @param response the converted {@link ModbusResponse} values
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void handleResponse(ELEMENT element, int position, T[] response) throws OpenemsException;
 
-	protected abstract void doElementSetInput(ELEMENT element, int position, T[] response) throws OpenemsException;
+	/**
+	 * Calculate the position of the next Element.
+	 * 
+	 * @param position      current position
+	 * @param modbusElement current Element
+	 * @return next position
+	 */
+	protected abstract int calculateNextPosition(ModbusElement<?> modbusElement, int position);
 
 	/**
 	 * Factory for a {@link ModbusRequest}.

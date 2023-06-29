@@ -127,7 +127,19 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 
 	@Override
 	public String toString() {
-		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName());
+		sb.append("type=");
+		sb.append(this.type.name());
+		sb.append(";ref=");
+		sb.append(this.startAddress);
+		sb.append("/0x");
+		sb.append(Integer.toHexString(this.startAddress));
+		if (this.isDebug) {
+			sb.append(";DEBUG");
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override

@@ -18,7 +18,9 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class CycleTasksManagerTest {
 
-	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT_CALLBACK = (cycleTimeIsTooShort) -> {
+	public static final Consumer<Boolean> CYCLE_TIME_IS_TOO_SHORT = (cycleTimeIsTooShort) -> {
+	};
+	public static final Consumer<Long> CYCLE_DELAY = (cycleDelay) -> {
 	};
 
 	private static final String CMP = "foo";
@@ -50,7 +52,7 @@ public class CycleTasksManagerTest {
 		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
 		var defectiveComponents = new DefectiveComponents();
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -135,7 +137,7 @@ public class CycleTasksManagerTest {
 		var defectiveComponents = new DefectiveComponents();
 		defectiveComponents.add(CMP);
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -165,7 +167,7 @@ public class CycleTasksManagerTest {
 		var tasksSupplier = new DummyTasksSupplier(cycle1);
 		var defectiveComponents = new DefectiveComponents();
 
-		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();

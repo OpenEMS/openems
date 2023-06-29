@@ -2,17 +2,30 @@ package io.openems.edge.bridge.modbus.api;
 
 public enum LogVerbosity {
 	/**
-	 * Show now logs.
+	 * Show no logs.
 	 */
 	NONE,
 	/**
-	 * Show logs for modbus write requests.
+	 * Show basic information in Controller.Debug.Log.
 	 */
-	WRITES,
+	DEBUG_LOG,
 	/**
-	 * Show verbose logs for modbus read and write requests.
+	 * Show logs for all read and write requests.
 	 */
 	READS_AND_WRITES,
-	// TODO Remove before release
-	DEV_REFACTORING;
+	/**
+	 * Show logs for all read and write requests, including actual hex values of
+	 * request and response.
+	 */
+	READS_AND_WRITES_VERBOSE,
+	/**
+	 * Show logs for all read and write requests, including actual duration time per
+	 * request.
+	 */
+	READS_AND_WRITES_DURATION,
+	/**
+	 * Show logs for all read and write requests, including actual duration time per
+	 * request & trace the internal Event-based State-Machine.
+	 */
+	READS_AND_WRITES_DURATION_TRACE_EVENTS;
 }

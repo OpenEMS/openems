@@ -20,20 +20,33 @@ public abstract class AbstractReadDigitalInputsTask<//
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusCoilElement element, int position, Boolean[] response)
-			throws OpenemsException {
+	protected void handleResponse(ModbusCoilElement element, int position, Boolean[] response) throws OpenemsException {
 		element.setInputCoil(response[position]);
 	}
 
 	@Override
-	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
+	protected int calculateNextPosition(ModbusElement<?> modbusElement, int position) {
 		return position + 1;
 	}
 
 	@Override
 	protected final Boolean[] parseResponse(RESPONSE response) throws OpenemsException {
-		return Utils.toBooleanArray(this.parseBitResponse(response));
+		return toBooleanArray(this.parseBitResponse(response));
 	}
 
 	protected abstract BitVector parseBitResponse(RESPONSE response) throws OpenemsException;
+
+	/**
+	 * Convert a {@link BitVector} to a {@link Boolean} array.
+	 * 
+	 * @param v the {@link BitVector}
+	 * @return the {@link Boolean} array
+	 */
+	protected static Boolean[] toBooleanArray(BitVector v) {
+		var bools = new Boolean[v.size()];
+		for (var i = 0; i < v.size(); i++) {
+			bools[i] = v.getBit(i);
+		}
+		return bools;
+	}
 }

@@ -27,23 +27,4 @@ public class FC5WriteCoilTask extends AbstractWriteTask.Single<WriteCoilRequest,
 			return null;
 		}
 	}
-
-//	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
-//			throws OpenemsException, ModbusException {
-//		// debug output
-//		switch (this.getLogVerbosity(bridge)) {
-//		case READS_AND_WRITES:
-//			bridge.logInfo(this.log, this.name //
-//					+ " [" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
-//					+ value);
-//			break;
-//		case WRITES:
-//		case DEV_REFACTORING:
-//		case NONE:
-//			break;
-//		}
-//
-//		var request = new WriteCoilRequest(startAddress, value);
-//		Utils.getResponse(WriteCoilResponse.class, request, unitId, bridge); // ignore actual result
-//	}
 }

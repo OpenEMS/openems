@@ -77,10 +77,4 @@ public interface ModbusElement<T> {
 	 * any references like listeners.
 	 */
 	public void deactivate();
-
-	public static String toString(ModbusElement<?> element) {
-		return "Address [" + element.getStartAddress() + "] " //
-				+ "Length [" + element.getLength() + "] " //
-				+ "Type [" + element.getType() + "]"; //
-	}
 }

@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-import org.slf4j.Logger;
 
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
@@ -46,6 +45,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
 			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
 			state -> this._setCycleTimeIsTooShort(state),
+			// Set ChannelId.CYCLE_DELAY
+			cycleDelay -> this._setCycleDelay(cycleDelay),
 			// LogVerbosity
 			this.logVerbosity //
 	);
@@ -64,9 +65,8 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
 			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
 		super.activate(context, id, alias, enabled);
-		this.logVerbosity.set(logVerbosity);
-		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
-		if (this.isEnabled()) {
+		this.applyConfig(logVerbosity, invalidateElementsAfterReadErrors);
+		if (enabled) {
 			this.worker.activate(id);
 		}
 	}
@@ -76,6 +76,28 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		super.deactivate();
 		this.worker.deactivate();
 		this.closeModbusConnection();
+	}
+
+	@Override
+	@Deprecated
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other modified() method.");
+	}
+
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled,
+			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
+		super.modified(context, id, alias, enabled);
+		this.applyConfig(logVerbosity, invalidateElementsAfterReadErrors);
+		if (enabled) {
+			this.worker.modified(id);
+		} else {
+			this.worker.deactivate();
+		}
+	}
+
+	private void applyConfig(LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
+		this.logVerbosity.set(logVerbosity);
+		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
 	}
 
 	/**
@@ -115,6 +137,17 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		}
 	}
 
+	@Override
+	public String debugLog() {
+		return switch (this.logVerbosity.get()) {
+		case NONE -> //
+			null;
+		case DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE,
+				READS_AND_WRITES_DURATION_TRACE_EVENTS -> //
+			"CycleDelay:" + this.getCycleDelay().asString(); //
+		};
+	}
+
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
 	 *
@@ -128,27 +161,18 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	public abstract void closeModbusConnection();
 
+	/**
+	 * Gets the configured {@link LogVerbosity}.
+	 * 
+	 * @return {@link LogVerbosity}
+	 */
 	public LogVerbosity getLogVerbosity() {
 		return this.logVerbosity.get();
 	}
 
-	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
-	@Override
-	protected void logWarn(Logger log, String message) {
-		super.logWarn(log, message);
-	}
-
-	@Override
-	protected void logError(Logger log, String message) {
-		super.logError(log, message);
-	}
-
 	/**
-	 * After how many errors should a element be invalidated?.
+	 * Gets the configured max number of errors before an element should be
+	 * invalidated?.
 	 *
 	 * @return value
 	 */

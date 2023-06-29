@@ -1,14 +1,8 @@
 package io.openems.edge.bridge.modbus.api.worker;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Stopwatch;
 
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -20,8 +14,8 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasks;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager;
-import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplierImpl;
 import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
+import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplierImpl;
 
 /**
  * The ModbusWorker schedules the execution of all Modbus-Tasks, like reading
@@ -37,13 +31,10 @@ import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
  */
 public class ModbusWorker extends AbstractImmediateWorker {
 
-	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
-
 	// Callbacks
 	private final Function<Task, ExecuteState> execute;
 	private final Consumer<ModbusElement<?>[]> invalidate;
 
-	private final AtomicReference<LogVerbosity> logVerbosity;
 	private final DefectiveComponents defectiveComponents;
 	private final TasksSupplierImpl tasksSupplier;
 	private final CycleTasksManager cycleTasksManager;
@@ -51,26 +42,28 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	/**
 	 * Constructor for {@link ModbusWorker}.
 	 * 
-	 * @param execute                     executes a {@link Task}; returns number of
-	 *                                    actually executed subtasks
-	 * @param invalidate                  invalidates the given
-	 *                                    {@link ModbusElement}s after read errors
-	 * @param cycleTimeIsTooShortCallback sets the
-	 *                                    {@link BridgeModbus.ChannelId#CYCLE_TIME_IS_TOO_SHORT}
-	 *                                    channel
-	 * @param logWarn                     logs a warning
-	 * @param logVerbosity                the configured {@link LogVerbosity}
+	 * @param execute                    executes a {@link Task}; returns number of
+	 *                                   actually executed subtasks
+	 * @param invalidate                 invalidates the given
+	 *                                   {@link ModbusElement}s after read errors
+	 * @param cycleTimeIsTooShortChannel sets the
+	 *                                   {@link BridgeModbus.ChannelId#CYCLE_TIME_IS_TOO_SHORT}
+	 *                                   channel
+	 * @param cycleDelayChannel          sets the
+	 *                                   {@link BridgeModbus.ChannelId#CYCLE_DELAY}
+	 *                                   channel
+	 * @param logVerbosity               the configured {@link LogVerbosity}
 	 */
 	public ModbusWorker(Function<Task, ExecuteState> execute, Consumer<ModbusElement<?>[]> invalidate,
-			Consumer<Boolean> cycleTimeIsTooShortCallback, AtomicReference<LogVerbosity> logVerbosity) {
+			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel,
+			AtomicReference<LogVerbosity> logVerbosity) {
 		this.execute = execute;
 		this.invalidate = invalidate;
-		this.logVerbosity = logVerbosity;
 
 		this.defectiveComponents = new DefectiveComponents();
 		this.tasksSupplier = new TasksSupplierImpl();
 		this.cycleTasksManager = new CycleTasksManager(this.tasksSupplier, this.defectiveComponents,
-				cycleTimeIsTooShortCallback, logVerbosity);
+				cycleTimeIsTooShortChannel, cycleDelayChannel, logVerbosity);
 	}
 
 	@Override
@@ -78,14 +71,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		var task = this.cycleTasksManager.getNextTask();
 
 		// execute the task
-		var stopwatch = Stopwatch.createStarted();
 		var result = this.execute.apply(task);
-		stopwatch.stop();
 
 		switch (result) {
 		case OK -> {
-			// TODO remove before merge
-			this.log("  Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			// no exception & at least one sub-task executed
 			this.markComponentAsDefective(task.getParent(), false);
 		}
@@ -101,19 +90,6 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		}
 		}
 
-	}
-
-	// TODO remove before release
-	private void log(String message) {
-		switch (this.logVerbosity.get()) {
-		case DEV_REFACTORING:
-			this.log.info(message);
-			break;
-		case NONE:
-		case READS_AND_WRITES:
-		case WRITES:
-			break;
-		}
 	}
 
 	/**

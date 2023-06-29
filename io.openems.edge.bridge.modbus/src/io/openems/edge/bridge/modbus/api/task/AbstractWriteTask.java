@@ -31,7 +31,7 @@ public abstract class AbstractWriteTask<//
 		return Priority.HIGH;
 	}
 
-	public static abstract class Single<//
+	public abstract static class Single<//
 			REQUEST extends ModbusRequest, //
 			RESPONSE extends ModbusResponse, //
 			ELEMENT extends ModbusElement<?>> //
@@ -48,17 +48,24 @@ public abstract class AbstractWriteTask<//
 
 		@Override
 		public final ExecuteState execute(AbstractModbusBridge bridge) {
+			final REQUEST request;
 			try {
-				var request = this.createModbusRequest();
-				if (request == null) {
-					return ExecuteState.NO_OP;
-				}
+				request = this.createModbusRequest();
+			} catch (OpenemsException e) {
+				this.logError(this.log, "", "Execute failed: " + e.getMessage());
+				return ExecuteState.ERROR;
+			}
 
+			if (request == null) {
+				return ExecuteState.NO_OP;
+			}
+
+			try {
 				this.executeRequest(bridge, request);
 				return ExecuteState.OK;
 
 			} catch (OpenemsException e) {
-				this.logError(bridge, this.log, "Execute failed: " + e.getMessage());
+				// On error a log message has already been logged
 				return ExecuteState.ERROR;
 			}
 		}

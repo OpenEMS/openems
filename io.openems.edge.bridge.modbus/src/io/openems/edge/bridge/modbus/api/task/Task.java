@@ -54,17 +54,16 @@ public sealed interface Task extends ManagedTask permits AbstractTask<?, ?>, Rea
 	 * WriteTask.
 	 *
 	 * @param bridge the Modbus-Bridge
-	 * @param <T>    the Modbus-Element
 	 * @return {@link ExecuteState}
 	 */
 	public ExecuteState execute(AbstractModbusBridge bridge);
 
 	public static enum ExecuteState {
-		/** Successfully executed request(s) */
+		/** Successfully executed request(s). */
 		OK,
-		/** No available requests -> no operation */
+		/** No available requests -> no operation. */
 		NO_OP,
-		/** Executing request(s) failed */
+		/** Executing request(s) failed. */
 		ERROR;
 	}
 }

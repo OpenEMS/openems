@@ -21,15 +21,13 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 	}
 
 	@Override
-	protected void doElementSetInput(ModbusRegisterElement element, int position, InputRegister[] response)
+	protected void handleResponse(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {
-		// TODO Element type
-		// TODO rename method
 		element.setInputRegisters(Arrays.copyOfRange(response, position, position + element.getLength()));
 	}
 
 	@Override
-	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
+	protected int calculateNextPosition(ModbusElement<?> modbusElement, int position) {
 		return position + modbusElement.getLength();
 	}
 }

@@ -47,10 +47,10 @@ public class FC16WriteRegistersTask
 				this.executeRequest(bridge, request);
 
 			} catch (OpenemsException e) {
+				// On error a log message has already been logged
+
 				// Invalidate Elements
 				Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
-
-				this.logError(bridge, this.log, "Execute failed: " + e.getMessage());
 				hasError = true;
 			}
 		}
@@ -66,6 +66,7 @@ public class FC16WriteRegistersTask
 	 * Combine WriteRegisters without holes in between.
 	 * 
 	 * @param elements the {@link ModbusElement}s
+	 * @param logWarn  {@link Consumer} to log a warning
 	 * @return a list of CombinedWriteRegisters
 	 */
 	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement<?>[] elements,

@@ -25,7 +25,7 @@ public class CycleTasksManager {
 
 	private final TasksSupplier tasksSupplier;
 	private final DefectiveComponents defectiveComponents;
-	private final Consumer<Boolean> cycleTimeIsTooShortCallback;
+	private final Consumer<Boolean> cycleTimeIsTooShortChannel;
 	private final AtomicReference<LogVerbosity> logVerbosity;
 
 	private final WaitDelayHandler waitDelayHandler;
@@ -34,18 +34,21 @@ public class CycleTasksManager {
 	private CycleTasks cycleTasks;
 
 	public CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
-			Consumer<Boolean> cycleTimeIsTooShortCallback, AtomicReference<LogVerbosity> logVerbosity) {
+			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel,
+			AtomicReference<LogVerbosity> logVerbosity) {
 		this.tasksSupplier = tasksSupplier;
 		this.defectiveComponents = defectiveComponents;
-		this.cycleTimeIsTooShortCallback = cycleTimeIsTooShortCallback;
+		this.cycleTimeIsTooShortChannel = cycleTimeIsTooShortChannel;
 		this.logVerbosity = logVerbosity;
 
-		this.waitDelayHandler = new WaitDelayHandler(this.logVerbosity, () -> this.onWaitDelayTaskFinished());
+		this.waitDelayHandler = new WaitDelayHandler(this.logVerbosity, () -> this.onWaitDelayTaskFinished(),
+				cycleDelayChannel);
 	}
 
 	protected CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
-			Consumer<Boolean> cycleTimeIsTooShortCallback) {
-		this(tasksSupplier, defectiveComponents, cycleTimeIsTooShortCallback, new AtomicReference<>(LogVerbosity.NONE));
+			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel) {
+		this(tasksSupplier, defectiveComponents, cycleTimeIsTooShortChannel, cycleDelayChannel,
+				new AtomicReference<>(LogVerbosity.NONE));
 	}
 
 	private static enum StateMachine {
@@ -69,10 +72,12 @@ public class CycleTasksManager {
 
 		// Evaluate Cycle-Time-Is-Too-Short, invalidate time measurement and stop early
 		var cycleTimeIsTooShort = this.state != StateMachine.FINISHED;
-		this.cycleTimeIsTooShortCallback.accept(cycleTimeIsTooShort);
+		this.cycleTimeIsTooShortChannel.accept(cycleTimeIsTooShort);
 		if (cycleTimeIsTooShort) {
 			this.waitDelayHandler.timeIsInvalid();
-			this.log("onBeforeProcessImage: stop early. State: " + this.state);
+			if (this.isTraceLog()) {
+				this.log.info("onBeforeProcessImage: stop early. State: " + this.state);
+			}
 			return;
 		}
 
@@ -88,7 +93,9 @@ public class CycleTasksManager {
 		}
 
 		// Initialize next Cycle
-		this.log("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT + " (in onBeforeProcessImage)");
+		if (this.isTraceLog()) {
+			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT + " (in onBeforeProcessImage)");
+		}
 		this.state = StateMachine.INITIAL_WAIT;
 
 		// Interrupt wait
@@ -99,7 +106,9 @@ public class CycleTasksManager {
 	 * Called on EXECUTE_WRITE event.
 	 */
 	public synchronized void onExecuteWrite() {
-		this.log("State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
+		if (this.isTraceLog()) {
+			this.log.info("State: " + this.state + " -> " + StateMachine.WRITE + " (onExecuteWrite)");
+		}
 
 		this.state = StateMachine.WRITE;
 		this.waitMutexTask.release();
@@ -172,8 +181,8 @@ public class CycleTasksManager {
 		}
 		};
 
-		if (this.state != previousState) {
-			this.log("State: " + previousState + " -> " + this.state + " (getNextTask)");
+		if (this.state != previousState && this.isTraceLog()) {
+			this.log.info("State: " + previousState + " -> " + this.state + " (getNextTask)");
 		}
 		return nextTask;
 	}
@@ -192,20 +201,16 @@ public class CycleTasksManager {
 		};
 
 		if (this.state != previousState) {
-			this.log("State: " + previousState + " -> " + this.state + " (onWaitDelayTaskFinished)");
+			if (this.isTraceLog()) {
+				this.log.info("State: " + previousState + " -> " + this.state + " (onWaitDelayTaskFinished)");
+			}
 		}
 	}
 
-	// TODO remove before release
-	private void log(String message) {
-		switch (this.logVerbosity.get()) {
-		case DEV_REFACTORING:
-			this.log.info(message);
-			break;
-		case NONE:
-		case READS_AND_WRITES:
-		case WRITES:
-			break;
-		}
+	private boolean isTraceLog() {
+		return switch (this.logVerbosity.get()) {
+		case READS_AND_WRITES_DURATION_TRACE_EVENTS -> true;
+		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE -> false;
+		};
 	}
 }

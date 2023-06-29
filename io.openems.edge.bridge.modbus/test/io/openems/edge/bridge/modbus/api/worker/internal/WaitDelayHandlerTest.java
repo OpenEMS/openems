@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.worker.internal;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 
@@ -12,11 +13,13 @@ public class WaitDelayHandlerTest {
 
 	private static Runnable NO_OP = () -> {
 	};
+	private static Consumer<Long> CYCLE_DELAY = (value) -> {
+	};
 
 	@Test
 	public void test() {
 		var ticker = new FakeTicker();
-		var sut = new WaitDelayHandler(ticker, NO_OP);
+		var sut = new WaitDelayHandler(ticker, NO_OP, CYCLE_DELAY);
 
 		sut.onFinished();
 		ticker.advance(100, TimeUnit.MILLISECONDS);

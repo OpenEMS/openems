@@ -5,6 +5,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -72,6 +73,18 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	private void activate(ComponentContext context, ConfigSerial config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
+		this.applyConfig(config);
+	}
+
+	@Modified
+	private void modified(ComponentContext context, ConfigSerial config) {
+		super.modified(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.invalidateElementsAfterReadErrors());
+		this.applyConfig(config);
+		this.closeModbusConnection();
+	}
+
+	private void applyConfig(ConfigSerial config) {
 		this.portName = config.portName();
 		this.baudrate = config.baudRate();
 		this.databits = config.databits();
