@@ -47,10 +47,10 @@ public class CycleTasksManagerTest {
 				.reads(RT_L_2, RT_H_1, RT_H_2) //
 				.writes(WT_1) //
 				.build();
-		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1, cycle2);
+		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
 		var defectiveComponents = new DefectiveComponents();
 
-		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -131,11 +131,11 @@ public class CycleTasksManagerTest {
 				.reads(RT_L_2, RT_H_1, RT_H_2) //
 				.writes(WT_1) //
 				.build();
-		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1, cycle2);
+		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
 		var defectiveComponents = new DefectiveComponents();
 		defectiveComponents.add(CMP);
 
-		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();
@@ -162,10 +162,10 @@ public class CycleTasksManagerTest {
 	public void testNoTasks() throws OpenemsException, InterruptedException {
 		var cycle1 = CycleTasks.create() //
 				.build();
-		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1);
+		var tasksSupplier = new DummyTasksSupplier(cycle1);
 		var defectiveComponents = new DefectiveComponents();
 
-		var sut = new CycleTasksManager(cycleTasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();

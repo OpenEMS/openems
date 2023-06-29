@@ -20,7 +20,7 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasks;
 import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager;
-import io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksSupplier;
+import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplierImpl;
 import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
 
 /**
@@ -32,7 +32,7 @@ import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
  * TOPIC_CYCLE_EXECUTE_WRITE event) and all Read-Tasks as late as possible to
  * have values available exactly when they are needed (i.e. at the
  * TOPIC_CYCLE_BEFORE_PROCESS_IMAGE event). For this it uses a
- * {@link CycleTasksManager} that internally uses a {@link CycleTasksSupplier}
+ * {@link CycleTasksManager} that internally uses a {@link TasksSupplierImpl}
  * that supplies the tasks for one Cycle ({@link CycleTasks}).
  */
 public class ModbusWorker extends AbstractImmediateWorker {
@@ -45,7 +45,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	private final AtomicReference<LogVerbosity> logVerbosity;
 	private final DefectiveComponents defectiveComponents;
-	private final CycleTasksSupplier cycleTasksSupplier;
+	private final TasksSupplierImpl tasksSupplier;
 	private final CycleTasksManager cycleTasksManager;
 
 	/**
@@ -68,8 +68,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.logVerbosity = logVerbosity;
 
 		this.defectiveComponents = new DefectiveComponents();
-		this.cycleTasksSupplier = new CycleTasksSupplier();
-		this.cycleTasksManager = new CycleTasksManager(this.cycleTasksSupplier, this.defectiveComponents,
+		this.tasksSupplier = new TasksSupplierImpl();
+		this.cycleTasksManager = new CycleTasksManager(this.tasksSupplier, this.defectiveComponents,
 				cycleTimeIsTooShortCallback, logVerbosity);
 	}
 
@@ -122,7 +122,6 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * <ul>
 	 * <li>Sets 'ModbusCommunicationFailed' Channel of the ModbusComponent
 	 * <li>Adds/Removes the component to/from the {@link DefectiveComponents}
-	 * <li>Informs the {@link WaitHandler}
 	 * </ul>
 	 * 
 	 * @param component   the {@link ModbusComponent}
@@ -150,7 +149,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.cycleTasksSupplier.addProtocol(sourceId, protocol);
+		this.tasksSupplier.addProtocol(sourceId, protocol);
 	}
 
 	/**
@@ -159,7 +158,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.cycleTasksSupplier.removeProtocol(sourceId);
+		this.tasksSupplier.removeProtocol(sourceId);
 	}
 
 	/**

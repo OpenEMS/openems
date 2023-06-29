@@ -24,8 +24,11 @@ public class WaitDelayHandler {
 
 	private final AtomicReference<LogVerbosity> logVerbosity;
 
-	/** Delays that would have been possible. */
-	private final EvictingQueue<Long> possibleDelays = EvictingQueue.create(10 /* TODO size? */);
+	/**
+	 * Delays that would have been possible. Updated via
+	 * {@link #updateTotalNumberOfTasks(int)}.
+	 */
+	private EvictingQueue<Long> possibleDelays = EvictingQueue.create(10 /* initial size */);
 
 	private WaitTask.Delay waitDelayTask;
 
@@ -52,6 +55,36 @@ public class WaitDelayHandler {
 	}
 
 	/**
+	 * Updates the size of the internal {@link #possibleDelays} queue to the total
+	 * number of tasks.
+	 * 
+	 * <p>
+	 * 'possibleDelays' needs to 'learn' execution time of all tasks, so it is
+	 * important to keep its size in sync with the total number of tasks.
+	 * 
+	 * @param totalNumberOfTasks the total number of tasks
+	 */
+	public synchronized void updateTotalNumberOfTasks(int totalNumberOfTasks) {
+		var targetQueueSize = Math.max(//
+				totalNumberOfTasks * 5, // keeps 5 full Cycles
+				1); // size must be at least 1
+
+		// Calculate current queue size; logic is the inverse of
+		// EvictingQueue#remainingCapacity()
+		var currentQueueSize = this.possibleDelays.remainingCapacity() + this.possibleDelays.size();
+		if (targetQueueSize != currentQueueSize) {
+			// Size changed: create new queue and copy entries
+			this.log("Update PossibleDelays Queue. " //
+					+ "Before [" + currentQueueSize + "] " //
+					+ "After [" + totalNumberOfTasks + "]");
+			var oldQueue = this.possibleDelays;
+			var newQueue = EvictingQueue.<Long>create(totalNumberOfTasks);
+			newQueue.addAll(oldQueue);
+			this.possibleDelays = newQueue;
+		}
+	}
+
+	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 */
 	public synchronized void onBeforeProcessImage() {
@@ -74,8 +107,9 @@ public class WaitDelayHandler {
 
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
-				log = "FINISHED state has not happened -> reduce possible delay to zero";
-				possibleDelay = 0;
+				var halfOfLastDelay = this.waitDelayTask.initialDelay / 2;
+				log = "FINISHED state has not happened -> reduce possible delay to [" + halfOfLastDelay + "]";
+				possibleDelay = halfOfLastDelay;
 			}
 
 			this.possibleDelays.add(possibleDelay);

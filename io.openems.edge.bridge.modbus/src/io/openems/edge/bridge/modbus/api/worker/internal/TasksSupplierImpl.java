@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -17,9 +16,9 @@ import io.openems.edge.common.taskmanager.TasksManager;
 import io.openems.edge.common.type.Tuple;
 
 /**
- * Supplies the {@link CycleTasks} for one Cycle.
+ * Supplies Tasks.
  */
-public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTasks> {
+public class TasksSupplierImpl implements TasksSupplier {
 
 	/**
 	 * Source-ID -> TasksManager for {@link Task}s.
@@ -51,7 +50,7 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 	}
 
 	@Override
-	public CycleTasks apply(DefectiveComponents defectiveComponents) {
+	public CycleTasks getCycleTasks(DefectiveComponents defectiveComponents) {
 		Map<String, LinkedList<Task>> tasks = new HashMap<>();
 		// One Low Priority ReadTask
 		{
@@ -118,5 +117,12 @@ public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTa
 			});
 			refilledBefore = true;
 		}
+	}
+
+	@Override
+	public int getTotalNumberOfTasks() {
+		return this.taskManagers.values().stream() //
+				.mapToInt(m -> m.countTasks()) //
+				.sum();
 	}
 }

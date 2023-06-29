@@ -2,7 +2,6 @@ package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class CycleTasksManager {
 
 	private final Logger log = LoggerFactory.getLogger(CycleTasksManager.class);
 
-	private final Function<DefectiveComponents, CycleTasks> cycleTasksSupplier;
+	private final TasksSupplier tasksSupplier;
 	private final DefectiveComponents defectiveComponents;
 	private final Consumer<Boolean> cycleTimeIsTooShortCallback;
 	private final AtomicReference<LogVerbosity> logVerbosity;
@@ -34,10 +33,9 @@ public class CycleTasksManager {
 
 	private CycleTasks cycleTasks;
 
-	public CycleTasksManager(Function<DefectiveComponents, CycleTasks> cycleTasksSupplier,
-			DefectiveComponents defectiveComponents, Consumer<Boolean> cycleTimeIsTooShortCallback,
-			AtomicReference<LogVerbosity> logVerbosity) {
-		this.cycleTasksSupplier = cycleTasksSupplier;
+	public CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
+			Consumer<Boolean> cycleTimeIsTooShortCallback, AtomicReference<LogVerbosity> logVerbosity) {
+		this.tasksSupplier = tasksSupplier;
 		this.defectiveComponents = defectiveComponents;
 		this.cycleTimeIsTooShortCallback = cycleTimeIsTooShortCallback;
 		this.logVerbosity = logVerbosity;
@@ -45,10 +43,9 @@ public class CycleTasksManager {
 		this.waitDelayHandler = new WaitDelayHandler(this.logVerbosity, () -> this.onWaitDelayTaskFinished());
 	}
 
-	protected CycleTasksManager(Function<DefectiveComponents, CycleTasks> cycleTasksSupplier,
-			DefectiveComponents defectiveComponents, Consumer<Boolean> cycleTimeIsTooShortCallback) {
-		this(cycleTasksSupplier, defectiveComponents, cycleTimeIsTooShortCallback,
-				new AtomicReference<>(LogVerbosity.NONE));
+	protected CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
+			Consumer<Boolean> cycleTimeIsTooShortCallback) {
+		this(tasksSupplier, defectiveComponents, cycleTimeIsTooShortCallback, new AtomicReference<>(LogVerbosity.NONE));
 	}
 
 	private static enum StateMachine {
@@ -79,8 +76,11 @@ public class CycleTasksManager {
 			return;
 		}
 
+		// Update WaitDelayHandler Queue size
+		this.waitDelayHandler.updateTotalNumberOfTasks(this.tasksSupplier.getTotalNumberOfTasks());
+
 		// Fill queues for this Cycle
-		this.cycleTasks = this.cycleTasksSupplier.apply(this.defectiveComponents);
+		this.cycleTasks = this.tasksSupplier.getCycleTasks(this.defectiveComponents);
 
 		// On defectiveComponents invalidate time measurement
 		if (this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
