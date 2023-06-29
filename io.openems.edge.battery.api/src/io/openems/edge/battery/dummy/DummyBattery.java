@@ -14,13 +14,36 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent, BatteryInhibitable {
 
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		STATE_MACHINE(Doc.of(State.values()) //
+				.text("Current State of State-Machine")), //
+		RUN_FAILED(Doc.of(Level.FAULT) //
+				.text("Running the Logic failed")), //
+		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of start attempts failed")), //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+				.text("The maximum number of stop attempts failed")), //
+		;
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
 	/**
 	 * Gets the main contactor target which set by
 	 * {@link #setMainContactor(Boolean)} method.
 	 * 
 	 * @return main contactor target.
 	 */
-	public boolean getMainContactorTarget();
+	public boolean getMainContactorUnlocked();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
@@ -107,6 +130,34 @@ public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent,
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#RUN_FAILED}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Boolean> getRunFailedChannel() {
+		return this.channel(ChannelId.RUN_FAILED);
+	}
+
+	/**
+	 * Gets the {@link Level} for {@link ChannelId#RUN_FAILED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getRunFailed() {
+		return this.getRunFailedChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#RUN_FAILED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRunFailed(boolean value) {
+		this.getRunFailedChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
 	 *
 	 * @return {@link StartStop}
@@ -119,27 +170,4 @@ public interface DummyBattery extends Battery, StartStoppable, OpenemsComponent,
 	 * @return State {@link State}
 	 */
 	public State getCurrentState();
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.WARNING) //
-				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
-				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
-				.text("The maximum number of stop attempts failed")), //
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
 }

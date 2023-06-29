@@ -2,7 +2,7 @@ package io.openems.edge.battery.api;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
-public interface BatteryHeatable extends Battery {
+public interface BatteryHeatable {
 	/**
 	 * A helper method in determining when to begin heating the battery. The serial
 	 * cluster will begin to heat up the batteries if the all battery temperatures

@@ -21,7 +21,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		final var battery = context.getParent();
 		if (Duration.between(this.entryAt, Instant.now(context.componentManager.getClock()))
 				.getSeconds() > context.config.batteryStartStopTime()) {
-			if (battery.getMainContactorTarget()) {
+			if (battery.getMainContactorUnlocked()) {
 				return State.RUNNING;
 			}
 		}

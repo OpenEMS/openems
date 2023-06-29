@@ -31,7 +31,7 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(DummyBatteryImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private StartStop startStopTarget = StartStop.UNDEFINED;
-	private boolean mainContactorTarget = false;
+	private boolean mainContactorUnocked = false;
 
 	private ComponentManager componentManager;
 
@@ -181,11 +181,11 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 			// Call the StateMachine
 			this.stateMachine.run(context);
 
-			this.channel(DummyBattery.ChannelId.RUN_FAILED).setNextValue(false);
+			this._setRunFailed(false);
 
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
-			this.channel(DummyBattery.ChannelId.RUN_FAILED).setNextValue(true);
+			this._setRunFailed(true);
 		}
 	}
 
@@ -210,11 +210,11 @@ public class DummyBatteryImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void setMainContactorUnlocked(boolean value) {
-		this.mainContactorTarget = value;
+		this.mainContactorUnocked = value;
 	}
 
 	@Override
-	public boolean getMainContactorTarget() {
-		return this.mainContactorTarget;
+	public boolean getMainContactorUnlocked() {
+		return this.mainContactorUnocked;
 	}
 }
