@@ -13,6 +13,6 @@ import { Common_Production } from './production/production';
     Common_Autarchy,
     Common_Production,
     Common_Grid
-  ],
+  ]
 })
 export class Common_Module { }

@@ -7,7 +7,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionChargerChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class ChargerChartComponent extends AbstractHistoryChart {
 
@@ -17,7 +17,7 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         name: 'ActualPower',
         powerChannel: ChannelAddress.fromString(this.component.id + '/ActualPower'),
         energyChannel: ChannelAddress.fromString(this.component.id + '/ActualEnergy'),
-        converter: (data) => data != null ? data : null,
+        converter: (data) => data != null ? data : null
       }],
       output: (data: DefaultTypes.History.ChannelData) => {
         return [
@@ -27,14 +27,14 @@ export class ChargerChartComponent extends AbstractHistoryChart {
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
               return energyResponse.result.data[this.component.id + '/ActualEnergy'];
             },
-            color: 'rgb(0,152,204)',
+            color: 'rgb(0,152,204)'
           }
         ];
       },
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: DefaultTypes.History.YAxisTitle.ENERGY,
+      unit: DefaultTypes.History.YAxisTitle.ENERGY
     };
   }
 }

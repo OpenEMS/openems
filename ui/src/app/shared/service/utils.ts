@@ -637,7 +637,7 @@ export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
       } else {
         return Math.abs(Math.min(0, value));
       }
-    }
+    };
 export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
       if (value < 0) {
         return Math.abs(value);

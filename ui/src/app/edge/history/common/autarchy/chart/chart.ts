@@ -7,7 +7,7 @@ import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'autarchychart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -18,13 +18,13 @@ export class ChartComponent extends AbstractHistoryChart {
         [{
           name: 'Consumption',
           powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy'),
+          energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
         },
         {
           name: 'GridBuy',
           powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
+          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE
         }],
       output: (data: DefaultTypes.History.ChannelData) => {
         return [{
@@ -42,9 +42,9 @@ export class ChartComponent extends AbstractHistoryChart {
         }];
       },
       tooltip: {
-        formatNumber: '1.0-0',
+        formatNumber: '1.0-0'
       },
-      unit: DefaultTypes.History.YAxisTitle.PERCENTAGE,
+      unit: DefaultTypes.History.YAxisTitle.PERCENTAGE
     };
   }
 }

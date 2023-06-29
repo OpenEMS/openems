@@ -7,7 +7,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 
 @Component({
   selector: 'gridchart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -25,15 +25,15 @@ export class ChartComponent extends AbstractHistoryChart {
         name: 'GridBuy',
         powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
         energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
-      },
+        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO
+      }
     ];
 
     ['L1', 'L2', 'L3'].forEach(phase => {
       input.push({
         name: 'GridActivePower' + phase,
-        powerChannel: ChannelAddress.fromString('_sum/GridActivePower' + phase),
-      },)
+        powerChannel: ChannelAddress.fromString('_sum/GridActivePower' + phase)
+      });
     });
 
     return {
@@ -82,16 +82,16 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridActivePower' + phase] ?? null;
             },
             color: this.phaseColors[index],
-            stack: 3,
+            stack: 3
           });
         });
 
         return datasets;
       },
       tooltip: {
-        formatNumber: '1.0-0',
+        formatNumber: '1.0-0'
       },
-      unit: DefaultTypes.History.YAxisTitle.ENERGY,
+      unit: DefaultTypes.History.YAxisTitle.ENERGY
     };
   }
 }
