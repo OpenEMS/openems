@@ -6,9 +6,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { QueryHistoricTimeseriesDataRequest } from '../jsonrpc/request/queryHistoricTimeseriesDataRequest';
-import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { ChannelAddress, EdgeConfig } from '../shared';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
@@ -554,12 +551,12 @@ export class Utils {
     let totalEvcsConsumption: number = 0;
     let totalMeteredConsumption: number = 0;
     evcsComponents.forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy'])
-    })
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
+    });
 
     consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy'])
-    })
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+    });
 
     return Utils.roundSlightlyNegativeValues(
       Utils.subtractSafely(
@@ -585,15 +582,15 @@ export class Utils {
 
     evcsComponents.forEach(component => {
       channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value
-      })
-    })
+        totalEvcsConsumption[index] = value;
+      });
+    });
 
     consumptionMeterComponents.forEach(meter => {
       channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value
-      })
-    })
+        totalMeteredConsumption[index] = value;
+      });
+    });
 
     return channelData['ConsumptionActivePower'].map((value, index) => {
       if (value != null) {
@@ -601,7 +598,7 @@ export class Utils {
           Utils.subtractSafely(
             Utils.subtractSafely(
               value, totalEvcsConsumption[index]),
-            totalMeteredConsumption[index]))
+            totalMeteredConsumption[index]));
       }
     });
   }

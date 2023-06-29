@@ -6,18 +6,18 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'consumptionchart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class ChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
-    this.spinnerId = "consumption"
+    this.spinnerId = "consumption";
 
     let inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
-      energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy'),
-    },
+      energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
+    }
     ];
 
     ['L1', 'L2', 'L3'].forEach(phase => {
@@ -25,31 +25,31 @@ export class ChartComponent extends AbstractHistoryChart {
         name: 'ConsumptionActivePower' + phase,
         powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower' + phase),
         energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy' + phase)
-      })
-    })
+      });
+    });
 
     let evcsComponents: EdgeConfig.Component[] = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(
         component.factoryId == 'Evcs.Cluster' ||
         component.factoryId == 'Evcs.Cluster.PeakShaving' ||
-        component.factoryId == 'Evcs.Cluster.SelfConsumption'))
+        component.factoryId == 'Evcs.Cluster.SelfConsumption'));
 
-    let consumptionMeters: EdgeConfig.Component[] = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component))
+    let consumptionMeters: EdgeConfig.Component[] = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
     evcsComponents.forEach(component => {
       inputChannel.push({
         name: component.id + '/ChargePower',
         powerChannel: ChannelAddress.fromString(component.id + '/ChargePower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActiveConsumptionEnergy'),
-      })
-    })
+        energyChannel: ChannelAddress.fromString(component.id + '/ActiveConsumptionEnergy')
+      });
+    });
     consumptionMeters.forEach(meter => {
       inputChannel.push({
         name: meter.id + '/ActivePower',
         powerChannel: ChannelAddress.fromString(meter.id + '/ActivePower'),
         energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy')
-      })
+      });
 
       if (this.config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
         ['L1', 'L2', 'L3'].forEach(phase => {
@@ -57,15 +57,15 @@ export class ChartComponent extends AbstractHistoryChart {
             name: meter.id + '/ActivePower' + phase,
             powerChannel: ChannelAddress.fromString(meter.id + '/ActivePower' + phase),
             energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy' + phase)
-          })
-        })
+          });
+        });
       }
-    })
+    });
 
     return {
       input:
         [
-          ...inputChannel,
+          ...inputChannel
         ],
       output: (data: HistoryUtils.ChannelData) => {
         let datasets: HistoryUtils.DisplayValues[] = [];
@@ -75,7 +75,7 @@ export class ChartComponent extends AbstractHistoryChart {
             return energyValues?.result.data['_sum/ConsumptionActiveEnergy'];
           },
           converter: () => {
-            return data['ConsumptionActivePower']
+            return data['ConsumptionActivePower'];
           },
           color: 'rgb(253,197,7)',
           stack: 0,
@@ -84,7 +84,6 @@ export class ChartComponent extends AbstractHistoryChart {
         });
 
         if (this.showPhases) {
-          console.log("this.showPhases", this.showPhases);
           ['L1', 'L2', 'L3'].forEach((phase, index) => {
             datasets.push({
               name: this.translate.instant('General.phase') + " " + phase,
@@ -92,13 +91,13 @@ export class ChartComponent extends AbstractHistoryChart {
                 return energyValues?.result.data['_sum/ConsumptionActiveEnergy' + phase];
               },
               converter: () => {
-                console.log("data", data)
-                return data['ConsumptionActivePower' + phase]
+                console.log("data", data);
+                return data['ConsumptionActivePower' + phase];
               },
               color: this.phaseColors[Math.min(index, this.phaseColors.length - 1)],
               stack: 1
-            })
-          })
+            });
+          });
         }
         let evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
         evcsComponents.forEach((component, index) => {
@@ -108,12 +107,12 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[component.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
-              return data[component.id + '/ChargePower']
+              return data[component.id + '/ChargePower'] ?? null;
             },
             color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
             stack: 1
           });
-        })
+        });
 
         let consumptionMeterColors: string[] = ['rgb(220,20,60)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)'];
         consumptionMeters.forEach((meter, index) => {
@@ -123,7 +122,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
-              return data[meter.id + '/ActivePower']
+              return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
             stack: 2
@@ -137,14 +136,14 @@ export class ChartComponent extends AbstractHistoryChart {
                   return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy' + phase];
                 },
                 converter: () => {
-                  return data[meter.id + '/ActivePower' + phase]
+                  return data[meter.id + '/ActivePower' + phase];
                 },
                 color: this.phaseColors[index],
                 stack: 2
-              })
-            })
+              });
+            });
           }
-        })
+        });
 
         if (consumptionMeters.length > 0 || evcsComponents.length > 0) {
           datasets.push({
@@ -157,15 +156,15 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,223,0)',
             stack: 3
-          })
+          });
         }
 
         return datasets;
       },
       tooltip: {
-        formatNumber: '1.0-2',
+        formatNumber: '1.0-2'
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY,
+      unit: HistoryUtils.YAxisTitle.ENERGY
     };
   }
 }

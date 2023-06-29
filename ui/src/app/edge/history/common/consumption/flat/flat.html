@@ -1,4 +1,4 @@
-<oe-flat-widget [title]="'General.consumption' | translate" img="assets/img/consumption.png" button
+<oe-flat-widget [title]="'General.consumption' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
     routerLink="/device/{{edge.id}}/history/consumptionchart" *ngIf="isInitialized">
 
     <oe-flat-widget-line *ngIf="evcsComponents.length === 0 && consumptionMeterComponents.length === 0, else meters"

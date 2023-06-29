@@ -38,7 +38,10 @@ export class HistoryDataService extends DataService {
                   allComponents[key] = value;
                 }
                 this.currentValue.next({ allComponents: allComponents });
-              }).catch(err => console.warn(err))
+              }).catch(err => {
+                this.currentValue.next({ allComponents: {} });
+                console.warn(err)
+              })
               .finally(() => {
               });
           });

@@ -9,22 +9,33 @@ import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/s
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public evcsComponents: EdgeConfig.Component[] = [];
-    public consumptionMeterComponents: EdgeConfig.Component[] = [];
-    totalOtherEnergy: number;
+    protected evcsComponents: EdgeConfig.Component[] = [];
+    protected consumptionMeterComponents: EdgeConfig.Component[] = [];
+    protected totalOtherEnergy: number;
 
     protected override getChannelAddresses(): ChannelAddress[] {
 
-        this.evcsComponents = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+        this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(component =>
                 !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
                 !(component.factoryId == 'Evcs.Cluster.PeakShaving') &&
                 !component.isEnabled == false);
 
-        this.consumptionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
-        return [new ChannelAddress('_sum', 'ConsumptionActiveEnergy')];
+        let channels: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActiveEnergy')];
+
+        this.evcsComponents.forEach((component) => {
+            channels.push(new ChannelAddress(component.id, 'ActiveConsumptionEnergy'))
+        })
+
+        this.consumptionMeterComponents.forEach((component) => {
+            channels.push(new ChannelAddress(component.id, 'ActiveProductionEnergy'))
+        })
+
+
+        return channels;
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
@@ -43,7 +54,7 @@ export class FlatComponent extends AbstractFlatWidget {
             otherEnergy += currentData.allComponents[component.id + '/ActiveConsumptionEnergy'] ?? 0;
         });
         this.consumptionMeterComponents.forEach(component => {
-            otherEnergy += currentData.allComponents[component.id + '/ActiveConsumptionEnergy'] ?? 0;
+            otherEnergy += currentData.allComponents[component.id + '/ActiveProductionEnergy'] ?? 0;
         });
         return currentData.allComponents["_sum/ConsumptionActiveEnergy"] - otherEnergy;
     }

@@ -76,6 +76,5 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalPhasesComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
-
 })
 export class Generic_ComponentsModule { }

@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
