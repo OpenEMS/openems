@@ -113,12 +113,6 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		return AppAssistant.create(this.getName(language)) //
-				.build();
-	}
-
-	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.build();
