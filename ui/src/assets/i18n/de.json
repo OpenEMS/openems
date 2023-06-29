@@ -373,6 +373,8 @@
         }
       },
       "App": {
+        "NAME": "App Center",
+        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "Der App-Manager befindet sich aktuell in einer ersten Testversion.",
         "updateAvailable": "Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisieren Sie das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden.",
         "installed": "Installiert",

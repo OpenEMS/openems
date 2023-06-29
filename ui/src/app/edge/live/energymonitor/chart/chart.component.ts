@@ -45,7 +45,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {

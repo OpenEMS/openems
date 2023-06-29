@@ -7,8 +7,8 @@ import io.openems.edge.common.host.Host;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		public String networkConfiguration = null;
-		public String usbConfiguration = null;
+		private String networkConfiguration;
+		private String usbConfiguration;
 
 		private Builder() {
 		}

@@ -2,16 +2,15 @@ package io.openems.edge.controller.ess.balancing;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.controller.ess.balancing.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public int targetGridSetpoint;
+		private String essId;
+		private String meterId;
+		private int targetGridSetpoint;
 
 		private Builder() {
 		}

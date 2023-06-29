@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../environments';
-import { CheckForUpdateService } from './appupdateservice';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
@@ -32,11 +31,9 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title,
-    private checkForUpdateService: CheckForUpdateService,
+    private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
-    checkForUpdateService.init();
 
     this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
       this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
@@ -59,7 +56,7 @@ export class AppComponent implements OnInit, OnDestroy {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel',
+            role: 'cancel'
           }
         ]
       });

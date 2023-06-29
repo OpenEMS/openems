@@ -6,14 +6,13 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = "ctrlJsonLogic0";
-		public boolean showAlias;
-		public String[] additionalChannels;
-		public String[] ignoreComponents;
-		public boolean condensedOutput;
+		private String id;
+		private boolean showAlias;
+		private String[] additionalChannels;
+		private String[] ignoreComponents;
+		private boolean condensedOutput;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {

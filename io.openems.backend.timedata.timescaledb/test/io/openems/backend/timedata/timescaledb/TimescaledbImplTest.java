@@ -29,7 +29,7 @@ public class TimescaledbImplTest {
 				.setReadOnly(true) //
 				.setPoolSize(10) //
 				.build();
-		TimescaledbImpl sut = new TimescaledbImpl(metadata, config);
+		TimedataTimescaleDb sut = new TimedataTimescaleDb(metadata, config);
 
 		var zone = ZoneId.of("Europe/Berlin");
 		var fromDate = ZonedDateTime.of(2022, 06, 23, 0, 0, 0, 0, zone);

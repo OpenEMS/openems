@@ -11,6 +11,6 @@ export class Controller_EvcsPopoverComponent {
     @Input() public controller: EdgeConfig.Component;
 
     constructor(
-        protected translate: TranslateService,
+        protected translate: TranslateService
     ) { }
 }

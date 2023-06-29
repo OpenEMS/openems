@@ -153,7 +153,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             tension: 0.1
         },
         rectangle: {
-            borderWidth: 2,
+            borderWidth: 2
         }
     },
     hover: {
@@ -188,7 +188,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
                     year: 'YYYY' // 2015,
                 }
-            },
+            }
         }]
     },
     tooltips: {

@@ -25,7 +25,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("gridOptimizedCharge-chart", service, translate);
   }
@@ -79,7 +79,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           });
           this.colors.push({
             backgroundColor: 'rgba(253,197,7,0.05)',
-            borderColor: 'rgba(253,197,7,1)',
+            borderColor: 'rgba(253,197,7,1)'
           });
         }
 
@@ -104,7 +104,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
+            borderColor: 'rgba(200,0,0,1)'
           });
         }
 
@@ -140,7 +140,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
           });
           this.colors.push({
             backgroundColor: 'rgba(0,223,0,0.05)',
-            borderColor: 'rgba(0,223,0,1)',
+            borderColor: 'rgba(0,223,0,1)'
           });
 
           // State of charge data
@@ -164,7 +164,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
-              borderColor: 'rgba(189, 195, 199,1)',
+              borderColor: 'rgba(189, 195, 199,1)'
             });
           }
         }
@@ -191,7 +191,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
       let result: ChannelAddress[] = [
         new ChannelAddress('_sum', 'EssActivePower'),
         new ChannelAddress('_sum', 'ProductionDcActualPower'),
-        new ChannelAddress('_sum', 'EssSoc'),
+        new ChannelAddress('_sum', 'EssSoc')
       ];
       if (this.component != null && this.component.id) {
         result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));

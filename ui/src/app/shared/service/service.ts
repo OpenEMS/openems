@@ -1,9 +1,10 @@
+import { registerLocaleData } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
@@ -71,7 +72,7 @@ export class Service extends AbstractService {
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
     public modalCtrl: ModalController,
-    public translate: TranslateService,
+    public translate: TranslateService
   ) {
     super();
     // add language
@@ -90,6 +91,7 @@ export class Service extends AbstractService {
 
   public setLang(language: Language) {
     if (language !== null) {
+      registerLocaleData(Language.getLocale(language.key));
       this.translate.use(language.key);
     } else {
       this.translate.use(Language.DEFAULT.key);
@@ -119,7 +121,7 @@ export class Service extends AbstractService {
     // this.notify(notification);
   }
 
-  public setCurrentComponent(currentPageTitle: string | { languageKey: string }, activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: Object }, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
@@ -133,8 +135,8 @@ export class Service extends AbstractService {
 
         } else {
           // Translate from key
-          this.translate.get(currentPageTitle.languageKey).pipe(
-            take(1),
+          this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
+            take(1)
           ).subscribe(title => this.currentPageTitle = title);
         }
       }
@@ -151,7 +153,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve) => {
       this.currentEdge.pipe(
         filter(edge => edge != null),
-        first(),
+        first()
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);
@@ -242,6 +244,12 @@ export class Service extends AbstractService {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
+
+            // Jump to next request for empty channelAddresses
+            if (source.channels.length == 0) {
+              continue;
+            }
+
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;

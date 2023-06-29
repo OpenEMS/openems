@@ -13,11 +13,10 @@ import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponent
-		implements SocomecMeter, SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+		implements SocomecMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractSocomecMeter.class);
 

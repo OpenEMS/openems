@@ -11,7 +11,7 @@ import { EdgeComponent } from './edge.component';
   imports: [
     HistoryModule,
     LiveModule,
-    SharedModule,
+    SharedModule
   ],
   exports: [
     EdgeComponent

@@ -7,8 +7,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String[] channelAddresses;
-		public int numOfWeeks;
+		private String[] channelAddresses;
+		private int numOfWeeks;
 
 		private Builder() {
 		}

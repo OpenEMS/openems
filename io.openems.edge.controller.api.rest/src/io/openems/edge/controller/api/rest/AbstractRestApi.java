@@ -19,7 +19,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
-import io.openems.edge.controller.api.rest.readonly.RestApiReadOnlyImpl;
+import io.openems.edge.controller.api.rest.readonly.ControllerApiRestReadOnlyImpl;
 import io.openems.edge.timedata.api.Timedata;
 
 public abstract class AbstractRestApi extends AbstractOpenemsComponent
@@ -29,7 +29,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
-	private final Logger log = LoggerFactory.getLogger(RestApiReadOnlyImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ControllerApiRestReadOnlyImpl.class);
 	private final String implementationName;
 
 	private Server server = null;

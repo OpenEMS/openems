@@ -45,9 +45,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(CoreEventHandlerImpl.class);
 
-	private final OcppServerImpl parent;
+	private final EvcsOcppServer parent;
 
-	public CoreEventHandlerImpl(OcppServerImpl parent) {
+	public CoreEventHandlerImpl(EvcsOcppServer parent) {
 		this.parent = parent;
 	}
 

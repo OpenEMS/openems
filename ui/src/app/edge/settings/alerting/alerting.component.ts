@@ -90,7 +90,7 @@ export class AlertingComponent implements OnInit {
       formGroup: new FormGroup({}),
       options: {
         formState: {
-          awesomeIsForced: false,
+          awesomeIsForced: false
         }
       },
       model: {
@@ -101,8 +101,8 @@ export class AlertingComponent implements OnInit {
         key: 'isActivated',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate'),
-        },
+          label: this.translate.instant('Edge.Config.Alerting.activate')
+        }
       },
       {
         key: 'delayTime',
@@ -111,16 +111,18 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
           type: 'number',
           required: true,
-          options: delays,
+          options: delays
         },
-        hideExpression: model => !model.isActivated,
+        hideExpression: model => !model.isActivated
       }
-      ],
+      ]
     };
   }
 
   private setRemainingUserSettings(userSettings: UserSettingResponse[]) {
-    if (!userSettings || userSettings.length === 0) return;
+    if (!userSettings || userSettings.length === 0) {
+      return;
+    }
 
     userSettings = this.sortedAlphabetically(userSettings);
     let otherUserSettings: RoleUsersSettings[] = [];
@@ -167,7 +169,7 @@ export class AlertingComponent implements OnInit {
     roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) });
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
       isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay),
+      delayTime: new FormControl(delay)
     }));
   }
 
@@ -189,7 +191,9 @@ export class AlertingComponent implements OnInit {
    * get if given delay is valid
    */
   protected isInvalidDelay(delay: number): boolean {
-    if (delay === 0) return false;
+    if (delay === 0) {
+      return false;
+    }
     return !AlertingComponent.DELAYS.includes(delay);
   }
 
@@ -236,7 +240,7 @@ export class AlertingComponent implements OnInit {
 
       changedUserSettings.push({
         delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        userId: this.currentUserInformation.userId,
+        userId: this.currentUserInformation.userId
       });
     }
 
@@ -253,7 +257,7 @@ export class AlertingComponent implements OnInit {
               let isActivated = control.value['isActivated'];
               changedUserSettings.push({
                 delayTime: isActivated ? delayTime : 0,
-                userId: user.userId,
+                userId: user.userId
               });
               userOptions.push(user);
             }
@@ -325,7 +329,9 @@ export class AlertingComponent implements OnInit {
    * @returns true if any settings are changed, else false
    */
   protected isDirty(): boolean {
-    if (this.error || !this.currentUserForm) return false;
+    if (this.error || !this.currentUserForm) {
+      return false;
+    }
     return this.currentUserForm?.formGroup.dirty || this.otherUserSettings?.findIndex(setting => setting.form.dirty) != -1;
   }
 }

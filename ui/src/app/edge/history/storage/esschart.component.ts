@@ -80,7 +80,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
@@ -138,7 +138,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         let factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
             if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                 result.push(

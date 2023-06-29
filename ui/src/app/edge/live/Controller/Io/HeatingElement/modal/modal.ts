@@ -7,7 +7,7 @@ import { Mode, WorkMode } from 'src/app/shared/type/general';
 
 @Component({
     selector: 'heatingelement-modal',
-    templateUrl: './modal.html',
+    templateUrl: './modal.html'
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
@@ -43,7 +43,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected override onCurrentData(currentData: CurrentData) {
 
         // get current mode
-        this.mode = currentData.thisComponent[ModalComponent.PROPERTY_MODE];
+        this.mode = currentData.allComponents[this.component.id + '/' + ModalComponent.PROPERTY_MODE];
 
         let value = 0;
         this.outputChannelArray.forEach(element => {

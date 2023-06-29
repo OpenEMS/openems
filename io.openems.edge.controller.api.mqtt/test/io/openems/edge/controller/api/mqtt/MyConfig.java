@@ -8,12 +8,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String uri;
-		public PersistencePriority persistencePriority;
-		public boolean debugMode;
-		public String clientId;
-		public String username;
-		public String password;
+		private String uri;
+		private PersistencePriority persistencePriority;
+		private boolean debugMode;
+		private String clientId;
+		private String username;
+		private String password;
 
 		private Builder() {
 		}

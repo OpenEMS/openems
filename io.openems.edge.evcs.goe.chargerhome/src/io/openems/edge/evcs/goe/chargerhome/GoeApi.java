@@ -17,9 +17,9 @@ public class GoeApi {
 	private final int executeEveryCycle = 10;
 	private int cycle;
 	private JsonObject jsonStatus;
-	private final GoeChargerHomeImpl parent;
+	private final EvcsGoeChargerHomeImpl parent;
 
-	public GoeApi(GoeChargerHomeImpl p) {
+	public GoeApi(EvcsGoeChargerHomeImpl p) {
 		this.ipAddress = p.config.ip();
 		this.cycle = 0;
 		this.jsonStatus = null;

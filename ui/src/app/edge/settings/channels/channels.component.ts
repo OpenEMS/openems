@@ -23,7 +23,7 @@ export class ChannelsComponent implements OnInit, OnDestroy {
   ) { }
 
   public customAlertOptions: any = {
-    cssClass: 'wide-alert',
+    cssClass: 'wide-alert'
   };
 
   ngOnInit() {

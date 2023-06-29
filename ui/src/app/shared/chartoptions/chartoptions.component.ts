@@ -18,7 +18,7 @@ export class ChartOptionsComponent {
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverCtrl: PopoverController,
+        public popoverCtrl: PopoverController
     ) { }
 
     async presentPopover(ev: any) {

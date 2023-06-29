@@ -1,5 +1,4 @@
 import { JsonrpcResponseSuccess } from "../base";
-import { AddEdgeToUserRequest } from "../request/addEdgeToUserRequest";
 
 /**
  * Represents a JSON-RPC Response for a {@link AddEdgeToUserRequest}.

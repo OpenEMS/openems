@@ -13,4 +13,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.influxdb-client-java,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.wrapper.influxdb-client-utils

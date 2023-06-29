@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ProductType } from 'src/app/shared/type/widget';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';

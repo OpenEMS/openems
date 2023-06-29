@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { EdgeConfig } from '../shared';
@@ -27,7 +28,9 @@ export class Utils {
     let copy: any;
 
     // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj) return obj;
+    if (null == obj || "object" != typeof obj) {
+      return obj;
+    }
 
     // Handle Date
     if (obj instanceof Date) {
@@ -223,38 +226,6 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-  public static CONVERT_TO_VOLT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.0-0') + ' V';
-    } else {
-      return '0 V';
-    }
-  };
-
-  /**
-   * Converts a value in Milliampere [mA] to Ampere[A].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_TO_CURRENT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
-    } else {
-      return '0 A';
-    }
-  };
-
-  /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
   public static CONVERT_WATT_TO_KILOWATT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -416,19 +387,19 @@ export class Utils {
    * @param soc the state-of-charge
    * @returns the image path
    */
-  public static getStorageSocImage(soc: number | null): string {
+  public static getStorageSocSegment(soc: number | null): string {
     if (!soc || soc < 10) {
-      return 'storage_0.png';
+      return '0';
     } else if (soc < 30) {
-      return 'storage_20.png';
+      return '20';
     } else if (soc < 50) {
-      return 'storage_40.png';
+      return '40';
     } else if (soc < 70) {
-      return 'storage_60.png';
+      return '60';
     } else if (soc < 90) {
-      return 'storage_80.png';
+      return '80';
     } else {
-      return 'storage_100.png';
+      return '100';
     }
   }
 
@@ -582,6 +553,58 @@ export namespace HistoryUtils {
     }];
   }
 
+  export enum YAxisTitle {
+    PERCENTAGE,
+    ENERGY
+  }
+  export type InputChannel = {
+
+    /** Must be unique, is used as identifier in {@link ChartData.input} */
+    name: string,
+    powerChannel: ChannelAddress,
+    energyChannel?: ChannelAddress
+
+    /** Choose between predefined converters */
+    converter?: (value: number) => number | null,
+  }
+  export type DisplayValues = {
+    name: string,
+    /** suffix to the name */
+    nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
+    /** Convert the values to be displayed in Chart */
+    converter: () => number[],
+    /** If dataset should be hidden on Init */
+    hiddenOnInit?: boolean,
+    /** default: true, stroke through label for hidden dataset */
+    noStrokeThroughLegendIfHidden?: boolean,
+    /** color in rgb-Format */
+    color: string,
+    /** the stack for barChart */
+    stack?: number,
+  }
+  /**
+ * Data from a subscription to Channel or from a historic data query.
+ * 
+ * TODO Lukas refactor
+ */
+  export type ChannelData = {
+    [name: string]: number[]
+  }
+
+  export type ChartData = {
+    /** Input Channels that need to be queried from the database */
+    input: InputChannel[],
+    /** Output Channels that will be shown in the chart */
+    output: (data: ChannelData) => DisplayValues[],
+    tooltip: {
+      /** Format of Number displayed */
+      formatNumber: string,
+      afterTitle?: string
+    },
+    /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
+    unit: YAxisTitle,
+  }
+
   export namespace ValueConverter {
 
     export const NEGATIVE_AS_ZERO = (value) => {
@@ -607,12 +630,20 @@ export namespace HistoryUtils {
         return 0;
       }
     };
-    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+  
+export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
+      if (value == null) {
+        return null;
+      } else {
+        return Math.abs(Math.min(0, value));
+      }
+    }
+export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
       if (value < 0) {
         return Math.abs(value);
       } else {
         return 0;
       }
     };
-  }
+}
 }
