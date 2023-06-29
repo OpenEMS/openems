@@ -16,7 +16,7 @@ public interface BatteryCoolable extends Battery, OpenemsComponent {
 		 * Cooling valve state.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryCoolable}
 		 * <li>Type: {@link OpenemsType#Boolean}
 		 * </ul>
 		 */

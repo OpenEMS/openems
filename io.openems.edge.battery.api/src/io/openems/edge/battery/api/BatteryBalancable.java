@@ -19,7 +19,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Set balancing target voltage.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
@@ -31,7 +31,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Set balancing conditions fulfilled.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
@@ -41,7 +41,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Set open circuit voltage reached at all the batteries.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
@@ -51,7 +51,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Set balancing running.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
@@ -61,7 +61,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Balancing minimum cell voltage.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
@@ -73,7 +73,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Open circuit voltage reached.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
@@ -83,7 +83,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Balancing still running.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
@@ -93,7 +93,7 @@ public interface BatteryBalancable extends Battery, OpenemsComponent {
 		 * Balancing condition.
 		 *
 		 * <ul>
-		 * <li>Interface: {@link BatteryClusterable}
+		 * <li>Interface: {@link BatteryBalancable}
 		 * <li>Type: {@link OpenemsType#BOOLEAN}
 		 * </ul>
 		 */
