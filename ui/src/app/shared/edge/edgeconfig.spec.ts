@@ -76,6 +76,17 @@ namespace Factory {
         ]
     };
 
+    export const CHARGER_GOODWE_PV1 = {
+        id: "GoodWe.Charger-PV1",
+        natureIds: [
+            "io.openems.edge.bridge.modbus.api.ModbusComponent",
+            "io.openems.edge.ess.dccharger.api.EssDcCharger",
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.goodwe.charger.GoodWeCharger",
+            "io.openems.edge.timedata.api.TimedataProvider"
+        ]
+    };
+
     export const EVCS_KEBA_KECONTACT = {
         id: "Evcs.Keba.KeContact",
         natureIds: [
@@ -84,6 +95,18 @@ namespace Factory {
             "io.openems.edge.common.component.OpenemsComponent",
             "io.openems.edge.evcs.api.ManagedEvcs",
             "io.openems.edge.evcs.api.Evcs"
+        ]
+    };
+    export const PV_INVERTER_KACO = {
+        id: "PV-Inverter.KACO.blueplanet",
+        natureIds: [
+            "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter",
+            "io.openems.edge.pvinverter.kaco.blueplanet.PvInverterKacoBlueplanet",
+            "io.openems.edge.meter.api.ElectricityMeter",
+            "io.openems.edge.bridge.modbus.api.ModbusComponent",
+            "io.openems.edge.common.modbusslave.ModbusSlave",
+            "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter",
+            "io.openems.edge.common.component.OpenemsComponent"
         ]
     };
 }
@@ -100,6 +123,7 @@ type Component = {
     channels?: {}
 };
 
+// Components
 export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
     alias: alias ?? id,
@@ -124,6 +148,18 @@ export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component
     },
     channels: {}
 });
+export const SOCOMEC_PRODUCTION_METER = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factory: Factory.METER_SOCOMEC_THREEPHASE,
+    factoryId: Factory.METER_SOCOMEC_THREEPHASE.id,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: "PRODUCTION"
+    },
+    channels: {}
+});
 
 export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
@@ -136,6 +172,17 @@ export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
     },
     channels: {}
 });
+export const GOODWE_CHARGER_PV1 = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factory: Factory.CHARGER_GOODWE_PV1,
+    properties: {
+        invert: false,
+        modbusUnitId: 5
+    },
+    channels: {}
+});
+
 
 export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
     id: id,
@@ -149,8 +196,20 @@ export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
     },
     channels: {}
 });
+export const PV_INVERTER_KACO = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factory: Factory.PV_INVERTER_KACO,
+    factoryId: Factory.PV_INVERTER_KACO.id,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: 'PRODUCTION'
+    },
+    channels: {}
+});
 
-
+// Lines
 export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
     type: "channel-line",
     name: name,
@@ -165,30 +224,32 @@ export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentatio
     value: value
 });
 
-export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
-    type: "children-line",
-    name: name,
-    indentation: TextIndentation.SINGLE,
-    children: [
-        {
-            type: "item",
-            value: voltage
-        },
-        {
-            type: "item",
-            value: current
-        },
-        {
-            type: "item",
-            value: power
-        }
-    ]
-});
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string, indentation?: TextIndentation): OeFormlyViewTester.Field => {
+    return {
+        type: "children-line",
+        name: name,
+        indentation: indentation ?? TextIndentation.SINGLE,
+        children: [
+            {
+                type: "item",
+                value: voltage
+            },
+            {
+                type: "item",
+                value: current
+            },
+            {
+                type: "item",
+                value: power
+            }
+        ]
+    };
+};
 
-export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
+export const PHASE_GUEST = (name: string, power: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
     type: "children-line",
     name: name,
-    indentation: TextIndentation.SINGLE,
+    indentation: indentation ?? TextIndentation.SINGLE,
     children: [
         {
             type: "item",
