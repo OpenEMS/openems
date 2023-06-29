@@ -168,8 +168,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Apply the actual logic of avoiding to discharge the battery during target
-	 * periods.
+	 * Apply the actual logic of calculating the battery energy, schedules it in
+	 * 15-minute intervals, and determines charge or delay discharge actions.
 	 *
 	 * @param now Current Date Time rounded off to NUMBER_OF_MINUTES.
 	 * @throws OpenemsNamedException on error
