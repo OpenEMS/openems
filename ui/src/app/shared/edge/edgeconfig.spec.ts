@@ -280,15 +280,15 @@ export const CHILDREN_LINE = (name: string, ...items: string[]): OeFormlyViewTes
     let lineItems: OeFormlyViewTester.Field.Item[] = [];
 
     items.forEach(item => {
-        lineItems.push({ type: 'item', value: item })
+        lineItems.push({ type: 'item', value: item });
     });
 
     return {
         type: "children-line",
         name: name,
         children: lineItems
-    }
-}
+    };
+};
 
 export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
     type: "horizontal-line"
@@ -309,4 +309,4 @@ export const LINE_NO_RECEPTION: OeFormlyViewTester.Field = {
     name: "Keine Netzverbindung!",
     value: "",
     indentation: TextIndentation.NONE
-}
+};

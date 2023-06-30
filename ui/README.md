@@ -85,3 +85,8 @@ ngOnDestroy() {
 
 #### Debugging Angular PWA Via USB-Connection
 Please follow this: https://medium.com/nerd-for-tech/google-chrome-how-to-inspect-websites-on-mobile-devices-804677f863ce
+
+#### EsLint
+Rules can be found here: [esLint](.eslintrc.json)
+
+Fixable with ```ng lint --fix```: "semi-colons", "comma-dangle", "curly", "unused-imports"

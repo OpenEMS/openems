@@ -61,7 +61,7 @@ export class ModalComponent extends AbstractFormlyComponent {
                     children: [{
                         type: 'item',
                         channel: '_sum/ProductionAcActivePower' + phase,
-                        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
+                        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
                     }],
                     indentation: TextIndentation.SINGLE
                 });
@@ -123,7 +123,7 @@ export class ModalComponent extends AbstractFormlyComponent {
             lines.push({
                 type: 'children-line',
                 name: Name.METER_ALIAS_OR_ID(charger),
-                children: getLineItems(),
+                children: getLineItems()
             });
 
             if (index < (chargerComponents.length - 1)) {
