@@ -419,16 +419,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 						return null;
 					}
 
-					var value = t.getAsDouble();
-					if (value < 1.0) {
-						return new JsonPrimitive(0);
-					} else if (value >= 1.0 && value < 2.0) {
-						return new JsonPrimitive(1);
-					} else if (value >= 2.0 && value < 3.0) {
-						return new JsonPrimitive(2);
-					} else {
-						return new JsonPrimitive(3);
-					}
+					// 'double' to 'int' for appropriate state machine values.
+					return new JsonPrimitive(t.getAsInt());
 				})
 				// get as Array
 				.collect(JsonUtils.toJsonArray());
