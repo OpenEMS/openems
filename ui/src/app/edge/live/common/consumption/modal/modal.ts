@@ -109,7 +109,8 @@ export class ModalComponent extends AbstractFormlyComponent {
     lines.push({
       type: 'value-from-channels-line',
       name: translate.instant('General.otherConsumption'),
-      value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
+      value: (currentData: CurrentData) =>
+        Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
       channelsToSubscribe: channelsToSubscribe
     });
 

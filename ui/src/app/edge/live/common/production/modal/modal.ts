@@ -56,10 +56,13 @@ export class ModalComponent extends AbstractFormlyComponent {
             });
             Phase.THREE_PHASE.forEach((phase, index) => {
                 lines.push({
-                    type: 'channel-line',
+                    type: 'children-line',
                     name: translate.instant('General.phase') + " " + phase,
-                    channel: '_sum/ProductionAcActivePower' + phase,
-                    converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
+                    children: [{
+                        type: 'item',
+                        channel: '_sum/ProductionAcActivePower' + phase,
+                        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
+                    }],
                     indentation: TextIndentation.SINGLE
                 });
             });
@@ -121,7 +124,6 @@ export class ModalComponent extends AbstractFormlyComponent {
                 type: 'children-line',
                 name: Name.METER_ALIAS_OR_ID(charger),
                 children: getLineItems(),
-                indentation: TextIndentation.NONE
             });
 
             if (index < (chargerComponents.length - 1)) {

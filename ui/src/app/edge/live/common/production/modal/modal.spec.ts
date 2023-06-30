@@ -1,12 +1,11 @@
-import { CHANNEL_LINE, DummyConfig, GOODWE_CHARGER_PV1, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, PV_INVERTER_KACO } from "src/app/shared/edge/edgeconfig.spec";
-import { TextIndentation } from "src/app/shared/genericComponents/modal/modal-line/modal-line";
+import { CHANNEL_LINE, CHILDREN_LINE, DummyConfig, GOODWE_CHARGER_PV1, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, PV_INVERTER_KACO } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
 import { expectView } from "./modal.constants.spec";
 
-describe('Consumption - Modal', () => {
+describe('Production - Modal', () => {
   let TEST_CONTEXT;
   beforeEach(() => TEST_CONTEXT = sharedSetup());
 
@@ -65,7 +64,7 @@ describe('Consumption - Modal', () => {
           PHASE_ADMIN("Phase L2", "0 V", "0,0 A", "0 W"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
           LINE_HORIZONTAL,
-          PHASE_ADMIN("Charger", "-1 V", "1,0 A", "1.000 W", TextIndentation.NONE),
+          CHILDREN_LINE("Charger", "-1 V", "1,0 A", "1.000 W"),
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
@@ -91,7 +90,7 @@ describe('Consumption - Modal', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Erzeugung",
         lines: [
-          PHASE_ADMIN("Charger", "1 V", "1,0 A", "1.000 W", TextIndentation.NONE),
+          CHILDREN_LINE("Charger", "1 V", "1,0 A", "1.000 W"),
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
@@ -116,9 +115,9 @@ describe('Consumption - Modal', () => {
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
           LINE_HORIZONTAL,
-          PHASE_ADMIN("Charger 1", "1 V", "1,0 A", "1.000 W"),
+          CHILDREN_LINE("Charger 1", "1 V", "1,0 A", "1.000 W"),
           LINE_HORIZONTAL,
-          PHASE_ADMIN("Charger 2", "-", "-", "-"),
+          CHILDREN_LINE("Charger 2", "-", "-", "-"),
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
@@ -151,9 +150,9 @@ describe('Consumption - Modal', () => {
         title: "Erzeugung",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
+          PHASE_GUEST("Phase L1", "300 W"),
+          PHASE_GUEST("Phase L2", "350 W"),
+          PHASE_GUEST("Phase L3", "350 W"),
           LINE_HORIZONTAL,
           CHANNEL_LINE("pvInverter0", "1.000 W"),
           PHASE_GUEST("Phase L1", "1.000 W"),
@@ -207,9 +206,9 @@ describe('Consumption - Modal', () => {
           LINE_HORIZONTAL,
           CHANNEL_LINE('Gesamt DC', "1.000 W"),
           LINE_HORIZONTAL,
-          PHASE_GUEST("charger0", "1.000 W", TextIndentation.NONE),
+          CHILDREN_LINE("charger0", "1.000 W"),
           LINE_HORIZONTAL,
-          PHASE_GUEST("charger1", "-", TextIndentation.NONE),
+          CHILDREN_LINE("charger1", "-"),
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]

@@ -59,17 +59,14 @@ export class OeFormlyViewTester {
           // Prepare result
           let result: OeFormlyViewTester.Field.ChannelLine = {
             type: field.type,
-            name: name
+            name: name,
+            indentation: field.indentation ?? TextIndentation.NONE
           };
 
           // Apply properties if available
           if (tmp.value !== null) {
             result.value = tmp.value;
           }
-          if (field.indentation) {
-            result.indentation = field.indentation;
-          }
-
           // Recursive call for children
 
           return result;

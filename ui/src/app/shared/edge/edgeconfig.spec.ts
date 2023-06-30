@@ -213,8 +213,8 @@ export const PV_INVERTER_KACO = (id: string, alias?: string): Component => ({
 export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
     type: "channel-line",
     name: name,
-    ...(indentation && { indentation: indentation }),
-    value: value
+    value: value,
+    indentation: indentation ?? TextIndentation.NONE
 });
 
 export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
@@ -224,11 +224,21 @@ export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentatio
     value: value
 });
 
-export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string, indentation?: TextIndentation): OeFormlyViewTester.Field => {
+/**
+ * Phase for Admin
+ * 
+ * @param name the name
+ * @param voltage the voltage
+ * @param current the current
+ * @param power the power
+ * @param indentation the indentation from the left, default {@link TextIndentation.SINGLE}
+ * @returns a {@link OeFormlyViewTester.Field.ChildrenLine}
+ */
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => {
     return {
         type: "children-line",
         name: name,
-        indentation: indentation ?? TextIndentation.SINGLE,
+        indentation: TextIndentation.SINGLE,
         children: [
             {
                 type: "item",
@@ -246,10 +256,18 @@ export const PHASE_ADMIN = (name: string, voltage: string, current: string, powe
     };
 };
 
-export const PHASE_GUEST = (name: string, power: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+/**
+ * Phase for Guest
+ * 
+ * @param name the name
+ * @param power the power
+ * @param indentation the indentation from the left, default {@link TextIndentation.SINGLE}
+ * @returns a {@link OeFormlyViewTester.Field.ChildrenLine}
+ */
+export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
     type: "children-line",
     name: name,
-    indentation: indentation ?? TextIndentation.SINGLE,
+    indentation: TextIndentation.SINGLE,
     children: [
         {
             type: "item",
@@ -257,6 +275,20 @@ export const PHASE_GUEST = (name: string, power: string, indentation?: TextInden
         }
     ]
 });
+
+export const CHILDREN_LINE = (name: string, ...items: string[]): OeFormlyViewTester.Field => {
+    let lineItems: OeFormlyViewTester.Field.Item[] = [];
+
+    items.forEach(item => {
+        lineItems.push({ type: 'item', value: item })
+    });
+
+    return {
+        type: "children-line",
+        name: name,
+        children: lineItems
+    }
+}
 
 export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
     type: "horizontal-line"
@@ -271,3 +303,10 @@ export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
     type: "info-line",
     name: text
 });
+
+export const LINE_NO_RECEPTION: OeFormlyViewTester.Field = {
+    type: "channel-line",
+    name: "Keine Netzverbindung!",
+    value: "",
+    indentation: TextIndentation.NONE
+}
