@@ -1,10 +1,10 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Component, OnDestroy } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[productionsection]',
@@ -24,7 +24,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
         ])
     ]
 })
-export class ProductionSectionComponent extends AbstractSection implements OnDestroy {
+export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
@@ -35,9 +35,9 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
-        super('General.production', "up", "#008DD2", translate, service, "Production");
+        super('General.production', "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 
@@ -53,7 +53,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     }
 
     get stateName() {
-        return this.showAnimation ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -92,7 +92,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     }
 
     protected getImagePath(): string {
-        return "production.png";
+        return "icon/production.svg";
     }
 
     protected getValueText(value: number): string {
@@ -108,8 +108,8 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -122,7 +122,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
             middleTop: { x: 0, y: r * -1 + v }
-        }
+        };
         if (ratio < 0) {
             // towards top
             p.topLeft.y = p.topLeft.y + v;
@@ -143,7 +143,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnDes
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
             middleTop: { x: 0, y: r * -1 + v }
-        }
+        };
         if (ratio > 0) {
             // towards bottom
             p.bottomRight.y = p.topRight.y + animationWidth * 0.2;

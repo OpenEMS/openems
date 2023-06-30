@@ -9,13 +9,13 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ChartOptionsPopoverComponent {
 
-    @Input() public showPhases: boolean;
-    @Input() public showTotal: boolean;
+    @Input() public showPhases: boolean | null = null;
+    @Input() public showTotal: boolean | null = null;
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService,
+        public translate: TranslateService
     ) { }
 
     public setPhases() {

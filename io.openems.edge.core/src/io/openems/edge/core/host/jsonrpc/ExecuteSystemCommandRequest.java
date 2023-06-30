@@ -8,11 +8,10 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Represents a JSON-RPC Request to execute a system command on OpenEMS Edge.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -37,19 +36,19 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a
 	 * {@link ExecuteSystemCommandRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link ExecuteSystemCommandRequest}
 	 * @throws OpenemsNamedException on error
 	 */
 	public static ExecuteSystemCommandRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String command = JsonUtils.getAsString(p, "command");
+		var p = r.getParams();
+		var command = JsonUtils.getAsString(p, "command");
 		boolean runInBackground = JsonUtils.getAsOptionalBoolean(p, "runInBackground")
 				.orElse(DEFAULT_RUN_IN_BACKGROUND);
 		int timeoutSeconds = JsonUtils.getAsOptionalInt(p, "timeoutSeconds").orElse(DEFAULT_TIMEOUT_SECONDS);
-		Optional<String> username = JsonUtils.getAsOptionalString(p, "username");
-		Optional<String> password = JsonUtils.getAsOptionalString(p, "password");
+		var username = JsonUtils.getAsOptionalString(p, "username");
+		var password = JsonUtils.getAsOptionalString(p, "password");
 		return new ExecuteSystemCommandRequest(r.getId(), command, runInBackground, timeoutSeconds, username, password);
 	}
 
@@ -61,7 +60,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Factory without Username + Password; run in background without timeout.
-	 * 
+	 *
 	 * @param command the command
 	 * @return the {@link ExecuteSystemCommandRequest}
 	 */
@@ -71,7 +70,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Factory without Username + Password.
-	 * 
+	 *
 	 * @param command         the command
 	 * @param runInBackground run the command in background (true) or in foreground
 	 *                        (false)
@@ -91,7 +90,8 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	public ExecuteSystemCommandRequest(UUID id, String command, boolean runInBackground, int timeoutSeconds,
 			Optional<String> username, Optional<String> password) {
-		super(id, METHOD);
+		super(id, METHOD,
+				timeoutSeconds + JsonrpcRequest.DEFAULT_TIMEOUT_SECONDS /* reuse timeoutSeconds with some buffer */);
 		this.command = command;
 		this.runInBackground = runInBackground;
 		this.timeoutSeconds = timeoutSeconds;
@@ -101,7 +101,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonObjectBuilder result = JsonUtils.buildJsonObject() //
+		var result = JsonUtils.buildJsonObject() //
 				.addProperty("command", this.command) //
 				.addProperty("runInBackground", this.runInBackground) //
 				.addProperty("timeoutSeconds", this.timeoutSeconds); //
@@ -116,7 +116,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request command.
-	 * 
+	 *
 	 * @return the command
 	 */
 	public String getCommand() {
@@ -125,7 +125,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request isRunInBackground option.
-	 * 
+	 *
 	 * @return the isRunInBackground option
 	 */
 	public boolean isRunInBackground() {
@@ -134,7 +134,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request timeout.
-	 * 
+	 *
 	 * @return the timeout in seconds
 	 */
 	public int getTimeoutSeconds() {
@@ -143,7 +143,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request username.
-	 * 
+	 *
 	 * @return the username
 	 */
 	public Optional<String> getUsername() {
@@ -152,7 +152,7 @@ public class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request password.
-	 * 
+	 *
 	 * @return the password
 	 */
 	public Optional<String> getPassword() {

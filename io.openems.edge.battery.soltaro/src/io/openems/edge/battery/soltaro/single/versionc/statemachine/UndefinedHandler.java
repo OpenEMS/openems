@@ -1,6 +1,5 @@
 package io.openems.edge.battery.soltaro.single.versionc.statemachine;
 
-import io.openems.edge.battery.soltaro.single.versionc.SingleRackVersionC;
 import io.openems.edge.battery.soltaro.single.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -8,7 +7,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		SingleRackVersionC battery = context.getParent();
+		var battery = context.getParent();
 		switch (battery.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State

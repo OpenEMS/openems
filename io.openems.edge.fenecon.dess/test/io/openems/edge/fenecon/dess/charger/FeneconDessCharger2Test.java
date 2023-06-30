@@ -16,7 +16,7 @@ public class FeneconDessCharger2Test {
 
 	@Test
 	public void test() throws Exception {
-		FeneconDessEssImpl ess = new FeneconDessEssImpl();
+		var ess = new FeneconDessEssImpl();
 		new ComponentTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

@@ -19,7 +19,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 
 /**
  * Objects of this class are used to store additional data with websocket
- * connections of WebSocketClient and WebSocketServer
+ * connections of WebSocketClient and WebSocketServer.
  */
 public abstract class WsData {
 
@@ -29,7 +29,7 @@ public abstract class WsData {
 	private WebSocket websocket = null;
 
 	/**
-	 * Holds Futures for JSON-RPC Requests
+	 * Holds Futures for JSON-RPC Requests.
 	 */
 	private final ConcurrentHashMap<UUID, CompletableFuture<JsonrpcResponseSuccess>> requestFutures = new ConcurrentHashMap<>();
 
@@ -38,12 +38,15 @@ public abstract class WsData {
 	 * blocked resources.
 	 */
 	public void dispose() {
-		// nothing here
+		// Complete all pending requests
+		this.requestFutures.values()
+				.forEach(r -> r.completeExceptionally(new OpenemsException("Websocket connection closed.")));
+		this.requestFutures.clear();
 	}
 
 	/**
 	 * Sets the WebSocket.
-	 * 
+	 *
 	 * @param ws the WebSocket instance
 	 */
 	public synchronized void setWebsocket(WebSocket ws) {
@@ -52,35 +55,33 @@ public abstract class WsData {
 
 	/**
 	 * Gets the WebSocket. Possibly null!
-	 * 
+	 *
 	 * @return the WebSocket instance
 	 */
 	public WebSocket getWebsocket() {
-		return websocket;
+		return this.websocket;
 	}
 
 	/**
 	 * Sends a JSON-RPC request to a Websocket and registers a callback.
-	 * 
+	 *
 	 * @param request the JSON-RPC Request
 	 * @return a promise for a successful JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> send(JsonrpcRequest request) throws OpenemsNamedException {
-		CompletableFuture<JsonrpcResponseSuccess> future = new CompletableFuture<>();
-		CompletableFuture<JsonrpcResponseSuccess> existingFuture = this.requestFutures.putIfAbsent(request.getId(),
-				future);
+		var future = new CompletableFuture<JsonrpcResponseSuccess>();
+		var existingFuture = this.requestFutures.putIfAbsent(request.getId(), future);
 		if (existingFuture != null) {
 			throw OpenemsError.JSONRPC_ID_NOT_UNIQUE.exception(request.getId());
-		} else {
-			this.sendMessage(request);
-			return future;
 		}
+		this.sendMessage(request);
+		return future;
 	}
 
 	/**
 	 * Sends a JSON-RPC Notification to a WebSocket.
-	 * 
+	 *
 	 * @param notification the JSON-RPC Notification
 	 * @throws OpenemsException on error
 	 */
@@ -90,7 +91,7 @@ public abstract class WsData {
 
 	/**
 	 * Sends the JSON-RPC message.
-	 * 
+	 *
 	 * @param message the JSON-RPC Message
 	 * @throws OpenemsException on error
 	 */
@@ -108,42 +109,40 @@ public abstract class WsData {
 	/**
 	 * Handles a JSON-RPC response by completing the previously registers request
 	 * Future.
-	 * 
+	 *
 	 * @param response the JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
 	public void handleJsonrpcResponse(JsonrpcResponse response) throws OpenemsNamedException {
-		CompletableFuture<JsonrpcResponseSuccess> future = this.requestFutures.remove(response.getId());
-		if (future != null) {
-			// this was a response on a request
-			if (response instanceof JsonrpcResponseSuccess) {
-				// Success Response -> complete future
-				future.complete((JsonrpcResponseSuccess) response);
-
-			} else if (response instanceof JsonrpcResponseError) {
-				// Named OpenEMS-Error Response -> cancel future
-				JsonrpcResponseError error = ((JsonrpcResponseError) response);
-				OpenemsNamedException exception = new OpenemsNamedException(error.getOpenemsError(),
-						error.getParamsAsObjectArray());
-				future.completeExceptionally(exception);
-
-			} else {
-				// Undefined Error Response -> cancel future
-				OpenemsNamedException exception = new OpenemsNamedException(OpenemsError.GENERIC,
-						"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
-				future.completeExceptionally(exception);
-			}
-
-		} else {
+		var future = this.requestFutures.remove(response.getId());
+		if (future == null) {
 			// this was a response without a request
 			throw OpenemsError.JSONRPC_RESPONSE_WITHOUT_REQUEST.exception(response.toJsonObject());
+		}
+		// this was a response on a request
+		if (response instanceof JsonrpcResponseSuccess) {
+			// Success Response -> complete future
+			future.complete((JsonrpcResponseSuccess) response);
+
+		} else if (response instanceof JsonrpcResponseError) {
+			// Named OpenEMS-Error Response -> cancel future
+			var error = (JsonrpcResponseError) response;
+			var exception = new OpenemsNamedException(error.getOpenemsError(), error.getParamsAsObjectArray());
+			future.completeExceptionally(exception);
+
+		} else {
+			// Undefined Error Response -> cancel future
+			var exception = new OpenemsNamedException(OpenemsError.GENERIC,
+					"Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response.toString());
+			future.completeExceptionally(exception);
 		}
 	}
 
 	/**
 	 * Provides a specific toString method.
-	 * 
+	 *
 	 * @return a specific string for this instance
 	 */
+	@Override
 	public abstract String toString();
 }

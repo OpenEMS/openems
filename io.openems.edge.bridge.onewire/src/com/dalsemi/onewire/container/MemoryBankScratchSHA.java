@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -63,7 +64,7 @@ class MemoryBankScratchSHA extends MemoryBankScratchCRC {
 		super(ibutton);
 
 		// initialize attributes of this memory bank - DEFAULT: DS1963S scratchapd
-		bankDescription = "Scratchpad with CRC and auto-hide";
+		this.bankDescription = "Scratchpad with CRC and auto-hide";
 	}
 
 	// --------
@@ -81,14 +82,15 @@ class MemoryBankScratchSHA extends MemoryBankScratchCRC {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		boolean calcCRC = false;
-		byte[] raw_buf = new byte[37];
+		var calcCRC = false;
+		var raw_buf = new byte[37];
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
@@ -96,18 +98,18 @@ class MemoryBankScratchSHA extends MemoryBankScratchCRC {
 		// erase the scratchpad
 		raw_buf[0] = ERASE_SCRATCHPAD_COMMAND;
 
-		System.arraycopy(ffBlock, 0, raw_buf, 1, 8);
-		ib.adapter.dataBlock(raw_buf, 0, 9);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 1, 8);
+		this.ib.adapter.dataBlock(raw_buf, 0, 9);
 
-		if (((byte) (raw_buf[8] & 0x0F0) != (byte) 0xA0) && ((byte) (raw_buf[8] & 0x0F0) != (byte) 0x50)) {
-			forceVerify();
+		if ((byte) (raw_buf[8] & 0x0F0) != (byte) 0xA0 && (byte) (raw_buf[8] & 0x0F0) != (byte) 0x50) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Erase scratchpad complete not found");
 		}
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
@@ -115,27 +117,28 @@ class MemoryBankScratchSHA extends MemoryBankScratchCRC {
 		// build block to send
 		raw_buf[0] = WRITE_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
 
 		System.arraycopy(writeBuf, offset, raw_buf, 3, len);
 
 		// check if full page (can utilize CRC)
-		if (((startAddr + len) % pageLength) == 0) {
-			System.arraycopy(ffBlock, 0, raw_buf, len + 3, 2);
+		if ((startAddr + len) % this.pageLength == 0) {
+			System.arraycopy(this.ffBlock, 0, raw_buf, len + 3, 2);
 
 			calcCRC = true;
 		}
 
 		// send block, return result
-		ib.adapter.dataBlock(raw_buf, 0, len + 3 + ((calcCRC) ? 2 : 0));
+		this.ib.adapter.dataBlock(raw_buf, 0, len + 3 + (calcCRC ? 2 : 0));
 
 		// check crc
 		if (calcCRC) {
 			if (CRC16.compute(raw_buf, 0, len + 5, 0) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
 		}
 	}
 }
+// CHECKSTYLE:ON

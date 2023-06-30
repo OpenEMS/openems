@@ -1,15 +1,14 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { CurrentData } from 'src/app/shared/edge/currentdata';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: SelfconsumptionWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -20,7 +19,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -32,7 +31,7 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -44,13 +43,13 @@ export class SelfconsumptionWidgetComponent extends AbstractHistoryWidget implem
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
-                    this.selfconsumptionValue = CurrentData.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
+                    this.selfconsumptionValue = Utils.calculateSelfConsumption(result.data['_sum/GridSellActiveEnergy'],
                         result.data['_sum/ProductionActiveEnergy']);
                 }).catch(() => {
                     this.selfconsumptionValue = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

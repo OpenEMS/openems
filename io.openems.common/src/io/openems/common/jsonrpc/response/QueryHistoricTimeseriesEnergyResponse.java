@@ -12,7 +12,7 @@ import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Response for 'queryHistoricTimeseriesEnergy'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -41,10 +41,10 @@ public class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSucces
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject result = new JsonObject();
-		JsonObject p = new JsonObject();
+		var result = new JsonObject();
+		var p = new JsonObject();
 
-		for (Entry<ChannelAddress, JsonElement> entry : data.entrySet()) {
+		for (Entry<ChannelAddress, JsonElement> entry : this.data.entrySet()) {
 			p.add(entry.getKey().toString(), entry.getValue());
 		}
 		result.add("data", p);

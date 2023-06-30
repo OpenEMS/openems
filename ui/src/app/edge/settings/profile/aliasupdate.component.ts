@@ -1,19 +1,19 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Edge, Websocket, Service } from 'src/app/shared/shared';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
     selector: 'aliasupdate',
     templateUrl: './aliasupdate.component.html'
 })
-export class AliasUpdateComponent {
+export class AliasUpdateComponent implements OnInit {
 
     private edge: Edge;
 
     public component: EdgeConfig.Component = null;
-    public formGroup: FormGroup = null;
+    public formGroup: FormGroup | null = null;
     public factory: EdgeConfig.Factory = null;
     public componentIcon: string = null;
 
@@ -22,11 +22,11 @@ export class AliasUpdateComponent {
         private route: ActivatedRoute,
         private websocket: Websocket,
         private translate: TranslateService,
-        private formBuilder: FormBuilder,
+        private formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {
-        this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.renameComponents'), this.route).then(edge => {
+        this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.renameComponents' }, this.route).then(edge => {
             this.edge = edge;
         });
         this.service.getConfig().then(config => {
@@ -36,8 +36,8 @@ export class AliasUpdateComponent {
             this.componentIcon = config.getFactoryIcon(this.factory);
             this.formGroup = this.formBuilder.group({
                 alias: new FormControl(this.component.alias)
-            })
-        })
+            });
+        });
     }
 
     updateAlias(alias) {

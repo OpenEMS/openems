@@ -1,6 +1,5 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,12 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -37,7 +33,7 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
 /**
  * This tool converts SunSpec XML definitions to Java code suitable for the
  * OpenEMS SunSpec implementation.
- * 
+ *
  * <p>
  * Download XML files from https://github.com/sunspec/models.
  */
@@ -117,19 +113,19 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Run this method to start the code generator.
-	 * 
+	 *
 	 * @param args not supported
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		SunSpecCodeGenerator generator = new SunSpecCodeGenerator();
-		List<Model> models = generator.parseSunSpecXmlFiles();
+		var generator = new SunSpecCodeGenerator();
+		var models = generator.parseSunSpecXmlFiles();
 		generator.writeSunSpecModelJavaFile(models);
 	}
 
 	/**
 	 * Parses all SunSpec XML files in a directory.
-	 * 
+	 *
 	 * @return a list of Models
 	 * @throws Exception on error
 	 */
@@ -140,7 +136,7 @@ public class SunSpecCodeGenerator {
 				&& file.getName().endsWith(".xml") //
 				&& !IGNORE_FILES.contains(file.getName()))) {
 			try {
-				Model model = this.parseSunSpecXmlFile(file);
+				var model = this.parseSunSpecXmlFile(file);
 				result.add(model);
 
 			} catch (Exception e) {
@@ -152,47 +148,45 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Parses a SunSpec XML file.
-	 * 
+	 *
 	 * @param file the SunSpec XML file handler
 	 * @return the Model
 	 * @throws Exception on error
 	 */
 	private Model parseSunSpecXmlFile(File file) throws Exception {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(file);
+		var dbFactory = DocumentBuilderFactory.newInstance();
+		var dBuilder = dbFactory.newDocumentBuilder();
+		var doc = dBuilder.parse(file);
 		doc.getDocumentElement().normalize();
 
-		SunSpecCodeGenerator generator = new SunSpecCodeGenerator();
-		Model model = generator.parseSunSpecModels(doc.getDocumentElement());
-
-		return model;
+		var generator = new SunSpecCodeGenerator();
+		return generator.parseSunSpecModels(doc.getDocumentElement());
 	}
 
 	/**
 	 * Parses the element sunSpecModels.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;sunSpecModels v="1"&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="v" type="xs:string" default="1"
 	 * </ul>
-	 * 
+	 *
 	 * @param sunSpecModelsElement the 'sunSpecModels' node
 	 * @return the Model
 	 * @throws OpenemsNamedException on error
 	 */
 	private Model parseSunSpecModels(Element sunSpecModelsElement) throws OpenemsNamedException {
 		// parse all "model" XML elements
-		NodeList modelNodes = sunSpecModelsElement.getElementsByTagName("model");
-		Node modelNode = this.assertExactlyOneNode(modelNodes, (node) -> node.getAttributes().getLength() != 0);
-		Model model = this.parseModel(modelNode);
+		var modelNodes = sunSpecModelsElement.getElementsByTagName("model");
+		var modelNode = this.assertExactlyOneNode(modelNodes, node -> node.getAttributes().getLength() != 0);
+		var model = this.parseModel(modelNode);
 
 		// parse all "strings" XML elements
-		NodeList stringsNodes = sunSpecModelsElement.getElementsByTagName("strings");
-		Node stringsNode = this.assertExactlyOneNode(stringsNodes);
+		var stringsNodes = sunSpecModelsElement.getElementsByTagName("strings");
+		var stringsNode = this.assertExactlyOneNode(stringsNodes);
 		this.parseStrings(stringsNode, model);
 
 		return model;
@@ -200,48 +194,48 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Parses the element sunSpecModels -&gt; model.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;model id="1" len="66" name="common"&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="id" type="xs:integer"
 	 * <li>xs:attribute name="len" type="xs:integer"
 	 * </ul>
-	 * 
+	 *
 	 * @param node the 'model' node
 	 * @return the Model
 	 * @throws OpenemsNamedException on error
 	 */
 	private Model parseModel(Node node) throws OpenemsNamedException {
 		// read attributes
-		NamedNodeMap attrs = node.getAttributes();
-		int id = XmlUtils.getAsInt(attrs, "id");
-		int len = XmlUtils.getAsInt(attrs, "len");
-		String name = XmlUtils.getAsStringOrElse(attrs, "name", "");
+		var attrs = node.getAttributes();
+		var id = XmlUtils.getAsInt(attrs, "id");
+		var len = XmlUtils.getAsInt(attrs, "len");
+		var name = XmlUtils.getAsStringOrElse(attrs, "name", "");
 
 		// read points
-		Element element = (Element) node;
-		NodeList blockNodes = element.getElementsByTagName("block");
-		Node blockNode = this.assertExactlyOneNode(blockNodes);
-		List<Point> points = this.parseModelBlock(blockNode);
+		var element = (Element) node;
+		var blockNodes = element.getElementsByTagName("block");
+		var blockNode = this.assertExactlyOneNode(blockNodes);
+		var points = this.parseModelBlock(blockNode);
 
 		return new Model(id, len, name, points);
 	}
 
 	/**
 	 * Parses the element sunSpecModels -&gt; model -&gt; block.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;block len="66"&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="id" type="xs:integer"
 	 * <li>xs:attribute name="len" type="xs:integer"
 	 * </ul>
-	 * 
+	 *
 	 * @param node the 'block' node
 	 * @return a list Points
 	 * @throws OpenemsNamedException on error
@@ -249,10 +243,10 @@ public class SunSpecCodeGenerator {
 	private List<Point> parseModelBlock(Node node) throws OpenemsNamedException {
 		// TODO implement "repeating" blocks
 		List<Point> points = new ArrayList<>();
-		Element element = (Element) node;
-		NodeList pointNodes = element.getElementsByTagName("point");
-		for (int i = 0; i < pointNodes.getLength(); i++) {
-			Node pointNode = pointNodes.item(i);
+		var element = (Element) node;
+		var pointNodes = element.getElementsByTagName("point");
+		for (var i = 0; i < pointNodes.getLength(); i++) {
+			var pointNode = pointNodes.item(i);
 			points.add(this.parseModelBlockPoint(pointNode));
 		}
 		return points;
@@ -260,11 +254,11 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Parses the element sunSpecModels -&gt; model -&gt; block -&gt; point.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;point id="Mn" offset="0" type="string" len="16" mandatory="true" /&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="id" type="xs:string" use="required"
 	 * <li>xs:attribute name="len" type="xs:integer"
@@ -277,17 +271,17 @@ public class SunSpecCodeGenerator {
 	 * <li>xs:attribute name="category" type="CategoryDefinition"
 	 * default="measurement"
 	 * </ul>
-	 * 
+	 *
 	 * @param node the 'point' node.
 	 * @return the Point
 	 * @throws OpenemsNamedException on error
 	 */
 	private Point parseModelBlockPoint(Node node) throws OpenemsNamedException {
-		NamedNodeMap attrs = node.getAttributes();
+		var attrs = node.getAttributes();
 
 		int len;
 		PointType type;
-		String typeString = XmlUtils.getAsString(attrs, "type");
+		var typeString = XmlUtils.getAsString(attrs, "type");
 		if (typeString.equals("string")) {
 			len = XmlUtils.getAsInt(attrs, "len");
 			type = PointType.valueOf("STRING" + len);
@@ -296,9 +290,9 @@ public class SunSpecCodeGenerator {
 			len = type.length;
 		}
 
-		String scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
-		String unitString = XmlUtils.getAsStringOrElse(attrs, "units", "");
-		final ThrowingFunction<String, Unit, OpenemsNamedException> toUnit = (s) -> {
+		var scaleFactor = XmlUtils.getAsStringOrElse(attrs, "sf", null);
+		var unitString = XmlUtils.getAsStringOrElse(attrs, "units", "");
+		final ThrowingFunction<String, Unit, OpenemsNamedException> toUnit = s -> {
 			s = s.trim();
 			if (s.contains(" ")) {
 				s = s.substring(0, s.indexOf(" "));
@@ -365,13 +359,14 @@ public class SunSpecCodeGenerator {
 			case "W":
 				return Unit.WATT;
 			case "Wh":
-				return Unit.WATT_HOURS;
+				// Validate manually: OpenEMS distinguishes CUMULATED and DISCRETE Watt-Hours.
+				return Unit.CUMULATED_WATT_HOURS;
 			}
 			throw new OpenemsException("Unhandled unit [" + s + "]");
 		};
-		Unit unit = toUnit.apply(unitString);
+		var unit = toUnit.apply(unitString);
 
-		String accessModeString = XmlUtils.getAsStringOrElse(attrs, "access", "r");
+		var accessModeString = XmlUtils.getAsStringOrElse(attrs, "access", "r");
 		AccessMode accessMode;
 		switch (accessModeString.toLowerCase()) {
 		case "wo":
@@ -386,66 +381,64 @@ public class SunSpecCodeGenerator {
 			accessMode = AccessMode.READ_ONLY;
 			break;
 		}
-		boolean mandatory = XmlUtils.getAsBooleanOrElse(attrs, "mandatory", false);
-		PointCategory category = XmlUtils.getAsEnumOrElse(PointCategory.class, attrs, "category",
-				PointCategory.MEASUREMENT);
+		var mandatory = XmlUtils.getAsBooleanOrElse(attrs, "mandatory", false);
+		var category = XmlUtils.getAsEnumOrElse(PointCategory.class, attrs, "category", PointCategory.MEASUREMENT);
 
 		// read symbols
-		Element element = (Element) node;
-		NodeList symbolNodes = element.getElementsByTagName("symbol");
+		var element = (Element) node;
+		var symbolNodes = element.getElementsByTagName("symbol");
 		Symbol[] symbols;
 		if (symbolNodes.getLength() > 0) {
 			symbols = new Symbol[symbolNodes.getLength()];
-			for (int i = 0; i < symbolNodes.getLength(); i++) {
-				Node symbolNode = symbolNodes.item(i);
+			for (var i = 0; i < symbolNodes.getLength(); i++) {
+				var symbolNode = symbolNodes.item(i);
 				symbols[i] = this.parseModelBlockPointSymbol(symbolNode);
 			}
 		} else {
 			symbols = new Symbol[0];
 		}
 
-		String id = XmlUtils.getAsString(attrs, "id");
-		int offset = XmlUtils.getAsInt(attrs, "offset");
+		var id = XmlUtils.getAsString(attrs, "id");
+		var offset = XmlUtils.getAsInt(attrs, "offset");
 
-		Point point = new Point(id, len, offset, type, scaleFactor, unit, accessMode, mandatory, category, symbols);
-		return point;
+		return new Point(id, len, offset, type, scaleFactor, unit, accessMode, mandatory, category, symbols);
 	}
 
 	/**
 	 * Parses the element sunSpecModels -&gt; model -&gt; block -&gt; point -&gt;
 	 * symbol.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;symbol id="OFF"&gt1&ltsymbol&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="id" type="xs:string" use="required"
 	 * </ul>
-	 * 
+	 *
 	 * @param node the 'symbol' node
 	 * @return the Symbol
 	 * @throws OpenemsNamedException on error
 	 */
 	private Symbol parseModelBlockPointSymbol(Node node) throws OpenemsNamedException {
-		NamedNodeMap attrs = node.getAttributes();
-		String id = XmlUtils.getAsString(attrs, "id");
-		int value = XmlUtils.getContentAsInt(node);
+		var attrs = node.getAttributes();
+		var id = XmlUtils.getAsString(attrs, "id");
+		var value = XmlUtils.getContentAsInt(node);
 		return new Symbol(id, value);
 	}
 
 	/**
 	 * Parses the element sunSpecModels -&gt; strings.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;strings id="1" locale="en"&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <ul>
 	 * <li>xs:attribute name="id" type="xs:integer" use="required"
 	 * <li>xs:attribute name="locale" type="xs:string"
 	 * </ul>
-	 * 
+	 *
 	 * @param node  the 'strings' node
 	 * @param model the Model, that needs to be completed.
 	 * @throws OpenemsNamedException on error
@@ -453,36 +446,36 @@ public class SunSpecCodeGenerator {
 	@SuppressWarnings("unused")
 	private void parseStrings(Node node, Model model) throws OpenemsNamedException {
 		// read attributes
-		NamedNodeMap attrs = node.getAttributes();
-		int id = XmlUtils.getAsInt(attrs, "id");
-		String locale = XmlUtils.getAsString(attrs, "locale");
+		var attrs = node.getAttributes();
+		var id = XmlUtils.getAsInt(attrs, "id");
+		var locale = XmlUtils.getAsString(attrs, "locale");
 
 		if (model.id != id) {
 			throw new OpenemsException("Model-IDs are not matching");
 		}
 
-		Element element = (Element) node;
+		var element = (Element) node;
 
 		// read model
-		NodeList modelNodes = element.getElementsByTagName("model");
-		Node modelNode = this.assertExactlyOneNode(modelNodes);
+		var modelNodes = element.getElementsByTagName("model");
+		var modelNode = this.assertExactlyOneNode(modelNodes);
 		this.parseStringsModel(modelNode, model);
 
 		// read points
-		NodeList pointNodes = element.getElementsByTagName("point");
-		for (int i = 0; i < pointNodes.getLength(); i++) {
-			Node pointNode = pointNodes.item(i);
+		var pointNodes = element.getElementsByTagName("point");
+		for (var i = 0; i < pointNodes.getLength(); i++) {
+			var pointNode = pointNodes.item(i);
 			this.parseStringsPoint(pointNode, model);
 		}
 	}
 
 	/**
 	 * Parses the element sunSpecModels -&gt; strings -&gt; model.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;model&gt;
 	 * </pre>
-	 * 
+	 *
 	 * @param node  the 'model' node.
 	 * @param model the Model, that needs to be completed.
 	 * @throws OpenemsNamedException on error
@@ -495,18 +488,18 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Parses the element sunSpecModels -&gt; strings -&gt; point.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;point&gt;
 	 * </pre>
-	 * 
+	 *
 	 * @param node  the 'point' node
 	 * @param model the Model, that needs to be completed.
 	 * @throws OpenemsNamedException on error
 	 */
 	private void parseStringsPoint(Node node, Model model) throws OpenemsNamedException {
-		NamedNodeMap attrs = node.getAttributes();
-		String id = XmlUtils.getAsString(attrs, "id");
+		var attrs = node.getAttributes();
+		var id = XmlUtils.getAsString(attrs, "id");
 		switch (id) {
 		case "VArWMaxPct_SF":
 		case "TotVArhExpQ4Ph":
@@ -520,12 +513,12 @@ public class SunSpecCodeGenerator {
 			return;
 		}
 
-		Point point = model.getPoint(id);
+		var point = model.getPoint(id);
 
-		Element element = (Element) node;
-		NodeList subNodes = element.getChildNodes();
-		for (int i = 0; i < subNodes.getLength(); i++) {
-			Node subNode = subNodes.item(i);
+		var element = (Element) node;
+		var subNodes = element.getChildNodes();
+		for (var i = 0; i < subNodes.getLength(); i++) {
+			var subNode = subNodes.item(i);
 			switch (subNode.getNodeName()) {
 			case "label":
 				point.label = XmlUtils.getContentAsString(subNode);
@@ -550,18 +543,18 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Parses the element sunSpecModels -&gt; strings -&gt; point -&gt; symbol.
-	 * 
+	 *
 	 * <pre>
 	 *   &lt;point&gt;
 	 * </pre>
-	 * 
+	 *
 	 * @param node  the 'symbol' node
 	 * @param point the Model, that needs to be completed.
 	 * @throws OpenemsNamedException on error
 	 */
 	private void parseStringsPointSymbol(Node node, Point point) throws OpenemsNamedException {
-		NamedNodeMap attrs = node.getAttributes();
-		String id = XmlUtils.getAsString(attrs, "id");
+		var attrs = node.getAttributes();
+		var id = XmlUtils.getAsString(attrs, "id");
 		switch (id) {
 		case "OEM16":
 			// Special handling for ID 201
@@ -569,12 +562,12 @@ public class SunSpecCodeGenerator {
 			return;
 		}
 
-		Symbol symbol = point.getSymbol(id);
+		var symbol = point.getSymbol(id);
 
-		Element element = (Element) node;
-		NodeList subNodes = element.getChildNodes();
-		for (int i = 0; i < subNodes.getLength(); i++) {
-			Node subNode = subNodes.item(i);
+		var element = (Element) node;
+		var subNodes = element.getChildNodes();
+		for (var i = 0; i < subNodes.getLength(); i++) {
+			var subNode = subNodes.item(i);
 			switch (subNode.getNodeName()) {
 			case "label":
 				symbol.label = XmlUtils.getContentAsString(subNode);
@@ -596,12 +589,12 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Writes the SunSpecModel.java file.
-	 * 
+	 *
 	 * @param models a list of Models
 	 * @throws IOException on error
 	 */
 	private void writeSunSpecModelJavaFile(List<Model> models) throws IOException {
-		try (BufferedWriter w = Files.newBufferedWriter(Paths.get(OUT_FILE_PATH))) {
+		try (var w = Files.newBufferedWriter(Paths.get(OUT_FILE_PATH))) {
 			w.write("package io.openems.edge.bridge.modbus.sunspec;");
 			w.newLine();
 			w.newLine();
@@ -624,8 +617,8 @@ public class SunSpecCodeGenerator {
 			/*
 			 * Write main Model enum
 			 */
-			for (int i = 0; i < models.size(); i++) {
-				Model model = models.get(i);
+			for (var i = 0; i < models.size(); i++) {
+				var model = models.get(i);
 				w.write("	S_" + model.id + "(//");
 				w.newLine();
 				w.write("			\"" + esc(model.label) + "\", //");
@@ -656,9 +649,9 @@ public class SunSpecCodeGenerator {
 			for (Model model : models) {
 				w.write("	public static enum S" + model.id + " implements SunSpecPoint {");
 				w.newLine();
-				for (int i = 0; i < model.points.size(); i++) {
-					Point point = model.points.get(i);
-					String pointUpperId = toUpperUnderscore(point.id);
+				for (var i = 0; i < model.points.size(); i++) {
+					var point = model.points.get(i);
+					var pointUpperId = toUpperUnderscore(point.id);
 					w.write("		" + pointUpperId + "(new PointImpl(//");
 					w.newLine();
 					w.write("				\"S" + model.id + "_" + pointUpperId + "\", //");
@@ -678,8 +671,7 @@ public class SunSpecCodeGenerator {
 					w.write("				Unit." + point.unit.name() + ", //");
 					w.newLine();
 					w.write("				"
-							+ (point.scaleFactor.isPresent() ? ("\"" + point.scaleFactor.get() + "\"") : null)
-							+ ", //");
+							+ (point.scaleFactor.isPresent() ? "\"" + point.scaleFactor.get() + "\"" : null) + ", //");
 					w.newLine();
 					if (point.symbols.length == 0) {
 						w.write("				new OptionsEnum[0]))");
@@ -729,9 +721,9 @@ public class SunSpecCodeGenerator {
 					w.newLine();
 					w.write("		UNDEFINED(-1, \"Undefined\"), //");
 					w.newLine();
-					for (int i = 0; i < point.symbols.length; i++) {
-						Symbol symbol = point.symbols[i];
-						String symbolId = symbol.id;
+					for (var i = 0; i < point.symbols.length; i++) {
+						var symbol = point.symbols[i];
+						var symbolId = symbol.id;
 						symbolId = toUpperUnderscore(symbolId);
 
 						switch (symbolId) {
@@ -833,7 +825,7 @@ public class SunSpecCodeGenerator {
 
 	/**
 	 * Helper method to escape a string.
-	 * 
+	 *
 	 * @param string original string
 	 * @return escaped string
 	 */
@@ -850,7 +842,7 @@ public class SunSpecCodeGenerator {
 	/**
 	 * Throws an exception if the list does not have exactly one Node that matches
 	 * the filters. Returns that node otherwise.
-	 * 
+	 *
 	 * @param nodes   the list of nodes
 	 * @param filters the filters that need to be matched by the node
 	 * @return the Node
@@ -862,8 +854,8 @@ public class SunSpecCodeGenerator {
 			return nodes.item(0);
 		}
 		Node result = null;
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node node = nodes.item(i);
+		for (var i = 0; i < nodes.getLength(); i++) {
+			var node = nodes.item(i);
 			for (Function<Node, Boolean> filter : filters) {
 				if (filter.apply(node)) {
 					if (result != null) {
@@ -876,22 +868,21 @@ public class SunSpecCodeGenerator {
 
 		if (result != null) {
 			return result;
-		} else {
-			throw new IllegalArgumentException("Exactly one node matching the filters was expected!");
 		}
+		throw new IllegalArgumentException("Exactly one node matching the filters was expected!");
 	}
 
 	/**
 	 * Gets the Content of a Sub-Node.
-	 * 
+	 *
 	 * @param node    the Node
 	 * @param tagName the tag name of the Sub-Node
 	 * @return the Content as a String
 	 */
 	private String getTextContent(Node node, String tagName) {
-		Element element = (Element) node;
-		NodeList nodes = element.getElementsByTagName(tagName);
-		Node subNode = this.assertExactlyOneNode(nodes);
+		var element = (Element) node;
+		var nodes = element.getElementsByTagName(tagName);
+		var subNode = this.assertExactlyOneNode(nodes);
 		return subNode.getTextContent();
 	}
 
@@ -919,7 +910,7 @@ public class SunSpecCodeGenerator {
 
 		/**
 		 * Gets the Point with the given Id.
-		 * 
+		 *
 		 * @param id the Point-ID
 		 * @return the Point
 		 * @throws OpenemsException on error
@@ -963,7 +954,6 @@ public class SunSpecCodeGenerator {
 
 		public Point(String id, int len, int offset, PointType type, String scaleFactor, Unit unit,
 				AccessMode accessMode, boolean mandatory, PointCategory category, Symbol[] symbols) {
-			super();
 			this.id = id;
 			this.len = len;
 			this.offset = offset;
@@ -978,7 +968,7 @@ public class SunSpecCodeGenerator {
 
 		/**
 		 * Gets the Symbol with the given Id.
-		 * 
+		 *
 		 * @param id the Symbol-Id
 		 * @return the Symbol
 		 * @throws OpenemsException on error
@@ -1012,7 +1002,7 @@ public class SunSpecCodeGenerator {
 			protected String description;
 			protected String notes;
 
-			private static Function<String, String> idCleaner = (id) -> {
+			private static Function<String, String> idCleaner = id -> {
 				switch (id) {
 				case "ggOFF":
 				case "ggSLEEPING":
@@ -1074,7 +1064,7 @@ public class SunSpecCodeGenerator {
 		if (!string.toUpperCase().equals(string)) {
 			string = CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, string);
 		}
-		return string.replaceAll("__", "_");
+		return string.replace("__", "_");
 	}
 
 }

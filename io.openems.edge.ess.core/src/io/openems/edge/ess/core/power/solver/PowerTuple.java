@@ -9,7 +9,7 @@ public class PowerTuple {
 
 	/**
 	 * Set a value.
-	 * 
+	 *
 	 * @param pwr   the {@link Pwr}
 	 * @param value the value
 	 */
@@ -26,7 +26,7 @@ public class PowerTuple {
 
 	/**
 	 * Get the Active-Power value.
-	 * 
+	 *
 	 * @return value for {@link Pwr#ACTIVE}.
 	 */
 	public int getActivePower() {
@@ -35,7 +35,7 @@ public class PowerTuple {
 
 	/**
 	 * Get the Reactive-Power value.
-	 * 
+	 *
 	 * @return value for {@link Pwr#REACTIVE}.
 	 */
 	public int getReactivePower() {

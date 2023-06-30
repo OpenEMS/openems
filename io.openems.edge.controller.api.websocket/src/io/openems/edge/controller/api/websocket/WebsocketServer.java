@@ -1,20 +1,23 @@
 package io.openems.edge.controller.api.websocket;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import org.slf4j.Logger;
 
 import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
-	private final WebsocketApi parent;
+	private final ControllerApiWebsocketImpl parent;
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(WebsocketApi parent, String name, int port) {
-		super(name, port);
+	public WebsocketServer(ControllerApiWebsocketImpl parent, String name, int port, int poolSize,
+			DebugMode debugMode) {
+		super(name, port, poolSize, debugMode, null);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
@@ -40,7 +43,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	public OnNotification getOnNotification() {
-		return onNotification;
+		return this.onNotification;
 	}
 
 	@Override
@@ -61,5 +64,15 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
+	}
+
+	@Override
+	protected void execute(Runnable command) throws RejectedExecutionException {
+		super.execute(command);
 	}
 }

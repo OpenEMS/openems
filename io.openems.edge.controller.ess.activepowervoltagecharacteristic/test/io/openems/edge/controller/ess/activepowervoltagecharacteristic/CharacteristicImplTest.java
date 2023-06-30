@@ -14,7 +14,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class CharacteristicImplTest {
 
@@ -26,11 +26,11 @@ public class CharacteristicImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ActivePowerVoltageCharacteristicImpl())//
+		final var clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
+		new ControllerTest(new ControllerEssActivePowerVoltageCharacteristicImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("meter", new DummyAsymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//
@@ -67,11 +67,11 @@ public class CharacteristicImplTest {
 						).build()) //
 				.next(new TestCase("First Input") //
 						.input(METER_VOLTAGE, 250_000) // [mV]
-						.output(ESS_ACTIVE_POWER, -2750)) //
+						.output(ESS_ACTIVE_POWER, -2749)) //
 				.next(new TestCase("Second Input, \"Power: -1500 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 248_000) // [mV]
-						.output(ESS_ACTIVE_POWER, -1500))//
+						.output(ESS_ACTIVE_POWER, -1499))//
 				.next(new TestCase() //
 						.input(METER_VOLTAGE, 240_200) // [mV]
 						.output(ESS_ACTIVE_POWER, null)) //
@@ -88,7 +88,7 @@ public class CharacteristicImplTest {
 				.next(new TestCase("Fourth Input, \"Power: 0 \"") //
 						.timeleap(clock, 5, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 235_200) // [mV]
-						.output(ESS_ACTIVE_POWER, 1000)) //
+						.output(ESS_ACTIVE_POWER, 998)) //
 				.next(new TestCase() //
 						.timeleap(clock, 2, ChronoUnit.SECONDS) //
 						.input(METER_VOLTAGE, 235_600) // [mV]

@@ -1,13 +1,11 @@
 <ng-container *ngIf="edge">
     <ion-card button routerLink="/device/{{edge.id}}/history/gridchart">
         <ion-item lines="full" color="light">
-            <ion-avatar slot="start">
-                <img src="assets/img/grid.png">
-            </ion-avatar>
+            <ion-icon slot="start" name="oe-grid" size="large"></ion-icon>
             <ion-label translate>General.grid</ion-label>
         </ion-item>
         <ion-card-content>
-            <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+            <table class="full_width" *ngIf="data && edge; else noData">
                 <tr>
                     <td style="width:65%" translate>General.gridBuyAdvanced</td>
                     <td style="width:35%" class="align_right">

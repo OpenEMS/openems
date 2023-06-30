@@ -1,0 +1,30 @@
+<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
+    'flame-outline'}">
+    <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="icon.name === '', else noValue" [name]="'General.state' | translate" [value]="state">
+    </oe-flat-widget-line>
+
+    <ng-template #noValue>
+        <oe-flat-widget-line [icon]="{name: icon.name}" [name]="'General.state' | translate"></oe-flat-widget-line>
+    </ng-template>
+
+    <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue === 'AUTOMATIC'">
+        <svg>
+            <use href="#container"></use>
+            <rect attr.x="{{ lowThresholdValue }}%" y="2" rx="5" ry="5"
+                attr.width="{{ highThresholdValue - lowThresholdValue }}%" height="16" ngClass="primary-color" />
+            <text id="first" *ngIf="(highThresholdValue - lowThresholdValue) > 15" attr.x="{{ lowThresholdValue }}%"
+                y="58%" dominant-baseline="middle" text-anchor="start" style="font-weight: 500"
+                ngClass="secondary-color">{{
+                lowThresholdValue +
+                " %" }}</text>
+            <text id="second" *ngIf="(highThresholdValue - lowThresholdValue) > 15" attr.x="{{ highThresholdValue }}%"
+                y="58%" dominant-baseline="middle" text-anchor="end" style="font-weight: 500;"
+                ngClass="secondary-color">{{
+                highThresholdValue +
+                " %" }}</text>
+            <rect *ngIf="inputChannelValue as value" y="2" rx="5" ry="5" [attr.x]="(value + 2) + '%'" width="1%"
+                height="16" style="fill:blue" />
+        </svg>
+    </oe-flat-widget-percentagebar>
+</oe-flat-widget>

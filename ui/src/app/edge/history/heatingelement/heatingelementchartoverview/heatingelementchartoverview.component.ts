@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: HeatingelementChartOverviewComponent.SELECTOR,
     templateUrl: './heatingelementchartoverview.component.html'
 })
-export class HeatingelementChartOverviewComponent {
+export class HeatingelementChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
@@ -15,7 +15,7 @@ export class HeatingelementChartOverviewComponent {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -25,8 +25,8 @@ export class HeatingelementChartOverviewComponent {
                 this.service.getConfig().then(config => {
                     this.edge = edge;
                     this.component = config.getComponent(this.route.snapshot.params.componentId);
-                })
-            })
-        })
+                });
+            });
+        });
     }
 }

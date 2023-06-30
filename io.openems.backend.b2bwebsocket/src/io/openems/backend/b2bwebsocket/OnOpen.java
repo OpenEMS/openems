@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.BackendUser;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -17,9 +16,9 @@ import io.openems.common.utils.JsonUtils;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnClose.class);
-	private final B2bWebsocket parent;
+	private final Backend2BackendWebsocket parent;
 
-	public OnOpen(B2bWebsocket parent) {
+	public OnOpen(Backend2BackendWebsocket parent) {
 		this.parent = parent;
 	}
 
@@ -28,22 +27,22 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		try {
 			// Read "Authorization" header for Simple HTTP authentication. Source:
 			// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-			final String authorization = JsonUtils.getAsString(handshake, "Authorization");
+			final var authorization = JsonUtils.getAsString(handshake, "Authorization");
 			if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
 
-			String base64Credentials = authorization.substring("Basic".length()).trim();
-			byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
-			String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+			var base64Credentials = authorization.substring("Basic".length()).trim();
+			var credDecoded = Base64.getDecoder().decode(base64Credentials);
+			var credentials = new String(credDecoded, StandardCharsets.UTF_8);
 			// credentials = username:password
-			final String[] values = credentials.split(":", 2);
+			final var values = credentials.split(":", 2);
 			if (values.length != 2) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
-			String username = values[0];
-			String password = values[1];
-			BackendUser user = this.parent.metadata.authenticate(username, password);
+			var username = values[0];
+			var password = values[1];
+			var user = this.parent.metadata.authenticate(username, password);
 
 			WsData wsData = ws.getAttachment();
 			wsData.setUser(user);

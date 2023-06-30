@@ -1,7 +1,5 @@
 package io.openems.edge.tesla.powerwall2.core;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
@@ -13,10 +11,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -26,16 +26,17 @@ import io.openems.edge.tesla.powerwall2.battery.TeslaPowerwall2Battery;
 @Component(//
 		name = "Tesla.Powerwall2.Core", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		implements TeslaPowerwall2Core, OpenemsComponent, EventHandler {
 
-	private ReadWorker worker = null;
+	private final AtomicReference<TeslaPowerwall2Battery> battery = new AtomicReference<>();
 
-	private AtomicReference<TeslaPowerwall2Battery> battery = new AtomicReference<>();
+	private ReadWorker worker = null;
 
 	public TeslaPowerwall2CoreImpl() {
 		super(//
@@ -45,13 +46,14 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config)
-			throws UnknownHostException, KeyManagementException, NoSuchAlgorithmException {
+	private void activate(ComponentContext context, Config config)
+			throws KeyManagementException, NoSuchAlgorithmException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.worker = new ReadWorker(this, (Inet4Address) Inet4Address.getByName(config.ipAddress()), config.port());
+		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.port());
 		this.worker.activate(config.id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.worker != null) {
@@ -73,12 +75,14 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	public void setBattery(TeslaPowerwall2Battery battery) {
 		this.battery.set(battery);
 	}
 
+	@Override
 	public Optional<TeslaPowerwall2Battery> getBattery() {
-		return Optional.ofNullable(battery.get());
+		return Optional.ofNullable(this.battery.get());
 	}
 
 }

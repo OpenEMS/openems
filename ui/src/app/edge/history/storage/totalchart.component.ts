@@ -1,19 +1,19 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageTotalChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private showPhases: boolean;
+export class StorageTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public showPhases: boolean;
 
     ngOnChanges() {
         this.updateChart();
@@ -22,14 +22,13 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-total-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "storage-total-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -39,7 +38,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -65,11 +64,11 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     }
                     let totalData = effectivePower.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
                             return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     // convert datasets
                     let datasets = [];
@@ -77,16 +76,16 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let component = config.getComponent(channelAddress.componentId);
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
                             });
                             let chargerData = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000 * -1; // convert to kW + make values negative for fitting totalchart where chargedata is negative
                                 }
@@ -97,13 +96,13 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
                             if (channelAddress.channelId == "EssActivePower") {
                                 datasets.push({
-                                    label: this.translate.instant('General.total'),
+                                    label: this.translate.instant('General.TOTAL'),
                                     data: totalData
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,223,0,0.05)',
-                                    borderColor: 'rgba(0,223,0,1)',
-                                })
+                                    borderColor: 'rgba(0,223,0,1)'
+                                });
                             } if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                 if (channelAddress.channelId == 'EssActivePowerL1') {
                                     datasets.push({
@@ -134,7 +133,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                 this.colors.push({
                                     backgroundColor: 'rgba(45,143,171,0.05)',
                                     borderColor: 'rgba(45,143,171,1)'
-                                })
+                                });
                             }
                             if (component.id + '/ActivePowerL1' && component.id + '/ActivePowerL2' && component.id + '/ActivePowerL3' in result.data && this.showPhases == true) {
                                 if (channelAddress.channelId == 'ActivePowerL1') {
@@ -167,24 +166,27 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(255,215,0,0.05)',
-                                    borderColor: 'rgba(255,215,0,1)',
-                                })
+                                    borderColor: 'rgba(255,215,0,1)'
+                                });
                             }
                         });
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -199,28 +201,31 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             ];
-            config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster")).forEach(component => {
-                let factoryID = component.factoryId;
-                let factory = config.factories[factoryID];
-                result.push(new ChannelAddress(component.id, 'ActivePower'));
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
-                    result.push(
-                        new ChannelAddress(component.id, 'ActivePowerL1'),
-                        new ChannelAddress(component.id, 'ActivePowerL2'),
-                        new ChannelAddress(component.id, 'ActivePowerL3')
-                    );
-                }
-            });
+            config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+                .filter(component => !component.factoryId.includes("Ess.Cluster"))
+                .forEach(component => {
+                    let factoryID = component.factoryId;
+                    let factory = config.factories[factoryID];
+                    result.push(new ChannelAddress(component.id, 'ActivePower'));
+                    if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                        result.push(
+                            new ChannelAddress(component.id, 'ActivePowerL1'),
+                            new ChannelAddress(component.id, 'ActivePowerL2'),
+                            new ChannelAddress(component.id, 'ActivePowerL3')
+                        );
+                    }
+                });
             let charger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
-            if (config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster")).length != 1 && charger.length > 0) {
+            if (config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+                .filter(component => !component.factoryId.includes("Ess.Cluster")).length != 1 && charger.length > 0) {
                 charger.forEach(component => {
-                    result.push(new ChannelAddress(component.id, 'ActualPower'))
-                })
+                    result.push(new ChannelAddress(component.id, 'ActualPower'));
+                });
             }
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -238,7 +243,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                 label += ' ' + translate.instant('General.dischargePower');
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

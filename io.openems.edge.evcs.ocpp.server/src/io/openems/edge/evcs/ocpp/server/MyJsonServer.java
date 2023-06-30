@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.chargetime.ocpp.AuthenticationException;
 import eu.chargetime.ocpp.JSONServer;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
@@ -31,17 +32,17 @@ import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
 import eu.chargetime.ocpp.model.core.GetConfigurationConfirmation;
 import eu.chargetime.ocpp.model.core.GetConfigurationRequest;
 import eu.chargetime.ocpp.model.core.KeyValueType;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 
 public class MyJsonServer {
 
 	private final Logger log = LoggerFactory.getLogger(MyJsonServer.class);
 
-	private final OcppServerImpl parent;
+	private final EvcsOcppServer parent;
 
 	/**
 	 * The JSON OCPP server.
-	 * 
+	 *
 	 * <p>
 	 * Responsible for sending and receiving OCPP JSON commands.
 	 */
@@ -55,13 +56,13 @@ public class MyJsonServer {
 	private final ServerReservationProfile reservationProfile = new ServerReservationProfile();
 	private final ServerSmartChargingProfile smartChargingProfile = new ServerSmartChargingProfile();
 
-	public MyJsonServer(OcppServerImpl parent) {
+	public MyJsonServer(EvcsOcppServer parent) {
 		this.parent = parent;
 
 		this.coreProfile = new ServerCoreProfile(new CoreEventHandlerImpl(parent));
 		this.firmwareProfile = new ServerFirmwareManagementProfile(new FirmwareManagementEventHandlerImpl(parent));
 
-		JSONServer server = new JSONServer(this.coreProfile);
+		var server = new JSONServer(this.coreProfile);
 		server.addFeatureProfile(this.firmwareProfile);
 		server.addFeatureProfile(this.localAuthListProfile);
 		server.addFeatureProfile(this.remoteTriggerProfile);
@@ -73,8 +74,11 @@ public class MyJsonServer {
 	/**
 	 * Starting the OCPP Server. Responds to every connecting/disconnecting charging
 	 * station.
+	 * 
+	 * @param ip   the IP address
+	 * @param port the port
 	 */
-	public void activate(String ip, int port) {
+	protected void activate(String ip, int port) {
 
 		this.server.open(ip, port, new ServerEvents() {
 
@@ -84,18 +88,18 @@ public class MyJsonServer {
 						+ "Chargepoint [" + information.getIdentifier() + "] " //
 						+ "IP: " + information.getAddress());
 
-				String ocppIdentifier = information.getIdentifier().replace("/", "");
+				var ocppIdentifier = information.getIdentifier().replace("/", "");
 
 				MyJsonServer.this.parent.ocppSessions.put(ocppIdentifier, sessionIndex);
 
-				List<AbstractOcppEvcsComponent> presentEvcss = MyJsonServer.this.parent.ocppEvcss.get(ocppIdentifier);
+				var presentEvcss = MyJsonServer.this.parent.ocppEvcss.get(ocppIdentifier);
 
 				if (presentEvcss == null) {
 					return;
 				}
 				MyJsonServer.this.parent.activeEvcsSessions.put(sessionIndex, presentEvcss);
 
-				for (AbstractOcppEvcsComponent evcs : presentEvcss) {
+				for (AbstractManagedOcppEvcsComponent evcs : presentEvcss) {
 					evcs.newSession(MyJsonServer.this.parent, sessionIndex);
 					MyJsonServer.this.sendInitialRequests(sessionIndex, evcs);
 				}
@@ -105,16 +109,16 @@ public class MyJsonServer {
 			public void lostSession(UUID sessionIndex) {
 				MyJsonServer.this.logDebug("Session " + sessionIndex + " lost connection");
 
-				List<AbstractOcppEvcsComponent> sessionEvcss = MyJsonServer.this.parent.activeEvcsSessions
-						.getOrDefault(sessionIndex, new ArrayList<>());
+				var sessionEvcss = MyJsonServer.this.parent.activeEvcsSessions.getOrDefault(sessionIndex,
+						new ArrayList<>());
 
 				if (sessionEvcss != null) {
-					for (AbstractOcppEvcsComponent ocppEvcs : sessionEvcss) {
+					for (AbstractManagedOcppEvcsComponent ocppEvcs : sessionEvcss) {
 						ocppEvcs.lostSession();
 					}
 				}
 
-				String ocppId = "";
+				var ocppId = "";
 				for (Entry<String, UUID> session : MyJsonServer.this.parent.ocppSessions.entrySet()) {
 					if (session.getValue().equals(sessionIndex)) {
 						ocppId = session.getKey();
@@ -124,16 +128,22 @@ public class MyJsonServer {
 				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
 				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
 			}
+
+			@Override
+			public void authenticateSession(SessionInformation arg0, String arg1, byte[] arg2)
+					throws AuthenticationException {
+				MyJsonServer.this.logDebug("authenticateSession " + arg0 + "; " + arg1);
+			}
 		});
 	}
 
-	public void deactivate() {
+	protected void deactivate() {
 		this.server.close();
 	}
 
 	/**
 	 * Send a request to an Evcs using the server.
-	 * 
+	 *
 	 * @param session unique session id referring to the corresponding Evcs
 	 * @param request given request that needs to be sent
 	 * @return CompletitionStage
@@ -148,7 +158,7 @@ public class MyJsonServer {
 
 	/**
 	 * Default implementation of the send method.
-	 * 
+	 *
 	 * @param session given session
 	 * @param request given request
 	 */
@@ -168,37 +178,37 @@ public class MyJsonServer {
 
 	/**
 	 * Sending initially all required requests to the EVCS.
-	 * 
+	 *
 	 * @param sessionIndex given session
 	 * @param ocppEvcs     given evcs
 	 */
-	protected void sendInitialRequests(UUID sessionIndex, AbstractOcppEvcsComponent ocppEvcs) {
+	protected void sendInitialRequests(UUID sessionIndex, AbstractManagedOcppEvcsComponent ocppEvcs) {
 		// Setting the Evcss of this session id to available
-		ChangeAvailabilityRequest changeAvailabilityRequest = new ChangeAvailabilityRequest(
-				ocppEvcs.getConfiguredConnectorId(), AvailabilityType.Operative);
+		var changeAvailabilityRequest = new ChangeAvailabilityRequest(ocppEvcs.getConfiguredConnectorId(),
+				AvailabilityType.Operative);
 		this.sendDefault(sessionIndex, changeAvailabilityRequest);
 
 		// Sending all required requests defined for each EVCS
-		List<Request> requiredRequests = ocppEvcs.getRequiredRequestsAfterConnection();
+		var requiredRequests = ocppEvcs.getRequiredRequestsAfterConnection();
 		for (Request request : requiredRequests) {
 			this.sendDefault(sessionIndex, request);
 		}
 
-		HashMap<String, String> configuration = this.getConfiguration(sessionIndex);
+		var configuration = this.getConfiguration(sessionIndex);
 		this.logDebug(configuration.toString());
 	}
 
 	/**
 	 * Sending all permanently required requests to the EVCS.
-	 * 
+	 *
 	 * @param evcss given evcss
 	 */
-	protected void sendPermanentRequests(List<AbstractOcppEvcsComponent> evcss) {
+	protected void sendPermanentRequests(List<AbstractManagedOcppEvcsComponent> evcss) {
 		if (evcss == null) {
 			return;
 		}
-		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
-			List<Request> requiredRequests = ocppEvcs.getRequiredRequestsDuringConnection();
+		for (AbstractManagedOcppEvcsComponent ocppEvcs : evcss) {
+			var requiredRequests = ocppEvcs.getRequiredRequestsDuringConnection();
 			for (Request request : requiredRequests) {
 				this.sendDefault(ocppEvcs.getSessionId(), request);
 			}
@@ -206,16 +216,15 @@ public class MyJsonServer {
 	}
 
 	private HashMap<String, String> getConfiguration(UUID sessionIndex) {
-		HashMap<String, String> hash = new HashMap<>();
-		GetConfigurationRequest request = new GetConfigurationRequest();
+		var hash = new HashMap<String, String>();
+		var request = new GetConfigurationRequest();
 		try {
-			CompletionStage<Confirmation> resp = this.send(sessionIndex, request);
+			var resp = this.send(sessionIndex, request);
 
-			GetConfigurationConfirmation get = (GetConfigurationConfirmation) resp.toCompletableFuture().get(2,
-					TimeUnit.SECONDS);
-			KeyValueType[] das = get.getConfigurationKey();
-			for (int i = 0; i < das.length; i++) {
-				hash.put(das[i].getKey(), das[i].getValue());
+			var get = (GetConfigurationConfirmation) resp.toCompletableFuture().get(2, TimeUnit.SECONDS);
+			var das = get.getConfigurationKey();
+			for (KeyValueType element : das) {
+				hash.put(element.getKey(), element.getValue());
 			}
 		} catch (OccurenceConstraintException | UnsupportedFeatureException | NotConnectedException
 				| InterruptedException | ExecutionException | java.util.concurrent.TimeoutException ex) {

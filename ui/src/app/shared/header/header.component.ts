@@ -1,23 +1,23 @@
-import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { environment } from 'src/environments';
-import { MenuController, ModalController, ToastController } from '@ionic/angular';
-import { PickDateComponent } from '../pickdate/pickdate.component';
-import { Router, NavigationEnd } from '@angular/router';
-import { Service, Websocket, ChannelAddress, Edge } from '../shared';
-import { StatusSingleComponent } from '../status/single/status.component';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments';
 
+import { PickDateComponent } from '../pickdate/pickdate.component';
+import { Edge, Service, Websocket } from '../shared';
+import { StatusSingleComponent } from '../status/single/status.component';
 
 @Component({
     selector: 'header',
     templateUrl: './header.component.html'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
+    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
-    public env = environment;
+    public environment = environment;
     public backUrl: string | boolean = '/';
     public enableSideMenu: boolean;
     public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
@@ -30,13 +30,13 @@ export class HeaderComponent {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public toastController: ToastController,
         public websocket: Websocket,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
         // set inital URL
-        this.updateUrl(window.location.pathname);
+        this.updateUrl(this.router.routerState.snapshot.url);
         // update backUrl on navigation events
         this.router.events.pipe(
             takeUntil(this.ngUnsubscribe),
@@ -44,21 +44,12 @@ export class HeaderComponent {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        })
-
-        // subscribe for single status component
-        this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
-            if (edge != null) {
-                edge.subscribeChannels(this.websocket, '', [
-                    new ChannelAddress('_sum', 'State'),
-                ]);
-            }
-        })
+        });
     }
 
     // used to prevent 'Expression has changed after it was checked' error
     ngAfterViewChecked() {
-        this.cdRef.detectChanges()
+        this.cdRef.detectChanges();
     }
 
     updateUrl(url: string) {
@@ -71,7 +62,7 @@ export class HeaderComponent {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'settings' || file == 'about' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || file == 'changelog' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -87,10 +78,15 @@ export class HeaderComponent {
             return;
         }
 
-        // set backUrl for general settings when an Edge had been selected before
+        // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
-        if (url === '/settings' && currentEdge != null) {
-            this.backUrl = '/device/' + currentEdge.id + "/live"
+        if (url === '/user' && currentEdge != null) {
+            this.backUrl = '/device/' + currentEdge.id + "/live";
+            return;
+        }
+        if (url === '/changelog' && currentEdge != null) {
+            // TODO this does not work if Changelog was opened from /user
+            this.backUrl = '/device/' + currentEdge.id + "/settings/profile";
             return;
         }
 
@@ -106,7 +102,7 @@ export class HeaderComponent {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === 'live' && urlArray.length == 3 && this.env.backend === "OpenEMS Edge") {
+        if (file === 'live' && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
             this.backUrl = false;
             return;
         }
@@ -115,6 +111,12 @@ export class HeaderComponent {
         if (file === 'live') {
             urlArray.pop();
         }
+
+        // fix url for App "settings/app/install" and "settings/app/update"
+        if (urlArray.slice(-3, -1).join('/') === "settings/app") {
+            urlArray.pop();
+        }
+
         // re-join the url
         backUrl = urlArray.join('/') || '/';
 
@@ -148,18 +150,18 @@ export class HeaderComponent {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live");
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history");
+            this.router.navigate(['../history'], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }
     }
 
     async presentSingleStatusModal() {
         const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
+            component: StatusSingleComponent
         });
         return await modal.present();
     }

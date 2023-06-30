@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
@@ -38,7 +39,7 @@ import com.dalsemi.onewire.utils.Bit;
  * container encapsulates the functionality of the iButton family type <B>27</B>
  * (hex)
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>Real-Time Clock with fully compatible 1-Wire MicroLAN interface
@@ -51,7 +52,7 @@ import com.dalsemi.onewire.utils.Bit;
  * +85@htmlonly &#176C @endhtmlonly
  * <LI>Low power, 200 nA typical with oscillator running
  * </UL>
- * 
+ *
  * <H3>Clock</H3>
  *
  * <P>
@@ -99,7 +100,7 @@ import com.dalsemi.onewire.utils.Bit;
  * </UL>
  *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.ClockContainer ClockContainer} for clock
@@ -111,9 +112,9 @@ import com.dalsemi.onewire.utils.Bit;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS2417.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS2417.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.ClockContainer
- * 
+ *
  * @version 1.10, 26 September 2001
  * @author BA
  */
@@ -164,7 +165,6 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer27() {
-		super();
 	}
 
 	/**
@@ -236,6 +236,7 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2417";
 	}
@@ -247,6 +248,7 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "1-Wire Time Chip with hardware interrupt";
 	}
@@ -257,10 +259,14 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "Real time clock with interrupt implemented as a binary counter "
-				+ "that can be used to add functions such as " + "calendar, time and date stamp and logbook to any "
-				+ "type of electronic device or embedded application that " + "uses a microcontroller.";
+		return """
+				Real time clock with interrupt implemented as a binary counter \
+				that can be used to add functions such as \
+				calendar, time and date stamp and logbook to any \
+				type of electronic device or embedded application that \
+				uses a microcontroller.""";
 	}
 
 	// --------
@@ -282,8 +288,8 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 * @see #getClock(byte[])
 	 */
 	public long getInterruptInterval(byte[] state) {
-		long ret = 0;
-		switch (((state[CONTROL_OFFSET] & 0x70) >>> 4)) {
+		var ret = 0L;
+		switch ((state[CONTROL_OFFSET] & 0x70) >>> 4) {
 		default:
 			break;
 		case 0x00:
@@ -318,7 +324,7 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 *
 	 * Checks to see if interrupt mode is turned on. If so, pulses will be generated
 	 * at an interval selected by setInterruptInterval.
-	 * 
+	 *
 	 * @param state current state of the device returned from
 	 *              <code>readDevice()</code>
 	 *
@@ -329,7 +335,7 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
 	public boolean isInterruptEnabled(byte[] state) {
-		return (Bit.arrayReadBit(7, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(7, CONTROL_OFFSET, state) == 1;
 	}
 
 	// --------
@@ -368,7 +374,7 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	/**
 	 * Enables or disables hardware interrupting. If enabled, the device sends an
 	 * interrupt at intervals defined by using the setInterruptInterval function.
-	 * 
+	 *
 	 * @param runEnable true to enable interval interrupts.
 	 * @param state     current state of the device returned from
 	 *                  <code>readDevice()</code>
@@ -383,3 +389,4 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	}
 
 }
+// CHECKSTYLE:ON

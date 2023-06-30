@@ -1,9 +1,9 @@
 package io.openems.edge.controller.symmetric.fixreactivepower;
 
+import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.AttributeDefinition;;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Fix Reactive Power Symmetric", //
 		description = "Defines a fixed reactive power to a symmetric energy storage system.")
 @interface Config {

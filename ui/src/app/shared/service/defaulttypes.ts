@@ -1,15 +1,15 @@
-import { endOfMonth, format, getDay, getMonth, getYear, isSameDay, isSameMonth, startOfMonth, subDays } from 'date-fns';
 import { TranslateService } from '@ngx-translate/core';
+import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from 'date-fns';
 
 export module DefaultTypes {
 
   export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
 
-  export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
-
   export interface ChannelAddresses {
     [componentId: string]: string[];
   }
+
+  export type ManualOnOff = 'MANUAL_ON' | 'MANUAL_OFF';
 
   /**
    * CurrentData Summary
@@ -89,13 +89,13 @@ export module DefaultTypes {
     params?: string[]
   }
 
-  export type PeriodString = 'day' | 'week' | 'month' | 'custom';
+  export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', CUSTOM = 'custom' };
 
   export class HistoryPeriod {
 
     constructor(
       public from: Date = new Date(),
-      public to: Date = new Date(),
+      public to: Date = new Date()
     ) { }
 
     public getText(translate: TranslateService): string {
@@ -118,16 +118,17 @@ export module DefaultTypes {
       } else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
         // Selected one month
         return HistoryPeriod.getTranslatedMonthString(translate, this.from) + " " + getYear(this.from);
+      }
+      // Selected one year
+      else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
+        return getYear(this.from).toString();
 
-        // else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
-        //   return getYear(this.from).toString();
-        // }
       } else {
         return translate.instant(
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
           value2: format(this.to, translate.instant('General.dateFormat'))
-        })
+        });
       }
     }
 

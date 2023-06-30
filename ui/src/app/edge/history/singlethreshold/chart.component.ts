@@ -1,20 +1,20 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'singlethresholdChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class SinglethresholdChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SinglethresholdChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
 
   ngOnChanges() {
@@ -24,32 +24,32 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
-    super(service, translate);
+    super("singlethreshold-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = "singlethreshold-chart";
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
+
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       this.service.getConfig().then(config => {
-        let outputChannel = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+        let outputChannel: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
         let inputChannel = config.getComponentProperties(this.componentId)['inputChannelAddress'];
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
-        let yAxisID
+        let yAxisID;
 
         // set yAxis for % values (if there are no other % values: use left yAxis, if there are: use right yAxis - for percent values)
         if (result.data["_sum/EssSoc"]) {
@@ -68,11 +68,12 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
         // convert datasets
         for (let channel in result.data) {
-          if (channel == outputChannel) {
+          if ((typeof outputChannel === 'string' && channel == outputChannel)
+            || (typeof outputChannel !== 'string' && outputChannel.includes(channel))) {
             let address = ChannelAddress.fromString(channel);
             let data = result.data[channel].map(value => {
               if (value == null) {
-                return null
+                return null;
               } else {
                 return value * 100; // convert to % [0,100]
               }
@@ -86,8 +87,8 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
-            })
+              borderColor: 'rgba(0,191,255,1)'
+            });
           }
           if (channel == inputChannel) {
             let inputLabel: string = null;
@@ -106,21 +107,21 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 inputLabel = this.translate.instant('Edge.Index.Widgets.Singlethreshold.other');
                 break;
             }
-            let data
+            let data;
             if (address.channelId == 'EssSoc') {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else if (value > 100 || value < 0) {
                   return null;
                 } else {
                   return value;
                 }
-              })
+              });
             } else if (address.channelId == 'ProductionActivePower' || address.channelId == 'GridActivePower') {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else {
                   return value / 1000; // convert to kW
                 }
@@ -128,7 +129,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             } else {
               data = result.data[channel].map(value => {
                 if (value == null) {
-                  return null
+                  return null;
                 } else {
                   return value;
                 }
@@ -145,32 +146,34 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
               this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.05)',
-                borderColor: 'rgba(189, 195, 199,1)',
-              })
+                borderColor: 'rgba(189, 195, 199,1)'
+              });
             } else {
               datasets.push({
                 label: inputLabel,
                 data: data,
                 hidden: false,
                 yAxisID: 'yAxis1',
-                position: 'left',
+                position: 'left'
               });
 
               this.colors.push({
                 backgroundColor: 'rgba(0,0,0,0.05)',
                 borderColor: 'rgba(0,0,0,1)'
-              })
+              });
             }
           }
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -180,31 +183,42 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
       const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-      let channeladdresses = [outputChannel, inputChannel];
-      resolve(channeladdresses);
+      let result: ChannelAddress[] = [inputChannel];
+      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      if (typeof outputChannelAddress === 'string') {
+        result.push(ChannelAddress.fromString(outputChannelAddress));
+      } else {
+        outputChannelAddress.forEach(c => result.push(ChannelAddress.fromString(c)));
+      }
+      resolve(result);
     });
   }
 
   protected setLabel(config: EdgeConfig) {
     let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-    let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
+    let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+    let outputChannel: ChannelAddress;
+    if (typeof outputChannelAddress === 'string') {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress);
+    } else {
+      outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
+    }
     let labelString;
     let options = this.createDefaultChartOptions();
     let translate = this.translate;
 
     if (inputChannel.channelId == 'EssSoc') {
       labelString = '%';
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
       labelString = 'kW';
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     } else {
       labelString = config.getChannel(inputChannel)['unit'];
-      options.scales.yAxes[0].id = "yAxis1"
+      options.scales.yAxes[0].id = "yAxis1";
       options.scales.yAxes[0].scaleLabel.labelString = labelString;
     }
 
@@ -226,7 +240,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           padding: -5,
           stepSize: 20
         }
-      })
+      });
     }
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
@@ -238,7 +252,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
       }
-    }
+    };
     this.options = options;
   }
 

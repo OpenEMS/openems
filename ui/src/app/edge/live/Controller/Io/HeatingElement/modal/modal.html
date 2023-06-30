@@ -1,0 +1,78 @@
+<oe-modal [toolbarButtons]="{url: 'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Heizstab.html'}"
+    [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+    <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
+    </oe-modal-line>
+
+    <oe-modal-line *ngIf="(activePhases | async) > 0"
+        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel'| translate" [value]="'Level ' + (activePhases| async)">
+    </oe-modal-line>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+    { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power'}},
+    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'light-contrast', name: 'power'}}]">
+    </oe-modal-buttons>
+
+
+    <!-- TODO: with future version there will be a solution for returning the event from the generic modal-line, but at this moment, CustomEvent not working -->
+    <ng-container *ngIf="formGroup.value.mode === Mode.AUTOMATIC">
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <table class=" full_width">
+            <tr>
+                <td style="width: 65%" translate>
+                    Edge.Index.Widgets.Heatingelement.guaranteeMinimumHeating
+                </td>
+                <td style="width: 35%" class="align_right">
+                    <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
+                        [checked]="formGroup.value.workMode !== 'NONE'">
+                    </ion-toggle>
+                </td>
+            </tr>
+        </table>
+    </ng-container>
+
+    <ng-container
+        *ngIf="formGroup.value.mode === Mode.MANUAL_ON|| (formGroup.value.mode === Mode.AUTOMATIC && formGroup.value.workMode !== WorkMode.NONE)">
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <oe-modal-line
+            [control]="{type: 'SELECT',options:[{value: 'LEVEL_1', name: 'Level 1'},{value: 'LEVEL_2', name: 'Level 2'},{value: 'LEVEL_3', name: 'Level 3'}]}"
+            name="Level" controlName="defaultLevel" [formGroup]="formGroup">
+        </oe-modal-line>
+    </ng-container>
+
+
+    <ng-container *ngIf="formGroup.value.workMode !==  WorkMode.NONE &&  formGroup.value.mode === Mode.AUTOMATIC">
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <table style="width: 100%;">
+            <tr>
+                <td class="text-align: left">
+                    <ion-text translate>
+                        Edge.Index.Widgets.GridOptimizedCharge.endTime
+                    </ion-text>:
+                </td>
+                <td>
+                    <ion-item button="true" id="open-date-input" *ngIf="formGroup" style="text-align: center">
+                        <ion-label> {{this.formGroup.controls["endTime"].value}}
+                        </ion-label>
+                        <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
+                            <ng-template>
+                                <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
+                                    formControlName="endTime"></ion-datetime>
+                            </ng-template>
+                        </ion-popover>
+                    </ion-item>
+                </td>
+            </tr>
+        </table>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+        <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime'| translate"></oe-modal-line>
+        <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {min: 1, max: 10, unit: 'H'}}"
+            [formGroup]="formGroup">
+        </oe-modal-line>
+    </ng-container>
+</oe-modal>

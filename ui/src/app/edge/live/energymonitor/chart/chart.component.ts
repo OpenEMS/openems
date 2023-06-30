@@ -1,11 +1,11 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ConsumptionSectionComponent } from './section/consumption.component';
-import { CurrentData } from '../../../../shared/edge/currentdata';
-import { debounceTime, delay, takeUntil } from 'rxjs/operators';
 import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, delay, takeUntil } from 'rxjs/operators';
+import { Service } from 'src/app/shared/shared';
+import { CurrentData } from '../../../../shared/edge/currentdata';
+import { ConsumptionSectionComponent } from './section/consumption.component';
 import { GridSectionComponent } from './section/grid.component';
 import { ProductionSectionComponent } from './section/production.component';
-import { Service } from 'src/app/shared/shared';
 import { StorageSectionComponent } from './section/storage.component';
 
 @Component({
@@ -13,6 +13,8 @@ import { StorageSectionComponent } from './section/storage.component';
   templateUrl: './chart.component.html'
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
+
+  public readonly spinnerId = "energymonitor";
 
   @ViewChild(ConsumptionSectionComponent, { static: true })
   public consumptionSection: ConsumptionSectionComponent;
@@ -31,7 +33,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   @Input()
   set currentData(currentData: CurrentData) {
-    this.service.stopSpinner("live-energymonitor");
+    this.service.stopSpinner(this.spinnerId);
     this.updateCurrentData(currentData);
   }
 
@@ -43,11 +45,11 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {
-    this.service.startSpinner("live-energymonitor");
+    this.service.startSpinner(this.spinnerId);
     // make sure chart is redrawn in the beginning and on window resize
     setTimeout(() => this.updateOnWindowResize(), 500);
     const source = fromEvent(window, 'resize', null, null);
@@ -100,6 +102,6 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   }
 
   private deg2rad(value: number): number {
-    return value * (Math.PI / 180)
+    return value * (Math.PI / 180);
   }
 }

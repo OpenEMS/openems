@@ -1,23 +1,22 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageChargerChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-
-    moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
@@ -26,25 +25,23 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-charger-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "storage-charger-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -63,7 +60,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 let address = ChannelAddress.fromString(channel);
                 let chargerData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -76,13 +73,14 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
-                    })
+                        borderColor: 'rgba(0,223,0,1)'
+                    });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -93,10 +91,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower'),
+                new ChannelAddress(this.componentId, 'ActualPower')
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -106,7 +104,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

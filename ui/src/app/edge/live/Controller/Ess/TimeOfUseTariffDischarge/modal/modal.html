@@ -1,0 +1,37 @@
+<oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
+
+    <!-- Discharge State -->
+    <oe-modal-line [name]="storageStatuslabel" [channelAddress]="component.id + '/StateMachine'"
+        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE">
+    </oe-modal-line>
+
+    <!-- Price -->
+    <oe-modal-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
+        [value]="priceWithCurrency"></oe-modal-line>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <!--Select Mode-->
+    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
+    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+    { name: ('General.off' | translate), value: 'OFF', icon: {color:'light-contrast', name: 'power'}}]">
+    </oe-modal-buttons>
+
+    <!-- AUTOMATIC Mode -->
+    <ng-container *ngIf="formGroup.value.mode === 'AUTOMATIC'">
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <ion-card-content>
+            <!-- TODO - show prediction graph -->
+        </ion-card-content>
+    </ng-container>
+
+    <!-- OFF Mode -->
+    <ng-container *ngIf="formGroup.value.mode === 'OFF'">
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <ion-card-content>
+            <!-- TODO - show Some information -->
+        </ion-card-content>
+    </ng-container>
+
+</oe-modal>

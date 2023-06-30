@@ -35,7 +35,7 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	@Override
 	protected final void _setInputRegisters(InputRegister... registers) {
 		// fill buffer
-		ByteBuffer buff = ByteBuffer.allocate(8).order(this.getByteOrder());
+		var buff = ByteBuffer.allocate(8).order(this.getByteOrder());
 		if (this.wordOrder == WordOrder.MSWLSW) {
 			buff.put(registers[0].toBytes());
 			buff.put(registers[1].toBytes());
@@ -49,14 +49,14 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 		}
 		buff.rewind();
 		// convert registers to Long
-		T value = fromByteBuffer(buff);
+		var value = this.fromByteBuffer(buff);
 		// set value
 		super.setValue(value);
 	}
 
 	/**
 	 * Converts a 8-byte ByteBuffer to the current OpenemsType.
-	 * 
+	 *
 	 * @param buff the ByteBuffer
 	 * @return an instance of the current OpenemsType
 	 */
@@ -65,13 +65,13 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	@Override
 	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 		if (this.isDebug()) {
-			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
 		}
 		if (valueOpt.isPresent()) {
-			ByteBuffer buff = ByteBuffer.allocate(8).order(this.getByteOrder());
+			var buff = ByteBuffer.allocate(8).order(this.getByteOrder());
 			buff = this.toByteBuffer(buff, valueOpt.get());
-			byte[] b = buff.array();
-			if (wordOrder == WordOrder.MSWLSW) {
+			var b = buff.array();
+			if (this.wordOrder == WordOrder.MSWLSW) {
 				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
 						new SimpleRegister(b[0], b[1]), //
 						new SimpleRegister(b[2], b[3]), //
@@ -94,7 +94,7 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 
 	/**
 	 * Converts the current OpenemsType to a 8-byte ByteBuffer.
-	 * 
+	 *
 	 * @param buff  the target ByteBuffer
 	 * @param value the value
 	 * @return the ByteBuffer
@@ -104,7 +104,7 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	/**
 	 * Sets the Word-Order. Default is "MWSLSW" - "Most Significant Word; Least
 	 * Significant Word". See http://www.simplymodbus.ca/FAQ.htm#Order.
-	 * 
+	 *
 	 * @param wordOrder the WordOrder
 	 * @return myself
 	 */

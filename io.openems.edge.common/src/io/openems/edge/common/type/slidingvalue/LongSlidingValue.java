@@ -1,7 +1,6 @@
 package io.openems.edge.common.type.slidingvalue;
 
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 import io.openems.common.types.OpenemsType;
 
@@ -13,14 +12,13 @@ public class LongSlidingValue extends AbstractNumberSlidingValue<Long> {
 
 	@Override
 	protected Optional<Long> getSlidingValue() {
-		OptionalDouble result = this.values.stream() //
+		var result = this.values.stream() //
 				.mapToLong(Long::longValue) //
 				.average();
 		if (result.isPresent()) {
-			double doubleValue = result.getAsDouble();
+			var doubleValue = result.getAsDouble();
 			return Optional.of(Math.round(doubleValue));
-		} else {
-			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 }

@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Edge } from '../../../../shared/shared';
+import { Edge, Service } from '../../../../shared/shared';
 
 @Component({
     selector: SelfconsumptionChartOverviewComponent.SELECTOR,
     templateUrl: './selfconsumptionchartoverview.component.html'
 })
-export class SelfconsumptionChartOverviewComponent {
+export class SelfconsumptionChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "selfconsumption-chart-overview";
 
@@ -14,7 +14,7 @@ export class SelfconsumptionChartOverviewComponent {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {

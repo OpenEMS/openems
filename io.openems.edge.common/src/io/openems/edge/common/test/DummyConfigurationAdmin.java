@@ -3,7 +3,6 @@ package io.openems.edge.common.test;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -15,6 +14,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import io.openems.common.test.AbstractComponentConfig;
+
 /**
  * Simulates a ConfigurationAdmin for the OpenEMS Component test framework.
  */
@@ -22,7 +23,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 	public static class DummyConfiguration implements Configuration {
 
-		private final Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		private final Hashtable<String, Object> properties = new Hashtable<>();
 		private int changeCount = 0;
 
 		@Override
@@ -35,20 +36,31 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 			return this.properties;
 		}
 
+		/**
+		 * Adds a configuration property to this {@link DummyConfiguration}.
+		 *
+		 * @param key   the property key
+		 * @param value the property value
+		 */
+		public void addProperty(String key, Object value) {
+			this.properties.put(key, value);
+		}
+
 		@Override
 		public void update(Dictionary<String, ?> properties) throws IOException {
-			Enumeration<String> keys = properties.keys();
+			var keys = properties.keys();
 			while (keys.hasMoreElements()) {
-				String key = keys.nextElement();
+				var key = keys.nextElement();
 				Object value = properties.get(key);
 				this.properties.put(key, value);
 			}
 			this.changeCount++;
 		}
 
+		@Override
 		public void update() throws IOException {
 			this.changeCount++;
-		};
+		}
 
 		@Override
 		public String getFactoryPid() {
@@ -112,12 +124,12 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 	@Override
 	public Configuration getConfiguration(String pid) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override
 	public Configuration getConfiguration(String pid, String location) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override
@@ -137,14 +149,21 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		return this.configurations.get(factoryPid);
 	}
 
-	private synchronized DummyConfiguration getOrCreateEmptyConfiguration(String id) {
-		return this.configurations.computeIfAbsent(id, (ignore) -> new DummyConfiguration());
+	/**
+	 * Gets a {@link DummyConfiguration} by id or creates a new empty
+	 * {@link DummyConfiguration} for the given id.
+	 *
+	 * @param id the given id
+	 * @return the {@link DummyConfiguration}
+	 */
+	public synchronized DummyConfiguration getOrCreateEmptyConfiguration(String id) {
+		return this.configurations.computeIfAbsent(id, ignore -> new DummyConfiguration());
 	}
 
 	/**
 	 * Adds a simulated {@link AbstractComponentConfig} with all its properties to
 	 * the configurations.
-	 * 
+	 *
 	 * @param config the {@link AbstractComponentConfig}
 	 * @throws IllegalAccessException    on error
 	 * @throws IllegalArgumentException  on error
@@ -152,14 +171,24 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	 */
 	public void addConfig(AbstractComponentConfig config)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Dictionary<String, Object> properties = config.getAsProperties();
-		Enumeration<String> keys = properties.keys();
+		var properties = config.getAsProperties();
+		var keys = properties.keys();
 
-		DummyConfiguration c = this.getOrCreateEmptyConfiguration(config.id());
+		var c = this.getOrCreateEmptyConfiguration(config.id());
 		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
+			var key = keys.nextElement();
 			c.properties.put(key, properties.get(key));
 		}
+	}
+
+	/**
+	 * Adds a simulated {@link DummyConfiguration}.
+	 *
+	 * @param key           the PID
+	 * @param configuration the {@link DummyConfiguration}.
+	 */
+	public void addConfiguration(String key, DummyConfiguration configuration) {
+		this.configurations.put(key, configuration);
 	}
 
 }

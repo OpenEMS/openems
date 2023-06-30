@@ -1,0 +1,146 @@
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8" size-xl="4">
+        <ion-card *ngIf="(service.metadata | async)?.user as user">
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap" translate>
+              Menu.user
+            </ion-label>
+          </ion-item>
+
+          <ion-card-content class="ion-text-wrap">
+            <ion-item lines="inset">
+              <ion-label translate>
+                Menu.name
+              </ion-label>
+              <ion-label>
+                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
+              </ion-label>
+            </ion-item>
+            <ion-item lines="inset">
+              <ion-label>
+                Login
+              </ion-label>
+              <ion-label>
+                {{ user.id }}
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
+              </ion-label>
+            </ion-item>
+            <ion-item lines="inset">
+              <ion-label translate>
+                Menu.accessLevel
+              </ion-label>
+              <ion-label>
+                {{ 'Role.' + user.globalRole | translate }}
+                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+                </ion-icon> -->
+              </ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-button (click)="doLogout()" slot="end" size="default" fill="clear">
+                <ion-label translate>Menu.logout</ion-label>
+                <ion-icon name="log-out-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <!-- <ion-item lines="inset">
+              <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
+                <ion-icon name="refresh-outline"></ion-icon>
+                <ion-label>Passwort ändern</ion-label>
+              </ion-button>
+            </ion-item> -->
+
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Show and Edit UserInformation -->
+        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+            <ion-label class="ion-text-wrap" translate>
+              Register.Form.contactDetails
+            </ion-label>
+          </ion-item>
+          <ion-card-content>
+            <formly-form [form]="form?.formGroup" [fields]="form?.fields" [model]="form?.model" style="color: primary"
+              color="primary">
+            </formly-form>
+
+            <ion-item lines="none">
+              <ion-button slot="start" (click)="enableAndDisableEditMode()"
+                [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
+                <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
+                <ion-icon name="pencil-outline" slot="end"></ion-icon>
+              </ion-button>
+              <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
+                <ion-label translate>General.save</ion-label>
+                <ion-icon name="save-outline" slot="end"></ion-icon>
+              </ion-button>
+            </ion-item>
+
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12" size-md="8" size-xl="4">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              {{ environment.edgeShortName }} - {{ environment.edgeLongName }}
+            </ion-label>
+          </ion-item>
+
+          <ion-card-content class="ion-text-wrap">
+            <p class="ion-padding" translate>About.developed</p>
+            <ul>
+              <li>
+                <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
+              </li>
+            </ul>
+            <p class="ion-padding" translate>About.build</p>
+            <ul>
+              <li>
+                <a routerLinkActive="active" routerLink="/changelog">2023.7.0-SNAPSHOT</a>
+              </li>
+            </ul>
+            <p class="ion-padding">
+              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
+            </p>
+            <ion-item lines="none">
+              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
+              </ion-checkbox>
+              <ion-label translate>Debug-Mode</ion-label>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
+            <ion-label translate>Menu.generalSettings</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-item lines="none">
+              <ion-label translate>About.language</ion-label>
+              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
+                <ion-select-option *ngFor="let language of languages" [value]="language">
+                  {{ language.title }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
+              <small>
+                The language can not be changed permanently in the local online-monitoring for technical
+                reasons.</small>
+            </ion-note>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

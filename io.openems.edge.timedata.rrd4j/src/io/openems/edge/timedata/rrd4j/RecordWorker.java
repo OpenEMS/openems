@@ -1,17 +1,14 @@
 package io.openems.edge.timedata.rrd4j;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.OptionalDouble;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.DoubleStream;
 
 import org.rrd4j.core.RrdDb;
-import org.rrd4j.core.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +18,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class RecordWorker extends AbstractImmediateWorker {
@@ -28,8 +26,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	protected static final int DEFAULT_NO_OF_CYCLES = 60;
 
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
-	private final Rrd4jTimedataImpl parent;
-	protected int noOfCycles = DEFAULT_NO_OF_CYCLES; // default, is going to be overwritten by config
+	private final TimedataRrd4jImpl parent;
 
 	// Counts the number of Cycles till data is recorded
 	private int cycleCount = 0;
@@ -49,13 +46,13 @@ public class RecordWorker extends AbstractImmediateWorker {
 	}
 
 	// Record queue
-	private LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
 
 	// keeps the last recorded timestamp
 	private Instant lastTimestamp = Instant.MIN;
 	private LocalDateTime readChannelValuesSince = LocalDateTime.MIN;
 
-	public RecordWorker(Rrd4jTimedataImpl parent) {
+	public RecordWorker(TimedataRrd4jImpl parent) {
 		this.parent = parent;
 	}
 
@@ -65,8 +62,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 	 * RRD4J.
 	 */
 	public void collectData() {
-		Instant timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		final LocalDateTime nextReadChannelValuesSince = LocalDateTime.now();
+		var timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final var nextReadChannelValuesSince = LocalDateTime.now();
 
 		// Increase CycleCount
 		this.cycleCount += 1;
@@ -77,36 +74,38 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		// Stop here if not reached CycleCount
-		if (this.cycleCount < this.noOfCycles) {
+		if (
+		// No need to persist data, as it is still stored by the Channel itself. The
+		// Channel keeps the last NO_OF_PAST_VALUES values
+		this.cycleCount < Channel.NO_OF_PAST_VALUES
+				// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
+				&& Duration.between(this.lastTimestamp, timestamp)
+						.getSeconds() < TimedataRrd4jImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
 			return;
 		}
-
-		// Reset Cycle-Count
-		this.cycleCount = 0;
+		this.cycleCount = 0; // Reset Cycle-Count
 
 		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
-				if (channel.channelDoc().getAccessMode() != AccessMode.READ_ONLY
-						&& channel.channelDoc().getAccessMode() != AccessMode.READ_WRITE) {
-					// Ignore WRITE_ONLY Channels
+				var doc = channel.channelDoc();
+				if (// Ignore Low-Priority Channels
+				doc.getPersistencePriority().isLowerThan(this.parent.persistencePriority)
+						// Ignore WRITE_ONLY Channels
+						|| channel.channelDoc().getAccessMode() == AccessMode.WRITE_ONLY) {
 					continue;
 				}
-				
-				
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				Function<DoubleStream, OptionalDouble> channelAggregateFunction = this
-						.getChannelAggregateFunction(channel.channelDoc().getUnit());
+				var channelAggregateFunction = channel.channelDoc().getUnit().getChannelAggregateFunction();
 
-				OptionalDouble value = channelAggregateFunction.apply(//
+				var value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
 								.tailMap(this.readChannelValuesSince, false) // new values since last recording
 								.values().stream() //
-								.map(v -> v.get()) //
+								.map(Value::get) //
 								.filter(v -> v != null) // only not-null values
 								.mapToDouble(channelMapFunction) // convert to double
 				);
@@ -126,23 +125,24 @@ public class RecordWorker extends AbstractImmediateWorker {
 				}
 			}
 		}
+
 		this.readChannelValuesSince = nextReadChannelValuesSince;
-		this.triggerNextRun();
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
-		Record record = this.records.take();
+		var record = this.records.take();
 		RrdDb database = null;
+
 		try {
 			database = this.parent.getRrdDb(record.address, record.unit, record.timestamp - 1);
 
 			if (database.getLastUpdateTime() < record.timestamp) {
 				// Avoid and silently ignore error "IllegalArgumentException: Bad sample time:
-				// XXX. Last update time was YYY, at least one second step is required".
+				// YYY. Last update time was ZZZ, at least one second step is required".
 
 				// Add Sample to RRD4J
-				Sample sample = database.createSample(record.timestamp);
+				var sample = database.createSample(record.timestamp);
 				sample.setValue(0, record.value);
 				sample.update();
 			}
@@ -165,28 +165,15 @@ public class RecordWorker extends AbstractImmediateWorker {
 		}
 	}
 
-	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
-		return (Boolean) value ? 1d : 0d;
-	};
+	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = value -> ((Boolean) value ? 1d : 0d);
 
-	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
-		return ((Short) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
-		return ((Integer) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
-		return ((Long) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
-		return ((Float) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
-		return (Double) value;
-	};
-	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
-		return 0d;
-	};
+	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = value -> ((Short) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = value -> ((Integer) value)
+			.doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = value -> ((Long) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = value -> ((Float) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = value -> ((Double) value);
+	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = value -> 0d;
 
 	private ToDoubleFunction<? super Object> getChannelMapFunction(OpenemsType openemsType) {
 		switch (openemsType) {
@@ -207,55 +194,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 			return MAP_TO_DOUBLE_NOT_SUPPORTED;
 		}
 		throw new IllegalArgumentException("Type [" + openemsType + "] is not supported.");
-	}
-
-	private Function<DoubleStream, OptionalDouble> getChannelAggregateFunction(Unit channelUnit) {
-		switch (channelUnit) {
-		case AMPERE:
-		case AMPERE_HOURS:
-		case DEGREE_CELSIUS:
-		case DEZIDEGREE_CELSIUS:
-		case HERTZ:
-		case HOUR:
-		case KILOAMPERE_HOURS:
-		case KILOOHM:
-		case KILOVOLT_AMPERE:
-		case KILOVOLT_AMPERE_REACTIVE:
-		case KILOWATT:
-		case MICROOHM:
-		case MILLIAMPERE_HOURS:
-		case MILLIAMPERE:
-		case MILLIHERTZ:
-		case MILLIOHM:
-		case MILLISECONDS:
-		case MILLIVOLT:
-		case MILLIWATT:
-		case MINUTE:
-		case NONE:
-		case WATT:
-		case VOLT:
-		case VOLT_AMPERE:
-		case VOLT_AMPERE_REACTIVE:
-		case WATT_HOURS_BY_WATT_PEAK:
-		case OHM:
-		case SECONDS:
-		case THOUSANDTH:
-		case PERCENT:
-		case ON_OFF:
-			return DoubleStream::average;
-		case CUMULATED_SECONDS:
-		case WATT_HOURS:
-		case KILOWATT_HOURS:
-		case VOLT_AMPERE_HOURS:
-		case VOLT_AMPERE_REACTIVE_HOURS:
-		case KILOVOLT_AMPERE_REACTIVE_HOURS:
-			return DoubleStream::max;
-		}
-		throw new IllegalArgumentException("Channel Unit [" + channelUnit + "] is not supported.");
-	}
-
-	public void setNoOfCycles(int noOfCycles) {
-		this.noOfCycles = noOfCycles;
 	}
 
 }

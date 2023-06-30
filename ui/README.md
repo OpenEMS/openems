@@ -2,21 +2,51 @@
 
 This project was generated with [angular-cli](https://github.com/angular/angular-cli).
 
-## Development server
+## Theme OpenEMS
 
- - connect to live OpenEMS Backend server
+- OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8075`
 
-    `ng serve -c backend-dev-live` (Expects openems-backend on `wss://localhost:443/openems-backend-ui`)
+   - Serve to port `4200`
+   
+      `ng serve`
 
- - connect to local OpenEMS Backend server
+      `ng serve -o -c openems-edge-dev`
 
-    `ng serve -c backend-dev-local` (Expects openems-backend on `ws://localhost:8078`)
+   - Build Development
 
- - connect to local OpenEMS Edge
+      `ng build`
 
-	`ng serve`  (Expects openems-edge on `ws://localhost:8075`)
+      `ng build -c "openems,openems-edge-dev"`
+
+   - Build Production
+
+      `ng build -c "openems,openems-edge-prod,prod"`
+
+- OpenEMS Backend - expects a Backend *Ui.Websocket* on default port `8082`
+
+   - Serve to port `4200`
+   
+      `ng serve -o -c openems-backend-dev`
+
+   - Build Development
+
+      `ng build -c "openems,openems-backend-dev"`
+
+   - Build Production
+
+      `ng build -c "openems,openems-backend-prod,prod"`
 
 ## Further help
+
+#### Creating a Theme
+
+- Create new folder under `/src/themes`
+   - Files in `root` will be copied to `/` of the OpenEMS UI
+   - `scss/variables.scss` will be used for styling
+   - `environments/*.ts` define settings for Backend/Edge and development/production environments
+- Generate contents of `root` folder using https://realfavicongenerator.net.
+   Place them in `root` subdirectory
+- Add entries in `angular.json` according to the original openems-configurations
 
 #### i18n - internationalization
 
@@ -52,3 +82,6 @@ ngOnDestroy() {
     this.stopOnDestroy.complete();
 }
 ```
+
+#### Debugging Angular PWA Via USB-Connection
+Please follow this: https://medium.com/nerd-for-tech/google-chrome-how-to-inspect-websites-on-mobile-devices-804677f863ce

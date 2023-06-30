@@ -1,15 +1,14 @@
 package io.openems.edge.meter.discovergy.jsonrpc;
 
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Represents a JSON-RPC Request for 'getMeters'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -21,18 +20,25 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
  */
 public class GetMetersRequest extends JsonrpcRequest {
 
-	public static GetMetersRequest from(JsonrpcRequest r) throws OpenemsException {
-		return new GetMetersRequest(r.getId());
-	}
-
 	public static final String METHOD = "getMeters";
 
-	public GetMetersRequest() {
-		this(UUID.randomUUID());
+	/**
+	 * Create {@link GetMetersRequest} from a template {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link GetMetersRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public static GetMetersRequest from(JsonrpcRequest r) throws OpenemsException {
+		return new GetMetersRequest(r);
 	}
 
-	public GetMetersRequest(UUID id) {
-		super(id, METHOD);
+	public GetMetersRequest() {
+		super(METHOD);
+	}
+
+	private GetMetersRequest(JsonrpcRequest request) {
+		super(request, METHOD);
 	}
 
 	@Override

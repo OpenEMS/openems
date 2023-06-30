@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -73,7 +74,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <H3>Usage</H3>
  *
  * Display some features of PotentiometerContainer instance '<code>pc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *      byte[] state = pc.readDevice();
@@ -295,3 +296,4 @@ public interface PotentiometerContainer extends OneWireSensor {
 	 */
 	public int decrement() throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

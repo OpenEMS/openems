@@ -11,8 +11,8 @@ public class Enums {
 		STOP_DISCHARGE(2, "Stop discharging"), //
 		STANDBY(3, "Standby");
 
-		private int value;
-		private String name;
+		private final int value;
+		private final String name;
 
 		private ClusterRunState(int value, String name) {
 			this.value = value;

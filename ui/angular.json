@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/@angular-devkit/core/src/workspace/workspace-schema.json",
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
@@ -14,162 +14,122 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "allowedCommonJsDependencies": [
-              "ng2-cookies",
-              "util",
-              "chart.js",
-              "file-saver"
+              "chart.js"
             ],
-            "aot": true,
-            "outputPath": "www",
+            "baseHref": "/",
+            "budgets": [
+              {
+                "type": "initial",
+                "maximumWarning": "15mb",
+                "maximumError": "20mb"
+              }
+            ],
             "index": "src/index.html",
             "main": "src/main.ts",
+            "namedChunks": false,
+            "outputPath": "target",
             "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.app.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              },
-              {
-                "glob": "**/*.svg",
-                "input": "node_modules/ionicons/dist/ionicons/svg",
-                "output": "./svg"
-              },
-              "src/android-chrome-192x192.png",
-              "src/android-chrome-512x512.png",
-              "src/apple-touch-icon.png",
-              "src/browserconfig.xml",
-              "src/favicon.ico",
-              "src/favicon-16x16.png",
-              "src/favicon-32x32.png",
-              "src/manifest.json",
-              "src/mstile-150x150.png",
-              "src/safari-pinned-tab.svg"
-            ],
-            "styles": [
-              {
-                "input": "src/theme/variables.scss"
-              },
-              {
-                "input": "src/global.scss"
-              },
-              "src/styles.css"
-            ],
-            "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
-            ]
+            "scripts": [],
+            "tsConfig": "tsconfig.app.json",
+            "vendorChunk": false,
+            "aot": false,
+            "buildOptimizer": false,
+            "extractLicenses": false,
+            "optimization": false,
+            "outputHashing": "none",
+            "sourceMap": true
           },
           "configurations": {
-            "backend": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend.ts"
-                }
-              ],
-              "baseHref": "/",
-              "outputPath": "target/backend",
+            "prod": {
+              "aot": true,
+              "buildOptimizer": true,
+              "extractLicenses": true,
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "serviceWorker": true,
-              "buildOptimizer": true,
-              "budgets": [
+              "serviceWorker": true
+            },
+            "openems": {
+              "assets": [
+                "src/assets",
                 {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "glob": "**/*",
+                  "input": "src/themes/openems/root",
+                  "output": ""
                 },
                 {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ]
-            },
-            "backend-dev-local": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
+                  "glob": "**/*.svg",
+                  "input": "node_modules/ionicons/dist/ionicons/svg",
+                  "output": "./svg"
                 }
               ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend-dev-local.ts"
-                }
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/openems/scss"
+                ]
+              },
+              "styles": [
+                "src/themes/openems/scss/variables.scss",
+                "src/global.scss"
               ]
             },
-            "backend-local-server": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ],
+            "openems-backend-dev": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend-LocalServer.ts"
-                }
-              ]
-            },
-            "backend-dev-live": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-backend-dev-live.ts"
-                }
-              ]
-            },
-            "edge": {
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
                 },
                 {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/backend-dev.ts"
                 }
-              ],
-              "serviceWorker": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/openems-edge.ts"
-                }
-              ],
-              "baseHref": "/",
-              "outputPath": "target/edge"
+              ]
             },
-            "gitpod": {
+            "openems-backend-prod": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/gitpod.ts"
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/backend-prod.ts"
+                }
+              ]
+            },
+            "openems-edge-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/edge-dev.ts"
+                }
+              ]
+            },
+            "openems-edge-prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/edge-prod.ts"
+                }
+              ]
+            },
+            "openems-gitpod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/gitpod.ts"
                 }
               ]
             }
@@ -178,33 +138,33 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "app:build"
+            "browserTarget": "app:build:openems,openems-edge-dev"
           },
           "configurations": {
-            "backend": {
-              "browserTarget": "app:build:backend"
+            "openems-backend-dev": {
+              "browserTarget": "app:build:openems,openems-backend-dev"
             },
-            "backend-dev-local": {
-              "browserTarget": "app:build:backend-dev-local"
+            "openems-edge-dev": {
+              "browserTarget": "app:build:openems,openems-edge-dev"
             },
-            "backend-local-server": {
-              "browserTarget": "app:build:backend-local-server"
+            "openems-backend-prod": {
+              "browserTarget": "app:build:openems,openems-backend-prod,prod"
             },
-            "backend-dev-live": {
-              "browserTarget": "app:build:backend-dev-live"
+            "openems-edge-prod": {
+              "browserTarget": "app:build:openems,openems-edge-prod,prod"
             },
-            "edge": {
-              "browserTarget": "app:build:edge"
-            },
-            "gitpod": {
-              "browserTarget": "app:build:gitpod"
+            "openems-gitpod": {
+              "browserTarget": "app:build:openems,openems-gitpod"
             }
           }
         },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "browserTarget": "app:build"
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         },
         "test": {
@@ -212,97 +172,15 @@
           "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "styles": [
-              "styles.css"
-            ],
-            "scripts": [],
-            "assets": [
-              {
-                "glob": "favicon.ico",
-                "input": "src/",
-                "output": "/"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "/assets"
-              },
-              "src/manifest.json"
-            ]
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "ionic-cordova-build": {
-          "builder": "@ionic/angular-toolkit:cordova-build",
-          "options": {
-            "browserTarget": "app:build"
-          },
-          "configurations": {
-            "production": {
-              "browserTarget": "app:build:production"
-            }
-          }
-        },
-        "ionic-cordova-serve": {
-          "builder": "@ionic/angular-toolkit:cordova-serve",
-          "options": {
-            "cordovaBuildTarget": "app:ionic-cordova-build",
-            "devServerTarget": "app:serve"
-          },
-          "configurations": {
-            "production": {
-              "cordovaBuildTarget": "app:ionic-cordova-build:production",
-              "devServerTarget": "app:serve:production"
-            }
-          }
-        }
-      }
-    },
-    "app-e2e": {
-      "root": "e2e/",
-      "projectType": "application",
-      "prefix": "",
-      "architect": {
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "app:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "app:serve:production"
-            }
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "scripts": []
           }
         }
       }
     }
   },
-  "defaultProject": "app",
   "cli": {
-    "defaultCollection": "@ionic/angular-toolkit",
     "analytics": false
   },
   "schematics": {

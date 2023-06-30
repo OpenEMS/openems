@@ -1,12 +1,10 @@
 <ion-card *ngIf="edge" button routerLink="/device/{{edge.id}}/history/storagechart">
     <ion-item lines="full" color="light">
-        <ion-avatar slot="start">
-            <img src="assets/img/storage.png">
-        </ion-avatar>
+        <ion-icon slot="start" name="oe-storage" color="success" size="large"></ion-icon>
         <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
     <ion-card-content>
-        <ng-container *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+        <ng-container *ngIf="data && edge; else noData">
             <table class="full_width">
                 <tr>
                     <td style="width:65%" translate>General.chargePower</td>

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -92,7 +93,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	private static final byte[] digestBuff = new byte[64];
 
 	// used for compute first secret
-	private static final byte[] NullSecret = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	private static final byte[] NullSecret = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	// used for generate challenge and random RomID
 	private static java.util.Random rand = new java.util.Random();
@@ -134,8 +135,8 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *                           installation on user buttons.
 	 * @param l_bindCode         the binding code used to finalize secret
 	 *                           installation on user buttons.
-	 * @param l_auxData          any auxiliary or miscellaneous data to be stored
-	 *                           on the coprocessor.
+	 * @param l_auxData          any auxiliary or miscellaneous data to be stored on
+	 *                           the coprocessor.
 	 * @param l_initialSignature the 20-byte initial MAC placed in user account data
 	 *                           before generating actual MAC.
 	 * @param l_signingChlg      the 3-byte challenge used for signing user account
@@ -184,23 +185,27 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 
 		// Check to see if this coprocessor's authentication secret
 		// is appropriately padded to be used with a DS1961S
-		this.DS1961Scompatible = ((l_authSecret.length % 47) == 0);
-		int secretDiv = l_authSecret.length / 47;
-		for (int j = 0; j < secretDiv && DS1961Scompatible; j++) {
-			int offset = 47 * j;
-			for (int i = 32; i < 36 && this.DS1961Scompatible; i++)
-				this.DS1961Scompatible = (l_authSecret[i + offset] == (byte) 0x0FF);
-			for (int i = 44; i < 47 && this.DS1961Scompatible; i++)
-				this.DS1961Scompatible = (l_authSecret[i + offset] == (byte) 0x0FF);
+		this.DS1961Scompatible = l_authSecret.length % 47 == 0;
+		var secretDiv = l_authSecret.length / 47;
+		for (var j = 0; j < secretDiv && this.DS1961Scompatible; j++) {
+			var offset = 47 * j;
+			for (var i = 32; i < 36 && this.DS1961Scompatible; i++) {
+				this.DS1961Scompatible = l_authSecret[i + offset] == (byte) 0x0FF;
+			}
+			for (var i = 44; i < 47 && this.DS1961Scompatible; i++) {
+				this.DS1961Scompatible = l_authSecret[i + offset] == (byte) 0x0FF;
+			}
 		}
 
 		// Install the system signing secret, used to sign and validate all user data
-		if (!installMasterSecret(signPageNumber, l_signingSecret, signPageNumber & 7))
+		if (!this.installMasterSecret(this.signPageNumber, l_signingSecret, this.signPageNumber & 7)) {
 			throw new OneWireIOException("failed to install system signing secret");
+		}
 
 		// Install the system authentication secret, used to authenticate users
-		if (!installMasterSecret(authPageNumber, l_authSecret, authPageNumber & 7))
+		if (!this.installMasterSecret(this.authPageNumber, l_authSecret, this.authPageNumber & 7)) {
 			throw new OneWireIOException("failed to install authentication secret");
+		}
 	}
 
 	/**
@@ -230,8 +235,9 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *
 	 */
 	public SHAiButtonCoprVM(String filename) throws OneWireException, OneWireIOException {
-		if (!load(filename))
+		if (!this.load(filename)) {
 			throw new OneWireIOException("failed to load config info");
+		}
 	}
 
 	/**
@@ -262,12 +268,15 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 */
 	public SHAiButtonCoprVM(String filename, byte[] sign_secret, byte[] auth_secret)
 			throws OneWireException, OneWireIOException {
-		if (!load(filename))
+		if (!this.load(filename)) {
 			throw new OneWireIOException("failed to load config info");
-		if (!installMasterSecret(signPageNumber, sign_secret, signPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.signPageNumber, sign_secret, this.signPageNumber & 7)) {
 			throw new OneWireIOException("failed to install system signing secret");
-		if (!installMasterSecret(authPageNumber, auth_secret, authPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.authPageNumber, auth_secret, this.authPageNumber & 7)) {
 			throw new OneWireIOException("failed to install authentication secret");
+		}
 	}
 
 	/**
@@ -297,8 +306,9 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see #SHAiButtonCoprVM(byte[],int,int,int,int,int,byte,byte[],byte[],byte[],byte[],byte[],byte[],byte[],byte[],byte[])
 	 */
 	public SHAiButtonCoprVM(OneWireContainer owc, String filename) throws OneWireException, OneWireIOException {
-		if (!load(owc, filename))
+		if (!this.load(owc, filename)) {
 			throw new OneWireIOException("failed to load config info");
+		}
 	}
 
 	/**
@@ -331,12 +341,15 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 */
 	public SHAiButtonCoprVM(OneWireContainer owc, String filename, byte[] sign_secret, byte[] auth_secret)
 			throws OneWireException, OneWireIOException {
-		if (!load(owc, filename))
+		if (!this.load(owc, filename)) {
 			throw new OneWireIOException("failed to load config info");
-		if (!installMasterSecret(signPageNumber, sign_secret, signPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.signPageNumber, sign_secret, this.signPageNumber & 7)) {
 			throw new OneWireIOException("failed to install system signing secret");
-		if (!installMasterSecret(authPageNumber, auth_secret, authPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.authPageNumber, auth_secret, this.authPageNumber & 7)) {
 			throw new OneWireIOException("failed to install authentication secret");
+		}
 	}
 
 	/**
@@ -369,12 +382,15 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 */
 	public SHAiButtonCoprVM(OneWireContainer18 owc, String filename, byte[] sign_secret, byte[] auth_secret)
 			throws OneWireException, OneWireIOException {
-		if (!load(owc, filename))
+		if (!this.load(owc, filename)) {
 			throw new OneWireIOException("failed to load config info");
-		if (!installMasterSecret(signPageNumber, sign_secret, signPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.signPageNumber, sign_secret, this.signPageNumber & 7)) {
 			throw new OneWireIOException("failed to install system signing secret");
-		if (!installMasterSecret(authPageNumber, auth_secret, authPageNumber & 7))
+		}
+		if (!this.installMasterSecret(this.authPageNumber, auth_secret, this.authPageNumber & 7)) {
 			throw new OneWireIOException("failed to install authentication secret");
+		}
 	}
 
 	// ***********************************************************************
@@ -408,18 +424,19 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	public boolean save(String filename, boolean saveSecretData) throws OneWireException, OneWireIOException {
 		try {
 			// Create the configuration file
-			FileOutputStream fos = new FileOutputStream(filename);
+			var fos = new FileOutputStream(filename);
 
 			// write the data out to the config file
-			toStream(fos);
+			this.toStream(fos);
 
 			// non-standard additions
-			fos.write(address, 0, 8);
-			for (int i = 0; i < 8; i++) {
-				if (saveSecretData)
-					fos.write(secretPage[i]);
-				else
+			fos.write(this.address, 0, 8);
+			for (var i = 0; i < 8; i++) {
+				if (saveSecretData) {
+					fos.write(this.secretPage[i]);
+				} else {
 					fos.write(NullSecret);
+				}
 			}
 			fos.flush();
 			fos.close();
@@ -455,18 +472,19 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 			throws OneWireException, OneWireIOException {
 		try {
 			// Create the configuration file
-			OWFileOutputStream fos = new OWFileOutputStream(owc, filename);
+			var fos = new OWFileOutputStream(owc, filename);
 
 			// write the data out
-			toStream(fos);
+			this.toStream(fos);
 
 			// non-standard additions
-			fos.write(address, 0, 8);
-			for (int i = 0; i < 8; i++) {
-				if (saveSecretData)
-					fos.write(secretPage[i]);
-				else
+			fos.write(this.address, 0, 8);
+			for (var i = 0; i < 8; i++) {
+				if (saveSecretData) {
+					fos.write(this.secretPage[i]);
+				} else {
 					fos.write(NullSecret);
+				}
 			}
 			fos.flush();
 			fos.close();
@@ -492,16 +510,16 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	public boolean load(String filename) {
 		try {
 			// open the file containing config info
-			FileInputStream fis = new FileInputStream(filename);
+			var fis = new FileInputStream(filename);
 
 			// load info from the file stream
-			fromStream(fis);
+			this.fromStream(fis);
 
 			// non-standard file components
 			if (fis.available() > 0) {
 				fis.read(this.address, 0, 8);
-				for (int i = 0; i < 8 && fis.available() > 0; i++) {
-					fis.read(secretPage[i]);
+				for (var i = 0; i < 8 && fis.available() > 0; i++) {
+					fis.read(this.secretPage[i]);
 				}
 			}
 			fis.close();
@@ -527,16 +545,16 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	public boolean load(OneWireContainer owc, String filename) {
 		try {
 			// open the file containing config info
-			OWFileInputStream fis = new OWFileInputStream(owc, filename);
+			var fis = new OWFileInputStream(owc, filename);
 
 			// load info from the file stream
-			fromStream(fis);
+			this.fromStream(fis);
 
 			// non-standard file components
 			if (fis.available() > 0) {
 				fis.read(this.address, 0, 8);
-				for (int i = 0; i < 8 && fis.available() > 0; i++) {
-					fis.read(secretPage[i]);
+				for (var i = 0; i < 8 && fis.available() > 0; i++) {
+					fis.read(this.secretPage[i]);
 				}
 			}
 			fis.close();
@@ -560,10 +578,10 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	public boolean load(OneWireContainer18 owc, String filename) {
 		try {
 			// open the file containing config info
-			OWFileInputStream fis = new OWFileInputStream(owc, filename);
+			var fis = new OWFileInputStream(owc, filename);
 
 			// load info from the file stream
-			fromStream(fis);
+			this.fromStream(fis);
 
 			// non-standard components
 			System.arraycopy(owc.getAddress(), 0, this.address, 0, 8);
@@ -616,7 +634,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *                       signing the page using the coprocessor's system signing
 	 *                       secret.
 	 * @param macStart       the offset into mac_buffer where copying should start.
-	 * 
+	 *
 	 * @return <code>true</code> if successful, <code>false</code> if an error
 	 *         occurred (use <code>getLastError()</code> for more information on the
 	 *         type of error)
@@ -632,13 +650,14 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see OneWireContainer18#SHAFunction(byte,int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean createDataSignature(byte[] accountData, byte[] signScratchpad, byte[] mac_buffer, int macStart)
 			throws OneWireException, OneWireIOException {
 		// clear any errors
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
-		if (SHAFunction(OneWireContainer18.SIGN_DATA_PAGE, secretPage[signPageNumber & 7], accountData, signScratchpad,
-				null, signPageNumber, -1)) {
+		if (this.SHAFunction(OneWireContainer18.SIGN_DATA_PAGE, this.secretPage[this.signPageNumber & 7], accountData,
+				signScratchpad, null, this.signPageNumber, -1)) {
 			System.arraycopy(signScratchpad, 8, mac_buffer, macStart, 20);
 			return true;
 		}
@@ -648,7 +667,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	}
 
 	// prevent malloc'ing in the critical path
-	private byte[] generateChallenge_chlg = new byte[20];
+	private final byte[] generateChallenge_chlg = new byte[20];
 
 	/**
 	 * <p>
@@ -692,6 +711,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see SHAiButtonUser#readAccountData(byte[],int,byte[],int,byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean generateChallenge(int offset, byte[] ch, int start)
 			throws OneWireIOException, OneWireException {
 		// clear any errors
@@ -764,17 +784,19 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see OneWireContainer18#matchScratchPad(byte[])
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean verifyAuthentication(byte[] fullBindCode, byte[] pageData, byte[] scratchpad, byte[] verify_mac,
 			byte authCmd) throws OneWireIOException, OneWireException {
 		// clear any errors
 		this.lastError = SHAiButtonCopr.NO_ERROR;
-		int secretNum = this.wspcPageNumber & 7;
+		var secretNum = this.wspcPageNumber & 7;
 
 		// set Workspace Secret
-		bindSecretToiButton(authPageNumber, this.bindData, fullBindCode, secretNum);
+		this.bindSecretToiButton(this.authPageNumber, this.bindData, fullBindCode, secretNum);
 
-		if (SHAFunction(authCmd, secretPage[secretNum], pageData, scratchpad, null, wspcPageNumber, -1)) {
-			for (int i = 0; i < 20; i++) {
+		if (this.SHAFunction(authCmd, this.secretPage[secretNum], pageData, scratchpad, null, this.wspcPageNumber,
+				-1)) {
+			for (var i = 0; i < 20; i++) {
 				if (scratchpad[i + 8] != verify_mac[i]) {
 					this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
 					return false;
@@ -811,7 +833,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *                       secret.
 	 * @param macStart       the offset into mac_buffer where copying should start.
 	 * @param fullBindCode   ignored by simulated coprocessor
-	 * 
+	 *
 	 * @return <code>true</code> if successful, <code>false</code> if an error
 	 *         occurred (use <code>getLastError()</code> for more information on the
 	 *         type of error)
@@ -828,13 +850,14 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see #createDataSignature(byte[],byte[],byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean createDataSignatureAuth(byte[] accountData, byte[] signScratchpad, byte[] mac_buffer, int macStart,
 			byte[] fullBindCode) throws OneWireException, OneWireIOException {
 		// clear any errors
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
-		if (SHAFunction(OneWireContainer18.SIGN_DATA_PAGE, secretPage[wspcPageNumber & 7], accountData, signScratchpad,
-				null, signPageNumber, -1)) {
+		if (this.SHAFunction(OneWireContainer18.SIGN_DATA_PAGE, this.secretPage[this.wspcPageNumber & 7], accountData,
+				signScratchpad, null, this.signPageNumber, -1)) {
 			System.arraycopy(signScratchpad, 8, mac_buffer, macStart, 20);
 			return true;
 		}
@@ -875,14 +898,15 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 * @see #verifyAuthentication(byte[],byte[],byte[],byte[],byte)
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean verifySignature(byte[] pageData, byte[] scratchpad, byte[] verify_mac)
 			throws OneWireIOException, OneWireException {
 		// clear any errors
 		this.lastError = SHAiButtonCopr.NO_ERROR;
 
-		if (SHAFunction(OneWireContainer18.VALIDATE_DATA_PAGE, this.secretPage[signPageNumber & 7], pageData,
-				scratchpad, this.address, signPageNumber, -1)) {
-			for (int i = 0; i < 20; i++) {
+		if (this.SHAFunction(OneWireContainer18.VALIDATE_DATA_PAGE, this.secretPage[this.signPageNumber & 7], pageData,
+				scratchpad, this.address, this.signPageNumber, -1)) {
+			for (var i = 0; i < 20; i++) {
 				if (scratchpad[i + 8] != verify_mac[i]) {
 					this.lastError = SHAiButtonCopr.MATCH_SCRATCHPAD_FAILED;
 					return false;
@@ -894,7 +918,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 		return false;
 	}
 
-	private byte[] bindSecretToiButton_scratchpad = new byte[32];
+	private final byte[] bindSecretToiButton_scratchpad = new byte[32];
 
 	/**
 	 * <p>
@@ -937,7 +961,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 */
 	public synchronized boolean bindSecretToiButton(int pageNum, byte[] bindData, byte[] bindCode, int secretNum) {
 		// local vars
-		byte[] scratchpad = this.bindSecretToiButton_scratchpad;
+		var scratchpad = this.bindSecretToiButton_scratchpad;
 
 		// write the bind_code to the scratchpad
 		if (bindCode.length == 7) {
@@ -946,16 +970,17 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 			System.arraycopy(this.address, 0, scratchpad, 13, 7);
 			System.arraycopy(bindCode, 4, scratchpad, 20, 3);
 		} else {
-			System.arraycopy(bindCode, 0, scratchpad, 8, (bindCode.length > 15 ? 15 : bindCode.length));
+			System.arraycopy(bindCode, 0, scratchpad, 8, bindCode.length > 15 ? 15 : bindCode.length);
 		}
 
 		// compute the MAC
-		if (!SHAFunction(OneWireContainer18.COMPUTE_NEXT_SECRET, secretPage[pageNum & 7], bindData, scratchpad, null,
-				pageNum, 0))
+		if (!this.SHAFunction(OneWireContainer18.COMPUTE_NEXT_SECRET, this.secretPage[pageNum & 7], bindData,
+				scratchpad, null, pageNum, 0)) {
 			return false;
+		}
 
 		// install the secret
-		System.arraycopy(scratchpad, 0, secretPage[secretNum & 7], 0, 8);
+		System.arraycopy(scratchpad, 0, this.secretPage[secretNum & 7], 0, 8);
 
 		return true;
 	}
@@ -995,44 +1020,47 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 		// is to be computed, 32 bytes goes in the page and 15 goes in
 		// the scratchpad, so it's going to be easier in the computations
 		// if i know the input buffer length is divisible by 47
-		if (secret.length == 0)
+		if (secret.length == 0) {
 			return false;
+		}
 
 		byte[] input_secret = null;
-		int secret_mod_length = secret.length % 47;
+		var secret_mod_length = secret.length % 47;
 
-		if (secret_mod_length == 0) // if the length of the secret is divisible by 47
+		if (secret_mod_length == 0) {
 			input_secret = secret;
-		else {
+		} else {
 
 			/*
 			 * i figure in the case where secret is not divisible by 47 it will be quicker
 			 * to just create a new array once and copy the data in, rather than on every
 			 * partial secret calculation do bounds checking
 			 */
-			input_secret = new byte[secret.length + (47 - secret_mod_length)];
+			input_secret = new byte[secret.length + 47 - secret_mod_length];
 
 			System.arraycopy(secret, 0, input_secret, 0, secret.length);
 		}
 
 		// the current offset into the input_secret buffer
 		secretNum = secretNum & 7;
-		int offset = 0;
-		byte cmd = OneWireContainer18.COMPUTE_FIRST_SECRET;
-		byte[] scratchpad = new byte[32];
-		byte[] dataPage = new byte[32];
+		var offset = 0;
+		var cmd = OneWireContainer18.COMPUTE_FIRST_SECRET;
+		var scratchpad = new byte[32];
+		var dataPage = new byte[32];
 		while (offset < input_secret.length) {
-			for (int i = 0; i < 32; i++)
+			for (var i = 0; i < 32; i++) {
 				scratchpad[i] = (byte) 0x0FF;
+			}
 
 			System.arraycopy(input_secret, offset, dataPage, 0, 32);
 			System.arraycopy(input_secret, offset + 32, scratchpad, 8, 15);
-			if (!SHAFunction(cmd, secretPage[pageNum & 7], dataPage, scratchpad, null, signPageNumber, 0)) {
+			if (!this.SHAFunction(cmd, this.secretPage[pageNum & 7], dataPage, scratchpad, null, this.signPageNumber,
+					0)) {
 				return false;
 			}
 
 			// install the secret
-			System.arraycopy(scratchpad, 0, secretPage[secretNum], 0, 8);
+			System.arraycopy(scratchpad, 0, this.secretPage[secretNum], 0, 8);
 
 			offset += 47;
 			cmd = OneWireContainer18.COMPUTE_NEXT_SECRET;
@@ -1085,7 +1113,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	private synchronized boolean SHAFunction(byte function, byte[] shaSecret, byte[] shaPage, byte[] scratchpad,
 			byte[] romID, int pageNum, int writeCycleCounter) {
 		// offset for location in scratchpad to copy the MAC
-		int offset = 8;
+		var offset = 8;
 
 		// byte used for the M-X control bits
 		// Since never matching, I assume M bit is never set...
@@ -1105,7 +1133,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 		case OneWireContainer18.VALIDATE_DATA_PAGE:
 		case OneWireContainer18.SIGN_DATA_PAGE:
 			// M-X-P byte
-			scratchpad[12] = (byte) ((scratchpad[12] & 0x3F) | (shaMX & 0xC0));
+			scratchpad[12] = (byte) (scratchpad[12] & 0x3F | shaMX & 0xC0);
 			break;
 
 		// Authenticate host
@@ -1113,7 +1141,7 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 			// for authenticate host, X bit is set.
 			shaMX |= 0x40;
 			// M-X-P byte
-			scratchpad[12] = (byte) ((scratchpad[12] & 0x3F) | (shaMX & 0xC0));
+			scratchpad[12] = (byte) (scratchpad[12] & 0x3F | shaMX & 0xC0);
 			break;
 
 		// compute challenge and read authenticated page
@@ -1123,12 +1151,12 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 		case OneWireContainer18.READ_AUTHENTICATED_PAGE:
 			// place the write cycle counter into the scratchpad
 			scratchpad[8] = (byte) (writeCycleCounter & 0x0FF);
-			scratchpad[9] = (byte) ((writeCycleCounter >>> 8) & 0x0FF);
-			scratchpad[10] = (byte) ((writeCycleCounter >>> 16) & 0x0FF);
-			scratchpad[11] = (byte) ((writeCycleCounter >>> 24) & 0x0FF);
+			scratchpad[9] = (byte) (writeCycleCounter >>> 8 & 0x0FF);
+			scratchpad[10] = (byte) (writeCycleCounter >>> 16 & 0x0FF);
+			scratchpad[11] = (byte) (writeCycleCounter >>> 24 & 0x0FF);
 
 			// M-X-P byte
-			scratchpad[12] = (byte) ((pageNum & 0x0F) | (shaMX & 0xC0));
+			scratchpad[12] = (byte) (pageNum & 0x0F | shaMX & 0xC0);
 
 			// place the RomID into the scratchpad
 			System.arraycopy(romID, 0, scratchpad, 13, 7);
@@ -1148,8 +1176,9 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 
 		// init. digest buffer padding
 		digestBuff[55] = (byte) 0x80;
-		for (int i = 56; i < 62; i++)
+		for (var i = 56; i < 62; i++) {
 			digestBuff[i] = (byte) 0x00;
+		}
 		digestBuff[62] = (byte) 0x01;
 		digestBuff[63] = (byte) 0xB8;
 
@@ -1157,18 +1186,26 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 		if (DEBUG) {
 			IOHelper.writeLine("------------------------------------------------------------");
 
-			if (function == OneWireContainer18.VALIDATE_DATA_PAGE)
+			switch (function) {
+			case OneWireContainer18.VALIDATE_DATA_PAGE:
 				IOHelper.writeLine("Validating data page");
-			else if (function == OneWireContainer18.AUTH_HOST)
+				break;
+			case OneWireContainer18.AUTH_HOST:
 				IOHelper.writeLine("Authenticating Host");
-			else if (function == OneWireContainer18.SIGN_DATA_PAGE)
+				break;
+			case OneWireContainer18.SIGN_DATA_PAGE:
 				IOHelper.writeLine("Signing Data Page");
-			else if (function == OneWireContainer18.COMPUTE_NEXT_SECRET)
+				break;
+			case OneWireContainer18.COMPUTE_NEXT_SECRET:
 				IOHelper.writeLine("Computing Next Secret");
-			else if (function == OneWireContainer18.COMPUTE_FIRST_SECRET)
+				break;
+			case OneWireContainer18.COMPUTE_FIRST_SECRET:
 				IOHelper.writeLine("Computing FIRST Secret");
-			else
+				break;
+			default:
 				IOHelper.writeLine("SHA Function" + function);
+				break;
+			}
 
 			IOHelper.writeLine("pageNum: " + pageNum);
 			IOHelper.writeLine("DigestBuffer: ");
@@ -1208,8 +1245,10 @@ public class SHAiButtonCoprVM extends SHAiButtonCopr {
 	 *
 	 * @return a string containing the 8-byte address of this 1-Wire device.
 	 */
+	@Override
 	public String toString() {
 		return "COPRVM: " + Address.toString(this.address) + ", provider: " + this.providerName + ", version: "
 				+ this.version;
 	}
 }
+// CHECKSTYLE:ON

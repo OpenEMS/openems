@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoBlueplanetGridsave;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.BatteryInverterKacoBlueplanetGridsave;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -18,13 +18,13 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		KacoBlueplanetGridsave inverter = context.getParent();
+		var inverter = context.getParent();
 		inverter._setMaxStartAttempts(false);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		KacoBlueplanetGridsave inverter = context.getParent();
+		var inverter = context.getParent();
 
 		// Has Faults -> abort
 		if (inverter.hasFaults()) {
@@ -54,28 +54,24 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			// Not yet running...
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > KacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > KacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				inverter._setMaxStartAttempts(true);
-				return State.UNDEFINED;
-
-			} else {
-				// Trying to switch on
-				inverter.setRequestedState(S64201RequestedState.GRID_CONNECTED);
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return State.GO_RUNNING;
-
-			}
-
-		} else {
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+				.getSeconds() > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_SECONDS;
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return State.GO_RUNNING;
+		}
+		if (this.attemptCounter > BatteryInverterKacoBlueplanetGridsave.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			inverter._setMaxStartAttempts(true);
+			return State.UNDEFINED;
+
+		} else {
+			// Trying to switch on
+			inverter.setRequestedState(S64201RequestedState.GRID_CONNECTED);
+			this.lastAttempt = Instant.now();
+			this.attemptCounter++;
+			return State.GO_RUNNING;
+
 		}
 	}
 

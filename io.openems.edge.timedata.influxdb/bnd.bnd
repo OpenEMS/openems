@@ -9,7 +9,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.timedata.api,\
 	io.openems.shared.influxdb,\
-	io.openems.wrapper.influxdb-java
+	io.openems.wrapper.influxdb-client-core,\
+	io.openems.wrapper.influxdb-client-java,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.wrapper.influxdb-client-utils

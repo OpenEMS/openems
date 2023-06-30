@@ -33,6 +33,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		this.priority = priority;
 	}
 
+	@Override
 	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
@@ -60,9 +61,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		}
 
 		// Verify response length
-		if (response.length < getLength()) {
-			throw new OpenemsException(
-					"Received message is too short. Expected [" + getLength() + "], got [" + response.length + "]");
+		if (response.length < this.getLength()) {
+			throw new OpenemsException("Received message is too short. Expected [" + this.getLength() + "], got ["
+					+ response.length + "]");
 		}
 
 		this.fillElements(response);
@@ -70,11 +71,11 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	}
 
 	protected T[] readElements(AbstractModbusBridge bridge) throws OpenemsException, ModbusException {
-		ModbusRequest request = this.getRequest();
+		var request = this.getRequest();
 		int unitId = this.getParent().getUnitId();
-		ModbusResponse response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
+		var response = Utils.getResponse(request, this.getParent().getUnitId(), bridge);
 
-		T[] result = this.handleResponse(response);
+		var result = this.handleResponse(response);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
@@ -86,8 +87,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 						if (r instanceof InputRegister) {
 							return String.format("%4s", Integer.toHexString(((InputRegister) r).getValue()))
 									.replace(' ', '0');
-						} else if (r instanceof Boolean) {
-							return ((Boolean) r) ? "x" : "-";
+						}
+						if (r instanceof Boolean) {
+							return (Boolean) r ? "x" : "-";
 						} else {
 							return r.toString();
 						}
@@ -103,9 +105,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	}
 
 	protected void fillElements(T[] response) {
-		int position = 0;
+		var position = 0;
 		for (ModbusElement<?> modbusElement : this.getElements()) {
-			if (!(this.isCorrectElementInstance(modbusElement))) {
+			if (!this.isCorrectElementInstance(modbusElement)) {
 				this.doErrorLog(modbusElement);
 			} else {
 				try {
@@ -120,8 +122,9 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 		}
 	}
 
+	@Override
 	public Priority getPriority() {
-		return priority;
+		return this.priority;
 	}
 
 	protected abstract int increasePosition(int position, ModbusElement<?> modbusElement);
@@ -138,13 +141,13 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	protected abstract T[] handleResponse(ModbusResponse response) throws OpenemsException;
 
 	private void doWarnLog(OpenemsException e) {
-		log.warn("Unable to fill modbus element. UnitId [" + this.getParent().getUnitId() + "] Address ["
-				+ getStartAddress() + "] Length [" + getLength() + "]: " + e.getMessage());
+		this.log.warn("Unable to fill modbus element. UnitId [" + this.getParent().getUnitId() + "] Address ["
+				+ this.getStartAddress() + "] Length [" + this.getLength() + "]: " + e.getMessage());
 	}
 
 	private void doErrorLog(ModbusElement<?> modbusElement) {
-		log.error("A " + getRequiredElementName() + " is required for a " + getActiondescription() + "Task! Element ["
-				+ modbusElement + "]");
+		this.log.error("A " + this.getRequiredElementName() + " is required for a " + this.getActiondescription()
+				+ "Task! Element [" + modbusElement + "]");
 	}
 
 }

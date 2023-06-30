@@ -1,7 +1,8 @@
 package io.openems.edge.ess.mr.gridcon;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+
 import java.nio.ByteOrder;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -14,18 +15,17 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -63,13 +63,15 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 @Component(//
 		name = "MR.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE } //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+})
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, GridconPcs, EventHandler {
+		implements ModbusComponent, OpenemsComponent, GridconPcs, EventHandler {
 
-	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456; 
+	private static final int START_ADDRESS_GRID_MEASUREMENTS = 33456;
 
 	private static final int START_ADDRESS_DCDC_MEASUREMENTS = 33488;
 
@@ -88,21 +90,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	public static final double EFFICIENCY_LOSS_CHARGE_FACTOR = EFFICIENCY_LOSS_FACTOR;
 
 	private final Logger log = LoggerFactory.getLogger(GridconPcsImpl.class);
-
-	private String modbusId;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	@Reference
-	protected ComponentManager componentManager;
-	private InverterCount inverterCount;
-
-	private int activePowerPreset;
-
-	private double efficiencyLossDischargeFactor;
-	private double efficiencyLossChargeFactor;
-
 	private final Commands commands;
 	private final CcuParameters1 ccuParameters1;
 	private final CcuParameters2 ccuParameters2;
@@ -112,9 +99,23 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	private final DcDcParameter dcDcParameter;
 	private final CosPhiParameters cosPhiParameters;
 
+	@Reference
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
+
+	private InverterCount inverterCount;
+
+	private int activePowerPreset;
+
+	private double efficiencyLossDischargeFactor;
+	private double efficiencyLossChargeFactor;
+
 	public GridconPcsImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				GridConChannelId.values() //
 		);
 		this.commands = new Commands();
@@ -133,15 +134,15 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.inverterCount = config.inverterCount();
-		this.modbusId = config.modbus_id();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
-		;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		this.setBalancingMode(config.balancing_mode());
 		this.setFundamentalFrequencyMode(config.fundamental_frequency_mode());
@@ -199,7 +200,6 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 				+ this.getActivePower();
 
 	}
-
 
 	@Override
 	public void setPower(int activePower, int reactivePower) {
@@ -635,8 +635,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33176).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33178).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33178).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_1_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33180).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_1_STATUS_FAN_SPEED_MAX,
@@ -718,8 +717,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33208).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33210).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33210).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_2_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33212).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_2_STATUS_FAN_SPEED_MAX,
@@ -800,8 +798,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_CURRENT,
 									new FloatDoublewordElement(33240).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_ACTIVE_POWER,
-									new FloatDoublewordElement(33242).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									new FloatDoublewordElement(33242).wordOrder(WordOrder.LSWMSW), INVERT), //
 							m(GridConChannelId.INVERTER_3_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(33244).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.INVERTER_3_STATUS_FAN_SPEED_MAX,
@@ -1001,7 +998,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 									new FloatDoublewordElement(startAddressDcDcState + 8).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_STATUS_DC_LINK_ACTIVE_POWER,
 									new FloatDoublewordElement(startAddressDcDcState + 10).wordOrder(WordOrder.LSWMSW),
-									ElementToChannelConverter.INVERT), //
+									INVERT), //
 							m(GridConChannelId.DCDC_STATUS_DC_LINK_UTILIZATION,
 									new FloatDoublewordElement(startAddressDcDcState + 12).wordOrder(WordOrder.LSWMSW)), //
 							m(GridConChannelId.DCDC_STATUS_FAN_SPEED_MAX,
@@ -1152,23 +1149,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isCommunicationBroken() {
-
-		String modbusId = this.modbusId;
-		ComponentManager manager = this.componentManager;
-		AbstractModbusBridge modbusBridge = null;
-		try {
-			modbusBridge = manager.getComponent(modbusId);
-		} catch (OpenemsNamedException e) {
-			this.log.debug("Cannot get modbus component");
-		}
-		if (modbusBridge == null) {
-			return true;
-		}
-
-		Channel<Boolean> slaveCommunicationFailedChannel = modbusBridge.getSlaveCommunicationFailedChannel();
-		Optional<Boolean> communicationFailedOpt = slaveCommunicationFailedChannel.value().asOptional();
-
-		return (communicationFailedOpt.isPresent() && communicationFailedOpt.get());
+		return this.getModbusCommunicationFailed().get() == Boolean.TRUE;
 	}
 
 	@Override

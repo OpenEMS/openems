@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -42,7 +43,7 @@ public class TaggedDevice {
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
@@ -89,7 +90,7 @@ public class TaggedDevice {
 	 * @param Channel
 	 */
 	public void setChannelFromString(String Channel) {
-		this.channel = new Integer(Channel);
+		this.channel = Integer.valueOf(Channel);
 	}
 
 	/**
@@ -98,7 +99,7 @@ public class TaggedDevice {
 	 * @param Channel
 	 */
 	public void setChannel(int channel) {
-		this.channel = new Integer(channel);
+		this.channel = Integer.valueOf(channel);
 	}
 
 	/**
@@ -150,8 +151,8 @@ public class TaggedDevice {
 
 		TaggedDevice TDevice;
 
-		for (int i = 0; i < Branches.size(); i++) {
-			TDevice = (TaggedDevice) Branches.elementAt(i);
+		for (var i = 0; i < Branches.size(); i++) {
+			TDevice = Branches.elementAt(i);
 
 			this.branchPath.add(TDevice.getDeviceContainer(), TDevice.getChannel());
 		}
@@ -259,23 +260,27 @@ public class TaggedDevice {
 		return this.branchPath;
 	}
 
+	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
+		}
 
 		if (o instanceof TaggedDevice) {
-			TaggedDevice td = (TaggedDevice) o;
-			return (td.DeviceContainer.equals(this.DeviceContainer)) && (td.DeviceType.equals(this.DeviceType))
-					&& (td.min.equals(this.min)) && (td.max.equals(this.max)) && (td.init.equals(this.init))
-					&& (td.clusterName.equals(this.clusterName)) && (td.label.equals(this.label));
+			var td = (TaggedDevice) o;
+			return td.DeviceContainer.equals(this.DeviceContainer) && td.DeviceType.equals(this.DeviceType)
+					&& td.min.equals(this.min) && td.max.equals(this.max) && td.init.equals(this.init)
+					&& td.clusterName.equals(this.clusterName) && td.label.equals(this.label);
 		}
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
-		return (getDeviceContainer().toString() + getLabel()).hashCode();
+		return (this.getDeviceContainer().toString() + this.getLabel()).hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return this.getLabel();
 	}
@@ -341,3 +346,4 @@ public class TaggedDevice {
 	 */
 	private OWPath branchPath;
 }
+// CHECKSTYLE:ON

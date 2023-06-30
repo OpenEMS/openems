@@ -12,7 +12,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for {@link GetEdgesStatusRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -51,9 +51,9 @@ public class GetEdgesStatusResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		for (Entry<String, EdgeInfo> entry : this.edgeInfos.entrySet()) {
-			EdgeInfo edge = entry.getValue();
+			var edge = entry.getValue();
 			j.add(entry.getKey(), JsonUtils.buildJsonObject() //
 					.addProperty("online", edge.online) //
 					.build());

@@ -1,23 +1,19 @@
 package io.openems.edge.timedata.api.utils;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.ComponentManagerProvider;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public class CalculateActiveTime {
 
 	/**
 	 * Available States.
-	 * 
+	 *
 	 * <p>
 	 * IMPLEMENTATION NOTE: we are using a custom StateMachine here and not the
 	 * generic implementation in 'io.openems.edge.common.statemachine', because one
@@ -39,8 +35,6 @@ public class CalculateActiveTime {
 	private final ChannelId channelId;
 
 	private final TimedataProvider timedataProvider;
-	private final ComponentManagerProvider componentManagerProvider;
-	private final OpenemsComponent component;
 
 	/**
 	 * Keeps the time stamp of the last data.
@@ -50,7 +44,7 @@ public class CalculateActiveTime {
 	/**
 	 * Keeps the given isActive value.
 	 */
-	private Boolean lastIsAcitve = null;
+	private Boolean lastIsActive = null;
 
 	/**
 	 * Last stored active time.
@@ -63,17 +57,14 @@ public class CalculateActiveTime {
 	 */
 	private long continuousTime = 0L;
 
-	public CalculateActiveTime(TimedataProvider timedataProvider, ComponentManagerProvider componentManagerProvider,
-			OpenemsComponent component, ChannelId channelId) {
-		this.componentManagerProvider = componentManagerProvider;
+	public CalculateActiveTime(TimedataProvider timedataProvider, ChannelId channelId) {
 		this.timedataProvider = timedataProvider;
-		this.component = component;
 		this.channelId = channelId;
 	}
 
 	/**
 	 * Counts up the time channel if the given value is true.
-	 * 
+	 *
 	 * @param isActive boolean if the corresponding channel should be updated.
 	 */
 	public void update(boolean isActive) {
@@ -93,13 +84,13 @@ public class CalculateActiveTime {
 		}
 
 		// Keep last data for next run
-		this.lastTimestamp = Instant.now(componentManagerProvider.getComponentManager().getClock());
-		this.lastIsAcitve = isActive;
+		this.lastTimestamp = Instant.now();
+		this.lastIsActive = isActive;
 	}
 
 	private void initializeActiveTimeFromTimedata() {
-		Timedata timedata = this.timedataProvider.getTimedata();
-		String componentId = this.component.id();
+		var timedata = this.timedataProvider.getTimedata();
+		var componentId = this.timedataProvider.id();
 		if (timedata == null || componentId == null) {
 			// Wait for Timedata service to appear or Component to be activated
 			this.state = State.TIMEDATA_QUERY_NOT_STARTED;
@@ -108,7 +99,7 @@ public class CalculateActiveTime {
 			// Do not query Timedata twice
 			this.state = State.TIMEDATA_QUERY_IS_RUNNING;
 
-			timedata.getLatestValue(new ChannelAddress(this.component.id(), this.channelId.id()))
+			timedata.getLatestValue(new ChannelAddress(this.timedataProvider.id(), this.channelId.id()))
 					.thenAccept(activeTimeOpt -> {
 						this.state = State.CALCULATE_TIME_OPERATION;
 
@@ -127,15 +118,14 @@ public class CalculateActiveTime {
 
 	/**
 	 * Calculate the active time.
-	 * 
-	 * @param isActive
+	 *
+	 * @param isActive currently active?
 	 */
 	private void calculateActiveTime(boolean isActive) {
-		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && lastIsAcitve && isActive) {
+		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && this.lastIsActive && isActive) {
 
-			Clock clock = componentManagerProvider.getComponentManager().getClock();
 			// Calculate duration since last value
-			long duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now(clock)).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
 
 			// Add to continuous cumulated time
 			this.continuousTime += duration;
@@ -148,7 +138,6 @@ public class CalculateActiveTime {
 		}
 
 		// Update 'cumulated time'
-		this.component.channel(this.channelId).setNextValue(this.lastStoredActiveTime);
+		this.timedataProvider.channel(this.channelId).setNextValue(this.lastStoredActiveTime);
 	}
-
 }

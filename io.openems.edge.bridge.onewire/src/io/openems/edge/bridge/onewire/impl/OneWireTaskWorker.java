@@ -11,7 +11,10 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
 import com.dalsemi.onewire.adapter.PDKAdapterUSB;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.edge.bridge.onewire.jsonrpc.GetDeviceResponse;
+import io.openems.edge.bridge.onewire.jsonrpc.GetDevicesRequest;
 
 public class OneWireTaskWorker extends AbstractImmediateWorker {
 
@@ -28,7 +31,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	}
 
 	@Override
-	protected void forever() throws InterruptedException {
+	protected synchronized void forever() throws InterruptedException {
 		DSPortAdapter adapter;
 		try {
 			adapter = this.getAdapter();
@@ -45,25 +48,24 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Gets the DSPortAdapter and opens the port.
-	 * 
+	 *
 	 * @return the DSPortAdapter
 	 * @throws OpenemsException on error
 	 */
-	private DSPortAdapter getAdapter() throws OpenemsException {
+	private synchronized DSPortAdapter getAdapter() throws OpenemsException {
 		if (this._adapter != null) {
 			return this._adapter;
 		}
-		PDKAdapterUSB adapter = new PDKAdapterUSB();
+		var adapter = new PDKAdapterUSB();
 		try {
 			if (adapter.selectPort(this.port)) {
 				this.parent._setUnableToSelectPortFault(false);
 				this._adapter = adapter;
 				return this._adapter;
 
-			} else {
-				this.parent._setUnableToSelectPortFault(true);
-				throw new OpenemsException("Unable to select port [" + this.port + "]");
 			}
+			this.parent._setUnableToSelectPortFault(true);
+			throw new OpenemsException("Unable to select port [" + this.port + "]");
 		} catch (IllegalArgumentException | OneWireException e) {
 			this.parent._setUnableToSelectPortFault(true);
 			throw new OpenemsException("Unable to select port [" + this.port + "]: " + e.getMessage());
@@ -71,7 +73,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 	}
 
 	@Override
-	public void deactivate() {
+	public synchronized void deactivate() {
 		if (this._adapter != null) {
 			try {
 				this._adapter.freePort();
@@ -82,11 +84,45 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 		super.deactivate();
 	}
 
+	/**
+	 * Adds a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void addTask(Consumer<DSPortAdapter> task) {
 		this.tasks.add(task);
 	}
 
+	/**
+	 * Removes a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void removeTask(Consumer<DSPortAdapter> task) {
 		this.tasks.remove(task);
+	}
+
+	/**
+	 * Handles a {@link GetDevicesRequest}.
+	 * 
+	 * @param request the {@link JsonrpcRequest}
+	 * @return a {@link GetDeviceResponse}
+	 * @throws OpenemsException on error
+	 */
+	public synchronized GetDeviceResponse handleGetDevicesRequest(JsonrpcRequest request) throws OpenemsException {
+		var response = new GetDeviceResponse(request.getId());
+
+		var adapter = this.getAdapter();
+		try {
+			while (adapter.findNextDevice()) {
+				response.addDevice(//
+						GetDeviceResponse.Device.from(//
+								adapter.getDeviceContainer(adapter.getAddressAsLong())));
+			}
+		} catch (OneWireException e) {
+			e.printStackTrace();
+			throw new OpenemsException(e.getMessage());
+		}
+		return response;
 	}
 }

@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 public interface DecisionTableCondition {
@@ -107,3 +109,4 @@ public interface DecisionTableCondition {
 		}
 	}
 }
+// CHECKSTYLE:ON

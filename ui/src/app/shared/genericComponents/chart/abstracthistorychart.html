@@ -1,0 +1,13 @@
+<oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+<table class="full_width">
+    <tr>
+        <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
+    </tr>
+</table>
+<div [style.height.px]="getChartHeight()">
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    <ng-container *ngIf="!loading">
+        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
+            [chartType]="chartType"></canvas>
+    </ng-container>
+</div>

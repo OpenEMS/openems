@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: SinglethresholdChartOverviewComponent.SELECTOR,
     templateUrl: './singlethresholdchartoverview.component.html'
 })
-export class SinglethresholdChartOverviewComponent {
+export class SinglethresholdChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
@@ -20,7 +20,7 @@ export class SinglethresholdChartOverviewComponent {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -29,7 +29,7 @@ export class SinglethresholdChartOverviewComponent {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 this.inputChannel = config.getComponentProperties(this.component.id)['inputChannelAddress'];
-            })
+            });
         });
     }
 }

@@ -1,16 +1,16 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { calculateActiveTimeOverPeriod } from '../shared';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: ChannelthresholdWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -19,12 +19,12 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
-    public activeTimeOverPeriod: string = null;
+    public activeSecondsOverPeriod: number = null;
     public edge: Edge = null;
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -35,12 +35,12 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
                 this.edge = response;
                 this.config = config;
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -49,12 +49,12 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
 
     protected updateValues() {
         // Gather result & timestamps to calculate effective active time in % 
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
+        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
-            })
+                this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
+            });
         });
     };
 

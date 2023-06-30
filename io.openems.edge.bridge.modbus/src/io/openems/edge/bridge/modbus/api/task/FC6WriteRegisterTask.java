@@ -1,12 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -27,18 +24,18 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 	@Override
 	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
-		int noOfWrittenRegisters = 0;
+		var noOfWrittenRegisters = 0;
 		ModbusElement<?> element = this.getElements()[0];
 
 		if (element instanceof AbstractWordElement<?, ?>) {
 
-			Optional<Register[]> valueOpt = ((AbstractWordElement<?, ?>) element).getNextWriteValueAndReset();
+			var valueOpt = ((AbstractWordElement<?, ?>) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
-				Register[] registers = valueOpt.get();
+				var registers = valueOpt.get();
 
 				if (registers.length == 1 && registers[0] != null) {
 					// found value -> write
-					Register register = registers[0];
+					var register = registers[0];
 					try {
 						/*
 						 * First try
@@ -61,11 +58,11 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 						}
 					}
 				} else {
-					log.warn("Expecting exactly one register. Got [" + registers.length + "]");
+					this.log.warn("Expecting exactly one register. Got [" + registers.length + "]");
 				}
 			}
 		} else {
-			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!");
+			this.log.warn("Unable to execute Write for ModbusElement [" + element + "]: No AbstractWordElement!");
 		}
 		return noOfWrittenRegisters;
 	}
@@ -77,8 +74,8 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 
 	private void writeSingleRegister(AbstractModbusBridge bridge, int unitId, int startAddress, Register register)
 			throws ModbusException, OpenemsException {
-		WriteSingleRegisterRequest request = new WriteSingleRegisterRequest(startAddress, register);
-		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+		var request = new WriteSingleRegisterRequest(startAddress, register);
+		var response = Utils.getResponse(request, unitId, bridge);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {

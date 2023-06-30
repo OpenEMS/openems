@@ -3,9 +3,9 @@ package io.openems.edge.common.component;
 import java.time.Clock;
 import java.util.List;
 
-import io.openems.common.OpenemsConstants;
+import org.osgi.framework.BundleContext;
+
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
@@ -20,8 +20,11 @@ import io.openems.edge.common.jsonapi.JsonApi;
  */
 public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvider {
 
+	public static final String SINGLETON_SERVICE_PID = "Core.ComponentManager";
+	public static final String SINGLETON_COMPONENT_ID = "_componentManager";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONFIG_NOT_ACTIVATED(Doc.of(Level.WARNING) //
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.FAULT) //
 				.text("A configured OpenEMS Component was not activated")), //
 		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
 				.text("Configuration has duplicated Component-IDs")), //
@@ -36,6 +39,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -160,13 +164,20 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	/**
 	 * Gets the OpenEMS Clock - either the real system clock or a mocked clock for
 	 * simulations.
-	 * 
+	 *
 	 * @return the Clock
 	 */
+	@Override
 	public Clock getClock();
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
+	 * 
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
 	 * 
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
@@ -174,7 +185,28 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	public List<OpenemsComponent> getEnabledComponents();
 
 	/**
+	 * Gets all enabled OpenEMS-Components of the given Type.
+	 * 
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
+	 *
+	 * @param <T>   the given Type, subclass of {@link OpenemsComponent}
+	 * @param clazz the given Type, subclass of {@link OpenemsComponent}
+	 * @return a List of OpenEMS-Components
+	 */
+	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz);
+
+	/**
 	 * Gets all OpenEMS-Components.
+	 * 
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
 	 * 
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
@@ -185,53 +217,40 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 * Gets a OpenEMS-Component by its Component-ID. The Component is guaranteed to
 	 * be enabled.
 	 * 
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
+	 *
 	 * @param componentId the Component-ID (e.g. "_sum")
 	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
-	@SuppressWarnings("unchecked")
-	public default <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-		if (componentId.equals(OpenemsConstants.COMPONENT_MANAGER_ID)) {
-			return (T) this;
-		}
-		List<OpenemsComponent> components = this.getEnabledComponents();
-		for (OpenemsComponent component : components) {
-			if (component.id().equals(componentId)) {
-				return (T) component;
-			}
-		}
-		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
-	}
+	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException;
 
 	/**
 	 * Gets a OpenEMS-Component by its Component-ID. Be careful, that the Component
 	 * might not be 'enabled'. If in doubt, use {@link #getComponent(String)}
 	 * instead.
+	 *
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
 	 * 
 	 * @param componentId the Component-ID (e.g. "_sum")
 	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
 	 * @throws OpenemsNamedException if the Component was not found
 	 */
-	@SuppressWarnings("unchecked")
-	public default <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
-			throws OpenemsNamedException {
-		if (componentId == OpenemsConstants.COMPONENT_MANAGER_ID) {
-			return (T) this;
-		}
-		List<OpenemsComponent> components = this.getAllComponents();
-		for (OpenemsComponent component : components) {
-			if (component.id().equals(componentId)) {
-				return (T) component;
-			}
-		}
-		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
-	}
+	public <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId) throws OpenemsNamedException;
 
 	/**
 	 * Gets a Channel by its Channel-Address.
-	 * 
+	 *
 	 * @param channelAddress the Channel-Address
 	 * @param <T>            the typed Channel
 	 * @return the Channel
@@ -240,17 +259,17 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 */
 	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
 			throws IllegalArgumentException, OpenemsNamedException {
-		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
+		var component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
 	}
 
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
-	 * 
+	 *
 	 * <p>
 	 * Internally updates the cache if necessary and publishes a CONFIG_UPDATE event
 	 * on update.
-	 * 
+	 *
 	 * @return the {@link EdgeConfig} object
 	 */
 	public EdgeConfig getEdgeConfig();

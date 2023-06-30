@@ -1,0 +1,5 @@
+= ESS Linear Power Band
+
+Executes a test cycle for an energy storage system by increasing and decreasing the charging/discharging power in given limits.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.linearpowerband[Source Code icon:github[]]

@@ -1,7 +1,5 @@
 package io.openems.edge.bridge.modbus.api;
 
-import java.util.List;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
@@ -28,7 +26,7 @@ public class ModbusProtocol {
 
 	/**
 	 * Creates a new {@link ModbusProtocol}.
-	 * 
+	 *
 	 * @param parent the {@link AbstractOpenemsModbusComponent} parent
 	 * @param tasks  the {@link Task}s
 	 * @throws OpenemsException on error
@@ -36,25 +34,25 @@ public class ModbusProtocol {
 	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) throws OpenemsException {
 		this.parent = parent;
 		for (Task task : tasks) {
-			addTask(task);
+			this.addTask(task);
 		}
 	}
 
 	/**
 	 * Adds Tasks to the Protocol.
-	 * 
+	 *
 	 * @param tasks the tasks
 	 * @throws OpenemsException on error
 	 */
 	public synchronized void addTasks(Task... tasks) throws OpenemsException {
 		for (Task task : tasks) {
-			addTask(task);
+			this.addTask(task);
 		}
 	}
 
 	/**
 	 * Adds a Task to the Protocol.
-	 * 
+	 *
 	 * @param task the task
 	 * @throws OpenemsException on plausibility error
 	 */
@@ -77,6 +75,11 @@ public class ModbusProtocol {
 		}
 	}
 
+	/**
+	 * Removes a Task from the Protocol.
+	 *
+	 * @param task the task
+	 */
 	public synchronized void removeTask(Task task) {
 		if (task instanceof ReadTask) {
 			this.readTaskManager.removeTask((ReadTask) task);
@@ -88,7 +91,7 @@ public class ModbusProtocol {
 
 	/**
 	 * Gets the Read-Tasks Manager.
-	 * 
+	 *
 	 * @return a the TaskManager
 	 */
 	public TasksManager<ReadTask> getReadTasksManager() {
@@ -97,7 +100,7 @@ public class ModbusProtocol {
 
 	/**
 	 * Gets the Write-Tasks Manager.
-	 * 
+	 *
 	 * @return a the TaskManager
 	 */
 	public TasksManager<WriteTask> getWriteTasksManager() {
@@ -108,10 +111,10 @@ public class ModbusProtocol {
 	 * Checks a {@link Task} for plausibility.
 	 *
 	 * @param task the Task that should be checked
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
 	private synchronized void checkTask(Task task) throws OpenemsException {
-		int address = task.getStartAddress();
+		var address = task.getStartAddress();
 		for (ModbusElement<?> element : task.getElements()) {
 			if (element.getStartAddress() != address) {
 				throw new OpenemsException("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
@@ -123,13 +126,16 @@ public class ModbusProtocol {
 		}
 	}
 
+	/**
+	 * Deactivate the {@link ModbusProtocol}.
+	 */
 	public void deactivate() {
-		List<ReadTask> readTasks = this.readTaskManager.getAllTasks();
+		var readTasks = this.readTaskManager.getTasks();
 		for (ReadTask readTask : readTasks) {
 			readTask.deactivate();
 		}
 
-		List<WriteTask> writeTasks = this.writeTaskManager.getAllTasks();
+		var writeTasks = this.writeTaskManager.getTasks();
 		for (WriteTask writeTask : writeTasks) {
 			writeTask.deactivate();
 		}

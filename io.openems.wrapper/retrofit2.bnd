@@ -1,0 +1,35 @@
+#
+# NOTE: At runtime Retrofit throws a not so nice warning:
+#
+# WARNING: An illegal reflective access operation has occurred
+# WARNING: Illegal reflective access by retrofit2.Platform (file:.../.gradle/caches/.../retrofit-2.9.0.jar) to constructor java.lang.invoke.MethodHandles$Lookup(java.lang.Class,int)
+# WARNING: Please consider reporting this to the maintainers of retrofit2.Platform
+# WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+# WARNING: All illegal access operations will be denied in a future release
+#
+# According to https://github.com/square/retrofit/issues/3341 this can be safely ignored.
+# According to https://stackoverflow.com/a/61584378 there is an option to hide the warning
+#
+Bundle-Name: retrofit
+Bundle-Description:  A type-safe HTTP client for Android and Java  
+Bundle-DocURL: https://github.com/google/gson
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 2.9.0
+
+Include-Resource: \
+	@retrofit-2.9.0.jar,\
+
+Export-Package: \
+	retrofit2,\
+	retrofit2.http,\
+	retrofit2.internal,\
+
+Import-Package: \
+	android.os;resolution:=optional,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

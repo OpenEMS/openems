@@ -1,11 +1,15 @@
 package io.openems.edge.evcs.api;
 
+import java.util.function.Consumer;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -16,14 +20,21 @@ import io.openems.edge.common.modbusslave.ModbusType;
 
 public interface Evcs extends OpenemsComponent {
 
+	public static final Integer DEFAULT_MAXIMUM_HARDWARE_POWER = 22_080; // W
+	public static final Integer DEFAULT_MINIMUM_HARDWARE_POWER = 4_140; // W
+	public static final Integer DEFAULT_MAXIMUM_HARDWARE_CURRENT = 32_000; // mA
+	public static final Integer DEFAULT_MINIMUM_HARDWARE_CURRENT = 6_000; // mA
+	public static final Integer DEFAULT_VOLTAGE = 230; // V
+	public static final int DEFAULT_POWER_RECISION = 230;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
 		 * Status.
-		 * 
+		 *
 		 * <p>
 		 * The Status of the EVCS charging station.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -31,11 +42,12 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		STATUS(Doc.of(Status.values()) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Charge Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -44,15 +56,15 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //
+				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Charging Type.
-		 * 
+		 *
 		 * <p>
 		 * Type of charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -60,14 +72,16 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGING_TYPE(Doc.of(ChargingType.values()) //
-				.accessMode(AccessMode.READ_ONLY)), //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Count of phases, the EV is charging with.
-		 * 
+		 *
 		 * <p>
 		 * This value is derived from the charging station or calculated during the
-		 * charging.
+		 * charging. When this value is set, the minimum and maximum limits are set at
+		 * the same time if the EVCS is a {@link ManagedEvcs}.
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -75,15 +89,71 @@ public interface Evcs extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		PHASES(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY)), //
+		PHASES(Doc.of(Phases.values()) //
+				.debounce(5) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * Minimum Power valid by the hardware.
+		 * Fixed minimum power allowed by the hardware in W.
 		 * 
 		 * <p>
-		 * In the cases that the EVCS can't be controlled, the Minimum will be the
-		 * maximum too.
+		 * Maximum of the configured minimum hardware limit and the read or given
+		 * minimum hardware limit - e.g. KEBA minimum requirement is 6A = 4140W and the
+		 * component configuration is 10A = 6900W because the customer wants to ensure
+		 * that his Renault ZOE is always charging with an acceptable efficiency. In
+		 * this case the Channel should be set to 6900W. Used power instead of current,
+		 * because it is easier to store it in an Integer Channel. When this value is
+		 * set, the minimum and maximum limits are set at the same time if the EVCS is a
+		 * {@link ManagedEvcs}.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		FIXED_MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Fixed maximum power allowed by the hardware in W.
+		 * 
+		 * <p>
+		 * Minimum of the configured maximum hardware limit and the read maximum
+		 * hardware limit - e.g. KEBA Dip-Switch Settings set to 32A = 22080W and
+		 * component configuration of 16A = 11040. In this case the Channel should be
+		 * set to 11040W. Used power instead of current, because it is easier to store
+		 * it in an Integer Channel. When this value is set, the minimum and maximum
+		 * limits are a Integer Channel. When this value is set, the minimum and maximum
+		 * limits are set at the same time if the EVCS is a {@link ManagedEvcs}.
+		 * 
+		 * <ul>
+		 * <li>Interface: Evcs
+		 * <li>Readable
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		FIXED_MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Minimum hardware power in W calculated with the current used Phases, used for
+		 * the boundaries of the monitoring.
+		 * 
+		 * <p>
+		 * This minimum limit is dynamically set depending on the current used
+		 * {@link #PHASES} and the {@link #FIXED_MINIMUM_HARDWARE_POWER}, to be able to
+		 * react on different power limits if some of the Phases are not used - e.g. The
+		 * minimum and maximum of a charger is 6 and 32 Ampere. Because the default unit
+		 * of all OpenEMS calculations is power, the real minimum for charging on one
+		 * Phase is not 4140 Watt but 1380 Watt (Or in current 6A|0A|0A).
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -94,10 +164,20 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		MINIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * Maximum Power valid by the hardware.
+		 * Maximum hardware power in W calculated with the current used Phases, used for
+		 * the boundaries of the monitoring.
+		 * 
+		 * <p>
+		 * This maximum limit is dynamically set depending on the current used
+		 * {@link #PHASES} and the {@link #FIXED_MINIMUM_HARDWARE_POWER}, to be able to
+		 * react on different power limits if some of the Phases are not used - e.g. The
+		 * minimum and maximum of a charger is 6 and 32 Ampere. Because the default unit
+		 * of all OpenEMS calculations is power, the real maximum for charging on one
+		 * Phase is not 22080 Watt but 7360 Watt (Or in current 32A|0A|0A).
 		 * 
 		 * <ul>
 		 * <li>Interface: Evcs
@@ -108,11 +188,12 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		MAXIMUM_HARDWARE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Maximum Power defined by software.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -122,11 +203,12 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		MAXIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Minimum Power defined by software.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -136,11 +218,12 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		MINIMUM_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Energy that was charged during the current or last Session.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -150,11 +233,12 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY)),
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Active Consumption Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Type: Integer
@@ -162,19 +246,22 @@ public interface Evcs extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY)),
-		
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
 		/**
 		 * Failed state channel for a failed communication to the EVCS.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
 		 * <li>Level: FAULT
 		 * </ul>
 		 */
-		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT).accessMode(AccessMode.READ_ONLY));
+		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 
@@ -286,8 +373,17 @@ public interface Evcs extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getPhasesChannel() {
+	public default EnumReadChannel getPhasesChannel() {
 		return this.channel(ChannelId.PHASES);
+	}
+
+	/**
+	 * Gets the current Phases definition. See {@link ChannelId#PHASES}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Phases getPhases() {
+		return this.getPhasesChannel().value().asEnum();
 	}
 
 	/**
@@ -296,8 +392,17 @@ public interface Evcs extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getPhases() {
-		return this.getPhasesChannel().value();
+	public default int getPhasesAsInt() {
+		return this.getPhasesChannel().value().asEnum().getValue();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PHASES} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPhases(Phases value) {
+		this.getPhasesChannel().setNextValue(value);
 	}
 
 	/**
@@ -306,55 +411,101 @@ public interface Evcs extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setPhases(Integer value) {
-		this.getPhasesChannel().setNextValue(value);
+		if (value == null || value == 0) {
+			this._setPhases(Phases.THREE_PHASE);
+			return;
+		}
+		switch (value) {
+		case 1:
+			this._setPhases(Phases.ONE_PHASE);
+			break;
+		case 2:
+			this._setPhases(Phases.TWO_PHASE);
+			break;
+		case 3:
+			this._setPhases(Phases.THREE_PHASE);
+			break;
+		default:
+			throw new IllegalArgumentException("Value [" + value + "] for _setPhases is invalid");
+		}
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#PHASES} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setPhases(int value) {
-		this.getPhasesChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MINIMUM_HARDWARE_POWER}.
+	 * Gets the Channel for {@link ChannelId#FIXED_MINIMUM_HARDWARE_POWER}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getMinimumHardwarePowerChannel() {
-		return this.channel(ChannelId.MINIMUM_HARDWARE_POWER);
+	public default IntegerReadChannel getFixedMinimumHardwarePowerChannel() {
+		return this.channel(ChannelId.FIXED_MINIMUM_HARDWARE_POWER);
 	}
 
 	/**
-	 * Gets the Minimum Power valid by the hardware in [W]. See
-	 * {@link ChannelId#MINIMUM_HARDWARE_POWER}.
+	 * Gets the fixed minimum power valid by the hardware in [W]. See
+	 * {@link ChannelId#FIXED_MINIMUM_HARDWARE_POWER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getMinimumHardwarePower() {
-		return this.getMinimumHardwarePowerChannel().value();
+	public default Value<Integer> getFixedMinimumHardwarePower() {
+		return this.getFixedMinimumHardwarePowerChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MINIMUM_HARDWARE_POWER} Channel.
+	 * {@link ChannelId#FIXED_MINIMUM_HARDWARE_POWER} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMinimumHardwarePower(Integer value) {
-		this.getMinimumHardwarePowerChannel().setNextValue(value);
+	public default void _setFixedMinimumHardwarePower(Integer value) {
+		this.getFixedMinimumHardwarePowerChannel().setNextValue(value);
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MINIMUM_HARDWARE_POWER} Channel.
+	 * {@link ChannelId#FIXED_MINIMUM_HARDWARE_POWER} Channel.
 	 *
 	 * @param value the next value
 	 */
-	public default void _setMinimumHardwarePower(int value) {
-		this.getMinimumHardwarePowerChannel().setNextValue(value);
+	public default void _setFixedMinimumHardwarePower(int value) {
+		this.getFixedMinimumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#FIXED_MAXIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getFixedMaximumHardwarePowerChannel() {
+		return this.channel(ChannelId.FIXED_MAXIMUM_HARDWARE_POWER);
+	}
+
+	/**
+	 * Gets the fixed maximum power valid by the hardware in [W]. See
+	 * {@link ChannelId#FIXED_MAXIMUM_HARDWARE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getFixedMaximumHardwarePower() {
+		return this.getFixedMaximumHardwarePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FIXED_MAXIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setFixedMaximumHardwarePower(Integer value) {
+		this.getFixedMaximumHardwarePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#FIXED_MAXIMUM_HARDWARE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setFixedMaximumHardwarePower(int value) {
+		this.getFixedMaximumHardwarePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -377,23 +528,22 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAXIMUM_HARDWARE_POWER} Channel.
+	 * Gets the Channel for {@link ChannelId#MINIMUM_HARDWARE_POWER}.
 	 *
-	 * @param value the next value
+	 * @return the Channel
 	 */
-	public default void _setMaximumHardwarePower(Integer value) {
-		this.getMaximumHardwarePowerChannel().setNextValue(value);
+	public default IntegerReadChannel getMinimumHardwarePowerChannel() {
+		return this.channel(ChannelId.MINIMUM_HARDWARE_POWER);
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAXIMUM_HARDWARE_POWER} Channel.
+	 * Gets the Minimum Power valid by the hardware in [W]. See
+	 * {@link ChannelId#MINIMUM_HARDWARE_POWER}.
 	 *
-	 * @param value the next value
+	 * @return the Channel {@link Value}
 	 */
-	public default void _setMaximumHardwarePower(int value) {
-		this.getMaximumHardwarePowerChannel().setNextValue(value);
+	public default Value<Integer> getMinimumHardwarePower() {
+		return this.getMinimumHardwarePowerChannel().value();
 	}
 
 	/**
@@ -512,7 +662,7 @@ public interface Evcs extends OpenemsComponent {
 	public default void _setEnergySession(int value) {
 		this.getEnergySessionChannel().setNextValue(value);
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 *
@@ -523,7 +673,7 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * Gets the Active Consumption Energy in [Wh_Σ]. This relates to negative
 	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -582,10 +732,42 @@ public interface Evcs extends OpenemsComponent {
 	}
 
 	/**
-	 * Returns the modbus table for this nature.
+	 * Adds onSetNextValue listeners for minimum and maximum hardware power.
 	 * 
-	 * @param accessMode accessMode
-	 * @return nature table
+	 * <p>
+	 * Since the minimum and maximum power strongly depends on the connected
+	 * vehicle, this automatically adjusts it to the currently used phases.
+	 * 
+	 * @param evcs evcs
+	 */
+	public static void addCalculatePowerLimitListeners(Evcs evcs) {
+
+		final Consumer<Value<Integer>> calculateHardwarePowerLimits = ignore -> {
+
+			Phases phases = evcs.getPhasesChannel().getNextValue().asEnum();
+			int fixedMaximum = evcs.getFixedMaximumHardwarePowerChannel().getNextValue()
+					.orElse(DEFAULT_MAXIMUM_HARDWARE_POWER);
+			int fixedMinimum = evcs.getFixedMinimumHardwarePowerChannel().getNextValue()
+					.orElse(DEFAULT_MINIMUM_HARDWARE_POWER);
+
+			var maximumPower = phases.getFromThreePhase(fixedMaximum);
+			var minimumPower = phases.getFromThreePhase(fixedMinimum);
+
+			evcs.getMaximumHardwarePowerChannel().setNextValue(maximumPower);
+			evcs.getMinimumHardwarePowerChannel().setNextValue(minimumPower);
+		};
+
+		evcs.getFixedMaximumHardwarePowerChannel().onSetNextValue(calculateHardwarePowerLimits);
+		evcs.getFixedMinimumHardwarePowerChannel().onSetNextValue(calculateHardwarePowerLimits);
+		evcs.getPhasesChannel().onSetNextValue(calculateHardwarePowerLimits);
+	}
+
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Evcs.class, accessMode, 100) //
@@ -598,6 +780,10 @@ public interface Evcs extends OpenemsComponent {
 				.channel(6, ChannelId.MAXIMUM_POWER, ModbusType.UINT16) //
 				.channel(7, ChannelId.ENERGY_SESSION, ModbusType.UINT16) //
 				.channel(8, ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED, ModbusType.UINT16) //
+				.channel(9, ChannelId.FIXED_MINIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(10, ChannelId.FIXED_MAXIMUM_HARDWARE_POWER, ModbusType.UINT16) //
+				.channel(11, ChannelId.MINIMUM_POWER, ModbusType.UINT16) //
+				.channel(12, ChannelId.ACTIVE_CONSUMPTION_ENERGY, ModbusType.UINT16) //
 				.build();
 	}
 }

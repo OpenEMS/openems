@@ -19,10 +19,12 @@ public class UnsignedDoublewordElement extends AbstractDoubleWordElement<Unsigne
 		return this;
 	}
 
+	@Override
 	protected Long fromByteBuffer(ByteBuffer buff) {
 		return Integer.toUnsignedLong(buff.getInt(0));
 	}
 
+	@Override
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
 		return buff.putInt(value.intValue());
 	}

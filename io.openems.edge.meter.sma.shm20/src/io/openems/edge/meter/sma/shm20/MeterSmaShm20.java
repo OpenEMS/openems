@@ -3,9 +3,10 @@ package io.openems.edge.meter.sma.shm20;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterSmaShm20 {
-	
+public interface MeterSmaShm20 extends ElectricityMeter {
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ACTIVE_PRODUCTION_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
@@ -22,7 +23,7 @@ public interface MeterSmaShm20 {
 		ACTIVE_PRODUCTION_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 		ACTIVE_PRODUCTION_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)), //		
+				.unit(Unit.WATT)), //
 		;
 
 		private final Doc doc;
@@ -31,9 +32,10 @@ public interface MeterSmaShm20 {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
-	
+
 }

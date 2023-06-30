@@ -1,9 +1,8 @@
 package io.openems.common.worker;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class AbstractCycleWorkerTest {
@@ -11,7 +10,7 @@ public class AbstractCycleWorkerTest {
 	@Test
 	public void testCycle() throws InterruptedException {
 
-		final AtomicInteger counter = new AtomicInteger(0);
+		final var counter = new AtomicInteger(0);
 
 		AbstractCycleWorker worker = new AbstractCycleWorker() {
 
@@ -23,14 +22,14 @@ public class AbstractCycleWorkerTest {
 
 		worker.activate("test");
 
-		for (int i = 0; i < 10; i++) {
+		for (var i = 0; i < 10; i++) {
 			Thread.sleep(100);
 			worker.triggerNextRun();
 		}
 
 		Thread.sleep(100);
 
-		assertEquals(10, counter.get());
+		Assert.assertEquals(11, counter.get());
 
 		worker.deactivate();
 	}

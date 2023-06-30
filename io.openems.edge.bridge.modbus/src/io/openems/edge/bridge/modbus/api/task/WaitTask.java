@@ -57,7 +57,7 @@ public class WaitTask implements Task {
 	@Override
 	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		try {
-			Thread.sleep(delay);
+			Thread.sleep(this.delay);
 		} catch (InterruptedException e) {
 			this.log.warn(e.getMessage());
 		}

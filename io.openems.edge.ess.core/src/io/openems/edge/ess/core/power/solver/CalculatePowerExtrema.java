@@ -2,7 +2,6 @@ package io.openems.edge.ess.core.power.solver;
 
 import java.util.List;
 
-import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
@@ -28,7 +27,7 @@ public class CalculatePowerExtrema {
 	/**
 	 * Calculates the extrema under the current constraints for the given
 	 * parameters.
-	 * 
+	 *
 	 * @param coefficients   the {@link Coefficients}
 	 * @param allConstraints all active {@link Constraint}s
 	 * @param essId          the ID of the {@link ManagedSymmetricEss}
@@ -47,16 +46,16 @@ public class CalculatePowerExtrema {
 			LOG.error(e.getMessage());
 			return 0d;
 		}
-		double[] cos = LinearSolverUtil.generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
+		var cos = LinearSolverUtil.generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
 		cos[index] = 1;
-		LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(cos, 0);
+		var objectiveFunction = new LinearObjectiveFunction(cos, 0);
 
-		LinearConstraintSet constraints = new LinearConstraintSet(
+		var constraints = new LinearConstraintSet(
 				LinearSolverUtil.convertToLinearConstraints(coefficients, allConstraints));
 
-		SimplexSolver solver = new SimplexSolver();
+		var solver = new SimplexSolver();
 		try {
-			PointValuePair solution = solver.optimize(//
+			var solution = solver.optimize(//
 					objectiveFunction, //
 					constraints, //
 					goal, //
@@ -67,9 +66,8 @@ public class CalculatePowerExtrema {
 			LOG.warn("No Constraints for " + goal.name() + " [" + essId + "] phase [" + phase + "] pwr [" + pwr + "].");
 			if (goal == GoalType.MAXIMIZE) {
 				return Integer.MAX_VALUE;
-			} else {
-				return Integer.MIN_VALUE;
 			}
+			return Integer.MIN_VALUE;
 
 		} catch (NoFeasibleSolutionException e) {
 			LOG.warn("Unable to " + goal.name() + " [" + essId + "] phase [" + phase + "] pwr [" + pwr

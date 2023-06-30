@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Constructs a AbstractOpenemsSunSpecComponent.
-	 * 
+	 *
 	 * @param activeModels             the active SunSpec Models (i.e.
 	 *                                 {@link SunSpecModel}) that should be
 	 *                                 considered and their reading-priority
@@ -77,6 +78,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			throws OpenemsException {
 		this.readFromCommonBlockNo = readFromCommonBlockNo;
 
+		var expectedBlocks = this.activeModels.keySet().stream() //
+				.map(SunSpecModel::getBlockId) //
+				.collect(Collectors.toSet());
+
 		// Start the SunSpec read procedure...
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			if (!isSunSpec) {
@@ -84,7 +89,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 
 			try {
-				this.readNextBlock(40_002).thenRun(() -> {
+				this.readNextBlock(40_002, expectedBlocks).thenRun(() -> {
 					this.isSunSpecInitializationCompleted = true;
 					this.onSunSpecInitializationCompleted();
 				});
@@ -106,15 +111,15 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Validates that this device complies to SunSpec specification.
-	 * 
+	 *
 	 * <p>
 	 * Tests if first registers are 0x53756e53 ("SunS").
-	 * 
+	 *
 	 * @return a future true if it is SunSpec; otherwise false
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Boolean> isSunSpec() throws OpenemsException {
-		final CompletableFuture<Boolean> result = new CompletableFuture<Boolean>();
+		final var result = new CompletableFuture<Boolean>();
 		ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedDoublewordElement(40_000), true)
 				.thenAccept(value -> {
 					if (value == 0x53756e53) {
@@ -128,13 +133,29 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Reads the next SunSpec block.
-	 * 
-	 * @param startAddress the startAddress
+	 *
+	 * @param startAddress    the startAddress
+	 * @param remainingBlocks the remaining blocks expected to read
 	 * @return a future that completes once reading the block finished
 	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Void> readNextBlock(int startAddress) throws OpenemsException {
-		final CompletableFuture<Void> finished = new CompletableFuture<Void>();
+	private CompletableFuture<Void> readNextBlock(int startAddress, Set<Integer> remainingBlocks)
+			throws OpenemsException {
+		final var finished = new CompletableFuture<Void>();
+
+		// Finish if all expected Blocks have been read
+		if (remainingBlocks.isEmpty()) {
+			finished.complete(null);
+		}
+
+		/*
+		 * Try to read block by block until all required blocks have been read or an
+		 * END_OF_MAP register has been found.
+		 *
+		 * It may still happen that a device does not have a valid END_OF_MAP register
+		 * and that some blocks are not read - especially when one component is used for
+		 * multiple devices like single and three phase inverter.
+		 */
 		this.readElementsOnceTyped(new UnsignedWordElement(startAddress), new UnsignedWordElement(startAddress + 1))
 				.thenAccept(values -> {
 					int blockId = values.get(0);
@@ -158,12 +179,13 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					} else {
 
 						// Should this Block be considered?
-						Entry<SunSpecModel, Priority> activeEntry = this.getActiveModelForId(blockId);
+						var activeEntry = this.getActiveModelForId(blockId);
 						if (activeEntry != null) {
-							SunSpecModel sunSpecModel = activeEntry.getKey();
-							Priority priority = activeEntry.getValue();
+							var sunSpecModel = activeEntry.getKey();
+							var priority = activeEntry.getValue();
 							try {
 								this.addBlock(startAddress, sunSpecModel, priority);
+								remainingBlocks.remove(activeEntry.getKey().getBlockId());
 							} catch (OpenemsException e) {
 								this.logWarn(this.log, "Error while adding SunSpec-Model [" + blockId
 										+ "] starting at [" + startAddress + "]: " + e.getMessage());
@@ -178,9 +200,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					}
 
 					// Read next block recursively
-					int nextBlockStartAddress = startAddress + 2 + length;
+					var nextBlockStartAddress = startAddress + 2 + length;
 					try {
-						final CompletableFuture<Void> readNextBlockFuture = this.readNextBlock(nextBlockStartAddress);
+
+						final var readNextBlockFuture = this.readNextBlock(nextBlockStartAddress, remainingBlocks);
 						// Announce finished when next block (recursively) is finished
 						readNextBlockFuture.thenRun(() -> {
 							finished.complete(null);
@@ -199,7 +222,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Gets the Model and its reading priority; or null if the Model is not
 	 * 'active', i.e. not used by this implementation.
-	 * 
+	 *
 	 * @param blockId the SunSpec Block-ID
 	 * @return the entry with Model and priority
 	 */
@@ -214,7 +237,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Overwrite to provide custom SunSpecModel.
-	 * 
+	 *
 	 * @param blockId the Block-Id
 	 * @return the {@link SunSpecModel}
 	 * @throws IllegalArgumentException on error
@@ -225,10 +248,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Is the SunSpec initialization completed?.
-	 * 
+	 *
 	 * <p>
 	 * If this returns true, all Channels are available.
-	 * 
+	 *
 	 * @return true if initialization is completed
 	 */
 	public boolean isSunSpecInitializationCompleted() {
@@ -237,7 +260,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * This method is called after the SunSpec initialization was completed.
-	 * 
+	 *
 	 * <p>
 	 * The purpose of this method is to add mappings between SunSpec Channel-Points
 	 * to OpenEMS Nature Channels.
@@ -246,11 +269,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Adds the block starting from startAddress.
-	 * 
+	 *
 	 * @param startAddress the address to start reading from
 	 * @param model        the SunSpecModel
 	 * @param priority     the reading priority
-	 * @return future that gets completed when the Block elements are read
 	 * @throws OpenemsException on error
 	 */
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
@@ -258,8 +280,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				+ startAddress + "]");
 		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];
 		startAddress += 2;
-		for (int i = 0; i < model.points().length; i++) {
-			SunSpecPoint point = model.points()[i];
+		for (var i = 0; i < model.points().length; i++) {
+			var point = model.points()[i];
 			AbstractModbusElement<?> element = point.get().generateModbusElement(startAddress);
 			startAddress += element.getLength();
 			elements[i] = element;
@@ -270,7 +292,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			if (point.get().scaleFactor.isPresent()) {
 				// This Point needs a ScaleFactor
 				// - find the ScaleFactor-Point
-				String scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
+				var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
 				SunSpecPoint scaleFactorPoint = null;
 				for (SunSpecPoint sfPoint : model.points()) {
 					if (sfPoint.name().equals(scaleFactorName)) {
@@ -285,24 +307,23 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				}
 
 				// Add a scale-factor mapping between Element and Channel
-				element = m(channelId, element,
+				element = this.m(channelId, element,
 						new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId()));
 
 			} else {
 				// Add a direct mapping between Element and Channel
-				element = m(channelId, element, new ElementToChannelConverter(
+				element = this.m(channelId, element, new ElementToChannelConverter(
 						// Element -> Channel
-						(value) -> {
+						value -> {
 							if (!point.isDefined(value)) {
 								// This value is set to be 'UNDEFINED' for the given type by SunSpec
 								return null;
-							} else {
-								return value;
 							}
+							return value;
 						},
 						// Channel -> Element
 						value -> value));
-				;
+
 			}
 
 			// Evaluate Access-Mode of the Channel
@@ -327,7 +348,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Reads given Elements once from Modbus.
-	 * 
+	 *
 	 * @param <T>      the Type of the elements
 	 * @param elements the elements
 	 * @return a future list with the values, e.g. a list of integers
@@ -338,12 +359,12 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			throws OpenemsException {
 		// Register listeners for elements
 		@SuppressWarnings("unchecked")
-		final CompletableFuture<T>[] subResults = (CompletableFuture<T>[]) new CompletableFuture<?>[elements.length];
-		for (int i = 0; i < elements.length; i++) {
-			CompletableFuture<T> subResult = new CompletableFuture<T>();
+		final var subResults = (CompletableFuture<T>[]) new CompletableFuture<?>[elements.length];
+		for (var i = 0; i < elements.length; i++) {
+			var subResult = new CompletableFuture<T>();
 			subResults[i] = subResult;
 
-			AbstractModbusElement<T> element = elements[i];
+			var element = elements[i];
 			element.onUpdateCallback(value -> {
 				if (value == null) {
 					// try again
@@ -358,14 +379,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		this.modbusProtocol.addTask(task);
 
 		// Prepare result
-		final CompletableFuture<List<T>> result = new CompletableFuture<List<T>>();
+		final var result = new CompletableFuture<List<T>>();
 		CompletableFuture.allOf(subResults).thenRun(() -> {
 			// do not try again
 			this.modbusProtocol.removeTask(task);
 
 			// get all results and complete result
 			List<T> values = Stream.of(subResults) //
-					.map(future -> future.join()) //
+					.map(CompletableFuture::join) //
 					.collect(Collectors.toCollection(ArrayList::new));
 			result.complete(values);
 		});
@@ -375,7 +396,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Get the Channel for the given Point.
-	 * 
+	 *
 	 * @param <T>   the Channel type
 	 * @param point the SunSpec Point
 	 * @return the optional Channel
@@ -390,7 +411,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 
 	/**
 	 * Get the Channel for the given Point or throw an error if it is not available.
-	 * 
+	 *
 	 * @param <T>   the Channel type
 	 * @param point the SunSpec Point
 	 * @return the optional Channel
@@ -411,11 +432,11 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 *
 	 * <p>
 	 * The logic checks in order if a point is defined and uses that point.
-	 * 
+	 *
 	 * <p>
 	 * Call this method only after all SunSpec models were completely read - i.e.
 	 * onSunSpecInitializationCompleted()
-	 * 
+	 *
 	 * @param targetChannel the targetChannel
 	 * @param converter     convert from Point value to the Unit of the Channel
 	 * @param points        the points.

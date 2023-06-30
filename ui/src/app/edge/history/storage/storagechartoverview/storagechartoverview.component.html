@@ -26,39 +26,46 @@
                     <td style="width: 100%" class="ion-padding" translate>General.soc</td>
                 </tr>
             </table>
-            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod"></socStorageChart>
+            <socStorageChart style="padding-top: 50px;" [period]="service.historyPeriod.value"></socStorageChart>
         </ion-card-content>
         <ng-container *ngIf="showTotal">
             <ion-card-content>
                 <table class="full_width">
                     <tr>
-                        <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                        <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                     </tr>
                 </table>
-                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                <storageTotalChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                 </storageTotalChart>
                 <!-- Info Text -->
                 <ion-row class="ion-justify-content-center">
                     <ion-item class="ion-text-center" lines="none">
                         <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                         <ion-label class="ion-text-wrap">
-                            <small translate>
-                                Edge.Index.Widgets.twoWayInfoStorage
-                            </small>
+                            <ion-row class="ion-text-center" translate>
+                                <small translate>
+                                    Edge.Index.Widgets.InfoStorageForCharge
+                                </small>
+                            </ion-row>
+                            <ion-row size="6" class="ion-text-center">
+                                <small translate>
+                                    Edge.Index.Widgets.InfoStorageForDischarge
+                                </small>
+                            </ion-row>
                         </ion-label>
                     </ion-item>
                 </ion-row>
             </ion-card-content>
         </ng-container>
-        <ng-container *ngIf="!showTotal || showTotal == null">
-            <ng-container *ngIf="essComponents != null && essComponents.length == 1">
+        <ng-container *ngIf="!showTotal">
+            <ng-container *ngIf="essComponents?.length === 1">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod">
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
                     </storageSingleChart>
                 </ion-card-content>
                 <!-- Info Text -->
@@ -67,36 +74,41 @@
                         <ion-item class="ion-text-center" lines="none">
                             <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                             <ion-label class="ion-text-wrap">
-                                <small translate>
-                                    Edge.Index.Widgets.twoWayInfoStorage
-                                </small>
+                                <ion-row class="ion-text-center" translate>
+                                    <small translate>
+                                        Edge.Index.Widgets.InfoStorageForCharge
+                                    </small>
+                                </ion-row>
+                                <ion-row size="6" class="ion-text-center">
+                                    <small translate>
+                                        Edge.Index.Widgets.InfoStorageForDischarge
+                                    </small>
+                                </ion-row>
                             </ion-label>
                         </ion-item>
                     </ion-row>
                 </ion-card-content>
             </ng-container>
-            <ng-container *ngIf="essComponents != null && essComponents.length > 1">
+            <ng-container *ngIf="essComponents?.length > 1">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
-                            <td style="width: 100%" class="ion-padding" translate>General.total</td>
+                            <td style="width: 100%" class="ion-padding" translate>General.TOTAL</td>
                         </tr>
                     </table>
-                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod"></storageSingleChart>
+                    <storageSingleChart [showPhases]="showPhases" [period]="service.historyPeriod.value">
+                    </storageSingleChart>
                 </ion-card-content>
                 <ng-container *ngFor="let component of essComponents">
                     <ion-card-content class="underline">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
-                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod"
+                        <storageESSChart [showPhases]="showPhases" [period]="service.historyPeriod.value"
                             [componentId]="component.id"></storageESSChart>
                     </ion-card-content>
                 </ng-container>
@@ -106,28 +118,32 @@
                         <ion-item class="ion-text-center" lines="none">
                             <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
                             <ion-label class="ion-text-wrap">
-                                <small translate>
-                                    Edge.Index.Widgets.twoWayInfoStorage
-                                </small>
+                                <ion-row class="ion-text-center" translate>
+                                    <small translate>
+                                        Edge.Index.Widgets.InfoStorageForCharge
+                                    </small>
+                                </ion-row>
+                                <ion-row size="6" class="ion-text-center">
+                                    <small translate>
+                                        Edge.Index.Widgets.InfoStorageForDischarge
+                                    </small>
+                                </ion-row>
                             </ion-label>
                         </ion-item>
                     </ion-row>
                 </ion-card-content>
             </ng-container>
-            <ng-container *ngIf="chargerComponents != null && essComponents.length != 1">
+            <ng-container *ngIf="essComponents?.length !== 1">
                 <ng-container *ngFor="let component of chargerComponents">
                     <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
-                        <storageChargerChart [period]="service.historyPeriod" [componentId]="component.id">
+                        <storageChargerChart [period]="service.historyPeriod.value" [componentId]="component.id">
                         </storageChargerChart>
                     </ion-card-content>
                 </ng-container>

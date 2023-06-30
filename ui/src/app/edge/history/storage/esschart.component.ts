@@ -1,40 +1,39 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageESSChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
-    @Input() private componentId: string;
-    @Input() private showPhases: boolean;
+    @Input() public period: DefaultTypes.HistoryPeriod;
+    @Input() public componentId: string;
+    @Input() public showPhases: boolean;
 
-    moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-ess-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "storage-ess-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
     }
@@ -45,7 +44,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -63,9 +62,9 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     let datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
@@ -81,8 +80,8 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
-                                    })
+                                        borderColor: 'rgba(0,223,0,1)'
+                                    });
                                 }
                                 if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ActivePowerL1') {
@@ -112,17 +111,20 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -136,7 +138,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         let factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
             if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                 result.push(
@@ -146,7 +148,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                 );
             }
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -171,7 +173,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

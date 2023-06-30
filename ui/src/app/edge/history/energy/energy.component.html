@@ -4,13 +4,15 @@
     <ion-label translate>
       Edge.Index.Energymonitor.title
     </ion-label>
-    <ion-button (click)="exportToXlxs()" slot="end">
+    <ion-button *ngIf="errorResponse === null" (click)="exportToXlxs()" slot="end">
       <ion-icon name="download-outline"></ion-icon>
     </ion-button>
   </ion-item>
 </ng-template>
 
 <ng-template #tplChart>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+
   <div [style.height.px]="getChartHeight()">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">

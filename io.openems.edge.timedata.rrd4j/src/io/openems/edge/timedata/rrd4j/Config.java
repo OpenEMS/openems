@@ -3,6 +3,8 @@ package io.openems.edge.timedata.rrd4j;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+
 @ObjectClassDefinition(//
 		name = "Timedata RRD4J", //
 		description = "This component persists data to RRD4J files.")
@@ -17,8 +19,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "No. of Cycles", description = "How many Cycles till data is recorded.")
-	int noOfCycles() default RecordWorker.DEFAULT_NO_OF_CYCLES;
+	@AttributeDefinition(name = "Persistence Priority", description = "Store only Channels with a Persistence Priority above this. Be aware that too many writes can wear-out your flash storage.")
+	PersistencePriority persistencePriority() default PersistencePriority.MEDIUM;
 
 	String webconsole_configurationFactory_nameHint() default "Timedata RRD4J [{id}]";
 }

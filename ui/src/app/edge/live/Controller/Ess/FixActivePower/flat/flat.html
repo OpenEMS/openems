@@ -1,0 +1,13 @@
+<ng-container *ngIf="isInitialized">
+    <oe-flat-widget (click)="presentModal()" [icon]="{name:'swap-vertical-outline'}" [title]="component.alias">
+        <oe-flat-widget-line [name]="'General.state' | translate" [value]="propertyMode"
+            [converter]="CONVERT_MANUAL_ON_OFF">
+        </oe-flat-widget-line>
+
+        <ng-container *ngIf="propertyMode === 'MANUAL_ON'">
+            <oe-flat-widget-line [name]="chargeDischargePower.name" [value]="chargeDischargePower.value"
+                [converter]="CONVERT_WATT_TO_KILOWATT">
+            </oe-flat-widget-line>
+        </ng-container>
+    </oe-flat-widget>
+</ng-container>

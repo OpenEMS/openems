@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -18,7 +20,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Default Modbus timeout in [ms].
-	 * 
+	 *
 	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
@@ -26,7 +28,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Default Modbus retries.
-	 * 
+	 *
 	 * <p>
 	 * Modbus library default is 5
 	 */
@@ -35,13 +37,15 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 	private int invalidateElementsAfterReadErrors = 1;
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(AbstractModbusBridge.class);
-	private final ModbusWorker worker = new ModbusWorker(this);
+	protected final ModbusWorker worker = new ModbusWorker(this);
 
 	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
@@ -54,6 +58,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		}
 	}
 
+	@Override
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
@@ -61,20 +66,29 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	}
 
 	/**
-	 * Adds the protocol.
+	 * Gets the {@link Cycle}.
 	 * 
+	 * @return the Cycle
+	 */
+	public abstract Cycle getCycle();
+
+	/**
+	 * Adds the protocol.
+	 *
 	 * @param sourceId Component-ID of the source
 	 * @param protocol the ModbusProtocol
 	 */
+	@Override
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.worker.addProtocol(sourceId, protocol);
 	}
 
 	/**
 	 * Removes the protocol.
-	 * 
+	 *
 	 * @param sourceId Component-ID of the source
 	 */
+	@Override
 	public void removeProtocol(String sourceId) {
 		this.worker.removeProtocol(sourceId);
 	}
@@ -96,7 +110,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
-	 * 
+	 *
 	 * @return the Modbus Transaction
 	 * @throws OpenemsException on error
 	 */
@@ -108,7 +122,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	public abstract void closeModbusConnection();
 
 	public LogVerbosity getLogVerbosity() {
-		return logVerbosity;
+		return this.logVerbosity;
 	}
 
 	@Override
@@ -128,7 +142,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * After how many errors should a element be invalidated?.
-	 * 
+	 *
 	 * @return value
 	 */
 	public int invalidateElementsAfterReadErrors() {

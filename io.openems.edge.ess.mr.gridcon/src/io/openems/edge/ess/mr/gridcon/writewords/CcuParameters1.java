@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class CcuParameters1 {
@@ -106,3 +108,4 @@ public class CcuParameters1 {
 		return sb.toString();
 	}
 }
+// CHECKSTYLE:ON

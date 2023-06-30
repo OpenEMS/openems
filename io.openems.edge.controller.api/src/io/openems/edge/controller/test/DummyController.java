@@ -13,17 +13,22 @@ public class DummyController extends AbstractOpenemsComponent implements Control
 
 	private Runnable runCallback = null;
 
-	protected DummyController(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+	protected DummyController(String id, String alias,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true);
+		super.activate(null, id, alias, true);
 	}
 
 	public DummyController(String id) {
-		this(id, //
+		this(id, "");
+	}
+
+	public DummyController(String id, String alias) {
+		this(id, alias, //
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values() //
 		);
@@ -31,7 +36,7 @@ public class DummyController extends AbstractOpenemsComponent implements Control
 
 	/**
 	 * Set callback for applyPower() of this {@link DummyController}.
-	 * 
+	 *
 	 * @param callback the callback
 	 * @return myself
 	 */

@@ -1,3 +1,5 @@
-= Persistence Model Predictor
+= Persistence-Model Predictor
 
 Predicts values using the 'same-as-last-day' approach.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.persistencemodel[Source Code icon:github[]]

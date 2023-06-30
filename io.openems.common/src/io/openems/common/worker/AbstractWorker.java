@@ -10,25 +10,25 @@ import io.openems.common.utils.Mutex;
 
 /**
  * Defines a generic Worker Thread.
- * 
+ *
  * <p>
  * The business logic of the Worker is inside the {@link #forever()} method. It
  * is executed by default every {@link #getCycleTime()} seconds. Additionally
  * execution can be triggered by calling the {@link #triggerNextRun()} method.
- * 
+ *
  * <p>
  * If Cycle-Time is negative (e.g. by using
  * {@link #ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN}) the forever() method is called
  * only after triggering it.
- * 
+ *
  * <p>
  * If Cycle-Time is zero (e.g. by using {@link #DO_NOT_WAIT}), the forever()
  * method is always called immediately without any delay.
  */
 public abstract class AbstractWorker {
 
-	public final static int ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN = -1;
-	public final static int DO_NOT_WAIT = 0;
+	public static final int ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN = -1;
+	public static final int DO_NOT_WAIT = 0;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
@@ -36,23 +36,39 @@ public abstract class AbstractWorker {
 	private final Mutex cycleMutex = new Mutex(false);
 
 	/**
-	 * Initializes the worker and starts the worker thread
-	 * 
-	 * @param name
+	 * Initializes the worker and starts the worker thread.
+	 *
+	 * @param name the name of the worker thread
 	 */
 	public void activate(String name) {
-		if (name != null) {
-			this.worker.setName(name);
-			this.worker.start();
-		}
+		this.startWorker(name);
 	}
 
 	/**
-	 * Stops the worker thread
+	 * Modifies the worker thread.
+	 * 
+	 * @param name the name of the worker thread
+	 */
+	public void modified(String name) {
+		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
+			this.startWorker(name);
+		}
+	}
+
+	private void startWorker(String name) {
+		if (name != null) {
+			this.thread.setName(name);
+		}
+		this.thread.start();
+		this.triggerNextRun();
+	}
+
+	/**
+	 * Stops the worker thread.
 	 */
 	public void deactivate() {
 		this.isStopped.set(true);
-		this.worker.interrupt();
+		this.thread.interrupt();
 	}
 
 	/**
@@ -68,8 +84,8 @@ public abstract class AbstractWorker {
 	 * <li>&lt; 0 causes the Cycle to sleep forever until 'triggerNextRun()' is
 	 * called
 	 * </ul>
-	 * 
-	 * @return
+	 *
+	 * @return the cycleTime
 	 */
 	protected abstract int getCycleTime();
 
@@ -80,21 +96,22 @@ public abstract class AbstractWorker {
 		this.cycleMutex.release();
 	}
 
-	private final Thread worker = new Thread() {
+	protected final Thread thread = new Thread() {
+		@Override
 		public void run() {
-			long onWorkerExceptionSleep = 1; // seconds
-			long cycleStart = System.currentTimeMillis();
-			while (!isStopped.get()) {
+			var onWorkerExceptionSleep = 1L; // seconds
+			var cycleStart = System.currentTimeMillis();
+			while (!AbstractWorker.this.isStopped.get()) {
 				try {
 					/*
 					 * Wait for next cycle
 					 */
-					int cycleTime = AbstractWorker.this.getCycleTime();
-					if (cycleTime == DO_NOT_WAIT) {
+					var cycleTime = AbstractWorker.this.getCycleTime();
+					if (cycleTime == AbstractWorker.DO_NOT_WAIT) {
 						// no wait
 					} else if (cycleTime > 0) {
 						// wait remaining cycleTime
-						long sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
+						var sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
 						if (sleep > 0) {
 							AbstractWorker.this.cycleMutex.awaitOrTimeout(sleep, TimeUnit.MILLISECONDS);
 						}
@@ -121,14 +138,15 @@ public abstract class AbstractWorker {
 						/*
 						 * Handle Worker-Exceptions
 						 */
-						log.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
-								+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
+						AbstractWorker.this.log
+								.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
+										+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
 						e.printStackTrace();
 					}
-					onWorkerExceptionSleep = onWorkerExceptionSleep(onWorkerExceptionSleep);
+					onWorkerExceptionSleep = AbstractWorker.this.onWorkerExceptionSleep(onWorkerExceptionSleep);
 				}
 			}
-		};
+		}
 	};
 
 	/**
@@ -137,20 +155,21 @@ public abstract class AbstractWorker {
 	 * the setup if we landed here.
 	 *
 	 * @param duration in seconds
+	 * @return the actually slept duration
 	 */
 	private long onWorkerExceptionSleep(long duration) {
 		if (duration < 60) {
 			duration += 1;
 		}
-		long targetTime = System.currentTimeMillis() + (duration * 1000);
+		var targetTime = System.currentTimeMillis() + duration * 1000;
 		do {
 			try {
-				long thisDuration = (targetTime - System.currentTimeMillis()) / 1000;
+				var thisDuration = (targetTime - System.currentTimeMillis()) / 1000;
 				if (thisDuration > 0) {
 					Thread.sleep(thisDuration);
 				}
 			} catch (InterruptedException e1) {
-				log.warn("WorkerExceptionSleep caused " + e1.getMessage());
+				this.log.warn("WorkerExceptionSleep caused " + e1.getMessage());
 			}
 		} while (targetTime > System.currentTimeMillis());
 		return duration;

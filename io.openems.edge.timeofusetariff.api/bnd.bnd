@@ -1,0 +1,12 @@
+Bundle-Name: OpenEMS Edge Time-Of-Use Tariff API
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+
+-testpath: \
+	${testpath}

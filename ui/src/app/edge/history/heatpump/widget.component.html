@@ -7,28 +7,28 @@
         <ng-container *ngIf="edge.currentData | async as currentData">
             <ion-card-content>
                 <table class="full_width">
-                    <tr *ngIf="activeTimeOverPeriodRegular != null && activeTimeOverPeriodRegular > 59">
+                    <tr *ngIf="activeTimeOverPeriodRegular !== null && activeTimeOverPeriodRegular > 59">
                         <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.normalOperation</td>
                         <td style="width:35%" class="align_right">
-                            {{ activeTimeOverPeriodRegular | sectohour }}
+                            {{ activeTimeOverPeriodRegular | formatSecondsToDuration }}
                         </td>
                     </tr>
-                    <tr *ngIf="activeTimeOverPeriodRecommendation != null && activeTimeOverPeriodRecommendation > 59">
+                    <tr *ngIf="activeTimeOverPeriodRecommendation !== null && activeTimeOverPeriodRecommendation > 59">
                         <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnRec</td>
                         <td style="width:35%" class="align_right">
-                            {{ activeTimeOverPeriodRecommendation | sectohour }}
+                            {{ activeTimeOverPeriodRecommendation | formatSecondsToDuration }}
                         </td>
                     <tr>
-                    <tr *ngIf="activeTimeOverPeriodForceOn != null && activeTimeOverPeriodForceOn > 59">
+                    <tr *ngIf="activeTimeOverPeriodForceOn !== null && activeTimeOverPeriodForceOn > 59">
                         <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.switchOnCom</td>
                         <td style="width:35%" class="align_right">
-                            {{ activeTimeOverPeriodForceOn | sectohour }}
+                            {{ activeTimeOverPeriodForceOn | formatSecondsToDuration }}
                         </td>
                     <tr>
-                    <tr *ngIf="activeTimeOverPeriodLock != null && activeTimeOverPeriodLock > 59">
+                    <tr *ngIf="activeTimeOverPeriodLock !== null && activeTimeOverPeriodLock > 59">
                         <td style="width:65%" translate>Edge.Index.Widgets.HeatPump.lock</td>
                         <td style="width:35%" class="align_right">
-                            {{ activeTimeOverPeriodLock | sectohour }}
+                            {{ activeTimeOverPeriodLock | formatSecondsToDuration }}
                         </td>
                     <tr>
                 </table>

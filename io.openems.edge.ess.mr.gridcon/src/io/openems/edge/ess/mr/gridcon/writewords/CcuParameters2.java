@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.writewords;
 
 import io.openems.edge.ess.mr.gridcon.enums.PControlMode;
@@ -124,3 +126,4 @@ public class CcuParameters2 {
 		return sb.toString();
 	}
 }
+// CHECKSTYLE:ON

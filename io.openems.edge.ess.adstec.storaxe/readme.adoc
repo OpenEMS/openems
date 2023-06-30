@@ -1,0 +1,10 @@
+= ADS-TEC StoraXe Energy Storage System
+
+For the moment, this is a read-only implementation. Control of the ESS is not yet supported.
+
+Implemented Natures:
+- AsymmetricEss
+- SymmetricEss
+- ElectricityMeter (for Grid and PV)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.adstec.storaxe[Source Code icon:github[]]

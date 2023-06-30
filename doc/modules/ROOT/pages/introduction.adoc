@@ -48,11 +48,10 @@ image::system-architecture.png[OpenEMS system architecture]
 
 == Development guidelines
 
-Development follows the https://de.wikipedia.org/wiki/Agile_Softwareentwicklung[Agile Manifesto icon:external-link[]] and is driven by the https://de.wikipedia.org/wiki/Scrum[Scrum icon:external-link[]] methodology. 
 The source code is available online at https://openems.io[openems.io] and on https://github.com/OpenEMS/openems[GitHub icon:github[]]. 
-New versions are released after every Scrum Sprint and https://github.com/OpenEMS/openems/releases[tagged icon:github[]] accordingly. 
-Version numbers are built using the pattern `year.number of sprint`, e.g. version `2020.14.0` is the result of the 14th sprint in 2020. 
-Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/master/[master branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
+New versions are released every month and https://github.com/OpenEMS/openems/releases[tagged icon:github[]] accordingly. 
+Version numbers are built using the pattern `year.month.0`, e.g. version `2022.1.0` is the release of January 2022. The patch version is always `0` and reserved for private distributions.  
+Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/main/[main branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
 
 For Edge and Backend Java development we recommend the https://www.eclipse.org/ide/[Eclipse IDE icon:external-link[]].
 For the UI (TypeScript + Angular.io) we recommend https://code.visualstudio.com/[Visual Studio Code icon:external-link[]]. 
@@ -74,14 +73,14 @@ OpenEMS is funded by several federal and EU funding projects. If you are a devel
 * OpenEMS Edge 
 * OpenEMS Backend
 
-Copyright (C) 2016-2021 OpenEMS Association e.V., FENECON GmbH.
+Copyright (C) 2016-2022 OpenEMS Association e.V., FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the https://github.com/OpenEMS/openems/blob/develop/LICENSE-EPL-2.0[Eclipse Public License version 2.0]. 
 
  * OpenEMS UI
 
-Copyright (C) 2016-2021 OpenEMS Association e.V., FENECON GmbH.
+Copyright (C) 2016-2022 OpenEMS Association e.V., FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the https://github.com/OpenEMS/openems/blob/develop/LICENSE-AGPL-3.0[GNU Affero General Public License version 3].

@@ -1,6 +1,5 @@
 package io.openems.edge.battery.soltaro.cluster.versionc.statemachine;
 
-import io.openems.edge.battery.soltaro.cluster.versionc.ClusterVersionC;
 import io.openems.edge.battery.soltaro.cluster.versionc.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -9,7 +8,7 @@ public class StoppedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		ClusterVersionC battery = context.getParent();
+		var battery = context.getParent();
 
 		// Mark as stopped
 		battery._setStartStop(StartStop.STOP);

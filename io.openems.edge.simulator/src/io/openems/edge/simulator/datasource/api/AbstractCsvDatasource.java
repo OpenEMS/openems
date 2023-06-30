@@ -3,7 +3,6 @@ package io.openems.edge.simulator.datasource.api;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -48,7 +47,7 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-			LocalDateTime now = LocalDateTime.now(this.getComponentManager().getClock());
+			var now = LocalDateTime.now(this.getComponentManager().getClock());
 			if (this.timeDelta > 0 && Duration.between(this.lastIteration, now).getSeconds() < this.timeDelta) {
 				// don't change record, if timeDetla is active and has not been passed yet
 				return;
@@ -63,7 +62,7 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 	@Override
 	public <T> T getValue(OpenemsType type, ChannelAddress channelAddress) {
 		// First: try full ChannelAddress
-		Optional<Float> valueOpt = this.data.getValue(channelAddress.toString());
+		var valueOpt = this.data.getValue(channelAddress.toString());
 		if (!valueOpt.isPresent()) {
 			// Not found: try Channel-ID only (without Component-ID)
 			valueOpt = this.data.getValue(channelAddress.getChannelId());

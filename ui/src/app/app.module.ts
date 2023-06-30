@@ -1,81 +1,75 @@
-import { AboutModule } from './about/about.module';
-import { AngularMyDatePickerModule } from 'angular-mydatepicker';
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
-import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
-import { EdgeModule } from './edge/edge.module';
-import { environment as env } from '../environments/environment';
-import { FormlyModule } from '@ngx-formly/core';
-import { FormlyWrapperFormField } from './edge/settings/component/shared/form-field.wrapper';
-import { IndexModule } from './index/index.module';
-import { InputTypeComponent } from './edge/settings/component/shared/input';
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { Language } from './shared/translate/language';
-import { LOCALE_ID, NgModule } from '@angular/core';
-import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { registerLocaleData } from '@angular/common';
-import { RepeatTypeComponent } from './edge/settings/component/shared/repeat';
+import { HttpClientModule } from '@angular/common/http';
+import localDE from '@angular/common/locales/de';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { SettingsModule } from './settings/settings.module';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { FORMLY_CONFIG } from '@ngx-formly/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AngularMyDatePickerModule } from 'angular-mydatepicker';
+import { CookieService } from 'ngx-cookie-service';
+import { environment } from 'src/environments';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { CheckForUpdateService } from './appupdateservice';
+import { ChangelogModule } from './changelog/changelog.module';
+import { EdgeModule } from './edge/edge.module';
 import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.module';
-import { SharedModule } from './shared/shared.module';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { StatusSingleComponent } from './shared/status/single/status.component';
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import localDE from '@angular/common/locales/de';
+import { IndexModule } from './index/index.module';
+import { RegistrationModule } from './registration/registration.module';
+import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
+import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { MyErrorHandler } from './shared/service/myerrorhandler';
+import { Pagination } from './shared/service/pagination';
+import { SharedModule } from './shared/shared.module';
+import { StatusSingleComponent } from './shared/status/single/status.component';
+import { registerTranslateExtension } from './shared/translate.extension';
+import { Language, MyTranslateLoader } from './shared/type/language';
+import { UserModule } from './user/user.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartOptionsPopoverComponent,
-    InputTypeComponent,
-    FormlyWrapperFormField,
     PickDatePopoverComponent,
-    RepeatTypeComponent,
     StatusSingleComponent,
-    SystemLogComponent,
+    SystemLogComponent
   ],
   entryComponents: [
     ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
+    PickDatePopoverComponent
   ],
   imports: [
-    AboutModule,
     AngularMyDatePickerModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
+    ChangelogModule,
     EdgeModule,
     EdgeSettingsModule,
-    env.production && env.backend == "OpenEMS Backend" ? ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }) : [],
-    FormlyModule.forRoot({
-      wrappers: [
-        { name: 'form-field', component: FormlyWrapperFormField }
-      ],
-      types: [
-        { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent },
-      ],
-    }),
-    IonicModule.forRoot(),
     IndexModule,
-    SettingsModule,
+    IonicModule.forRoot(),
+    HttpClientModule,
     SharedModule,
-    TranslateModule.forRoot({
-      loader: { provide: TranslateLoader, useClass: Language }
-    }),
+    TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
+    UserModule,
+    RegistrationModule,
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
-    SplashScreen,
-    StatusBar,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    // { provide: ErrorHandler, useExisting: Service },
-    { provide: LOCALE_ID, useValue: 'de' }
+    CookieService,
+    { provide: ErrorHandler, useClass: MyErrorHandler },
+    { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+    // Use factory for formly. This allows us to use translations in validationMessages.
+    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+    Pagination,
+    CheckForUpdateService
   ],
   bootstrap: [AppComponent]
 })

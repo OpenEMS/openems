@@ -1,3 +1,0 @@
-= OpenEMS Wrapper for ChargeTimeEU Java-OCA-OCPP
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.wrapper.eu.chargetime.ocpp[Source Code icon:github[]]

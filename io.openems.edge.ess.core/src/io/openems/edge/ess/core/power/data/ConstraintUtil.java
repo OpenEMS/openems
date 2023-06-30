@@ -2,6 +2,7 @@ package io.openems.edge.ess.core.power.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -14,7 +15,7 @@ import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.core.power.PowerComponent.ChannelId;
+import io.openems.edge.ess.core.power.EssPower.ChannelId;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.DummyInverter;
@@ -34,7 +35,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Creates a simple Constraint with only one Coefficient.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param description  a description for the Constraint
 	 * @param essId        the component Id of a {@link ManagedSymmetricEss}
@@ -56,7 +57,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Creates for each disabled inverter an EQUALS ZERO constraint.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param inverters    Collection of {@link Inverter}s
 	 * @return List of {@link Constraint}s
@@ -66,8 +67,8 @@ public class ConstraintUtil {
 			Collection<Inverter> inverters) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (Inverter inv : inverters) {
-			String essId = inv.getEssId();
-			Phase phase = inv.getPhase();
+			var essId = inv.getEssId();
+			var phase = inv.getPhase();
 			for (Pwr pwr : Pwr.values()) {
 				result.add(ConstraintUtil.createSimpleConstraint(coefficients, //
 						essId + ": Disable " + pwr.getSymbol() + phase.getSymbol(), //
@@ -110,7 +111,7 @@ public class ConstraintUtil {
 			// Max Apparent Power
 			int maxApparentPower = ess.getMaxApparentPower().orElse(0);
 			if (ess instanceof ManagedAsymmetricEss && !symmetricMode && !(ess instanceof ManagedSinglePhaseEss)) {
-				double maxApparentPowerPerPhase = maxApparentPower / 3d;
+				var maxApparentPowerPerPhase = maxApparentPower / 3d;
 				for (Phase phase : Phase.values()) {
 					if (phase == Phase.ALL) {
 						continue; // do not add Max Apparent Power Constraint for ALL phases
@@ -128,7 +129,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Asks each Ess if it has any static Constraints and adds them.
-	 * 
+	 *
 	 * @param esss                      list of {@link ManagedSymmetricEss}s
 	 * @param onStaticConstraintsFailed callback for
 	 *                                  {@link ChannelId#STATIC_CONSTRAINTS_FAILED}
@@ -138,12 +139,10 @@ public class ConstraintUtil {
 	public static List<Constraint> createStaticEssConstraints(List<ManagedSymmetricEss> esss,
 			Consumer<Boolean> onStaticConstraintsFailed) {
 		List<Constraint> result = new ArrayList<>();
-		boolean isFailed = false;
+		var isFailed = false;
 		for (ManagedSymmetricEss ess : esss) {
 			try {
-				for (Constraint c : ess.getStaticConstraints()) {
-					result.add(c);
-				}
+				Collections.addAll(result, ess.getStaticConstraints());
 			} catch (OpenemsNamedException e) {
 				LOG.error("Setting static constraints for Ess [" + ess.id() + "] failed: " + e.getMessage());
 				isFailed = true;
@@ -157,7 +156,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Creates Constraints for Three-Phased Ess: P = L1 + L2 + L3.
-	 * 
+	 *
 	 * <p>
 	 * If symmetricMode is activated, an empty list is returned.
 	 *
@@ -194,7 +193,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Creates Constraints for SymmetricEss, e.g. L1 = L2 = L3.
-	 * 
+	 *
 	 * @param coefficients  the {@link Coefficients}
 	 * @param esss          a list of {@link ManagedSymmetricEss}
 	 * @param symmetricMode Symmetric-Mode activated?
@@ -205,7 +204,7 @@ public class ConstraintUtil {
 			List<ManagedSymmetricEss> esss, boolean symmetricMode) throws OpenemsException {
 		List<Constraint> result = new ArrayList<>();
 		for (ManagedSymmetricEss ess : esss) {
-			EssType essType = EssType.getEssType(ess);
+			var essType = EssType.getEssType(ess);
 			if (!symmetricMode && essType == EssType.SYMMETRIC) {
 				/*
 				 * Symmetric-Mode is deactivated and this is a Symmetric ESS: Add Symmetric
@@ -232,10 +231,10 @@ public class ConstraintUtil {
 	/**
 	 * For Single-Phase-ESS: Creates an EQUALS ZERO constraint for the not-connected
 	 * phases.
-	 * 
+	 *
 	 * <p>
 	 * If symmetricMode is activated, an empty list is returned.
-	 * 
+	 *
 	 * @param coefficients  the {@link Coefficients}
 	 * @param inverters     a list of {@link Inverter}s
 	 * @param symmetricMode Symmetric-Mode activated?
@@ -265,7 +264,7 @@ public class ConstraintUtil {
 	/**
 	 * Creates Constraints for {@link MetaEss}, e.g. ClusterL1 = ess1_L1 + ess2_L1 +
 	 * ...
-	 * 
+	 *
 	 * @param coefficients  the {@link Coefficients}
 	 * @param esss          list of {@link ManagedSymmetricEss}s
 	 * @param symmetricMode Symmetric-Mode enabled?
@@ -277,7 +276,7 @@ public class ConstraintUtil {
 		List<Constraint> result = new ArrayList<>();
 		for (ManagedSymmetricEss ess : esss) {
 			if (ess instanceof MetaEss) {
-				MetaEss e = (MetaEss) ess;
+				var e = (MetaEss) ess;
 				if (symmetricMode) {
 					// Symmetric Mode
 					for (Pwr pwr : Pwr.values()) {
@@ -298,7 +297,7 @@ public class ConstraintUtil {
 
 	/**
 	 * Creates a constraint of the form: 1*sumL1 - 1*ess1_L1 - 1*ess2_L1 = 0.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param e            the {@link MetaEss} Cluster
 	 * @param phase        the {@link Phase}

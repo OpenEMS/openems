@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: ChpSocChartOverviewComponent.SELECTOR,
     templateUrl: './chpsocchartoverview.component.html'
 })
-export class ChpSocChartOverviewComponent {
+export class ChpSocChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
     public config: EdgeConfig = null;
@@ -17,7 +17,7 @@ export class ChpSocChartOverviewComponent {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -26,7 +26,7 @@ export class ChpSocChartOverviewComponent {
                 this.edge = edge;
                 this.config = config;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
-        })
+            });
+        });
     }
 }

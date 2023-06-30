@@ -1,14 +1,13 @@
 package io.openems.edge.ess.generic.symmetric.statemachine;
 
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.ess.generic.symmetric.GenericManagedSymmetricEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		GenericManagedSymmetricEss ess = context.getParent();
+		var ess = context.getParent();
 		switch (ess.getStartStopTarget()) {
 		case UNDEFINED:
 			// Stuck in UNDEFINED State

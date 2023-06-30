@@ -12,7 +12,7 @@
 
           <ion-card-content>
             <ion-list>
-              <ion-item *ngIf="env.backend === 'OpenEMS Backend'">
+              <ion-item *ngIf="environment.backend === 'OpenEMS Backend'">
                 <ion-label>Edge-ID</ion-label>
                 {{ edge.id }}
               </ion-item>
@@ -25,8 +25,8 @@
                 {{ edge.producttype }}
               </ion-item>
               <ion-item>
-                <ion-label>OpenEMS-Edge Version</ion-label>
-                {{ edge.version }}
+                <ion-label>{{ environment.edgeShortName }} Version</ion-label>
+                <a routerLinkActive="active" routerLink="/changelog">{{ edge.version }}</a>
               </ion-item>
               <ion-item>
                 <ion-label>Rolle</ion-label>
@@ -40,11 +40,11 @@
     </ion-row>
     <ion-row class="ion-justify-content-center">
 
-      <ion-col size="12" size-md="6" *ngIf="components != null">
+      <ion-col size="12" size-md="6" *ngIf="components !== null">
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-            <ion-label>Konfiguration</ion-label>
+            <ion-label>Configuration</ion-label>
           </ion-item>
 
           <ion-card-content>
@@ -63,10 +63,7 @@
                   <ion-label class="ion-text-wrap">
                     <ion-text>
                       <ion-text color="primary">
-                        <h3>{{ item.alias }}
-                          <span *ngIf="item.id != item.alias"> ({{ item.id }}) </span>
-                          <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>) </small>
-                          <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;" color="dark"
+                        <h3>{{ item.alias }} <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
                             [routerLink]="item.id" name="create-outline">
                           </ion-icon>
                         </h3>
@@ -77,15 +74,17 @@
                           </ion-icon>
                           <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
                           </ion-icon>
-                          {{ factory.name }} <small>({{ factory.description }})</small>
+                          <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span><span
+                            *ngIf="!item.isEnabled"> - <span translate>General.componentInactive</span></span>
                         </p>
                       </ng-container>
                     </ion-text>
                     <ng-container *ngIf="item['showProperties']">
-                      <ul style="font-family: monospace">
+                      <!-- Component details -->
+                      <ul style="font-family: monospace; list-style-type: square">
                         <ng-container *ngFor="let p of (item.properties | keys)">
                           <li
-                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key)">
+                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key) && !p.key.endsWith('.target')">
                             {{ p.key }}: {{ p.value }}
                           </li>
                         </ng-container>
@@ -98,10 +97,10 @@
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp'">
-                          <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                        </ion-text>
-                        <ion-icon name="arrow-dropdown-outline"></ion-icon>
+                      </ng-container>
+                      <!-- Additional information for all Components -->
+                      <ng-container *ngIf="edge.roleIsAtLeast('admin') && edge.isVersionAtLeast('2021.10.10')">
+                        <ion-button (click)="getChannelExport(item.id)">Export Channels</ion-button>
                       </ng-container>
                     </ng-container>
                   </ion-label>

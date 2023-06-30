@@ -1,19 +1,19 @@
 package io.openems.edge.batteryinverter.refu88k;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int timeLimitNoPower;
-		public StartStopConfig startStop;
-		public int watchdoginterval;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int timeLimitNoPower;
+		private StartStopConfig startStop;
+		private int watchdoginterval;
 
 		private Builder() {
 		}
@@ -50,7 +50,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

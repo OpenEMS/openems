@@ -35,16 +35,16 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	@Override
 	protected void _setInputRegisters(InputRegister... registers) {
 		// convert registers
-		ByteBuffer buff = ByteBuffer.allocate(2).order(getByteOrder());
+		var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
 		buff.put(registers[0].toBytes());
-		T value = fromByteBuffer(buff);
+		var value = this.fromByteBuffer(buff);
 		// set value
 		super.setValue(value);
 	}
 
 	/**
 	 * Converts a 2-byte ByteBuffer to the the current OpenemsType.
-	 * 
+	 *
 	 * @param buff the ByteBuffer
 	 * @return an instance of the current OpenemsType
 	 */
@@ -53,12 +53,12 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 	@Override
 	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 		if (this.isDebug()) {
-			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
 		}
 		if (valueOpt.isPresent()) {
-			ByteBuffer buff = ByteBuffer.allocate(2).order(this.getByteOrder());
+			var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
 			buff = this.toByteBuffer(buff, valueOpt.get());
-			byte[] b = buff.array();
+			var b = buff.array();
 			this.setNextWriteValueRegisters(Optional.of(new Register[] { //
 					new SimpleRegister(b[0], b[1]) }));
 		} else {
@@ -69,7 +69,7 @@ public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterEl
 
 	/**
 	 * Converts the current OpenemsType to a 2-byte ByteBuffer.
-	 * 
+	 *
 	 * @param buff  the target ByteBuffer
 	 * @param value the value
 	 * @return the ByteBuffer

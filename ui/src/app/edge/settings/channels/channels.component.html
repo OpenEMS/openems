@@ -27,28 +27,28 @@
               </ion-item>
 
               <!-- show Channel value (if it is not a Write-Only Channel) -->
-              <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+              <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
                 <ion-label>Value</ion-label>
                 <ion-text>
                   <!-- show current value of Channel-->
                   {{ currentData.channel[address.toString()] }} {{ channelConfig.unit }}
                   <!-- show value as string for enum values -->
-                  <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                  <ng-container *ngIf="channelConfig.category === 'ENUM'">
                     <ng-container *ngFor="let option of (channelConfig.options | keys)">
-                      <span *ngIf="option.value == currentData.channel[address.toString()]">
+                      <span *ngIf="option.value === currentData.channel[address.toString()]">
                         ({{ option.key }})
                       </span>
                     </ng-container>
                   </ng-container>
                   <!-- show active/inactive string for StateChannels -->
-                  <ng-container *ngIf="channelConfig.category == 'STATE'">
-                    <span *ngIf="currentData.channel[address.toString()] == 1">(State is SET)</span>
-                    <span *ngIf="currentData.channel[address.toString()] == 0">(State is not set)</span>
+                  <ng-container *ngIf="channelConfig.category === 'STATE'">
+                    <span *ngIf="currentData.channel[address.toString()] === 1">(State is SET)</span>
+                    <span *ngIf="currentData.channel[address.toString()] === 0">(State is not set)</span>
                   </ng-container>
                   <!-- show active/inactive string for StateChannels -->
-                  <ng-container *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
-                    <span *ngIf="currentData.channel[address.toString()] == 1">(On)</span>
-                    <span *ngIf="currentData.channel[address.toString()] == 0">(Off)</span>
+                  <ng-container *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
+                    <span *ngIf="currentData.channel[address.toString()] === 1">(On)</span>
+                    <span *ngIf="currentData.channel[address.toString()] === 0">(Off)</span>
                   </ng-container>
                 </ion-text>
               </ion-item>
@@ -56,7 +56,7 @@
               <!-- show input field to write value for RW/RO channels -->
               <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
                 <ion-label>Set value</ion-label>
-                <ng-container *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                   <!-- show Toggle for boolean value  -->
                   <ion-toggle #valueToggle></ion-toggle>
                   <ion-button (click)="setChannelValue(address, valueToggle.checked)" slot="end" color="light">
@@ -112,6 +112,25 @@
               (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null">
               Add
               {{ selectedComponentId.value }}/{{ selectedChannelId.value }}</ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item color="light" lines="full">
+            <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
+            <ion-label>Save Configuration</ion-label>
+            <!-- TODO translate  -->
+          </ion-item>
+
+          <ion-card-content>
+            <ion-button expand="block" (click)="saveChannels()">
+              Save configuration
+            </ion-button>
+            <ion-label>
+              Saving new configuration will overwrite the existing one and apply it on page loads.
+            </ion-label>
           </ion-card-content>
         </ion-card>
       </ion-col>

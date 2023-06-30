@@ -7,11 +7,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	com.zaxxer.HikariCP,\
 	io.openems.backend.common,\
-	io.openems.backend.edgewebsocket.api,\
-	io.openems.backend.metadata.api,\
 	io.openems.common,\
-	org.apache.servicemix.bundles.xmlrpc-client,\
-	org.postgresql.jdbc
-
+	io.openems.wrapper.aXMLRPC,\
+	org.postgresql.jdbc, \
+	
 -testpath: \
 	${testpath}

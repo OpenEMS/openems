@@ -17,13 +17,16 @@ public interface DigitalInput extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
 
 	/**
-	 * Gets all Output Channels
+	 * Gets all Output Channels.
+	 * 
+	 * @return array of {@link BooleanReadChannel}
 	 */
 	public BooleanReadChannel[] digitalInputChannels();
 }

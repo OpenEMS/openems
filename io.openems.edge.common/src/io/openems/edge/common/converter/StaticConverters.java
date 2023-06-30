@@ -5,10 +5,11 @@ import java.util.function.Function;
 import io.openems.common.types.OpenemsType;
 
 public class StaticConverters {
+
 	/**
-	 * Converts only positive values from Element to Channel
+	 * Converts only positive values from Element to Channel.
 	 */
-	public final static Function<Object, Object> KEEP_POSITIVE = (value) -> {
+	public static final Function<Object, Object> KEEP_POSITIVE = value -> {
 		if (value == null) {
 			return null;
 		}
@@ -26,7 +27,8 @@ public class StaticConverters {
 			case STRING:
 				if (value instanceof Boolean || value instanceof String) {
 					return value; // impossible
-				} else if (value instanceof Short) {
+				}
+				if (value instanceof Short) {
 					short shortValue = (Short) value;
 					if (shortValue > 0) {
 						return shortValue;
@@ -69,9 +71,9 @@ public class StaticConverters {
 	};
 
 	/**
-	 * Invert a value
+	 * Invert a value.
 	 */
-	public final static Function<Object, Object> INVERT = (value) -> {
+	public static final Function<Object, Object> INVERT = value -> {
 		if (value == null) {
 			return null;
 		}
@@ -89,7 +91,8 @@ public class StaticConverters {
 			case STRING:
 				if (value instanceof String) {
 					return value; // impossible
-				} else if (value instanceof Boolean) {
+				}
+				if (value instanceof Boolean) {
 					return Boolean.valueOf(!(boolean) value);
 				} else if (value instanceof Short) {
 					return Short.valueOf((short) ((short) value * -1));

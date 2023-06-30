@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Edge } from '../../../../shared/shared';
+import { Edge, Service } from '../../../../shared/shared';
 
 @Component({
     selector: GridChartOverviewComponent.SELECTOR,
     templateUrl: './gridchartoverview.component.html'
 })
-export class GridChartOverviewComponent {
+export class GridChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "grid-chart-overview";
 
@@ -16,7 +16,7 @@ export class GridChartOverviewComponent {
 
     constructor(
         private route: ActivatedRoute,
-        public service: Service,
+        public service: Service
     ) { }
 
     ngOnInit() {

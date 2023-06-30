@@ -10,10 +10,13 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 public interface Meta extends ModbusSlave {
 
+	public static final String SINGLETON_SERVICE_PID = "Core.Meta";
+	public static final String SINGLETON_COMPONENT_ID = "_meta";
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * OpenEMS Version
-		 * 
+		 * OpenEMS Version.
+		 *
 		 * <ul>
 		 * <li>Interface: Meta
 		 * <li>Type: String
@@ -27,6 +30,7 @@ public interface Meta extends ModbusSlave {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -34,7 +38,7 @@ public interface Meta extends ModbusSlave {
 
 	@Override
 	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				ModbusSlaveNatureTable.of(Meta.class, accessMode, 199) //
 						.uint16(0, "OpenEMS Version Major", OpenemsConstants.VERSION_MAJOR) //
 						.uint16(1, "OpenEMS Version Minor", OpenemsConstants.VERSION_MINOR) //

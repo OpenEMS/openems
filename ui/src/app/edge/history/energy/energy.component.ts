@@ -1,25 +1,26 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { addDays } from 'date-fns/esm';
-import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from './../shared';
-import { Component, Input, OnChanges } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
-import { EnergyModalComponent } from './modal/modal.component';
 import { formatNumber } from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
+import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
-import * as FileSaver from 'file-saver';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../shared';
+import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
   production: string,
@@ -28,30 +29,30 @@ type EnergyChartLabels = {
   charge: string,
   discharge: string,
   consumption: string,
-  directConsumption: string
+  directConsumption: string,
+  stateOfCharge: string
 }
 
 @Component({
   selector: 'energy',
   templateUrl: './energy.component.html'
 })
-export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
+export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
 
-  public chartType: string = "line";
-
-  private edge: Edge | null = null;
   private config: EdgeConfig | null = null;
-
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  public chartType: string = "line";
+
+  @Output() public setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter();
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
@@ -62,7 +63,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     private unitpipe: UnitvaluePipe,
     private platform: Platform
   ) {
-    super(service, translate);
+    super("energy-chart", service, translate);
   }
 
   // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
@@ -71,8 +72,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
+    this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
-      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
+      edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
         let r = response as Base64PayloadResponse;
         var binary = atob(r.result.payload.replace(/\s/g, ''));
         var len = binary.length;
@@ -86,8 +88,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         });
 
         let fileName = "Export-" + edge.id + "-";
-        let dateFrom = this.service.historyPeriod.from;
-        let dateTo = this.service.historyPeriod.to;
+        let dateFrom = this.service.historyPeriod.value.from;
+        let dateTo = this.service.historyPeriod.value.to;
         if (isSameDay(dateFrom, dateTo)) {
           fileName += format(dateFrom, "dd.MM.yyyy");
         } else if (isSameMonth(dateFrom, dateTo)) {
@@ -98,26 +100,25 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
         }
         fileName += EnergyComponent.EXCEL_EXTENSION;
-        FileSaver.saveAs(data, fileName);
+        saveAs(data, fileName);
 
       }).catch(reason => {
         console.warn(reason);
-      })
-    })
+      });
+    });
+    this.stopSpinner();
   }
 
 
   ngOnInit() {
-    this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
+
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        if (this.service.isKwhAllowed(this.edge)) {
-          this.updateChart();
-        }
-      })
-    })
+        this.updateChart();
+      });
+    });
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => this.getChartHeight(), 500);
   }
@@ -131,21 +132,19 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   /**
    * checks if kWh Chart is allowed to be shown
    */
-  private isKwhChart(service: Service): boolean {
-    if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 6 && service.isSmartphoneResolution == false) {
+  private isBarChart(service: Service): boolean {
+    let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
+    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       return true;
-    } else if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 0 && service.isSmartphoneResolution == true) {
-      return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   protected updateChart() {
+    this.colors = [];
+    this.datasets = [];
     this.loading = true;
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.autoSubscribeChartRefresh();
     this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
@@ -153,13 +152,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.config = config;
         this.edge = edge;
         this.datasets = [];
+
+        // Load Linechart or BarChart 
         this.generateLabels().then(chartLabels => {
-          if (this.isKwhChart(this.service) == false) {
-            this.loadLineChart(chartLabels);
-          } else if (this.isKwhChart(this.service) == true) {
+          if (this.isBarChart(this.service)) {
             this.loadBarChart(chartLabels, config);
+          } else {
+            this.loadLineChart(chartLabels);
           }
-        })
+        });
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
@@ -175,6 +176,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private loadLineChart(chartLabels: EnergyChartLabels) {
     this.chartType = "line";
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
+      if (Utils.isDataEmpty(response)) {
+        return;
+      }
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels
@@ -191,25 +197,25 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       if ('_sum/EssSoc' in result.data) {
         let socData = result.data['_sum/EssSoc'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 100 || value < 0) {
             return null;
           } else {
             return value;
           }
-        })
+        });
         datasets.push({
-          label: this.translate.instant('General.soc'),
+          label: chartLabels.stateOfCharge,
           data: socData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.stateOfCharge),
           yAxisID: 'yAxis2',
           position: 'right',
           borderDash: [10, 10]
-        })
+        });
         this.colors.push({
           backgroundColor: 'rgba(189, 195, 199,0.05)',
-          borderColor: 'rgba(189, 195, 199,1)',
-        })
+          borderColor: 'rgba(189, 195, 199,1)'
+        });
       }
 
       // push data for left y-axis
@@ -219,7 +225,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         */
         let productionData = result.data['_sum/ProductionActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value / 1000; // convert to kW
           }
@@ -227,14 +233,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.production,
           data: productionData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.production),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(45,143,171,0.05)',
           borderColor: 'rgba(45,143,171,1)'
-        })
+        });
       }
 
       if ('_sum/GridActivePower' in result.data) {
@@ -243,7 +249,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
          */
         let buyFromGridData = result.data['_sum/GridActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 0) {
             return value / 1000; // convert to kW
           } else {
@@ -254,21 +260,21 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.gridBuy,
           data: buyFromGridData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.gridBuy),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(0,0,0,0.05)',
           borderColor: 'rgba(0,0,0,1)'
-        })
+        });
 
         /*
         * Sell To Grid
         */
         let sellToGridData = result.data['_sum/GridActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value < 0) {
             return value / -1000; // convert to kW and invert value
           } else {
@@ -278,14 +284,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.gridSell,
           data: sellToGridData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.gridSell),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(0,0,200,0.05)',
-          borderColor: 'rgba(0,0,200,1)',
-        })
+          borderColor: 'rgba(0,0,200,1)'
+        });
       }
 
       if ('_sum/ConsumptionActivePower' in result.data) {
@@ -294,7 +300,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
          */
         let consumptionData = result.data['_sum/ConsumptionActivePower'].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value / 1000; // convert to kW
           }
@@ -302,14 +308,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.consumption,
           data: consumptionData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.consumption),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(253,197,7,0.05)',
-          borderColor: 'rgba(253,197,7,1)',
-        })
+          borderColor: 'rgba(253,197,7,1)'
+        });
       }
 
       if ('_sum/EssActivePower' in result.data) {
@@ -326,7 +332,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         }
         let chargeData = effectivePower.map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value < 0) {
             return value / -1000; // convert to kW;
           } else {
@@ -336,20 +342,20 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.charge,
           data: chargeData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.charge),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(0,223,0,0.05)',
-          borderColor: 'rgba(0,223,0,1)',
-        })
+          borderColor: 'rgba(0,223,0,1)'
+        });
         /*
          * Storage Discharge
          */
         let dischargeData = effectivePower.map(value => {
           if (value == null) {
-            return null
+            return null;
           } else if (value > 0) {
             return value / 1000; // convert to kW
           } else {
@@ -359,21 +365,35 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         datasets.push({
           label: chartLabels.discharge,
           data: dischargeData,
-          hidden: false,
+          hidden: !isLabelVisible(chartLabels.discharge),
           yAxisID: 'yAxis1',
           position: 'left'
         });
         this.colors.push({
           backgroundColor: 'rgba(200,0,0,0.05)',
-          borderColor: 'rgba(200,0,0,1)',
-        })
+          borderColor: 'rgba(200,0,0,1)'
+        });
       }
+
+      // Save Original OnClick because calling onClick overwrites default function
+      var original = Chart.defaults.global.legend.onClick;
+      Chart.defaults.global.legend.onClick = function (event: MouseEvent, legendItem: ChartLegendLabelItem) {
+        let chart: Chart = this.chart;
+        let legendItemIndex = legendItem.datasetIndex;
+
+        // Set @Angular SessionStorage for Labels to check if they are hidden
+        setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItemIndex));
+        original.call(this, event, legendItem);
+      };
+
       this.datasets = datasets;
       this.loading = false;
-      this.service.stopSpinner(this.spinnerId);
+      this.stopSpinner();
+      this.setErrorResponse.emit(null);
+
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.initializeChart();
+      this.setErrorResponse.emit(reason);
       return;
     });
   }
@@ -381,11 +401,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private loadBarChart(chartLabels: EnergyChartLabels, config: EdgeConfig) {
     this.chartType = "bar";
     this.getEnergyChannelAddresses(config).then(channelAddresses => {
-      let resolution = 86400; // resolution for value per day
+      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses).then(response => {
 
+        if (Utils.isDataEmpty(response)) {
+          return;
+        }
 
-      this.queryHistoricTimeseriesEnergyPerPeriod(addDays(this.period.from, 1), this.period.to, channelAddresses, resolution).then(response => {
-        let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse).result;
+
         // convert datasets
         let datasets: ChartDataSets[] = [];
 
@@ -395,7 +418,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           labels.push(new Date(timestamp));
         }
         this.labels = labels;
-
 
         // Direct Consumption
         let directConsumptionData: null | number[] = null;
@@ -407,7 +429,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           });
           directConsumptionData = directConsumption.map(value => {
             if (value == null) {
-              return null
+              return null;
+            } else if (value < 0) {
+              return 0;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -436,23 +460,30 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
               categoryGapPercentage = 0.8;
             }
           }
+          case "year": {
+            if (this.service.isSmartphoneResolution == true) {
+              barWidthPercentage = 1;
+              categoryGapPercentage = 0.6;
+            } else {
+              barWidthPercentage = 0.8;
+              categoryGapPercentage = 0.8;
+            }
+          }
         }
 
         // Production
         if ('_sum/ProductionActiveEnergy' in result.data) {
           let productionData = result.data['_sum/ProductionActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
           });
-
           datasets.push({
             label: chartLabels.production,
             data: productionData,
-            hidden: true,
-            hideInLegendAndTooltip: true,
+            hidden: !isLabelVisible(chartLabels.production, false),
             backgroundColor: 'rgba(45,143,171,0.25)',
             borderColor: 'rgba(45,143,171,1)',
             hoverBackgroundColor: 'rgba(45,143,171,0.5)',
@@ -472,7 +503,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.directConsumption,
             data: directConsumptionData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.directConsumption),
             backgroundColor: 'rgba(244,164,96,0.25)',
             borderColor: 'rgba(244,164,96,1)',
             hoverBackgroundColor: 'rgba(244,164,96,0.5)',
@@ -480,7 +511,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         /*
@@ -489,7 +520,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         if ('_sum/EssDcChargeEnergy' in result.data) {
           let chargeData = result.data['_sum/EssDcChargeEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -497,7 +528,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.charge,
             data: chargeData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.charge),
             backgroundColor: 'rgba(0,223,0,0.25)',
             borderColor: 'rgba(0,223,0,1)',
             hoverBackgroundColor: 'rgba(0,223,0,0.5)',
@@ -505,7 +536,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         /*
@@ -514,7 +545,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         if ('_sum/GridSellActiveEnergy' in result.data) {
           let gridSellData = result.data['_sum/GridSellActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kWh
             }
@@ -522,7 +553,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.gridSell,
             data: gridSellData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.gridSell),
             backgroundColor: 'rgba(0,0,200,0.25)',
             borderColor: 'rgba(0,0,200,1)',
             hoverBackgroundColor: 'rgba(0,0,200,0.5)',
@@ -530,7 +561,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "0"
-          })
+          });
         }
 
         // right stack
@@ -542,15 +573,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.directConsumption,
             data: directConsumptionData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.directConsumption),
             backgroundColor: 'rgba(244,164,96,0.25)',
             borderColor: 'rgba(244,164,96,1)',
             hoverBackgroundColor: 'rgba(244,164,96,0.5)',
-            hoverBorderColor: 'rgba244,164,96,1)',
+            hoverBorderColor: 'rgba(244,164,96,1)',
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         /*
@@ -559,7 +590,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         if ('_sum/EssDcDischargeEnergy' in result.data) {
           let dischargeData = result.data['_sum/EssDcDischargeEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -567,7 +598,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.discharge,
             data: dischargeData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.discharge),
             backgroundColor: 'rgba(200,0,0,0.25)',
             borderColor: 'rgba(200,0,0,1)',
             hoverBackgroundColor: 'rgba(200,0,0,0.5)',
@@ -575,7 +606,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         /*
@@ -584,7 +615,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         if ('_sum/GridBuyActiveEnergy' in result.data) {
           let gridBuyData = result.data['_sum/GridBuyActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -592,7 +623,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.gridBuy,
             data: gridBuyData,
-            hidden: false,
+            hidden: !isLabelVisible(chartLabels.gridBuy),
             backgroundColor: 'rgba(0,0,0,0.25)',
             borderColor: 'rgba(0,0,0,1)',
             hoverBackgroundColor: 'rgba(0,0,0,0.5)',
@@ -600,14 +631,14 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             barPercentage: barWidthPercentage,
             categoryPercentage: categoryGapPercentage,
             stack: "1"
-          })
+          });
         }
 
         // Consumption
         if ('_sum/ConsumptionActiveEnergy' in result.data) {
           let consumptionData = result.data['_sum/ConsumptionActiveEnergy'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -615,8 +646,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           datasets.push({
             label: chartLabels.consumption,
             data: consumptionData,
-            hidden: true,
-            hideInLegendAndTooltip: true,
+            hidden: !isLabelVisible(chartLabels.consumption, false),
             backgroundColor: 'rgba(253,197,7,0.25)',
             borderColor: 'rgba(253,197,7,1)',
             hoverBackgroundColor: 'rgba(253,197,7,0.5)',
@@ -630,11 +660,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.datasets = datasets;
         this.colors = [];
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
-      }).catch(() => {
-        this.loadLineChart(chartLabels);
-      })
-    })
+        this.stopSpinner();
+      });
+    });
   }
 
   private getEnergyChannelAddresses(config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -649,18 +677,18 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'GridSellActiveEnergy'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'))
+            result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'));
             result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
             break;
-          case 'Production':
+          case 'Common_Production':
             result.push(
-              new ChannelAddress('_sum', 'ProductionActiveEnergy'))
+              new ChannelAddress('_sum', 'ProductionActiveEnergy'));
             break;
         };
         return false;
       });
-      resolve(result)
-    })
+      resolve(result);
+    });
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -675,10 +703,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
             break;
           case 'Storage':
-            result.push(new ChannelAddress('_sum', 'EssSoc'))
+            result.push(new ChannelAddress('_sum', 'EssSoc'));
             result.push(new ChannelAddress('_sum', 'EssActivePower'));
             break;
-          case 'Production':
+          case 'Common_Production':
             result.push(
               new ChannelAddress('_sum', 'ProductionActivePower'),
               new ChannelAddress('_sum', 'ProductionDcActualPower'));
@@ -687,8 +715,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         return false;
       });
       resolve(result);
-    })
+    });
   }
+
 
   private generateLabels(): Promise<EnergyChartLabels> {
     return new Promise((resolve) => {
@@ -700,56 +729,53 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         charge: this.translate.instant('General.chargePower'),
         discharge: this.translate.instant('General.dischargePower'),
         consumption: this.translate.instant('General.consumption'),
-        directConsumption: this.translate.instant('General.directConsumption')
-      }
+        directConsumption: this.translate.instant('General.directConsumption'),
+        stateOfCharge: this.translate.instant('General.soc')
+      };
 
       // Generate kWh labels
-      if (this.service.isKwhAllowed(this.edge) == true) {
-        this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
-          this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
-              labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
-            }
-            if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
-              let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
-              labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
-            }
-            if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
-            }
-            if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
-            }
-            if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
-              let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
-              labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
-            }
-            if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
-              let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
-              labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
-            }
-            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
-              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
-              && response.result.data["_sum/GridSellActiveEnergy"]) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
-              labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
-            }
-            resolve(labels)
-          }).catch(() => {
-            resolve(labels)
-          })
-        })
-      } else {
-        resolve(labels)
-      }
-    })
+      this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
+        this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
+          let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+          if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+            labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
+          }
+          if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
+            let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
+            labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
+          }
+          if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
+          }
+          if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
+          }
+          if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
+            let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
+            labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
+          }
+          if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
+            let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
+            labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
+          }
+          if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
+            && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
+            && response.result.data["_sum/GridSellActiveEnergy"]) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
+            labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
+          }
+          resolve(labels);
+        }).catch((error) => {
+          resolve(error);
+        });
+      });
+    });
   }
 
   private setKwhLabel() {
@@ -763,25 +789,27 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         top: 0,
         bottom: 0
       }
-    }
+    };
 
-    // xAxis
-    options.scales.xAxes[0].time.unit = 'day';
+    // X-Axis for Chart: Calculate Time-Unit for normal sized window
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;
     options.scales.xAxes[0].offset = true;
-    if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 20) {
-      options.scales.xAxes[0].ticks.source = 'auto';
-      options.scales.xAxes[0].ticks.maxTicksLimit = 12;
-    } else {
-      options.scales.xAxes[0].ticks.source = 'data';
-    }
+    options.scales.xAxes[0].ticks.source = 'data';
 
-    // yAxis
+    // Y-Axis for Labels
     options.scales.yAxes[0].scaleLabel.labelString = "kWh";
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
 
+    //  +--------------------------------------------------------------------------------------------------+
+    //  | EnergyChartLabels with kWh                                                                       |
+    //  +--------------------------------------------------------------------------------------------------|
+    //  | Production | GridSell | ChargePower | DirectConsumption | GridBuy | DischargePower | Consumption |
+    //  +--------------------------------------------------------------------------------------------------+
+    //      
     // this.translate is not available in legend methods
     let directConsumptionLabelText = this.translate.instant('General.directConsumption');
     let productionLabelText = this.translate.instant('General.production');
@@ -791,7 +819,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     let chargeLabelText = this.translate.instant('General.chargePower');
     let dischargeLabelText = this.translate.instant('General.dischargePower');
 
-    // legend labels
     options.legend.labels.generateLabels = function (chart: Chart) {
       let chartLegendLabelItems: ChartLegendLabelItem[] = [];
       let chartLegendLabelItemsOrder = [
@@ -802,7 +829,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         consumptionLabelText,
         gridBuyLabelText,
         dischargeLabelText
-      ]
+      ];
 
       // set correct value (label + total kWh) for reorder
       chart.data.datasets.forEach((dataset, datasetIndex) => {
@@ -832,70 +859,88 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         let text = dataset.label;
         let index = datasetIndex;
         let fillStyle = dataset.backgroundColor.toString();
-        let hidden = chart.getDatasetMeta(datasetIndex).hidden;
+
         let lineWidth = 2;
         let strokeStyle = dataset.borderColor.toString();
+
         if (text.includes(directConsumptionLabelText) && dataset.stack == "1") {
+
           //skip ChartLegendLabelItem
         } else {
-          if (text.split(" ").length > 1) {
-            chartLegendLabelItems.push({
-              text: text,
-              datasetIndex: index,
-              fillStyle: fillStyle,
-              hidden: hidden,
-              lineWidth: lineWidth,
-              strokeStyle: strokeStyle,
-            })
-          }
+          chartLegendLabelItems.push({
+            text: text,
+            datasetIndex: index,
+            fillStyle: fillStyle,
+            // Consumption and Production should always be shown as visible, without line-through style
+            hidden: ((text.includes(consumptionLabelText) || text.includes(productionLabelText)) ? false : !chart.isDatasetVisible(datasetIndex)),
+            lineWidth: lineWidth,
+            strokeStyle: strokeStyle
+          });
         }
-      })
+      });
       chartLegendLabelItems.sort(function (a, b) {
         return chartLegendLabelItemsOrder.indexOf(a.text) - chartLegendLabelItemsOrder.indexOf(b.text);
       });
       return chartLegendLabelItems;
-    }
+    };
 
-    // used to hide both Direct Consumption legend Items by clicking one
+    // used to hide both DirectConsumption-legend-Items by clicking one of them
     options.legend.onClick = function (event: MouseEvent, legendItem: ChartLegendLabelItem) {
 
       let chart: Chart = this.chart;
       let legendItemIndex = legendItem.datasetIndex;
       let datasets = chart.data.datasets;
 
+      // Set Angulars SessionStorage for Labels to check if they are hidden
+      setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItemIndex));
+
       let firstDirectConsumptionStackDatasetIndex: null | number = null;
       let secondDirectConsumptionStackDatasetIndex: null | number = null;
 
       chart.data.datasets.forEach((value, index) => {
+
+        // seperated stack 0 and 1
         if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "0") {
           firstDirectConsumptionStackDatasetIndex = index;
         }
         if (datasets[index].label.includes(directConsumptionLabelText) && datasets[index].stack == "1") {
           secondDirectConsumptionStackDatasetIndex = index;
         }
-      })
-
+      });
       datasets.forEach((value, datasetIndex) => {
+
         let meta = chart.getDatasetMeta(datasetIndex);
         let directConsumptionMetaArr = [
           chart.getDatasetMeta(firstDirectConsumptionStackDatasetIndex),
           chart.getDatasetMeta(secondDirectConsumptionStackDatasetIndex)
-        ]
+        ];
+
         if (legendItemIndex == datasetIndex &&
           (datasetIndex == firstDirectConsumptionStackDatasetIndex || datasetIndex == secondDirectConsumptionStackDatasetIndex)) {
+
           // hide/show both directConsumption bars
           directConsumptionMetaArr.forEach(meta => {
             meta.hidden = meta.hidden === null ?
               !datasets[firstDirectConsumptionStackDatasetIndex].hidden && !datasets[secondDirectConsumptionStackDatasetIndex].hidden : null;
-          })
+          });
         } else if (legendItemIndex == datasetIndex) {
           meta.hidden = meta.hidden === null ? !datasets[datasetIndex].hidden : null;
         }
-      })
+      });
       chart.update();
-    }
+    };
+    //  
+    // Tooltips
+    // +-----------------------------------------+
+    // |Header |1    Date (Month | Day | Hour)   |
+    // |       |                                 |
+    // |       |2    Production / Consumption    |
+    // |       |                                 |
+    // +-------+---------------------------------|
+    // |Content|3    EnergyLabels[]              |
+    // +-----------------------------------------+
 
-    // tooltips
+    // 3: EnergyLabels[]
     options.tooltips.mode = 'x';
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let value = tooltipItem.value;
@@ -908,12 +953,19 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       } else {
         return null;
       }
-    }
+    };
 
     options.tooltips.itemSort = function (a: ChartTooltipItem, b: ChartTooltipItem) {
-      return b.datasetIndex - a.datasetIndex
-    }
+      return b.datasetIndex - a.datasetIndex;
+    };
 
+    // 1: Date
+    options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
+      let date = new Date(tooltipItems[0].xLabel);
+      return this.toTooltipTitle(this.period.from, this.period.to, date);
+    };
+
+    // 2: Production / Consumption
     options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
       if (item.length == 3) {
         let totalValue = item.reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
@@ -924,24 +976,23 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
           } else if (item.datasetIndex == 3 || item.datasetIndex == 4 || item.datasetIndex == 5) {
             isProduction = false;
           }
-        })
-        return isProduction == true ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh" :
-          consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+        });
+        if (isNaN(totalValue) == false) {
+          return isProduction == true
+            ? productionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh"
+            : consumptionLabelText + ' ' + formatNumber(totalValue, 'de', '1.0-2') + " kWh";
+        }
       } else {
-        return null
+        return null;
       }
-    }
-
-    options.tooltips.callbacks.title = function (tooltipItems: TooltipItem[], data: Data): string {
-      let date = new Date(tooltipItems[0].xLabel);
-      return date.toLocaleDateString();
-    }
+    };
     this.options = options;
   }
 
   protected setLabel() {
     let translate = this.translate;
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
     // adds second y-axis to chart
     options.scales.yAxes.push({
       id: 'yAxis2',
@@ -961,7 +1012,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         padding: -5,
         stepSize: 20
       }
-    })
+    });
     options.layout = {
       padding: {
         left: 2,
@@ -969,16 +1020,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         top: 0,
         bottom: 0
       }
-    }
+    };
+
     //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
-      options.scales.xAxes[0].time.unit = "day";
-    } else {
-      options.scales.xAxes[0].time.unit = "hour";
-    }
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     //y-axis
-    options.scales.yAxes[0].id = "yAxis1"
+    options.scales.yAxes[0].id = "yAxis1";
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
@@ -987,16 +1035,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       if (label.split(" ").length > 1) {
         label = label.split(" ").slice(0, 1).toString();
-
       }
 
       let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.soc')) {
+      if (label == translate.instant('General.soc').split(" ")[0]) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
       }
-    }
+    };
     this.options = options;
   }
 
@@ -1007,7 +1054,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   async presentModal() {
     const modal = await this.modalCtrl.create({
-      component: EnergyModalComponent,
+      component: EnergyModalComponent
     });
     return await modal.present();
   }

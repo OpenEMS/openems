@@ -8,7 +8,9 @@ import io.openems.edge.evcs.api.Evcs;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final KebaKeContact parent;
+	private static int MAX_TIME_TILL_REPLY = 15; // sec
+
+	private final EvcsKebaKeContactImpl parent;
 
 	private LocalDateTime lastReport1 = LocalDateTime.MIN;
 	private LocalDateTime lastReport2 = LocalDateTime.MIN;
@@ -16,9 +18,8 @@ public class ReadWorker extends AbstractWorker {
 	private boolean validateReport1 = false;
 	private boolean validateReport2 = false;
 	private boolean validateReport3 = false;
-	private static int MAX_TIME_TILL_REPLY = 15; // sec
 
-	public ReadWorker(KebaKeContact parent) {
+	public ReadWorker(EvcsKebaKeContactImpl parent) {
 		this.parent = parent;
 	}
 
@@ -62,16 +63,16 @@ public class ReadWorker extends AbstractWorker {
 		// RESULTS
 		// Sets the state of the component if the report doesn't answer in a few seconds
 		if (this.validateReport1 && this.lastReport1.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT1));
+			this.currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT1));
 			this.validateReport1 = false;
 		}
 		if (this.validateReport2 && this.lastReport2.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT2));
+			this.currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT2));
 			this.validateReport2 = false;
 		}
 
 		if (this.validateReport3 && this.lastReport3.isBefore(LocalDateTime.now().minusSeconds(MAX_TIME_TILL_REPLY))) {
-			currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT3));
+			this.currentCommunication(this.parent.getReadHandler().hasResultandReset(Report.REPORT3));
 			this.validateReport3 = false;
 		}
 	}
@@ -79,22 +80,23 @@ public class ReadWorker extends AbstractWorker {
 	@Override
 	protected int getCycleTime() {
 		// get minimum required time till next report
-		LocalDateTime now = LocalDateTime.now();
+		var now = LocalDateTime.now();
 		if (this.lastReport1.isBefore(now.minusSeconds(Report.REPORT1.getRequestSeconds()))
 				|| this.lastReport2.isBefore(now.minusSeconds(Report.REPORT2.getRequestSeconds()))
 				|| this.lastReport3.isBefore(now.minusSeconds(Report.REPORT3.getRequestSeconds()))) {
 			return 0;
 		}
-		long tillReport1 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT1.getRequestSeconds()),
+		var tillReport1 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT1.getRequestSeconds()),
 				this.lastReport1);
-		long tillReport2 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT2.getRequestSeconds()),
+		var tillReport2 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT2.getRequestSeconds()),
 				this.lastReport2);
-		long tillReport3 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT3.getRequestSeconds()),
+		var tillReport3 = ChronoUnit.MILLIS.between(now.minusSeconds(Report.REPORT3.getRequestSeconds()),
 				this.lastReport3);
-		long min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
+		var min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
 		if (min < 0) {
 			return 0;
-		} else if (min > Integer.MAX_VALUE) {
+		}
+		if (min > Integer.MAX_VALUE) {
 			return Integer.MAX_VALUE;
 		} else {
 			return (int) min;
@@ -114,7 +116,7 @@ public class ReadWorker extends AbstractWorker {
 
 	/**
 	 * Set the current fail state of the EVCS to true or false.
-	 * 
+	 *
 	 * @param receivedAMessage return value from the ReadHandler
 	 */
 	private void currentCommunication(boolean receivedAMessage) {

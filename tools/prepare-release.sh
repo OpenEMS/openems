@@ -7,17 +7,15 @@
 # Basic definitions
 release_date=$(date --iso-8601)
 openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java"
-single_document="doc/modules/ROOT/pages/single_document.adoc"
 package_json="ui/package.json"
 package_lock="ui/package-lock.json"
-about_component="ui/src/app/about/about.component.html"
+user_component="ui/src/app/user/user.component.html"
 
 # Reset files
 git checkout $openems_constants
-git checkout $single_document
 git checkout $package_json
 git checkout $package_lock
-git checkout $about_component
+git checkout $user_component
 
 # Find new Version"
 major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
@@ -30,18 +28,14 @@ echo "#            date: $release_date"
 echo "# Update $openems_constants"
 sed --in-place 's/\(public .* VERSION_STRING = "\)SNAPSHOT\(".*$\)/\1\2/' $openems_constants
 
-echo "# Update $single_document"
-sed --in-place "s/\(^Version \).*$/\1$new_version/" $single_document
-
 echo "# Update $package_json" 
 sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_json
 
 echo "# Update $package_lock" 
 sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
-echo "# Update $about_component"
-sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $about_component
-sed --in-place "s/\(.*About.build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $about_component
+echo "# Update $user_component"
+sed --in-place "s/\(<a .* routerLink=\"\/changelog\">\).*\(<\/a>\)/\1$new_version \\($release_date\\)\2/" $user_component
 
 echo "# Finished"
 

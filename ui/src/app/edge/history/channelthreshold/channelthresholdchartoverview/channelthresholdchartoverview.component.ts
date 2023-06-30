@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: ChannelthresholdChartOverviewComponent.SELECTOR,
     templateUrl: './channelthresholdchartoverview.component.html'
 })
-export class ChannelthresholdChartOverviewComponent {
+export class ChannelthresholdChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 
@@ -15,7 +15,7 @@ export class ChannelthresholdChartOverviewComponent {
 
     public component: EdgeConfig.Component = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public channelthresholdComponents: string[] = [];
 
     // reference to the Utils method to access via html
@@ -23,7 +23,7 @@ export class ChannelthresholdChartOverviewComponent {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -35,14 +35,12 @@ export class ChannelthresholdChartOverviewComponent {
                 for (let componentId of
                     config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
                         .concat(this.config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-                    this.channelthresholdComponents.push(componentId)
+                    this.channelthresholdComponents.push(componentId);
                 }
-                if (this.channelthresholdComponents.length > 1) {
+                if (this.channelthresholdComponents.length > 0) {
                     this.showTotal = false;
-                } else if (this.channelthresholdComponents.length == 1) {
-                    this.showTotal = null;
                 }
-            })
+            });
         });
     }
 

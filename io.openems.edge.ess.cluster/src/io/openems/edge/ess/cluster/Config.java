@@ -3,7 +3,7 @@ package io.openems.edge.ess.cluster;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "ESS Cluster", //
 		description = "Combines several energy storage systems to one.")
 @interface Config {

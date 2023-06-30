@@ -1,7 +1,7 @@
 package io.openems.edge.ess.byd.container.watchdog;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.byd.container.Config;
 
 @SuppressWarnings("all")
@@ -49,7 +49,7 @@ public class MyEssConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

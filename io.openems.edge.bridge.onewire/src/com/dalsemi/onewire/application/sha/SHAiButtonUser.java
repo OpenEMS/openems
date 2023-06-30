@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -93,7 +94,7 @@ public abstract class SHAiButtonUser {
 	/**
 	 * used to construct appropriate string for OWFile constructor
 	 */
-	protected final byte[] serviceFile = new byte[] { (byte) 'D', (byte) 'L', (byte) 'S', (byte) 'M' };
+	protected final byte[] serviceFile = { (byte) 'D', (byte) 'L', (byte) 'S', (byte) 'M' };
 	/**
 	 * stores string name of user's service file
 	 */
@@ -150,8 +151,8 @@ public abstract class SHAiButtonUser {
 	 *         device.
 	 */
 	public byte[] getAddress() {
-		byte[] data = new byte[8];
-		System.arraycopy(address, 0, data, 0, 8);
+		var data = new byte[8];
+		System.arraycopy(this.address, 0, data, 0, 8);
 		return data;
 	}
 
@@ -165,7 +166,7 @@ public abstract class SHAiButtonUser {
 	 * @param offset the index at which copying starts
 	 */
 	public void getAddress(byte[] data, int offset) {
-		System.arraycopy(address, 0, data, offset, 8);
+		System.arraycopy(this.address, 0, data, offset, 8);
 	}
 
 	/**
@@ -179,7 +180,7 @@ public abstract class SHAiButtonUser {
 	 * @param cnt    the number of bytes to copy
 	 */
 	public void getAddress(byte[] data, int offset, int cnt) {
-		System.arraycopy(address, 0, data, offset, cnt);
+		System.arraycopy(this.address, 0, data, offset, cnt);
 	}
 
 	/**
@@ -213,14 +214,16 @@ public abstract class SHAiButtonUser {
 	 *                     creating the service file.
 	 */
 	protected boolean createServiceFile(OneWireContainer owc, String filename, boolean formatDevice) {
-		boolean bRetVal = false;
-		OWFile owf = new OWFile(owc, strServiceFilename);
+		var bRetVal = false;
+		var owf = new OWFile(owc, this.strServiceFilename);
 		try {
-			if (formatDevice)
+			if (formatDevice) {
 				owf.format();
+			}
 
-			if (!owf.exists())
+			if (!owf.exists()) {
 				owf.createNewFile();
+			}
 
 			// save reference to page number for service file
 			this.accountPageNumber = owf.getPageList()[0];
@@ -260,14 +263,15 @@ public abstract class SHAiButtonUser {
 	 */
 	protected synchronized boolean checkAccountPageInfo(OneWireContainer ibc) {
 		// this flag should only be set if there is valid data
-		if (accountPageNumber <= 0) {
+		if (this.accountPageNumber <= 0) {
 			try {
 				// create a file object representing service file
-				OWFile owf = new OWFile(ibc, strServiceFilename);
+				var owf = new OWFile(ibc, this.strServiceFilename);
 
 				// check to see if file exists
-				if (!owf.exists())
+				if (!owf.exists()) {
 					return false;
+				}
 
 				// get the page number for the file
 				// this.accountPageNumber = owf.getPageList()[0];
@@ -290,7 +294,7 @@ public abstract class SHAiButtonUser {
 			}
 		}
 
-		return (this.accountPageNumber > 0);
+		return this.accountPageNumber > 0;
 	}
 
 	// *************************************************************** //
@@ -513,8 +517,9 @@ public abstract class SHAiButtonUser {
 	 *
 	 * @return a string containing the 8-byte address of this 1-Wire device.
 	 */
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(100);
+		var sb = new StringBuilder(100);
 		sb.append("USER: ");
 		sb.append(Address.toString(this.address));
 		sb.append(", service: ");
@@ -524,3 +529,4 @@ public abstract class SHAiButtonUser {
 		return sb.toString();
 	}
 }
+// CHECKSTYLE:ON

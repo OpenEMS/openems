@@ -1,0 +1,45 @@
+<ng-container *ngIf="controller.properties['chargeMode'] === 'EXCESS_POWER'">
+    <ion-card-content class="underline">
+        <table class="full_width">
+            <tr>
+                <td style="text-align: center" translate>
+                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+    <ion-card-content>
+        <table class="full_width">
+            <tr>
+                <td style="text-align: center" translate>
+                    Edge.Index.Widgets.EVCS.OptimizedChargeMode.info
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+</ng-container>
+<ng-container *ngIf="controller.properties['chargeMode'] === 'FORCE_CHARGE'">
+    <ion-card-content class="underline">
+        <table class="full_width">
+            <tr>
+                <td style="text-align: center" translate>
+                    General.manually
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+    <ion-card-content>
+        <table class="full_width">
+            <tr>
+                <td style="text-align: center" translate>
+                    Edge.Index.Widgets.EVCS.ForceChargeMode.info
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center; padding-top: 5px;" translate>
+                    Edge.Index.Widgets.EVCS.ForceChargeMode.maxChargingDetails
+                </td>
+            </tr>
+        </table>
+    </ion-card-content>
+</ng-container>

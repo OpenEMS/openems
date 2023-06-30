@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -46,7 +47,7 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * portable memory device. The 1-Wire Chip version is used for small
  * non-volatile storage.
  * </P>
- * 
+ *
  * <H3>Features</H3>
  * <UL>
  * <LI>256 bits (32 bytes) Electrically Erasable Programmable Read Only Memory
@@ -59,19 +60,19 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * -40@htmlonly &#176C @endhtmlonly to +85@htmlonly &#176C @endhtmlonly
  * environments
  * </UL>
- * 
+ *
  * <H3>Alternate Names</H3>
  * <UL>
  * <LI>DS2430A
  * </UL>
  *
  * <H3>Memory</H3>
- * 
+ *
  * <P>
  * The memory can be accessed through the objects that are returned from the
  * {@link #getMemoryBanks() getMemoryBanks} method.
  * </P>
- * 
+ *
  * The following is a list of the MemoryBank instances that are returned:
  *
  * <UL>
@@ -99,9 +100,9 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <LI><I> Extra information for each page</I> Page Locked flag, length 1
  * </UL>
  * </UL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>See the usage example in
  * {@link com.dalsemi.onewire.container.OneWireContainer OneWireContainer} to
@@ -119,11 +120,11 @@ import com.dalsemi.onewire.adapter.DSPortAdapter;
  * <DD><A HREF="http://pdfserv.maxim-ic.com/arpdf/DS2430A.pdf">
  * http://pdfserv.maxim-ic.com/arpdf/DS2430A.pdf</A>
  * </DL>
- * 
+ *
  * @see com.dalsemi.onewire.container.MemoryBank
  * @see com.dalsemi.onewire.container.PagedMemoryBank
  * @see com.dalsemi.onewire.container.OneWireContainer14
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author DS
  */
@@ -145,7 +146,6 @@ public class OneWireContainer14 extends OneWireContainer {
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer14() {
-		super();
 	}
 
 	/**
@@ -217,6 +217,7 @@ public class OneWireContainer14 extends OneWireContainer {
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS1971";
 	}
@@ -228,6 +229,7 @@ public class OneWireContainer14 extends OneWireContainer {
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS2430A";
 	}
@@ -238,10 +240,12 @@ public class OneWireContainer14 extends OneWireContainer {
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "Electrically Erasable Programmable Read Only Memory "
-				+ "(EEPROM) organized as one page of 256 bits and 64 bit "
-				+ "one-time programmable application register.";
+		return """
+				Electrically Erasable Programmable Read Only Memory \
+				(EEPROM) organized as one page of 256 bits and 64 bit \
+				one-time programmable application register.""";
 	}
 
 	/**
@@ -250,11 +254,12 @@ public class OneWireContainer14 extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(1);
+		var bank_vector = new Vector<MemoryBank>(1);
 
 		// EEPROM
 		bank_vector.addElement(new MemoryBankEE(this));
@@ -265,3 +270,4 @@ public class OneWireContainer14 extends OneWireContainer {
 		return bank_vector.elements();
 	}
 }
+// CHECKSTYLE:ON

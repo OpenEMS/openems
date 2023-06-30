@@ -10,8 +10,8 @@ public enum RunningState implements OptionsEnum {
 	STANDBY(3, "Standby"), // deny discharge, deny charge
 	STOPPED(4, "Stopped"); // deny discharge, deny charge
 
-	int value;
-	String name;
+	private final int value;
+	private final String name;
 
 	private RunningState(int value, String name) {
 		this.value = value;

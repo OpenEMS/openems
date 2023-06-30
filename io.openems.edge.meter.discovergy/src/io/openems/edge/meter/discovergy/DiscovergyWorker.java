@@ -6,9 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -26,16 +24,14 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 	private static final int LAST_READING_TOO_OLD_SECONDS = 30;
 
 	private final Logger log = LoggerFactory.getLogger(DiscovergyWorker.class);
-	private final MeterDiscovergy parent;
+	private final MeterDiscovergyImpl parent;
 	private final DiscovergyApiClient apiClient;
 	private final Config config;
 
-	/**
-	 * Holds the internal Discovergy meterId.
-	 */
+	/** Holds the internal Discovergy meterId. */
 	private String meterId = null;
 
-	public DiscovergyWorker(MeterDiscovergy parent, DiscovergyApiClient apiClient, Config config) {
+	public DiscovergyWorker(MeterDiscovergyImpl parent, DiscovergyApiClient apiClient, Config config) {
 		this.parent = parent;
 		this.apiClient = apiClient;
 		this.config = config;
@@ -60,15 +56,15 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		Long rawEnergyOut1 = null;
 		Long rawEnergyOut2 = null;
 
-		boolean restApiFailed = true;
-		boolean lastReadingTooOld = false;
+		var restApiFailed = true;
+		var lastReadingTooOld = false;
 
 		try {
 			// Asserts that we have a valid MeterId
 			this.assertMeterId();
 
 			// Retrieve Channel-Values
-			JsonObject reading = this.apiClient.getLastReading(this.meterId, //
+			var reading = this.apiClient.getLastReading(this.meterId, //
 					Field.POWER, Field.POWER1, Field.POWER2, Field.POWER3, //
 					Field.VOLTAGE1, Field.VOLTAGE2, Field.VOLTAGE3, //
 					Field.ENERGY, Field.ENERGY1, Field.ENERGY2, //
@@ -77,7 +73,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			Long time = JsonUtils.getAsLong(reading, "time");
 			if (System.currentTimeMillis() / 1000 - LAST_READING_TOO_OLD_SECONDS < time) {
 				// Values are valid
-				JsonObject values = JsonUtils.getAsJsonObject(reading, "values");
+				var values = JsonUtils.getAsJsonObject(reading, "values");
 				rawPower = JsonUtils.getAsOptionalInt(values, Field.POWER.n()).orElse(null);
 				rawPower1 = JsonUtils.getAsOptionalInt(values, Field.POWER1.n()).orElse(null);
 				rawPower2 = JsonUtils.getAsOptionalInt(values, Field.POWER2.n()).orElse(null);
@@ -125,11 +121,11 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			this.parent.channel(ChannelId.LAST_READING_TOO_OLD).setNextValue(lastReadingTooOld);
 
 			// Nature Channels
-			Integer activePower = TypeUtils.divide(rawPower, 1_000);
-			Integer activePowerL1 = TypeUtils.divide(rawPower1, 1_000);
-			Integer activePowerL2 = TypeUtils.divide(rawPower2, 1_000);
-			Integer activePowerL3 = TypeUtils.divide(rawPower3, 1_000);
-			switch (config.type()) {
+			var activePower = TypeUtils.divide(rawPower, 1_000);
+			var activePowerL1 = TypeUtils.divide(rawPower1, 1_000);
+			var activePowerL2 = TypeUtils.divide(rawPower2, 1_000);
+			var activePowerL3 = TypeUtils.divide(rawPower3, 1_000);
+			switch (this.config.type()) {
 			case GRID:
 				this.parent._setActivePower(activePower);
 				this.parent._setActivePowerL1(activePowerL1);
@@ -160,14 +156,14 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 
 	/**
 	 * Validates that we have valid MeterId.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on invalid MeterId.
 	 */
 	private void assertMeterId() throws OpenemsNamedException {
 		if (this.meterId != null) {
 			return;
 		}
-		JsonArray jMeters = this.apiClient.getMeters();
+		var jMeters = this.apiClient.getMeters();
 		if (jMeters.size() == 0) {
 			// too few
 			throw new OpenemsException("No Meters available.");
@@ -175,7 +171,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 
 		List<DiscovergyMeter> meters = new ArrayList<>();
 		for (JsonElement j : jMeters) {
-			DiscovergyMeter meter = DiscovergyMeter.fromJson(j);
+			var meter = DiscovergyMeter.fromJson(j);
 			meters.add(meter);
 		}
 
@@ -204,7 +200,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 
 		if (meters.size() > 1) {
 			// too many
-			StringBuilder b = new StringBuilder("Unable to identify meter, because there are multiple:");
+			var b = new StringBuilder("Unable to identify meter, because there are multiple:");
 			for (DiscovergyMeter meter : meters) {
 				b.append(" ");
 				b.append(meter.toString());
@@ -213,7 +209,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 		}
 
 		// exactly one
-		DiscovergyMeter meter = meters.get(0);
+		var meter = meters.get(0);
 		this.meterId = meter.getMeterId();
 		this.parent.logInfo(this.log, "Updated Discovergy MeterId [" + this.meterId + "]");
 	}

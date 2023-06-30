@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -317,10 +318,8 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer04() {
-		super();
-
 		// initialize the clock memory bank
-		initClock();
+		this.initClock();
 	}
 
 	/**
@@ -342,7 +341,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		super(sourceAdapter, newAddress);
 
 		// initialize the clock memory bank
-		initClock();
+		this.initClock();
 	}
 
 	/**
@@ -365,7 +364,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		super(sourceAdapter, newAddress);
 
 		// initialize the clock memory bank
-		initClock();
+		this.initClock();
 	}
 
 	/**
@@ -388,7 +387,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		super(sourceAdapter, newAddress);
 
 		// initialize the clock memory bank
-		initClock();
+		this.initClock();
 	}
 
 	// --------
@@ -401,6 +400,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS1994";
 	}
@@ -412,6 +412,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS2404, Time-in-a-can, DS1427";
 	}
@@ -422,9 +423,12 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return "4096 bit read/write nonvolatile memory partitioned " + "into sixteen pages of 256 bits each and a real "
-				+ "time clock/calendar in binary format.";
+		return """
+				4096 bit read/write nonvolatile memory partitioned \
+				into sixteen pages of 256 bits each and a real \
+				time clock/calendar in binary format.""";
 	}
 
 	/**
@@ -433,20 +437,21 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(3);
+		var bank_vector = new Vector<MemoryBank>(3);
 
 		// scratchpad
-		bank_vector.addElement(scratch);
+		bank_vector.addElement(this.scratch);
 
 		// NVRAM
-		bank_vector.addElement(new MemoryBankNV(this, scratch));
+		bank_vector.addElement(new MemoryBankNV(this, this.scratch));
 
 		// clock
-		bank_vector.addElement(clock);
+		bank_vector.addElement(this.clock);
 
 		return bank_vector.elements();
 	}
@@ -466,6 +471,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean hasClockAlarm() {
 		return true;
 	}
@@ -478,6 +484,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #isClockRunning(byte[])
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean canDisableClock() {
 		return true;
 	}
@@ -487,6 +494,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 *
 	 * @return the clock resolution in milliseconds
 	 */
+	@Override
 	public long getClockResolution() {
 		return 4;
 	}
@@ -511,8 +519,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[][] read_buf = new byte[2][36];
+		var read_buf = new byte[2][36];
 		boolean alarming;
 		int buf_num = 0, attempt = 0, i;
 
@@ -523,35 +532,38 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		}
 
 		// check if device alarming
-		alarming = isAlarming();
+		alarming = this.isAlarming();
 
 		// loop up to 5 times to read clock register page
 		do {
 
 			// only read status byte once if device was alarming (will be cleared)
-			if (alarming && (attempt != 0))
-				clock.read(1, false, read_buf[buf_num], 1, 31);
-			else
-				clock.read(0, false, read_buf[buf_num], 0, 32);
+			if (alarming && attempt != 0) {
+				this.clock.read(1, false, read_buf[buf_num], 1, 31);
+			} else {
+				this.clock.read(0, false, read_buf[buf_num], 0, 32);
+			}
 
 			// compare if this is not the first read
 			if (attempt++ != 0) {
 
 				// loop to see if same
 				for (i = 1; i < 32; i++) {
-					if ((i != 2) && (i != 7)) {
-						if (read_buf[0][i] != read_buf[1][i])
+					if (i != 2 && i != 7) {
+						if (read_buf[0][i] != read_buf[1][i]) {
 							break;
+						}
 					}
 				}
 
 				// check on compare, if ok then return most recent read_buf
-				if (i == 32)
+				if (i == 32) {
 					return read_buf[buf_num];
+				}
 			}
 
 			// alternate buffer
-			buf_num = (buf_num == 0) ? 1 : 0;
+			buf_num = buf_num == 0 ? 1 : 0;
 		} while (attempt < 5);
 
 		// failed to get a match
@@ -573,34 +585,34 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
 		int start_offset = 0, len = 0, i;
-		boolean got_block = false;
+		var got_block = false;
 
 		// loop to collect changed bytes and write them in blocks
 		for (i = 0; i < 32; i++) {
 
 			// check to see if this byte needs writing (skip control register for now)
-			if ((Bit.arrayReadBit(i, BITMAP_OFFSET, state) == 1) && (i != 1)) {
+			if (Bit.arrayReadBit(i, BITMAP_OFFSET, state) == 1 && i != 1) {
 
 				// check if already in a block
-				if (got_block)
+				if (got_block) {
 					len++;
-
-				// new block
-				else {
+				} else {
 					got_block = true;
 					start_offset = i;
 					len = 1;
 				}
 
 				// check for last byte exception, write current block
-				if (i == 31)
-					clock.write(start_offset, state, start_offset, len);
+				if (i == 31) {
+					this.clock.write(start_offset, state, start_offset, len);
+				}
 			} else if (got_block) {
 
 				// done with this block so write it
-				clock.write(start_offset, state, start_offset, len);
+				this.clock.write(start_offset, state, start_offset, len);
 
 				got_block = false;
 			}
@@ -610,19 +622,20 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		if (Bit.arrayReadBit(CONTROL_OFFSET, BITMAP_OFFSET, state) == 1) {
 
 			// write Normally
-			clock.write(CONTROL_OFFSET, state, CONTROL_OFFSET, 1);
+			this.clock.write(CONTROL_OFFSET, state, CONTROL_OFFSET, 1);
 
 			// check if any write-protect bits set
 			if ((state[CONTROL_OFFSET] & 0x07) != 0) {
 
 				// need to do a copy scratchpad 2 more times to become write-protected
-				scratch.copyScratchpad(clock.getStartPhysicalAddress() + CONTROL_OFFSET, 1, true);
+				this.scratch.copyScratchpad(this.clock.getStartPhysicalAddress() + CONTROL_OFFSET, 1, true);
 			}
 		}
 
 		// clear out the bitmap
-		for (i = BITMAP_OFFSET; i < state.length; i++)
+		for (i = BITMAP_OFFSET; i < state.length; i++) {
 			state[i] = 0;
+		}
 	}
 
 	// --------
@@ -640,6 +653,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setClock(long,byte[])
 	 */
+	@Override
 	public long getClock(byte[] state) {
 		return Convert.toLong(state, RTC_OFFSET, 5) * 1000 / 256;
 	}
@@ -661,6 +675,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public long getClockAlarm(byte[] state) throws OneWireException {
 		return Convert.toLong(state, RTC_ALARM_OFFSET, 5) * 1000 / 256;
 	}
@@ -681,8 +696,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarming(byte[] state) {
-		return (Bit.arrayReadBit(0, STATUS_OFFSET, state) == 1);
+		return Bit.arrayReadBit(0, STATUS_OFFSET, state) == 1;
 	}
 
 	/**
@@ -700,8 +716,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarmEnabled(byte[] state) {
-		return (Bit.arrayReadBit(3, STATUS_OFFSET, state) == 0);
+		return Bit.arrayReadBit(3, STATUS_OFFSET, state) == 0;
 	}
 
 	/**
@@ -717,8 +734,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #canDisableClock()
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockRunning(byte[] state) {
-		return (Bit.arrayReadBit(4, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(4, CONTROL_OFFSET, state) == 1;
 	}
 
 	// --------
@@ -801,7 +819,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setIntervalTimerAlarmEnable(boolean,byte[]) setIntervalTimerAlarmEnable
 	 */
 	public boolean isIntervalTimerAlarming(byte[] state) {
-		return (Bit.arrayReadBit(1, STATUS_OFFSET, state) == 1);
+		return Bit.arrayReadBit(1, STATUS_OFFSET, state) == 1;
 	}
 
 	/**
@@ -817,7 +835,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setCycleCounterAlarmEnable(boolean,byte[]) setCycleCounterAlarmEnable
 	 */
 	public boolean isCycleCounterAlarming(byte[] state) {
-		return (Bit.arrayReadBit(2, STATUS_OFFSET, state) == 1);
+		return Bit.arrayReadBit(2, STATUS_OFFSET, state) == 1;
 	}
 
 	/**
@@ -833,7 +851,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setIntervalTimerAlarmEnable(boolean,byte[]) setIntervalTimerAlarmEnable
 	 */
 	public boolean isIntervalTimerAlarmEnabled(byte[] state) {
-		return (Bit.arrayReadBit(4, STATUS_OFFSET, state) == 0);
+		return Bit.arrayReadBit(4, STATUS_OFFSET, state) == 0;
 	}
 
 	/**
@@ -849,7 +867,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setCycleCounterAlarmEnable(boolean,byte[]) setCycleCounterAlarmEnable
 	 */
 	public boolean isCycleCounterAlarmEnabled(byte[] state) {
-		return (Bit.arrayReadBit(5, STATUS_OFFSET, state) == 0);
+		return Bit.arrayReadBit(5, STATUS_OFFSET, state) == 0;
 	}
 
 	/**
@@ -864,7 +882,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #writeProtectClock(byte[]) writeProtectClock
 	 */
 	public boolean isClockWriteProtected(byte[] state) {
-		return (Bit.arrayReadBit(0, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(0, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -881,7 +899,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #writeProtectIntervalTimer(byte[]) writeProtectIntervalTimer
 	 */
 	public boolean isIntervalTimerWriteProtected(byte[] state) {
-		return (Bit.arrayReadBit(1, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(1, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -896,7 +914,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #writeProtectCycleCounter(byte[]) writeProtectCycleCounter
 	 */
 	public boolean isCycleCounterWriteProtected(byte[] state) {
-		return (Bit.arrayReadBit(2, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(2, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -912,7 +930,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setReadAfterExpire(boolean, byte[]) setReadAfterExpire
 	 */
 	public boolean canReadAfterExpire(byte[] state) {
-		return (Bit.arrayReadBit(3, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(3, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -930,7 +948,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setIntervalTimerAutomatic(boolean, byte[]) setIntervalTimerAutomatic
 	 */
 	public boolean isIntervalTimerAutomatic(byte[] state) {
-		return (Bit.arrayReadBit(5, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(5, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -948,7 +966,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setIntervalTimerRunState(boolean, byte[]) setIntervalTimerRunState
 	 */
 	public boolean isIntervalTimerStopped(byte[] state) {
-		return (Bit.arrayReadBit(6, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(6, CONTROL_OFFSET, state) == 1;
 	}
 
 	/**
@@ -965,7 +983,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setAutomaticDelayLong(boolean,byte[]) setAutomaticDelayLong
 	 */
 	public boolean isAutomaticDelayLong(byte[] state) {
-		return (Bit.arrayReadBit(7, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(7, CONTROL_OFFSET, state) == 1;
 	}
 
 	// --------
@@ -985,12 +1003,14 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 * @see #getClock(byte[])
 	 */
+	@Override
 	public void setClock(long time, byte[] state) {
 		Convert.toByteArray(time * 256 / 1000, state, RTC_OFFSET, 5);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 5; i++)
+		for (var i = 0; i < 5; i++) {
 			Bit.arrayWriteBit(1, RTC_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1014,12 +1034,14 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #isClockAlarming(byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public void setClockAlarm(long time, byte[] state) throws OneWireException {
 		Convert.toByteArray(time * 256 / 1000, state, RTC_ALARM_OFFSET, 5);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 5; i++)
+		for (var i = 0; i < 5; i++) {
 			Bit.arrayWriteBit(1, RTC_ALARM_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1040,6 +1062,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #canDisableClock()
 	 * @see #isClockRunning(byte[])
 	 */
+	@Override
 	public void setClockRunEnable(boolean runEnable, byte[] state) throws OneWireException {
 		Bit.arrayWriteBit(runEnable ? 1 : 0, 4, CONTROL_OFFSET, state);
 
@@ -1068,6 +1091,7 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #isClockAlarming(byte[])
 	 */
+	@Override
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException {
 		Bit.arrayWriteBit(alarmEnable ? 0 : 1, 3, STATUS_OFFSET, state);
 
@@ -1095,8 +1119,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		Convert.toByteArray(time * 256 / 1000, state, INTERVAL_OFFSET, 5);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 5; i++)
+		for (var i = 0; i < 5; i++) {
 			Bit.arrayWriteBit(1, INTERVAL_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1115,8 +1140,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		Convert.toByteArray(cycles, state, COUNTER_OFFSET, 4);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 4; i++)
+		for (var i = 0; i < 4; i++) {
 			Bit.arrayWriteBit(1, COUNTER_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1135,8 +1161,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		Convert.toByteArray(time * 256 / 1000, state, INTERVAL_ALARM_OFFSET, 5);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 5; i++)
+		for (var i = 0; i < 5; i++) {
 			Bit.arrayWriteBit(1, INTERVAL_ALARM_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1157,8 +1184,9 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		Convert.toByteArray(cycles, state, COUNTER_ALARM_OFFSET, 4);
 
 		// set bitmap field to indicate these clock registers were changed
-		for (int i = 0; i < 4; i++)
+		for (var i = 0; i < 4; i++) {
 			Bit.arrayWriteBit(1, COUNTER_ALARM_OFFSET + i, BITMAP_OFFSET, state);
+		}
 	}
 
 	/**
@@ -1377,15 +1405,16 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 	private void initClock() {
 
 		// scratchpad
-		scratch = new MemoryBankScratch(this);
+		this.scratch = new MemoryBankScratch(this);
 
 		// clock
-		clock = new MemoryBankNV(this, scratch);
-		clock.numberPages = 1;
-		clock.startPhysicalAddress = 512;
-		clock.size = 32;
-		clock.generalPurposeMemory = false;
-		clock.maxPacketDataLength = 0;
-		clock.bankDescription = "Clock/alarm registers";
+		this.clock = new MemoryBankNV(this, this.scratch);
+		this.clock.numberPages = 1;
+		this.clock.startPhysicalAddress = 512;
+		this.clock.size = 32;
+		this.clock.generalPurposeMemory = false;
+		this.clock.maxPacketDataLength = 0;
+		this.clock.bankDescription = "Clock/alarm registers";
 	}
 }
+// CHECKSTYLE:ON

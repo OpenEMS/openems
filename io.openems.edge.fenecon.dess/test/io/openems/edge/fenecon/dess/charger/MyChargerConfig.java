@@ -1,7 +1,7 @@
 package io.openems.edge.fenecon.dess.charger;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyChargerConfig extends AbstractComponentConfig implements Config1, Config2 {
@@ -36,7 +36,7 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -50,16 +50,9 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 		this.builder = builder;
 	}
 
-	/**
-	 * Gets the Modbus-ID
-	 */
-	public String modbusId() {
-		return this.builder.modbusId;
-	}
-
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbusId());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.builder.modbusId);
 	}
 
 	@Override
@@ -69,7 +62,7 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 
 	@Override
 	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.builder.essId);
 	}
 
 }

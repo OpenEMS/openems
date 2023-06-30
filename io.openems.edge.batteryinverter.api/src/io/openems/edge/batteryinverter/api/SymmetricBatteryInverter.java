@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -26,17 +27,19 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Grid-Mode.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer/Enum
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(Doc.of(GridMode.values())),
+		GRID_MODE(Doc.of(GridMode.values()) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -47,10 +50,11 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text(POWER_DOC_TEXT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * Reactive Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -61,11 +65,12 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text(POWER_DOC_TEXT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 		),
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
 		 * defined by the inverter limitations.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -74,10 +79,12 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)), //
+				.unit(Unit.VOLT_AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -85,10 +92,12 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		),
 		/**
 		 * Active Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
@@ -96,7 +105,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH) //
+		);
 
 		private final Doc doc;
 
@@ -112,10 +123,10 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the {@link ModbusSlaveNatureTable} for {@link SymmetricBatteryInverter}
-	 * used by the Modbus/TCP Slave API.
-	 * 
-	 * @param accessMode the {@link AccessMode}
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
@@ -127,7 +138,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<GridMode> getGridModeChannel() {
@@ -136,7 +147,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Is the Battery-Inverter On-Grid? See {@link ChannelId#GRID_MODE}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default GridMode getGridMode() {
@@ -146,7 +157,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setGridMode(GridMode value) {
@@ -155,7 +166,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getActivePowerChannel() {
@@ -165,7 +176,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Gets the Active Power in [W]. Negative values for Charge; positive for
 	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getActivePower() {
@@ -175,7 +186,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(Integer value) {
@@ -185,7 +196,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(int value) {
@@ -194,7 +205,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getReactivePowerChannel() {
@@ -203,7 +214,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getReactivePower() {
@@ -213,7 +224,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(Integer value) {
@@ -223,7 +234,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setReactivePower(int value) {
@@ -232,7 +243,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_APPARENT_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxApparentPowerChannel() {
@@ -242,7 +253,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Gets the Maximum Apparent Power in [VA], range "&gt;= 0". See
 	 * {@link ChannelId#MAX_APPARENT_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxApparentPower() {
@@ -252,7 +263,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxApparentPower(Integer value) {
@@ -262,7 +273,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_APPARENT_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxApparentPower(int value) {
@@ -279,7 +290,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Charge Energy in [Wh]. See
+	 * Gets the Active Charge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_CHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}
@@ -318,7 +329,7 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Active Discharge Energy in [Wh]. See
+	 * Gets the Active Discharge Energy in [Wh_Σ]. See
 	 * {@link ChannelId#ACTIVE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel {@link Value}

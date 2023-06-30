@@ -1,15 +1,15 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class GridComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class GridComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -20,7 +20,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -32,7 +32,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -46,16 +46,16 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
                     this.data = response.result.data;
                 }).catch(() => {
                     this.data = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-                new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+                new ChannelAddress('_sum', 'GridSellActiveEnergy')
             ];
             resolve(channels);
         });

@@ -5,13 +5,13 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	Java-WebSocket,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
 	io.openems.edge.evcs.ocpp.common,\
 	io.openems.edge.timedata.api,\
 	io.openems.wrapper.eu.chargetime.ocpp,\
-	Java-WebSocket,\
 
 -testpath: \
 	${testpath}

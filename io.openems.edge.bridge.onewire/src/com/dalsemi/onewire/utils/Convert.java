@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -37,8 +38,8 @@ package com.dalsemi.onewire.utils;
 @SuppressWarnings({ "serial" })
 public class Convert {
 	/** returns hex character for each digit, 0-15 */
-	private static final char[] lookup_hex = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
-			'C', 'D', 'E', 'F' };
+	private static final char[] lookup_hex = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+			'E', 'F' };
 
 	/**
 	 * Inner class for conversion exceptions
@@ -50,7 +51,6 @@ public class Convert {
 		}
 
 		public ConvertException() {
-			super();
 		}
 	}
 
@@ -58,7 +58,7 @@ public class Convert {
 	 * Not to be instantiated
 	 */
 	private Convert() {
-		;
+
 	}
 
 	// ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ public class Convert {
 	// ??? potentially slower? If not, feel free to delete it.
 	// ???
 	/** cache the value of five divided by nine, which is irrational */
-	private static final double FIVE_NINTHS = (5.0d / 9.0d);
+	private static final double FIVE_NINTHS = 5.0d / 9.0d;
 
 	/**
 	 * Converts a temperature reading from Celsius to Fahrenheit.
@@ -108,14 +108,14 @@ public class Convert {
 	 * @returns value constructed from bytes
 	 */
 	public static final long toLong(byte[] byteArray, int offset, int len) {
-		long val = 0;
+		var val = 0L;
 
 		len = Math.min(len, 8);
 
 		// Concatanate the byte array into one variable.
-		for (int i = (len - 1); i >= 0; i--) {
+		for (var i = len - 1; i >= 0; i--) {
 			val <<= 8;
-			val |= (byteArray[offset + i] & 0x00FF);
+			val |= byteArray[offset + i] & 0x00FF;
 		}
 
 		return val;
@@ -144,10 +144,10 @@ public class Convert {
 	 * @returns value constructed from bytes
 	 */
 	public static final void toByteArray(long longVal, byte[] byteArray, int offset, int len) {
-		int max = offset + len;
+		var max = offset + len;
 
 		// Concatanate the byte array into one variable.
-		for (int i = offset; i < max; i++) {
+		for (var i = offset; i < max; i++) {
 			byteArray[i] = (byte) longVal;
 			longVal >>>= 8;
 		}
@@ -172,7 +172,7 @@ public class Convert {
 	 * @returns value constructed from bytes
 	 */
 	public static final byte[] toByteArray(long longVal) {
-		byte[] byteArray = new byte[8];
+		var byteArray = new byte[8];
 		toByteArray(longVal, byteArray, 0, 8);
 		return byteArray;
 	}
@@ -191,14 +191,14 @@ public class Convert {
 	 * @returns value constructed from bytes
 	 */
 	public static final int toInt(byte[] byteArray, int offset, int len) {
-		int val = 0;
+		var val = 0;
 
 		len = Math.min(len, 4);
 
 		// Concatanate the byte array into one variable.
-		for (int i = (len - 1); i >= 0; i--) {
+		for (var i = len - 1; i >= 0; i--) {
 			val <<= 8;
-			val |= (byteArray[offset + i] & 0x00FF);
+			val |= byteArray[offset + i] & 0x00FF;
 		}
 
 		return val;
@@ -225,10 +225,10 @@ public class Convert {
 	 * @param len       number of bytes to get
 	 */
 	public static final void toByteArray(int intVal, byte[] byteArray, int offset, int len) {
-		int max = offset + len;
+		var max = offset + len;
 
 		// Concatanate the byte array into one variable.
-		for (int i = offset; i < max; i++) {
+		for (var i = offset; i < max; i++) {
 			byteArray[i] = (byte) intVal;
 			intVal >>>= 8;
 		}
@@ -253,7 +253,7 @@ public class Convert {
 	 * @returns value constructed from bytes
 	 */
 	public static final byte[] toByteArray(int intVal) {
-		byte[] byteArray = new byte[4];
+		var byteArray = new byte[4];
 		toByteArray(intVal, byteArray, 0, 4);
 		return byteArray;
 	}
@@ -277,9 +277,9 @@ public class Convert {
 	 * @return byte[] the decoded bytes
 	 */
 	public static final byte[] toByteArray(String strData) throws ConvertException {
-		byte[] bDataTmp = new byte[strData.length() * 2];
-		int len = toByteArray(strData, bDataTmp, 0, bDataTmp.length);
-		byte[] bData = new byte[len];
+		var bDataTmp = new byte[strData.length() * 2];
+		var len = toByteArray(strData, bDataTmp, 0, bDataTmp.length);
+		var bData = new byte[len];
 		System.arraycopy(bDataTmp, 0, bData, 0, len);
 		return bData;
 	}
@@ -322,8 +322,8 @@ public class Convert {
 	 */
 	public static final int toByteArray(String strData, byte[] bData, int offset, int length) throws ConvertException {
 		int strIndex = 0, strLength = strData.length();
-		int index = offset;
-		int end = length + offset;
+		var index = offset;
+		var end = length + offset;
 		char upper, lower;
 		int uVal, lVal;
 
@@ -347,17 +347,18 @@ public class Convert {
 				upper = '0';
 			}
 			// passed the end of string with no characters
-			else
+			else {
 				continue;
+			}
 
 			uVal = Character.digit(upper, 16);
 			lVal = Character.digit(lower, 16);
-			if (uVal != -1 && lVal != -1) {
-				bData[index++] = (byte) (((uVal & 0x0F) << 4) | (lVal & 0x0F));
-			} else
-				throw new ConvertException(("Bad character in input string: " + upper) + lower);
+			if (uVal == -1 || lVal == -1) {
+				throw new ConvertException("Bad character in input string: " + upper + lower);
+			}
+			bData[index++] = (byte) ((uVal & 0x0F) << 4 | lVal & 0x0F);
 		}
-		return (index - offset);
+		return index - offset;
 	}
 
 	/**
@@ -407,15 +408,16 @@ public class Convert {
 	 * @return Hex-encoded String
 	 */
 	public static final String toHexString(byte[] data, int offset, int length, String delimiter) {
-		StringBuffer value = new StringBuffer(length * (2 + delimiter.length()));
-		int max = length + offset;
-		int lastDelim = max - 1;
-		for (int i = offset; i < max; i++) {
-			byte bits = data[i];
-			value.append(lookup_hex[(bits >> 4) & 0x0F]);
+		var value = new StringBuilder(length * (2 + delimiter.length()));
+		var max = length + offset;
+		var lastDelim = max - 1;
+		for (var i = offset; i < max; i++) {
+			var bits = data[i];
+			value.append(lookup_hex[bits >> 4 & 0x0F]);
 			value.append(lookup_hex[bits & 0x0F]);
-			if (i < lastDelim)
+			if (i < lastDelim) {
 				value.append(delimiter);
+			}
 		}
 		return value.toString();
 	}
@@ -429,9 +431,9 @@ public class Convert {
 	 * @return String Hex-encoded String
 	 */
 	public static final String toHexString(byte bValue) {
-		char[] hexValue = new char[2];
+		var hexValue = new char[2];
 		hexValue[1] = lookup_hex[bValue & 0x0F];
-		hexValue[0] = lookup_hex[(bValue >> 4) & 0x0F];
+		hexValue[0] = lookup_hex[bValue >> 4 & 0x0F];
 		return new String(hexValue);
 	}
 
@@ -482,15 +484,16 @@ public class Convert {
 	 * @return Hex-encoded String
 	 */
 	public static final String toHexString(char[] data, int offset, int length, String delimiter) {
-		StringBuffer value = new StringBuffer(length * (2 + delimiter.length()));
-		int max = length + offset;
-		int lastDelim = max - 1;
-		for (int i = offset; i < max; i++) {
-			char bits = data[i];
-			value.append(lookup_hex[(bits >> 4) & 0x0F]);
+		var value = new StringBuilder(length * (2 + delimiter.length()));
+		var max = length + offset;
+		var lastDelim = max - 1;
+		for (var i = offset; i < max; i++) {
+			var bits = data[i];
+			value.append(lookup_hex[bits >> 4 & 0x0F]);
 			value.append(lookup_hex[bits & 0x0F]);
-			if (i < lastDelim)
+			if (i < lastDelim) {
 				value.append(delimiter);
+			}
 		}
 		return value.toString();
 	}
@@ -504,9 +507,9 @@ public class Convert {
 	 * @return String Hex-encoded String
 	 */
 	public static final String toHexString(char bValue) {
-		char[] hexValue = new char[2];
+		var hexValue = new char[2];
 		hexValue[1] = lookup_hex[bValue & 0x0F];
-		hexValue[0] = lookup_hex[(bValue >> 4) & 0x0F];
+		hexValue[0] = lookup_hex[bValue >> 4 & 0x0F];
 		return new String(hexValue);
 	}
 
@@ -601,36 +604,40 @@ public class Convert {
 	 */
 	public static final String toString(double dubbel, int nFrac) {
 		// check for special case
-		if (dubbel == d_POSITIVE_INFINITY)
+		if (dubbel == d_POSITIVE_INFINITY) {
 			return "Infinity";
-		else if (dubbel == d_NEGATIVE_INFINITY)
+		}
+		if (dubbel == d_NEGATIVE_INFINITY) {
 			return "-Infinity";
-		else if (dubbel != dubbel)
+		} else if (dubbel != dubbel) {
 			return "NaN";
+		}
 
 		// check for fast out (no fractional digits)
-		if (nFrac <= 0)
+		if (nFrac <= 0) {
 			// round the whole portion
 			return Long.toString((long) (dubbel + 0.5d));
+		}
 
 		// extract the non-fractional portion
-		long dWhole = (long) dubbel;
+		var dWhole = (long) dubbel;
 
 		// figure out if it's positive or negative. We need to remove
 		// the sign from the fractional part
-		double sign = (dWhole < 0) ? -1d : 1d;
+		var sign = dWhole < 0 ? -1d : 1d;
 
 		// figure out how many places to shift fractional portion
-		double shifter = 1;
-		for (int i = 0; i < nFrac; i++)
+		var shifter = 1D;
+		for (var i = 0; i < nFrac; i++) {
 			shifter *= 10;
+		}
 
 		// extract, unsign, shift, and round the fractional portion
-		long dFrac = (long) ((dubbel - dWhole) * sign * shifter + 0.5d);
+		var dFrac = (long) ((dubbel - dWhole) * sign * shifter + 0.5d);
 
 		// convert the fractional portion to a string
-		String fracString = Long.toString(dFrac);
-		int fracLength = fracString.length();
+		var fracString = Long.toString(dFrac);
+		var fracLength = fracString.length();
 
 		// ensure that rounding the fraction didn't carry into the whole portion
 		if (fracLength > nFrac) {
@@ -639,11 +646,11 @@ public class Convert {
 		}
 
 		// convert the whole portion to a string
-		String wholeString = Long.toString(dWhole);
-		int wholeLength = wholeString.length();
+		var wholeString = Long.toString(dWhole);
+		var wholeLength = wholeString.length();
 
 		// create the string buffer
-		char[] dubbelChars = new char[wholeLength + 1 + nFrac];
+		var dubbelChars = new char[wholeLength + 1 + nFrac];
 
 		// append the non-fractional portion
 		wholeString.getChars(0, wholeLength, dubbelChars, 0);
@@ -652,14 +659,16 @@ public class Convert {
 		dubbelChars[wholeLength] = '.';
 
 		// append any necessary leading zeroes
-		int i = wholeLength + 1;
-		int max = i + nFrac - fracLength;
-		for (; i < max; i++)
+		var i = wholeLength + 1;
+		var max = i + nFrac - fracLength;
+		for (; i < max; i++) {
 			dubbelChars[i] = '0';
+		}
 
 		// append the fractional portion
-		if (fracLength > 0)
+		if (fracLength > 0) {
 			fracString.getChars(0, fracLength, dubbelChars, max);
+		}
 
 		return new String(dubbelChars, 0, dubbelChars.length);
 	}
@@ -691,36 +700,40 @@ public class Convert {
 	 */
 	public static final String toString(float flote, int nFrac) {
 		// check for special case
-		if (flote == f_POSITIVE_INFINITY)
+		if (flote == f_POSITIVE_INFINITY) {
 			return "Infinity";
-		else if (flote == f_NEGATIVE_INFINITY)
+		}
+		if (flote == f_NEGATIVE_INFINITY) {
 			return "-Infinity";
-		else if (flote != flote)
+		} else if (flote != flote) {
 			return "NaN";
+		}
 
 		// check for fast out (no fractional digits)
-		if (nFrac <= 0)
+		if (nFrac <= 0) {
 			// round the whole portion
 			return Long.toString((long) (flote + 0.5f));
+		}
 
 		// extract the non-fractional portion
-		long fWhole = (long) flote;
+		var fWhole = (long) flote;
 
 		// figure out if it's positive or negative. We need to remove
 		// the sign from the fractional part
-		float sign = (fWhole < 0) ? -1f : 1f;
+		var sign = fWhole < 0 ? -1f : 1f;
 
 		// figure out how many places to shift fractional portion
-		float shifter = 1;
-		for (int i = 0; i < nFrac; i++)
+		var shifter = 1F;
+		for (var i = 0; i < nFrac; i++) {
 			shifter *= 10;
+		}
 
 		// extract, shift, and round the fractional portion
-		long fFrac = (long) ((flote - fWhole) * sign * shifter + 0.5f);
+		var fFrac = (long) ((flote - fWhole) * sign * shifter + 0.5f);
 
 		// convert the fractional portion to a string
-		String fracString = Long.toString(fFrac);
-		int fracLength = fracString.length();
+		var fracString = Long.toString(fFrac);
+		var fracLength = fracString.length();
 
 		// ensure that rounding the fraction didn't carry into the whole portion
 		if (fracLength > nFrac) {
@@ -729,11 +742,11 @@ public class Convert {
 		}
 
 		// convert the whole portion to a string
-		String wholeString = String.valueOf(fWhole);
-		int wholeLength = wholeString.length();
+		var wholeString = String.valueOf(fWhole);
+		var wholeLength = wholeString.length();
 
 		// create the string buffer
-		char[] floteChars = new char[wholeLength + 1 + nFrac];
+		var floteChars = new char[wholeLength + 1 + nFrac];
 
 		// append the non-fractional portion
 		wholeString.getChars(0, wholeLength, floteChars, 0);
@@ -742,15 +755,18 @@ public class Convert {
 		floteChars[wholeLength] = '.';
 
 		// append any necessary leading zeroes
-		int i = wholeLength + 1;
-		int max = i + nFrac - fracLength;
-		for (; i < max; i++)
+		var i = wholeLength + 1;
+		var max = i + nFrac - fracLength;
+		for (; i < max; i++) {
 			floteChars[i] = '0';
+		}
 
 		// append the fractional portion
-		if (fracLength > 0)
+		if (fracLength > 0) {
 			fracString.getChars(0, fracLength, floteChars, max);
+		}
 
 		return new String(floteChars, 0, floteChars.length);
 	}
 }
+// CHECKSTYLE:ON

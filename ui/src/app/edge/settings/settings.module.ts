@@ -1,19 +1,26 @@
-import { AliasUpdateComponent } from './profile/aliasupdate.component';
-import { ChannelsComponent } from './channels/channels.component';
-import { ComponentInstallComponent } from './component/install/install.component';
-import { ComponentUpdateComponent } from './component/update/update.component';
-import { IndexComponent as ComponentInstallIndexComponent } from './component/install/index.component';
-import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
-import { NetworkComponent } from './network/network.component';
 import { NgModule } from '@angular/core';
+import { ChangelogModule } from 'src/app/changelog/changelog.module';
+import { SharedModule } from './../../shared/shared.module';
+import { AlertingComponent } from './alerting/alerting.component';
+import { AppModule } from './app/app.module';
+import { ChannelsComponent } from './channels/channels.component';
+import { IndexComponent as ComponentInstallIndexComponent } from './component/install/index.component';
+import { ComponentInstallComponent } from './component/install/install.component';
+import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
+import { ComponentUpdateComponent } from './component/update/update.component';
+import { NetworkComponent } from './network/network.component';
+import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
-import { SharedModule } from './../../shared/shared.module';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
+import { OeSystemUpdateComponent } from './systemupdate/oe-system-update.component';
+import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [
-    SharedModule
+    AppModule,
+    SharedModule,
+	ChangelogModule
   ],
   declarations: [
     AliasUpdateComponent,
@@ -23,10 +30,17 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
     NetworkComponent,
+    OeSystemUpdateComponent,
     ProfileComponent,
     SettingsComponent,
     SystemExecuteComponent,
+    SystemUpdateComponent,
+    AlertingComponent
   ],
-  entryComponents: []
+  entryComponents: [
+  ],
+  exports: [
+    OeSystemUpdateComponent
+  ]
 })
 export class SettingsModule { }

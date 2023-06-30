@@ -8,10 +8,10 @@ public enum WarningBits1 implements OptionsEnum {
 	LOW_VOLTAGE(1, "Low Voltage Warning"), //
 	HIGH_VOLTAGE(2, "High Voltage Warning"), //
 	CHARGE_CURRENT(3, "Charge Current Warning"), //
-	DISCHARGE_CURRENT(4, "Discharge Current Warning"), //	
+	DISCHARGE_CURRENT(4, "Discharge Current Warning"), //
 	CHARGE_POWER(5, "Charge Power Warning"), //
-	DISCHARGE_POWER(6, "Discharge Power Warning"), //	
-	LOW_SOC(7, "Low SoC Warning"), //	
+	DISCHARGE_POWER(6, "Discharge Power Warning"), //
+	LOW_SOC(7, "Low SoC Warning"), //
 	HIGH_SOC(8, "High SoC Warning"), //
 	LOW_TEMPERATURE(9, "Low Temperature Warning"), //
 	HIGH_TEMPERATURE(10, "High Temperature Warning"), //
@@ -19,9 +19,7 @@ public enum WarningBits1 implements OptionsEnum {
 	CONTACTOR_FUSE(12, "Contactor/Fuse Warning"), //
 	SENSOR(13, "Sensor Warning"), //
 	IMBALANCE(14, "Imbalance Warning"), //
-	COMMUNICATION(15, "Communication Warning"), //
-	
-	;
+	COMMUNICATION(15, "Communication Warning");
 
 	private final int value;
 	private final String name;
@@ -33,12 +31,12 @@ public enum WarningBits1 implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

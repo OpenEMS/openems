@@ -32,7 +32,7 @@ export class ComponentUpdateComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route).then(edge => {
       this.edge = edge;
     });
     let componentId = this.route.snapshot.params["componentId"];
@@ -54,9 +54,9 @@ export class ComponentUpdateComponent implements OnInit {
           templateOptions: {
             label: property.name,
             description: property.description,
-            required: property.isRequired,
+            required: property.isRequired
           }
-        }
+        };
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);

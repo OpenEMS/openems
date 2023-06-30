@@ -4,13 +4,13 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.soltaro.ChannelIdImpl;
-import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.cluster.enums.Rack;
-import io.openems.edge.battery.soltaro.enums.EmsBaudrate;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
+import io.openems.edge.battery.soltaro.common.enums.EmsBaudrate;
 import io.openems.edge.battery.soltaro.single.versionc.enums.ClusterRunState;
 import io.openems.edge.battery.soltaro.single.versionc.enums.PreChargeControl;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 
 /**
@@ -538,7 +538,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a Channel-ID String from the enum and returns it.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId as camel-case String
 	 */
@@ -548,7 +548,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a new Channel-ID from the enum and returns it.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId
 	 */
@@ -558,7 +558,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a UPPER_CASE ChannelId.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId as upper-case string
 	 */

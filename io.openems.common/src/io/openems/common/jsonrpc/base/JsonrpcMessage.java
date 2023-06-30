@@ -9,51 +9,71 @@ import io.openems.common.utils.StringUtils;
 
 /**
  * Represents a JSON-RPC Message.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
  *   ...
  * }
  * </pre>
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
  *      specification</a>
  */
 public abstract class JsonrpcMessage {
 
-	public final static String JSONRPC_VERSION = "2.0";
+	public static final String JSONRPC_VERSION = "2.0";
 
+	/**
+	 * Parses a JSON String to a {@link JsonrpcMessage}.
+	 *
+	 * @param json the JSON String
+	 * @return the {@link JsonrpcMessage}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcMessage from(String json) throws OpenemsNamedException {
-		return from(JsonUtils.parseToJsonObject(json));
+		return JsonrpcMessage.from(JsonUtils.parseToJsonObject(json));
 	}
 
+	/**
+	 * Parses a {@link JsonObject} to a {@link JsonrpcMessage}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link JsonrpcMessage}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcMessage from(JsonObject j) throws OpenemsNamedException {
 		if (j.has("method") && j.has("params")) {
 			if (j.has("id")) {
 				return GenericJsonrpcRequest.from(j);
-			} else {
-				return GenericJsonrpcNotification.from(j);
 			}
+			return GenericJsonrpcNotification.from(j);
 
-		} else if (j.has("result")) {
-			return GenericJsonrpcResponseSuccess.from(j);
+		}
+		if (j.has("result")) {
+			return JsonrpcResponseSuccess.from(j);
 
-		} else if (j.has("error")) {
+		}
+		if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException(
 				"JsonrpcMessage is not a valid Request, Result or Notification: " + StringUtils.toShortString(j, 100));
 	}
 
+	/**
+	 * Gets the {@link JsonObject} representation of this {@link JsonrpcMessage}.
+	 *
+	 * @return a {@link JsonObject}
+	 */
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("jsonrpc", JSONRPC_VERSION) //
+				.addProperty("jsonrpc", JsonrpcMessage.JSONRPC_VERSION) //
 				.build();
 	}
 
 	/**
-	 * Returns this JsonrpcMessage as a JSON String
+	 * Returns this JsonrpcMessage as a JSON String.
 	 */
 	@Override
 	public String toString() {

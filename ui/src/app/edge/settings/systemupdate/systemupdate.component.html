@@ -1,0 +1,24 @@
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-sm="8">
+        <ion-card>
+          <ngx-spinner [name]="spinnerId"></ngx-spinner>
+          <ng-container *ngIf="edge">
+            <ion-item color="light">
+              <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
+              <ion-label>
+                <span>Systemupdate</span>
+                <span *ngIf="environment.backend === 'OpenEMS Backend'"> für {{ edge.id }}</span>
+              </ion-label>
+            </ion-item>
+            <ion-card-content>
+              <oe-system-update [edge]="edge"></oe-system-update>
+            </ion-card-content>
+          </ng-container>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

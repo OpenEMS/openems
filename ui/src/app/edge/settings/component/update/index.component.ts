@@ -1,8 +1,7 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig } from '../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
+import { EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 interface MyCategorizedComponents extends CategorizedComponents {
   isNatureClicked?: Boolean,
@@ -13,7 +12,7 @@ interface MyCategorizedComponents extends CategorizedComponents {
   selector: IndexComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class IndexComponent {
+export class IndexComponent implements OnInit {
 
   private static readonly SELECTOR = "indexComponentUpdate";
 
@@ -24,13 +23,12 @@ export class IndexComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private service: Service,
-    private translate: TranslateService
+    private service: Service
   ) {
   }
 
-  ionViewWillEnter() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.adjustComponents'), this.route);
+  public ngOnInit() {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.adjustComponents' }, this.route);
     this.service.getConfig().then(config => {
       this.config = config;
       let categorizedComponentIds: string[] = [];

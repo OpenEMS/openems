@@ -1,10 +1,10 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Component, OnDestroy } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[consumptionsection]',
@@ -13,7 +13,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
         trigger('Consumption', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)',
+                transform: 'translateX(0%)'
             })),
             state('hide', style({
                 opacity: 0.6,
@@ -24,7 +24,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
         ])
     ]
 })
-export class ConsumptionSectionComponent extends AbstractSection implements OnDestroy {
+export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
     private showAnimation: boolean = false;
@@ -35,7 +35,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     constructor(
         unitpipe: UnitvaluePipe,
         translate: TranslateService,
-        service: Service,
+        service: Service
     ) {
         super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
@@ -53,7 +53,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     }
 
     get stateName() {
-        return this.showAnimation ? 'show' : 'hide'
+        return this.showAnimation ? 'show' : 'hide';
     }
 
     protected getStartAngle(): number {
@@ -91,14 +91,14 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "consumption.png";
+        return "icon/consumption.svg";
     }
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, 'kW')
+        return this.unitpipe.transform(value, 'kW');
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -106,8 +106,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3)
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -120,7 +120,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
             middleRight: { x: r - v, y: 0 }
-        }
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topRight.x - v;
@@ -142,7 +142,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnDe
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
             middleRight: { x: r - v, y: 0 }
-        }
+        };
         if (ratio > 0) {
             // towards right
             p.topRight.x = p.topLeft.x + animationWidth * 0.2;

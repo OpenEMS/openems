@@ -21,7 +21,7 @@ public enum TargetDirection {
 	/**
 	 * Gets the TargetDirection of the Problem, i.e. whether it is a DISCHARGE or
 	 * CHARGE problem.
-	 * 
+	 *
 	 * @param inverters                  list of {@link Inverter}s
 	 * @param coefficients               the {@link Coefficients}
 	 * @param constraintsForAllInverters {@link Constraint}s for all
@@ -31,24 +31,22 @@ public enum TargetDirection {
 	 */
 	public static TargetDirection from(List<Inverter> inverters, Coefficients coefficients,
 			List<Constraint> constraintsForAllInverters) throws OpenemsException {
-		List<Constraint> constraints = constraintsForAllInverters;
-		Constraint equals0 = createSumOfPConstraint(inverters, coefficients, Relationship.EQUALS, 0);
+		var constraints = constraintsForAllInverters;
+		var equals0 = createSumOfPConstraint(inverters, coefficients, Relationship.EQUALS, 0);
 		constraints.add(equals0);
 		try {
 			ConstraintSolver.solve(coefficients, constraints);
 			return TargetDirection.KEEP_ZERO;
 		} catch (MathIllegalStateException e) {
 			constraints.remove(equals0);
-			Constraint greaterOrEquals0 = createSumOfPConstraint(inverters, coefficients,
-					Relationship.GREATER_OR_EQUALS, 0);
+			var greaterOrEquals0 = createSumOfPConstraint(inverters, coefficients, Relationship.GREATER_OR_EQUALS, 0);
 			constraints.add(greaterOrEquals0);
 			try {
 				ConstraintSolver.solve(coefficients, constraints);
 				return TargetDirection.DISCHARGE;
 			} catch (MathIllegalStateException e2) {
 				constraints.remove(greaterOrEquals0);
-				Constraint lessOrEquals0 = createSumOfPConstraint(inverters, coefficients, Relationship.LESS_OR_EQUALS,
-						0);
+				var lessOrEquals0 = createSumOfPConstraint(inverters, coefficients, Relationship.LESS_OR_EQUALS, 0);
 				constraints.add(lessOrEquals0);
 				ConstraintSolver.solve(coefficients, constraints);
 				return TargetDirection.CHARGE;
@@ -58,7 +56,7 @@ public enum TargetDirection {
 
 	/**
 	 * Creates Constraints for Sum of P.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param inverters    list of {@link Inverter}s
 	 * @param relationship the {@link Relationship} between P and value

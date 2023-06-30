@@ -1,0 +1,12 @@
+<table class="full_width">
+    <tr>
+        <!-- Name of Parameter on the left side -->
+        <td [style.width]="(leftColumnWidth ?? 65)  + '%'">
+            <ng-container *ngIf="name">{{ name }}</ng-container>
+        </td>
+        <!-- Value of Parameter on the right side -->
+        <td [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
+            <ng-container *ngIf="displayValue !== null">{{ displayValue }}</ng-container>
+        </td>
+    </tr>
+</table>

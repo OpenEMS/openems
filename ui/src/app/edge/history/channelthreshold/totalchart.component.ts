@@ -1,20 +1,20 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'channelthresholdTotalChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-  @Input() private period: DefaultTypes.HistoryPeriod;
+  @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
@@ -23,27 +23,27 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   constructor(
     protected service: Service,
     protected translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
-    super(service, translate);
+    super("channelthreshold-total-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = "channelthreshold-total-chart";
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
       // convert labels
       let labels: Date[] = [];
@@ -59,11 +59,11 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         let address = ChannelAddress.fromString(channel);
         let data = result.data[channel].map((value) => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value * 100; // convert to % [0,100]
           }
-        })
+        });
         switch (index % 2) {
           case 0:
             datasets.push({
@@ -72,8 +72,8 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
-            })
+              borderColor: 'rgba(0,191,255,1)'
+            });
             break;
           case 1:
             datasets.push({
@@ -82,14 +82,14 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
             });
             this.colors.push({
               backgroundColor: 'rgba(0,0,139,0.05)',
-              borderColor: 'rgba(0,0,139,1)',
-            })
+              borderColor: 'rgba(0,0,139,1)'
+            });
             break;
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
-      })
+        this.stopSpinner();
+      });
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -120,7 +120,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    }
+    };
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }

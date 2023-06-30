@@ -4,6 +4,8 @@ import io.openems.common.types.OptionsEnum;
 
 public enum StartStop implements OptionsEnum {
 	/**
+	 * UNDEFINED.
+	 * 
 	 * <ul>
 	 * <li>Write: set the Component to an UNDEFINED/initial state
 	 * <li>Read: the Component is in an UNDEFINED start/stop state
@@ -11,6 +13,8 @@ public enum StartStop implements OptionsEnum {
 	 */
 	UNDEFINED(-1, "Undefined"),
 	/**
+	 * START.
+	 * 
 	 * <ul>
 	 * <li>Write: START the Component.
 	 * <li>Read: the Component is STARTED.
@@ -18,6 +22,8 @@ public enum StartStop implements OptionsEnum {
 	 */
 	START(1, "Start"),
 	/**
+	 * STOP.
+	 * 
 	 * <ul>
 	 * <li>Write: STOP the Component.
 	 * <li>Read: the Component is STOPPED.
@@ -35,12 +41,12 @@ public enum StartStop implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

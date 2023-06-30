@@ -15,7 +15,7 @@ public interface Thermometer extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Thermometer
 		 * <li>Type: Integer

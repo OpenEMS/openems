@@ -82,7 +82,8 @@ public class Run extends BaseState {
 				try {
 					this.getBattery1().start();
 				} catch (OpenemsNamedException e) {
-					System.out.println("Was not able to start battery " + this.getBattery1().id() + "!\n" + e.getMessage());
+					System.out.println(
+							"Was not able to start battery " + this.getBattery1().id() + "!\n" + e.getMessage());
 				}
 			}
 		}
@@ -91,7 +92,8 @@ public class Run extends BaseState {
 				try {
 					this.getBattery2().start();
 				} catch (OpenemsNamedException e) {
-					System.out.println("Was not able to start battery " + this.getBattery2().id() + "!\n" + e.getMessage());
+					System.out.println(
+							"Was not able to start battery " + this.getBattery2().id() + "!\n" + e.getMessage());
 				}
 			}
 		}
@@ -100,7 +102,8 @@ public class Run extends BaseState {
 				try {
 					this.getBattery3().start();
 				} catch (OpenemsNamedException e) {
-					System.out.println("Was not able to start battery " + this.getBattery3().id() + "!\n" + e.getMessage());
+					System.out.println(
+							"Was not able to start battery " + this.getBattery3().id() + "!\n" + e.getMessage());
 				}
 			}
 		}

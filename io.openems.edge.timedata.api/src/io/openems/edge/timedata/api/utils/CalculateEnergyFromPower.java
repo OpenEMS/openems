@@ -13,41 +13,40 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 /**
- * Calculates the value for energy channels in [Wh] from Power values in [W].
- * 
+ * Calculates the value for energy channels in [Wh_Σ] from Power values in [W].
+ *
  * <p>
- * This is commonly used to calculate SymmetricEss or SymmetricMeter
- * ActiveChargePower and ActiveDischargePower from ActivePower channels. To use
- * it, you have to:
- * 
+ * This is commonly used by SymmetricEss or ElectricityMeter to calculate energy
+ * channels from power channels. To use it, you have to:
+ *
  * <ol>
  * <li>Make your OpenemsComponent implement {@link TimedataProvider}:
- * 
+ *
  * <pre>
  * public class ComponentImpl extends AbstractOpenemsComponent implements
  * OpenemsComponent, TimedataProvider, EventHandler {
  * </pre>
- * 
+ *
  * <li>Add a @Reference to {@link Timedata}. It's a good idea to make this
  * reference 'dynamic', otherwise your component will not start if there is no
  * Timedata service configured.
- * 
+ *
  * <pre>
  * &#64;Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
  * private volatile Timedata timedata = null;
  * </pre>
- * 
+ *
  * <li>Add a private instance of {@link CalculateEnergyFromPower} for each
  * energy channel:
- * 
+ *
  * <pre>
  * private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
  * 		SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
  * </pre>
- * 
+ *
  * <li>Call the {@link #update(Integer)} method on each cycle - e.g. via an
  * {@link EventHandler}.
- * 
+ *
  * <pre>
  * this.calculateEnergy.update(power);
  * </pre>
@@ -57,7 +56,7 @@ public class CalculateEnergyFromPower {
 
 	/**
 	 * Available States.
-	 * 
+	 *
 	 * <p>
 	 * IMPLEMENTATION NOTE: we are using a custom StateMachine here and not the
 	 * generic implementation in 'io.openems.edge.common.statemachine', because one
@@ -109,7 +108,7 @@ public class CalculateEnergyFromPower {
 
 	/**
 	 * Calculate the Energy and update the Channel.
-	 * 
+	 *
 	 * @param power the latest power value in [W]
 	 */
 	public void update(Integer power) {
@@ -136,8 +135,8 @@ public class CalculateEnergyFromPower {
 	 * Initialize cumulated energy value from from Timedata service.
 	 */
 	private void initializeCumulatedEnergyFromTimedata() {
-		Timedata timedata = this.component.getTimedata();
-		String componentId = this.component.id();
+		var timedata = this.component.getTimedata();
+		var componentId = this.component.id();
 		if (timedata == null || componentId == null) {
 			// Wait for Timedata service to appear or Component to be activated
 			this.state = State.TIMEDATA_QUERY_NOT_STARTED;
@@ -173,10 +172,10 @@ public class CalculateEnergyFromPower {
 
 		} else {
 			// calculate duration since last value
-			long duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
 
 			// calculate energy since last run in [Wmsec]
-			long continuousEnergy /* [Wmsec] */ = this.lastPower /* [W] */ * duration /* [msec] */;
+			var continuousEnergy /* [Wmsec] */ = this.lastPower /* [W] */ * duration /* [msec] */;
 
 			// add to continuous cumulated energy
 			this.continuousCumulatedEnergy += continuousEnergy;

@@ -13,11 +13,10 @@ import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponent
-		implements SocomecMeter, SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+		implements SocomecMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractSocomecMeter.class);
 
@@ -37,42 +36,42 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 	/**
 	 * Applies the modbus protocol for Socomec Countis E23, E24, E27 and E28. All
 	 * are identical.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	protected abstract void identifiedCountisE23_E24_E27_E28() throws OpenemsException;
 
 	/**
-	 * Applies the modbus protocol for Socomec Countis E44.
-	 * 
+	 * Applies the modbus protocol for Socomec Countis E34, E44.
+	 *
 	 * @throws OpenemsException on error
 	 */
-	protected abstract void identifiedCountisE44() throws OpenemsException;
+	protected abstract void identifiedCountisE34_E44() throws OpenemsException;
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris A10.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	protected abstract void identifiedDirisA10() throws OpenemsException;
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris A14.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	protected abstract void identifiedDirisA14() throws OpenemsException;
 
 	/**
 	 * Applies the modbus protocol for Socomec Diris B30.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	protected abstract void identifiedDirisB30() throws OpenemsException;
 
 	/**
 	 * Applies the modbus protocol for Socomec Countis E14.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	protected abstract void identifiedCountisE14() throws OpenemsException;
@@ -97,9 +96,13 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 					this.logInfo(this.log, "Identified Socomec Countis E28 meter");
 					this.identifiedCountisE23_E24_E27_E28();
 
+				} else if (name.startsWith("countis e34")) {
+					this.logInfo(this.log, "Identified Socomec Countis E34 meter");
+					this.identifiedCountisE34_E44();
+
 				} else if (name.startsWith("countis e44")) {
 					this.logInfo(this.log, "Identified Socomec Countis E44 meter");
-					this.identifiedCountisE44();
+					this.identifiedCountisE34_E44();
 
 				} else if (name.startsWith("diris a-10") || name.startsWith("diris a10")) {
 					this.logInfo(this.log, "Identified Socomec Diris A10 meter");
@@ -133,13 +136,13 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 
 	/**
 	 * Gets the SOCOMEC identifier via Modbus.
-	 * 
+	 *
 	 * @return the future String; returns an empty string on error, never an
 	 *         exception;
 	 */
 	private CompletableFuture<String> getSocomecIdentifier() {
 		// Prepare result
-		final CompletableFuture<String> result = new CompletableFuture<String>();
+		final var result = new CompletableFuture<String>();
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
 		try {

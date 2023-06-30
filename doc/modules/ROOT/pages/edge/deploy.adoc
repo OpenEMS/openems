@@ -16,7 +16,7 @@ This guide covers a simple, manual approach. For productive systems it is requir
 Prerequisites:
 
 * A target device running Debian Linux like a Raspberry Pi, Beaglebone Black or an IoT gateway. You need the IP address and SSH access.
-* Create a JAR-file that should be deployes. See xref:edge/build.adoc[Build OpenEMS Edge] for details.
+* Create a JAR-file that should be deployes. See xref:edge/build.adoc[Build OpenEMS Edge] for details. Alternatively you may download the latest release `openems-edge.jar` file from https://github.com/OpenEMS/openems/releases[GitHub] under _Assets_.
 * Setup an SSH client to connect to the Linux console, e.g. http://www.9bis.net/kitty/[KiTTY]
 * Setup an SCP client to copy the JAR file via SSH, e.g. https://winscp.net/eng/docs/lang:de[WinSCP]
 
@@ -81,7 +81,7 @@ Execute `nano /etc/systemd/system/openems.service`
 +
 ----
 [Unit]
-Description=OpenEMS <1>
+Description=OpenEMS Edge <1>
 After=network.target <2>
 
 [Service]
@@ -89,11 +89,6 @@ User=root <3>
 Group=root
 Type=notify <4>
 WorkingDirectory=/usr/lib/openems
-LimitCORE=infinity
-LimitRTPRIO=2
-LimitRTTIME=60000000
-CPUSchedulingPolicy=rr
-CPUSchedulingPriority=1
 ExecStart=/usr/bin/java -Dfelix.cm.dir=/etc/openems.d/ -jar /usr/lib/openems/openems.jar <5>
 SuccessExitStatus=143 <6>
 Restart=always <7>
@@ -107,7 +102,7 @@ WantedBy=multi-user.target
 <2> The service is allowed to start after network is available (e.g. to be able to access devices via ethernet connection)
 <3> It is run as user 'root' to have access to all devices. It is recommended to change this for productive systems.
 <4> OpenEMS notifies systemd once it is started up properly.
-<5> The start command. It uses Java 8, sets the config directory to `/etc/openems.d` and runs the jar file at `/usr/lib/openems/openems.jar`
+<5> The start command executes Java, sets the config directory to `/etc/openems.d` and runs the jar file at `/usr/lib/openems/openems.jar`
 <6> In contrast to what systemd expects, Java exits with status 143 on success.
 <7> Systemd _always_ tries to restart OpenEMS once it was quit.
 <8> Systemd waits _10_ seconds till the next restart.

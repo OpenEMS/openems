@@ -1,6 +1,8 @@
 package io.openems.edge.common.channel;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
@@ -31,13 +33,13 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	}
 
 	public OptionsEnum[] getOptions() {
-		return options;
+		return this.options;
 	}
 
 	/**
 	 * Initial-Value. Default: none
-	 * 
-	 * @param initialValue
+	 *
+	 * @param initialValue the initial value as {@link OptionsEnum}
 	 * @return myself
 	 */
 	public EnumDoc initialValue(OptionsEnum initialValue) {
@@ -48,7 +50,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link Doc}.
-	 * 
+	 *
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
@@ -58,7 +60,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 			io.openems.edge.common.channel.ChannelId channelId) {
 		switch (this.getAccessMode()) {
 		case READ_ONLY:
-			return new EnumReadChannel(component, channelId, this, this.getUndefinedOption());
+			return new EnumReadChannel(component, channelId, this, this.getUndefinedOption(), this.getDebounce());
 		case READ_WRITE:
 		case WRITE_ONLY:
 			return new EnumWriteChannel(component, channelId, this, this.getUndefinedOption());
@@ -70,7 +72,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	/**
 	 * Gets the Undefined-Option, i.e. the default Option if the value has not been
 	 * set.
-	 * 
+	 *
 	 * @return the Undefined-Option
 	 */
 	public OptionsEnum getUndefinedOption() {
@@ -82,7 +84,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the Option from a String.
-	 * 
+	 *
 	 * @param name the name of the option. Comparison is case insensitive
 	 * @return the {@link OptionsEnum}
 	 * @throws OpenemsNamedException if there is no option with that name
@@ -98,7 +100,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the Option value from a String.
-	 * 
+	 *
 	 * @param name the name of the option. Comparison is case insensitive
 	 * @return the integer value of the {@link OptionsEnum}
 	 * @throws OpenemsNamedException if there is no option with that name
@@ -109,7 +111,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the {@link OptionsEnum} from the integer value.
-	 * 
+	 *
 	 * @param value the integer value of the option
 	 * @return the {@link OptionsEnum}
 	 */
@@ -117,7 +119,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 		if (this.options.length == 0) {
 			return null;
 		}
-		OptionsEnum undefined = this.options[0].getUndefined();
+		var undefined = this.options[0].getUndefined();
 		if (value == null) {
 			return undefined;
 		}
@@ -131,16 +133,52 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the name of the Option or 'UNDEFINED' if there is no option with that
-	 * value
-	 * 
+	 * value.
+	 *
 	 * @param value the integer value of the Option
 	 * @return the name of the Option as a String
 	 */
 	public String getOptionString(Integer value) {
-		OptionsEnum option = this.getOption(value);
+		var option = this.getOption(value);
 		if (option == null) {
 			return Value.UNDEFINED_VALUE_STRING;
 		}
 		return option.getName();
+	}
+
+	@Override
+	public String getText() {
+		// If Doc has a Text, return it
+		var docText = super.getText();
+		if (!docText.isBlank()) {
+			return docText;
+		}
+		// Otherwise generate Text from options without UNDEFINED option in the form
+		// "<value>:<name>, <value>:<name>".
+		return Stream.of(this.options) //
+				.filter(option -> !option.isUndefined()) //
+				.map(option -> (option.getValue() + ":" + option.getName())) //
+				.collect(Collectors.joining(", "));
+	}
+
+	protected int debounce = 0;
+
+	/**
+	 * Debounce the Enum-Channel value: The EnumChannel is only set to the given
+	 * value after it had been set to the same value for at least "debounce" times.
+	 * 
+	 * <p>
+	 * Currently only working for read-only.
+	 * 
+	 * @param debounce "debounce" times
+	 * @return EnumDoc
+	 */
+	public EnumDoc debounce(int debounce) {
+		this.debounce = debounce;
+		return this;
+	}
+
+	public int getDebounce() {
+		return this.debounce;
 	}
 }

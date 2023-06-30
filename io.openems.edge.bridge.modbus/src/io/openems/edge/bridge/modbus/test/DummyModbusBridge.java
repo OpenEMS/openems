@@ -4,17 +4,24 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
+import io.openems.edge.common.test.DummyCycle;
 
-public class DummyModbusBridge extends AbstractOpenemsComponent
-		implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
+public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
 	private final Map<String, ModbusProtocol> protocols = new HashMap<>();
+
+	private final Cycle cycle = new DummyCycle(1000);
 
 	public DummyModbusBridge(String id) {
 		super(//
@@ -25,7 +32,7 @@ public class DummyModbusBridge extends AbstractOpenemsComponent
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true);
+		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
 	}
 
 	@Override
@@ -41,6 +48,23 @@ public class DummyModbusBridge extends AbstractOpenemsComponent
 	@Override
 	public InetAddress getIpAddress() {
 		return null;
+	}
+
+	@Override
+	public Cycle getCycle() {
+		return this.cycle;
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void closeModbusConnection() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

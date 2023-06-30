@@ -4,7 +4,7 @@ import io.openems.common.types.OptionsEnum;
 
 /**
  * NOTE.
- * 
+ *
  * <ul>
  * <li>Standby <-> Charge&Discharge forbidden but main contactor keeps on
  * <li>Stop <-> Charge&Discharge forbidden while main contactor keeps off

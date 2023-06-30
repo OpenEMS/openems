@@ -1,6 +1,5 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
-import io.openems.edge.battery.fenecon.home.FeneconHomeBattery;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -8,7 +7,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		FeneconHomeBattery battery = context.getParent();
+		var battery = context.getParent();
 
 		switch (battery.getStartStopTarget()) {
 		case UNDEFINED:

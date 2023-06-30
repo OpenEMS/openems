@@ -9,10 +9,9 @@ import io.openems.edge.ess.mr.gridcon.enums.Mode;
 
 public class Commands {
 
-	public static int COMMANDS_ADRESS = 32560;
+	public static final int COMMANDS_ADRESS = 32560;
 
 	public Commands() {
-
 	}
 
 	// 32560
@@ -279,8 +278,8 @@ public class Commands {
 				+ "syncApproval=" + this.syncApproval + ", " //
 				+ "shortCircuitHandling=" + this.shortCircuitHandling + ", " //
 				+ "mode=" + this.mode + ", " //
-				+ "triggerSia=" + this.triggerSia + ", " + //
-				"fundamentalFrequencyMode=" + this.fundamentalFrequencyMode + ", " //
+				+ "triggerSia=" + this.triggerSia + ", " //
+				+ "fundamentalFrequencyMode=" + this.fundamentalFrequencyMode + ", " //
 				+ "balancingMode=" + this.balancingMode + ", " //
 				+ "harmonicCompensationMode=" + this.harmonicCompensationMode + ", " //
 				+ "errorCodeFeedback=" + this.errorCodeFeedback + ", " //

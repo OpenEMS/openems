@@ -8,13 +8,11 @@ public class UtilsTest {
 
 	@Test
 	public void testToBooleanArray() {
-		
-		byte[] bs = new byte[] {
-			(byte)0xAA, (byte) 0xAA 	
-		};
-		
-		Boolean[] bools = Utils.toBooleanArray(bs);
-		
+
+		byte[] bs = { (byte) 0xAA, (byte) 0xAA };
+
+		var bools = Utils.toBooleanArray(bs);
+
 		assertEquals(true, bools[0]);
 		assertEquals(false, bools[1]);
 		assertEquals(true, bools[2]);

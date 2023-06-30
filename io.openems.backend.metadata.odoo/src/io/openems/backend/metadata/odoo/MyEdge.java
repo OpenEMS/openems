@@ -1,16 +1,17 @@
 package io.openems.backend.metadata.odoo;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.common.types.EdgeConfig;
+import java.time.ZonedDateTime;
+
+import io.openems.backend.common.metadata.Edge;
 
 public class MyEdge extends Edge {
 
 	private final int odooId;
 	private final String apikey;
 
-	public MyEdge(int odooId, String edgeId, String apikey, String comment, State state, String version,
-			String producttype, EdgeConfig config) {
-		super(edgeId, comment, state, version, producttype, config);
+	public MyEdge(MetadataOdoo parent, int odooId, String edgeId, String apikey, String comment, String version,
+			String producttype, ZonedDateTime lastMessage) {
+		super(parent, edgeId, comment, version, producttype, lastMessage);
 		this.apikey = apikey;
 		this.odooId = odooId;
 	}
@@ -20,7 +21,7 @@ public class MyEdge extends Edge {
 	}
 
 	public String getApikey() {
-		return apikey;
+		return this.apikey;
 	}
 
 }

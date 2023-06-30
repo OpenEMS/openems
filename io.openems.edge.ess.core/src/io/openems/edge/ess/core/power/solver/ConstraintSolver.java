@@ -3,7 +3,6 @@ package io.openems.edge.ess.core.power.solver;
 import java.util.List;
 
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
 
@@ -15,7 +14,7 @@ public class ConstraintSolver {
 
 	/**
 	 * Solves the problem with the given list of Constraints.
-	 * 
+	 *
 	 * @param coefficients the {@link Coefficients}
 	 * @param constraints  a list of Constraints
 	 * @return a solution
@@ -24,8 +23,7 @@ public class ConstraintSolver {
 	 */
 	public static PointValuePair solve(Coefficients coefficients, List<Constraint> constraints)
 			throws NoFeasibleSolutionException, UnboundedSolutionException {
-		List<LinearConstraint> linearConstraints = LinearSolverUtil.convertToLinearConstraints(coefficients,
-				constraints);
+		var linearConstraints = LinearSolverUtil.convertToLinearConstraints(coefficients, constraints);
 		return LinearConstraintsSolver.solve(coefficients, linearConstraints);
 	}
 

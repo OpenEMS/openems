@@ -1,6 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/bridge/modbus/api/BridgeModbus.java=UTF-8
-encoding//src/io/openems/edge/bridge/modbus/api/package-info.java=UTF-8
-encoding//src/io/openems/edge/bridge/modbus/test/package-info.java=UTF-8
-encoding//test/.gitignore=UTF-8
-encoding/bnd.bnd=UTF-8
+encoding/<project>=UTF-8

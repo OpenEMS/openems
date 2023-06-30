@@ -13,11 +13,11 @@ public interface OnRequest {
 
 	/**
 	 * Handle a JSON-RPC Request, receive a JSON-RPC Response via callback.
-	 * 
-	 * @param ws      the Websocket
+	 *
+	 * @param ws      the {@link WebSocket}
 	 * @param request the JSON-RPC Request
-	 * @throws OpenemsNamedException on error
 	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<? extends JsonrpcResponseSuccess> run(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException;

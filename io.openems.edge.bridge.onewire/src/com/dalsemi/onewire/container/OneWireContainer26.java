@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -62,7 +63,7 @@ import com.dalsemi.onewire.utils.CRC8;
  * value is also the maximum voltage that part can report.
  * </P>
  *
- * 
+ *
  * <H3>DataSheet</H3>
  * <DL>
  * <DD>http://pdfserv.maxim-ic.com/arpdf/DS2438.pdf (not active yet,
@@ -170,7 +171,6 @@ public class OneWireContainer26 extends OneWireContainer
 	 * Default constructor
 	 */
 	public OneWireContainer26() {
-		super();
 	}
 
 	/**
@@ -215,17 +215,18 @@ public class OneWireContainer26 extends OneWireContainer
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(8);
+		var bank_vector = new Vector<MemoryBank>(8);
 
 		// Status
 		bank_vector.addElement(new MemoryBankSBM(this));
 
 		// Temp/Volt/Current
-		MemoryBankSBM temp = new MemoryBankSBM(this);
+		var temp = new MemoryBankSBM(this);
 		temp.bankDescription = "Temperature/Voltage/Current";
 		temp.generalPurposeMemory = false;
 		temp.startPhysicalAddress = 1;
@@ -318,6 +319,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @return representation of this 1-Wire device's name
 	 *
 	 */
+	@Override
 	public String getName() {
 		return "DS2438";
 	}
@@ -328,6 +330,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return representation of the alternate name(s)
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Smart Battery Monitor";
 	}
@@ -337,12 +340,14 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return representation of the functional description
 	 */
+	@Override
 	public String getDescription() {
-		return "1-Wire device that integrates the total current charging or "
-				+ "discharging through a battery and stores it in a register. "
-				+ "It also returns the temperature (accurate to 2 degrees celsius),"
-				+ " as well as the instantaneous current and voltage and also "
-				+ "provides 40 bytes of EEPROM storage.";
+		return """
+				1-Wire device that integrates the total current charging or \
+				discharging through a battery and stores it in a register. \
+				It also returns the temperature (accurate to 2 degrees celsius), \
+				as well as the instantaneous current and voltage and also \
+				provides 40 bytes of EEPROM storage.""";
 	}
 
 	/**
@@ -353,7 +358,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @param resistance Value of the sense resistor in Ohms.
 	 */
 	public synchronized void setSenseResistor(double resistance) {
-		Rsens = resistance;
+		this.Rsens = resistance;
 	}
 
 	/**
@@ -363,7 +368,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @return currently stored value of the sense resistor in Ohms
 	 */
 	public double getSenseResistor() {
-		return Rsens;
+		return this.Rsens;
 	}
 
 	/**
@@ -382,7 +387,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see OneWireContainer#doSpeed()
 	 */
 	public synchronized void setSpeedCheck(boolean doSpeedCheck) {
-		doSpeedEnable = doSpeedCheck;
+		this.doSpeedEnable = doSpeedCheck;
 	}
 
 	/**
@@ -397,48 +402,51 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public byte[] readPage(int page) throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] buffer = new byte[11];
-		byte[] result = new byte[8];
+		var buffer = new byte[11];
+		var result = new byte[8];
 		int crc8; // this device uses a crc 8
 
 		/* check validity of parameter */
-		if ((page < 0) || (page > 7))
+		if (page < 0 || page > 7) {
 			throw new IllegalArgumentException("OneWireContainer26-Page " + page + " is an invalid page.");
+		}
 
 		/* perform the read/verification */
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
-
-			/* recall memory to the scratchpad */
-			buffer[0] = RECALL_MEMORY_COMMAND;
-			buffer[1] = (byte) page;
-
-			adapter.dataBlock(buffer, 0, 2);
-
-			/* perform the read scratchpad */
-			adapter.reset();
-			adapter.select(address);
-
-			buffer[0] = READ_SCRATCHPAD_COMMAND;
-			buffer[1] = (byte) page;
-
-			for (int i = 2; i < 11; i++)
-				buffer[i] = (byte) 0x0ff;
-
-			adapter.dataBlock(buffer, 0, 11);
-
-			/* do the crc check */
-			crc8 = CRC8.compute(buffer, 2, 9);
-
-			if (crc8 != 0x0)
-				throw new OneWireIOException("OneWireContainer26-Bad CRC during read." + crc8);
-
-			// copy the data into the result
-			System.arraycopy(buffer, 2, result, 0, 8);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer26-device not found.");
+		}
+		/* recall memory to the scratchpad */
+		buffer[0] = RECALL_MEMORY_COMMAND;
+		buffer[1] = (byte) page;
+
+		this.adapter.dataBlock(buffer, 0, 2);
+
+		/* perform the read scratchpad */
+		this.adapter.reset();
+		this.adapter.select(this.address);
+
+		buffer[0] = READ_SCRATCHPAD_COMMAND;
+		buffer[1] = (byte) page;
+
+		for (var i = 2; i < 11; i++) {
+			buffer[i] = (byte) 0x0ff;
+		}
+
+		this.adapter.dataBlock(buffer, 0, 11);
+
+		/* do the crc check */
+		crc8 = CRC8.compute(buffer, 2, 9);
+
+		if (crc8 != 0x0) {
+			throw new OneWireIOException("OneWireContainer26-Bad CRC during read." + crc8);
+		}
+
+		// copy the data into the result
+		System.arraycopy(buffer, 2, result, 0, 8);
 
 		return result;
 	}
@@ -457,37 +465,39 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public void writePage(int page, byte[] source, int offset) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[10];
+		var buffer = new byte[10];
 
 		/* check parameter validity */
-		if ((page < 0) || (page > 7))
+		if (page < 0 || page > 7) {
 			throw new IllegalArgumentException("OneWireContainer26-Page " + page + " is an invalid page.");
+		}
 
-		if (source.length < 8)
+		if (source.length < 8) {
 			throw new IllegalArgumentException("OneWireContainer26-Invalid data page passed to writePage.");
+		}
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
-
-			// write the page to the scratchpad first
-			buffer[0] = WRITE_SCRATCHPAD_COMMAND;
-			buffer[1] = (byte) page;
-
-			System.arraycopy(source, offset, buffer, 2, 8);
-			adapter.dataBlock(buffer, 0, 10);
-
-			// now copy that part of the scratchpad to memory
-			adapter.reset();
-			adapter.select(address);
-
-			buffer[0] = COPY_SCRATCHPAD_COMMAND;
-			buffer[1] = (byte) page;
-
-			adapter.dataBlock(buffer, 0, 2);
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer26-Device not found.");
+		}
+		// write the page to the scratchpad first
+		buffer[0] = WRITE_SCRATCHPAD_COMMAND;
+		buffer[1] = (byte) page;
+
+		System.arraycopy(source, offset, buffer, 2, 8);
+		this.adapter.dataBlock(buffer, 0, 10);
+
+		// now copy that part of the scratchpad to memory
+		this.adapter.reset();
+		this.adapter.select(this.address);
+
+		buffer[0] = COPY_SCRATCHPAD_COMMAND;
+		buffer[1] = (byte) page;
+
+		this.adapter.dataBlock(buffer, 0, 2);
 	}
 
 	/**
@@ -505,10 +515,11 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public boolean getFlag(byte flagToGet) throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(0);
+		var data = this.readPage(0);
 
-		if ((data[0] & flagToGet) != 0)
+		if ((data[0] & flagToGet) != 0) {
 			return true;
+		}
 
 		return false;
 	}
@@ -527,14 +538,15 @@ public class OneWireContainer26 extends OneWireContainer
 	 */
 	public void setFlag(byte flagToSet, boolean flagValue)
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(0);
+		var data = this.readPage(0);
 
-		if (flagValue)
+		if (flagValue) {
 			data[0] = (byte) (data[0] | flagToSet);
-		else
-			data[0] = (byte) (data[0] & ~(flagToSet));
+		} else {
+			data[0] = (byte) (data[0] & ~flagToSet);
+		}
 
-		writePage(0, data, 0);
+		this.writePage(0, data, 0);
 	}
 
 	/**
@@ -546,9 +558,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @return current value in Amperes
 	 */
 	public double getCurrent(byte[] state) {
-		short rawCurrent = (short) ((state[6] << 8) | (state[5] & 0x0ff));
+		var rawCurrent = (short) (state[6] << 8 | state[5] & 0x0ff);
 
-		return rawCurrent / (4096.0 * Rsens);
+		return rawCurrent / (4096.0 * this.Rsens);
 	}
 
 	/**
@@ -561,9 +573,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public double getRemainingCapacity() throws OneWireIOException, OneWireException, IllegalArgumentException {
-		int ica = getICA();
+		var ica = this.getICA();
 
-		return (1000 * ica / (2048 * Rsens));
+		return 1000 * ica / (2048 * this.Rsens);
 	}
 
 	/**
@@ -581,8 +593,9 @@ public class OneWireContainer26 extends OneWireContainer
 	public boolean isCharging(byte[] state) throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// positive current (if the thing is hooked up right) is charging
-		if (getCurrent(state) > 0)
+		if (this.getCurrent(state) > 0) {
 			return true;
+		}
 
 		return false;
 	}
@@ -602,37 +615,37 @@ public class OneWireContainer26 extends OneWireContainer
 		byte currentLSB, currentMSB;
 
 		// grab the current IAD settings so that we dont change anything
-		boolean IADvalue = getFlag(IAD_FLAG);
+		var IADvalue = this.getFlag(IAD_FLAG);
 
 		// the IAD bit must be set to "0" to write to the Offset Register
-		setFlag(IAD_FLAG, false);
+		this.setFlag(IAD_FLAG, false);
 
 		// write all zeroes to the offset register
-		data = readPage(1);
+		data = this.readPage(1);
 		data[5] = data[6] = 0;
 
-		writePage(1, data, 0);
+		this.writePage(1, data, 0);
 
 		// enable current measurements once again
-		setFlag(IAD_FLAG, true);
+		this.setFlag(IAD_FLAG, true);
 
 		// read the Current Register value
-		data = readPage(0);
+		data = this.readPage(0);
 		currentLSB = data[5];
 		currentMSB = data[6];
 
 		// disable current measurements so that we can write to the offset reg
-		setFlag(IAD_FLAG, false);
+		this.setFlag(IAD_FLAG, false);
 
 		// change the sign of the current register value and store it as the offset
-		data = readPage(1);
-		data[5] = (byte) (~(currentLSB) + 1);
-		data[6] = (byte) (~(currentMSB));
+		data = this.readPage(1);
+		data[5] = (byte) (~currentLSB + 1);
+		data[6] = (byte) ~currentMSB;
 
-		writePage(1, data, 0);
+		this.writePage(1, data, 0);
 
 		// eset the IAD settings back to normal
-		setFlag(IAD_FLAG, IADvalue);
+		this.setFlag(IAD_FLAG, IADvalue);
 	}
 
 	/**
@@ -671,19 +684,19 @@ public class OneWireContainer26 extends OneWireContainer
 		}
 
 		// first save their original IAD settings so we dont change anything
-		boolean IADvalue = getFlag(IAD_FLAG);
+		var IADvalue = this.getFlag(IAD_FLAG);
 
 		// current measurements must be off to write to the threshold register
-		setFlag(IAD_FLAG, false);
+		this.setFlag(IAD_FLAG, false);
 
 		// write the threshold register
-		data = readPage(0);
+		data = this.readPage(0);
 		data[7] = thresholdReg;
 
-		writePage(0, data, 0);
+		this.writePage(0, data, 0);
 
 		// set the IAD back to the way the user had it
-		setFlag(IAD_FLAG, IADvalue);
+		this.setFlag(IAD_FLAG, IADvalue);
 	}
 
 	/**
@@ -696,9 +709,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public int getICA() throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(1);
+		var data = this.readPage(1);
 
-		return (int) (data[4] & 0x000000ff);
+		return data[4] & 0x000000ff;
 	}
 
 	/**
@@ -713,9 +726,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public int getCCA() throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(7);
+		var data = this.readPage(7);
 
-		return ((data[5] << 8) & 0x0000ff00) | (data[4] & 0x000000ff);
+		return data[5] << 8 & 0x0000ff00 | data[4] & 0x000000ff;
 	}
 
 	/**
@@ -730,9 +743,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public int getDCA() throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(7);
+		var data = this.readPage(7);
 
-		return ((data[7] << 8) & 0x0000ff00) | (data[6] & 0x000000ff);
+		return data[7] << 8 & 0x0000ff00 | data[6] & 0x000000ff;
 	}
 
 	/**
@@ -745,11 +758,11 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public void setICA(int icaValue) throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(1);
+		var data = this.readPage(1);
 
 		data[4] = (byte) (icaValue & 0x000000ff);
 
-		writePage(1, data, 0);
+		this.writePage(1, data, 0);
 	}
 
 	/**
@@ -762,12 +775,12 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public void setCCA(int ccaValue) throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(7);
+		var data = this.readPage(7);
 
 		data[4] = (byte) (ccaValue & 0x00ff);
 		data[5] = (byte) ((ccaValue & 0xff00) >>> 8);
 
-		writePage(7, data, 0);
+		this.writePage(7, data, 0);
 	}
 
 	/**
@@ -780,12 +793,12 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public void setDCA(int dcaValue) throws OneWireIOException, OneWireException, IllegalArgumentException {
-		byte[] data = readPage(7);
+		var data = this.readPage(7);
 
 		data[6] = (byte) (dcaValue & 0x00ff);
 		data[7] = (byte) ((dcaValue & 0xff00) >>> 8);
 
-		writePage(7, data, 0);
+		this.writePage(7, data, 0);
 	}
 
 	/**
@@ -797,7 +810,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @return time in milliseconds that have occurred since 1970
 	 */
 	public long getDisconnectTime(byte[] state) {
-		return getTime(state, 16) * 1000;
+		return this.getTime(state, 16) * 1000;
 	}
 
 	/**
@@ -809,13 +822,13 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @return time in milliseconds that have occurred since 1970
 	 */
 	public long getEndOfChargeTime(byte[] state) {
-		return getTime(state, 20) * 1000;
+		return this.getTime(state, 20) * 1000;
 	}
 
 	// actually could be called byteArrayToLong, only used in time functions
 	private long getTime(byte[] state, int start) {
-		long time = (state[start] & 0x0ff) | ((state[start + 1] & 0x0ff) << 8) | ((state[start + 2] & 0x0ff) << 16)
-				| ((state[start + 3] & 0x0ff) << 24);
+		long time = state[start] & 0x0ff | (state[start + 1] & 0x0ff) << 8 | (state[start + 2] & 0x0ff) << 16
+				| (state[start + 3] & 0x0ff) << 24;
 
 		return time & 0x0ffffffff;
 	}
@@ -833,6 +846,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return number of channels
 	 */
+	@Override
 	public int getNumberADChannels() {
 		return 3; // has VDD, VAD channel (battery, gen purpose)
 					// and it has a Vsense channel for current sensing
@@ -843,6 +857,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if has high/low trips
 	 */
+	@Override
 	public boolean hasADAlarms() {
 		return false;
 	}
@@ -854,13 +869,15 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return available ranges
 	 */
+	@Override
 	public double[] getADRanges(int channel) {
-		double[] result = new double[1];
+		var result = new double[1];
 
-		if (channel == CHANNEL_VSENSE)
+		if (channel == CHANNEL_VSENSE) {
 			result[0] = .250;
-		else
+		} else {
 			result[0] = 10.23;
+		}
 
 		/*
 		 * for VAD, not entirely true--this should be 2 * VDD. If you hook up VDD to the
@@ -869,7 +886,7 @@ public class OneWireContainer26 extends OneWireContainer
 		 * ---------------------------------- | ***************** | One-Wire-------
 		 * DIODE-------*VDD ONEWIRE*--- | * * | * GROUND *--- C * * | | * 2438 * | gnd *
 		 * * | | ***************** | |----------------------|
-		 * 
+		 *
 		 */
 		return result;
 	}
@@ -883,13 +900,15 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return available resolutions
 	 */
+	@Override
 	public double[] getADResolutions(int channel, double range) {
-		double[] result = new double[1];
+		var result = new double[1];
 
-		if (channel == CHANNEL_VSENSE)
+		if (channel == CHANNEL_VSENSE) {
 			result[0] = 0.2441;
-		else
+		} else {
 			result[0] = 0.01; // 10 mV
+		}
 
 		return result;
 	}
@@ -900,6 +919,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if device can do multi-channel voltage reads
 	 */
+	@Override
 	public boolean canADMultiChannelRead() {
 		return false;
 	}
@@ -920,11 +940,12 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void doADConvert(int channel, byte[] state) throws OneWireIOException, OneWireException {
 		if (channel == CHANNEL_VSENSE) {
 			if ((state[0] & IAD_FLAG) == 0) {
 				// enable the current sense channel
-				setFlag(IAD_FLAG, true);
+				this.setFlag(IAD_FLAG, true);
 				state[0] |= IAD_FLAG;
 				try {
 					// updates once every 27.6 milliseconds
@@ -933,34 +954,35 @@ public class OneWireContainer26 extends OneWireContainer
 				}
 			}
 
-			byte[] data = readPage(0);
+			var data = this.readPage(0);
 			// update the state
 			System.arraycopy(data, 5, state, 5, 2);
 		} else {
-			setFlag(AD_FLAG, channel == CHANNEL_VDD);
+			this.setFlag(AD_FLAG, channel == CHANNEL_VDD);
 
 			// first perform the conversion
-			if (doSpeedEnable)
-				doSpeed();
+			if (this.doSpeedEnable) {
+				this.doSpeed();
+			}
 
-			if (adapter.select(address)) {
-				adapter.putByte(CONVERT_VOLTAGE_COMMAND);
-
-				try {
-					Thread.sleep(4);
-				} catch (InterruptedException e) {
-				}
-
-				byte[] data = readPage(0);
-
-				// let's update state with this info
-				System.arraycopy(data, 0, state, 0, 8);
-
-				// save off the voltage in our state's holdindg area
-				state[24 + channel * 2] = data[4];
-				state[24 + channel * 2 + 1] = data[3];
-			} else
+			if (!this.adapter.select(this.address)) {
 				throw new OneWireException("OneWireContainer26-Device not found.");
+			}
+			this.adapter.putByte(CONVERT_VOLTAGE_COMMAND);
+
+			try {
+				Thread.sleep(4);
+			} catch (InterruptedException e) {
+			}
+
+			var data = this.readPage(0);
+
+			// let's update state with this info
+			System.arraycopy(data, 0, state, 0, 8);
+
+			// save off the voltage in our state's holdindg area
+			state[24 + channel * 2] = data[4];
+			state[24 + channel * 2 + 1] = data[3];
 		}
 	}
 
@@ -978,6 +1000,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void doADConvert(boolean[] doConvert, byte[] state) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This device cannot do multi-channel reads");
 	}
@@ -997,6 +1020,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public double[] getADVoltage(byte[] state) throws OneWireIOException, OneWireException {
 		throw new OneWireException("This device cannot do multi-channel reads");
 	}
@@ -1018,13 +1042,15 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public double getADVoltage(int channel, byte[] state) throws OneWireIOException, OneWireException {
-		double result = 0;
+		var result = 0D;
 
-		if (channel == CHANNEL_VSENSE)
-			result = ((state[6] << 8) | (state[5] & 0x0ff)) / 4096d;
-		else
-			result = (((state[24 + channel * 2] << 8) & 0x00300) | (state[24 + channel * 2 + 1] & 0x0ff)) / 100.0d;
+		if (channel == CHANNEL_VSENSE) {
+			result = (state[6] << 8 | state[5] & 0x0ff) / 4096d;
+		} else {
+			result = (state[24 + channel * 2] << 8 & 0x00300 | state[24 + channel * 2 + 1] & 0x0ff) / 100.0d;
+		}
 
 		return result;
 	}
@@ -1049,6 +1075,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public double getADAlarm(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have A/D alarms");
 	}
@@ -1069,6 +1096,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public boolean getADAlarmEnable(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have A/D alarms");
 	}
@@ -1089,6 +1117,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public boolean hasADAlarmed(int channel, int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have A/D alarms");
 	}
@@ -1105,6 +1134,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return resolution of channel in volts
 	 */
+	@Override
 	public double getADResolution(int channel, byte[] state) {
 
 		// this is easy, its always 0.01 V = 10 mV
@@ -1123,11 +1153,12 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return input voltage range
 	 */
+	@Override
 	public double getADRange(int channel, byte[] state) {
-		if (channel == CHANNEL_VSENSE)
+		if (channel == CHANNEL_VSENSE) {
 			return .250;
-		else
-			return 10.23;
+		}
+		return 10.23;
 	}
 
 	// --------
@@ -1151,6 +1182,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public void setADAlarm(int channel, int alarmType, double alarm, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have A/D alarms");
 	}
@@ -1172,6 +1204,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support A/D alarms
 	 */
+	@Override
 	public void setADAlarmEnable(int channel, int alarmType, boolean alarmEnable, byte[] state)
 			throws OneWireException {
 		throw new OneWireException("This device does not have AD alarms");
@@ -1190,6 +1223,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @param state      current state of the device returned from
 	 *                   <CODE>readDevice()</CODE>
 	 */
+	@Override
 	public void setADResolution(int channel, double resolution, byte[] state) {
 
 		// but you can't select the resolution for this part!!!!
@@ -1210,6 +1244,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @param state   current state of the device returned from
 	 *                <CODE>readDevice()</CODE>
 	 */
+	@Override
 	public void setADRange(int channel, double range, byte[] state) {
 
 		// you can't change the ranges here without changing VDD!!!
@@ -1227,15 +1262,16 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error reading data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
 
 		// should return the first three pages
 		// and then 6 extra bytes, 2 for channel 1 voltage and
 		// 2 for channel 2 voltage
-		byte[] state = new byte[28];
+		var state = new byte[28];
 
-		for (int i = 0; i < 3; i++) {
-			byte[] pg = readPage(i);
+		for (var i = 0; i < 3; i++) {
+			var pg = this.readPage(i);
 
 			System.arraycopy(pg, 0, state, i * 8, 8);
 		}
@@ -1263,9 +1299,10 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		writePage(0, state, 0);
-		writePage(1, state, 8);
+		this.writePage(0, state, 0);
+		this.writePage(1, state, 8);
 	}
 
 	// --------
@@ -1277,6 +1314,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if has high/low trip alarms
 	 */
+	@Override
 	public boolean hasTemperatureAlarms() {
 		return false;
 	}
@@ -1286,6 +1324,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if device has selectable resolution
 	 */
+	@Override
 	public boolean hasSelectableTemperatureResolution() {
 		return false;
 	}
@@ -1295,8 +1334,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return available resolutions in degrees C
 	 */
+	@Override
 	public double[] getTemperatureResolutions() {
-		double[] result = new double[1];
+		var result = new double[1];
 
 		result[0] = 0.03125;
 
@@ -1310,6 +1350,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not have temperature alarms
 	 */
+	@Override
 	public double getTemperatureAlarmResolution() throws OneWireException {
 		throw new OneWireException("This device does not have temperature alarms");
 	}
@@ -1319,6 +1360,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return maximum temperature in degrees C
 	 */
+	@Override
 	public double getMaxTemperature() {
 		return 125.0;
 	}
@@ -1328,6 +1370,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return minimum temperature in degrees C
 	 */
+	@Override
 	public double getMinTemperature() {
 		return -55.0;
 	}
@@ -1345,27 +1388,28 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void doTemperatureConvert(byte[] state) throws OneWireIOException, OneWireException {
 		byte[] data; // hold page
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
-		if (adapter.select(address)) {
-
-			// perform the temperature conversion
-			adapter.putByte(CONVERT_TEMP_COMMAND);
-
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException Ie) {
-			}
-
-			data = readPage(0);
-			state[2] = data[2];
-			state[1] = data[1];
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireException("OneWireContainer26-Device not found.");
+		}
+		// perform the temperature conversion
+		this.adapter.putByte(CONVERT_TEMP_COMMAND);
+
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException Ie) {
+		}
+
+		data = this.readPage(0);
+		state[2] = data[2];
+		state[1] = data[1];
 	}
 
 	// --------
@@ -1380,10 +1424,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return temperature in degrees C from the last <CODE>doTemperature()</CODE>
 	 */
+	@Override
 	public double getTemperature(byte[] state) {
-		double temp = ((short) ((state[2] << 8) | (state[1] & 0x0ff)) >> 3) * 0.03125;
-
-		return temp;
+		return ((short) (state[2] << 8 | state[1] & 0x0ff) >> 3) * 0.03125;
 	}
 
 	/**
@@ -1398,6 +1441,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not have temperature alarms
 	 */
+	@Override
 	public double getTemperatureAlarm(int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have temperature alarms");
 	}
@@ -1410,6 +1454,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return temperature resolution in degrees C
 	 */
+	@Override
 	public double getTemperatureResolution(byte[] state) {
 		return 0.03125;
 	}
@@ -1430,6 +1475,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not have temperature alarms
 	 */
+	@Override
 	public void setTemperatureAlarm(int alarmType, double alarmValue, byte[] state)
 			throws OneWireException, OneWireIOException {
 		throw new OneWireException("This device does not have temperature alarms");
@@ -1446,6 +1492,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireIOException Error writing data
 	 * @throws OneWireException   Could not find part
 	 */
+	@Override
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException, OneWireIOException {
 
 		// airball, only one resolution!!!
@@ -1460,6 +1507,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if real-time-clock has an alarm
 	 */
+	@Override
 	public boolean hasClockAlarm() {
 		return false;
 	}
@@ -1470,6 +1518,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if the clock can be enabled and disabled
 	 */
+	@Override
 	public boolean canDisableClock() {
 		return false;
 	}
@@ -1479,6 +1528,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return clock resolution in milliseconds.
 	 */
+	@Override
 	public long getClockResolution() {
 		return 1000;
 	}
@@ -1495,8 +1545,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return time in milliseconds that have occurred since 1970
 	 */
+	@Override
 	public long getClock(byte[] state) {
-		return getTime(state, 8) * 1000;
+		return this.getTime(state, 8) * 1000;
 	}
 
 	/**
@@ -1509,6 +1560,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not have clock alarm
 	 */
+	@Override
 	public long getClockAlarm(byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have a clock alarm!");
 	}
@@ -1521,6 +1573,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if clock is alarming
 	 */
+	@Override
 	public boolean isClockAlarming(byte[] state) {
 		return false;
 	}
@@ -1533,6 +1586,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if clock alarm is enabled
 	 */
+	@Override
 	public boolean isClockAlarmEnabled(byte[] state) {
 		return false;
 	}
@@ -1546,6 +1600,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @return true if clock is running
 	 */
+	@Override
 	public boolean isClockRunning(byte[] state) {
 		return true;
 	}
@@ -1562,6 +1617,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @param time  new clock setting in milliseconds
 	 * @param state device state
 	 */
+	@Override
 	public void setClock(long time, byte[] state) {
 		time = time / 1000; // convert to seconds
 		state[8] = (byte) time;
@@ -1580,6 +1636,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support clock alarm
 	 */
+	@Override
 	public void setClockAlarm(long time, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have a clock alarm!");
 	}
@@ -1594,9 +1651,11 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support disabled clock
 	 */
+	@Override
 	public void setClockRunEnable(boolean runEnable, byte[] state) throws OneWireException {
-		if (!runEnable)
+		if (!runEnable) {
 			throw new OneWireException("This device's clock cannot be disabled!");
+		}
 	}
 
 	/**
@@ -1609,6 +1668,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 *
 	 * @throws OneWireException Device does not support clock alarm
 	 */
+	@Override
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have a clock alarm!");
 	}
@@ -1627,6 +1687,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public boolean isRelative() {
 		return true;
 	}
@@ -1640,6 +1701,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityAlarm
 	 * @see #setHumidityAlarm
 	 */
+	@Override
 	public boolean hasHumidityAlarms() {
 		return false;
 	}
@@ -1654,6 +1716,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public boolean hasSelectableHumidityResolution() {
 		return false;
 	}
@@ -1670,8 +1733,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolution
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double[] getHumidityResolutions() {
-		double[] result = new double[1];
+		var result = new double[1];
 
 		result[0] = 0.1;
 
@@ -1690,6 +1754,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #setHumidityAlarm
 	 *
 	 */
+	@Override
 	public double getHumidityAlarmResolution() throws OneWireException {
 		throw new OneWireException("This device does not have a humidity alarm!");
 	}
@@ -1711,15 +1776,16 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void doHumidityConvert(byte[] state) throws OneWireIOException, OneWireException {
 		// do temp convert
-		doTemperatureConvert(state);
+		this.doTemperatureConvert(state);
 
 		// do VDD for supply voltage
-		doADConvert(CHANNEL_VDD, state);
+		this.doADConvert(CHANNEL_VDD, state);
 
 		// do VAD for sensor voltage
-		doADConvert(CHANNEL_VAD, state);
+		this.doADConvert(CHANNEL_VAD, state);
 	}
 
 	// --------
@@ -1736,31 +1802,34 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolution
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double getHumidity(byte[] state) {
 		double temp = 0, vdd = 0, vad = 0, rh = 0;
 
 		try {
 			// read the temperature
-			temp = getTemperature(state);
+			temp = this.getTemperature(state);
 
 			// read the supply voltage
-			vdd = getADVoltage(CHANNEL_VDD, state);
+			vdd = this.getADVoltage(CHANNEL_VDD, state);
 
 			// read the sample voltage
-			vad = getADVoltage(CHANNEL_VAD, state);
+			vad = this.getADVoltage(CHANNEL_VAD, state);
 		} catch (OneWireException e) {
 			// know from this implementation that this will never happen
 			return 0.0;
 		}
 
 		// do calculation and check for out of range values
-		if (vdd != 0)
-			rh = (((vad / vdd) - 0.16) / 0.0062) / (1.0546 - 0.00216 * temp);
+		if (vdd != 0) {
+			rh = (vad / vdd - 0.16) / 0.0062 / (1.0546 - 0.00216 * temp);
+		}
 
-		if (rh < 0.0)
+		if (rh < 0.0) {
 			rh = 0.0;
-		else if (rh > 100.0)
+		} else if (rh > 100.0) {
 			rh = 100.0;
+		}
 
 		return rh;
 	}
@@ -1777,6 +1846,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolutions
 	 * @see #setHumidityResolution
 	 */
+	@Override
 	public double getHumidityResolution(byte[] state) {
 		return 0.1;
 	}
@@ -1796,6 +1866,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #hasHumidityAlarms
 	 * @see #setHumidityAlarm
 	 */
+	@Override
 	public double getHumidityAlarm(int alarmType, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have a humidity alarm!");
 	}
@@ -1819,6 +1890,7 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #hasHumidityAlarms
 	 * @see #getHumidityAlarm
 	 */
+	@Override
 	public void setHumidityAlarm(int alarmType, double alarmValue, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have a humidity alarm!");
 	}
@@ -1838,7 +1910,9 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @see #getHumidityResolution
 	 * @see #getHumidityResolutions
 	 */
+	@Override
 	public void setHumidityResolution(double resolution, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not have selectable humidity resolution!");
 	}
 }
+// CHECKSTYLE:ON

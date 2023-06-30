@@ -6,16 +6,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.openems.backend.metadata.api.BackendUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
 	private final SubscribedEdgesChannelsWorker worker;
-	private CompletableFuture<BackendUser> user = new CompletableFuture<BackendUser>();
+	private final CompletableFuture<User> user = new CompletableFuture<>();
 
-	public WsData(B2bWebsocket parent) {
+	public WsData(Backend2BackendWebsocket parent) {
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
 	}
 
@@ -24,17 +24,23 @@ public class WsData extends io.openems.common.websocket.WsData {
 		this.worker.dispose();
 	}
 
-	public void setUser(BackendUser user) {
+	public void setUser(User user) {
 		this.user.complete(user);
 	}
 
-	// TODO Use "Future<User>" in all bundles to avoid authenticated failed errors
-	// if the websocket had not been fully opened before the first JSON-RPC Request
-	public CompletableFuture<BackendUser> getUser() {
+	public CompletableFuture<User> getUser() {
 		return this.user;
 	}
 
-	public BackendUser getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
+	/**
+	 * Gets the logged in User with a timeout.
+	 *
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
+	public User getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
 		try {
 			return this.user.get(timeout, unit);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -42,13 +48,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
-	public Optional<BackendUser> getUserOpt() {
+	public Optional<User> getUserOpt() {
 		return Optional.ofNullable(this.user.getNow(null));
 	}
 
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
-	 * 
+	 *
 	 * @return the SubscribedChannelsWorker
 	 */
 	public SubscribedEdgesChannelsWorker getSubscribedChannelsWorker() {
@@ -57,10 +63,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	@Override
 	public String toString() {
-		if (this.user == null) {
-			return "B2bWebsocket.WsData [user=UNKNOWN]";
-		} else {
-			return "B2bWebsocket.WsData [user=" + user + "]";
-		}
+		return "B2bWebsocket.WsData [user=" + this.user.getNow(null) + "]";
 	}
 }

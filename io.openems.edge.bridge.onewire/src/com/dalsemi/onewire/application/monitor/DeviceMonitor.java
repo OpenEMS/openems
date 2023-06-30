@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -26,7 +27,6 @@
  */
 package com.dalsemi.onewire.application.monitor;
 
-import java.util.Enumeration;
 import java.util.Vector;
 
 import com.dalsemi.onewire.OneWireException;
@@ -57,7 +57,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 * @param adapter the DSPortAdapter this monitor should search
 	 */
 	public DeviceMonitor(DSPortAdapter adapter) {
-		setAdapter(adapter);
+		this.setAdapter(adapter);
 	}
 
 	/**
@@ -65,15 +65,17 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 *
 	 * @param adapter the DSPortAdapter this monitor should search
 	 */
+	@Override
 	public void setAdapter(DSPortAdapter adapter) {
-		if (adapter == null)
+		if (adapter == null) {
 			throw new IllegalArgumentException("Adapter cannot be null");
+		}
 
-		synchronized (sync_flag) {
+		synchronized (this.sync_flag) {
 			this.adapter = adapter;
-			defaultPath = new OWPath(adapter);
+			this.defaultPath = new OWPath(adapter);
 
-			resetSearch();
+			this.resetSearch();
 		}
 	}
 
@@ -83,8 +85,9 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 * @param address a Long object representing the address of the device
 	 * @return The OWPath representing the network path to the device.
 	 */
+	@Override
 	public OWPath getDevicePath(Long address) {
-		return defaultPath;
+		return this.defaultPath;
 	}
 
 	/**
@@ -93,8 +96,8 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 * @param findAlarmingParts
 	 */
 	public void setDoAlarmSearch(boolean findAlarmingParts) {
-		synchronized (sync_flag) {
-			doAlarmSearch = findAlarmingParts;
+		synchronized (this.sync_flag) {
+			this.doAlarmSearch = findAlarmingParts;
 		}
 	}
 
@@ -102,7 +105,7 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 * See if Gets this monitor to search for alarming parts.
 	 */
 	public boolean getDoAlarmSearch() {
-		return doAlarmSearch;
+		return this.doAlarmSearch;
 	}
 
 	/**
@@ -111,71 +114,78 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 	 * @param arrivals   A vector of Long objects, represent new arrival addresses.
 	 * @param departures A vector of Long objects, represent departed addresses.
 	 */
+	@Override
 	public void search(Vector<Long> arrivals, Vector<Long> departures) throws OneWireException, OneWireIOException {
-		synchronized (sync_flag) {
+		synchronized (this.sync_flag) {
 			try {
 				// acquire the adapter
-				adapter.beginExclusive(true);
+				this.adapter.beginExclusive(true);
 
 				// setup the search
-				adapter.setSearchAllDevices();
-				adapter.targetAllFamilies();
-				adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
+				this.adapter.setSearchAllDevices();
+				this.adapter.targetAllFamilies();
+				this.adapter.setSpeed(DSPortAdapter.SPEED_REGULAR);
 
-				boolean search_result = adapter.findFirstDevice();
+				var search_result = this.adapter.findFirstDevice();
 
 				// loop while devices found
 				while (search_result) {
 					// get the 1-Wire address
-					Long longAddress = new Long(adapter.getAddressAsLong());
+					var longAddress = Long.valueOf(this.adapter.getAddressAsLong());
 					// if requested to do an alarm search, then check device for an alarm condition
 					// and save in list
-					if (doAlarmSearch) {
-						if (adapter.isAlarming(longAddress.longValue())) {
-							if (!deviceAddressHash.containsKey(longAddress) && arrivals != null)
+					if (this.doAlarmSearch) {
+						if (this.adapter.isAlarming(longAddress.longValue())) {
+							if (!this.deviceAddressHash.containsKey(longAddress) && arrivals != null) {
 								arrivals.addElement(longAddress);
+							}
 
-							deviceAddressHash.put(longAddress, new Integer(max_state_count));
+							this.deviceAddressHash.put(longAddress, Integer.valueOf(this.max_state_count));
 						}
 					} else {
-						if (!deviceAddressHash.containsKey(longAddress) && arrivals != null)
+						if (!this.deviceAddressHash.containsKey(longAddress) && arrivals != null) {
 							arrivals.addElement(longAddress);
+						}
 
-						deviceAddressHash.put(longAddress, new Integer(max_state_count));
+						this.deviceAddressHash.put(longAddress, Integer.valueOf(this.max_state_count));
 					}
 
 					// search for the next device
-					search_result = adapter.findNextDevice();
+					search_result = this.adapter.findNextDevice();
 				}
 			} finally {
-				adapter.endExclusive();
+				this.adapter.endExclusive();
 			}
 
 			// remove any devices that have not been seen
-			for (Enumeration<Long> device_enum = deviceAddressHash.keys(); device_enum.hasMoreElements();) {
-				Long longAddress = (Long) device_enum.nextElement();
+			for (var device_enum = this.deviceAddressHash.keys(); device_enum.hasMoreElements();) {
+				var longAddress = device_enum.nextElement();
 
 				// check for removal by looking at state counter
-				int cnt = ((Integer) deviceAddressHash.get(longAddress)).intValue();
+				var cnt = this.deviceAddressHash.get(longAddress).intValue();
 				if (cnt <= 0) {
-					deviceAddressHash.remove(longAddress);
-					if (departures != null)
+					this.deviceAddressHash.remove(longAddress);
+					if (departures != null) {
 						departures.addElement(longAddress);
+					}
 
 					synchronized (deviceContainerHash) {
 						deviceContainerHash.remove(longAddress);
 					}
 				} else {
 					// it stays
-					deviceAddressHash.put(longAddress, new Integer(cnt - 1));
+					this.deviceAddressHash.put(longAddress, Integer.valueOf(cnt - 1));
 				}
 			}
 
 			// fire notification events
-			if (arrivals != null && arrivals.size() > 0)
-				fireArrivalEvent(adapter, arrivals);
-			if (departures != null && departures.size() > 0)
-				fireDepartureEvent(adapter, departures);
+			if (arrivals != null && arrivals.size() > 0) {
+				this.fireArrivalEvent(this.adapter, arrivals);
+			}
+			if (departures != null && departures.size() > 0) {
+				this.fireDepartureEvent(this.adapter, departures);
+			}
 		}
 	}
 }
+// CHECKSTYLE:ON

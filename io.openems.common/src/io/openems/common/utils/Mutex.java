@@ -9,27 +9,42 @@ public class Mutex {
 
 	public Mutex(boolean initiallyPermitted) {
 		if (initiallyPermitted) {
-			semaphore = new Semaphore(1);
+			this.semaphore = new Semaphore(1);
 		} else {
-			semaphore = new Semaphore(0);
+			this.semaphore = new Semaphore(0);
 		}
 	}
 
+	/**
+	 * Wait for a {@link #release()}.
+	 *
+	 * @throws InterruptedException on wait error
+	 */
 	public void await() throws InterruptedException {
-		int permits = semaphore.drainPermits();
+		var permits = this.semaphore.drainPermits();
 		if (permits == 0) {
-			semaphore.acquire();
+			this.semaphore.acquire();
 		}
 	}
 
+	/**
+	 * Wait for a {@link #release()} with a timeout.
+	 *
+	 * @param timeout the timeout value
+	 * @param unit    the timeout {@link TimeUnit}
+	 * @throws InterruptedException on wait error
+	 */
 	public void awaitOrTimeout(long timeout, TimeUnit unit) throws InterruptedException {
-		int permits = semaphore.drainPermits();
+		var permits = this.semaphore.drainPermits();
 		if (permits == 0) {
-			semaphore.tryAcquire(timeout, unit);
+			this.semaphore.tryAcquire(timeout, unit);
 		}
 	}
 
+	/**
+	 * Release the {@link Mutex}.
+	 */
 	public void release() {
-		semaphore.release();
+		this.semaphore.release();
 	}
 }

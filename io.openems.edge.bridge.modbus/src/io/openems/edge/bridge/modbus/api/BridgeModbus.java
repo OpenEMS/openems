@@ -34,35 +34,8 @@ public interface BridgeModbus extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel
-	 */
-	public StateChannel getSlaveCommunicationFailedChannel();
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getCycleTimeIsTooShortChannel() {
@@ -72,7 +45,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Gets the Cycle-Time-is-too-short State. See
 	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getCycleTimeIsTooShort() {
@@ -82,7 +55,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CYCLE_TIME_IS_TOO_SHORT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCycleTimeIsTooShort(boolean value) {
@@ -91,7 +64,7 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#EXECUTION_DURATION}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default LongReadChannel getExecutionDurationChannel() {
@@ -101,7 +74,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Gets the Execution Duration in [ms], see
 	 * {@link ChannelId#EXECUTION_DURATION}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Long> getExecutionDuration() {
@@ -111,7 +84,7 @@ public interface BridgeModbus extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#EXECUTION_DURATION} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setExecutionDuration(long value) {
@@ -120,7 +93,7 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	/**
 	 * Adds a Protocol with a source identifier to this Modbus Bridge.
-	 * 
+	 *
 	 * @param sourceId the unique source identifier
 	 * @param protocol the Modbus Protocol
 	 */
@@ -128,7 +101,7 @@ public interface BridgeModbus extends OpenemsComponent {
 
 	/**
 	 * Removes a Protocol from this Modbus Bridge.
-	 * 
+	 *
 	 * @param sourceId the unique source identifier
 	 */
 	public void removeProtocol(String sourceId);

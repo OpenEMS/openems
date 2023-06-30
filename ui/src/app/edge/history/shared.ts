@@ -1,8 +1,7 @@
-import { ChannelAddress } from 'src/app/shared/shared';
-import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { DecimalPipe } from '@angular/common';
+import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { startOfDay, endOfDay, differenceInMinutes } from 'date-fns';
+import { ChannelAddress, Service } from 'src/app/shared/shared';
 
 export interface Dataset {
     label: string;
@@ -78,6 +77,7 @@ export type ChartOptions = {
         yAxes: [{
             id?: string,
             position: string,
+            stacked?: boolean,
             scaleLabel: {
                 display: boolean,
                 labelString: string,
@@ -153,7 +153,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             tension: 0.1
         },
         rectangle: {
-            borderWidth: 2,
+            borderWidth: 2
         }
     },
     hover: {
@@ -182,11 +182,11 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     second: 'HH:mm:ss a', // 17:20:01
                     minute: 'HH:mm', // 17:20
                     hour: 'HH:[00]', // 17:20
-                    day: 'D', // Sep 4 2015
+                    day: 'DD', // Sep 04 2015
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: 'MMM YYYY', // Sept 2015
-                    quarter: '[Q]Q - YYYY', // Q3
-                    year: 'YYYY' // 2015
+                    month: 'MM', // September
+                    quarter: '[Q]Q - YYYY', // Q3 - 2015
+                    year: 'YYYY' // 2015,
                 }
             }
         }]
@@ -205,29 +205,141 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
-    let result;
     let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
     });
-
     let activePercent = activeSum / queryResult.timestamps.length;
-    let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-    let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
-    if (activeTimeMinutes > 59) {
-        result = activeTimeHours + ' h';
-        // if activeTimeHours is XY.0, removes the '.0' from activeTimeOverPeriod string
-        activeTimeHours.split('').forEach((letter, index) => {
-            if (index == activeTimeHours.length - 1 && letter == "0") {
-                result = activeTimeHours.slice(0, -2) + ' h';
-            }
-        });
+    return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
+};
+
+/**
+   * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
+   * Calculates timeFormat from passed Dates for xAxes of chart
+   * 
+   * @param service the Service
+   * @param fromDate the From-Date
+   * @param toDate the To-Date
+   * @returns resolution and timeformat
+   */
+export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
+
+    let days = Math.abs(differenceInDays(toDate, fromDate));
+    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
+
+    if (days <= 1) {
+        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
+    } else if (days == 2) {
+        if (service.isSmartphoneResolution) {
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
+        } else {
+            resolution = { resolution: { value: 10, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 1 Hour
+        }
+
+    } else if (days <= 4) {
+        if (service.isSmartphoneResolution) {
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+        } else {
+            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' }; // 1 Hour
+        }
+
+    } else if (days <= 6) {
+        // >> show Hours
+        resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'day' }; // 1 Day
+
+    } else if (days <= 31 && service.isSmartphoneResolution) {
+        // Smartphone-View: show 31 days in daily view
+        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
+    } else if (days <= 90) {
+        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
+    } else if (days <= 144) {
+        // >> show Days
+        if (service.isSmartphoneResolution == true) {
+            resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+        } else {
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+        }
+
     } else {
-        // TODO get locale dynamically
-        let decimalPipe = new DecimalPipe('de-DE')
-        result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
+        // >> show Months
+        resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
     }
-    return result;
-}; 
+    return resolution;
+}
+
+/**
+  * Returns true if Chart Label should be visible. Defaults to to true.
+  * 
+  * Compares only the first part of the label string - without a value or unit.
+  * 
+  * @param label the Chart label
+  * @param orElse the default, in case no value was stored yet in Session-Storage
+  * @returns true for visible labels; hidden otherwise
+  */
+export function isLabelVisible(label: string, orElse?: boolean): boolean {
+    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    let value = sessionStorage.getItem(labelWithoutUnit);
+    if (orElse != null && value == null) {
+        return orElse;
+    } else {
+        return value !== 'false';
+    }
+}
+
+/**
+ * Stores if the Label should be visible or hidden in Session-Storage.
+ * 
+ * @param label the Chart label
+ * @param visible true to set the Label visibile; false to hide ite
+ */
+export function setLabelVisible(label: string, visible: boolean | null): void {
+    if (visible == null) {
+        return;
+    }
+    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
+}
+
+export type Resolution = {
+    value: number,
+    unit: Unit
+}
+
+export enum Unit {
+    SECONDS = "Seconds",
+    MINUTES = "Minutes",
+    HOURS = "Hours",
+    DAYS = "Days",
+    MONTHS = "Months",
+}
+
+export type ChartData = {
+    channel: {
+        name: string,
+        powerChannel: ChannelAddress,
+        energyChannel: ChannelAddress
+    }[],
+    displayValue: {
+        /** Name displayed in Label */
+        name: string,
+        /**  */
+        getValue: any,
+
+        hidden?: boolean,
+        /** color in rgb-Format */
+        color: string;
+    }[],
+    tooltip: {
+        /** Unit to be displayed as Tooltips unit */
+        unit: '%' | 'kWh' | 'kW',
+        /** Format of Number displayed */
+        formatNumber: string;
+    },
+    /** Name to be displayed on the left y-axis */
+    yAxisTitle: string,
+}
+

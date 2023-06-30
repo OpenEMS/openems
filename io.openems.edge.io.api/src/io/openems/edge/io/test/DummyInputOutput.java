@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.io.api.DigitalInput;
 import io.openems.edge.io.api.DigitalOutput;
 
@@ -47,6 +48,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -74,7 +76,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 				this.channel(ChannelId.INPUT_OUTPUT_8), //
 				this.channel(ChannelId.INPUT_OUTPUT_9) //
 		};
-		super.activate(null, id, "", true);
+		super.activate(new DummyComponentContext(), id, "", true);
 	}
 
 	@Override

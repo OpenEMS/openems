@@ -6,43 +6,39 @@ import io.openems.edge.common.startstop.StartStop;
 
 public class DummyBattery extends io.openems.edge.battery.test.DummyBattery implements Battery {
 
-	public static int DEFAULT_SOC = 50;
-	public static int DEFAULT_SOH = 99;
-	public static int DEFAULT_CAPACITY = 50_000;
-	public static int DEFAULT_MIN_CELL_VOLTAGE = 3280;
-	public static int DEFAULT_MAX_CELL_VOLTAGE = 3380;
-	public static int DEFAULT_MIN_CELL_TEMPERATURE = 25;
-	public static int DEFAULT_MAX_CELL_TEMPERATURE = 33;
+	public static final int DEFAULT_SOC = 50;
+	public static final int DEFAULT_SOH = 99;
+	public static final int DEFAULT_CAPACITY = 50_000;
+	public static final int DEFAULT_MIN_CELL_VOLTAGE = 3280;
+	public static final int DEFAULT_MAX_CELL_VOLTAGE = 3380;
+	public static final int DEFAULT_MIN_CELL_TEMPERATURE = 25;
+	public static final int DEFAULT_MAX_CELL_TEMPERATURE = 33;
 
-	public static int DEFAULT_VOLTAGE = 800;
-	public static int DEFAULT_CURRENT = 0;
-	public static int DEFAULT_MAX_CHARGE_CURRENT = 80;
-	public static int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
+	public static final int DEFAULT_VOLTAGE = 800;
+	public static final int DEFAULT_CURRENT = 0;
+	public static final int DEFAULT_MAX_CHARGE_CURRENT = 80;
+	public static final int DEFAULT_MAX_DISCHARGE_CURRENT = 60;
 
-	public static int DEFAULT_MIN_VOLTAGE = 700;
-	public static int DEFAULT_MAX_VOLTAGE = 900;
-
-//	private boolean running = false;
+	public static final int DEFAULT_MIN_VOLTAGE = 700;
+	public static final int DEFAULT_MAX_VOLTAGE = 900;
 
 	public DummyBattery(//
 	) { //
 		super("battery0");
 
-		setMinimalCellVoltage(DEFAULT_MIN_CELL_VOLTAGE);
-		setMaximalCellVoltage(DEFAULT_MAX_CELL_VOLTAGE);
-		setMinimalCellTemperature(DEFAULT_MIN_CELL_TEMPERATURE);
-		setMaximalCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
-		setSoc(DEFAULT_SOC);
-		setSoh(DEFAULT_SOH);
-		setCapacity(DEFAULT_CAPACITY);
-		setVoltage(DEFAULT_VOLTAGE);
-		setCurrent(DEFAULT_CURRENT);
-		setMaximalChargeCurrent(DEFAULT_MAX_CHARGE_CURRENT);
-		setMaximalDischargeCurrent(DEFAULT_MAX_DISCHARGE_CURRENT);
-		setDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
-		setChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
-		setForceChargeActive(false);
-		setForceDischargeActive(false);
+		this.setMinimalCellVoltage(DEFAULT_MIN_CELL_VOLTAGE);
+		this.setMaximalCellVoltage(DEFAULT_MAX_CELL_VOLTAGE);
+		this.setMinimalCellTemperature(DEFAULT_MIN_CELL_TEMPERATURE);
+		this.setMaximalCellTemperature(DEFAULT_MAX_CELL_TEMPERATURE);
+		this.setSoc(DEFAULT_SOC);
+		this.setSoh(DEFAULT_SOH);
+		this.setCapacity(DEFAULT_CAPACITY);
+		this.setVoltage(DEFAULT_VOLTAGE);
+		this.setCurrent(DEFAULT_CURRENT);
+		this.setMaximalChargeCurrent(DEFAULT_MAX_CHARGE_CURRENT);
+		this.setMaximalDischargeCurrent(DEFAULT_MAX_DISCHARGE_CURRENT);
+		this.setDischargeMinVoltage(DEFAULT_MIN_VOLTAGE);
+		this.setChargeMaxVoltage(DEFAULT_MAX_VOLTAGE);
 	}
 
 	public void setMinimalCellVoltage(int minimalCellVoltage) {
@@ -138,16 +134,6 @@ public class DummyBattery extends io.openems.edge.battery.test.DummyBattery impl
 	public void setCurrent(int current) {
 		this._setCurrent(current);
 		this.getCurrentChannel().nextProcessImage();
-	}
-
-	public void setForceChargeActive(boolean value) {
-		this._setForceChargeActive(value);
-		this.getForceChargeActiveChannel().nextProcessImage();
-	}
-
-	public void setForceDischargeActive(boolean value) {
-		this._setForceDischargeActive(value);
-		this.getForceDischargeActiveChannel().nextProcessImage();
 	}
 
 	@Override

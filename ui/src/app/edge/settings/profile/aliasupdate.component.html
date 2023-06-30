@@ -11,7 +11,7 @@
                             <ion-card-subtitle class="ion-text-wrap">{{ factory.description }}</ion-card-subtitle>
                         </ion-label>
                     </ion-item>
-                    <ion-card-content *ngIf="formGroup != null">
+                    <ion-card-content *ngIf="formGroup !== null">
                         <form [formGroup]="formGroup">
                             <ion-item lines="full" class="noPadding">
                                 <ion-label position="stacked" translate>General.currentName</ion-label>

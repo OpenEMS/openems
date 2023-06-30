@@ -12,8 +12,8 @@ public class MyModbusDeviceTest {
 	private static final String MODBUS_ID = "modbus0";
 
 	@Test
-	private void test() throws Exception {
-		new ComponentTest(new MyModbusDevice()) //
+	public void test() throws Exception {
+		new ComponentTest(new MyModbusDeviceImpl()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //

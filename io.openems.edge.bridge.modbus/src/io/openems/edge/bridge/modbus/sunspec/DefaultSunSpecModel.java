@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.bridge.modbus.sunspec;
 
 import io.openems.common.channel.AccessMode;
@@ -537,12 +539,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -585,12 +587,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -617,12 +619,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -1108,7 +1110,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -1365,12 +1367,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -1408,12 +1410,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -1673,7 +1675,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -1930,12 +1932,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -1973,12 +1975,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -2238,7 +2240,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"WH_SF", //
 				new OptionsEnum[0])), //
 		WH_SF(new PointImpl(//
@@ -2495,12 +2497,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -2538,12 +2540,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -2726,7 +2728,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -2928,12 +2930,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -2971,12 +2973,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -3159,7 +3161,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -3361,12 +3363,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -3404,12 +3406,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -3592,7 +3594,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		DCA(new PointImpl(//
@@ -3794,12 +3796,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -3837,12 +3839,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4047,7 +4049,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"WHRtg_SF", //
 				new OptionsEnum[0])), //
 		W_H_RTG_S_F(new PointImpl(//
@@ -4166,12 +4168,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4539,12 +4541,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4568,12 +4570,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4598,12 +4600,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4654,7 +4656,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC64, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				null, //
 				new OptionsEnum[0])), //
 		ACT_V_AH(new PointImpl(//
@@ -4863,12 +4865,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4894,12 +4896,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4922,12 +4924,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -4960,12 +4962,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5001,12 +5003,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5032,12 +5034,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5339,12 +5341,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5368,12 +5370,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5397,12 +5399,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5428,12 +5430,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5457,12 +5459,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5764,12 +5766,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5798,12 +5800,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5827,12 +5829,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5957,12 +5959,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -5989,12 +5991,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -6141,12 +6143,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -6169,12 +6171,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -6366,12 +6368,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -6394,12 +6396,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -6915,7 +6917,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -6926,7 +6928,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -6937,7 +6939,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -6948,7 +6950,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -6959,7 +6961,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -6970,7 +6972,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -6981,7 +6983,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -6992,7 +6994,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -7350,12 +7352,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -7769,7 +7771,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -7780,7 +7782,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -7791,7 +7793,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -7802,7 +7804,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -7813,7 +7815,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -7824,7 +7826,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -7835,7 +7837,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -7846,7 +7848,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -8212,12 +8214,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -8631,7 +8633,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -8642,7 +8644,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -8653,7 +8655,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -8664,7 +8666,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -8675,7 +8677,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -8686,7 +8688,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -8697,7 +8699,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -8708,7 +8710,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -9074,12 +9076,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -9493,7 +9495,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_A(new PointImpl(//
@@ -9504,7 +9506,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_B(new PointImpl(//
@@ -9515,7 +9517,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_EXP_PH_C(new PointImpl(//
@@ -9526,7 +9528,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP(new PointImpl(//
@@ -9537,7 +9539,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_A(new PointImpl(//
@@ -9548,7 +9550,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_B(new PointImpl(//
@@ -9559,7 +9561,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_IMP_PH_C(new PointImpl(//
@@ -9570,7 +9572,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.ACC32, //
 				false, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"TotWh_SF", //
 				new OptionsEnum[0])), //
 		TOT_WH_S_F(new PointImpl(//
@@ -9936,12 +9938,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11097,12 +11099,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11126,12 +11128,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11165,12 +11167,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11199,12 +11201,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11256,12 +11258,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11286,12 +11288,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11315,12 +11317,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -11345,12 +11347,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -12395,12 +12397,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -12424,12 +12426,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -12454,12 +12456,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -12483,12 +12485,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -12782,12 +12784,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13530,12 +13532,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13559,12 +13561,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13590,12 +13592,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13619,12 +13621,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13648,12 +13650,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13678,12 +13680,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13714,12 +13716,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13744,12 +13746,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13773,12 +13775,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13802,12 +13804,12 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 		@Override
 		public int getValue() {
-			return value;
+			return this.value;
 		}
 
 		@Override
 		public String getName() {
-			return name;
+			return this.name;
 		}
 
 		@Override
@@ -13843,3 +13845,4 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		return this.label;
 	}
 }
+// CHECKSTYLE:ON

@@ -1,23 +1,27 @@
-import { Component } from '@angular/core';
-import { environment } from '../environments';
-import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Service, Websocket } from './shared/shared';
+import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+
+import { environment } from '../environments';
+import { Service, UserPermission, Websocket } from './shared/shared';
+import { Language } from './shared/type/language';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
 
-  public env = environment;
+  public environment = environment;
   public backUrl: string | boolean = '/';
   public enableSideMenu: boolean;
-  public currentPage: 'EdgeSettings' | 'Other' | 'IndexLive' | 'IndexHistory' = 'Other';
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+
+  protected isUserAllowedToSeeOverview: boolean = false;
 
   constructor(
     private platform: Platform,
@@ -27,11 +31,23 @@ export class AppComponent {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
+    private titleService: Title
   ) {
-    service.setLang(this.service.browserLangToLangTag(navigator.language));
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+
+    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+    });
   }
 
   ngOnInit() {
+
+    // Checks if sessionStorage is not null, undefined or empty string
+    if (sessionStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    }
+
+    this.titleService.setTitle(environment.edgeShortName);
     this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
       const toast = await this.toastController.create({
         message: notification.message,
@@ -40,7 +56,7 @@ export class AppComponent {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel',
+            role: 'cancel'
           }
         ]
       });
@@ -55,8 +71,8 @@ export class AppComponent {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
   }
 
   private checkSmartphoneResolution(init: boolean): void {

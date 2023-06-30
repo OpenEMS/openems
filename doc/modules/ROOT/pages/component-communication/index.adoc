@@ -9,59 +9,197 @@
 :imagesdir: ../../assets/images
 
 
-This page describes the internal communication protocol between OpenEMS Edge, OpenEMS Backend and OpenEMS UI. The components keep an open https://de.wikipedia.org/wiki/WebSocket[Websocket] connection which is used for bi-directional communication. The protocol is based on https://www.jsonrpc.org/specification[JSON-RPC]. For details about JSON-RPC please refer to the specification. As a rough summary, the protocol is divided into
+This page describes the internal communication protocol between OpenEMS Edge, OpenEMS Backend and OpenEMS UI. The components keep an open https://de.wikipedia.org/wiki/WebSocket[Websocket] connection which is used for bi-directional communication. 
 
-JSON-RPC Request::
-  Identified by a unique ID and method name with specific params. Expects a Response.
+== JSON-RPC introduction
 
-JSON-RPC Success Response::
-  Referring to the ID of the Request, providing a result which can be empty or hold specific data.
+The protocol is based on https://www.jsonrpc.org/specification[JSON-RPC]. For details about JSON-RPC please refer to the specification. As a rough summary, the protocol is divided into
 
-JSON-RPC Error Response::
-  Referring to the ID of the Request, providing error code, message and optionally data.
+=== JSON-RPC Request
 
-JSON-RPC Notification::
-  Identified by a unique method name with specific params. Does not expect a Response.
+Identified by a unique ID and method name with specific params. Expects a Response.
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "method": "method",
+  "params": {}
+}
+----
+
+=== JSON-RPC Success Response
+
+Referring to the ID of the Request, providing a result which can be empty or hold specific data.
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "result": {}
+}
+----
+
+=== JSON-RPC Error Response
+
+Referring to the ID of the Request, providing error code, message and optionally data.
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "result": {
+    "code": number,
+    "message": string,
+    "data"?: {}
+  }
+}
+----
+
+=== JSON-RPC Notification
+
+Identified by a unique method name with specific params. Does not expect a Response.
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "method": "method",
+  "params": {}
+}
+----
+
+== Example communication messages
 
 The information on this page is useful to understand the internal communication structure and can help if your plan is to replace one component by a custom implementation, e.g. implementing your own frontend application, or if you plan to extend the provided feature-set.
 
-== Authenticate UI to Edge/Backend using token
+=== Subscribe Channels
+
+Real-time channel data may change at a high rate. Instead of requiring the consumer to constantly pull the data, the OpenEMS API provides a publish-subscribe schema that notifies the consumer about updated values. It is initiated via a JSON-RPC request:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "method": "subscribeChannels",
+  "params": {
+    "count": number,
+    "channels": string[]
+  }
+}
+----
+
+The parameters for subscribing to channel data are:
+
+- `count`: a request count value that needs to be increased on each request to avoid concurrency problems
+- `channels`: a list of channel addresses as strings, e.g. "ess0/Soc", "ess0/ActivePower"
+
+From then on, the API constantly keeps sending `currentData` JSON-RPC notifications, containing the data for all subscribed channels:
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "method": "currentData",
+  "params": {
+    [channelAddress]: string | number
+  }
+}
+----
+
+To unsubscribe from channels, a new `subscribeChannels` request has to be sent with an empty list of channels.
+
+=== Edge-RPC
+
+When using the API via OpenEMS Backend, it is possible to transparently target a specific OpenEMS Edge, that is connected to the Backend by wrapping the JSON-RPC request into an `Edge-RPC` request:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "method": "edgeRpc",
+  "params": {
+    "edgeId": string,
+    "payload": JSON-RPC-Request
+  }
+}
+----
+
+The parameters for an “edgeRpc” request are:
+
+- `edgeId`: the unique ID of the Edge at the Backend
+- `payload`: the JSON-RPC Request that should be forwarded to the Edge, e.g. `getEdgeConfig` or `updateComponentConfig`.
+
+The JSON-RPC response then also wraps the original result as a payload:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": UUID,
+  "result": {
+    "payload": JSON-RPC-Response
+  }
+}
+----
+
+===	JsonApi Component
+
+To directly send a JSON-RPC request to one specific OpenEMS Component, that component has to implement the `JsonApi` interface.
+Then the `componentJsonApi` request can be used to wrap a JSON-RPC request as payload:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "method": "componentJsonApi",
+  "params": {
+    "componentId": string,
+    "payload": JSON-RPC-Request
+  }
+}
+----
+
+===	Edge-Config
+
+The EdgeConfig may be retrieved using the following JSON-RPC method:
+
+[source,json]
+----
+{
+  "jsonrpc": "2.0",
+  "id": "UUID",
+  "method": "getEdgeConfig",
+  "params": {}
+}
+----
+
+See xref:edge/configuration.adoc[Edge -> Configuration]
+
+== Communication schema
+
+=== Authenticate UI to Edge/Backend using token
 
 NOTE: On opening of the websocket connection to Edge/Backend, the UI is authenticated using an existing token.
 
 image::authenticateWithSessionId.png[authenticateWithSessionId]
 
-== Authenticate UI to Edge using password
+=== Authenticate UI to Edge using password
 
 image::authenticateWithPassword.png[authenticateWithPassword]
-== Subscribe to Channels
+=== Subscribe to Channels
 
 NOTE: Allows a Component to subscribe on certain Channel values. The latest Channel values are then periodically sent.
 
 image:subscribeChannels+currentData.png[subscribeChannels+currentData]
 
-== Subscribe to System-Log
+=== Subscribe to System-Log
 
 NOTE: Sends the log output of Edge to UI via Backend.
 
 image:subscribeSystemLog.png[subscribeSystemLog]
-
-
-== Store channel data in Time-Series database
-
-NOTE: Edge Backend Api-Controller periodically sends data of Channels to Backend, where it is stored in a Time-Series database (like InfluxDB) via a Timedata service.
-
-// mermaid:timestampedData.mmd[]
-
-
-// mermaid:edgeConfiguration[]
-
-// mermaid:authenticate[]
-
-// mermaid:getStatusOfEdges[]
-
-== Communicate with a specific Edge Component
-
-NOTE: This provides a way to send a JSON-RPC Request directly to a specific Edge Component identified by its Component-ID - e.g. to a specific Controller. To enable this, the Edge Component needs to implement the 'JsonApi' interface.
-
-// mermaid:componentJsonApi[]

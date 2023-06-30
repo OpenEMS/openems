@@ -1,8 +1,6 @@
 = B-Control | TQ-Systems EM300 Meter
 
-Implemented Natures
-
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bcontrol.em300[Source Code icon:github[]]

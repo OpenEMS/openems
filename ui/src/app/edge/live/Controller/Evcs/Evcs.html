@@ -1,0 +1,56 @@
+<oe-flat-widget button (click)="presentModal()" style="cursor: pointer;" *ngIf="isInitialized"
+  [title]="evcsComponent.alias" [icon]="{name: 'oe-evcs', color: 'environmental'}">
+
+  <!-- Show if Connection is Successful -->
+  <ng-container *ngIf="isConnectionSuccessful, else noConnection">
+
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.status'| translate" [value]="status" leftColumnWidth="20">
+    </oe-flat-widget-line>
+
+    <!-- Check if energy since beginning is allowed to be shown -->
+    <oe-flat-widget-line *ngIf="isEnergySinceBeginningAllowed"
+      [name]="'Edge.Index.Widgets.EVCS.energySinceBeginning' | translate"
+      [channelAddress]="componentId + '/EnergySession'" [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+
+    <oe-flat-widget-line *ngIf="isChargingEnabled" [name]="'General.mode'| translate" [value]="mode">
+    </oe-flat-widget-line>
+
+    <!-- Show if charging is enabled -->
+    <ng-container *ngIf="isChargingEnabled">
+
+      <!-- Show if chargeMode is EXCESS_POWER -->
+      <ng-container *ngIf="chargeMode === 'EXCESS_POWER'">
+
+        <!-- Show if defaultChargeMinPower greater 0 -->
+        <ng-container *ngIf="defaultChargeMinPower > 0">
+          <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.OptimizedChargeMode.minCharging' | translate"
+            [value]="'General.active' | translate">
+          </oe-flat-widget-line>
+
+          <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.OptimizedChargeMode.minChargePower' | translate"
+            [converter]="CONVERT_WATT_TO_KILOWATT" [value]="defaultChargeMinPower" leftColumnWidth="50">
+          </oe-flat-widget-line>
+        </ng-container>
+
+        <oe-flat-widget-line leftColumnWidth="50" [name]="'Edge.Index.Widgets.EVCS.prioritization' | translate"
+          [value]="prioritization | translate">
+        </oe-flat-widget-line>
+      </ng-container>
+
+      <oe-flat-widget-line *ngIf="chargeMode === 'FORCE_CHARGE'"
+        [name]="'Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging' | translate"
+        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="maxChargingValue">
+      </oe-flat-widget-line>
+
+      <oe-flat-widget-line *ngIf="energySessionLimit !== 0" [name]="'Edge.Index.Widgets.EVCS.energyLimit' | translate"
+        [converter]="CONVERT_TO_KILO_WATTHOURS" [value]="energySessionLimit"></oe-flat-widget-line>
+    </ng-container>
+
+  </ng-container>
+
+  <ng-template #noConnection>
+    <oe-flat-widget-line leftColumnWidth="100" [name]="'Edge.Index.Widgets.EVCS.NoConnection.description' | translate">
+    </oe-flat-widget-line>
+  </ng-template>
+</oe-flat-widget>

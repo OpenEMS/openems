@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon.enums;
 
 import java.util.HashMap;
@@ -69,3 +70,4 @@ public class ErrorDoc extends StateChannelDoc {
 	}
 
 }
+// CHECKSTYLE:ON

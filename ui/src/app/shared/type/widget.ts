@@ -3,11 +3,11 @@ import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
     'Energymonitor',
-    'Autarchy',
-    'Selfconsumption',
+    'Common_Autarchy',
+    'Common_Selfconsumption',
     'Storage',
     'Grid',
-    'Production',
+    'Common_Production',
     'Consumption',
 }
 
@@ -21,21 +21,30 @@ export enum WidgetFactory {
     'Controller.Asymmetric.PeakShaving',
     'Controller.ChannelThreshold',
     'Controller.CHP.SoC',
+    'Controller.Ess.DelayedSellToGrid',
     'Controller.Ess.FixActivePower',
+    'Controller.Ess.GridOptimizedCharge',
+    'Controller.Ess.Time-Of-Use-Tariff.Discharge',
+    'Controller.Ess.Time-Of-Use-Tariff',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
     'Controller.Io.HeatPump.SgReady',
     'Controller.Symmetric.PeakShaving',
     'Controller.TimeslotPeakshaving',
-    'Controller.Ess.DelayedSellToGrid',
     'Evcs.Cluster.PeakShaving',
     'Evcs.Cluster.SelfConsumption',
 }
 
+export type Icon = {
+    color: string;
+    size: string;
+    name: string;
+}
+
 export class Widget {
-    name: WidgetNature | WidgetFactory | String;
-    componentId: string
+    public name: WidgetNature | WidgetFactory | String;
+    public componentId: string;
 }
 
 export class Widgets {
@@ -46,11 +55,12 @@ export class Widgets {
             .filter(v => typeof v === 'string')
             .filter(clazz => {
                 if (!edge.isVersionAtLeast('2018.8')) {
+
                     // no filter for deprecated versions
                     return true;
                 }
                 switch (clazz) {
-                    case 'Autarchy':
+                    case 'Common_Autarchy':
                     case 'Grid':
                         return config.hasMeter();
                     case 'Energymonitor':
@@ -62,8 +72,8 @@ export class Widgets {
                         }
                     case 'Storage':
                         return config.hasStorage();
-                    case 'Production':
-                    case 'Selfconsumption':
+                    case 'Common_Production':
+                    case 'Common_Selfconsumption':
                         return config.hasProducer();
                 };
                 return false;
@@ -90,12 +100,20 @@ export class Widgets {
 
         // explicitely sort ChannelThresholdControllers by their outputChannelAddress
         list.sort((w1, w2) => {
-            const outputChannelAddress1 = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
-            const outputChannelAddress2 = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
-            if (outputChannelAddress1 && outputChannelAddress2) {
-                return outputChannelAddress1.localeCompare(outputChannelAddress2);
-            } else if (outputChannelAddress1) {
-                return 1;
+            if (w1.name === 'Controller.IO.ChannelSingleThreshold' && w2.name === 'Controller.IO.ChannelSingleThreshold') {
+                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress1 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress1 = outputChannelAddress1[0];
+                }
+                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)['outputChannelAddress'];
+                if (typeof outputChannelAddress2 !== 'string') {
+                    // Takes only the first output for simplicity reasons
+                    outputChannelAddress2 = outputChannelAddress2[0];
+                }
+                if (outputChannelAddress1 && outputChannelAddress2) {
+                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
+                }
             }
 
             return w1.componentId.localeCompare(w1.componentId);
@@ -126,4 +144,8 @@ export class Widgets {
             }
         }
     }
+}
+
+export enum ProductType {
+    HOME = "home"
 }

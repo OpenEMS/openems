@@ -3,9 +3,7 @@ package io.openems.edge.battery.bmw.enums;
 import io.openems.common.types.OptionsEnum;
 
 public enum InfoBits implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
-	
-	;
+	UNDEFINED(-1, "Undefined");
 
 	private final int value;
 	private final String name;
@@ -17,12 +15,12 @@ public enum InfoBits implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

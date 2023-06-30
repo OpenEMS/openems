@@ -1,0 +1,30 @@
+<header></header>
+<ion-content>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+  <ion-grid *ngIf="form">
+    <ion-row class="ion-justify-content-center">
+
+      <ion-col size="12" size-xl="8">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-card>
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
+              <ion-label> {{ appName }}</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+              <ion-item>
+                <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
+                  Edge.Config.App.createApp
+                </ion-button>
+                <div *ngIf="isInstalling" style="min-height: 100px;">
+                </div>
+                <ngx-spinner [name]="appId"></ngx-spinner>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+        </form>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

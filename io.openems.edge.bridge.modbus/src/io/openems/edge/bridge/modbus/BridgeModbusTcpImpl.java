@@ -8,8 +8,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
@@ -17,10 +18,12 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -28,19 +31,22 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigTcp.class, factory = true)
-@Component(name = "Bridge.Modbus.Tcp", //
+@Component(//
+		name = "Bridge.Modbus.Tcp", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusTcp, OpenemsComponent, EventHandler {
 
-	/**
-	 * The configured IP address.
-	 */
+	@Reference
+	private Cycle cycle;
+
+	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
 
@@ -53,16 +59,22 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
+	private void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
-		this.setIpAddress(InetAddress.getByName(config.ip()));
+		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public Cycle getCycle() {
+		return this.cycle;
 	}
 
 	@Override
@@ -75,8 +87,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		TCPMasterConnection connection = this.getModbusConnection();
-		ModbusTCPTransaction transaction = new ModbusTCPTransaction(connection);
+		var connection = this.getModbusConnection();
+		var transaction = new ModbusTCPTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
 		return transaction;
 	}
@@ -88,7 +100,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 			/*
 			 * create new connection
 			 */
-			TCPMasterConnection connection = new TCPMasterConnection(this.getIpAddress());
+			var connection = new TCPMasterConnection(this.getIpAddress());
 			connection.setPort(this.port);
 			this._connection = connection;
 		}
@@ -104,8 +116,9 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		return this._connection;
 	}
 
+	@Override
 	public InetAddress getIpAddress() {
-		return ipAddress;
+		return this.ipAddress;
 	}
 
 	public void setIpAddress(InetAddress ipAddress) {

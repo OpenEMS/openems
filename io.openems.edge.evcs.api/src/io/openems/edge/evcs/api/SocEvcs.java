@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.api;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -15,10 +16,10 @@ public interface SocEvcs extends Evcs {
 
 		/**
 		 * Current SoC.
-		 * 
+		 *
 		 * <p>
 		 * The current state of charge of the car
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SocEvcs
 		 * <li>Readable
@@ -28,7 +29,8 @@ public interface SocEvcs extends Evcs {
 		 */
 		SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_ONLY));
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		// TODO: If there are EVCSs with more information maybe a Channel
 		// TIME_TILL_CHARGING_FINISHED is possible
@@ -82,10 +84,11 @@ public interface SocEvcs extends Evcs {
 	}
 
 	/**
-	 * Returns the modbus table for this nature.
-	 * 
-	 * @param accessMode accessMode
-	 * @return nature table
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SocEvcs.class, accessMode, 50) //

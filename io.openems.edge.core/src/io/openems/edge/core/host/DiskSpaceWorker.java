@@ -1,7 +1,6 @@
 package io.openems.edge.core.host;
 
 import java.io.IOException;
-import java.nio.file.FileStore;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,10 +29,10 @@ public class DiskSpaceWorker extends AbstractWorker {
 
 	@Override
 	protected void forever() {
-		long totalUsableSpace = 0;
+		var totalUsableSpace = 0L;
 		for (Path root : FileSystems.getDefault().getRootDirectories()) {
 			try {
-				FileStore store = Files.getFileStore(root);
+				var store = Files.getFileStore(root);
 				totalUsableSpace += store.getUsableSpace();
 			} catch (IOException e) {
 				this.parent.logInfo(this.log, "Unable to query disk space: " + e.getMessage());

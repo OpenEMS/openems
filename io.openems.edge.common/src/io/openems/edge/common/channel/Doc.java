@@ -3,6 +3,7 @@ package io.openems.edge.common.channel;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
@@ -12,8 +13,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Provides static meta information for a {@link Channel}.
- * 
+ *
+ * <p>
  * Possible meta information include:
+ *
  * <ul>
  * <li>access-mode (read-only/read-write/write-only) flag
  * {@link Doc#accessMode(AccessMode)}. Defaults to Read-Only.
@@ -28,15 +31,15 @@ public interface Doc {
 
 	/**
 	 * Create a Channel-Doc with a specific OpenemsType.
-	 * 
+	 *
 	 * <p>
 	 * use like this:
-	 * 
+	 *
 	 * <pre>
 	 * Doc.of(OpenemsType.INTEGER)
 	 * </pre>
-	 * 
-	 * 
+	 *
+	 *
 	 * @param type the OpenemsType
 	 * @return an instance of {@link OpenemsTypeDoc}
 	 */
@@ -46,14 +49,14 @@ public interface Doc {
 
 	/**
 	 * Create a Channel-Doc with specific options defined by an {@link OptionsEnum}.
-	 * 
+	 *
 	 * <p>
 	 * use like this:
-	 * 
+	 *
 	 * <pre>
 	 * Doc.of([YourOptionsEnum].values())
 	 * </pre>
-	 * 
+	 *
 	 * @param options the possible options as an OptionsEnum
 	 * @return an instance of {@link EnumDoc}
 	 */
@@ -63,14 +66,14 @@ public interface Doc {
 
 	/**
 	 * Create a Channel-Doc for a {@link StateChannel} with a given {@link Level}.
-	 * 
+	 *
 	 * <p>
 	 * use like this:
-	 * 
+	 *
 	 * <pre>
 	 * Doc.of(Level.FAULT)
 	 * </pre>
-	 * 
+	 *
 	 * @param level the Level
 	 * @return an instance of {@link StateChannelDoc}
 	 */
@@ -80,35 +83,46 @@ public interface Doc {
 
 	/**
 	 * Gets the {@link ChannelCategory} of the Channel of this Doc.
-	 * 
+	 *
 	 * @return the ChannelCategory
 	 */
 	public ChannelCategory getChannelCategory();
 
 	/**
 	 * Gets the OpenemsType.
-	 * 
+	 *
 	 * @return the OpenemsType
 	 */
 	public OpenemsType getType();
 
 	/**
-	 * Gets the 'Access-Mode' information
-	 * 
-	 * @return
+	 * Gets the 'Access-Mode' information.
+	 *
+	 * @return the {@link AccessMode}
 	 */
 	public AccessMode getAccessMode();
 
 	/**
 	 * Gets the Unit. Defaults to NONE.
-	 * 
+	 *
 	 * @return the unit
 	 */
 	public Unit getUnit();
 
 	/**
+	 * Gets the Persistence Priority. Defaults to VERY_LOW.
+	 *
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 *
+	 * @return the {@link PersistencePriority}
+	 */
+	public PersistencePriority getPersistencePriority();
+
+	/**
 	 * Sets the descriptive text. Defaults to an empty string.
-	 * 
+	 *
 	 * @param text the text
 	 * @return myself
 	 */
@@ -116,14 +130,14 @@ public interface Doc {
 
 	/**
 	 * Gets the descriptive text. Defaults to empty String.
-	 * 
+	 *
 	 * @return the text
 	 */
 	public String getText();
 
 	/**
-	 * Is the more verbose debug mode activated?
-	 * 
+	 * Is the more verbose debug mode activated?.
+	 *
 	 * @return true for debug mode
 	 */
 	public boolean isDebug();
@@ -131,7 +145,9 @@ public interface Doc {
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link AbstractDoc}.
-	 * 
+	 *
+	 * @param <C>       the type of the Channel
+	 * @param component the {@link OpenemsComponent}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */

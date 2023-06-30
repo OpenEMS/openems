@@ -2,6 +2,7 @@ package io.openems.edge.common.test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -9,12 +10,23 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentInstance;
 
+import io.openems.common.test.AbstractComponentConfig;
+
 /**
  * Simulates a {@link ComponentContext} for the OpenEMS Component test
  * framework.
  */
 public class DummyComponentContext implements ComponentContext {
 
+	/**
+	 * Build a {@link DummyComponentContext} from a configuration.
+	 * 
+	 * @param configuration the {@link AbstractComponentConfig}
+	 * @return the DummyComponentContextn
+	 * @throws IllegalAccessException    on error
+	 * @throws IllegalArgumentException  on error
+	 * @throws InvocationTargetException on error
+	 */
 	public static DummyComponentContext from(AbstractComponentConfig configuration)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return new DummyComponentContext(configuration.getAsProperties());
@@ -22,9 +34,22 @@ public class DummyComponentContext implements ComponentContext {
 
 	private final Dictionary<String, Object> properties;
 
-	private DummyComponentContext(Dictionary<String, Object> properties) {
+	public DummyComponentContext(Dictionary<String, Object> properties) {
 		this.properties = properties;
-		// TODO create DummyBundleContext
+	}
+
+	public DummyComponentContext() {
+		this(new Hashtable<>());
+	}
+
+	/**
+	 * Add a configuration property.
+	 * 
+	 * @param key   the property key
+	 * @param value the property value
+	 */
+	public void addProperty(String key, Object value) {
+		this.properties.put(key, value);
 	}
 
 	@Override

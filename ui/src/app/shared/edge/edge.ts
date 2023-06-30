@@ -1,24 +1,23 @@
+import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { ChannelAddress } from '../type/channeladdress';
-import { cmp } from 'semver-compare-multi';
-import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
-import { CurrentData } from './currentdata';
-import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
-import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
-import { EdgeConfig } from './edgeconfig';
-import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
-import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
-import { environment as env } from '../../../environments';
-import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
-import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
-import { Role } from '../type/role';
+import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
+import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
+import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
+import { CreateComponentConfigRequest } from '../jsonrpc/request/createComponentConfigRequest';
+import { DeleteComponentConfigRequest } from '../jsonrpc/request/deleteComponentConfigRequest';
+import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
+import { GetEdgeConfigRequest } from '../jsonrpc/request/getEdgeConfigRequest';
 import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRequest';
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
-import { SystemLog } from '../type/systemlog';
-import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotification';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
+import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
 import { Websocket } from '../service/websocket';
+import { ChannelAddress } from '../type/channeladdress';
+import { Role } from '../type/role';
+import { SystemLog } from '../type/systemlog';
+import { CurrentData } from './currentdata';
+import { EdgeConfig } from './edgeconfig';
 
 export class Edge {
 
@@ -28,7 +27,8 @@ export class Edge {
     public readonly producttype: string,
     public readonly version: string,
     public readonly role: Role,
-    public isOnline: boolean
+    public isOnline: boolean,
+    public readonly lastmessage: Date
   ) { }
 
   // holds currently subscribed channels, identified by source id
@@ -86,7 +86,7 @@ export class Edge {
       let edgeConfigResponse = response as GetEdgeConfigResponse;
       this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
     }).catch(reason => {
-      console.warn("Unable to refresh config", reason)
+      console.warn("Unable to refresh config", reason);
       this.config.next(new EdgeConfig(this));
     });
   }
@@ -102,6 +102,17 @@ export class Edge {
   public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
     this.subscribedChannels[id] = channels;
     this.sendSubscribeChannels(websocket);
+  }
+
+  /**
+   * Refreshes Channels subscriptions on websocket reconnect.
+   * 
+   * @param websocket the Websocket
+   */
+  public subscribeChannelsOnReconnect(websocket: Websocket): void {
+    if (Object.keys(this.subscribedChannels).length > 0) {
+      this.sendSubscribeChannels(websocket);
+    }
   }
 
   /**
@@ -138,7 +149,7 @@ export class Edge {
    * 
    * @param websocket the Websocket
    */
-  public sendSubscribeChannels(websocket: Websocket): void {
+  private sendSubscribeChannels(websocket: Websocket): void {
     // make sure to send not faster than every 100 ms
     if (this.subscribeChannelsTimeout == null) {
       this.subscribeChannelsTimeout = setTimeout(() => {
@@ -229,14 +240,8 @@ export class Edge {
     let wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
     return new Promise((resolve, reject) => {
       ws.sendRequest(wrap).then(response => {
-        if (env.debugMode) {
-          console.info("Response     [" + request.method + "]", response);
-        }
         resolve(response['result']['payload']);
       }).catch(reason => {
-        if (env.debugMode) {
-          console.warn("Request fail [" + request.method + "]", reason);
-        }
         reject(reason);
       });
     });
@@ -252,24 +257,6 @@ export class Edge {
   }
 
   /**
-   * System Execute
-   * 
-   * TODO deprecated
-   */
-  public systemExecute(password: string, command: string, background: boolean, timeout: number): void {
-    console.warn("Edge.systemExecute()", password, command);
-    // let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
-    // // wait for reply
-    // return new Promise((resolve, reject) => {
-    //   replyStream.pipe(first()).subscribe(reply => {
-    //     let output = (reply as DefaultMessages.SystemExecuteReply).system.output;
-    //     this.removeReplyStream(reply);
-    //     resolve(output);
-    //   });
-    // })
-  }
-
-  /**
    * Returns whether the given version is higher than the Edge' version
    * 
    * Example: {{ edge.isVersionAtLeast('2018.9') }}
@@ -277,7 +264,16 @@ export class Edge {
    * @param version 
    */
   public isVersionAtLeast(version: string): boolean {
-    return cmp(this.version, version) >= 0;
+    return compareVersions(this.version, version) >= 0;
+  }
+
+  /**
+   * Determines if the verion of the edge is a snapshot.
+   * 
+   * @returns true if the verion of the edge is a snapshot
+   */
+  public isSnapshot(): boolean {
+    return this.version.includes("SNAPSHOT");
   }
 
   /**

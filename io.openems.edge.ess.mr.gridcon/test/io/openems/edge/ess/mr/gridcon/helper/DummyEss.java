@@ -17,8 +17,8 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static int MAXIMUM_POWER = 10000;
-	public static int DC_LINK_VOLTAGE = 800;
+	public static final int MAXIMUM_POWER = 10000;
+	public static final int DC_LINK_VOLTAGE = 800;
 	private int currentActivePower = 0;
 	private boolean running;
 	private boolean error;
@@ -248,7 +248,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	}
 
 	@Override
-	public boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3) {
+	public boolean isIpusStarted(boolean enableIpu1, boolean enableIpu2, boolean enableIpu3) {
 		// TODO Auto-generated method stub
 		return false;
 	}

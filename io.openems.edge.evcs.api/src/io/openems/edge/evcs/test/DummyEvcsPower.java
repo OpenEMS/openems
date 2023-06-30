@@ -20,4 +20,9 @@ public class DummyEvcsPower implements EvcsPower {
 		return this.rampFilter;
 	}
 
+	@Override
+	public float getIncreaseRate() {
+		return 0.05f;
+	}
+
 }

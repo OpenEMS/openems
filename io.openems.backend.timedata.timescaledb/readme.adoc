@@ -1,0 +1,54 @@
+= Timedata TimescaleDB
+
+OpenEMS Backend implementation for TimescaleDB: https://timescale.com
+
+== Setup TimescaleDB on Debian
+
+See https://docs.timescale.com/install/latest/self-hosted/installation-debian/
+for reference.
+
+
+[source,bash]
+----
+apt install gnupg postgresql-common apt-transport-https lsb-release wget
+
+/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+
+curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash
+
+apt install timescaledb-2-postgresql-14 timescaledb-tools
+
+timescaledb-tune --quiet --yes
+
+# Open port 5432
+vim /etc/postgresql/14/main/postgresql.conf
+    listen_addresses = '*'
+    data_directory = '/opt/postgresql'
+vim /etc/postgresql/14/main/pg_hba.conf
+    host    all             all              0.0.0.0/0                       md5
+
+# Firewall
+ufw allow to any port 5432
+
+# Apply configuration changes
+systemctl restart postgresql
+
+cd /tmp
+su postgres -c psql
+
+CREATE DATABASE data;
+
+CREATE USER openems WITH ENCRYPTED PASSWORD 'password';
+
+GRANT ALL PRIVILEGES ON DATABASE data TO openems;
+
+# Use 'data' db
+\c data
+
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+exit
+----
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.timedata.timescaledb[Source Code icon:github[]]

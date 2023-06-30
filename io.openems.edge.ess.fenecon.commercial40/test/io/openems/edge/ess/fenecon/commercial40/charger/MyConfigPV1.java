@@ -1,16 +1,16 @@
 package io.openems.edge.ess.fenecon.commercial40.charger;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
+public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPv1 {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int maxActualPower;
-		public String essId;
+		private String id;
+		private String modbusId;
+		private int maxActualPower;
+		private String essId;
 
 		private Builder() {
 		}
@@ -42,7 +42,7 @@ public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -52,7 +52,7 @@ public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
 	private final Builder builder;
 
 	private MyConfigPV1(Builder builder) {
-		super(ConfigPV1.class, builder.id);
+		super(ConfigPv1.class, builder.id);
 		this.builder = builder;
 	}
 

@@ -28,3 +28,11 @@ A service that provides 'OpenemsConstants' as Channels so that they are availabl
 == Sum
 
 A service that holds summed up information on the power and energy flows, like aggregated production, consumption and energy storage charge/discharge. 
+
+== AppManager
+
+A service for managing Apps. It creates, deletes and updates Components, Network configuration and the execute order of the Components in the scheduler.
+
+== App
+
+The predefined Apps for the AppManager.

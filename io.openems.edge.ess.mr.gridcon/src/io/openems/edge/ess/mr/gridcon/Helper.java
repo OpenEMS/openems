@@ -10,7 +10,7 @@ public class Helper {
 	/**
 	 * Checks if all API values of a battery are set.
 	 * 
-	 * @param battery
+	 * @param battery the {@link Battery}
 	 * @return true if all API values are filled
 	 */
 	public static boolean isUndefined(Battery battery) {

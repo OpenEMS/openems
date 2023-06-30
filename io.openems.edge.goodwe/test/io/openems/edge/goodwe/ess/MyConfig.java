@@ -1,22 +1,21 @@
 package io.openems.edge.goodwe.ess;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.goodwe.ess.Config;
+import io.openems.edge.goodwe.common.enums.ControlMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public boolean readOnlyMode;
-		public String modbusId;
-		public int modbusUnitId;
-		public int capacity;
-		public int maxBatteryPower;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int capacity;
+		private int maxBatteryPower;
+		private ControlMode controlMode;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -39,13 +38,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setReadOnlyMode(boolean readOnlyMode) {
-			this.readOnlyMode = readOnlyMode;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
-		public Builder setModbusUnitId(int modbusUnitId) {
-			this.modbusUnitId = modbusUnitId;
+		public Builder setControlMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 
@@ -56,7 +55,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -68,11 +67,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
-	}
-
-	@Override
-	public boolean readOnlyMode() {
-		return this.builder.readOnlyMode;
 	}
 
 	@Override
@@ -98,6 +92,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
 	}
 
 }

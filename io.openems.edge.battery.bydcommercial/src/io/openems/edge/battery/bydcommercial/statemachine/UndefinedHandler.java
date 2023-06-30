@@ -1,6 +1,5 @@
 package io.openems.edge.battery.bydcommercial.statemachine;
 
-import io.openems.edge.battery.bydcommercial.BatteryBoxC130;
 import io.openems.edge.battery.bydcommercial.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -8,7 +7,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		BatteryBoxC130 battery = context.getParent();
+		var battery = context.getParent();
 
 		switch (battery.getStartStopTarget()) {
 		case UNDEFINED:

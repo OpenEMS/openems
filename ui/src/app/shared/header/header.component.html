@@ -9,7 +9,8 @@
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
     <!-- page title is shown if the current page isn't Live nor History -->
-    <ion-title *ngIf="currentPage != 'IndexLive' && currentPage != 'IndexHistory'" class="ion-hide-md-up" slot="start">
+    <ion-title *ngIf="currentPage !== 'IndexLive' && currentPage !== 'IndexHistory'" class="ion-hide-md-up"
+      slot="start">
       {{ service.currentPageTitle }}
     </ion-title>
     <!-- page title is hidden when 'smartphone resolution' is reached -->
@@ -17,18 +18,17 @@
       {{ service.currentPageTitle }}
     </ion-title>
     <ng-container *ngIf="service.currentEdge | async as edge">
-      <ng-container *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory'">
+      <ng-container *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory'">
         <ion-buttons>
           <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
             class="ion-justify-content-center">
             <ion-segment-button value="IndexLive">
-              <ion-label translate>General.live</ion-label>
+              <ion-label translate>General.LIVE</ion-label>
             </ion-segment-button>
             <ion-segment-button value="IndexHistory">
-              <ion-label translate>General.history</ion-label>
+              <ion-label translate>General.HISTORY</ion-label>
             </ion-segment-button>
           </ion-segment>
-
         </ion-buttons>
       </ng-container>
     </ng-container>
@@ -37,32 +37,31 @@
     </ion-title>
     <ng-container *ngIf="service.currentEdge | async as edge">
       <ion-buttons slot="end">
-        <ng-container *ngIf="edge.roleIsAtLeast('admin')">
-          <ng-container *ngIf="edge.currentData | async as currentData">
-            <ng-container *ngIf="currentData.summary.system as sum">
-              <ion-button (click)="presentSingleStatusModal()"
-                *ngIf="currentPage == 'IndexLive' || currentPage == 'IndexHistory' || currentPage == 'EdgeSettings'"
-                color="light" fill="solid" shape="round">
-                <ng-container [ngSwitch]="sum.state">
-                  <ion-icon *ngSwitchCase="0" color="success" name="checkmark-circle-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="1" color="success" name="information-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="2" color="warning" name="alert-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="3" color="danger" name="alert-outline"></ion-icon>
-                </ng-container>
-              </ion-button>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="env.debugMode && edge.roleIsAtLeast('owner')">
-            <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
-              <ion-icon name="bug-outline"></ion-icon>
+        <ng-container *ngIf="edge.currentData | async as currentData">
+          <ng-container *ngIf="currentData.summary.system as sum">
+            <ion-button (click)="presentSingleStatusModal()"
+              *ngIf="currentPage === 'IndexLive' || currentPage === 'IndexHistory' || currentPage === 'EdgeSettings'"
+              color="light" fill="solid" shape="round">
+              <ng-container [ngSwitch]="sum.state">
+                <ion-icon *ngSwitchCase="0" color="success" name="checkmark-circle-outline"></ion-icon>
+                <ion-icon *ngSwitchCase="1" color="success"
+                  [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"></ion-icon>
+                <ion-icon *ngSwitchCase="2" color="warning" name="alert-outline"></ion-icon>
+                <ion-icon *ngSwitchCase="3" color="danger" name="alert-outline"></ion-icon>
+              </ng-container>
             </ion-button>
           </ng-container>
+        </ng-container>
+        <ng-container *ngIf="environment.debugMode && edge.roleIsAtLeast('owner')">
+          <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
+            <ion-icon name="bug-outline"></ion-icon>
+          </ion-button>
         </ng-container>
       </ion-buttons>
     </ng-container>
   </ion-toolbar>
 
-  <ng-container *ngIf="currentPage == 'IndexHistory'">
+  <ng-container *ngIf="currentPage === 'IndexHistory'">
     <ion-toolbar color="secondary">
       <ion-buttons class="ion-justify-content-center">
         <pickdate></pickdate>

@@ -1,22 +1,21 @@
 package io.openems.edge.ess.core.power;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.power.api.SolverStrategy;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		public SolverStrategy strategy;
-		public boolean symmetricMode;
-		public boolean debugMode;
-		public boolean enablePid;
-		public double p;
-		public double i;
-		public double d;
+		private SolverStrategy strategy;
+		private boolean symmetricMode;
+		private boolean debugMode;
+		private boolean enablePid;
+		private double p;
+		private double i;
+		private double d;
 
 		private Builder() {
-
 		}
 
 		public Builder setStrategy(SolverStrategy strategy) {
@@ -61,7 +60,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create the Config-Builder.
-	 * 
+	 *
 	 * @return the {@link Builder}.
 	 */
 	public static Builder create() {

@@ -1,19 +1,19 @@
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig, ChannelAddress } from '../../../shared/shared';
 import { ModalController } from '@ionic/angular';
-import { DelayedSellToGridModalComponent } from './modal/modal.component';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { DelayedSellToGridModalComponent } from './modal/modal.component';
 
 @Component({
     selector: DelayedSellToGridComponent.SELECTOR,
     templateUrl: './delayedselltogrid.component.html'
 })
-export class DelayedSellToGridComponent {
+export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     private static readonly SELECTOR = "delayedselltogrid";
 
-    @Input() private componentId: string;
+    @Input() public componentId: string;
 
     public edge: Edge = null;
 
@@ -24,7 +24,7 @@ export class DelayedSellToGridComponent {
         private websocket: Websocket,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-        public service: Service,
+        public service: Service
     ) { }
 
     ngOnInit() {

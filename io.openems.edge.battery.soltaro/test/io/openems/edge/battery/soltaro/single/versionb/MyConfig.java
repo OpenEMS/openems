@@ -1,29 +1,28 @@
 package io.openems.edge.battery.soltaro.single.versionb;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.battery.soltaro.ModuleType;
+import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private String modbusId = null;
-		public int modbusUnitId;
-		public int errorLevel2Delay;
-		public int maxStartTime;
-		public int pendingTolerance;
-		public int maxStartAppempts;
-		public int startUnsuccessfulDelay;
-		public int minimalCellVoltage;
-		public StartStopConfig startStop;
-		public int numberOfSlaves;
-		public ModuleType moduleType;
-		public int watchdog;
-		public int soCLowAlarm;
-		public boolean reduceTasks;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int errorLevel2Delay;
+		private int maxStartTime;
+		private int pendingTolerance;
+		private int maxStartAppempts;
+		private int startUnsuccessfulDelay;
+		private int minimalCellVoltage;
+		private StartStopConfig startStop;
+		private ModuleType moduleType;
+		private int watchdog;
+		private int soCLowAlarm;
+		private boolean reduceTasks;
 
 		private Builder() {
 		}
@@ -78,11 +77,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setNumberOfSlaves(int numberOfSlaves) {
-			this.numberOfSlaves = numberOfSlaves;
-			return this;
-		}
-
 		public Builder setModuleType(ModuleType moduleType) {
 			this.moduleType = moduleType;
 			return this;
@@ -97,12 +91,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.reduceTasks = reduceTasks;
 			return this;
 		}
-		
+
 		public Builder setSoCLowAlarm(int soCLowAlarm) {
 			this.soCLowAlarm = soCLowAlarm;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -110,7 +104,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -172,11 +166,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
-	}
-
-	@Override
-	public int numberOfSlaves() {
-		return this.builder.numberOfSlaves;
 	}
 
 	@Override

@@ -8,10 +8,10 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.soltaro.ChargeIndication;
 import io.openems.edge.battery.soltaro.cluster.enums.ClusterStartStop;
 import io.openems.edge.battery.soltaro.cluster.enums.RackUsage;
 import io.openems.edge.battery.soltaro.cluster.enums.RunningState;
+import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -23,7 +23,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CLUSTER_START_STOP}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default WriteChannel<ClusterStartStop> getClusterStartStopChannel() {
@@ -32,7 +32,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#CLUSTER_START_STOP}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default ClusterStartStop getClusterStartStop() {
@@ -42,7 +42,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CLUSTER_START_STOP} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setClusterStartStop(ClusterStartStop value) {
@@ -51,7 +51,7 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 
 	/**
 	 * Writes the value to the {@link ChannelId#CLUSTER_START_STOP} Register.
-	 * 
+	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -85,15 +85,9 @@ public interface SoltaroCluster extends Battery, OpenemsComponent, EventHandler,
 		 * IntegerReadChannels
 		 */
 		CHARGE_INDICATION(Doc.of(ChargeIndication.values())), //
-		SYSTEM_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
 		SYSTEM_INSULATION(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.OHM)), //
-		CLUSTER_MAX_ALLOWED_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		CLUSTER_MAX_ALLOWED_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
-		
+
 		/*
 		 * StateChannels
 		 */

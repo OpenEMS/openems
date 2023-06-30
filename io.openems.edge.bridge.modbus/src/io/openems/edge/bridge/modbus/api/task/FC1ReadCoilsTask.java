@@ -10,8 +10,8 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
- * Implements a Read Coils abstractTask, implementing Modbus function code 1
- * (http://www.simplymodbus.ca/FC01.htm)
+ * Implements a Read Coils Task, implementing Modbus function code 1
+ * (http://www.simplymodbus.ca/FC01.htm).
  */
 public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements ReadTask {
 
@@ -21,7 +21,7 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 
 	@Override
 	protected BitVector getBitVector(ModbusResponse response) {
-		ReadCoilsResponse coilsResponse = (ReadCoilsResponse) response;
+		var coilsResponse = (ReadCoilsResponse) response;
 		return coilsResponse.getCoils();
 	}
 
@@ -32,7 +32,7 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 
 	@Override
 	protected ModbusRequest getRequest() {
-		return new ReadCoilsRequest(getStartAddress(), getLength());
+		return new ReadCoilsRequest(this.getStartAddress(), this.getLength());
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public interface ClockProvider {
 
 	/**
 	 * Gets the Clock - real or mocked like {@link TimeLeapClock}.
-	 * 
+	 *
 	 * @return the {@link Clock}
 	 */
 	public Clock getClock();

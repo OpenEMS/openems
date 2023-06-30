@@ -1,6 +1,6 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { Edge } from './edge';
 import { Widgets } from '../type/widget';
+import { Edge } from './edge';
 
 export interface CategorizedComponents {
     category: {
@@ -31,7 +31,7 @@ export class EdgeConfig {
             let component = this.components[componentId];
             component.id = componentId;
             if ('enabled' in component.properties) {
-                component.isEnabled = component.properties['enabled']
+                component.isEnabled = component.properties['enabled'];
             } else {
                 component.isEnabled = true;
             }
@@ -68,7 +68,7 @@ export class EdgeConfig {
                 }
                 let factory = this.factories[component.factoryId];
                 if (!factory) {
-                    console.warn("Factory definition for [" + component.factoryId + "] is missing.");
+                    console.warn("Factory definition [" + component.factoryId + "] for [" + componentId + "] is missing.");
                     continue;
                 }
 
@@ -94,7 +94,7 @@ export class EdgeConfig {
     /**
      * Nature-PID -> Component-IDs.
      */
-    public readonly natures: { [id: string]: EdgeConfig.Nature } = {}
+    public readonly natures: { [id: string]: EdgeConfig.Nature } = {};
 
     /**
      * UI-Widgets.
@@ -130,7 +130,7 @@ export class EdgeConfig {
         if (nature) {
             for (let factoryId of nature.factoryIds) {
                 if (factoryId in this.factories) {
-                    result.push(this.factories[factoryId])
+                    result.push(this.factories[factoryId]);
                 }
             }
         }
@@ -146,7 +146,24 @@ export class EdgeConfig {
         let result = [];
         for (let factoryId of factoryIds) {
             if (factoryId in this.factories) {
-                result.push(this.factories[factoryId])
+                result.push(this.factories[factoryId]);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get Factories by Factory-IDs pattern.
+     * 
+     * @param ids the given Factory-IDs pattern.
+     */
+    public getFactoriesByIdsPattern(patterns: RegExp[]): EdgeConfig.Factory[] {
+        let result = [];
+        for (let pattern of patterns) {
+            for (let factoryId in this.factories) {
+                if (pattern.test(factoryId)) {
+                    result.push(this.factories[factoryId]);
+                }
             }
         }
         return result;
@@ -179,6 +196,15 @@ export class EdgeConfig {
                 result.push.apply(result, this.getComponentIdsByFactory(factoryId));
             }
         }
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.push(...this.getComponentIdsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
         return result;
     }
 
@@ -195,6 +221,15 @@ export class EdgeConfig {
                 result.push.apply(result, this.getComponentsByFactory(factoryId));
             }
         }
+
+        // Backwards compatibilty
+        // TODO drop after full migration to ElectricityMeter
+        switch (natureId) {
+            // ElectricityMeter replaces SymmetricMeter (and AsymmetricMeter implicitely)
+            case "io.openems.edge.meter.api.ElectricityMeter":
+                result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
+        }
+
         return result;
     }
 
@@ -227,7 +262,7 @@ export class EdgeConfig {
      * Determines if Edge has a Meter device
      */
     public hasMeter(): boolean {
-        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.SymmetricMeter').length > 0) {
+        if (this.getComponentIdsImplementingNature('io.openems.edge.meter.api.ElectricityMeter').length > 0) {
             return true;
         } else {
             return false;
@@ -243,52 +278,85 @@ export class EdgeConfig {
             return true;
         }
         // Do we have a Meter with type PRODUCTION?
-        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
-            if (component.isEnabled) {
-                // TODO make sure 'type' is provided for all Meters
-                if (component.properties['type'] == "PRODUCTION") {
-                    return true;
-                }
-                // TODO remove, once all Edges are at least version 2019.15
-                switch (component.factoryId) {
-                    case 'Fenecon.Mini.PvMeter':
-                    case 'Fenecon.Dess.PvMeter':
-                    case 'Fenecon.Pro.PvMeter':
-                    case 'Kostal.Piko.Charger':
-                    case 'Kaco.BlueplanetHybrid10.PvInverter':
-                    case 'PV-Inverter.Solarlog':
-                    case 'PV-Inverter.KACO.blueplanet':
-                    case 'PV-Inverter.SunSpec':
-                    case 'SolarEdge.PV-Inverter':
-                    case 'Simulator.PvInverter':
-                    case 'Simulator.ProductionMeter.Acting':
-                        return true;
-                }
+        for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")) {
+            if (component.isEnabled && this.isProducer(component)) {
+                return true;
             }
         }
         return false;
     }
 
+    /**
+     * Is the given Meter of type 'PRODUCTION'?
+     * 
+     * @param component the Meter Component
+     * @returns true for PRODUCTION
+     */
     public isProducer(component: EdgeConfig.Component) {
-        // TODO make sure 'type' is provided for all Meters
         if (component.properties['type'] == "PRODUCTION") {
             return true;
+        }
+        // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
+        switch (component.factoryId) {
+            case 'Fenecon.Dess.PvMeter':
+            case 'Fenecon.Mini.PvMeter':
+            case 'Fenecon.Pro.PvMeter':
+            case 'Kaco.BlueplanetHybrid10.PvInverter':
+            case 'Kostal.Piko.Charger':
+            case 'PV-Inverter.Fronius':
+            case 'PV-Inverter.KACO.blueplanet':
+            case 'PV-Inverter.Kostal':
+            case 'PV-Inverter.SMA.SunnyTripower':
+            case 'PV-Inverter.Solarlog':
+            case 'PV-Inverter.SunSpec':
+            case 'Simulator.ProductionMeter.Acting':
+            case 'Simulator.PvInverter':
+            case 'SolarEdge.PV-Inverter':
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Is the given Meter of type 'CONSUMPTION_METERED'?
+     * 
+     * @param component the Meter Component
+     * @returns true for CONSUMPTION_METERED
+     */
+    public isTypeConsumptionMetered(component: EdgeConfig.Component) {
+        if (component.properties['type'] == "CONSUMPTION_METERED") {
+            return true;
         } else {
-            // TODO remove, once all Edges are at least version 2019.15
             switch (component.factoryId) {
-                case 'Fenecon.Mini.PvMeter':
-                case 'Fenecon.Dess.PvMeter':
-                case 'Fenecon.Pro.PvMeter':
-                case 'Kostal.Piko.Charger':
-                case 'Kaco.BlueplanetHybrid10.PvInverter':
-                case 'PV-Inverter.Solarlog':
-                case 'PV-Inverter.KACO.blueplanet':
-                case 'PV-Inverter.SunSpec':
-                case 'SolarEdge.PV-Inverter':
-                case 'Simulator.PvInverter':
-                case 'Simulator.ProductionMeter.Acting':
+                case 'GoodWe.EmergencyPowerMeter':
                     return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Is the given Meter of type 'GRID'?
+     * 
+     * @param component the Meter Component
+     * @returns true for GRID
+     */
+    public isTypeGrid(component: EdgeConfig.Component) {
+        if (component.properties["type"] == "GRID") {
+            return true;
+        }
+
+        switch (component.factoryId) {
+            case 'GoodWe.Grid-Meter':
+            case 'Kaco.BlueplanetHybrid10.GridMeter':
+            case 'Fenecon.Dess.GridMeter':
+            case 'Fenecon.Mini.GridMeter':
+            case 'Kostal.Piko.GridMeter':
+            case 'SolarEdge.Grid-Meter':
+            case 'Simulator.GridMeter.Acting':
+            case 'Simulator.GridMeter.Reacting':
+                return true;
         }
         return false;
     }
@@ -303,30 +371,43 @@ export class EdgeConfig {
                 factories: Object.values(this.factories).filter(factory => factory.id.startsWith('Simulator.'))
             },
             {
-                category: { title: 'Serielle Verbindungen', icon: 'swap-horizontal-outline' },
-                factories: [
-                    this.getFactoriesByIds([
-                        'Bridge.Mbus', 'Bridge.Onewire', 'Bridge.Modbus.Serial', 'Bridge.Modbus.Tcp'
-                    ])
-                ]
-            },
-            {
                 category: { title: 'Zähler', icon: 'speedometer-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter")
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
+                    this.getFactoriesByNature("io.openems.edge.meter.api.ElectricityMeter"),
+                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 ]
             },
             {
                 category: { title: 'Speichersysteme', icon: 'battery-charging-outline' },
                 factories: [
                     this.getFactoriesByNature("io.openems.edge.ess.api.SymmetricEss"),
-                    this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                    this.getFactoriesByNature("io.openems.edge.battery.api.Battery"),
+                    this.getFactoriesByNature("io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter")
                 ]
             },
             {
-                category: { title: 'Batterien', icon: 'battery-full-outline' },
+                category: { title: 'Speichersystem-Steuerung', icon: 'options-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.battery.api.Battery")
+                    this.getFactoriesByIdsPattern([
+                        /Controller\.Asymmetric.*/,
+                        /Controller\.Ess.*/,
+                        /Controller\.Symmetric.*/
+                    ])
+                ]
+            },
+            {
+                category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
+                factories: [
+                    this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")
+                ]
+            },
+            {
+                category: { title: 'E-Auto-Ladestation-Steuerung', icon: 'options-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Controller.Evcs'
+                    ])
                 ]
             },
             {
@@ -337,49 +418,70 @@ export class EdgeConfig {
                 ]
             },
             {
-                category: { title: 'E-Auto-Ladestation', icon: 'car-outline' },
+                category: { title: 'I/O-Steuerung', icon: 'options-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.evcs.api.Evcs")
+                    this.getFactoriesByIds([
+                        'Controller.IO.ChannelSingleThreshold',
+                        'Controller.Io.FixDigitalOutput',
+                        'Controller.IO.HeatingElement',
+                        'Controller.Io.HeatPump.SgReady'
+                    ])
                 ]
             },
             {
-                category: { title: 'Standard-Controller', icon: 'resize-outline' },
+                category: { title: 'Temperatursensoren', icon: 'thermometer-outline' },
                 factories: [
-                    this.getFactoriesByIds(['Controller.Debug.Log', 'Controller.Debug.DetailedLog'])
+                    this.getFactoriesByNature("io.openems.edge.thermometer.api.Thermometer")
                 ]
             },
             {
                 category: { title: 'Externe Schnittstellen', icon: 'megaphone-outline' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend', 'Controller.Api.Websocket', 'Controller.Api.ModbusTcp', 'Controller.Api.ModbusTcp.ReadOnly',
-                        'Controller.Api.ModbusTcp.ReadWrite', 'Controller.Api.Rest.ReadOnly', 'Controller.Api.Rest.ReadWrite'
+                        'Controller.Api.Websocket',
+                        'Controller.Api.ModbusTcp',
+                        'Controller.Api.ModbusTcp.ReadOnly',
+                        'Controller.Api.ModbusTcp.ReadWrite',
+                        'Controller.Api.MQTT',
+                        'Controller.Api.Rest.ReadOnly',
+                        'Controller.Api.Rest.ReadWrite'
                     ])
+                ]
+            },
+            {
+                category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Bridge.Mbus',
+                        'Bridge.Onewire',
+                        'Bridge.Modbus.Serial',
+                        'Bridge.Modbus.Tcp'
+                    ])
+                ]
+            },
+            {
+                category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
+                factories: [
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                        'Controller.Debug.Log',
+                        'Controller.Debug.DetailedLog'
+                    ]),
+                    this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
+                    this.getFactoriesByNature("io.openems.edge.predictor.api.oneday.Predictor24Hours"),
+                    this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")
                 ]
             },
             {
                 category: { title: 'Spezial-Controller', icon: 'repeat-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.controller.api.Controller"),
-                ]
-            },
-            {
-                category: { title: 'Timeseries-Datenbank', icon: 'repeat-outline' },
-                factories: [
-                    this.getFactoriesByNature("io.openems.edge.timedata.api.Timedata"),
-                ]
-            },
-            {
-                category: { title: 'Scheduler', icon: 'stopwatch-outline' },
-                factories: [
-                    this.getFactoriesByNature("io.openems.edge.scheduler.api.Scheduler")
+                    this.getFactoriesByNature("io.openems.edge.controller.api.Controller")
                 ]
             },
             {
                 category: { title: 'Weitere', icon: 'radio-button-off-outline' },
                 factories: Object.values(this.factories)
             }
-            // TODO weitere Factories?
         ];
 
         let ignoreFactoryIds: string[] = [];
@@ -396,9 +498,9 @@ export class EdgeConfig {
                 factories.forEach(factory => {
                     ignoreFactoryIds.push(factory.id);
                 });
-                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) })
+                result.push({ category: item.category, factories: factories.sort((a, b) => a.id.localeCompare(b.id)) });
             }
-        })
+        });
         return result;
     }
 
@@ -413,8 +515,8 @@ export class EdgeConfig {
                 if (factory == availableFactory) {
                     result = availableFactories.category.icon;
                 }
-            })
-        })
+            });
+        });
         return result;
     }
 
@@ -443,14 +545,16 @@ export class EdgeConfig {
                     // remove Components from list that have already been listed before
                     .filter(component => !ignoreComponentIds.includes(component.id))
                     // remove duplicates
-                    .filter((e, i, arr) => arr.indexOf(e) === i);
+                    .filter((e, i, arr) => arr.indexOf(e) === i)
+                    // sort by ID
+                    .sort((c1, c2) => c1.id.localeCompare(c2.id));
             if (components.length > 0) {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
                 });
-                result.push({ category: item.category, components: components })
+                result.push({ category: item.category, components: components });
             }
-        })
+        });
         return result;
     }
 
@@ -513,6 +617,7 @@ export module EdgeConfig {
         public readonly accessMode: "RO" | "RW" | "WO";
         public readonly unit: string;
         public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
     }
 
     export class Component {

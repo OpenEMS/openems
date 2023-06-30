@@ -1,20 +1,25 @@
 package io.openems.backend.metadata.file;
 
-import io.openems.backend.metadata.api.Edge;
-import io.openems.common.types.EdgeConfig;
+import io.openems.backend.common.metadata.Edge;
 
 public class MyEdge extends Edge {
 
 	private final String apikey;
+	private final String setupPassword;
 
-	public MyEdge(String id, String apikey, String comment, State state, String version, String producttype,
-			EdgeConfig config) {
-		super(id, comment, state, version, producttype, config);
+	public MyEdge(MetadataFile parent, String id, String apikey, String setupPassword, String comment, String version,
+			String producttype) {
+		super(parent, id, comment, version, producttype, null);
 		this.apikey = apikey;
+		this.setupPassword = setupPassword;
 	}
 
 	public String getApikey() {
-		return apikey;
+		return this.apikey;
+	}
+
+	public String getSetupPassword() {
+		return this.setupPassword;
 	}
 
 }

@@ -11,8 +11,8 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
- * Implements a Read Input Register abstractTask, implementing Modbus function
- * code 4 (http://www.simplymodbus.ca/FC04.htm)
+ * Implements a Read Input Register Task, implementing Modbus function code 4
+ * (http://www.simplymodbus.ca/FC04.htm).
  */
 public class FC4ReadInputRegistersTask extends AbstractReadInputRegistersTask implements ReadTask {
 
@@ -27,17 +27,16 @@ public class FC4ReadInputRegistersTask extends AbstractReadInputRegistersTask im
 
 	@Override
 	protected ModbusRequest getRequest() {
-		return new ReadInputRegistersRequest(getStartAddress(), getLength());
+		return new ReadInputRegistersRequest(this.getStartAddress(), this.getLength());
 	}
 
 	@Override
 	protected InputRegister[] handleResponse(ModbusResponse response) throws OpenemsException {
 		if (response instanceof ReadInputRegistersResponse) {
-			ReadInputRegistersResponse registersResponse = (ReadInputRegistersResponse) response;
+			var registersResponse = (ReadInputRegistersResponse) response;
 			return registersResponse.getRegisters();
-		} else {
-			throw new OpenemsException("Unexpected Modbus response. Expected [ReadInputRegistersResponse], got ["
-					+ response.getClass().getSimpleName() + "]");
 		}
+		throw new OpenemsException("Unexpected Modbus response. Expected [ReadInputRegistersResponse], got ["
+				+ response.getClass().getSimpleName() + "]");
 	}
 }

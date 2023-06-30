@@ -1,0 +1,17 @@
+# This OSGi fragment for gson exports the `io.reactivex.rxjava3.internal.*`
+# packages which is required by `io.openems.wrapper.influxdb-client`
+
+Fragment-Host: io.reactivex.rxjava3.rxjava;bundle-version="3.1.6"
+
+Export-Package: \
+	io.reactivex.rxjava3.internal.functions,\
+	io.reactivex.rxjava3.internal.operators.flowable,\
+	io.reactivex.rxjava3.internal.disposables,\
+	io.reactivex.rxjava3.internal.fuseable,\
+	io.reactivex.rxjava3.internal.queue,\
+	io.reactivex.rxjava3.internal.schedulers,\
+	io.reactivex.rxjava3.internal.subscribers,\
+	io.reactivex.rxjava3.internal.subscriptions,\
+	io.reactivex.rxjava3.internal.util,\
+
+-resourceonly: true

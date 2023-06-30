@@ -1,0 +1,16 @@
+<oe-flat-widget button style="cursor: pointer;" (click)="presentModal()" *ngIf="isInitialized"
+  [icon]="{name: 'oe-evcs', color: 'environmental'}" [title]="alias | translate">
+
+  <ng-container *ngIf="isConnectionSuccessful, else noConnection">
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.amountOfChargingStations'| translate"
+      [value]="evcssInCluster.length">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="!isEvcsCluster" [name]="'Edge.Index.Widgets.EVCS.totalChargingPower' | translate"
+      [converter]="CONVERT_TO_WATT" [channelAddress]="component.id + '/ChargePower'"></oe-flat-widget-line>
+  </ng-container>
+
+  <ng-template #noConnection>
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.EVCS.clusterConfigError'| translate" leftColumnWidth="100">
+    </oe-flat-widget-line>
+  </ng-template>
+</oe-flat-widget>

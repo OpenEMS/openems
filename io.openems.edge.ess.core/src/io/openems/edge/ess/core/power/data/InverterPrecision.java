@@ -11,7 +11,6 @@ import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.solver.PowerTuple;
-import io.openems.edge.ess.power.api.Coefficient;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.Pwr;
@@ -51,21 +50,21 @@ public class InverterPrecision {
 			List<ManagedSymmetricEss> esss, PointValuePair solution, TargetDirection targetDirection)
 			throws OpenemsException {
 		Map<Inverter, PowerTuple> result = new HashMap<>();
-		double[] point = solution.getPoint();
+		var point = solution.getPoint();
 		for (Inverter inv : allInverters) {
-			Round round = Round.TOWARDS_ZERO;
-			String essId = inv.getEssId();
-			ManagedSymmetricEss ess = getEss(esss, essId);
+			var round = Round.TOWARDS_ZERO;
+			var essId = inv.getEssId();
+			var ess = getEss(esss, essId);
 			int soc = ess.getSoc().orElse(0);
-			int precision = ess.getPowerPrecision();
-			PowerTuple powerTuple = new PowerTuple();
+			var precision = ess.getPowerPrecision();
+			var powerTuple = new PowerTuple();
 			for (Pwr pwr : Pwr.values()) {
-				Coefficient c = coefficients.of(essId, inv.getPhase(), pwr);
-				double value = point[c.getIndex()];
+				var c = coefficients.of(essId, inv.getPhase(), pwr);
+				var value = point[c.getIndex()];
 				if (value > 0 && soc > 50 || value < 0 && soc < 50) {
 					round = Round.AWAY_FROM_ZERO;
 				}
-				int roundedValue = IntUtils.roundToPrecision((float) value, round, precision);
+				var roundedValue = IntUtils.roundToPrecision((float) value, round, precision);
 				if (roundedValue == -1 || roundedValue == 1) {
 					roundedValue = 0; // avoid unnecessary power settings on rounding 0.xxx to 1
 				}

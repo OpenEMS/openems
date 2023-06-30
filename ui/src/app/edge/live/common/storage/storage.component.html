@@ -1,0 +1,59 @@
+<oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}" [title]="'General.storageSystem'| translate" (click)="presentModal()"
+    *ngIf="isInitialized">
+    <ng-container *ngFor="let component of essComponents, let i = index">
+
+        <!-- Show Alias if there are more than one ESS -->
+        <ng-container *ngIf="essComponents.length > 1">
+            <oe-flat-widget-line [name]="component.alias">
+            </oe-flat-widget-line>
+        </ng-container>
+
+        <!-- Shown if a Emergency-Capacity-Reserve-Controller is assigned to this ess -->
+        <ng-container *ngIf="this.emergencyReserveComponents[component.id] as reserve, else noReserve">
+
+            <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+
+                <!-- Shown if emergencyReserve is enabled for this ess -->
+                <ng-container *ngIf="isEmergencyReserveEnabled[component.id]">
+                    <svg>
+                        <rect y="2" rx="5" ry="5" width="1%"
+                            [attr.x]="(reserve['currentReserveSoc'] > 98 ? 98 : reserve['currentReserveSoc'])  + '%'"
+                            height="16" style="fill:black;" />
+                    </svg>
+                </ng-container>
+            </oe-flat-widget-percentagebar>
+        </ng-container>
+
+        <ng-template #noReserve>
+            <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+            </oe-flat-widget-percentagebar>
+        </ng-template>
+
+        <ng-container *ngIf="!isHybridEss[component.id], else HybridEss">
+            <!-- For AC system: show ActivePower channel -->
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-container>
+
+        <ng-template #HybridEss>
+            <!-- For DC/hybrid system: show DcDischargePower channel -->
+            <oe-flat-widget-line [name]="'General.chargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
+            </oe-flat-widget-line>
+            <oe-flat-widget-line [name]="'General.dischargePower' | translate"
+                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
+            </oe-flat-widget-line>
+        </ng-template>
+
+        <oe-flat-widget-line *ngIf="isAtLeastInstaller && possibleBatteryExtensionMessage.get(component.id) as message"
+            [name]="message.text" leftColumnWidth="100" [style.color]="message.color"></oe-flat-widget-line>
+
+        <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
+        </oe-flat-widget-horizontal-line>
+
+    </ng-container>
+</oe-flat-widget>

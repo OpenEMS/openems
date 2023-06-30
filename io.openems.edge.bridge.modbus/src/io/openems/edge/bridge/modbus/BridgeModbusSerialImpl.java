@@ -5,8 +5,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
@@ -22,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -29,42 +31,34 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigSerial.class, factory = true)
-@Component(name = "Bridge.Modbus.Serial", //
+@Component(//
+		name = "Bridge.Modbus.Serial", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
+	@Reference
+	private Cycle cycle;
 
-	/**
-	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3').
-	 */
+	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
 
-	/**
-	 * The configured Baudrate (e.g. 9600).
-	 */
+	/** The configured Baudrate (e.g. 9600). */
 	private int baudrate;
 
-	/**
-	 * The configured Databits (e.g. 8).
-	 */
+	/** The configured Databits (e.g. 8). */
 	private int databits;
 
-	/**
-	 * The configured Stopbits.
-	 */
+	/** The configured Stopbits. */
 	private Stopbit stopbits;
 
-	/**
-	 * The configured parity.
-	 */
+	/** The configured parity. */
 	private Parity parity;
 
 	public BridgeModbusSerialImpl() {
@@ -76,7 +70,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	void activate(ComponentContext context, ConfigSerial config) {
+	private void activate(ComponentContext context, ConfigSerial config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
 		this.portName = config.portName();
@@ -86,9 +80,15 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		this.parity = config.parity();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public Cycle getCycle() {
+		return this.cycle;
 	}
 
 	@Override
@@ -101,8 +101,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		SerialConnection connection = this.getModbusConnection();
-		ModbusSerialTransaction transaction = new ModbusSerialTransaction(connection);
+		var connection = this.getModbusConnection();
+		var transaction = new ModbusSerialTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
 		return transaction;
 	}
@@ -114,7 +114,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			/*
 			 * create new connection
 			 */
-			SerialParameters params = new SerialParameters();
+			var params = new SerialParameters();
 			params.setPortName(this.portName);
 			params.setBaudRate(this.baudrate);
 			params.setDatabits(this.databits);
@@ -122,7 +122,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setParity(this.parity.getValue());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
-			SerialConnection connection = new SerialConnection(params);
+			var connection = new SerialConnection(params);
 			this._connection = connection;
 		}
 		if (!this._connection.isOpen()) {

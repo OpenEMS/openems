@@ -1,110 +1,103 @@
 package io.openems.edge.common.filter;
 
-import io.openems.common.exceptions.OpenemsException;
-
 /**
- * A controller that increases the input by a given increase rate.
+ * A controller that applies a ramp to a given value.
  */
 public class RampFilter {
 
-	public static final double DEFAULT_INCREASE_RATE = 0.05;
+	// Last value that was calculated last cycle
+	private Float lastValue;
 
-	private double increasingRate;
-
-	private Integer lowLimit = null;
-	private Integer highLimit = null;
-
-	/**
-	 * Creates a RampFilter
-	 * 
-	 * @param increasingRate the rate of increase
-	 */
-	public RampFilter(double increasingRate) {
-		this.increasingRate = DEFAULT_INCREASE_RATE;
-		if (increasingRate > 0 && increasingRate < 1) {
-			this.increasingRate = increasingRate;
-		}
-	}
-
-	/**
-	 * Creates a RampFilter using default values
-	 */
 	public RampFilter() {
-		this(DEFAULT_INCREASE_RATE);
+		this(null);
+	}
+
+	public RampFilter(Float initialValue) {
+		this.lastValue = initialValue;
 	}
 
 	/**
-	 * Limit the output value.
-	 * 
-	 * @param lowLimit  lowest allowed output value
-	 * @param highLimit highest allowed output value
+	 * Get filtered value using the present lastValue, the value to reach and a
+	 * fixed maximum change per call.
+	 *
+	 * @param targetValue      Value to reach
+	 * @param maxChangePerCall Fixed change per call
+	 * @return value as Integer with applied ramp filter
 	 */
-	public void setLimits(Integer lowLimit, Integer highLimit) {
-		if (lowLimit != null && highLimit != null && lowLimit > highLimit) {
-			throw new IllegalArgumentException(
-					"Given LowLimit [" + lowLimit + "] is higher than HighLimit [" + highLimit + "]");
+	public Integer getFilteredValueAsInteger(Float targetValue, float maxChangePerCall) {
+		var result = this.applyRampFilter(targetValue, maxChangePerCall);
+		if (result == null) {
+			return null;
 		}
-		this.lowLimit = lowLimit;
-		this.highLimit = highLimit;
+		return Math.round(result);
 	}
 
 	/**
-	 * Apply the filter using the current Channel value as input and the target
-	 * value.
-	 * 
-	 * @param input  the input value, e.g. the measured Channel value
-	 * @param target the target value
-	 * @return the filtered set-point value
-	 * @throws OpenemsException
+	 * Get filtered value using the given lastValue, the value to reach and a
+	 * calculated maximum change per call.
+	 *
+	 * @param targetValue  Value to reach
+	 * @param lastValue    Last or current value that needs to be adjusted
+	 * @param maximumLimit Maximum limit used to calculate a fixed change per call
+	 * @param increaseRate Increasing rate used to calculate a fixed change per call
+	 * @return value as Integer with applied ramp filter
 	 */
-	public int applyRampFilter(int input, int target) throws OpenemsException {
+	public Integer getFilteredValueAsInteger(float lastValue, Float targetValue, float maximumLimit,
+			float increaseRate) {
+		this.lastValue = lastValue;
+		return this.getFilteredValueAsInteger(targetValue, maximumLimit * increaseRate);
+	}
 
-		// Pre-process the target value: apply output value limits
-		target = this.applyLowHighLimits(target);
+	/**
+	 * Get filtered value using the given lastValue, the value to reach and a fixed
+	 * maximum change per call.
+	 *
+	 * @param targetValue      Value to reach
+	 * @param lastValue        Last or current value that needs to be adjusted
+	 * @param maxChangePerCall Fixed change per call
+	 * @return value as Integer with applied ramp filter
+	 */
+	public Integer getFilteredValueAsInteger(float lastValue, Float targetValue, float maxChangePerCall) {
+		this.lastValue = lastValue;
+		return this.getFilteredValueAsInteger(targetValue, maxChangePerCall);
+	}
 
-		// Make sure that there is a highLimit set
-		if (this.highLimit == null) {
-			throw new OpenemsException(
-					"No high limit given in EvcsFilter. Please call setLimits before applying the filter.");
+	private Float applyRampFilter(Float targetValue, float maxChangePerCall) {
+		if (targetValue == null) {
+			return null;
 		}
 
-		// We are already there
-		if (input == target) {
-			return target;
+		if (this.lastValue == null) {
+			this.lastValue = targetValue;
+			return targetValue;
 		}
-
-		// Calculate the next additional power
-		double additionalPower = this.highLimit * this.increasingRate;
-
-		// Next power
-		double output = input;
-		if (input < target) {
-			// input should increase
-			output += additionalPower;
-			output = output > target ? target : output;
+		if (targetValue > this.lastValue) {
+			return this.increase(targetValue, maxChangePerCall);
 		} else {
-			// input should decrease
-			output -= additionalPower;
-			output = output < target ? target : output;
+			return this.decrease(targetValue, maxChangePerCall);
 		}
-
-		// Post-process the output value: convert to integer
-		return Math.round((float) output);
 	}
 
-	/**
-	 * Applies the configured PID low and high limits to a value.
-	 * 
-	 * @param value the input value
-	 * @return the value within low and high limit
-	 */
-	protected int applyLowHighLimits(int value) {
-		if (this.lowLimit != null && value < this.lowLimit) {
-			value = this.lowLimit;
+	private float increase(float targetValue, float maxChangePerCall) {
+		final float result;
+		if (this.lastValue == null) {
+			result = this.lastValue;
+		} else {
+			result = Math.min(this.lastValue + maxChangePerCall, targetValue);
 		}
-		if (this.highLimit != null && value > this.highLimit) {
-			value = this.highLimit;
+
+		this.lastValue = result;
+		return result;
+	}
+
+	private float decrease(float targetValue, float maxChangePerCall) {
+		final float result;
+		if (this.lastValue == null) {
+			result = targetValue;
+		} else {
+			result = Math.max(this.lastValue - maxChangePerCall, targetValue);
 		}
-		return value;
+		this.lastValue = result;
+		return result;
 	}
 }

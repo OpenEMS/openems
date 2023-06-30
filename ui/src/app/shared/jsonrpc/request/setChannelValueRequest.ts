@@ -16,9 +16,9 @@ import { JsonrpcRequest } from "../base";
  * }
  * </pre>
  */
-export class SetChannelVaLueRequest extends JsonrpcRequest {
+export class SetChannelValueRequest extends JsonrpcRequest {
 
-    static METHOD: string = "setChannelValue";
+    private static METHOD: string = "setChannelValue";
 
     public constructor(
         public readonly params: {
@@ -27,7 +27,7 @@ export class SetChannelVaLueRequest extends JsonrpcRequest {
             value: any
         }
     ) {
-        super(SetChannelVaLueRequest.METHOD, params);
+        super(SetChannelValueRequest.METHOD, params);
     }
 
 }

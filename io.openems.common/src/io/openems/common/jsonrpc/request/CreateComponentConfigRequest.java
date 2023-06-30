@@ -1,7 +1,6 @@
 package io.openems.common.jsonrpc.request;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -13,7 +12,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'createComponentConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -23,7 +22,7 @@ import io.openems.common.utils.JsonUtils;
  *     "factoryPid": string,
  *     "properties": [{
  *       "name": string,
- *       "value": any 
+ *       "value": any
  *     }]
  *   }
  * }
@@ -31,40 +30,54 @@ import io.openems.common.utils.JsonUtils;
  */
 public class CreateComponentConfigRequest extends JsonrpcRequest {
 
+	public static final String METHOD = "createComponentConfig";
+
+	/**
+	 * Create {@link CreateComponentConfigRequest} from a template
+	 * {@link JsonrpcRequest}.
+	 *
+	 * @param r the template {@link JsonrpcRequest}
+	 * @return the {@link CreateComponentConfigRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static CreateComponentConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		return CreateComponentConfigRequest.from(r.getId(), r.getParams());
+		var p = r.getParams();
+		var factoryPid = JsonUtils.getAsString(p, "factoryPid");
+		var properties = Property.from(JsonUtils.getAsJsonArray(p, "properties"));
+		return new CreateComponentConfigRequest(r, factoryPid, properties);
 	}
 
-	public static CreateComponentConfigRequest from(UUID id, JsonObject params) throws OpenemsNamedException {
-		String factoryPid = JsonUtils.getAsString(params, "factoryPid");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
-		return new CreateComponentConfigRequest(id, factoryPid, properties);
-	}
-
+	/**
+	 * Create {@link CreateComponentConfigRequest} from a {@link JsonObject}.
+	 *
+	 * @param params the {@link JsonObject}
+	 * @return the {@link CreateComponentConfigRequest}
+	 * @throws OpenemsNamedException on parse error
+	 */
 	public static CreateComponentConfigRequest from(JsonObject params) throws OpenemsNamedException {
-		String factoryPid = JsonUtils.getAsString(params, "factoryPid");
-		List<Property> properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
+		var factoryPid = JsonUtils.getAsString(params, "factoryPid");
+		var properties = Property.from(JsonUtils.getAsJsonArray(params, "properties"));
 		return new CreateComponentConfigRequest(factoryPid, properties);
 	}
-
-	public final static String METHOD = "createComponentConfig";
 
 	private final String factoryPid;
 	private final List<Property> properties;
 
 	public CreateComponentConfigRequest(String factoryPid, List<Property> properties) {
-		this(UUID.randomUUID(), factoryPid, properties);
+		super(CreateComponentConfigRequest.METHOD);
+		this.factoryPid = factoryPid;
+		this.properties = properties;
 	}
 
-	public CreateComponentConfigRequest(UUID id, String factoryPid, List<Property> properties) {
-		super(id, METHOD);
+	private CreateComponentConfigRequest(JsonrpcRequest request, String factoryPid, List<Property> properties) {
+		super(request, CreateComponentConfigRequest.METHOD);
 		this.factoryPid = factoryPid;
 		this.properties = properties;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray properties = new JsonArray();
+		var properties = new JsonArray();
 		for (Property property : this.properties) {
 			properties.add(property.toJson());
 		}
@@ -74,10 +87,20 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 				.build();
 	}
 
+	/**
+	 * Gets the Factory-PID.
+	 *
+	 * @return Factory-PID
+	 */
 	public String getFactoryPid() {
-		return factoryPid;
+		return this.factoryPid;
 	}
 
+	/**
+	 * Gets the Component-ID, or empty String if none is given.
+	 *
+	 * @return Component-ID
+	 */
 	public String getComponentId() {
 		for (UpdateComponentConfigRequest.Property property : this.properties) {
 			if (property.getName().equals("id")) {
@@ -87,7 +110,12 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 		return "";
 	}
 
+	/**
+	 * Gets the List of Properties.
+	 *
+	 * @return Properties
+	 */
 	public List<UpdateComponentConfigRequest.Property> getProperties() {
-		return properties;
+		return this.properties;
 	}
 }

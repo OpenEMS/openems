@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -126,7 +127,7 @@ public class OneWireContainer02 extends OneWireContainer {
 	/**
 	 * General purpose buffer
 	 */
-	private byte[] buffer = new byte[82];
+	private final byte[] buffer = new byte[82];
 
 	// --------
 	// -------- Constructor
@@ -153,7 +154,6 @@ public class OneWireContainer02 extends OneWireContainer {
 	 * @see #setupContainer(DSPortAdapter,String)
 	 */
 	public OneWireContainer02() {
-		super();
 	}
 
 	/**
@@ -216,22 +216,29 @@ public class OneWireContainer02 extends OneWireContainer {
 
 	/**
 	*/
+	@Override
 	public String getName() {
 		return "DS1991";
 	}
 
 	/**
 	*/
+	@Override
 	public String getAlternateNames() {
 		return "DS1425";
 	}
 
 	/**
 	*/
+	@Override
 	public String getDescription() {
-		return "2048 bits of nonvolatile read/write memory " + "organized as three secure keys of 384 bits each "
-				+ "and a 512 bit scratch pad. Each key has its own " + "64 bit password and 64 bit ID field.  Secure "
-				+ "memory cannot be deciphered without matching 64 " + "bit password.";
+		return """
+				2048 bits of nonvolatile read/write memory \
+				organized as three secure keys of 384 bits each \
+				and a 512 bit scratch pad. Each key has its own \
+				64 bit password and 64 bit ID field.  Secure \
+				memory cannot be deciphered without matching 64 \
+				bit password.""";
 	}
 
 	// --------
@@ -255,29 +262,30 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// confirm that data will fit
-		if (addr > 0x3F)
+		if (addr > 0x3F) {
 			throw new IllegalArgumentException("Address out of range: 0x00 to 0x3F");
+		}
 
-		int dataRoom = 0x3F - addr + 1;
+		var dataRoom = 0x3F - addr + 1;
 
-		if (dataRoom < data.length)
+		if (dataRoom < data.length) {
 			throw new IllegalArgumentException("Data is too long for scratchpad.");
+		}
 
-		buffer[0] = WRITE_SCRATCHPAD_COMMAND;
-		buffer[1] = (byte) (addr | 0xC0);
-		buffer[2] = (byte) (~buffer[1]);
+		this.buffer[0] = WRITE_SCRATCHPAD_COMMAND;
+		this.buffer[1] = (byte) (addr | 0xC0);
+		this.buffer[2] = (byte) ~this.buffer[1];
 
-		System.arraycopy(data, 0, buffer, 3, data.length);
+		System.arraycopy(data, 0, this.buffer, 3, data.length);
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 3 + data.length);
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException(
 					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(this.buffer, 0, 3 + data.length);
 	}
 
 	/**
@@ -291,28 +299,26 @@ public class OneWireContainer02 extends OneWireContainer {
 	 *                            adapter
 	 */
 	public byte[] readScratchpad() throws OneWireIOException, OneWireException {
-		buffer[0] = READ_SCRATCHPAD_COMMAND;
-		buffer[1] = (byte) 0xC0; // Starting address of scratchpad
-		buffer[2] = 0x3F;
+		this.buffer[0] = READ_SCRATCHPAD_COMMAND;
+		this.buffer[1] = (byte) 0xC0; // Starting address of scratchpad
+		this.buffer[2] = 0x3F;
 
-		for (int i = 3; i < 67; i++)
-			buffer[i] = (byte) 0xFF;
+		for (var i = 3; i < 67; i++) {
+			this.buffer[i] = (byte) 0xFF;
+		}
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 67);
+		if (this.adapter.select(this.address)) {
+			this.adapter.dataBlock(this.buffer, 0, 67);
 
-			byte[] retData = new byte[64];
+			var retData = new byte[64];
 
-			System.arraycopy(buffer, 3, retData, 0, 64);
+			System.arraycopy(this.buffer, 3, retData, 0, 64);
 
 			return retData;
-		} else {
-
-			// device must not have been present
-			throw new OneWireIOException(
-					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		// device must not have been present
+		throw new OneWireIOException("MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 	}
 
 	/**
@@ -336,34 +342,36 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// confirm that input is OK
-		if ((key < 0) || (key > 2))
+		if (key < 0 || key > 2) {
 			throw new IllegalArgumentException("Key out of range: 0 to 2.");
+		}
 
-		if (passwd.length != 8)
+		if (passwd.length != 8) {
 			throw new IllegalArgumentException("Password must contain exactly 8 characters");
+		}
 
-		if ((blockNum < 0) || (blockNum > 8))
+		if (blockNum < 0 || blockNum > 8) {
 			throw new IllegalArgumentException("Block id out of range: 0 to 8.");
+		}
 
-		buffer[0] = COPY_SCRATCHPAD_COMMAND;
-		buffer[1] = (byte) (key << 6);
-		buffer[2] = (byte) (~buffer[1]);
+		this.buffer[0] = COPY_SCRATCHPAD_COMMAND;
+		this.buffer[1] = (byte) (key << 6);
+		this.buffer[2] = (byte) ~this.buffer[1];
 
 		// set up block selector code
-		System.arraycopy(blockCodes[blockNum], 0, buffer, 3, 8);
+		System.arraycopy(blockCodes[blockNum], 0, this.buffer, 3, 8);
 
 		// set up password
-		System.arraycopy(passwd, 0, buffer, 11, 8);
+		System.arraycopy(passwd, 0, this.buffer, 11, 8);
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 19);
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException(
 					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(this.buffer, 0, 19);
 	}
 
 	/**
@@ -393,9 +401,9 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// create block to send back
-		byte[] retData = new byte[64];
+		var retData = new byte[64];
 
-		readSubkey(retData, key, passwd);
+		this.readSubkey(retData, key, passwd);
 
 		return retData;
 	}
@@ -424,39 +432,42 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// confirm key and passwd within legal parameters
-		if (key > 0x03)
+		if (key > 0x03) {
 			throw new IllegalArgumentException("Key out of range: 0 to 2.");
+		}
 
-		if (passwd.length != 8)
+		if (passwd.length != 8) {
 			throw new IllegalArgumentException("Password must contain exactly 8 characters.");
+		}
 
-		if (data.length != 64)
+		if (data.length != 64) {
 			throw new IllegalArgumentException("Data must be size 64.");
+		}
 
-		buffer[0] = READ_SUBKEY_COMMAND;
-		buffer[1] = (byte) ((key << 6) | 0x10);
-		buffer[2] = (byte) (~buffer[1]);
+		this.buffer[0] = READ_SUBKEY_COMMAND;
+		this.buffer[1] = (byte) (key << 6 | 0x10);
+		this.buffer[2] = (byte) ~this.buffer[1];
 
 		// prepare buffer to receive
-		for (int i = 3; i < 67; i++)
-			buffer[i] = (byte) 0xFF;
+		for (var i = 3; i < 67; i++) {
+			this.buffer[i] = (byte) 0xFF;
+		}
 
 		// insert password data
-		System.arraycopy(passwd, 0, buffer, 11, 8);
+		System.arraycopy(passwd, 0, this.buffer, 11, 8);
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 67);
-			adapter.reset();
-
-			// create block to send back
-			System.arraycopy(buffer, 3, data, 0, 64);
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException(
 					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(this.buffer, 0, 67);
+		this.adapter.reset();
+
+		// create block to send back
+		System.arraycopy(this.buffer, 3, data, 0, 64);
 	}
 
 	/**
@@ -482,45 +493,49 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// confirm key names and passwd within legal parameters
-		if (key > 0x03)
+		if (key > 0x03) {
 			throw new IllegalArgumentException("Key value out of range: 0 to 2.");
+		}
 
-		if (newPasswd.length != 8)
+		if (newPasswd.length != 8) {
 			throw new IllegalArgumentException("Password must contain exactly 8 characters.");
+		}
 
-		if (oldName.length != 8)
+		if (oldName.length != 8) {
 			throw new IllegalArgumentException("Old name must contain exactly 8 characters.");
+		}
 
-		if (newName.length != 8)
+		if (newName.length != 8) {
 			throw new IllegalArgumentException("New name must contain exactly 8 characters.");
+		}
 
-		buffer[0] = WRITE_PASSWORD_COMMAND;
-		buffer[1] = (byte) (key << 6);
-		buffer[2] = (byte) (~buffer[1]);
+		this.buffer[0] = WRITE_PASSWORD_COMMAND;
+		this.buffer[1] = (byte) (key << 6);
+		this.buffer[2] = (byte) ~this.buffer[1];
 
 		// prepare buffer to receive 8 bytes of the identifier
-		for (int i = 3; i < 11; i++)
-			buffer[i] = (byte) 0xFF;
+		for (var i = 3; i < 11; i++) {
+			this.buffer[i] = (byte) 0xFF;
+		}
 
 		// prepare same subkey identifier for confirmation
-		System.arraycopy(oldName, 0, buffer, 11, 8);
+		System.arraycopy(oldName, 0, this.buffer, 11, 8);
 
 		// prepare new subkey identifier
-		System.arraycopy(newName, 0, buffer, 19, 8);
+		System.arraycopy(newName, 0, this.buffer, 19, 8);
 
 		// prepare new password for writing
-		System.arraycopy(newPasswd, 0, buffer, 27, 8);
+		System.arraycopy(newPasswd, 0, this.buffer, 27, 8);
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 35);
-			adapter.reset();
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException(
 					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(this.buffer, 0, 35);
+		this.adapter.reset();
 	}
 
 	/**
@@ -544,42 +559,46 @@ public class OneWireContainer02 extends OneWireContainer {
 			throws OneWireIOException, OneWireException, IllegalArgumentException {
 
 		// confirm key names and passwd within legal parameters
-		if (key > 0x03)
+		if (key > 0x03) {
 			throw new IllegalArgumentException("Key out of range: 0 to 2.");
+		}
 
-		if ((addr < 0x00) || (addr > 0x3F))
+		if (addr < 0x00 || addr > 0x3F) {
 			throw new IllegalArgumentException("Address must be between 0x00 and 0x3F");
+		}
 
-		if (passwd.length != 8)
+		if (passwd.length != 8) {
 			throw new IllegalArgumentException("Password must contain exactly 8 characters.");
+		}
 
-		if (data.length > (0x3F - addr + 1))
+		if (data.length > 0x3F - addr + 1) {
 			throw new IllegalArgumentException("Data length out of bounds.");
+		}
 
-		buffer[0] = WRITE_SUBKEY_COMMAND;
-		buffer[1] = (byte) ((key << 6) | addr);
-		buffer[2] = (byte) (~buffer[1]);
+		this.buffer[0] = WRITE_SUBKEY_COMMAND;
+		this.buffer[1] = (byte) (key << 6 | addr);
+		this.buffer[2] = (byte) ~this.buffer[1];
 
 		// prepare buffer to receive 8 bytes of the identifier
-		for (int i = 3; i < 11; i++)
-			buffer[i] = (byte) 0xFF;
+		for (var i = 3; i < 11; i++) {
+			this.buffer[i] = (byte) 0xFF;
+		}
 
 		// prepare same subkey identifier for confirmation
-		System.arraycopy(passwd, 0, buffer, 11, 8);
+		System.arraycopy(passwd, 0, this.buffer, 11, 8);
 
 		// prepare data to write
-		System.arraycopy(data, 0, buffer, 19, data.length);
+		System.arraycopy(data, 0, this.buffer, 19, data.length);
 
 		// send command block
-		if (adapter.select(address)) {
-			adapter.dataBlock(buffer, 0, 19 + data.length);
-			adapter.reset();
-		} else {
+		if (!this.adapter.select(this.address)) {
 
 			// device must not have been present
 			throw new OneWireIOException(
 					"MultiKey iButton " + this.getAddressAsString() + " not found on 1-Wire Network");
 		}
+		this.adapter.dataBlock(this.buffer, 0, 19 + data.length);
+		this.adapter.reset();
 	}
 
 	/**
@@ -662,3 +681,4 @@ public class OneWireContainer02 extends OneWireContainer {
 		codes[7][7] = (byte) 0xB3;
 	}
 }
+// CHECKSTYLE:ON

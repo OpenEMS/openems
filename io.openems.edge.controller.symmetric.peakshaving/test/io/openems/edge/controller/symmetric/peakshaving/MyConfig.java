@@ -1,16 +1,16 @@
 package io.openems.edge.controller.symmetric.peakshaving;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public int peakShavingPower;
-		public int rechargePower;
+		private String essId;
+		private String meterId;
+		private int peakShavingPower;
+		private int rechargePower;
 
 		private Builder() {
 		}
@@ -47,7 +47,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

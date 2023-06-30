@@ -1,4 +1,4 @@
-import { UUID } from "angular2-uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 export abstract class JsonrpcMessage {
 
@@ -37,7 +37,7 @@ export class JsonrpcRequest extends AbstractJsonrpcRequest {
     public constructor(
         public readonly method: string,
         public readonly params: {},
-        public readonly id: string = UUID.UUID()
+        public readonly id: string = uuidv4()
     ) {
         super(method, params);
     }
@@ -54,7 +54,7 @@ export class JsonrpcNotification extends AbstractJsonrpcRequest {
 
 export abstract class JsonrpcResponse extends JsonrpcMessage {
     public constructor(
-        public readonly id: string,
+        public readonly id: string
     ) {
         super();
     }

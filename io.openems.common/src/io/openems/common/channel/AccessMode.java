@@ -3,15 +3,15 @@ package io.openems.common.channel;
 public enum AccessMode {
 
 	/**
-	 * Read-Only
+	 * Read-Only.
 	 */
 	READ_ONLY("RO"),
 	/**
-	 * Read-Write
+	 * Read-Write.
 	 */
 	READ_WRITE("RW"),
 	/**
-	 * Write-Only
+	 * Write-Only.
 	 */
 	WRITE_ONLY("WO");
 
@@ -22,6 +22,6 @@ public enum AccessMode {
 	}
 
 	public String getAbbreviation() {
-		return abbreviation;
+		return this.abbreviation;
 	}
 }

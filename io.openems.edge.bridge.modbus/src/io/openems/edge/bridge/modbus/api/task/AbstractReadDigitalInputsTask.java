@@ -28,7 +28,7 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	@Override
 	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, Boolean[] response)
 			throws OpenemsException {
-		((ModbusCoilElement) modbusElement).setInputCoil((Boolean) response[position]);
+		((ModbusCoilElement) modbusElement).setInputCoil(response[position]);
 	}
 
 	@Override
@@ -39,9 +39,9 @@ public abstract class AbstractReadDigitalInputsTask extends AbstractReadTask<Boo
 	@Override
 	protected Boolean[] handleResponse(ModbusResponse response) throws OpenemsException {
 		try {
-			return (Utils.toBooleanArray(getBitVector(response)));
+			return Utils.toBooleanArray(this.getBitVector(response));
 		} catch (ClassCastException e) {
-			throw new OpenemsException("Unexpected Modbus response. Expected [" + getExpectedInputClassname()
+			throw new OpenemsException("Unexpected Modbus response. Expected [" + this.getExpectedInputClassname()
 					+ "], got [" + response.getClass().getSimpleName() + "]");
 		}
 	}

@@ -31,7 +31,7 @@ export class ComponentInstallComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.addComponents'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.addComponents' }, this.route).then(edge => {
       this.edge = edge;
     });
     let factoryId = this.route.snapshot.params["factoryId"];
@@ -42,23 +42,29 @@ export class ComponentInstallComponent implements OnInit {
       let model = {};
       for (let property of this.factory.properties) {
         let property_id = property.id.replace('.', '_');
+        let defaultValue = property.defaultValue;
+        // if the type is an array and there is no defaultValue then set the defaultValue to an empty array
+        if (property.schema["type"] === 'repeat' && defaultValue === null) {
+          defaultValue = [];
+        }
         let field: FormlyFieldConfig = {
           key: property_id,
           type: 'input',
           templateOptions: {
             label: property.name,
+            required: defaultValue === null,
             description: property.description
           }
-        }
+        };
         // add Property Schema 
         Utils.deepCopy(property.schema, field);
         fields.push(field);
-        if (property.defaultValue != null) {
-          model[property_id] = property.defaultValue;
+        if (defaultValue != null) {
+          model[property_id] = defaultValue;
 
           // Set the next free Component-ID as defaultValue
-          if (property_id == 'id') {
-            let thisMatch = property.defaultValue.match(/^(.*)(\d+)$/);
+          if (property_id == 'id' && property.schema["type"] !== 'repeat') {
+            let thisMatch = defaultValue.match(/^(.*)(\d+)$/);
             if (thisMatch) {
               let thisPrefix = thisMatch[1];
               let highestSuffix = Number.parseInt(thisMatch[2]);
@@ -84,6 +90,10 @@ export class ComponentInstallComponent implements OnInit {
   }
 
   public submit() {
+    if (!this.form.valid) {
+      this.service.toast("Please fill mandatory fields!", "danger");
+      return;
+    }
     let properties: { name: string, value: any }[] = [];
     for (let controlKey in this.form.controls) {
       let control = this.form.controls[controlKey];

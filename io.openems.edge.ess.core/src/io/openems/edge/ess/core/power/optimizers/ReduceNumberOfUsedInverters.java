@@ -19,12 +19,12 @@ public class ReduceNumberOfUsedInverters {
 
 	/**
 	 * Finds the Inverters that are minimally required to fulfill all Constraints.
-	 * 
+	 *
 	 * <p>
 	 * This method removes inverters till it finds a minimum setup. It uses an
 	 * algorithm similarly to binary tree search to find the minimum required number
 	 * of inverters.
-	 * 
+	 *
 	 * @param allInverters     a list of all inverters
 	 * @param targetDirection  the target direction
 	 * @param validateFunction a function that can tell if a setup is solvable with
@@ -61,26 +61,26 @@ public class ReduceNumberOfUsedInverters {
 
 		/**
 		 * Keeps tested solutions for enabled inverters:
-		 * 
+		 *
 		 * <ul>
 		 * <li>null -> still needs to be tried
 		 * <li>false -> this solution is not feasible
 		 * <li>true -> this solution is feasible
 		 * </ul>
 		 */
-		Boolean[] testedSolutions = new Boolean[sortedInverters.size()];
+		var testedSolutions = new Boolean[sortedInverters.size()];
 
 		while (true) {
 			// find first and last untested index
-			int firstUntestedIndex = -1;
-			for (int i = 0; i < testedSolutions.length; i++) {
+			var firstUntestedIndex = -1;
+			for (var i = 0; i < testedSolutions.length; i++) {
 				if (testedSolutions[i] == null) {
 					firstUntestedIndex = i;
 					break;
 				}
 			}
-			int lastUntestedIndex = -1;
-			for (int i = testedSolutions.length - 1; i > -1; i--) {
+			var lastUntestedIndex = -1;
+			for (var i = testedSolutions.length - 1; i > -1; i--) {
 				if (testedSolutions[i] == null) {
 					lastUntestedIndex = i;
 					break;
@@ -106,14 +106,14 @@ public class ReduceNumberOfUsedInverters {
 				validateFunction.apply(getDisabledInverters(sortedInverters, testIndex));
 
 				// solved successfully
-				for (int i = lastUntestedIndex; i >= testIndex; i--) {
+				for (var i = lastUntestedIndex; i >= testIndex; i--) {
 					testedSolutions[i] = true;
 				}
 
 			} catch (Exception e) {
 
 				// solved unsuccessfully
-				for (int i = firstUntestedIndex; i <= testIndex; i++) {
+				for (var i = firstUntestedIndex; i <= testIndex; i++) {
 					testedSolutions[i] = false;
 				}
 
@@ -121,8 +121,8 @@ public class ReduceNumberOfUsedInverters {
 		}
 
 		// lowestTrueIndex is the optimal solution
-		int lowestTrueIndex = -1;
-		for (int i = 0; i < testedSolutions.length; i++) {
+		var lowestTrueIndex = -1;
+		for (var i = 0; i < testedSolutions.length; i++) {
 			if (testedSolutions[i] == Boolean.TRUE) {
 				lowestTrueIndex = i;
 				break;
@@ -135,7 +135,7 @@ public class ReduceNumberOfUsedInverters {
 		if (lowestTrueIndex == -1) {
 			// no solution -> do not disable any Inverters
 		} else {
-			List<Inverter> disabledInverters = getDisabledInverters(sortedInverters, lowestTrueIndex);
+			var disabledInverters = getDisabledInverters(sortedInverters, lowestTrueIndex);
 			for (Inverter disabledInverter : disabledInverters) {
 				result.remove(disabledInverter);
 			}

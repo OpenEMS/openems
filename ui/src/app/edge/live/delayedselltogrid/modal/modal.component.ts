@@ -1,17 +1,17 @@
-import { Component, Input } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
-export class DelayedSellToGridModalComponent {
+export class DelayedSellToGridModalComponent implements OnInit {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
+    @Input() protected component: EdgeConfig.Component;
+    @Input() protected edge: Edge;
 
     private static readonly SELECTOR = "delayedselltogrid-modal";
 
@@ -23,7 +23,7 @@ export class DelayedSellToGridModalComponent {
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket,
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {
@@ -36,7 +36,7 @@ export class DelayedSellToGridModalComponent {
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
                 Validators.required
             ]))
-        })
+        });
     }
 
     applyChanges() {
@@ -49,9 +49,9 @@ export class DelayedSellToGridModalComponent {
                         let updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value })
+                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
                             }
-                        })
+                        });
                         this.loading = true;
                         this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
                             this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
@@ -64,8 +64,8 @@ export class DelayedSellToGridModalComponent {
                             this.loading = false;
                             this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
                             console.warn(reason);
-                        })
-                        this.formGroup.markAsPristine()
+                        });
+                        this.formGroup.markAsPristine();
                     } else {
                         this.service.toast(this.translate.instant('Edge.Index.Widgets.DelayedSellToGrid.relationError'), 'danger');
                     }

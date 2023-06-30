@@ -13,7 +13,7 @@ public class Undefined extends BasteState {
 
 	@Override
 	public IState getNextState() {
-		return OnGridState.ONGRID; // Currently it is ot defined, so it is always ongrid
+		return OnGridState.ONGRID; // Currently it is not defined, so it is always ongrid
 	}
 
 	@Override

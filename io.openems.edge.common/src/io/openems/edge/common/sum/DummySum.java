@@ -1,6 +1,5 @@
 package io.openems.edge.common.sum;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -11,8 +10,6 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class DummySum extends AbstractOpenemsComponent implements Sum, OpenemsComponent {
 
-	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
-
 	public DummySum() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -21,7 +18,7 @@ public class DummySum extends AbstractOpenemsComponent implements Sum, OpenemsCo
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, OpenemsConstants.SUM_ID, "", true);
+		super.activate(null, Sum.SINGLETON_COMPONENT_ID, Sum.SINGLETON_SERVICE_PID, true);
 	}
 
 	@Override

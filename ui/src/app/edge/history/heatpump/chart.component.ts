@@ -1,46 +1,44 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from './../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'heatpumpchart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() private period: DefaultTypes.HistoryPeriod;
+    @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public component: EdgeConfig.Component;
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("heatpump-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "heatpump-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -59,25 +57,26 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
                 let stateTimeData = result.data[this.component.id + '/Status'].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
-                        return value
+                        return value;
                     }
-                })
+                });
 
                 datasets.push({
                     label: this.translate.instant('General.state'),
                     data: stateTimeData,
                     hidden: false
-                })
+                });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
-                    borderColor: 'rgba(200,0,0,1)',
-                })
+                    borderColor: 'rgba(200,0,0,1)'
+                });
             }
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();
@@ -88,13 +87,13 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             resolve([new ChannelAddress(this.component.id, 'Status')]);
-        })
+        });
     }
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
         let translate = this.translate;
-        options.scales.yAxes[0].id = 'yAxis1'
+        options.scales.yAxes[0].id = 'yAxis1';
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');
         options.scales.yAxes[0].ticks.callback = function (label, index, labels) {
             switch (label) {
@@ -109,7 +108,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                 case 3:
                     return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
-        }
+        };
         options.scales.yAxes[0].ticks.max = 3;
         options.scales.yAxes[0].ticks.stepSize = 1;
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
@@ -138,7 +137,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     break;
             }
             return label + ": " + toolTipValue; // TODO get locale dynamically
-        }
+        };
         this.options = options;
     }
 

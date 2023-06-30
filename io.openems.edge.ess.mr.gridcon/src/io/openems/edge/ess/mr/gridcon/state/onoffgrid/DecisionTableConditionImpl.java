@@ -2,13 +2,11 @@ package io.openems.edge.ess.mr.gridcon.state.onoffgrid;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanReadChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.ess.mr.gridcon.GridconPcs;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class DecisionTableConditionImpl implements DecisionTableCondition {
 
@@ -98,19 +96,11 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	public MeterCommunicationFailed isMeterCommunicationFailed() {
 
 		try {
-			AbstractOpenemsModbusComponent meter = this.manager.getComponent(this.meterId);
-
-			BridgeModbus modbusBridge = meter.getBridgeModbus();
-
-			Value<Boolean> communicationFailedOpt = modbusBridge.getSlaveCommunicationFailed();
-			// If the channel value is present and it is set then the communication is
-			// broken
-			if (communicationFailedOpt.isDefined()) {
-				if (communicationFailedOpt.get()) {
-					return MeterCommunicationFailed.TRUE;
-				} else {
-					return MeterCommunicationFailed.FALSE;
-				}
+			ModbusComponent meter = this.manager.getComponent(this.meterId);
+			if (meter.getModbusCommunicationFailed().get() == Boolean.TRUE) {
+				return MeterCommunicationFailed.TRUE;
+			} else if (meter.getModbusCommunicationFailed().get() == Boolean.FALSE) {
+				return MeterCommunicationFailed.FALSE;
 			} else {
 				return MeterCommunicationFailed.UNSET;
 			}
@@ -122,7 +112,7 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 	@Override
 	public VoltageInRange isVoltageInRange() {
 		try {
-			SymmetricMeter meter = this.manager.getComponent(this.meterId);
+			ElectricityMeter meter = this.manager.getComponent(this.meterId);
 			double voltage = meter.getVoltage().get() / 1000;
 			if (voltage > DecisionTableCondition.LOWER_VOLTAGE && voltage < DecisionTableCondition.UPPER_VOLTAGE) {
 				return VoltageInRange.TRUE;

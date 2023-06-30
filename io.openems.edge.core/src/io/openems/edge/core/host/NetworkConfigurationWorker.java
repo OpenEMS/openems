@@ -3,15 +3,14 @@ package io.openems.edge.core.host;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractWorker;
 
 /**
@@ -31,9 +30,9 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		try {
-			String actualNetworkConfiguration = this.parent.operatingSystem.getNetworkConfiguration().toJson()
-					.toString();
-			String persistedNetworkConfiguration = this.parent.config.networkConfiguration();
+			var actualNetworkConfiguration = JsonUtils
+					.prettyToString(this.parent.operatingSystem.getNetworkConfiguration().toJson());
+			var persistedNetworkConfiguration = this.parent.config.networkConfiguration();
 
 			if (!actualNetworkConfiguration.equals(persistedNetworkConfiguration)) {
 				this.persistNetworkConfiguration(actualNetworkConfiguration);
@@ -47,14 +46,14 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 
 	/**
 	 * Reconfigure Parent to persist the actual network configuration.
-	 * 
+	 *
 	 * @param networkConfiguration the actual network configuration
 	 * @throws IOException on error
 	 */
 	private void persistNetworkConfiguration(String networkConfiguration) throws IOException {
-		String factoryPid = this.parent.serviceFactoryPid();
-		final Configuration config = this.parent.cm.getConfiguration(factoryPid, null);
-		Dictionary<String, Object> properties = config.getProperties();
+		var factoryPid = this.parent.serviceFactoryPid();
+		final var config = this.parent.cm.getConfiguration(factoryPid, null);
+		var properties = config.getProperties();
 		if (properties == null) {
 			// No 'Host' configuration existing yet -> create new configuration
 			properties = new Hashtable<>();

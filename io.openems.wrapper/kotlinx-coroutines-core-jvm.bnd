@@ -1,0 +1,34 @@
+Bundle-Name: kotlinx-coroutines-core-jvm
+Bundle-Description: The Java InfluxDB 2.0 Client Core
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-client
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 1.7.1
+
+Include-Resource: \
+	@kotlinx-coroutines-core-jvm-1.7.1.jar,\
+
+Export-Package: \
+	kotlinx.coroutines,\
+	kotlinx.coroutines.channels,\
+	kotlinx.coroutines.debug,\
+	kotlinx.coroutines.debug.internal,\
+	kotlinx.coroutines.flow,\
+	kotlinx.coroutines.flow.internal,\
+	kotlinx.coroutines.internal,\
+	kotlinx.coroutines.intrinsics,\
+	kotlinx.coroutines.scheduling,\
+	kotlinx.coroutines.selects,\
+	kotlinx.coroutines.sync,\
+	kotlinx.coroutines.test,\
+
+Import-Package: \
+	android.os;resolution:=optional,\
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false
+
+-fixupmessages "Classes found in the wrong directory"

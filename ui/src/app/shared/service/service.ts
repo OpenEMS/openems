@@ -1,24 +1,31 @@
+import { registerLocaleData } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { ChannelAddress } from '../shared';
-import { Cookie } from 'ng2-cookies';
-import { DefaultTypes } from './defaulttypes';
+import { ModalController, ToastController } from '@ionic/angular';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { filter, first, take } from 'rxjs/operators';
+import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Edges } from '../jsonrpc/shared';
-import { ErrorHandler, Injectable } from '@angular/core';
-import { filter, first, map } from 'rxjs/operators';
 import { JsonrpcResponseError } from '../jsonrpc/base';
-import { Language, LanguageTag } from '../translate/language';
-import { ModalController, ToastController } from '@ionic/angular';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { GetEdgeRequest } from '../jsonrpc/request/getEdgeRequest';
+import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { GetEdgeResponse } from '../jsonrpc/response/getEdgeResponse';
+import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { User } from '../jsonrpc/shared';
+import { ChannelAddress } from '../shared';
+import { Language } from '../type/language';
 import { Role } from '../type/role';
-import { TranslateService } from '@ngx-translate/core';
+import { AbstractService } from './abstractservice';
+import { DefaultTypes } from './defaulttypes';
+import { Websocket } from './websocket';
 
 @Injectable()
-export class Service implements ErrorHandler {
+export class Service extends AbstractService {
 
   public static readonly TIMEOUT = 15_000;
 
@@ -55,90 +62,59 @@ export class Service implements ErrorHandler {
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
    */
-  public readonly edges: BehaviorSubject<{ [edgeId: string]: Edge }> = new BehaviorSubject({});
+  public readonly metadata: BehaviorSubject<{
+    user: User, edges: { [edgeId: string]: Edge }
+  }> = new BehaviorSubject(null);
 
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
-  public websocket = null;
+  public websocket: Websocket = null;
 
   constructor(
     private router: Router,
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
     public modalCtrl: ModalController,
-    public translate: TranslateService,
+    public translate: TranslateService
   ) {
+    super();
     // add language
-    translate.addLangs(Language.getLanguages());
+    translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(LanguageTag.DE);
+    translate.setDefaultLang(Language.DEFAULT.key);
+
     // initialize history period
-    this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+    this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
+
+    // React on Language Change and update language
+    translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.setLang(Language.getByKey(event.lang));
+    });
   }
 
-  /**
-   * Reset everything to default
-   */
-  public initialize() {
-    console.log("initialize")
-    this.edges.next({});
-  }
-
-  /**
-   * Set the application language
-   */
-  public setLang(id: LanguageTag) {
-    this.translate.use(id);
+  public setLang(language: Language) {
+    if (language !== null) {
+      registerLocaleData(Language.getLocale(language.key));
+      this.translate.use(language.key);
+    } else {
+      this.translate.use(Language.DEFAULT.key);
+    }
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
   }
 
-  /**
-   * Convert the browser language in Language Tag
-   */
-  public browserLangToLangTag(browserLang: string): LanguageTag {
-    switch (browserLang) {
-      case "de": return LanguageTag.DE;
-      case "en": return LanguageTag.EN;
-      case "es": return LanguageTag.ES;
-      case "nl": return LanguageTag.NL;
-      case "cz": return LanguageTag.CZ;
-      case "fr": return LanguageTag.FR;
-      default: return LanguageTag.DE;
+  public getDocsLang(): string {
+    if (this.translate.currentLang == "de") {
+      return "de";
+    } else {
+      return "en";
     }
   }
 
-  /**
-   * Gets the token from the cookie
-   */
-  public getToken(): string {
-    return Cookie.get("token");
-  }
-
-  /**
-   * Sets the token in the cookie
-   */
-  public setToken(token: string) {
-    Cookie.set("token", token);
-  }
-
-  /**
-   * Removes the token from the cookie
-   */
-  public removeToken() {
-    Cookie.delete("token");
-  }
-
-  /**
-   * Shows a nofication using toastr
-   */
   public notify(notification: DefaultTypes.Notification) {
     this.notificationEvent.next(notification);
   }
 
-  /**
-   * Handles an application error
-   */
   public handleError(error: any) {
     console.error(error);
     // TODO: show notification
@@ -149,89 +125,46 @@ export class Service implements ErrorHandler {
     // this.notify(notification);
   }
 
-  /**
-   * Parses the route params and sets the current edge
-   */
-  public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
-    return new Promise((resolve) => {
+  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: Object }, activatedRoute: ActivatedRoute): Promise<Edge> {
+    return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
-        if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = 'OpenEMS UI';
+        if (typeof currentPageTitle === 'string') {
+          // Use given page title directly
+          if (currentPageTitle == null || currentPageTitle.trim() === '') {
+            this.currentPageTitle = environment.uiTitle;
+          } else {
+            this.currentPageTitle = currentPageTitle;
+          }
+
         } else {
-          this.currentPageTitle = currentPageTitle;
+          // Translate from key
+          this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
+            take(1)
+          ).subscribe(title => this.currentPageTitle = title);
         }
       }
       this.currentActivatedRoute = activatedRoute;
 
-      // Get Edge-ID. If not existing -> resolve null
-      let route = activatedRoute.snapshot;
-      let edgeId = route.params["edgeId"];
-      if (edgeId == null) {
-        // allow modal components to get edge id
-        if (route.url.length == 0) {
-          this.getCurrentEdge().then(edge => {
-            resolve(edge);
-          })
-        } else {
-          resolve(null);
-        }
-      }
-
-      let subscription: Subscription = null;
-      let onError = () => {
-        if (subscription != null) {
-          subscription.unsubscribe();
-        }
-        setCurrentEdge.apply(null);
-        // redirect to index
-        this.router.navigate(['/index']);
-      }
-
-      let timeout = setTimeout(() => {
-        console.error("Timeout while setting current edge");
-        //  onError();
-      }, Service.TIMEOUT);
-
-      let setCurrentEdge = (edge: Edge) => {
-        clearTimeout(timeout);
-        if (edge != this.currentEdge.value) {
-          if (edge != null) {
-            edge.markAsCurrentEdge(this.websocket);
-          }
-          this.currentEdge.next(edge);
-        }
+      this.getCurrentEdge().then(edge => {
         resolve(edge);
-      }
-
-      subscription = this.edges
-        .pipe(
-          filter(edges => edgeId in edges),
-          first(),
-          map(edges => edges[edgeId])
-        )
-        .subscribe(edge => {
-          setCurrentEdge(edge);
-        }, error => {
-          console.error("Error while setting current edge: ", error);
-          onError();
-        })
+      }).catch(reject);
     });
   }
 
-  /**
-   * Gets the current Edge - or waits for a Edge if it is not available yet.
-   */
   public getCurrentEdge(): Promise<Edge> {
-    return this.currentEdge.pipe(
-      filter(edge => edge != null),
-      first()
-    ).toPromise();
+    // TODO maybe timeout
+    return new Promise<Edge>((resolve) => {
+      this.currentEdge.pipe(
+        filter(edge => edge != null),
+        first()
+      ).toPromise().then(resolve);
+      if (this.currentEdge.value) {
+        resolve(this.currentEdge.value);
+      }
+    });
   }
 
-  /**
-   * Gets the EdgeConfig of the current Edge - or waits for Edge and Config if they are not available yet.
-   */
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
@@ -246,50 +179,18 @@ export class Service implements ErrorHandler {
     });
   }
 
-  /**
-   * Handles being authenticated. Updates the list of Edges.
-   */
-  public handleAuthentication(token: string, edges: Edges) {
-    this.websocket.status = 'online';
-
-    // received login token -> save in cookie
-    this.setToken(token);
-
-    // Metadata
-    let newEdges = {};
-    for (let edge of edges) {
-      let newEdge = new Edge(
-        edge.id,
-        edge.comment,
-        edge.producttype,
-        ("version" in edge) ? edge["version"] : "0.0.0",
-        Role.getRole(edge.role),
-        edge.isOnline
-      );
-      newEdges[newEdge.id] = newEdge;
-    }
-    this.edges.next(newEdges);
+  public onLogout() {
+    this.currentEdge.next(null);
+    this.metadata.next(null);
+    this.router.navigate(['/index']);
   }
 
-  /**
-   * Gets the ChannelAddresses for cumulated values that should be queried.
-   * 
-   * @param edge the current Edge
-   */
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       resolve(channels);
     });
   };
 
-  /**
-   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-   * 
-   * @param fromDate the From-Date
-   * @param toDate   the To-Date
-   * @param edge     the current Edge
-   * @param ws       the websocket
-   */
   public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
     // keep only the date, without time
     fromDate.setHours(0, 0, 0, 0);
@@ -347,6 +248,12 @@ export class Service implements ErrorHandler {
         // send merged requests
         this.getCurrentEdge().then(edge => {
           for (let source of mergedRequests) {
+
+            // Jump to next request for empty channelAddresses
+            if (source.channels.length == 0) {
+              continue;
+            }
+
             let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
@@ -371,33 +278,110 @@ export class Service implements ErrorHandler {
     return response;
   }
 
+  /**
+   * Gets the page for the given number.
+   * 
+   * @param page the page number
+   * @param query the query to restrict the edgeId
+   * @param limit the number of edges to be retrieved
+   * @returns a Promise
+   */
+  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+    return new Promise<Edge[]>((resolve, reject) => {
+      this.websocket.sendSafeRequest(
+        new GetEdgesRequest({
+          page: page,
+          ...(query && query != "" && { query: query }),
+          ...(limit && { limit: limit })
+        })).then((response) => {
+
+          const result = (response as GetEdgesResponse).result;
+
+          // TODO change edges-map to array or other way around
+          let value = this.metadata.value;
+          let mappedResult = [];
+          for (let edge of result.edges) {
+            let mappedEdge = new Edge(
+              edge.id,
+              edge.comment,
+              edge.producttype,
+              ("version" in edge) ? edge["version"] : "0.0.0",
+              Role.getRole(edge.role.toString()),
+              edge.isOnline,
+              edge.lastmessage
+            );
+            value.edges[edge.id] = mappedEdge;
+            mappedResult.push(mappedEdge);
+          }
+
+          this.metadata.next(value);
+          resolve(mappedResult);
+        }).catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  /**
+   * Updates the currentEdge in metadata
+   * 
+   * @param edgeId the edgeId
+   * @returns a empty Promise
+   */
+  public updateCurrentEdge(edgeId: string): Promise<Edge> {
+    return new Promise<Edge>((resolve, reject) => {
+      const existingEdge = this.metadata.value?.edges[edgeId];
+      if (existingEdge) {
+        this.currentEdge.next(existingEdge);
+        resolve(existingEdge);
+        return;
+      }
+      this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
+        let edgeData = (response as GetEdgeResponse).result.edge;
+        let value = this.metadata.value;
+        const currentEdge = new Edge(
+          edgeData.id,
+          edgeData.comment,
+          edgeData.producttype,
+          ("version" in edgeData) ? edgeData["version"] : "0.0.0",
+          Role.getRole(edgeData.role.toString()),
+          edgeData.isOnline,
+          edgeData.lastmessage
+        );
+
+        this.currentEdge.next(currentEdge);
+        value.edges[edgeData.id] = currentEdge;
+        this.metadata.next(value);
+        resolve(currentEdge);
+      }).catch(reject);
+    });
+  }
+
   private queryEnergyQueue: {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
 
-
-  /**
-   * Start NGX-Spinner
-   * 
-   * Spinner will appear inside html tag only
-   * 
-   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
-   * @param selector selector for specific spinner
-   */
   public startSpinner(selector: string) {
     this.spinner.show(selector, {
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
       fullScreen: false,
-      bdColor: "rgba(0,0,0,0.5)"
+      bdColor: "rgba(0, 0, 0, 0.8)",
+      size: "medium",
+      color: "#fff"
     });
   }
 
-  /**
-   * Stop NGX-Spinner
-   * @param selector selector for specific spinner
-   */
+  public startSpinnerTransparentBackground(selector: string) {
+    this.spinner.show(selector, {
+      type: "ball-clip-rotate-multiple",
+      fullScreen: false,
+      bdColor: "rgba(0, 0, 0, 0)",
+      size: "medium",
+      color: "var(--ion-color-primary)"
+    });
+  }
+
   public stopSpinner(selector: string) {
     this.spinner.hide(selector);
   }
@@ -413,6 +397,7 @@ export class Service implements ErrorHandler {
   }
 
   /**
+<<<<<<< HEAD
    * Checks if this Edge is allowed to show kWh values
    */
   public isKwhAllowed(edge: Edge): boolean {
@@ -420,14 +405,16 @@ export class Service implements ErrorHandler {
   }
 
   /**
+=======
+>>>>>>> develop_realOpenEMS
    * Currently selected history period
    */
-  public historyPeriod: DefaultTypes.HistoryPeriod;
+  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
 
   /**
    * Currently selected history period string
    * 
    * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString = 'day';
+  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }

@@ -1,120 +1,190 @@
-import { ActivatedRoute, Router } from '@angular/router';
-import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
-import { AuthenticateWithPasswordResponse } from '../shared/jsonrpc/response/authenticateWithPasswordResponse';
-import { Component } from '@angular/core';
-import { Edge, Service, Utils, Websocket } from '../shared/shared';
-import { environment } from '../../environments';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
+import { environment } from 'src/environments';
+
+import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
+import { Edge, Service, Utils, Websocket } from '../shared/shared';
+import { Role } from '../shared/type/role';
 
 @Component({
   selector: 'index',
   templateUrl: './index.component.html'
 })
-export class IndexComponent {
+export class IndexComponent implements OnInit, OnDestroy {
 
-  private static readonly EDGE_ID_REGEXP = new RegExp('\\d+');
-
-  public env = environment;
+  public environment = environment;
 
   /**
    * True, if there is no access to any Edge.
    */
   public noEdges: boolean = false;
 
+  /**
+   * True, if the logged in user is allowed to install
+   * new edges.
+   */
+  public loggedInUserCanInstall: boolean = false;
+
   public form: FormGroup;
-  public filter: string = '';
   public filteredEdges: Edge[] = [];
 
+
   private stopOnDestroy: Subject<void> = new Subject<void>();
-  public slice: number = 20;
+  private page = 0;
+  private query: string | null = null;
+
+  /** Limits edges in pagination response */
+  private readonly limit: number = 20;
+  /** True, if all available edges for this user had been retrieved */
+  private limitReached: boolean = false;
+
+  protected formIsDisabled: boolean = false;
+  protected onlyOneEdgeAvailable: boolean = false;
+  protected spinnerId: string = 'index';
+  protected loading: boolean = false;
 
   constructor(
+    public service: Service,
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
-    private service: Service,
     private route: ActivatedRoute
-  ) {
-
-    //Forwarding to device index if there is only 1 edge
-    service.edges.pipe(takeUntil(this.stopOnDestroy)).subscribe(edges => {
-      let edgeIds = Object.keys(edges);
-      this.noEdges = edgeIds.length == 0;
-      if (edgeIds.length == 1) {
-        let edge = edges[edgeIds[0]];
-        if (edge.isOnline) {
-          this.router.navigate(['/device', edge.id]);
-        }
-      }
-      this.updateFilteredEdges();
-    })
-  }
+  ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
+    this.page = 0;
+    this.filteredEdges = [];
+    this.limitReached = false;
+    this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
+      this.init();
+    });
   }
 
-  updateFilteredEdges() {
-    let filter = this.filter.toLowerCase();
-    let allEdges = this.service.edges.getValue();
-    this.filteredEdges = Object.keys(allEdges)
-      .filter(edgeId => {
-        let edge = allEdges[edgeId];
-        if (/* name */ edge.id.toLowerCase().includes(filter)
-          || /* comment */ edge.comment.toLowerCase().includes(filter)
-          || /* producttype */ edge.producttype.toLowerCase().includes(filter)) {
-          return true;
-        }
-        return false;
-      })
-      .sort((edge1, edge2) => {
-        // first: try to compare the number, e.g. 'edge5' < 'edge100'
-        let e1match = edge1.match(IndexComponent.EDGE_ID_REGEXP)
-        if (e1match != null) {
-          let e2match = edge2.match(IndexComponent.EDGE_ID_REGEXP)
-          if (e2match != null) {
-            let e1 = Number(e1match[0]);
-            let e2 = Number(e2match[0]);
-            if (!isNaN(e1) && !isNaN(e2)) {
-              return e1 - e2;
-            }
-          }
-        }
-        // second: apply 'natural sort' 
-        return edge1.localeCompare(edge2);
-      })
-      .map(edgeId => allEdges[edgeId]);
-  }
+  async ionViewWillEnter() {
 
-  doLogin(password: string) {
-    let request = new AuthenticateWithPasswordRequest({ password: password });
-    this.websocket.sendRequest(request).then(response => {
-      this.handleAuthenticateWithPasswordResponse(response as AuthenticateWithPasswordResponse);
-    }).catch(reason => {
-      console.error("Error on Login", reason);
-    })
+    // Execute Login-Request if url path matches 'demo' 
+    if (this.route.snapshot.routeConfig.path == 'demo') {
+
+      // Wait for Websocket
+      await new Promise((resolve) => setTimeout(() => {
+        if (this.websocket.status == 'waiting for credentials') {
+          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })));
+        }
+      }, 2000)).then(() => { this.service.setCurrentComponent('', this.route); });
+    } else {
+      this.service.setCurrentComponent('', this.route);
+    }
   }
 
   /**
-   * Handles a AuthenticateWithPasswordResponse.
+   * Search on change, triggered by searchbar input-event.
    * 
-   * @param message 
+   * @param event from template passed event
    */
-  private handleAuthenticateWithPasswordResponse(message: AuthenticateWithPasswordResponse) {
-    this.service.handleAuthentication(message.result.token, message.result.edges);
+  protected searchOnChange() {
+    this.filteredEdges = [];
+    this.page = 0;
+    this.limitReached = false;
+
+    this.loadNextPage().then((edges) => {
+      this.filteredEdges = edges;
+      this.page++;
+    });
   }
 
-  doInfinite(infiniteScroll) {
+  /**
+   * Login to OpenEMS Edge or Backend.
+   * 
+   * @param param data provided in login form
+   */
+  public doLogin(param: { username?: string, password: string }) {
+    this.query = "";
+    this.limitReached = false;
+
+    // Prevent that user submits via keyevent 'enter' multiple times
+    if (this.formIsDisabled) {
+      return;
+    }
+
+    this.formIsDisabled = true;
+    this.websocket.login(new AuthenticateWithPasswordRequest(param))
+      .finally(() => {
+
+        // Unclean
+        this.ngOnInit();
+        this.formIsDisabled = false;
+      });
+  }
+
+  private init() {
+    this.loadNextPage().then((edges) => {
+      this.service.metadata
+        .pipe(
+          filter(metadata => !!metadata),
+          take(1)
+        )
+        .subscribe(metadata => {
+
+          let edgeIds = Object.keys(metadata.edges);
+          this.onlyOneEdgeAvailable = edgeIds.length <= 1;
+          this.noEdges = edgeIds.length === 0;
+          this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+
+          // Forward directly to device page, if
+          // - Direct local access to Edge
+          // - No installer (i.e. guest or owner) and access to only one Edge
+          if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
+            let edge = metadata.edges[edgeIds[0]];
+            this.router.navigate(['/device', edge.id]);
+            return;
+          }
+          this.filteredEdges = edges;
+        });
+    });
+  }
+
+  /**
+   * Updates available edges on scroll-event  
+   * 
+   * @param infiniteScroll the InfiniteScrollCustomEvent
+   */
+  doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
     setTimeout(() => {
-      this.slice += 5;
-      infiniteScroll.target.complete();
+      this.page++;
+      this.loadNextPage().then((edges) => {
+        this.filteredEdges.push(...edges);
+        infiniteScroll.target.complete();
+      }).catch(() => {
+        infiniteScroll.target.complete();
+      });
     }, 200);
   }
 
-  onDestroy() {
+  ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  loadNextPage(): Promise<Edge[]> {
+
+    this.loading = true;
+    return new Promise<Edge[]>((resolve, reject) => {
+      if (this.limitReached) {
+        resolve([]);
+        return;
+      }
+      this.service.getEdges(this.page, this.query, this.limit)
+        .then((edges) => {
+          this.limitReached = edges.length < this.limit;
+          resolve(edges);
+        }).catch((err) => {
+          reject(err);
+        });
+    }).finally(() =>
+      this.loading = false);
   }
 }

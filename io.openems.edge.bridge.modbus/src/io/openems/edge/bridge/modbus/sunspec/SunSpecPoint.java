@@ -27,24 +27,24 @@ public interface SunSpecPoint {
 
 	/**
 	 * Gets the Point-ID.
-	 * 
+	 *
 	 * <p>
 	 * This method refers to {@link Enum#name()}.
-	 * 
+	 *
 	 * @return the ID.
 	 */
 	public String name();
 
 	/**
 	 * The internal PointImpl object for easier handling in Enums.
-	 * 
+	 *
 	 * @return the internal PointImpl
 	 */
 	public PointImpl get();
 
 	/**
 	 * Returns true if the value represents a 'defined' value in SunSpec.
-	 * 
+	 *
 	 * @param value the value
 	 * @return true for defined values
 	 */
@@ -54,7 +54,7 @@ public interface SunSpecPoint {
 
 	/**
 	 * Gets the {@link ChannelId} for this Point.
-	 * 
+	 *
 	 * @return the ChannelId.
 	 */
 	public default SunSChannelId<?> getChannelId() {
@@ -92,7 +92,7 @@ public interface SunSpecPoint {
 								.unit(unit) //
 								.accessMode(accessMode));
 			} else {
-				this.channelId = new SunSChannelId<Integer>(channelId, //
+				this.channelId = new SunSChannelId<>(channelId, //
 						new EnumDoc(options) //
 								.accessMode(accessMode));
 			}
@@ -101,7 +101,7 @@ public interface SunSpecPoint {
 
 		/**
 		 * Generates a Modbus Element for the given point + startAddress.
-		 * 
+		 *
 		 * @param startAddress the startAddress of the Point
 		 * @return a new Modbus Element
 		 */
@@ -167,17 +167,17 @@ public interface SunSpecPoint {
 
 		/**
 		 * Gets the {@link OpenemsType} that matches this SunSpec-Type.
-		 * 
+		 *
 		 * @param hasScaleFactor true if this Point has a ScaleFactor. If true, a
 		 *                       floating point type is applied to avoid rounding
 		 *                       errors.
 		 * @return the {@link OpenemsType}
 		 */
 		public final OpenemsType getMatchingOpenemsType(boolean hasScaleFactor) {
-			if(hasScaleFactor) {
+			if (hasScaleFactor) {
 				return OpenemsType.FLOAT;
 			}
-			
+
 			// TODO: map to floating point OpenemsType when appropriate
 			switch (this.type) {
 			case UINT16:
@@ -187,16 +187,16 @@ public interface SunSpecPoint {
 			case INT16:
 			case SUNSSF:
 			case COUNT:
-			case UINT32:
-			case ACC32:
-			case ENUM32:
-			case BITFIELD32:
-			case IPADDR:
 			case INT32:
 			case PAD: // ignore
 			case EUI48:
 			case FLOAT32: // avoid floating point numbers; FLOAT32 might not fit in INTEGER
 				return OpenemsType.INTEGER;
+			case ACC32:
+			case BITFIELD32:
+			case ENUM32:
+			case IPADDR:
+			case UINT32:
 			case UINT64:
 			case ACC64:
 			case INT64:
@@ -234,7 +234,7 @@ public interface SunSpecPoint {
 
 		/**
 		 * Returns true if the value represents a 'defined' value in SunSpec.
-		 * 
+		 *
 		 * @param type  the PointType
 		 * @param value the value
 		 * @return true for defined values

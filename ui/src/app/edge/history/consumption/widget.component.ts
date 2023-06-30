@@ -1,15 +1,15 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ConsumptionComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -17,13 +17,13 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     public data: Cumulated = null;
     public edge: Edge = null;
-    public evcsComponents: EdgeConfig.Component[] = null;
-    public consumptionMeterComponents: EdgeConfig.Component[] = null;
+    public evcsComponents: EdgeConfig.Component[] = [];
+    public consumptionMeterComponents: EdgeConfig.Component[] = [];
     public totalOtherEnergy: number | null = null;
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -35,7 +35,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -50,17 +50,18 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/EnergyTotal'];
-                    })
+                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'] ?? 0;
+                    });
+
                     this.consumptionMeterComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveProductionEnergy'];
-                    })
+                        otherEnergy += (this.data[component.id + '/ActiveProductionEnergy'] ?? 0);
+                    });
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
                 }).catch(() => {
                     this.data = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -68,20 +69,25 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
             let channels: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
-            ]
+            ];
 
-            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                .filter(component =>
+                    !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
+                    !(component.factoryId == 'Evcs.Cluster.PeakShaving') &&
+                    !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'EnergyTotal'),
-                )
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy')
+                );
             }
 
-            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveProductionEnergy'),
-                )
+                    new ChannelAddress(component.id, 'ActiveProductionEnergy')
+                );
             }
             resolve(channels);
         });
@@ -90,11 +96,11 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     public getTotalOtherEnergy(): number {
         let otherEnergy: number = 0;
         this.evcsComponents.forEach(component => {
-            otherEnergy += this.data[component.id + '/EnergyTotal'];
-        })
+            otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+        });
         this.consumptionMeterComponents.forEach(component => {
             otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
-        })
+        });
         return this.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
     }
 }

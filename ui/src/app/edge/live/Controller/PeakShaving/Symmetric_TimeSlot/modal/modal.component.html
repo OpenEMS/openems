@@ -1,0 +1,210 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>{{ component.alias }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ng-container *ngIf="!loading">
+        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+            <ng-container *ngIf="component.properties['meter.id'] as meterId">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            General.measuredValue
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
+                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                            </ng-container>
+                        </td>
+                    </tr>
+                </table>
+            </ng-container>
+        </ion-card-content>
+        <form [formGroup]="formGroup">
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.peakshavingPower
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.rechargePower
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="rechargePower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.startDate
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="startDate"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.endDate
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="endDate"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.startTime</td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="startTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.endTime</td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="endTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content class="underline">
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.recharge
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="number" formControlName="slowChargePower"
+                                    style="text-align: end;">
+                                </ion-input>
+                                <ion-label class="regularFont">&nbsp;W</ion-label>
+                            </ion-item>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 65%" translate>
+                            Edge.Index.Widgets.Peakshaving.startTimeCharge
+                        </td>
+                        <td style="width: 35%" class="align_right">
+                            <ion-item lines="inset" class="noPadding">
+                                <ion-input class="regularFont" type="text" formControlName="slowChargeStartTime"
+                                    style="text-align: end;">
+                                </ion-input>
+                            </ion-item>
+                        </td>
+                    </tr>
+                </table>
+            </ion-card-content>
+            <ion-card-content>
+                <ion-row mode="md" class="ion-justify-content-center">
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.mon</ion-label>
+                            <ion-checkbox formControlName="monday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.tue</ion-label>
+                            <ion-checkbox formControlName="tuesday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.wed</ion-label>
+                            <ion-checkbox formControlName="wednesday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.thu</ion-label>
+                            <ion-checkbox formControlName="thursday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.fri</ion-label>
+                            <ion-checkbox formControlName="friday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.sat</ion-label>
+                            <ion-checkbox formControlName="saturday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                    <ion-col>
+                        <div>
+                            <ion-label translate>Edge.History.sun</ion-label>
+                            <ion-checkbox formControlName="sunday">
+                            </ion-checkbox>
+                        </div>
+                    </ion-col>
+                </ion-row>
+            </ion-card-content>
+        </form>
+    </ng-container>
+    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)="applyChanges()">
+            <ion-icon size="large" name="checkmark-circle-outline">
+            </ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+    <ion-grid *ngIf="loading === true">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+</ion-content>
