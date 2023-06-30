@@ -5,6 +5,4 @@ import { FieldWrapper } from "@ngx-formly/core";
     selector: 'formly-field-modal',
     templateUrl: './formlyfieldmodal.html'
 })
-export class FormlyFieldModalComponent extends FieldWrapper {
-
-}
+export class FormlyFieldModalComponent extends FieldWrapper { }
