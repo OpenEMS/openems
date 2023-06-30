@@ -1,30 +1,21 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.EvictingQueue;
 
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 
 public class WaitDelayHandler {
 
 	private static final int BUFFER_MS = 20;
 
-	private final Logger log = LoggerFactory.getLogger(WaitDelayHandler.class);
-
 	private final Runnable onWaitDelayTaskFinished;
 	private final Consumer<Long> cycleDelayChannel;
 	private final Stopwatch stopwatch;
-
-	private final AtomicReference<LogVerbosity> logVerbosity;
 
 	/**
 	 * Delays that would have been possible. Updated via
@@ -32,6 +23,10 @@ public class WaitDelayHandler {
 	 */
 	private EvictingQueue<Long> possibleDelays = EvictingQueue.create(10 /* initial size */);
 
+	/**
+	 * Set only via
+	 * {@link #setWaitDelayTask(io.openems.edge.bridge.modbus.api.task.WaitTask.Delay)}.
+	 */
 	private WaitTask.Delay waitDelayTask;
 
 	/**
@@ -40,23 +35,15 @@ public class WaitDelayHandler {
 	 */
 	private boolean timeIsInvalid = false;
 
-	protected WaitDelayHandler(Ticker ticker, AtomicReference<LogVerbosity> logVerbosity,
-			Runnable onWaitDelayTaskFinished, Consumer<Long> cycleDelayChannel) {
-		this.logVerbosity = logVerbosity;
+	protected WaitDelayHandler(Ticker ticker, Runnable onWaitDelayTaskFinished, Consumer<Long> cycleDelayChannel) {
 		this.stopwatch = Stopwatch.createUnstarted(ticker);
 		this.onWaitDelayTaskFinished = onWaitDelayTaskFinished;
 		this.cycleDelayChannel = cycleDelayChannel;
-		this.waitDelayTask = generateZeroWaitDelayTask(onWaitDelayTaskFinished);
+		this.setWaitDelayTask(generateZeroWaitDelayTask(onWaitDelayTaskFinished));
 	}
 
-	protected WaitDelayHandler(Ticker ticker, Runnable onWaitDelayTaskFinished, Consumer<Long> cycleDelayChannel) {
-		this(Ticker.systemTicker(), new AtomicReference<>(LogVerbosity.NONE), onWaitDelayTaskFinished,
-				cycleDelayChannel);
-	}
-
-	protected WaitDelayHandler(AtomicReference<LogVerbosity> logVerbosity, Runnable onWaitDelayTaskFinished,
-			Consumer<Long> cycleDelayChannel) {
-		this(Ticker.systemTicker(), logVerbosity, onWaitDelayTaskFinished, cycleDelayChannel);
+	protected WaitDelayHandler(Runnable onWaitDelayTaskFinished, Consumer<Long> cycleDelayChannel) {
+		this(Ticker.systemTicker(), onWaitDelayTaskFinished, cycleDelayChannel);
 	}
 
 	/**
@@ -79,11 +66,6 @@ public class WaitDelayHandler {
 		var currentQueueSize = this.possibleDelays.remainingCapacity() + this.possibleDelays.size();
 		if (targetQueueSize != currentQueueSize) {
 			// Size changed: create new queue and copy entries
-			if (this.isTraceLog()) {
-				this.log.info("Update PossibleDelays Queue. " //
-						+ "Before [" + currentQueueSize + "] " //
-						+ "After [" + targetQueueSize + "]");
-			}
 			var oldQueue = this.possibleDelays;
 			var newQueue = EvictingQueue.<Long>create(targetQueueSize);
 			newQueue.addAll(oldQueue);
@@ -94,12 +76,14 @@ public class WaitDelayHandler {
 	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 */
-	public synchronized void onBeforeProcessImage() {
-		final String log;
+	public synchronized String onBeforeProcessImage(boolean traceLog) {
+		String log = "";
 
 		if (this.timeIsInvalid) {
 			// Do not add possibleDelay if previous Cycle contained a defective component
-			log = "time is invalid";
+			if (traceLog) {
+				log = "time is invalid";
+			}
 			this.stopwatch.reset();
 
 		} else {
@@ -109,13 +93,17 @@ public class WaitDelayHandler {
 				// Coming from FINISHED state -> it's possible to increase delay
 				this.stopwatch.stop();
 				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
-				log = "measured possible delay [" + this.waitDelayTask.initialDelay + " + "
-						+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]";
+				if (traceLog) {
+					log = "measured possible delay [" + this.waitDelayTask.initialDelay + " + "
+							+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]";
+				}
 
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
 				var halfOfLastDelay = this.waitDelayTask.initialDelay / 2;
-				log = "FINISHED state has not happened -> reduce possible delay to [" + halfOfLastDelay + "]";
+				if (traceLog) {
+					log = "FINISHED state has not happened -> reduce possible delay to [" + halfOfLastDelay + "]";
+				}
 				possibleDelay = halfOfLastDelay;
 			}
 
@@ -123,17 +111,12 @@ public class WaitDelayHandler {
 		}
 
 		// Initialize a new WaitDelayTask.
-		this.waitDelayTask = generateWaitDelayTask(this.possibleDelays, this.onWaitDelayTaskFinished);
-
-		// Set the CYCLE_DELAY Channel
-		this.cycleDelayChannel.accept(this.waitDelayTask.initialDelay);
+		this.setWaitDelayTask(generateWaitDelayTask(this.possibleDelays, this.onWaitDelayTaskFinished));
 
 		// Reset 'timeIsInvalid'
 		this.timeIsInvalid = false;
 
-		if (this.isTraceLog()) {
-			this.log.info("onBeforeProcessImage: " + log + "; delay=" + this.waitDelayTask.initialDelay);
-		}
+		return log;
 	}
 
 	/**
@@ -149,7 +132,7 @@ public class WaitDelayHandler {
 	 * This method is called shortly after 'onBeforeProcessImage()'
 	 */
 	public synchronized void timeIsInvalid() {
-		this.waitDelayTask = generateZeroWaitDelayTask(this.onWaitDelayTaskFinished);
+		this.setWaitDelayTask(generateZeroWaitDelayTask(this.onWaitDelayTaskFinished));
 		this.timeIsInvalid = true;
 	}
 
@@ -160,6 +143,13 @@ public class WaitDelayHandler {
 		// Measure duration between FINISHED and ON_BEFORE_PROCESS_IMAGE event
 		this.stopwatch.reset();
 		this.stopwatch.start();
+	}
+
+	private synchronized void setWaitDelayTask(WaitTask.Delay waitDelayTask) {
+		this.waitDelayTask = waitDelayTask;
+
+		// Set the CYCLE_DELAY Channel
+		this.cycleDelayChannel.accept(this.waitDelayTask.initialDelay);
 	}
 
 	/**
@@ -201,12 +191,5 @@ public class WaitDelayHandler {
 	 */
 	private static WaitTask.Delay generateZeroWaitDelayTask(Runnable onWaitDelayTaskFinished) {
 		return new WaitTask.Delay(0, onWaitDelayTaskFinished);
-	}
-
-	private boolean isTraceLog() {
-		return switch (this.logVerbosity.get()) {
-		case READS_AND_WRITES_DURATION_TRACE_EVENTS -> true;
-		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE -> false;
-		};
 	}
 }

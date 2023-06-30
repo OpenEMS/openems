@@ -267,7 +267,7 @@ public abstract non-sealed class AbstractTask<//
 		} else if (request instanceof WriteMultipleRegistersRequest r) {
 			// FC16 tasks might be split to multiple request
 			startAddress = r.getReference();
-			length = r.getDataLength();
+			length = r.getWordCount();
 		} else {
 			startAddress = task.startAddress;
 			length = task.length;

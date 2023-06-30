@@ -41,8 +41,7 @@ public class CycleTasksManager {
 		this.cycleTimeIsTooShortChannel = cycleTimeIsTooShortChannel;
 		this.logVerbosity = logVerbosity;
 
-		this.waitDelayHandler = new WaitDelayHandler(this.logVerbosity, () -> this.onWaitDelayTaskFinished(),
-				cycleDelayChannel);
+		this.waitDelayHandler = new WaitDelayHandler(() -> this.onWaitDelayTaskFinished(), cycleDelayChannel);
 	}
 
 	protected CycleTasksManager(TasksSupplier tasksSupplier, DefectiveComponents defectiveComponents,
@@ -68,7 +67,7 @@ public class CycleTasksManager {
 	 */
 	public synchronized void onBeforeProcessImage() {
 		// Calculate Delay
-		this.waitDelayHandler.onBeforeProcessImage();
+		var waitDelayHandlerLog = this.waitDelayHandler.onBeforeProcessImage(this.isTraceLog());
 
 		// Evaluate Cycle-Time-Is-Too-Short, invalidate time measurement and stop early
 		var cycleTimeIsTooShort = this.state != StateMachine.FINISHED;
@@ -76,7 +75,9 @@ public class CycleTasksManager {
 		if (cycleTimeIsTooShort) {
 			this.waitDelayHandler.timeIsInvalid();
 			if (this.isTraceLog()) {
-				this.log.info("onBeforeProcessImage: stop early. State: " + this.state);
+				this.log.info("onBeforeProcessImage: stop early." //
+						+ " State: " + this.state //
+						+ " WaitDelay: " + waitDelayHandlerLog);
 			}
 			return;
 		}
@@ -94,7 +95,8 @@ public class CycleTasksManager {
 
 		// Initialize next Cycle
 		if (this.isTraceLog()) {
-			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT + " (in onBeforeProcessImage)");
+			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT //
+					+ " (in onBeforeProcessImage) WaitDelay: " + waitDelayHandlerLog);
 		}
 		this.state = StateMachine.INITIAL_WAIT;
 
