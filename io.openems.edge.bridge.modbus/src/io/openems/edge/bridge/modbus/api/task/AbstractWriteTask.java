@@ -52,7 +52,7 @@ public abstract class AbstractWriteTask<//
 			try {
 				request = this.createModbusRequest();
 			} catch (OpenemsException e) {
-				this.logError(this.log, "", "Execute failed: " + e.getMessage());
+				this.logError(this.log, "", null, "Execute failed: " + e.getMessage());
 				return ExecuteState.ERROR;
 			}
 
@@ -64,7 +64,7 @@ public abstract class AbstractWriteTask<//
 				this.executeRequest(bridge, request);
 				return ExecuteState.OK;
 
-			} catch (OpenemsException e) {
+			} catch (Exception e) {
 				// On error a log message has already been logged
 				return ExecuteState.ERROR;
 			}

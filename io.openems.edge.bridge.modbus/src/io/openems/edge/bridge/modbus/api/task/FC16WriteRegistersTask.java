@@ -13,7 +13,6 @@ import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
@@ -46,7 +45,7 @@ public class FC16WriteRegistersTask
 			try {
 				this.executeRequest(bridge, request);
 
-			} catch (OpenemsException e) {
+			} catch (Exception e) {
 				// On error a log message has already been logged
 
 				// Invalidate Elements

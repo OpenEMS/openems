@@ -72,7 +72,7 @@ public class WaitDelayHandler {
 	public synchronized void updateTotalNumberOfTasks(int totalNumberOfTasks) {
 		var targetQueueSize = Math.max(//
 				totalNumberOfTasks * 5, // keeps 5 full Cycles
-				1); // size must be at least 1
+				10); // size at least 10
 
 		// Calculate current queue size; logic is the inverse of
 		// EvictingQueue#remainingCapacity()
@@ -85,7 +85,7 @@ public class WaitDelayHandler {
 						+ "After [" + targetQueueSize + "]");
 			}
 			var oldQueue = this.possibleDelays;
-			var newQueue = EvictingQueue.<Long>create(totalNumberOfTasks);
+			var newQueue = EvictingQueue.<Long>create(targetQueueSize);
 			newQueue.addAll(oldQueue);
 			this.possibleDelays = newQueue;
 		}

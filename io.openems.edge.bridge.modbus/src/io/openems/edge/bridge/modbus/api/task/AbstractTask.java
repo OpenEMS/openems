@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -100,7 +100,7 @@ public abstract non-sealed class AbstractTask<//
 	 * @return the typed {@link ModbusResponse}
 	 * @throws OpenemsException on error
 	 */
-	protected RESPONSE executeRequest(AbstractModbusBridge bridge, REQUEST request) throws OpenemsException {
+	protected RESPONSE executeRequest(AbstractModbusBridge bridge, REQUEST request) throws Exception {
 		var unitId = this.getParent().getUnitId();
 		var logVerbosity = this.getLogVerbosity(bridge);
 		try {
@@ -108,8 +108,7 @@ public abstract non-sealed class AbstractTask<//
 			return this.logRequest(bridge, logVerbosity, request,
 					() -> sendRequest(bridge, unitId, this.responseClazz, request));
 
-		} catch (OpenemsException e) {
-
+		} catch (Exception e) {
 			// Second try; with new connection
 			bridge.closeModbusConnection();
 			return this.logRequest(bridge, logVerbosity, request,
@@ -126,17 +125,17 @@ public abstract non-sealed class AbstractTask<//
 	 * @param supplier     {@link ThrowingSupplier} that executes the Request and
 	 *                     returns a Response
 	 * @return typed {@link ModbusResponse}
-	 * @throws OpenemsException on error
+	 * @throws Exception on error
 	 */
 	protected RESPONSE logRequest(BridgeModbus bridge, LogVerbosity logVerbosity, REQUEST request,
-			ThrowingSupplier<RESPONSE, OpenemsException> supplier) throws OpenemsException {
+			ThrowingSupplier<RESPONSE, Exception> supplier) throws Exception {
 		return switch (logVerbosity) {
 		case NONE, DEBUG_LOG -> {
 			try {
 				yield supplier.get();
 
-			} catch (OpenemsException e) {
-				this.logError("Execute failed", "Error: " + e.getMessage());
+			} catch (Exception e) {
+				this.logError("Execute failed", request, e, "");
 				throw e;
 			}
 		}
@@ -144,11 +143,11 @@ public abstract non-sealed class AbstractTask<//
 		case READS_AND_WRITES -> {
 			try {
 				var response = supplier.get();
-				this.logInfo("  Execute", "");
+				this.logInfo("  Execute", request, "");
 				yield response;
 
-			} catch (OpenemsException e) {
-				this.logError("  Execute", "Error: " + e.getMessage());
+			} catch (Exception e) {
+				this.logError("  Execute failed", request, e, "");
 				throw e;
 			}
 		}
@@ -158,13 +157,12 @@ public abstract non-sealed class AbstractTask<//
 			try {
 				var response = supplier.get();
 				stopwatch.stop();
-				this.logInfo("  Execute", "Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+				this.logInfo("  Execute", request, "Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				yield response;
 
-			} catch (OpenemsException e) {
+			} catch (Exception e) {
 				stopwatch.stop();
-				this.logError("  Execute",
-						"Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " Error: " + e.getMessage());
+				this.logError("  Execute failed", request, e, "Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				throw e;
 			}
 		}
@@ -172,12 +170,12 @@ public abstract non-sealed class AbstractTask<//
 		case READS_AND_WRITES_VERBOSE -> {
 			try {
 				var response = supplier.get();
-				this.logInfo("  Execute",
+				this.logInfo("  Execute", request,
 						"Request [" + request.getHexMessage() + "] Response [" + response.getHexMessage() + "]");
 				yield response;
 
-			} catch (OpenemsException e) {
-				this.logError("  Execute", "Request [" + request.getHexMessage() + "] Error: " + e.getMessage());
+			} catch (Exception e) {
+				this.logError("  Execute failed", request, e, "Request [" + request.getHexMessage() + "]");
 				throw e;
 			}
 		}
@@ -221,54 +219,65 @@ public abstract non-sealed class AbstractTask<//
 		}
 	}
 
-	@Override
-	public String toString() {
-		var sb = new StringBuilder();
-		sb.append(this.name);
-		sb.append(" [");
-		sb.append(this.parent.id());
-		sb.append(";unitid=");
-		sb.append(this.parent.getUnitId());
-		sb.append(";ref=");
-		sb.append(this.startAddress);
-		sb.append("/0x");
-		sb.append(Integer.toHexString(this.startAddress));
-		sb.append(";length=");
-		sb.append(this.length);
-		sb.append("]");
-		return sb.toString();
+	private void logInfo(String prefix, REQUEST request, String suffix) {
+		this.logInfo(this.log, prefix, request, suffix);
 	}
 
-	private void logInfo(String prefix, String suffix) {
-		this.logInfo(this.log, prefix, suffix);
+	protected void logInfo(Logger log, String prefix, REQUEST request, String suffix) {
+		log.info(generateLogMessage(prefix, this, request, suffix));
 	}
 
-	protected void logInfo(Logger log, String prefix, String suffix) {
-		log.info(generateLogMessage(prefix, this.toString(), suffix));
+	private void logError(String prefix, REQUEST request, Exception e, String suffix) {
+		this.logError(this.log, prefix, request, //
+				"Request [" + request.getHexMessage() + "] " //
+						+ "Error [" + e.getClass().getSimpleName() + ":" + e.getMessage() + "] " + suffix);
 	}
 
-	private void logError(String prefix, String suffix) {
-		this.logError(this.log, prefix, suffix);
-	}
-
-	protected void logError(Logger log, String prefix, String suffix) {
-		log.error(generateLogMessage(prefix, this.toString(), suffix));
+	protected void logError(Logger log, String prefix, REQUEST request, String suffix) {
+		log.error(generateLogMessage(prefix, this, request, suffix));
 	}
 
 	/**
 	 * Generates a Log-Message string.
 	 * 
-	 * @param prefix a prefix
-	 * @param id     identification string (e.g. toString())
-	 * @param suffix a suffix
+	 * @param <REQUEST> the request type
+	 * @param prefix    a prefix
+	 * @param task      this {@link AbstractTask}
+	 * @param request   the current {@link ModbusRequest}
+	 * @param suffix    a suffix
 	 * @return the Log-Message
 	 */
-	protected static String generateLogMessage(String prefix, String id, String suffix) {
+	protected static <REQUEST> String generateLogMessage(String prefix, AbstractTask<?, ?> task, REQUEST request,
+			String suffix) {
 		var b = new StringBuilder();
 		if (!prefix.isEmpty()) {
 			b.append(prefix).append(" ");
 		}
-		b.append(id);
+		b.append(task.name);
+		b.append(" [");
+		b.append(task.parent.id());
+		b.append(";unitid=");
+		b.append(task.parent.getUnitId());
+		b.append(";ref=");
+		final int startAddress;
+		final int length;
+		if (request == null) {
+			startAddress = task.startAddress;
+			length = task.length;
+		} else if (request instanceof WriteMultipleRegistersRequest r) {
+			// FC16 tasks might be split to multiple request
+			startAddress = r.getReference();
+			length = r.getDataLength();
+		} else {
+			startAddress = task.startAddress;
+			length = task.length;
+		}
+		b.append(startAddress);
+		b.append("/0x");
+		b.append(Integer.toHexString(startAddress));
+		b.append(";length=");
+		b.append(length);
+		b.append("]");
 		if (!suffix.isEmpty()) {
 			b.append(" ").append(suffix);
 		}
@@ -284,18 +293,14 @@ public abstract non-sealed class AbstractTask<//
 	 * @param clazz      the class of the response
 	 * @param request    the {@link ModbusRequest}
 	 * @return the {@link ModbusResponse}
-	 * @throws OpenemsException on error
+	 * @throws Exception on error
 	 */
 	private static <RESPONSE extends ModbusResponse> RESPONSE sendRequest(AbstractModbusBridge bridge, int unitId,
-			Class<RESPONSE> clazz, ModbusRequest request) throws OpenemsException {
+			Class<RESPONSE> clazz, ModbusRequest request) throws Exception {
 		request.setUnitID(unitId);
 		var transaction = bridge.getNewModbusTransaction();
 		transaction.setRequest(request);
-		try {
-			transaction.execute();
-		} catch (ModbusException e) {
-			throw new OpenemsException("Transaction failed: " + e.getMessage());
-		}
+		transaction.execute();
 
 		var response = transaction.getResponse();
 		if (clazz.isInstance(response)) {

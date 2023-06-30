@@ -48,15 +48,15 @@ public abstract class AbstractReadTask<//
 			try {
 				var result = this.parseResponse(response);
 				validateResponse(result, this.length);
-				this.fillElements(result, (message) -> this.logError(this.log, "", message));
+				this.fillElements(result, (message) -> this.logError(this.log, "", null, message));
 
 			} catch (OpenemsException e1) {
-				this.logError(this.log, "", "Execute failed: " + e1.getMessage());
+				this.logError(this.log, "", null, "Execute failed: " + e1.getMessage());
 				throw e1;
 			}
 			return ExecuteState.OK;
 
-		} catch (OpenemsException e) {
+		} catch (Exception e) {
 			// Invalidate Elements
 			Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
 
