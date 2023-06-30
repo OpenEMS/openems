@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.test;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	private final Map<String, ModbusProtocol> protocols = new HashMap<>();
 
+	private InetAddress ipAddress = null;
+
 	public DummyModbusBridge(String id) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -29,6 +32,11 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 			channel.nextProcessImage();
 		}
 		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
+	}
+
+	public DummyModbusBridge withIpAddress(String ipAddress) throws UnknownHostException {
+		this.ipAddress = InetAddress.getByName(ipAddress);
+		return this;
 	}
 
 	@Override
@@ -43,6 +51,9 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	@Override
 	public InetAddress getIpAddress() {
+		if (this.ipAddress != null) {
+			return this.ipAddress;
+		}
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

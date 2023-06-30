@@ -56,7 +56,7 @@ public class IoWagoImplTest {
 		var sut = new IoWagoImpl();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID).withIpAddress("127.0.0.1")) //
 				.activate(MyConfig.create() //
 						.setId(IO_ID) //
 						.setModbusId(MODBUS_ID) //
