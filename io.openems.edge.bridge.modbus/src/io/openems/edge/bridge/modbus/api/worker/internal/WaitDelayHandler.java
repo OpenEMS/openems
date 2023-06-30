@@ -75,6 +75,10 @@ public class WaitDelayHandler {
 
 	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
+	 * 
+	 * @param traceLog activate Trace-Log
+	 * @return if traceLog is active, return a detailed log info; empty string
+	 *         otherwise
 	 */
 	public synchronized String onBeforeProcessImage(boolean traceLog) {
 		String log = "";

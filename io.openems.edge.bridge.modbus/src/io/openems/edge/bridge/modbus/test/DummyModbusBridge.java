@@ -34,6 +34,13 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
 	}
 
+	/**
+	 * Sets the IP-Address.
+	 * 
+	 * @param ipAddress an IP-Address.
+	 * @return myself
+	 * @throws UnknownHostException on parse error
+	 */
 	public DummyModbusBridge withIpAddress(String ipAddress) throws UnknownHostException {
 		this.ipAddress = InetAddress.getByName(ipAddress);
 		return this;
