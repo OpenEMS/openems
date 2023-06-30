@@ -22,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link ModbusElement} which have register addresses in the same range.
  */
+@SuppressWarnings("rawtypes")
 public abstract non-sealed class AbstractTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse> implements Task {

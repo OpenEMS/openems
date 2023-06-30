@@ -20,10 +20,11 @@ import io.openems.edge.common.taskmanager.Priority;
  * {@link AbstractModbusElement} which have register addresses in the same
  * range.
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractReadTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse, //
-		ELEMENT extends ModbusElement<?>, //
+		ELEMENT extends ModbusElement, //
 		T> //
 		extends AbstractTask<REQUEST, RESPONSE> implements ReadTask {
 
