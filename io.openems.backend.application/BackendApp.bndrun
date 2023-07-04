@@ -60,7 +60,7 @@
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	checker-qual;version='[3.36.0,3.36.1)',\
 	com.google.gson;version='[2.10.1,2.10.2)',\
-	com.google.guava;version='[32.0.1,32.0.2)',\
+	com.google.guava;version='[32.1.1,32.1.2)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.squareup.okio;version='[3.3.0,3.3.1)',\
 	com.zaxxer.HikariCP;version='[5.0.1,5.0.2)',\
