@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,6 +39,8 @@ import io.openems.edge.ess.power.api.Pwr;
 )
 public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ControllerEssCycle {
+
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -78,8 +81,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	private boolean applyConfig(ComponentContext context, Config config) {
 		this.config = config;
-		this.parsedStartTime = LocalDateTime.parse(this.config.startTime(),
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+		this.parsedStartTime = DateUtils.parseLocalDateTimeOrNull(this.config.startTime(), DATE_TIME_FORMATTER);
 		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
@@ -91,6 +93,10 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.parsedStartTime == null) {
+			this.logError(this.log, "Start time could not be parsed");
+			return;
+		}
 		switch (this.config.mode()) {
 		case MANUAL_ON:
 			// get max charge/discharge power

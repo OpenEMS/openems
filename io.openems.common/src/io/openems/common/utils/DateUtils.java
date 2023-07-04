@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -149,6 +150,64 @@ public class DateUtils {
 	 */
 	public static LocalDate parseLocalDateOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
 		return parseDateOrError(LocalDate.class.getSimpleName(), LocalDate::parse, date, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or returns null.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence)}
+	 * 
+	 * @param date the string value
+	 * @return a {@link LocalDateTime} or null
+	 */
+	public static LocalDateTime parseLocalDateTimeOrNull(String dateTime) {
+		return parseDateOrNull(LocalDateTime::parse, dateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or returns null.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param date      the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalDateTime} or null
+	 */
+	public static LocalDateTime parseLocalDateTimeOrNull(String dateTime, DateTimeFormatter formatter) {
+		return parseDateOrNull(LocalDateTime::parse, dateTime, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence)}
+	 * 
+	 * @param date the string value
+	 * @return a {@link LocalDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDateTime parseLocalDateTimeOrError(String dateTime) throws OpenemsException {
+		return parseDateOrError(LocalDateTime.class.getSimpleName(), LocalDateTime::parse, dateTime,
+				DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param date      the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDateTime parseLocalDateTimeOrError(String dateTime, DateTimeFormatter formatter)
+			throws OpenemsException {
+		return parseDateOrError(LocalDateTime.class.getSimpleName(), LocalDateTime::parse, dateTime, formatter);
 	}
 
 	/**
