@@ -17,6 +17,12 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.MANUAL_ON;
+
+	@AttributeDefinition(name = "Hybrid-ESS Mode", description = "For Hybrid-ESS (ESS with attached DC-side PV system): apply target power to AC or DC side of inverter?")
+	HybridEssMode hybridEssMode() default HybridEssMode.TARGET_AC;
+
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id() default "ess0";
 
@@ -24,22 +30,22 @@ public @interface Config {
 	CycleOrder cycleOrder() default CycleOrder.START_WITH_DISCHARGE;
 
 	@AttributeDefinition(name = " Standby Time in Minute", description = "Wait Between Charge and Discharge (Just Integer in time).")
-	int standbyTime() default 1;
+	int standbyTime() default 30;
 
 	@AttributeDefinition(name = " Start Time in Hour [YYYY-MM-DD HH:MM]", description = "Start Charge/Discharge Hour (2021-09-02 13:35).")
-	String startTime() default "2021-09-07 13:35";
+	String startTime() default "2023-03-23 15:15";
 
 	@AttributeDefinition(name = "Maximum Soc [%]", description = "Limit Charge")
-	int maxSoc() default 90;
+	int maxSoc() default 100;
 
 	@AttributeDefinition(name = "Minimum Soc [%]", description = "Limit Discharge")
-	int minSoc() default 5;
+	int minSoc() default 0;
 
 	@AttributeDefinition(name = "Power [W]", description = "Charge/discharge power")
-	int power();
+	int power() default 0;
 
 	@AttributeDefinition(name = "Cycle Count", description = "How many times should controller do this cycle ?")
-	int totalCycleNumber() default 1;
+	int totalCycleNumber() default 10;
 
 	@AttributeDefinition(name = "Final Soc Value", description = "The Soc value which will be kept in the battery after cycle test completed")
 	int finalSoc() default 50;

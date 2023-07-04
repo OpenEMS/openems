@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.cycle;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,6 +27,7 @@ import io.openems.edge.controller.ess.cycle.statemachine.StateMachine;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
@@ -37,14 +39,19 @@ import io.openems.edge.ess.power.api.Pwr;
 public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ControllerEssCycle {
 
-	// Time formatter from the String
-	public static final String TIME_FORMAT = "HH:mm";
-
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
+	private LocalDateTime lastStateChangeTime;
+	private LocalDateTime parsedStartTime;
+	private State setNextState;
+	private Config config;
+
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private Power power;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -52,29 +59,29 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private Config config;
-	/** Timestamp of the last time the State has changed. */
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
-
 	public ControllerEssCycleImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ControllerEssCycle.ChannelId.values() //
 		);
-		this._setCompletedCycles(0);
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
-		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", this.config.ess_id())) {
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		if (this.applyConfig(context, config)) {
 			return;
 		}
+		this._setCompletedCycles(0);
 	}
 
-	// TODO add @Modified to enable configuration changes during long running cycles
+	private boolean applyConfig(ComponentContext context, Config config) {
+		this.config = config;
+		this.parsedStartTime = LocalDateTime.parse(this.config.startTime(),
+				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
+	}
 
 	@Override
 	@Deactivate
@@ -84,31 +91,64 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		switch (this.config.mode()) {
+		case MANUAL_ON:
+			// get max charge/discharge power
+			var allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+			var allowedChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
-		// get max charge/discharge power
-		var maxDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		var maxChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+			// store current state in StateMachine channel
+			var currentState = this.getCurrentState();
+			this._setStateMachine(currentState);
 
-		// store current state in StateMachine channel
-		var state = this.stateMachine.getCurrentState();
-		this.channel(ControllerEssCycle.ChannelId.STATE_MACHINE).setNextValue(state);
+			var previousState = this.stateMachine.getPreviousState();
 
-		// Prepare Context
-		var previousState = this.stateMachine.getPreviousState();
-		var context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower, maxDischargePower,
-				previousState, this.lastStateChange);
+			// Prepare Context
+			var context = new Context(this, //
+					this.config, //
+					this.componentManager, //
+					this.ess, //
+					allowedChargePower, //
+					allowedDischargePower, //
+					this.parsedStartTime, //
+					previousState);
 
-		// Call the StateMachine
-		try {
-			this.stateMachine.run(context);
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "StateMachine failed: " + e.getMessage());
-		}
-
-		if (previousState != state) {
-			// State has changed
-			this.lastStateChange = LocalDateTime.now(this.componentManager.getClock());
+			try {
+				this.stateMachine.run(context);
+				this._setRunFailed(false);
+			} catch (OpenemsNamedException e) {
+				this.logError(this.log, "StateMachine failed: " + e.getMessage());
+				this._setRunFailed(true);
+			}
+			break;
+		case MANUAL_OFF:
+			// Do nothing
+			break;
 		}
 	}
 
+	@Override
+	public State getCurrentState() {
+		return this.stateMachine.getCurrentState();
+	}
+
+	@Override
+	public void setNextState(State nextState) {
+		this.setNextState = nextState;
+	}
+
+	@Override
+	public State getNextState() {
+		return this.setNextState;
+	}
+
+	@Override
+	public LocalDateTime getLastStateChangeTime() {
+		return this.lastStateChangeTime;
+	}
+
+	@Override
+	public void setLastStateChangeTime(LocalDateTime time) {
+		this.lastStateChangeTime = time;
+	}
 }
