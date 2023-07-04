@@ -29,11 +29,11 @@ public @interface Config {
 	@AttributeDefinition(name = "CycleOrder [Charge/Discharge]", description = "Charge/discharge CycleOrder for Operation")
 	CycleOrder cycleOrder() default CycleOrder.START_WITH_DISCHARGE;
 
-	@AttributeDefinition(name = " Standby Time in Minute", description = "Wait Between Charge and Discharge (Just Integer in time).")
+	@AttributeDefinition(name = " Standby Time in Minute", description = "Wait Between Charge and Discharge (Just Integer in time minute).")
 	int standbyTime() default 30;
 
-	@AttributeDefinition(name = " Start Time in Hour [YYYY-MM-DD HH:MM]", description = "Start Charge/Discharge Hour (2021-09-02 13:35).")
-	String startTime() default "2023-03-23 15:15";
+	@AttributeDefinition(name = "Start Time in Hour [YYYY-MM-DD HH:MM]", description = "Start Charge/Discharge Hour (2023-03-23 15:35).")
+	String startTime() default "2023-03-23 15:35";
 
 	@AttributeDefinition(name = "Maximum Soc [%]", description = "Limit Charge")
 	int maxSoc() default 100;
