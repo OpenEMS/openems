@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int modbusUnitId() default 1;
 
 	@AttributeDefinition(name = "Connector", description = "Slot of physical charging connector")
-	Hypercharger.Connector connector() default Hypercharger.Connector.SLOT_0;
+	EvcsAlpitronicHypercharger.Connector connector() default EvcsAlpitronicHypercharger.Connector.SLOT_0;
 
 	@AttributeDefinition(name = "Minimum hardware power", description = "Minimum charging power of the Charger in W.", required = true)
 	int minHwPower() default 5000;

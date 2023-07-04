@@ -73,7 +73,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                 }
             });
@@ -91,7 +91,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower'),
+                new ChannelAddress(this.componentId, 'ActualPower')
             ];
             resolve(result);
         });

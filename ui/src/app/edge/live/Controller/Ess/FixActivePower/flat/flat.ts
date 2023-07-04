@@ -24,8 +24,8 @@ export class FlatComponent extends AbstractFlatWidget {
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.thisComponent['_PropertyPower']);
-    this.propertyMode = currentData.thisComponent['_PropertyMode'];
+    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + '/_PropertyPower']);
+    this.propertyMode = currentData.allComponents[this.component.id + '/_PropertyMode'];
   }
 
   async presentModal() {

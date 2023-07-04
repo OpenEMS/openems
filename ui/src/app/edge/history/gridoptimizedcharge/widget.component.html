@@ -1,9 +1,7 @@
 <ion-card button routerLink="/device/{{edge.id}}/history/{{componentId}}/gridOptimizedChargeChart"
   *ngIf="component && edge">
   <ion-item lines="full" color="light">
-    <ion-avatar slot="start">
-      <img src="assets/img/gridStorage.png">
-    </ion-avatar>
+    <ion-icon slot="start" name="oe-grid-storage" size="large"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
   <ng-container *ngIf="component && service.currentEdge | async as edge">

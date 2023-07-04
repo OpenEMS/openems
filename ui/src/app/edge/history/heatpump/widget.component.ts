@@ -28,7 +28,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-        public modalCtrl: ModalController,
+        public modalCtrl: ModalController
     ) {
         super(service);
     }
@@ -78,7 +78,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
                 new ChannelAddress(this.componentId, 'ForceOnStateTime'),
                 new ChannelAddress(this.componentId, 'RegularStateTime'),
                 new ChannelAddress(this.componentId, 'RecommendationStateTime'),
-                new ChannelAddress(this.componentId, 'LockStateTime'),
+                new ChannelAddress(this.componentId, 'LockStateTime')
             ];
             resolve(channels);
         });

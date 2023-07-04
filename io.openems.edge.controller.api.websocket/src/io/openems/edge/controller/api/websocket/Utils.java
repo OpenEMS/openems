@@ -19,9 +19,9 @@ public class Utils {
 	 */
 	public static List<EdgeMetadata> getEdgeMetadata(Role role) {
 		return Lists.newArrayList(new EdgeMetadata(//
-				WebsocketApi.EDGE_ID, // Edge-ID
-				WebsocketApi.EDGE_COMMENT, // Comment
-				WebsocketApi.EDGE_PRODUCT_TYPE, // Product-Type
+				ControllerApiWebsocket.EDGE_ID, // Edge-ID
+				ControllerApiWebsocket.EDGE_COMMENT, // Comment
+				ControllerApiWebsocket.EDGE_PRODUCT_TYPE, // Product-Type
 				OpenemsConstants.VERSION, // Version
 				role, // Role
 				true, // Is Online

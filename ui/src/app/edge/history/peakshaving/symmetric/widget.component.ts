@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
@@ -19,7 +19,7 @@ export class SymmetricPeakshavingWidgetComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ProductType } from 'src/app/shared/type/widget';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
 import { canSeeAppCenter } from './app/permissions';
@@ -15,6 +14,7 @@ export class SettingsComponent implements OnInit {
   public environment = environment;
 
   public canSeeAppCenter: boolean | undefined;
+  protected isEdgeBackend: boolean = environment.backend === 'OpenEMS Edge';
 
   constructor(
     private route: ActivatedRoute,

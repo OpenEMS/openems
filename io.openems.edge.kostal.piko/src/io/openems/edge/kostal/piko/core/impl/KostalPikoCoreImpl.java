@@ -36,59 +36,14 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 
 	protected static final int MAX_ACTUAL_POWER = 6600;
 	protected static final int MAX_APPARENT_POWER = 6000;
+
 	private final TasksManager<ReadTask> readTasksManager;
+
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
 	private KostalPikoEss ess = null;
-
-	@Override
-	public void setEss(KostalPikoEss ess) {
-		this.ess = ess;
-		this.readTasksManager.addTasks(//
-				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705) //
-		);
-	}
-
-	@Override
-	public void unsetEss(KostalPikoEss ess) {
-		this.ess = null;
-		this.unsetComponent(ess);
-	}
-
-	/* PV */
 	private KostalPikoCharger charger = null;
-
-	@Override
-	public void setCharger(KostalPikoCharger charger) {
-		this.charger = charger;
-	}
-
-	@Override
-	public void unsetCharger(KostalPikoCharger charger) {
-		this.charger = null;
-		this.unsetComponent(charger);
-	}
-
 	private KostalPikoGridMeter meter = null;
-
-	@Override
-	public void setGridMeter(KostalPikoGridMeter meter) {
-		this.meter = meter;
-	}
-
-	@Override
-	public void unsetGridMeter(KostalPikoGridMeter meter) {
-		this.meter = null;
-		this.unsetComponent(meter);
-	}
-
-	private void unsetComponent(OpenemsComponent component) {
-		for (ReadTask task : this.readTasksManager.getTasks()) {
-			if (task.getComponent() == component) {
-				this.readTasksManager.removeTask(task);
-			}
-		}
-	}
 
 	public KostalPikoCoreImpl() {
 		super(//
@@ -292,7 +247,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.socketConnection = new SocketConnection(config.ip(), config.port(), (byte) config.unitID());
 		var protocol = new Protocol(this, this.socketConnection);
@@ -310,6 +265,50 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			this.socketConnection.close();
 		}
 		super.deactivate();
+	}
+
+	@Override
+	public void setEss(KostalPikoEss ess) {
+		this.ess = ess;
+		this.readTasksManager.addTasks(//
+				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705) //
+		);
+	}
+
+	@Override
+	public void unsetEss(KostalPikoEss ess) {
+		this.ess = null;
+		this.unsetComponent(ess);
+	}
+
+	@Override
+	public void setCharger(KostalPikoCharger charger) {
+		this.charger = charger;
+	}
+
+	@Override
+	public void unsetCharger(KostalPikoCharger charger) {
+		this.charger = null;
+		this.unsetComponent(charger);
+	}
+
+	@Override
+	public void setGridMeter(KostalPikoGridMeter meter) {
+		this.meter = meter;
+	}
+
+	@Override
+	public void unsetGridMeter(KostalPikoGridMeter meter) {
+		this.meter = null;
+		this.unsetComponent(meter);
+	}
+
+	private void unsetComponent(OpenemsComponent component) {
+		for (ReadTask task : this.readTasksManager.getTasks()) {
+			if (task.getComponent() == component) {
+				this.readTasksManager.removeTask(task);
+			}
+		}
 	}
 
 	@Override

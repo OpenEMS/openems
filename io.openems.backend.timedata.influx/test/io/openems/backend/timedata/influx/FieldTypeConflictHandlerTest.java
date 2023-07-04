@@ -8,7 +8,7 @@ public class FieldTypeConflictHandlerTest {
 
 	@Test
 	public void testHandleExceptionMessage() {
-		var influx = new InfluxImpl();
+		var influx = new TimedataInfluxDb();
 		var sut = new FieldTypeConflictHandler(influx);
 		assertTrue(sut.handleExceptionMessage("""
 				HTTP status code: 400; Message: partial write: field type conflict: \

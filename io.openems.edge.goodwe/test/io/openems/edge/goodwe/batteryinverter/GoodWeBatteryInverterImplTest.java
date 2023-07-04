@@ -12,7 +12,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
-import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
+import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
@@ -50,7 +50,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		var charger = new GoodWeEtCharger1();
+		var charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -191,7 +191,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEmsPowerModeAutoWithSurplus() throws Exception {
-		var charger = new GoodWeEtCharger1();
+		var charger = new GoodWeChargerPv1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
