@@ -65,7 +65,7 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 	/**
 	 * Gets the Channel for {@link ChannelId#COMPLETED_CYCLES}.
 	 *
-	 * @return tthe Channel {@link Integer}
+	 * @return the Channel {@link Integer}
 	 */
 	public default Channel<Integer> getCompletedCyclesChannel() {
 		return this.channel(ChannelId.COMPLETED_CYCLES);
