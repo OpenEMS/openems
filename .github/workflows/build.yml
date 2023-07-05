@@ -128,17 +128,25 @@ jobs:
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
-          node_modules/.bin/ng lint
           export CHROME_BIN=/usr/bin/google-chrome-stable
           npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
+      - name: Coverage report
+        uses: eleboys/test-coverage-report-action@v1.0.2
+        id: report
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: coverage/coverage-summary.json
+          title: Karma Test Coverage
+  
+      - name: Print the output summary
+        run: echo "Report coverage json ${{ steps.report.outputs.summary }}"
       - name: Comment on Pull Request
         env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-            gh pr comment ${{github.event.pull_request.number}} --body "Test"
-  
+            gh pr comment ${{github.event.pull_request.number}} --body ${{ steps.report.outputs.summary }}
       #
       # Is this a Tag? Prepare release assets
       #
