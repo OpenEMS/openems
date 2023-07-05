@@ -129,7 +129,7 @@ jobs:
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           export CHROME_BIN=/usr/bin/google-chrome-stable
-          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI --code-coverage
 
       - name: Coverage report
         uses: eleboys/test-coverage-report-action@v1.0.2
