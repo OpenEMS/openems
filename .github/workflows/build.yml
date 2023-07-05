@@ -131,13 +131,13 @@ jobs:
           export CHROME_BIN=/usr/bin/google-chrome-stable
           npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI --code-coverage
 
-      - name: Coverage report
-        uses: eleboys/test-coverage-report-action@v1.0.2
-        id: report
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ui/coverage/coverage-summary.json
-          title: Karma Test Coverage
+      # - name: Coverage report
+      #   uses: eleboys/test-coverage-report-action@v1.0.2
+      #   id: report
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ui/coverage/coverage-summary.json
+      #     title: Karma Test Coverage
   
       # - name: Print the output summary
       #   run: echo "Report coverage json ${{ steps.report.outputs.summary }}"
