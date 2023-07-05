@@ -54,8 +54,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.pollSystemStatus();
 
     // Checks if sessionStorage is not null, undefined or empty string
-    if (sessionStorage.getItem("DEBUGMODE")) {
-      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
     this.titleService.setTitle(environment.edgeShortName);
