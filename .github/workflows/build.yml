@@ -14,30 +14,12 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-          java-package: jdk
-
-      - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/native
-            ~/.gradle/notifications
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Setup Cache for Java/Maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          cache: gradle
 
       - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Build all Java packages
-        run: ./gradlew --build-cache build
+        run: ./gradlew build
 
       - name: Resolve OpenEMS bundles
         run: ./gradlew resolve
@@ -54,38 +36,31 @@ jobs:
       - name: Generate JaCoCo Code-coverage-report
         run: ./gradlew jacocoTestReport
         
-      - name: Generate JaCoCo Report
+      - name: Summarize JaCoCo Report
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
         with:
           jacoco-csv-file: "io.openems.*/generated/reports/jacoco/**/*.csv"
-          generate-coverage-endpoint: true
-          generate-summary: true
+          generate-coverage-badge: false
 
-      - name: Generate JaCoCo Badge
+      - name: Comment on Pull-Request
         id: jacoco-badge
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
           coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
 
           color=red;
-          if (( $(echo "$coverage > 95" | bc -l) )); then
+          if (( $(echo "$coverage > 90" | bc -l) )); then
             color=success;
           elif (( $(echo "$coverage > 80" | bc -l) )); then
             color=green;
-          elif (( $(echo "$coverage > 95" | bc -l) )); then
+          elif (( $(echo "$coverage > 60" | bc -l) )); then
             color=yellow;
           fi;
 
-          mkdir -p ./pr
-          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./pr/pr_badge
-          echo $PR_NUMBER > ./pr/pr_number
-      - uses: actions/upload-artifact@v3
-        with:
-          name: pr_comment
-          path: pr/
-
+          gh pr comment ${{github.event.pull_request.number}} --body '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)"
       #
       # Is this a Tag? Prepare release assets
       #
