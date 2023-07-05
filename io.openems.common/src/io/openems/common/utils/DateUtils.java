@@ -158,7 +158,7 @@ public class DateUtils {
 	 * <p>
 	 * See {@link LocalDateTime#parse(CharSequence)}
 	 * 
-	 * @param date the string value
+	 * @param dateTime date the string value
 	 * @return a {@link LocalDateTime} or null
 	 */
 	public static LocalDateTime parseLocalDateTimeOrNull(String dateTime) {
@@ -171,7 +171,7 @@ public class DateUtils {
 	 * <p>
 	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
 	 * 
-	 * @param date      the string value
+	 * @param dateTime  date the string value
 	 * @param formatter the formatter to use, not null
 	 * @return a {@link LocalDateTime} or null
 	 */
@@ -185,7 +185,7 @@ public class DateUtils {
 	 * <p>
 	 * See {@link LocalDateTime#parse(CharSequence)}
 	 * 
-	 * @param date the string value
+	 * @param dateTime date the string value
 	 * @return a {@link LocalDateTime}
 	 * @throws OpenemsException on error
 	 */
@@ -200,7 +200,7 @@ public class DateUtils {
 	 * <p>
 	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
 	 * 
-	 * @param date      the string value
+	 * @param dateTime  date the string value
 	 * @param formatter the formatter to use, not null
 	 * @return a {@link LocalDateTime}
 	 * @throws OpenemsException on error
