@@ -43,10 +43,8 @@ jobs:
           jacoco-csv-file: "io.openems.*/generated/reports/jacoco/**/*.csv"
           generate-coverage-badge: false
 
-      - name: Comment on Pull-Request
-        id: jacoco-badge
+      - name: Create JaCoCo Badge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
           coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
@@ -60,7 +58,14 @@ jobs:
             color=yellow;
           fi;
 
-          gh pr comment ${{github.event.pull_request.number}} --body '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)"
+          mkdir -p ./jacoco
+          echo $PR_NUMBER > ./jacoco/jacoco_report_number
+          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
+      - uses: actions/upload-artifact@v3
+        with:
+          name: jacoco_report
+          path: jacoco/
+
       #
       # Is this a Tag? Prepare release assets
       #
