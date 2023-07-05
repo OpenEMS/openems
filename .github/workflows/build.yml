@@ -132,6 +132,13 @@ jobs:
           export CHROME_BIN=/usr/bin/google-chrome-stable
           npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
+      - name: Comment on Pull Request
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+            gh pr comment ${{github.event.pull_request.number}} --body "Test"
+  
       #
       # Is this a Tag? Prepare release assets
       #
