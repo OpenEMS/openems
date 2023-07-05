@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>32.0.1-jre</version>
+			<version>32.1.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -261,7 +261,7 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.35.0</version>
+			<version>3.36.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -307,7 +307,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.7.1</version>
+			<version>1.7.2</version>
 		</dependency>
 		<dependency>
 			<!-- HTML processing -->

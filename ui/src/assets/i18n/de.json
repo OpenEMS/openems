@@ -552,7 +552,7 @@
     "OFFLINE_SINCE": "Offline seit",
     "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
-    },
+  },
   "Login": {
     "title": "Login",
     "preamble": "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
@@ -593,8 +593,8 @@
     "SYSTEM_UPDATE": {
       "INSTALLED_VERSION": "Installierte Version:",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
-      "NEW_VERSION_INSTALLING": "Neueste version installieren",
-      "NEW_VERSION": "Neueste version:",
+      "NEW_VERSION_INSTALLING": "Neueste Version installieren",
+      "NEW_VERSION": "Neueste Version:",
       "OFFLINE": "Das {{ edgeShortName }} ist offline.",
       "RESTARTING": "Das {{ edge }} wird neu gestartet...",
       "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
