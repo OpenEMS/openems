@@ -153,20 +153,37 @@ jobs:
         with:
           filename: ui/coverage/coverage.cobertura.xml
           badge: true
-          fail_below_min: true
+          fail_below_min: false
           format: markdown
-          hide_branch_rate: false
+          hide_branch_rate: true
           hide_complexity: true
           indicators: true
-          output: both
           thresholds: '0'
       
       - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: code-coverage-results.md
+        id: 'json'
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          coverage=echo ${{steps.json.outputs.total.lines.pct}};
+
+          color=red;
+          if (( $(echo "$coverage > 95" | bc -l) )); then
+            color=success;
+          elif (( $(echo "$coverage > 80" | bc -l) )); then
+            color=green;
+          elif (( $(echo "$coverage > 95" | bc -l) )); then
+            color=yellow;
+          fi;
+
+          mkdir -p ./pr
+          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./pr/pr_badge
+          echo $PR_NUMBER > ./pr/pr_number
+        # uses: marocchino/sticky-pull-request-comment@v2
+        # if: github.event_name == 'pull_request'
+        # with:
+        #   recreate: true
+        #   path: code-coverage-results.md
       #
       # Is this a Tag? Prepare release assets
       #
