@@ -34,7 +34,7 @@ public abstract class AbstractUser {
 	/**
 	 * Roles per Edge-ID.
 	 */
-	private final NavigableMap<String, Role> roles;
+	private final NavigableMap<String, Role> roles = new TreeMap<>();
 
 	protected AbstractUser(String id, String name, Language language, Role globalRole,
 			NavigableMap<String, Role> roles) {
@@ -108,5 +108,12 @@ public abstract class AbstractUser {
 	public void setRole(String edgeId, Role role) {
 		this.roles.put(edgeId, role);
 	}
+
+	/**
+	 * Gets the Number of Devices, that the user is allowed to see.
+	 * 
+	 * @return the numberOfDevices
+	 */
+	public abstract boolean hasMultipleEdges();
 
 }
