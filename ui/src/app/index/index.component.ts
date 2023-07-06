@@ -137,7 +137,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           // Forward directly to device page, if
           // - Direct local access to Edge
           // - No installer (i.e. guest or owner) and access to only one Edge
-          if (environment.backend == 'OpenEMS Edge' || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
+          if ((!this.loggedInUserCanInstall && !metadata.user.hasMultipleEdges)) {
             let edge = metadata.edges[edgeIds[0]];
             this.router.navigate(['/device', edge.id]);
             return;
