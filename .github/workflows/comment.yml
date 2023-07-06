@@ -11,13 +11,40 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: 'Download artifact'
-        run: |
-          run_id=$(gh workflow run ${{ github.repository }} -f "Build OpenEMS" --json id | jq -r '.[0]')
-          artifact_id=$(gh run view $run_id -j artifacts --json id,name | jq -r '.artifacts[] | select(.name == "jacoco_report") | .id')
-          gh run download-artifact $artifact_id --unzip
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == 'jacoco_report'
+            })[0];
+            let download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+            });
+            let fs = require('fs');
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/jacoco_report.zip`, Buffer.from(download.data));
+
+      - name: 'Unzip artifact'
+        run: unzip jacoco_report.zip
 
       - name: 'Comment on PR'
-        run: |
-          comment=$(cat ./jacoco_report_badge)
-          issue_number=$(cat ./jacoco_report_number)
-          gh issue comment $issue_number -b "$comment"
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let fs = require('fs');
+            let comment = fs.readFileSync('./jacoco_report_badge', { encoding: 'utf8', flag: 'r' });
+            let issue_number = Number(fs.readFileSync('./jacoco_report_number'));
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: comment
+            });
