@@ -60,7 +60,7 @@ jobs:
 
           mkdir -p ./jacoco
           echo $PR_NUMBER > ./jacoco/jacoco_report_number
-          echo 'badge=![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
+          echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
       - uses: actions/upload-artifact@v3
         with:
           name: jacoco_report
