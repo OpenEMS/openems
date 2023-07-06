@@ -7,7 +7,6 @@ import java.time.temporal.ChronoUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 
@@ -18,24 +17,23 @@ public class WaitForStateChangeHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) {
 		var controller = context.getParent();
-		var nextState = controller.getNextState();
-		var now = LocalDateTime.now(context.componentManager.getClock());
-		var standbyTimeInMinutes = Duration.ofMinutes(context.config.standbyTime());
+		var config = context.config;
 
-		if (now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS)
-				.isAfter(controller.getLastStateChangeTime())) {
+		var currentState = controller.getCurrentState();
+		var nextState = controller.getNextState();
+		var now = LocalDateTime.now(context.clock);
+		var standbyTimeInMinutes = Duration.ofMinutes(config.standbyTime());
+		var lastStateChangeTime = Context.getLastStateChangeTime();
+		if (now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS).isAfter(lastStateChangeTime)) {
 			return nextState;
 		}
 
 		context.logInfo(this.log, "Awaiting hysteresis for changing from ["//
-				+ context.previousState + "] to [" + nextState + "]");
+				+ currentState + "] to [" + nextState + "]" + " now : "//
+				+ now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS) + //
+				" last state changed time "//
+				+ lastStateChangeTime);
 
 		return State.WAIT_FOR_STATE_CHANGE;
-	}
-
-	@Override
-	protected void onExit(Context context) throws OpenemsNamedException {
-		final var controller = context.getParent();
-		controller.setLastStateChangeTime(LocalDateTime.now(context.componentManager.getClock()));
 	}
 }

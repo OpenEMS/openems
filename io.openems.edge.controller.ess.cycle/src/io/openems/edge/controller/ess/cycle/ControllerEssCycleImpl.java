@@ -38,14 +38,13 @@ import io.openems.edge.ess.power.api.Pwr;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssCycleImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, ControllerEssCycle {
+		implements ControllerEssCycle, Controller, OpenemsComponent {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
-	private LocalDateTime lastStateChangeTime;
 	private LocalDateTime parsedStartTime;
 	private State setNextState;
 	private Config config;
@@ -68,6 +67,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				ControllerEssCycle.ChannelId.values() //
 		);
+		this._setCompletedCycles(0);
 	}
 
 	@Activate
@@ -76,7 +76,6 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		if (this.applyConfig(context, config)) {
 			return;
 		}
-		this._setCompletedCycles(0);
 	}
 
 	private boolean applyConfig(ComponentContext context, Config config) {
@@ -89,6 +88,10 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
 	}
 
 	@Override
@@ -107,17 +110,14 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 			var currentState = this.getCurrentState();
 			this._setStateMachine(currentState);
 
-			var previousState = this.stateMachine.getPreviousState();
-
 			// Prepare Context
 			var context = new Context(this, //
 					this.config, //
-					this.componentManager, //
+					this.componentManager.getClock(), //
 					this.ess, //
 					allowedChargePower, //
 					allowedDischargePower, //
-					this.parsedStartTime, //
-					previousState);
+					this.parsedStartTime);
 
 			try {
 				this.stateMachine.run(context);
@@ -146,15 +146,5 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Override
 	public State getNextState() {
 		return this.setNextState;
-	}
-
-	@Override
-	public LocalDateTime getLastStateChangeTime() {
-		return this.lastStateChangeTime;
-	}
-
-	@Override
-	public void setLastStateChangeTime(LocalDateTime time) {
-		this.lastStateChangeTime = time;
 	}
 }

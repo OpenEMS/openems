@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
-import java.time.LocalDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +38,5 @@ public class ContinueWithDischargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.CONTINUE_WITH_DISCHARGE;
-	}
-
-	@Override
-	protected void onExit(Context context) throws OpenemsNamedException {
-		final var controller = context.getParent();
-		controller.setLastStateChangeTime(LocalDateTime.now(context.componentManager.getClock()));
 	}
 }

@@ -33,7 +33,7 @@ public @interface Config {
 	int standbyTime() default 30;
 
 	@AttributeDefinition(name = "Start Time in Hour [YYYY-MM-DD HH:MM]", description = "Start Charge/Discharge Hour (2023-03-23 15:35).")
-	String startTime() default "2023-03-23 15:35";
+	String startTime() default "2000-01-01 01:00";
 
 	@AttributeDefinition(name = "Maximum Soc [%]", description = "Limit Charge")
 	int maxSoc() default 100;

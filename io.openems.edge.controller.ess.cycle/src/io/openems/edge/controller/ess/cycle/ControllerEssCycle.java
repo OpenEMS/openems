@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.cycle;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -9,6 +10,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.cycle.statemachine.Context;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 
@@ -16,7 +18,13 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		STATE_MACHINE(Doc.of(State.values())//
-				.text("Current State of State-Machine")), //
+				.text("Current State of State-Machine") //
+				.<ControllerEssCycleImpl>onChannelUpdate((f, j) -> {
+					if (Objects.equals(j.get(), StateMachine.State.WAIT_FOR_STATE_CHANGE.getValue())) {
+						return;
+					}
+					Context.setLastStateChangeTime(LocalDateTime.now(f.getComponentManager().getClock()));
+				})), //
 		AWAITING_HYSTERESIS(Doc.of(StateMachine.State.values()) //
 				.text("Awaiting for active hysteresis, to change the state.")), //
 		COMPLETED_CYCLES(Doc.of(OpenemsType.INTEGER) //
@@ -110,18 +118,4 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 	 * @return next {@link StateMachine} {@link State}
 	 */
 	public State getNextState();
-
-	/**
-	 * Gets the time when {@link StateMachine} {@link State} changed.
-	 * 
-	 * @return {@link LocalDateTime} last state changed time.
-	 */
-	public LocalDateTime getLastStateChangeTime();
-
-	/**
-	 * Sets the time when {@link StateMachine} {@link State} changed.
-	 *
-	 * @param time {@link LocalDateTime} last state changed time.
-	 */
-	public void setLastStateChangeTime(LocalDateTime time);
 }

@@ -33,7 +33,7 @@ public class ControllerEssCycleImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2021-09-12T17:55:10.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2000-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final var power = new DummyPower(10_000);
 		final var ess = new DummyManagedSymmetricEss(ESS_ID, power);
 		final var test = new ControllerTest(new ControllerEssCycleImpl()) //
@@ -45,7 +45,7 @@ public class ControllerEssCycleImplTest {
 						.setEssId(ESS_ID) //
 						.setCycleOrder(CycleOrder.START_WITH_DISCHARGE) //
 						.setStandbyTime(10)//
-						.setStartTime("2021-09-12 17:55")//
+						.setStartTime("2000-01-01 01:00")//
 						.setMaxSoc(100)//
 						.setMinSoc(0)//
 						.setPower(10000)//

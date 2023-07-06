@@ -1,10 +1,10 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
 import io.openems.edge.controller.ess.cycle.ControllerEssCycle;
@@ -19,20 +19,20 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	protected final ManagedSymmetricEss ess;
 	protected final int allowedChargePower;
 	protected final int allowedDischargePower;
-	protected final ComponentManager componentManager;
+	protected final Clock clock;
 	protected final LocalDateTime parsedStartTime;
-	protected final State previousState;
 
-	public Context(ControllerEssCycle parent, Config config, ComponentManager componentManager, ManagedSymmetricEss ess,
-			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime, State previousState) {
+	private static LocalDateTime lastStateChangeTime;
+
+	public Context(ControllerEssCycle parent, Config config, Clock clock, ManagedSymmetricEss ess,
+			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime) {
 		super(parent);
 		this.config = config;
-		this.componentManager = componentManager;
+		this.clock = clock;
 		this.ess = ess;
 		this.allowedChargePower = allowedChargePower;
 		this.allowedDischargePower = allowedDischargePower;
 		this.parsedStartTime = parsedStartTime;
-		this.previousState = previousState;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	 * @param power         the configured target power
 	 * @return the AC power set-point
 	 */
-	protected Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
+	protected int getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
 		return switch (this.config.hybridEssMode()) {
 		case TARGET_AC -> this.config.power();
 		case TARGET_DC -> {
@@ -75,7 +75,7 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	 * @throws OpenemsNamedException on error.
 	 */
 	public boolean initializeTime() {
-		var now = LocalDateTime.now(this.componentManager.getClock());
+		var now = LocalDateTime.now(this.clock);
 		var afterNow = now.isAfter(this.parsedStartTime.minusSeconds(1));
 		var beforeNow = now.isBefore(this.parsedStartTime.plusSeconds(59));
 		if (afterNow && beforeNow) {
@@ -90,7 +90,6 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	 * <ul>
 	 * <li>true - if {@link ChannelId#SOC} is defined.
 	 * </ul>
-	 * TODO include isEssStarted ?
 	 * 
 	 * @return true if SoC is defined.
 	 */
@@ -99,5 +98,23 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
+	public static LocalDateTime getLastStateChangeTime() {
+		return lastStateChangeTime;
+	}
+
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
+	public static void setLastStateChangeTime(LocalDateTime time) {
+		lastStateChangeTime = time;
 	}
 }

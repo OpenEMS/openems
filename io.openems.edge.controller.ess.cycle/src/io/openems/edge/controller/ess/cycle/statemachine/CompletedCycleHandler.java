@@ -1,8 +1,5 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
-import java.time.LocalDateTime;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 
@@ -36,11 +33,5 @@ public class CompletedCycleHandler extends StateHandler<State, Context> {
 			yield State.START_CHARGE;
 		}
 		};
-	}
-
-	@Override
-	protected void onExit(Context context) throws OpenemsNamedException {
-		final var controller = context.getParent();
-		controller.setLastStateChangeTime(LocalDateTime.now(context.componentManager.getClock()));
 	}
 }
