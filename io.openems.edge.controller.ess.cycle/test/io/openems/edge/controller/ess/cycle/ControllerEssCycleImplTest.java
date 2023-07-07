@@ -67,6 +67,8 @@ public class ControllerEssCycleImplTest {
 						.input(MAX_CHARGE_POWER, -10_000)//
 						.input(MAX_DISCHARGE_POWER, 1000))//
 				.next(new TestCase()//
+						.timeleap(clock, 10, ChronoUnit.MINUTES))//
+				.next(new TestCase()//
 						.output(STATE_MACHINE, State.START_DISCHARGE))//
 				.next(new TestCase()//
 						.input(MAX_CHARGE_POWER, -10_000)//

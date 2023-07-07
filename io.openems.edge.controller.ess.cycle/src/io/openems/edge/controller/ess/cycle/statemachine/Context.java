@@ -22,8 +22,6 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	protected final Clock clock;
 	protected final LocalDateTime parsedStartTime;
 
-	private static LocalDateTime lastStateChangeTime;
-
 	public Context(ControllerEssCycle parent, Config config, Clock clock, ManagedSymmetricEss ess,
 			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime) {
 		super(parent);
@@ -42,7 +40,9 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	 * @return {@link State#WAIT_FOR_STATE_CHANGE}.
 	 */
 	protected State changeToNextState(State nextState) {
-		this.getParent().setNextState(nextState);
+		var controller = this.getParent();
+		controller.setNextState(nextState);
+		controller.setLastStateChangeTime(LocalDateTime.now(this.clock));
 		return State.WAIT_FOR_STATE_CHANGE;
 	}
 
@@ -100,21 +100,4 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 		return false;
 	}
 
-	/**
-	 * Gets the time when {@link StateMachine} {@link State} changed.
-	 * 
-	 * @return {@link LocalDateTime} last state changed time.
-	 */
-	public static LocalDateTime getLastStateChangeTime() {
-		return lastStateChangeTime;
-	}
-
-	/**
-	 * Sets the time when {@link StateMachine} {@link State} changed.
-	 *
-	 * @param time {@link LocalDateTime} last state changed time.
-	 */
-	public static void setLastStateChangeTime(LocalDateTime time) {
-		lastStateChangeTime = time;
-	}
 }

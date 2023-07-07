@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
-import java.util.function.Supplier;
-
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -9,22 +7,20 @@ import io.openems.edge.common.statemachine.StateHandler;
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
-		UNDEFINED(-1, UndefinedHandler::new), //
-		COMPLETED_CYCLE(0, CompletedCycleHandler::new), //
-		START_CHARGE(1, StartChargeHandler::new), //
-		START_DISCHARGE(2, StartDischargeHandler::new), //
-		CONTINUE_WITH_CHARGE(3, ContinueWithChargeHandler::new), //
-		CONTINUE_WITH_DISCHARGE(4, ContinueWithDischargeHandler::new), //
-		WAIT_FOR_STATE_CHANGE(5, WaitForStateChangeHandler::new), //
-		FINAL_SOC(6, FinalSocHandler::new), //
-		FINISHED(7, FinishedHandler::new); //
+		UNDEFINED(-1), //
+		COMPLETED_CYCLE(0), //
+		START_CHARGE(1), //
+		START_DISCHARGE(2), //
+		CONTINUE_WITH_CHARGE(3), //
+		CONTINUE_WITH_DISCHARGE(4), //
+		WAIT_FOR_STATE_CHANGE(5), //
+		FINAL_SOC(6), //
+		FINISHED(7); //
 
 		private final int value;
-		private final Supplier<StateHandler<State, Context>> stateHandlerSupplier;
 
-		private State(int value, Supplier<StateHandler<State, Context>> stateHandler) {
+		private State(int value) {
 			this.value = value;
-			this.stateHandlerSupplier = stateHandler;
 		}
 
 		@Override
@@ -54,6 +50,16 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		return state.stateHandlerSupplier.get();
+		return switch (state) {
+		case COMPLETED_CYCLE -> new CompletedCycleHandler();
+		case CONTINUE_WITH_CHARGE -> new ContinueWithChargeHandler();
+		case CONTINUE_WITH_DISCHARGE -> new ContinueWithDischargeHandler();
+		case FINAL_SOC -> new FinalSocHandler();
+		case FINISHED -> new FinishedHandler();
+		case START_CHARGE -> new StartChargeHandler();
+		case START_DISCHARGE -> new StartDischargeHandler();
+		case UNDEFINED -> new UndefinedHandler();
+		case WAIT_FOR_STATE_CHANGE -> new WaitForStateChangeHandler();
+		};
 	}
 }

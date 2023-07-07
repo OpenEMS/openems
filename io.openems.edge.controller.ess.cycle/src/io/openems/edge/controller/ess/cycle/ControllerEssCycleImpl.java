@@ -45,6 +45,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
+	private LocalDateTime lastStateChangeTime;
 	private LocalDateTime parsedStartTime;
 	private State setNextState;
 	private Config config;
@@ -90,10 +91,6 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	public ComponentManager getComponentManager() {
-		return this.componentManager;
-	}
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		if (this.parsedStartTime == null) {
@@ -106,10 +103,6 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 			var allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 			var allowedChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
-			// store current state in StateMachine channel
-			var currentState = this.getCurrentState();
-			this._setStateMachine(currentState);
-
 			// Prepare Context
 			var context = new Context(this, //
 					this.config, //
@@ -118,6 +111,10 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 					allowedChargePower, //
 					allowedDischargePower, //
 					this.parsedStartTime);
+
+			// store current state in StateMachine channel
+			var currentState = this.getCurrentState();
+			this._setStateMachine(currentState);
 
 			try {
 				this.stateMachine.run(context);
@@ -146,5 +143,24 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Override
 	public State getNextState() {
 		return this.setNextState;
+	}
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
+	@Override
+	public LocalDateTime getLastStateChangeTime() {
+		return this.lastStateChangeTime;
+	}
+
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
+	@Override
+	public void setLastStateChangeTime(LocalDateTime time) {
+		this.lastStateChangeTime = time;
 	}
 }
