@@ -402,7 +402,8 @@
           "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
           "valid": "Lizenzschlüssel ist gültig",
           "invalid": "Lizenzschlüssel ist ungültig",
-          "invalidPattern": "Eingabe ist ungültig"
+          "invalidPattern": "Eingabe ist ungültig",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>"
         },
         "successInstall": "App erfolgreich installiert",
         "failInstall": "Installation der App fehlgeschlagen: {{error}}",
