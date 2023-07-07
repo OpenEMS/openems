@@ -917,5 +917,16 @@
       "UPDATE_SEARCH": "Checking for updates...",
       "UPDATE_TIME": "(This can take up to 10 minutes)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Save Configuration",
+    "SAVE_DESCRIPTION": "Saving the configuration will overwrite the existing one for this {{edgeShortName}} and will be applied on page reload.",
+    "Component": "Component",
+    "ADD_CHANNEL": "Add Channel",
+    "ADD": "Add",
+    "VALUE": "Value",
+    "SET_VALUE": "Set value",
+    "MORE_CHANNELS": "Add More Channels",
+    "CHANNEL": "Channel"
   }
 }

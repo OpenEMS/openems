@@ -917,5 +917,16 @@
       "UPDATE_SEARCH": "Suche nach Updates...",
       "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Konfiguration speichern",
+    "SAVE_DESCRIPTION": "Das Speichern der neuen Konfiguration überschreibt die bestehende für dieses {{edgeShortName}} und wird beim Neuladen der Seite übernommen.",
+    "Component": "Komponente",
+    "ADD_CHANNEL": "Kanal hinzufügen",
+    "ADD": "hinzufügen",
+    "VALUE": "Wert",
+    "SET_VALUE": "Eingestellter Wert",
+    "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
+    "CHANNEL": "Kanal"
   }
 }
