@@ -117,7 +117,11 @@ public class ModbusRecordChannel extends ModbusRecord {
 		if (component != null) {
 			Channel<?> channel = component.channel(this.channelId);
 			if (channel != null) {
+			    if (channel.channelDoc().getAccessMode() == AccessMode.WRITE_ONLY) {
+				value = null;
+			    } else {
 				value = channel.value().get();
+			    }
 			} else {
 				this.log.warn("Channel [" + component.id() + "/" + this.channelId.id() + "] is not available for "
 						+ this.toString());
