@@ -211,6 +211,8 @@ public interface SymmetricEss extends OpenemsComponent {
 				.channel(1, ChannelId.GRID_MODE, ModbusType.UINT16) //
 				.channel(2, ChannelId.ACTIVE_POWER, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.REACTIVE_POWER, ModbusType.FLOAT32) //
+				.channel(6, ChannelId.MAX_APPARENT_POWER, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.CAPACITY, ModbusType.FLOAT32) //
 				.build();
 	}
 
