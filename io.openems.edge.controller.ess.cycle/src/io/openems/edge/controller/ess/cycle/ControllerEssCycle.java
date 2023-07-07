@@ -110,8 +110,20 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 	 * @return next {@link StateMachine} {@link State}
 	 */
 	public State getNextState();
-	
+
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
+
 	public LocalDateTime getLastStateChangeTime();
+
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
 	public void setLastStateChangeTime(LocalDateTime time);
-	
+
 }
