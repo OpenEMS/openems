@@ -14,7 +14,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.initializeTime()) {
+		if (context.isStartTimeInitialized()) {
 			return switch (config.cycleOrder()) {
 			case START_WITH_CHARGE -> State.START_CHARGE;
 			case START_WITH_DISCHARGE -> State.START_DISCHARGE;

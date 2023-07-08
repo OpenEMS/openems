@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.cycle.statemachine;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
@@ -69,12 +68,11 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	}
 
 	/**
-	 * Helper to activate the full cycle activated or not.
+	 * Is Start Time Initialized?.
 	 * 
 	 * @return true if the Controller should be executed now
-	 * @throws OpenemsNamedException on error.
 	 */
-	public boolean initializeTime() {
+	public boolean isStartTimeInitialized() {
 		var now = LocalDateTime.now(this.clock);
 		var afterNow = now.isAfter(this.parsedStartTime.minusSeconds(1));
 		var beforeNow = now.isBefore(this.parsedStartTime.plusSeconds(59));
@@ -85,7 +83,7 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	}
 
 	/**
-	 * Is ESS SoC defined ?.
+	 * Is ESS SoC defined?.
 	 *
 	 * <ul>
 	 * <li>true - if {@link ChannelId#SOC} is defined.
