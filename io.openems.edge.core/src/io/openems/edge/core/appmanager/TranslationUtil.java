@@ -17,15 +17,37 @@ public class TranslationUtil {
 	 *         the format is invalid
 	 */
 	public static String getTranslation(ResourceBundle translationBundle, String key, Object... params) {
+		final var translation = getNullableTranslation(translationBundle, key, params);
+		if (translation == null) {
+			return key;
+		}
+		return translation;
+	}
+
+	/**
+	 * Gets the value for the given key from the translationBundle.
+	 *
+	 * @param translationBundle the translation bundle
+	 * @param key               the key of the translation
+	 * @param params            the parameter of the translation
+	 * @return the translated string or null if the translation was not found or the
+	 *         format is invalid
+	 */
+	public static String getNullableTranslation(//
+			final ResourceBundle translationBundle, //
+			final String key, //
+			final Object... params //
+	) {
 		try {
-			var string = Objects.requireNonNull(translationBundle).getString(Objects.requireNonNull(key));
+			final var string = Objects.requireNonNull(translationBundle) //
+					.getString(Objects.requireNonNull(key));
 			if (params == null || params.length == 0) {
 				return string;
 			}
 			return MessageFormat.format(string, params);
 		} catch (MissingResourceException | IllegalArgumentException e) {
 			e.printStackTrace();
-			return key;
+			return null;
 		}
 	}
 
