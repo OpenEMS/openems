@@ -54,11 +54,11 @@ export namespace History {
             "position": "right",
             "scaleLabel": {
               "display": true,
-              "labelString": "%",
+              "labelString": "Prozent",
               "padding": 10
             },
             "gridLines": {
-              "display": false
+              "display": true
             },
             "ticks": {
               "beginAtZero": true,
