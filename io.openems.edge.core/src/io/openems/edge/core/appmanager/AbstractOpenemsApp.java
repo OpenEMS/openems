@@ -69,7 +69,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			OpenemsNamedException> appPropertyConfigurationFactory();
 
 	protected final void assertCheckables(ConfigurationTarget t, Checkable... checkables) throws OpenemsNamedException {
-		if (t != ConfigurationTarget.ADD && t != ConfigurationTarget.UPDATE) {
+		if (!t.isAddOrUpdate()) {
 			return;
 		}
 		final List<String> errors = new ArrayList<>();
@@ -571,6 +571,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	@Override
+	public String getShortName(Language language) {
+		return AbstractOpenemsApp.getNullableTranslation(language, this.getAppId() + ".Name.short");
+	}
+
+	@Override
 	public String getImage() {
 		var imageName = this.getClass().getSimpleName() + ".png";
 		var image = base64OfImage(this.getClass().getResource(imageName));
@@ -605,6 +610,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static String getTranslation(Language language, String key) {
 		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
+	}
+
+	protected static String getNullableTranslation(Language language, String key) {
+		return TranslationUtil.getNullableTranslation(getTranslationBundle(language), key);
 	}
 
 	/**
