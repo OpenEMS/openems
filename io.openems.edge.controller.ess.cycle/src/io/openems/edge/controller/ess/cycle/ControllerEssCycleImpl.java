@@ -28,7 +28,6 @@ import io.openems.edge.controller.ess.cycle.statemachine.StateMachine;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
@@ -52,9 +51,6 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
-
-	@Reference
-	private Power power;
 
 	@Reference
 	private ComponentManager componentManager;
