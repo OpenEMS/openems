@@ -1,42 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
-import { isSameYear } from 'date-fns';
-import { format, isSameDay, isSameMonth } from 'date-fns/esm';
-import { saveAs } from 'file-saver-es';
-import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { Component } from '@angular/core';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-
-import { Service, Websocket } from '../../../../shared/shared';
+import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
+import { isSameDay, format, isSameMonth, isSameYear } from 'date-fns';
+import { saveAs } from 'file-saver-es';
 
 @Component({
-    selector: EnergyModalComponent.SELECTOR,
-    templateUrl: './modal.component.html'
+    selector: 'energy',
+    templateUrl: './flat.html'
 })
-export class EnergyModalComponent implements OnInit {
+export class FlatComponent extends AbstractFlatWidget {
 
-    private static readonly SELECTOR = "energy-modal";
-
+    protected autarchyValue: number | null;
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
 
-    constructor(
-        protected service: Service,
-        private websocket: Websocket,
-        private route: ActivatedRoute,
-        public translate: TranslateService,
-        public modalCtrl: ModalController
-    ) { }
 
-    ngOnInit() {
-        this.service.setCurrentComponent('', this.route);
+    protected override onCurrentData(currentData: CurrentData) {
+        this.autarchyValue =
+            Utils.calculateAutarchy(
+                currentData.allComponents['_sum/GridBuyActiveEnergy'] / 1000,
+                currentData.allComponents['_sum/ConsumptionActiveEnergy'] / 1000);
+    }
+
+    protected override getChannelAddresses(): ChannelAddress[] {
+        return [
+            new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
+            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+        ];
+    }
+
+    public getChartHeight(): number {
+        return this.service.deviceHeight / 2;
     }
 
     /**
-     * Export historic data to Excel file.
-     */
-    public exportToXlxs() {
+ * Export historic data to Excel file.
+ */
+    protected exportToXlxs() {
         this.service.getCurrentEdge().then(edge => {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)).then(response => {
                 let r = response as Base64PayloadResponse;
@@ -48,7 +50,7 @@ export class EnergyModalComponent implements OnInit {
                     view[i] = binary.charCodeAt(i);
                 }
                 const data: Blob = new Blob([view], {
-                    type: EnergyModalComponent.EXCEL_TYPE
+                    type: FlatComponent.EXCEL_TYPE
                 });
 
                 let fileName = "Export-" + edge.id + "-";
@@ -63,7 +65,7 @@ export class EnergyModalComponent implements OnInit {
                 } else {
                     fileName += format(dateFrom, "dd.MM.yyyy") + "-" + format(dateTo, "dd.MM.yyyy");
                 }
-                fileName += EnergyModalComponent.EXCEL_EXTENSION;
+                fileName += FlatComponent.EXCEL_EXTENSION;
                 saveAs(data, fileName);
 
             }).catch(reason => {
@@ -72,3 +74,4 @@ export class EnergyModalComponent implements OnInit {
         });
     }
 }
+
