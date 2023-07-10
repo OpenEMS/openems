@@ -7,7 +7,7 @@ This controls a energy storage system in self-consumption optimization mode by t
 == Requirements
 
 ** ManagedSymmetricEss, a controllable energy storage system
-** SymmetricMeter, a meter at the grid connection point
+** ElectricityMeter, a meter at the grid connection point
 
 == Additional application notes
 

@@ -161,7 +161,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     async presentSingleStatusModal() {
         const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
+            component: StatusSingleComponent
         });
         return await modal.present();
     }

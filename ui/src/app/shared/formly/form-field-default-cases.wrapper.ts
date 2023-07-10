@@ -12,6 +12,10 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
             this.form.get(item["field"]).valueChanges.subscribe((value) => {
                 this.onChange(item, value);
             });
+            // if value is already set keep current value
+            if (this.formControl.value) {
+                return;
+            }
             let value = this.model[item.field];
             if (value) {
                 this.onChange(item, value);

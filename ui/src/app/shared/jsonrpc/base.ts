@@ -54,7 +54,7 @@ export class JsonrpcNotification extends AbstractJsonrpcRequest {
 
 export abstract class JsonrpcResponse extends JsonrpcMessage {
     public constructor(
-        public readonly id: string,
+        public readonly id: string
     ) {
         super();
     }

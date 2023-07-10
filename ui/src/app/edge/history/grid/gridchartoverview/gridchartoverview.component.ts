@@ -16,7 +16,7 @@ export class GridChartOverviewComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        public service: Service,
+        public service: Service
     ) { }
 
     ngOnInit() {

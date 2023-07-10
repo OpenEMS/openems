@@ -34,9 +34,9 @@ import io.openems.edge.tesla.powerwall2.battery.TeslaPowerwall2Battery;
 public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		implements TeslaPowerwall2Core, OpenemsComponent, EventHandler {
 
-	private ReadWorker worker = null;
-
 	private final AtomicReference<TeslaPowerwall2Battery> battery = new AtomicReference<>();
+
+	private ReadWorker worker = null;
 
 	public TeslaPowerwall2CoreImpl() {
 		super(//

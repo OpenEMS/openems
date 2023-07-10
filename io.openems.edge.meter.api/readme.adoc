@@ -1,13 +1,5 @@
 = Meter
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.meter.api/src/io/openems/edge/meter/api/MeterType.java[Meter icon:code[]]::
-A generic electric power meter.
-// TODO add channels
-
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.meter.api/src/io/openems/edge/meter/api/SymmetricMeter.java[SymmetricMeter icon:code[]]::
-A power meter for symmetric metering.
-// TODO add channels
-
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.meter.api/src/io/openems/edge/meter/api/AsymmetricMeter.java[AsymmetricMeter icon:code[]]::
-A power meter for asymmetric metering.
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.meter.api/src/io/openems/edge/meter/api/ElectricityMeter.java[ElectricityMeter icon:code[]]::
+An electricity meter.
 // TODO add channels

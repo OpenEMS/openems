@@ -17,8 +17,8 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static int MAXIMUM_POWER = 10000;
-	public static int DC_LINK_VOLTAGE = 800;
+	public static final int MAXIMUM_POWER = 10000;
+	public static final int DC_LINK_VOLTAGE = 800;
 	private int currentActivePower = 0;
 	private boolean running;
 	private boolean error;

@@ -23,7 +23,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("grid-chart", service, translate);
     }

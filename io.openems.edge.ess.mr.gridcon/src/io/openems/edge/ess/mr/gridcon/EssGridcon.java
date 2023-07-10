@@ -41,10 +41,10 @@ public abstract class EssGridcon extends AbstractOpenemsComponent
 
 	public static final int MAX_CURRENT_PER_STRING = 80;
 
-	String gridconId;
-	String bmsAId;
-	String bmsBId;
-	String bmsCId;
+	private String gridconId;
+	private String bmsAId;
+	private String bmsBId;
+	private String bmsCId;
 	private float offsetCurrent;
 
 	protected io.openems.edge.ess.mr.gridcon.StateObject mainStateObject = null;

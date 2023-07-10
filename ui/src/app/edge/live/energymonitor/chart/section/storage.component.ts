@@ -46,11 +46,12 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     private showDischargeAnimation: boolean = false;
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
+    public svgStyle: string;
 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
@@ -138,6 +139,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         this.socValue = sum.storage.soc;
         if (this.square) {
             this.square.image.image = "assets/img/" + this.getImagePath();
+            this.svgStyle = 'storage-' + Utils.getStorageSocSegment(this.socValue);
         }
     }
 
@@ -148,7 +150,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getImagePath(): string {
-        return Utils.getStorageSocImage(this.socValue);
+        return "icon/storage.svg";
     }
 
     protected getValueText(value: number): string {

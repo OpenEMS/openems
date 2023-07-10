@@ -122,7 +122,7 @@ public class ElementToChannelConverter {
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2_AND_KEEP_NEGATIVE}
 	 * and @see {@link ElementToChannelConverter#INVERT}.
 	 */
-	public static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = chain(
+	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = chain(
 			SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
 
 	/**

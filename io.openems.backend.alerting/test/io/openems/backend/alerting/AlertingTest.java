@@ -79,7 +79,7 @@ public class AlertingTest {
 
 	/* ********** */
 	static class DummyAlerting extends Alerting {
-		Event lastEvent;
+		private Event lastEvent;
 
 		public DummyAlerting() {
 			super.metadata = new DummyMetadata();

@@ -5,14 +5,15 @@ pluginManagement {
 		id 'com.github.node-gradle.node' version "5.0.0"
 	}
 	repositories {
-		mavenCentral()
 		maven {
+			name = 'BndRepo'
 			url = uri(bnd_releases)
 			content {
 				includeGroup('biz.aQute.bnd')
 				includeGroup('biz.aQute.bnd.workspace')
 			}
 		}
+		mavenCentral()
 		gradlePluginPortal()
 	}
 }

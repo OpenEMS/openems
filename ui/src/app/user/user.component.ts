@@ -39,7 +39,7 @@ export class UserComponent implements OnInit {
     public translate: TranslateService,
     public service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket,
+    private websocket: Websocket
   ) { }
 
   ngOnInit() {
@@ -69,7 +69,7 @@ export class UserComponent implements OnInit {
           zip: this.form.model.zip,
           city: this.form.model.city,
           country: this.form.model.country
-        },
+        }
       }
     };
     this.service.websocket.sendRequest(new SetUserInformationRequest(user)).then(() => {
@@ -196,7 +196,7 @@ export class UserComponent implements OnInit {
               street: user.address.street,
               zip: user.address.zip,
               city: user.address.city,
-              country: user.address.country,
+              country: user.address.country
             });
           }).catch(() => {
             resolve({
@@ -207,7 +207,7 @@ export class UserComponent implements OnInit {
               street: "",
               zip: "",
               city: "",
-              country: "",
+              country: ""
             });
           });
           clearInterval(interval);

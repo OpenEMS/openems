@@ -1,4 +1,4 @@
-import { Directive, Inject, Injectable, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -56,16 +56,15 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   public updateValues() {
     let channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ thisComponent: {}, allComponents: {} });
+    this.onCurrentData({ allComponents: {} });
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
-      let thisComponent = {};
       let allComponents = {};
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
       }
-      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+      this.onCurrentData({ allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
     });

@@ -3,7 +3,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
     selector: 'oe-modal-line',
-    templateUrl: './modal-line.html',
+    templateUrl: './modal-line.html'
 })
 export class ModalLineComponent extends AbstractModalLine {
 
@@ -29,6 +29,6 @@ export class ModalLineComponent extends AbstractModalLine {
 
 export enum TextIndentation {
     NONE = '0%',
-    SIMPLE = '5%',
+    SINGLE = '5%',
     DOUBLE = '10%'
 }

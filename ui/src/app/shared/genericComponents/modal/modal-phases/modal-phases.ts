@@ -25,7 +25,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
     for (let phase of this.phases) {
       channelAddresses.push(
-        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
+        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key)
       );
     }
     return channelAddresses;

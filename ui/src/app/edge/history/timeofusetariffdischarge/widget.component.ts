@@ -22,7 +22,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }

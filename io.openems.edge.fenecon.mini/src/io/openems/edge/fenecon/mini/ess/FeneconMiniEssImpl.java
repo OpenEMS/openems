@@ -81,11 +81,19 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		implements FeneconMiniEss, ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss, SinglePhaseEss,
 		AsymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
-	@Reference
-	protected ConfigurationAdmin cm;
+	private final Logger log = LoggerFactory.getLogger(FeneconMiniEssImpl.class);
+	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	@Reference
-	protected Power power;
+	private ConfigurationAdmin cm;
+
+	@Reference
+	private Power power;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -95,19 +103,6 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
-
-	private final Logger log = LoggerFactory.getLogger(FeneconMiniEssImpl.class);
-	private final MaxApparentPowerHandler maxApparentPowerHandler = new MaxApparentPowerHandler(this);
-
-	/**
-	 * Manages the {@link State}s of the StateMachine.
-	 */
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
-	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
-			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private Config config;
 
@@ -130,7 +125,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
 			return;

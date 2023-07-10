@@ -14,7 +14,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -26,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.taskmanager.Priority;
@@ -109,11 +109,12 @@ public class SingleRack {
 	private final int rackNumber;
 	private final int numberOfSlaves;
 	private final int addressOffset;
-	private final ClusterVersionB parent;
+	private final BatterySoltaroClusterVersionBImpl parent;
 	private final Map<String, ChannelId> channelIds;
 	private final Map<String, Channel<?>> channelMap;
 
-	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, ClusterVersionB parent) {
+	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset,
+			BatterySoltaroClusterVersionBImpl parent) {
 		this.rackNumber = racknumber;
 		this.numberOfSlaves = numberOfSlaves;
 		this.addressOffset = addressOffset;

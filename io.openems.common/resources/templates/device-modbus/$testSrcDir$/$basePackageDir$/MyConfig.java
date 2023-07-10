@@ -1,7 +1,7 @@
 package $basePackageName$;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

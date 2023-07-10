@@ -7,7 +7,7 @@ import { ModalComponent } from "./modal/modal";
 @NgModule({
     imports: [
         BrowserModule,
-        SharedModule,
+        SharedModule
     ],
     entryComponents: [
         FlatComponent,

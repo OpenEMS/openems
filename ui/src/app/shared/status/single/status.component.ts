@@ -24,7 +24,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     constructor(
         public modalCtrl: ModalController,
         public service: Service,
-        private websocket: Websocket,
+        private websocket: Websocket
     ) { }
 
     ngOnInit() {

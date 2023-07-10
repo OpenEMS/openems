@@ -7,11 +7,11 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
 	protected static class Builder {
-		private String id = null;
-		public String ip;
-		public int port;
-		public LogVerbosity logVerbosity;
-		public int invalidateElementsAfterReadErrors;
+		private String id;
+		private String ip;
+		private int port;
+		private LogVerbosity logVerbosity;
+		private int invalidateElementsAfterReadErrors;
 
 		private Builder() {
 		}
