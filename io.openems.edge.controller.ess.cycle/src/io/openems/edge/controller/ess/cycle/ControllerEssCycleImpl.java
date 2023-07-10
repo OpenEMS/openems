@@ -130,27 +130,47 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	@Override
+	/**
+	 * Gets the current {@link State} state of the {@link StateMachine}.
+	 *
+	 * @return the {@link State}
+	 */
 	public State getCurrentState() {
 		return this.stateMachine.getCurrentState();
 	}
 
-	@Override
+	/**
+	 * Sets the next {@link StateMachine} {@link State}.
+	 * 
+	 * @param state as a next {@link StateMachine} {@link State} to be set.
+	 */
 	public void setNextState(State nextState) {
 		this.setNextState = nextState;
 	}
 
-	@Override
+	/**
+	 * Gets the next {@link State} state of the {@link StateMachine}.
+	 * 
+	 * @return next {@link StateMachine} {@link State}
+	 */
 	public State getNextState() {
 		return this.setNextState;
 	}
 
-	@Override
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
 	public LocalDateTime getLastStateChangeTime() {
 		return this.lastStateChangeTime;
 	}
 
-	@Override
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
 	public void setLastStateChangeTime(LocalDateTime time) {
 		this.lastStateChangeTime = time;
 	}

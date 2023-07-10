@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
-import io.openems.edge.controller.ess.cycle.ControllerEssCycle;
+import io.openems.edge.controller.ess.cycle.ControllerEssCycleImpl;
 import io.openems.edge.controller.ess.cycle.HybridEssMode;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Context extends AbstractContext<ControllerEssCycle> {
+public class Context extends AbstractContext<ControllerEssCycleImpl> {
 
 	protected final Config config;
 	protected final ManagedSymmetricEss ess;
@@ -21,7 +21,7 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	protected final Clock clock;
 	protected final LocalDateTime parsedStartTime;
 
-	public Context(ControllerEssCycle parent, Config config, Clock clock, ManagedSymmetricEss ess,
+	public Context(ControllerEssCycleImpl parent, Config config, Clock clock, ManagedSymmetricEss ess,
 			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime) {
 		super(parent);
 		this.config = config;

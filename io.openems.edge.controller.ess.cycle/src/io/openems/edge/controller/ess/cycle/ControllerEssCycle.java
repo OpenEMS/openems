@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.cycle;
 
-import java.time.LocalDateTime;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -89,41 +87,4 @@ public interface ControllerEssCycle extends Controller, OpenemsComponent {
 	public default void _setCompletedCycles(int value) {
 		this.getCompletedCyclesChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the current {@link State} state of the {@link StateMachine}.
-	 *
-	 * @return the {@link State}
-	 */
-	public State getCurrentState();
-
-	/**
-	 * Sets the next {@link StateMachine} {@link State}.
-	 * 
-	 * @param state as a next {@link StateMachine} {@link State} to be set.
-	 */
-	public void setNextState(State state);
-
-	/**
-	 * Gets the next {@link State} state of the {@link StateMachine}.
-	 * 
-	 * @return next {@link StateMachine} {@link State}
-	 */
-	public State getNextState();
-
-	/**
-	 * Gets the time when {@link StateMachine} {@link State} changed.
-	 * 
-	 * @return {@link LocalDateTime} last state changed time.
-	 */
-
-	public LocalDateTime getLastStateChangeTime();
-
-	/**
-	 * Sets the time when {@link StateMachine} {@link State} changed.
-	 *
-	 * @param time {@link LocalDateTime} last state changed time.
-	 */
-	public void setLastStateChangeTime(LocalDateTime time);
-
 }
