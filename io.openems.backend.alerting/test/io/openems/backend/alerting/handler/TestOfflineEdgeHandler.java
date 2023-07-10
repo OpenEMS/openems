@@ -104,7 +104,41 @@ public class TestOfflineEdgeHandler {
 		assertEquals(expected, msgsch.find(handler).size());
 	}
 
-	private static class ErrorDummyMetadata extends DummyMetadata {
+	private static class ToManyMsgsMetadata extends DummyMetadata {
+		private final ZonedDateTime now = ZonedDateTime.now();
+		private final ZonedDateTime yesterday = this.now.minusDays(1);
+
+		private List<AlertingSetting> userList = List.of(
+				new AlertingSetting(0, "user0", Role.OWNER, this.yesterday, 60),
+				new AlertingSetting(1, "user1", Role.OWNER, this.yesterday, 15),
+				new AlertingSetting(2, "user2", Role.OWNER, this.yesterday, 10),
+				new AlertingSetting(3, "user3", Role.OWNER, this.yesterday, 30),
+				new AlertingSetting(4, "user4", Role.OWNER, this.yesterday, 30),
+				new AlertingSetting(5, "user5", Role.OWNER, this.yesterday, 1440));
+
+		@Override
+		public boolean isInitialized() {
+			return true;
+		}
+
+		@Override
+		public Collection<Edge> getAllOfflineEdges() {
+			var toMany = OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS / (this.userList.size() - 2);
+
+			var edges = new ArrayList<Edge>(toMany);
+			for (var i = 0; i < toMany; i++) {
+				edges.add(new Edge(null, "edge" + i, null, null, null, this.now));
+			}
+			return edges;
+		}
+
+		@Override
+		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+			return this.userList;
+		}
+	}
+
+	private static class ToManyEdgesMetadata extends DummyMetadata {
 		private final ZonedDateTime now = ZonedDateTime.now();
 		private final ZonedDateTime yesterday = this.now.minusDays(1);
 
@@ -115,8 +149,9 @@ public class TestOfflineEdgeHandler {
 
 		@Override
 		public Collection<Edge> getAllOfflineEdges() {
-			var edges = new ArrayList<Edge>(OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS + 1);
-			for (var i = 0; i <= OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS; i++) {
+			var toMany = OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES + 20;
+			var edges = new ArrayList<Edge>(toMany);
+			for (var i = 0; i < toMany; i++) {
 				edges.add(new Edge(null, "edge" + i, null, null, null, this.now));
 			}
 			return edges;
@@ -132,21 +167,37 @@ public class TestOfflineEdgeHandler {
 
 	@Test
 	public void checkMetadataEmergencyStop() {
-		final var meta = new ErrorDummyMetadata();
-		final var msgsch = new Dummy.MessageSchedulerServiceImpl();
-		final var count = new AtomicInteger();
-		meta.getAllOfflineEdges().stream().map(e -> meta.getUserAlertingSettings(e.getId())).forEach(e -> {
+		final var msgMeta = new ToManyMsgsMetadata();
+		final var msgMsgsch = new Dummy.MessageSchedulerServiceImpl();
+		final var msgCount = new AtomicInteger();
+		msgMeta.getAllOfflineEdges().stream().map(e -> msgMeta.getUserAlertingSettings(e.getId())).forEach(e -> {
 			e.forEach(s -> {
 				if (s.getLastNotification().plusMinutes(s.getDelayTime()).isBefore(this.now)) {
-					count.getAndIncrement();
+					msgCount.getAndIncrement();
 				}
 			});
 		});
 
-		assertTrue("Not enought mails to trigger", count.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS);
+		assertTrue(msgCount.get() + " are Not enought mails to trigger",
+				msgCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS);
 
-		final var handler = new OfflineEdgeHandler(msgsch, null, meta, 0);
+		final var handler = new OfflineEdgeHandler(msgMsgsch, null, msgMeta, 0);
 
-		assertEquals(0, msgsch.find(handler).size());
+		assertEquals(0, msgMsgsch.find(handler).size());
+
+		//
+
+		final var edgeMeta = new ToManyEdgesMetadata();
+		final var edgeMsgsch = new Dummy.MessageSchedulerServiceImpl();
+		final var edgeCount = new AtomicInteger();
+		edgeMeta.getAllOfflineEdges().stream().map(e -> edgeMeta.getUserAlertingSettings(e.getId())).forEach(e -> {
+			edgeCount.getAndIncrement();
+		});
+
+		assertTrue("Not enought mails to trigger", edgeCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES);
+
+		final var edgeHandler = new OfflineEdgeHandler(edgeMsgsch, null, edgeMeta, 0);
+
+		assertEquals(0, edgeMsgsch.find(edgeHandler).size());
 	}
 }

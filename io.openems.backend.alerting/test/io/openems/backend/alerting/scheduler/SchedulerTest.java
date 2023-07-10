@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -142,7 +143,7 @@ public class SchedulerTest {
 
 	private static class DummyHandler implements Handler<DummyMessage> {
 		@Override
-		public Runnable getEventHandler(EventReader event) {
+		public Consumer<EventReader> getEventHandler(String eventTopic) {
 			throw new UnsupportedOperationException();
 		}
 

@@ -1,8 +1,11 @@
 package io.openems.backend.alerting;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
+import io.openems.backend.alerting.handler.SumStateHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -34,6 +38,7 @@ import io.openems.common.event.EventReader;
 )
 @EventTopics({ //
 		Edge.Events.ON_SET_ONLINE, //
+		Edge.Events.ON_SET_SUM_STATE, //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler {
@@ -52,7 +57,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	@Reference
 	protected Mailer mailer;
 
-	protected Handler<?>[] handlers = {};
+	protected final List<Handler<?>> handler = new ArrayList<>(2);
 
 	protected Alerting(Scheduler scheduler) {
 		super("Alerting");
@@ -71,33 +76,39 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.logInfo(this.log, "Activate");
 		this.scheduler.start();
 
-		this.handlers = new Handler[] {
-				new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()) };
+		if (config.notifyOnOffline()) {
+			this.handler.add(new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()));
+		}
+
+		if (config.notifyOnSumStateChange()) {
+			this.handler.add(new SumStateHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()));
+		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		this.logInfo(this.log, "Deactivate");
-
-		for (var handler : this.handlers) {
-			handler.stop();
-		}
-		this.handlers = new Handler<?>[0];
+		this.handler.forEach(Handler::stop);
+		this.handler.clear();
 		this.scheduler.stop();
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		var reader = new EventReader(event);
-		for (var handler : this.handlers) {
-			var task = handler.getEventHandler(reader);
+		this.handler.forEach(handler -> {
+			var task = handler.getEventHandler(reader.getTopic());
 			if (task != null) {
-				this.executor.execute(task);
+				this.execute(task, reader);
 			}
-		}
+		});
 		int queueSize = this.executor.getQueue().size();
 		if (queueSize > 0 && queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
 			this.logWarn(this.log, queueSize + " tasks in the EventHandlerQueue!");
 		}
+	}
+
+	private void execute(Consumer<EventReader> consumer, EventReader reader) {
+		this.executor.execute(() -> consumer.accept(reader));
 	}
 }

@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
+	// Definition of unrealistically high values for messages sent simultaneously
 	public static final int MAX_SIMULTANEOUS_MSGS = 500;
 	public static final int MAX_SIMULTANEOUS_EDGES = 1000;
 
@@ -52,9 +54,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	@Override
 	public void stop() {
-		if (this.initMetadata != null) {
-			MinuteTimer.getInstance().unsubscribe(this.initMetadata);
-		}
+		MinuteTimer.getInstance().unsubscribe(this.initMetadata);
 		this.initMetadata = null;
 		this.mss.unregister(this);
 		this.msgScheduler = null;
@@ -146,8 +146,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * @return {@link OfflineEdgeMessage} generated from edge
 	 */
 	protected OfflineEdgeMessage getEdgeMessage(Edge edge) {
-		if (edge == null) {
-			this.log.warn("Called method getEdgeMessage with edge=null");
+		if (edge == null || edge.getId() == null) {
+			this.log.warn("Called method getEdgeMessage with " //
+					+ edge == null ? "Edge{null}" : "Edge{id=null}");
 			return null;
 		}
 		try {
@@ -156,10 +157,6 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 				return null;
 			}
 			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
-			if (!message.isValid()) {
-				this.log.warn("Invalid OfflineEdgeMessage " + message.toString());
-				return null;
-			}
 			for (var setting : alertingSettings) {
 				if (setting.getDelayTime() > 0 && this.shouldReceiveMail(edge, setting)) {
 					message.addRecipient(setting);
@@ -225,12 +222,13 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	@Override
-	public Runnable getEventHandler(EventReader event) {
-		switch (event.getTopic()) {
+	public Consumer<EventReader> getEventHandler(String eventTopic) {
+		switch (eventTopic) {
 		case Edge.Events.ON_SET_ONLINE:
-			var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
-			var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
-			return () -> {
+			return (event) -> {
+				var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+				var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+
 				var edgeOpt = this.metadata.getEdge(edgeId);
 				edgeOpt.ifPresentOrElse((edge) -> {
 					// Ensure that the online-state has not changed
@@ -247,7 +245,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			};
 
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			return this::handleMetadataAfterInitialize;
+			return (event) -> this.handleMetadataAfterInitialize();
 
 		default:
 			return null;

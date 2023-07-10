@@ -25,6 +25,7 @@ import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
+import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
 import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
@@ -34,6 +35,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -1088,6 +1090,27 @@ public class OdooHandler {
 		return JsonUtils.getAsJsonObject(
 				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edge_with_role",
 						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Get the SumState of the edge with the given edgeId, via a ODOO-Request.
+	 * 
+	 * @param edgeId to search for
+	 * @return sumState as {@link Level}
+	 */
+	public Level getSumState(String edgeId) throws OpenemsException {
+		// Define Fields
+		var fields = new Field[] { Field.EdgeDevice.OPENEMS_SUM_STATE };
+		// Define Domains
+		var filter = new Domain[] { new Domain(Field.EdgeDevice.NAME, Operator.EQ, edgeId) };
+		// Get all matching Edge Users
+		var edgeLevel = OdooUtils.searchRead(this.credentials, Field.EdgeDevice.ODOO_MODEL, //
+				fields, filter);
+
+		if (edgeLevel.length == 1) {
+			return OdooUtils.getAsEnum(EdgeDevice.OPENEMS_SUM_STATE, edgeLevel[0], Level.class, Level.OK);
+		}
+		throw new OpenemsException("Expected 1 Edge as response, got: " + edgeLevel.length);
 	}
 
 }

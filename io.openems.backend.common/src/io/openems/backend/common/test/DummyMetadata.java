@@ -15,6 +15,7 @@ import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -148,4 +149,8 @@ public class DummyMetadata implements Metadata {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
 }

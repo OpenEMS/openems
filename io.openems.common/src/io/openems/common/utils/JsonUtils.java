@@ -51,11 +51,20 @@ public class JsonUtils {
 			return null;
 		} else {
 			var jab = new JsonArrayBuilder();
-			list.forEach(element -> {
-				jab.add(convert.apply(element));
-			});
+			list.forEach(element -> jab.add(convert.apply(element)));
 			return jab.build();
 		}
+	}
+
+	/**
+	 * Provide a easy way to generate a JsonArray from a collection of JsonElements.
+	 * 
+	 * @param <T>  type of element from list
+	 * @param list to convert
+	 * @return list as JsonArray
+	 */
+	public static <T extends JsonElement> JsonArray generateJsonArray(Collection<T> list) {
+		return generateJsonArray(list, json -> json);
 	}
 
 	/**
@@ -506,6 +515,19 @@ public class JsonUtils {
 			return value;
 		}
 		throw OpenemsError.JSON_NO_PRIMITIVE_MEMBER.exception(memberName, jElement.toString().replace("%", "%%"));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
 	}
 
 	/**

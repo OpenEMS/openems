@@ -15,7 +15,7 @@ import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeMessage extends Message {
 
-	public static final String TEMPLATE = "alerting_email";
+	public static final String TEMPLATE = "alerting_offline_email";
 
 	private final ZonedDateTime offlineAt;
 	private final TreeMap<Integer, List<AlertingSetting>> recipients;

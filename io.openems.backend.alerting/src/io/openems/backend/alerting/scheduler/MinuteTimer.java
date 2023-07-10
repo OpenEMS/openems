@@ -26,7 +26,7 @@ public class MinuteTimer {
 	private final Logger log = LoggerFactory.getLogger(MinuteTimer.class);
 
 	private ScheduledExecutorService scheduler;
-	private final List<Runnable> subs;
+	private final List<Runnable> subscriber;
 	private ScheduledFuture<?> thread = null;
 
 	private static MinuteTimer INSTANCE = new MinuteTimer();
@@ -36,7 +36,7 @@ public class MinuteTimer {
 	}
 
 	private MinuteTimer() {
-		this.subs = new ArrayList<>();
+		this.subscriber = new ArrayList<>();
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class MinuteTimer {
 	 * @param sub to add
 	 */
 	public void subscribe(Runnable sub) {
-		this.subs.add(sub);
+		this.subscriber.add(sub);
 		if (this.scheduler == null) {
 			this.start();
 		}
@@ -57,8 +57,11 @@ public class MinuteTimer {
 	 * @param sub to remove
 	 */
 	public void unsubscribe(Runnable sub) {
-		this.subs.remove(sub);
-		if (this.subs.isEmpty()) {
+		if (sub == null) {
+			return;
+		}
+		this.subscriber.remove(sub);
+		if (this.subscriber.isEmpty()) {
 			this.stop();
 		}
 	}
@@ -70,13 +73,13 @@ public class MinuteTimer {
 	}
 
 	private void cycle() {
-		this.log.info("[Alerting-MinuteTimer] cycle");
+		this.log.debug("[Alerting-MinuteTimer] cycle");
 		this.thread = this.scheduler.schedule(this::cycle, this.millisToNextMinute(), TimeUnit.MILLISECONDS);
-		this.subs.forEach((sub) -> {
+		this.subscriber.forEach((sub) -> {
 			try {
 				sub.run();
 			} catch (Throwable t) {
-				this.log.error(t.getMessage());
+				this.log.error(t.getMessage(), t);
 			}
 		});
 	}

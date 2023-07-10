@@ -38,6 +38,7 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -332,6 +333,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
 		user.setRole(edgeId, Role.ADMIN);
 		return Role.ADMIN;
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		throw new UnsupportedOperationException("FileMetadata.getSumState() is not implemented");
 	}
 
 }

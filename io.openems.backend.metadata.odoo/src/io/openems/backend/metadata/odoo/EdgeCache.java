@@ -2,12 +2,10 @@ package io.openems.backend.metadata.odoo;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
 import io.openems.common.exceptions.OpenemsException;
@@ -117,12 +115,12 @@ public class EdgeCache {
 	}
 
 	/**
-	 * Gets all Edges as an unmodifiable Collection.
+	 * Returns a sequential stream with this {@link EdgeCache} as its source.
 	 *
-	 * @return a collection of Edges
+	 * @return a sequential {@link Stream} of the {@link MyEdge} in this cache.
 	 */
-	public Collection<Edge> getAllEdges() {
-		return Collections.unmodifiableCollection(this.edgeIdToEdge.values());
+	public Stream<MyEdge> stream() {
+		return this.edgeIdToEdge.values().stream();
 	}
 
 }

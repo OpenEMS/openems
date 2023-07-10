@@ -191,7 +191,8 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).toList();
+		return this.edgeCache.stream().filter(Edge::isOffline) //
+				.map(e -> (Edge) e).toList();
 	}
 
 	/**
@@ -320,8 +321,10 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 			break;
 
 		case Edge.Events.ON_SET_SUM_STATE: {
-			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetSumState.EDGE);
+			var edgeId = reader.getString(Edge.Events.OnSetSumState.EDGE_ID);
 			var sumState = (Level) reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
+
+			var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
 			// Set Sum-State in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
@@ -444,6 +447,16 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 		var role = Role.getRole(roleString);
 		user.setRole(edgeId, role);
 		return role;
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		try {
+			return Optional.of(this.odooHandler.getSumState(edgeId));
+		} catch (Exception e) {
+			this.log.warn(e.getMessage());
+			return Optional.empty();
+		}
 	}
 
 }

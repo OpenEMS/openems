@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
@@ -62,6 +63,20 @@ public class MessageScheduler<T extends Message> {
 	 */
 	public boolean isScheduled(Message msg) {
 		return this.queue.contains(msg);
+	}
+
+	/**
+	 * Get if a message fitting the {@link Predicate} is scheduled.
+	 *
+	 * @param find ;filter to use
+	 * @return true if is scheduled
+	 */
+	public boolean isScheduled(Predicate<T> find) {
+		return this.queue.stream().anyMatch(find);
+	}
+
+	public Class<T> getGeneric() {
+		return this.handler.getGeneric();
 	}
 
 	/**
