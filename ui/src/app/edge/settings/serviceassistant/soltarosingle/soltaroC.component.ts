@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+
 import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 import { AbstractBattery, CategorizedChannelDescription, ChannelChartDescription, ChannelDescription } from '../abstractbattery.component';
 
@@ -11,15 +12,15 @@ import { AbstractBattery, CategorizedChannelDescription, ChannelChartDescription
 export class SoltaroVersionCComponent extends AbstractBattery implements OnInit {
 
     @Input() private componentId: string;
-    @Input() public edge: Edge;
-    @Input() public config: EdgeConfig;
+    @Input() public override edge: Edge;
+    @Input() public override config: EdgeConfig;
 
-    public component: EdgeConfig.Component = null;
+    public override component: EdgeConfig.Component = null;
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        public websocket: Websocket,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        public override websocket: Websocket,
         private route: ActivatedRoute
     ) { super(service, translate, websocket); }
 

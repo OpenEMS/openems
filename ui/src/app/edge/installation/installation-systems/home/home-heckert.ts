@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { IbnUtils } from '../../shared/ibnutils';
@@ -10,9 +11,9 @@ import { AbstractHomeIbn } from './abstract-home';
 
 export class HomeHeckertIbn extends AbstractHomeIbn {
 
-    public readonly type = 'Symphon-E';
+    public override readonly type = 'Symphon-E';
 
-    public readonly id = 'heckert';
+    public override readonly id = 'heckert';
 
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
 
@@ -41,7 +42,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         ], translate);
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
+    public override getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
 
         const componentConfigurator: ComponentConfigurator =
             super.getComponentConfigurator(edge, config, websocket, service);

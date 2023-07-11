@@ -112,7 +112,7 @@ export class Service extends AbstractService {
     this.notificationEvent.next(notification);
   }
 
-  public handleError(error: any) {
+  public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
     // let notification: Notification = {

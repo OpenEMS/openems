@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
 import { Category } from '../../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -7,7 +8,7 @@ import { AbstractCommercial50Ibn } from './abstract-commercial-50';
 
 export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
-    public readonly id: string = 'commercial-50-lastspitzenkappung';
+    public override readonly id: string = 'commercial-50-lastspitzenkappung';
 
     constructor(translate: TranslateService) {
         super([

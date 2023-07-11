@@ -19,8 +19,8 @@ import { Edges, User } from "../shared";
 export class AuthenticateResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             token: string,
             user: User,
             edges: Edges

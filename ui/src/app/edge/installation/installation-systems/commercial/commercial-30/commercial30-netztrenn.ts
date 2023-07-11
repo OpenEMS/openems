@@ -4,6 +4,7 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+
 import { Category } from '../../../shared/category';
 import { Coupler } from '../../../shared/coupler';
 import { FeedInType, ModbusBridgeType } from '../../../shared/enums';
@@ -15,7 +16,7 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
-    public readonly id: string = 'commercial-30-netztrennstelle';
+    public override readonly id: string = 'commercial-30-netztrennstelle';
 
     // configuration-emergency-reserve
     public override emergencyReserve?: {
@@ -53,7 +54,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         ], translate);
     }
 
-    public addCustomBatteryData(batteryData: ComponentData[]) {
+    public override addCustomBatteryData(batteryData: ComponentData[]) {
         batteryData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
             value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
@@ -209,7 +210,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         return componentConfigurator;
     }
 
-    public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
+    public override getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
 
         const installer = this.installer;
         const customer = this.customer;

@@ -31,7 +31,7 @@ export class RegisterUserRequest extends JsonrpcRequest {
     private static METHOD: string = "registerUser";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             user: {
                 firstname: string,
                 lastname: string,

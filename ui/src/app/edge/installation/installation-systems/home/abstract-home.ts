@@ -7,6 +7,7 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { FeedInSetting, FeedInType, WebLinks } from '../../shared/enums';
@@ -36,7 +37,7 @@ type FeneconHome = {
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
 
-  constructor(public views: View[], public translate: TranslateService) {
+  constructor(public override views: View[], public override translate: TranslateService) {
     super(views, translate);
   }
 
@@ -46,7 +47,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   };
 
   // configuration-emergency-reserve
-  public emergencyReserve?= {
+  public override emergencyReserve?= {
     isEnabled: true,
     minValue: 5,
     value: 20,
@@ -54,7 +55,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   };
 
   // protocol-dynamic-feed-in-limitation
-  public feedInLimitation?: {
+  public override feedInLimitation?: {
     feedInType: FeedInType,
     maximumFeedInPower?: number;
     feedInSetting?: FeedInSetting;
@@ -69,14 +70,14 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     };
 
   // protocol-pv
-  public pv?: {
+  public override pv?: {
     dc1?: DcPv;
     dc2?: DcPv;
     ac?: AcPv[];
   };
 
   // Protocol line side meter fuse
-  public lineSideMeterFuse?: {
+  public override lineSideMeterFuse?: {
     category: Category;
     fixedValue?: number;
     otherValue?: number;
@@ -85,7 +86,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     };
 
   //Configuration Summary
-  public gtcAndWarrantyLinks: {
+  public override gtcAndWarrantyLinks: {
     gtcLink: WebLinks;
     warrantyLink: WebLinks;
   } = {
@@ -95,13 +96,13 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
 
-  public readonly showRundSteuerManual: boolean = true;
+  public override readonly showRundSteuerManual: boolean = true;
 
-  public readonly defaultNumberOfModules: number = 5;
+  public override readonly defaultNumberOfModules: number = 5;
 
   public abstract readonly emsBoxLabel: Category;
 
-  public showViewCount: boolean = true;
+  public override showViewCount: boolean = true;
 
   private numberOfModulesPerTower: number;
 
@@ -147,7 +148,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return fields;
   }
 
-  public addPeakShavingData(peakShavingData: ComponentData[]) {
+  public override addPeakShavingData(peakShavingData: ComponentData[]) {
     return peakShavingData;
   }
 
@@ -584,7 +585,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     );
   }
 
-  public addCustomBatteryData(batteryData: ComponentData[]) {
+  public override addCustomBatteryData(batteryData: ComponentData[]) {
     batteryData.push({
       label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
       value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
@@ -599,7 +600,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return batteryData;
   }
 
-  public addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
+  public override addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
     const feedInLimitation = this.feedInLimitation;
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -634,7 +635,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return batteryInverterData;
   }
 
-  public addCustomPvData(pvData: ComponentData[]) {
+  public override addCustomPvData(pvData: ComponentData[]) {
     let dcNr = 1;
     for (const dc of [this.pv.dc1, this.pv.dc2]) {
       if (dc.isSelected) {

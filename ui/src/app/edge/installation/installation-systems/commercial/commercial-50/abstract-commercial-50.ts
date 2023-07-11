@@ -2,6 +2,7 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+
 import { Category } from '../../../shared/category';
 import { ComponentData, SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
@@ -26,11 +27,11 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             }
         };
 
-    public readonly type: string = 'Fenecon-Commercial-50';
+    public override readonly type: string = 'Fenecon-Commercial-50';
 
-    public readonly defaultNumberOfModules: number = 20;
+    public override readonly defaultNumberOfModules: number = 20;
 
-    public addPeakShavingData(peakShavingData: ComponentData[]) {
+    public override addPeakShavingData(peakShavingData: ComponentData[]) {
         if (this.commercial50Feature.feature.type !== Category.BALANCING) {
             peakShavingData.push(
                 {
