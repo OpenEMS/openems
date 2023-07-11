@@ -22,11 +22,11 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 		final var config = context.config;
 
 		if (config.maxSoc() == 100 && context.allowedChargePower == 0) {
-			return context.changeToNextState(State.CONTINUE_WITH_DISCHARGE);
+			return context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE);
 		}
 
 		if (ess.getSoc().get() >= config.maxSoc()) {
-			return context.changeToNextState(State.CONTINUE_WITH_DISCHARGE);
+			return context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE);
 		}
 
 		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
@@ -36,7 +36,11 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 		context.logInfo(this.log, "START CHARGE with [" + -power + " W]" //
 				+ " Current Cycle [ " + controller.getCompletedCycles() + "] " //
 				+ "out of " + config.totalCycleNumber() + "]");
-
 		return State.START_CHARGE;
+	}
+
+	@Override
+	protected void onExit(Context context) {
+		context.updateLastStateChangeTime();
 	}
 }

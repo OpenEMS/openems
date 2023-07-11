@@ -22,11 +22,11 @@ public class ContinueWithDischargeHandler extends StateHandler<State, Context> {
 		final var config = context.config;
 
 		if (config.minSoc() == 0 && context.allowedDischargePower == 0) {
-			return context.changeToNextState(State.COMPLETED_CYCLE);
+			return context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE);
 		}
 
 		if (ess.getSoc().get() <= config.minSoc()) {
-			return context.changeToNextState(State.COMPLETED_CYCLE);
+			return context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE);
 		}
 
 		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
@@ -38,5 +38,10 @@ public class ContinueWithDischargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.CONTINUE_WITH_DISCHARGE;
+	}
+
+	@Override
+	protected void onExit(Context context) {
+		context.updateLastStateChangeTime();
 	}
 }

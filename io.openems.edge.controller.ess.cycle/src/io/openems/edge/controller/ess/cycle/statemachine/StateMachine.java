@@ -13,9 +13,8 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		START_DISCHARGE(2), //
 		CONTINUE_WITH_CHARGE(3), //
 		CONTINUE_WITH_DISCHARGE(4), //
-		WAIT_FOR_STATE_CHANGE(5), //
-		FINAL_SOC(6), //
-		FINISHED(7); //
+		FINAL_SOC(5), //
+		FINISHED(6); //
 
 		private final int value;
 
@@ -59,7 +58,6 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		case START_CHARGE -> new StartChargeHandler();
 		case START_DISCHARGE -> new StartDischargeHandler();
 		case UNDEFINED -> new UndefinedHandler();
-		case WAIT_FOR_STATE_CHANGE -> new WaitForStateChangeHandler();
 		};
 	}
 }

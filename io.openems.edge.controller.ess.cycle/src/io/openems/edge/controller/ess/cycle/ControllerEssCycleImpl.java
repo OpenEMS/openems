@@ -44,10 +44,9 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-
-	private LocalDateTime lastStateChangeTime;
+	
 	private LocalDateTime parsedStartTime;
-	private State setNextState;
+	private LocalDateTime lastStateChangeTime;
 	private Config config;
 
 	@Reference
@@ -113,7 +112,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 					this.parsedStartTime);
 
 			// store current state in StateMachine channel
-			var currentState = this.getCurrentState();
+			var currentState = this.stateMachine.getCurrentState();
 			this._setStateMachine(currentState);
 
 			try {
@@ -130,27 +129,21 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	@Override
-	public State getCurrentState() {
-		return this.stateMachine.getCurrentState();
-	}
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
 
-	@Override
-	public void setNextState(State nextState) {
-		this.setNextState = nextState;
-	}
-
-	@Override
-	public State getNextState() {
-		return this.setNextState;
-	}
-
-	@Override
 	public LocalDateTime getLastStateChangeTime() {
 		return this.lastStateChangeTime;
 	}
 
-	@Override
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
 	public void setLastStateChangeTime(LocalDateTime time) {
 		this.lastStateChangeTime = time;
 	}

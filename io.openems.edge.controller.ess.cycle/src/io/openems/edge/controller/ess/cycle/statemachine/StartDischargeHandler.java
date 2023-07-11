@@ -22,11 +22,11 @@ public class StartDischargeHandler extends StateHandler<State, Context> {
 		final var config = context.config;
 
 		if (config.minSoc() == 0 && context.allowedDischargePower == 0) {
-			return context.changeToNextState(State.CONTINUE_WITH_CHARGE);
+			return context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE);
 		}
 
 		if (ess.getSoc().get() <= config.minSoc()) {
-			return context.changeToNextState(State.CONTINUE_WITH_CHARGE);
+			return context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE);
 		}
 
 		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
@@ -38,5 +38,10 @@ public class StartDischargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.START_DISCHARGE;
+	}
+
+	@Override
+	protected void onExit(Context context) {
+		context.updateLastStateChangeTime();
 	}
 }

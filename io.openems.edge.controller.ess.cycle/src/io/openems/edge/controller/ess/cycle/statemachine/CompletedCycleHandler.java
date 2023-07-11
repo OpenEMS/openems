@@ -18,10 +18,6 @@ public class CompletedCycleHandler extends StateHandler<State, Context> {
 			return State.FINAL_SOC;
 		}
 
-		if (!context.isEssSocDefined()) {
-			return State.CONTINUE_WITH_DISCHARGE;
-		}
-
 		return switch (config.cycleOrder()) {
 		case START_WITH_CHARGE -> State.START_CHARGE;
 		case START_WITH_DISCHARGE -> State.START_DISCHARGE;

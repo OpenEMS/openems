@@ -1,18 +1,23 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
-import io.openems.edge.controller.ess.cycle.ControllerEssCycle;
+import io.openems.edge.controller.ess.cycle.ControllerEssCycleImpl;
 import io.openems.edge.controller.ess.cycle.HybridEssMode;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-public class Context extends AbstractContext<ControllerEssCycle> {
+public class Context extends AbstractContext<ControllerEssCycleImpl> {
 
 	protected final Config config;
 	protected final ManagedSymmetricEss ess;
@@ -21,7 +26,9 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 	protected final Clock clock;
 	protected final LocalDateTime parsedStartTime;
 
-	public Context(ControllerEssCycle parent, Config config, Clock clock, ManagedSymmetricEss ess,
+	private final Logger log = LoggerFactory.getLogger(Context.class);
+
+	public Context(ControllerEssCycleImpl parent, Config config, Clock clock, ManagedSymmetricEss ess,
 			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime) {
 		super(parent);
 		this.config = config;
@@ -30,19 +37,6 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 		this.allowedChargePower = allowedChargePower;
 		this.allowedDischargePower = allowedDischargePower;
 		this.parsedStartTime = parsedStartTime;
-	}
-
-	/**
-	 * Helper for a state change.
-	 * 
-	 * @param nextState which will be switched to.
-	 * @return {@link State#WAIT_FOR_STATE_CHANGE}.
-	 */
-	protected State changeToNextState(State nextState) {
-		var controller = this.getParent();
-		controller.setNextState(nextState);
-		controller.setLastStateChangeTime(LocalDateTime.now(this.clock));
-		return State.WAIT_FOR_STATE_CHANGE;
 	}
 
 	/**
@@ -98,4 +92,26 @@ public class Context extends AbstractContext<ControllerEssCycle> {
 		return false;
 	}
 
+	/**
+	 * Helper for a state change. If awaiting hysteresis time exceeded switches from
+	 * currentState to NextState.
+	 * 
+	 * @param currentState Used to output better log.
+	 * @param nextStates   state which will be switched to.
+	 * @return {@link State} state.
+	 */
+	protected State waitForChangeState(State currentState, State nextState) {
+		var now = LocalDateTime.now(this.clock);
+		var standbyTimeInMinutes = Duration.ofMinutes(config.standbyTime());
+		if (now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS)
+				.isAfter(this.getParent().getLastStateChangeTime())) {
+			return nextState;
+		}
+		this.logInfo(this.log, "Awaiting hysteresis for changing from [" + currentState + "] to [" + nextState + "]");
+		return currentState;
+	}
+
+	public void updateLastStateChangeTime() {
+		this.getParent().setLastStateChangeTime(LocalDateTime.now(this.clock));
+	}
 }

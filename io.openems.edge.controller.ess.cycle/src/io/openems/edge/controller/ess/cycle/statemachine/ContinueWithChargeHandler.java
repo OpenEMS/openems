@@ -22,11 +22,11 @@ public class ContinueWithChargeHandler extends StateHandler<State, Context> {
 		final var config = context.config;
 
 		if (config.maxSoc() == 100 && context.allowedChargePower == 0) {
-			return context.changeToNextState(State.COMPLETED_CYCLE);
+			return context.waitForChangeState(State.CONTINUE_WITH_CHARGE, State.COMPLETED_CYCLE);
 		}
 
 		if (ess.getSoc().get() >= config.maxSoc()) {
-			return context.changeToNextState(State.COMPLETED_CYCLE);
+			return context.waitForChangeState(State.CONTINUE_WITH_CHARGE, State.COMPLETED_CYCLE);
 		}
 
 		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
@@ -38,5 +38,10 @@ public class ContinueWithChargeHandler extends StateHandler<State, Context> {
 				+ "out of " + config.totalCycleNumber() + "]");
 
 		return State.CONTINUE_WITH_CHARGE;
+	}
+
+	@Override
+	protected void onExit(Context context) {
+		context.updateLastStateChangeTime();
 	}
 }

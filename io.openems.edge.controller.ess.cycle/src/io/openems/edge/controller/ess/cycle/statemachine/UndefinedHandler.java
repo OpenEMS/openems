@@ -14,19 +14,25 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (context.isStartTimeInitialized()) {
-			return switch (config.cycleOrder()) {
-			case START_WITH_CHARGE -> State.START_CHARGE;
-			case START_WITH_DISCHARGE -> State.START_DISCHARGE;
-			case AUTO -> {
-				int soc = ess.getSoc().get();
-				if (soc < 50) {
-					yield State.START_DISCHARGE;
-				}
-				yield State.START_CHARGE;
-			}
-			};
+		if (!context.isStartTimeInitialized()) {
+			return State.UNDEFINED;
 		}
-		return State.UNDEFINED;
+
+		return switch (config.cycleOrder()) {
+		case START_WITH_CHARGE -> State.START_CHARGE;
+		case START_WITH_DISCHARGE -> State.START_DISCHARGE;
+		case AUTO -> {
+			int soc = ess.getSoc().get();
+			if (soc < 50) {
+				yield State.START_DISCHARGE;
+			}
+			yield State.START_CHARGE;
+		}
+		};
+	}
+
+	@Override
+	protected void onExit(Context context) {
+		context.updateLastStateChangeTime();
 	}
 }

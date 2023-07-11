@@ -74,8 +74,6 @@ public class ControllerEssCycleImplTest {
 						.input(MAX_CHARGE_POWER, -10_000)//
 						.input(MAX_DISCHARGE_POWER, 0))//
 				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
-				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase("First Charge")//
 						.output(STATE_MACHINE, State.CONTINUE_WITH_CHARGE))//
@@ -88,8 +86,6 @@ public class ControllerEssCycleImplTest {
 						.input(MAX_CHARGE_POWER, 0)//
 						.input(MAX_DISCHARGE_POWER, 10_000))//
 				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
-				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.COMPLETED_CYCLE))//
@@ -101,8 +97,6 @@ public class ControllerEssCycleImplTest {
 						.input(MAX_CHARGE_POWER, -10_000)//
 						.input(MAX_DISCHARGE_POWER, 0))//
 				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
-				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase()//
 						.output(STATE_MACHINE, State.CONTINUE_WITH_CHARGE))//
@@ -110,8 +104,6 @@ public class ControllerEssCycleImplTest {
 						.input(ESS_SOC, 100)//
 						.input(MAX_CHARGE_POWER, 0)//
 						.input(MAX_DISCHARGE_POWER, 10_000))//
-				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
 				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase("Second completed cycle") //
@@ -124,8 +116,6 @@ public class ControllerEssCycleImplTest {
 						.input(MAX_CHARGE_POWER, -10_000)//
 						.input(MAX_DISCHARGE_POWER, 0))//
 				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
-				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase()//
 						.output(STATE_MACHINE, State.CONTINUE_WITH_CHARGE))//
@@ -133,8 +123,6 @@ public class ControllerEssCycleImplTest {
 						.input(ESS_SOC, 100)//
 						.input(MAX_CHARGE_POWER, 0)//
 						.input(MAX_DISCHARGE_POWER, 10_000))//
-				.next(new TestCase()//
-						.output(STATE_MACHINE, State.WAIT_FOR_STATE_CHANGE))//
 				.next(new TestCase()//
 						.timeleap(clock, 11, ChronoUnit.MINUTES))//
 				.next(new TestCase("Cycle Number 3 Test")//
