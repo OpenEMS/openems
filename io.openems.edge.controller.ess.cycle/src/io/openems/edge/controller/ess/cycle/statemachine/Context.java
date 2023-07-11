@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
 import io.openems.edge.controller.ess.cycle.ControllerEssCycleImpl;
@@ -81,27 +79,23 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	}
 
 	/**
-	 * Are channel values defined and ESS started ?
+	 * Gets if all channel values defined.
 	 *
 	 * <ul>
 	 * <li>true
 	 * <li>- if {@link ChannelId#SOC} is defined &&
 	 * <li>- if {@link ChannelId#ALLOWED_CHARGE_POWER} is defined &&
 	 * <li>- if {@link ChannelId#ALLOWED_DISCHARGE_POWER} is defined &&
-	 * <li>- if (and only if) {@link ChannelId#START_STOP} is
-	 * {@link StartStop#START}
 	 * </ul>
 	 * 
-	 * @return true if channels are defined and ESS started.
+	 * @return true if channels are defined.
 	 */
 	public boolean areChannelsDefined() {
-		var isEssStarted = ((StartStoppable) ess).isStarted();
-		var channelValuesDefined = Stream.of(//
+		return Stream.of(//
 				this.ess.getSoc(), //
 				this.ess.getAllowedChargePower(), //
 				this.ess.getAllowedDischargePower())//
 				.allMatch(Value::isDefined);
-		return isEssStarted && channelValuesDefined;
 	}
 
 	/**
