@@ -4,11 +4,15 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
 import io.openems.edge.controller.ess.cycle.ControllerEssCycleImpl;
@@ -77,19 +81,27 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	}
 
 	/**
-	 * Is ESS SoC defined?.
+	 * Are channel values defined and ESS started ?
 	 *
 	 * <ul>
-	 * <li>true - if {@link ChannelId#SOC} is defined.
+	 * <li>true
+	 * <li>- if {@link ChannelId#SOC} is defined &&
+	 * <li>- if {@link ChannelId#ALLOWED_CHARGE_POWER} is defined &&
+	 * <li>- if {@link ChannelId#ALLOWED_DISCHARGE_POWER} is defined &&
+	 * <li>- if (and only if) {@link ChannelId#START_STOP} is
+	 * {@link StartStop#START}
 	 * </ul>
 	 * 
-	 * @return true if SoC is defined.
+	 * @return true if channels are defined and ESS started.
 	 */
-	public boolean isEssSocDefined() {
-		if (this.ess.getSoc().isDefined()) {
-			return true;
-		}
-		return false;
+	public boolean areChannelsDefined() {
+		var isEssStarted = ((StartStoppable) ess).isStarted();
+		var channelValuesDefined = Stream.of(//
+				this.ess.getSoc(), //
+				this.ess.getAllowedChargePower(), //
+				this.ess.getAllowedDischargePower())//
+				.allMatch(Value::isDefined);
+		return isEssStarted && channelValuesDefined;
 	}
 
 	/**

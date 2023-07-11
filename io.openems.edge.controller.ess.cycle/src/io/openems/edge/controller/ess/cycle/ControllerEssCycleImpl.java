@@ -44,7 +44,7 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
-	
+
 	private LocalDateTime parsedStartTime;
 	private LocalDateTime lastStateChangeTime;
 	private Config config;
@@ -116,6 +116,9 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 			this._setStateMachine(currentState);
 
 			try {
+				if (!context.areChannelsDefined()) {
+					this.stateMachine.forceNextState(State.UNDEFINED);
+				}
 				this.stateMachine.run(context);
 				this._setRunFailed(false);
 			} catch (OpenemsNamedException e) {

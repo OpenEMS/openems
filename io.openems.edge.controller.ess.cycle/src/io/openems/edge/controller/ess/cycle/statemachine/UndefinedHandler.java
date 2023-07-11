@@ -10,10 +10,6 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		final var ess = context.ess;
 		final var config = context.config;
 
-		if (!context.isEssSocDefined()) {
-			return State.UNDEFINED;
-		}
-
 		if (!context.isStartTimeInitialized()) {
 			return State.UNDEFINED;
 		}
@@ -22,8 +18,11 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		case START_WITH_CHARGE -> State.START_CHARGE;
 		case START_WITH_DISCHARGE -> State.START_DISCHARGE;
 		case AUTO -> {
-			int soc = ess.getSoc().get();
-			if (soc < 50) {
+			var socValue = ess.getSoc();
+			if (socValue.isDefined()) {
+				yield State.UNDEFINED;
+			}
+			if (socValue.get() < 50) {
 				yield State.START_DISCHARGE;
 			}
 			yield State.START_CHARGE;
