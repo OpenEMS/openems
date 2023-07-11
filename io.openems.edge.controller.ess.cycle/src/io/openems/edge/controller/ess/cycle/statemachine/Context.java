@@ -97,12 +97,12 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	 * currentState to NextState.
 	 * 
 	 * @param currentState Used to output better log.
-	 * @param nextStates   state which will be switched to.
+	 * @param nextState    state which will be switched to.
 	 * @return {@link State} state.
 	 */
 	protected State waitForChangeState(State currentState, State nextState) {
 		var now = LocalDateTime.now(this.clock);
-		var standbyTimeInMinutes = Duration.ofMinutes(config.standbyTime());
+		var standbyTimeInMinutes = Duration.ofMinutes(this.config.standbyTime());
 		if (now.minus(standbyTimeInMinutes.toSeconds(), ChronoUnit.SECONDS)
 				.isAfter(this.getParent().getLastStateChangeTime())) {
 			return nextState;
@@ -111,6 +111,9 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 		return currentState;
 	}
 
+	/**
+	 * Updates the time when {@link StateMachine} {@link State} changed.
+	 */
 	public void updateLastStateChangeTime() {
 		this.getParent().setLastStateChangeTime(LocalDateTime.now(this.clock));
 	}
