@@ -24,10 +24,10 @@ import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.FloatQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -372,7 +372,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		case FLOAT32:
 			return new FloatDoublewordElement(address);
 		case FLOAT64:
-			return new UnsignedQuadruplewordElement(address);
+			return new FloatQuadruplewordElement(address);
 		case STRING16:
 			return new StringWordElement(address, 16);
 		}
