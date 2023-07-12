@@ -7,6 +7,8 @@ import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.ModbusSlaveException;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.google.common.base.Stopwatch;
@@ -23,7 +25,6 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link ModbusElement} which have register addresses in the same range.
  */
-@SuppressWarnings("rawtypes")
 public abstract non-sealed class AbstractTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse> implements Task {
@@ -142,7 +143,7 @@ public abstract non-sealed class AbstractTask<//
 				yield supplier.get();
 
 			} catch (Exception e) {
-				this.logError(e, "Execute failed", this.toLogMessage(logVerbosity, request));
+				this.logError(e, "Execute failed", this.toLogMessage(logVerbosity, request, e));
 				throw e;
 			}
 		}
@@ -150,11 +151,11 @@ public abstract non-sealed class AbstractTask<//
 		case READS_AND_WRITES, READS_AND_WRITES_VERBOSE -> {
 			try {
 				var response = supplier.get();
-				this.logInfo("  Execute", this.toLogMessage(logVerbosity, request));
+				this.logInfo("  Execute", this.toLogMessage(logVerbosity, request, response));
 				yield response;
 
 			} catch (Exception e) {
-				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request));
+				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request, e));
 				throw e;
 			}
 		}
@@ -165,13 +166,13 @@ public abstract non-sealed class AbstractTask<//
 				var response = supplier.get();
 				stopwatch.stop();
 				this.logInfo("  Execute", this.toLogMessage(logVerbosity, request, response),
-						"Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+						"Elapsed [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 				yield response;
 
 			} catch (Exception e) {
 				stopwatch.stop();
-				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request),
-						"Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request, e),
+						"Elapsed [" + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms]");
 				throw e;
 			}
 		}
@@ -237,12 +238,17 @@ public abstract non-sealed class AbstractTask<//
 		logger.accept(log, String.join(" ", messages));
 	}
 
-	protected String toLogMessage(LogVerbosity logVerbosity, REQUEST request) {
-		return this.toLogMessage(logVerbosity, request, null);
+	protected final String toLogMessage(LogVerbosity logVerbosity, REQUEST request, Exception e) {
+		return this.toLogMessage(logVerbosity, request, null, e);
 	}
 
-	protected String toLogMessage(LogVerbosity logVerbosity, REQUEST request, RESPONSE response) {
-		return this.toLogMessage(logVerbosity, this.startAddress, this.length, request, response);
+	protected final String toLogMessage(LogVerbosity logVerbosity, REQUEST request, RESPONSE response) {
+		return this.toLogMessage(logVerbosity, request, response, null);
+	}
+
+	// This method has an @Override in FC16WriteRegistersTask
+	protected String toLogMessage(LogVerbosity logVerbosity, REQUEST request, RESPONSE response, Exception e) {
+		return this.toLogMessage(logVerbosity, this.startAddress, this.length, request, response, e);
 	}
 
 	/**
@@ -252,15 +258,29 @@ public abstract non-sealed class AbstractTask<//
 	 * StartAddress and length need to be provided explicitly, because FC16 task
 	 * might be split to multiple requests.
 	 * 
+	 * <p>
+	 * For certain Exceptions we internally increase the LogVerbosity to always show
+	 * helpful information
+	 * 
 	 * @param logVerbosity the {@link LogVerbosity}
 	 * @param startAddress the start address of the request
 	 * @param length       the length of the request payload
 	 * @param request      the {@link ModbusRequest}
-	 * @param response     the {@link ModbusResponse}
+	 * @param response     the {@link ModbusResponse}, possibly null
+	 * @param exception    a {@link Exception}, possibly null
 	 * @return a log message String
 	 */
-	protected String toLogMessage(LogVerbosity logVerbosity, int startAddress, int length, REQUEST request,
-			RESPONSE response) {
+	protected final String toLogMessage(LogVerbosity logVerbosity, int startAddress, int length, REQUEST request,
+			RESPONSE response, Exception exception) {
+		// Handle Exception
+		if (exception != null) {
+			if (exception instanceof ModbusSlaveException e && e.isType(Modbus.ILLEGAL_VALUE_EXCEPTION)) {
+				// In this case it is helpful to get see the detailed request payload
+				logVerbosity = LogVerbosity.READS_AND_WRITES_VERBOSE;
+			}
+		}
+
+		// Build log message
 		var b = new StringBuilder() //
 				.append(this.name) //
 				.append(" [") //

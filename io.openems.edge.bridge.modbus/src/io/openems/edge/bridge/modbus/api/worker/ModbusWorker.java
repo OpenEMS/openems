@@ -126,6 +126,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.tasksSupplier.addProtocol(sourceId, protocol);
+		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 
 	/**
@@ -135,6 +136,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void removeProtocol(String sourceId) {
 		this.tasksSupplier.removeProtocol(sourceId);
+		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 
 	/**

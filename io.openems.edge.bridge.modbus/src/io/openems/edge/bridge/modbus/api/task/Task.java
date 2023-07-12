@@ -6,8 +6,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.ManagedTask;
 
-@SuppressWarnings("rawtypes")
-public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask, WriteTask, WaitTask {
+public sealed interface Task extends ManagedTask permits AbstractTask<?, ?>, ReadTask, WriteTask, WaitTask {
 
 	/**
 	 * Gets the ModbusElements.

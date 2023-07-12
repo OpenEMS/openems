@@ -78,7 +78,8 @@ public class WaitDelayHandler {
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 * 
 	 * @param traceLog activate logging
-	 * @return a log message if traceLog is activated
+	 * @return if traceLog is active, return a detailed log info; empty string
+	 *         otherwise
 	 */
 	public synchronized String onBeforeProcessImage(boolean traceLog) {
 		String log = "";
@@ -96,18 +97,22 @@ public class WaitDelayHandler {
 				this.stopwatch.stop();
 				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
 				if (traceLog) {
-					log = "PreviousDelay [" + this.waitDelayTask.initialDelay + "] " //
-							+ "+ Wait [" + this.stopwatch.elapsed().toMillis() + "] " //
-							+ "= PossibleDelay [" + possibleDelay + "]";
+					log = "PreviousDelay [" + this.waitDelayTask.initialDelay + "ms] " //
+							+ "+ Wait [" + this.stopwatch.elapsed().toMillis() + "ms] " //
+							+ "= PossibleDelay [" + possibleDelay + "ms]";
 				}
 
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
 				var halfOfLastDelay = this.waitDelayTask.initialDelay / 2;
 				if (traceLog) {
-					log = "CYCLE_TIME_TOO_SHORT after " //
-							+ "PreviousDelay [" + this.waitDelayTask.initialDelay + "] " //
-							+ "-> reduce to [" + halfOfLastDelay + "]";
+					if (this.waitDelayTask.initialDelay == 0) {
+						log = "CYCLE_TIME_TOO_SHORT"; //
+					} else {
+						log = "CYCLE_TIME_TOO_SHORT after " //
+								+ "PreviousDelay [" + this.waitDelayTask.initialDelay + "ms] " //
+								+ "-> reduce to [" + halfOfLastDelay + "ms]";
+					}
 				}
 				possibleDelay = halfOfLastDelay;
 			}

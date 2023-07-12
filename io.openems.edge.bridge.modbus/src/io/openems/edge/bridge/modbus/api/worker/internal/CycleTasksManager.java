@@ -74,6 +74,12 @@ public class CycleTasksManager {
 		this.cycleTimeIsTooShortChannel.accept(cycleTimeIsTooShort);
 		if (cycleTimeIsTooShort) {
 			this.waitDelayHandler.timeIsInvalid();
+			if (this.isTraceLog()) {
+				this.log.info("State: " + this.state + " unchanged" //
+						+ " (in onBeforeProcessImage)" //
+						+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
+						+ waitDelayHandlerLog);
+			}
 			return;
 		}
 
@@ -93,8 +99,8 @@ public class CycleTasksManager {
 		if (this.isTraceLog()) {
 			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT //
 					+ " (in onBeforeProcessImage)" //
-					+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "]" //
-					+ " " + waitDelayHandlerLog);
+					+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "] " //
+					+ waitDelayHandlerLog);
 		}
 		this.state = StateMachine.INITIAL_WAIT;
 
