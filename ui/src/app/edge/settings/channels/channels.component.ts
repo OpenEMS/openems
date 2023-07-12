@@ -109,10 +109,10 @@ export class ChannelsComponent {
           channelId: address.channelId,
           value: channelValue
         })
-      ).then(response => {
-        this.service.toast("Successfully set " + address.toString() + " to [" + value + "]", "success");
-      }).catch(reason => {
-        this.service.toast("Error setting " + address.toString() + " to [" + value + "]", 'danger');
+      ).then(() => {
+        this.service.toast("Successfully set " + address.toString() + " to [" + channelValue + "]", "success");
+      }).catch(() => {
+        this.service.toast("Error setting " + address.toString() + " to [" + channelValue + "]", 'danger');
       });
     }
   }
