@@ -21,8 +21,8 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("delayedsellTogrid-chart", service, translate);

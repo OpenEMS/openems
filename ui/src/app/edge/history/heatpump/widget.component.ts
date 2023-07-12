@@ -26,7 +26,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController
     ) {

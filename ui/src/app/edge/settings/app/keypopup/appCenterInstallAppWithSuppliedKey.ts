@@ -1,6 +1,5 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Gets if a key can be redeemed.
  * 
@@ -32,7 +31,7 @@ export namespace AppCenterInstallAppWithSuppliedKeyRequest {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 installRequest: JsonrpcRequest
             }
         ) {

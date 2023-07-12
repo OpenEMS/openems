@@ -22,7 +22,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     public totalOtherEnergy: number | null = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
     ) {
         super(service);

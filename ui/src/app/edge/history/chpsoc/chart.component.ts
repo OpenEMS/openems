@@ -21,8 +21,8 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("chpsoc-chart", service, translate);
