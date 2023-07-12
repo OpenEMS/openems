@@ -14,6 +14,8 @@ import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
@@ -117,5 +119,16 @@ public class FC16WriteRegistersTask
 		public int getLastAddress() {
 			return this.startAddress + this.registers.size() - 1;
 		}
+	}
+
+	@Override
+	protected String payloadToString(WriteMultipleRegistersRequest request) {
+		return ModbusUtils.registersToHexString(request.getRegisters());
+	}
+
+	protected String toLogMessage(LogVerbosity logVerbosity, WriteMultipleRegistersRequest request,
+			WriteMultipleRegistersResponse response) {
+		// Read StartAddress and Length from the actual Sub-Request
+		return this.toLogMessage(logVerbosity, request.getReference(), request.getWordCount(), request, response);
 	}
 }

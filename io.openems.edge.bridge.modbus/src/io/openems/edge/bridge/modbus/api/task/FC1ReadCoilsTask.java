@@ -18,8 +18,8 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask<ReadCoilsReq
 	}
 
 	@Override
-	protected ReadCoilsRequest createModbusRequest(int startAddress, int length) {
-		return new ReadCoilsRequest(startAddress, length);
+	protected ReadCoilsRequest createModbusRequest() {
+		return new ReadCoilsRequest(this.startAddress, this.length);
 	}
 
 	@Override

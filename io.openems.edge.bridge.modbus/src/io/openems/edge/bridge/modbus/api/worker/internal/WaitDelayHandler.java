@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.EvictingQueue;
+import com.google.common.math.Quantiles;
 
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 
@@ -76,18 +77,15 @@ public class WaitDelayHandler {
 	/**
 	 * Called on BEFORE_PROCESS_IMAGE event.
 	 * 
-	 * @param traceLog activate Trace-Log
-	 * @return if traceLog is active, return a detailed log info; empty string
-	 *         otherwise
+	 * @param traceLog activate logging
+	 * @return a log message if traceLog is activated
 	 */
 	public synchronized String onBeforeProcessImage(boolean traceLog) {
 		String log = "";
 
 		if (this.timeIsInvalid) {
 			// Do not add possibleDelay if previous Cycle contained a defective component
-			if (traceLog) {
-				log = "time is invalid";
-			}
+			log = "(time is invalid)";
 			this.stopwatch.reset();
 
 		} else {
@@ -98,15 +96,18 @@ public class WaitDelayHandler {
 				this.stopwatch.stop();
 				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
 				if (traceLog) {
-					log = "measured possible delay [" + this.waitDelayTask.initialDelay + " + "
-							+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]";
+					log = "PreviousDelay [" + this.waitDelayTask.initialDelay + "] " //
+							+ "+ Wait [" + this.stopwatch.elapsed().toMillis() + "] " //
+							+ "= PossibleDelay [" + possibleDelay + "]";
 				}
 
 			} else {
 				// FINISHED state has not happened -> reduce possible delay
 				var halfOfLastDelay = this.waitDelayTask.initialDelay / 2;
 				if (traceLog) {
-					log = "FINISHED state has not happened -> reduce possible delay to [" + halfOfLastDelay + "]";
+					log = "CYCLE_TIME_TOO_SHORT after " //
+							+ "PreviousDelay [" + this.waitDelayTask.initialDelay + "] " //
+							+ "-> reduce to [" + halfOfLastDelay + "]";
 				}
 				possibleDelay = halfOfLastDelay;
 			}
@@ -166,8 +167,9 @@ public class WaitDelayHandler {
 	}
 
 	/**
-	 * Generates a {@link WaitDelayTask} with the minimum of all possible waiting
-	 * times in the queue - minus {@link #BUFFER_MS}.
+	 * Generates a {@link WaitDelayTask} with the 1st 4th-quantile of all possible
+	 * waiting times in the queue, i.e. one of the shortest possible delays - minus
+	 * {@link #BUFFER_MS}.
 	 * 
 	 * @param possibleDelays          the collected possible delays of the last
 	 *                                Cycles
@@ -176,9 +178,12 @@ public class WaitDelayHandler {
 	 */
 	protected static WaitTask.Delay generateWaitDelayTask(Collection<Long> possibleDelays,
 			Runnable onWaitDelayTaskFinished) {
-		var shortestPossibleDelay = (long) possibleDelays.stream() //
-				.min(Long::compare) //
-				.orElse(0L);
+		final long shortestPossibleDelay;
+		if (possibleDelays.isEmpty()) {
+			shortestPossibleDelay = 0L;
+		} else {
+			shortestPossibleDelay = (long) Quantiles.scale(4).index(1).compute(possibleDelays);
+		}
 
 		if (shortestPossibleDelay < BUFFER_MS) {
 			return generateZeroWaitDelayTask(onWaitDelayTaskFinished);

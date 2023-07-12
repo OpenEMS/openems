@@ -21,7 +21,7 @@ public interface ModbusComponent extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODBUS_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.debounce(3, Debounce.SAME_VALUES_IN_A_ROW_TO_CHANGE) //
+				.debounce(2, Debounce.SAME_VALUES_IN_A_ROW_TO_CHANGE) //
 				.text("Modbus Communication failed")) //
 		;
 

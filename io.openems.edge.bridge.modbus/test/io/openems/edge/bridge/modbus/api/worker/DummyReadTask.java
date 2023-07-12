@@ -21,5 +21,4 @@ public class DummyReadTask extends AbstractDummyTask implements ReadTask {
 	public Priority getPriority() {
 		return this.priority;
 	}
-
 }

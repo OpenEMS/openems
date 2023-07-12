@@ -49,8 +49,6 @@ public class ModbusProtocol {
 	public synchronized void addTask(Task task) throws OpenemsException {
 		// add the the parent to the Task
 		task.setParent(this.parent);
-		// check abstractTask for plausibility
-		checkTask(task);
 		// fill taskManager
 		this.taskManager.addTask(task);
 	}
@@ -71,25 +69,6 @@ public class ModbusProtocol {
 	 */
 	public TasksManager<Task> getTaskManager() {
 		return this.taskManager;
-	}
-
-	/**
-	 * Checks a {@link Task} for plausibility.
-	 *
-	 * @param task the Task that should be checked
-	 * @throws OpenemsException on error
-	 */
-	protected static synchronized void checkTask(Task task) throws OpenemsException {
-		var address = task.getStartAddress();
-		for (var element : task.getElements()) {
-			if (element.getStartAddress() != address) {
-				throw new OpenemsException("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
-						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"
-						+ Integer.toHexString(address) + "].");
-			}
-			address += element.getLength();
-			// TODO: check BitElements
-		}
 	}
 
 	/**

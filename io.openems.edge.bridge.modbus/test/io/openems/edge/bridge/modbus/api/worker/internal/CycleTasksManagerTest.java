@@ -13,7 +13,6 @@ import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.taskmanager.Priority;
 
 public class CycleTasksManagerTest {
@@ -23,7 +22,6 @@ public class CycleTasksManagerTest {
 	public static final Consumer<Long> CYCLE_DELAY = (cycleDelay) -> {
 	};
 
-	private static final String CMP = "foo";
 	private static DummyReadTask RT_H_1;
 	private static DummyReadTask RT_H_2;
 	private static DummyReadTask RT_L_1;
@@ -121,9 +119,8 @@ public class CycleTasksManagerTest {
 
 	@Test
 	public void testDefective() throws OpenemsException, InterruptedException {
-		var bridge = new DummyModbusBridge("modbus0");
-		var foo = new DummyModbusComponent(CMP, bridge);
-		RT_L_1.setParent(foo);
+		var component = new DummyModbusComponent();
+		RT_L_1.setParent(component);
 
 		var cycle1 = CycleTasks.create() //
 				.reads(RT_L_1, RT_H_1, RT_H_2) //
@@ -135,7 +132,7 @@ public class CycleTasksManagerTest {
 				.build();
 		var tasksSupplier = new DummyTasksSupplier(cycle1, cycle2);
 		var defectiveComponents = new DefectiveComponents();
-		defectiveComponents.add(CMP);
+		defectiveComponents.add(component.id());
 
 		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY);
 

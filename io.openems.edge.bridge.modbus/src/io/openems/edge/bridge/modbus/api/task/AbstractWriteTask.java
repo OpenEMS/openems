@@ -31,6 +31,11 @@ public abstract class AbstractWriteTask<//
 		return Priority.HIGH;
 	}
 
+	@Override
+	protected final String payloadToString(RESPONSE response) {
+		return "";
+	}
+
 	public abstract static class Single<//
 			REQUEST extends ModbusRequest, //
 			RESPONSE extends ModbusResponse, //
@@ -52,7 +57,7 @@ public abstract class AbstractWriteTask<//
 			try {
 				request = this.createModbusRequest();
 			} catch (OpenemsException e) {
-				this.logError(this.log, "", null, "Execute failed: " + e.getMessage());
+				logError(this.log, e, "Create Modbus Request failed");
 				return ExecuteState.ERROR;
 			}
 

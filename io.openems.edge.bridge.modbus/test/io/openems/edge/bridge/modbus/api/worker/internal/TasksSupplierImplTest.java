@@ -13,13 +13,10 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.TimeLeapClock;
 
 public class TasksSupplierImplTest {
-
-	private static final String CMP = "foo";
 
 	private static DummyReadTask RT_H_1;
 	private static DummyReadTask RT_H_2;
@@ -42,11 +39,10 @@ public class TasksSupplierImplTest {
 		var defectiveComponents = new DefectiveComponents(clock);
 		var sut = new TasksSupplierImpl();
 
-		var bridge = new DummyModbusBridge("modbus0");
-		var foo = new DummyModbusComponent(CMP, bridge);
-		var protocol = foo.getModbusProtocol();
+		var component = new DummyModbusComponent();
+		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, RT_L_1, RT_L_2, WT_1);
-		sut.addProtocol(CMP, protocol);
+		sut.addProtocol(component.id(), protocol);
 
 		// 1st Cycle
 		var tasks = sut.getCycleTasks(defectiveComponents);
@@ -67,7 +63,7 @@ public class TasksSupplierImplTest {
 		assertFalse(tasks.reads().contains(RT_L_1)); // -> not
 
 		// Add to defective
-		defectiveComponents.add(CMP);
+		defectiveComponents.add(component.id());
 
 		// 3rd Cycle -> not yet due
 		tasks = sut.getCycleTasks(defectiveComponents);
@@ -79,14 +75,14 @@ public class TasksSupplierImplTest {
 		assertEquals(1, tasks.reads().size() + tasks.writes().size());
 
 		// Remove from defective
-		defectiveComponents.remove(CMP);
+		defectiveComponents.remove(component.id());
 
 		// 5th Cycle -> back to normal
 		tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
 
 		// Finish
-		sut.removeProtocol(CMP);
+		sut.removeProtocol(component.id());
 	}
 
 	@Test
@@ -95,11 +91,10 @@ public class TasksSupplierImplTest {
 		var defectiveComponents = new DefectiveComponents(clock);
 		var sut = new TasksSupplierImpl();
 
-		var bridge = new DummyModbusBridge("modbus0");
-		var foo = new DummyModbusComponent(CMP, bridge);
-		var protocol = foo.getModbusProtocol();
+		var component = new DummyModbusComponent();
+		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, WT_1);
-		sut.addProtocol(CMP, protocol);
+		sut.addProtocol(component.id(), protocol);
 
 		var tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(3, tasks.reads().size() + tasks.writes().size());

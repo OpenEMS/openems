@@ -1,13 +1,14 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
-import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -42,12 +43,17 @@ public abstract non-sealed class AbstractTask<//
 		this.responseClazz = responseClazz;
 		this.startAddress = startAddress;
 		this.elements = elements;
-		for (var element : elements) {
-			element.setModbusTask(this);
-		}
+		var nextStartAddress = startAddress;
 		var length = 0;
 		for (var element : elements) {
+			if (element.getStartAddress() != nextStartAddress) {
+				throw new IllegalArgumentException("StartAddress for Modbus Element wrong. " //
+						+ "Got [" + element.getStartAddress() + "/0x" + Integer.toHexString(element.getStartAddress())
+						+ "] Expected [" + nextStartAddress + "/0x" + Integer.toHexString(nextStartAddress) + "]");
+			}
+			nextStartAddress += element.getLength();
 			length += element.getLength();
+			element.setModbusTask(this);
 		}
 		this.length = length;
 	}
@@ -136,19 +142,19 @@ public abstract non-sealed class AbstractTask<//
 				yield supplier.get();
 
 			} catch (Exception e) {
-				this.logError("Execute failed", request, e, "");
+				this.logError(e, "Execute failed", this.toLogMessage(logVerbosity, request));
 				throw e;
 			}
 		}
 
-		case READS_AND_WRITES -> {
+		case READS_AND_WRITES, READS_AND_WRITES_VERBOSE -> {
 			try {
 				var response = supplier.get();
-				this.logInfo("  Execute", request, "");
+				this.logInfo("  Execute", this.toLogMessage(logVerbosity, request));
 				yield response;
 
 			} catch (Exception e) {
-				this.logError("  Execute failed", request, e, "");
+				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request));
 				throw e;
 			}
 		}
@@ -158,25 +164,14 @@ public abstract non-sealed class AbstractTask<//
 			try {
 				var response = supplier.get();
 				stopwatch.stop();
-				this.logInfo("  Execute", request, "Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+				this.logInfo("  Execute", this.toLogMessage(logVerbosity, request, response),
+						"Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				yield response;
 
 			} catch (Exception e) {
 				stopwatch.stop();
-				this.logError("  Execute failed", request, e, "Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-				throw e;
-			}
-		}
-
-		case READS_AND_WRITES_VERBOSE -> {
-			try {
-				var response = supplier.get();
-				this.logInfo("  Execute", request,
-						"Request [" + request.getHexMessage() + "] Response [" + response.getHexMessage() + "]");
-				yield response;
-
-			} catch (Exception e) {
-				this.logError("  Execute failed", request, e, "Request [" + request.getHexMessage() + "]");
+				this.logError(e, "  Execute failed", this.toLogMessage(logVerbosity, request),
+						"Elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				throw e;
 			}
 		}
@@ -220,70 +215,105 @@ public abstract non-sealed class AbstractTask<//
 		}
 	}
 
-	private void logInfo(String prefix, REQUEST request, String suffix) {
-		this.logInfo(this.log, prefix, request, suffix);
+	private void logInfo(String... messages) {
+		logInfo(this.log, messages);
 	}
 
-	protected void logInfo(Logger log, String prefix, REQUEST request, String suffix) {
-		log.info(generateLogMessage(prefix, this, request, suffix));
+	protected static void logInfo(Logger log, String... messages) {
+		log(log, Logger::info, messages);
 	}
 
-	private void logError(String prefix, REQUEST request, Exception e, String suffix) {
-		this.logError(this.log, prefix, request, //
-				"Request [" + request.getHexMessage() + "] " //
-						+ "Error [" + e.getClass().getSimpleName() + ":" + e.getMessage() + "] " + suffix);
+	private void logError(Exception e, String... messages) {
+		logError(this.log, e, messages);
 	}
 
-	protected void logError(Logger log, String prefix, REQUEST request, String suffix) {
-		log.error(generateLogMessage(prefix, this, request, suffix));
+	protected static void logError(Logger log, Exception e, String... messages) {
+		messages = Arrays.copyOf(messages, messages.length + 1);
+		messages[messages.length - 1] = "Error [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]";
+		log(log, Logger::error, messages);
+	}
+
+	private static void log(Logger log, BiConsumer<Logger, String> logger, String... messages) {
+		logger.accept(log, String.join(" ", messages));
+	}
+
+	protected String toLogMessage(LogVerbosity logVerbosity, REQUEST request) {
+		return this.toLogMessage(logVerbosity, request, null);
+	}
+
+	protected String toLogMessage(LogVerbosity logVerbosity, REQUEST request, RESPONSE response) {
+		return this.toLogMessage(logVerbosity, this.startAddress, this.length, request, response);
 	}
 
 	/**
-	 * Generates a Log-Message string.
+	 * Generates a log message for this task.
 	 * 
-	 * @param <REQUEST> the request type
-	 * @param prefix    a prefix
-	 * @param task      this {@link AbstractTask}
-	 * @param request   the current {@link ModbusRequest}
-	 * @param suffix    a suffix
-	 * @return the Log-Message
+	 * <p>
+	 * StartAddress and length need to be provided explicitly, because FC16 task
+	 * might be split to multiple requests.
+	 * 
+	 * @param logVerbosity the {@link LogVerbosity}
+	 * @param startAddress the start address of the request
+	 * @param length       the length of the request payload
+	 * @param request      the {@link ModbusRequest}
+	 * @param response     the {@link ModbusResponse}
+	 * @return a log message String
 	 */
-	protected static <REQUEST> String generateLogMessage(String prefix, AbstractTask<?, ?> task, REQUEST request,
-			String suffix) {
-		var b = new StringBuilder();
-		if (!prefix.isEmpty()) {
-			b.append(prefix).append(" ");
+	protected String toLogMessage(LogVerbosity logVerbosity, int startAddress, int length, REQUEST request,
+			RESPONSE response) {
+		var b = new StringBuilder() //
+				.append(this.name) //
+				.append(" [") //
+				.append(this.parent.id()) //
+				.append(";unitid=").append(this.parent.getUnitId()); //
+		if (!(this instanceof WriteTask)) { // WriteTasks anyway default to HIGH priority
+			b.append(";priority=").append(this.getPriority());
 		}
-		b.append(task.name);
-		b.append(" [");
-		b.append(task.parent.id());
-		b.append(";unitid=");
-		b.append(task.parent.getUnitId());
-		b.append(";ref=");
-		final int startAddress;
-		final int length;
-		if (request == null) {
-			startAddress = task.startAddress;
-			length = task.length;
-		} else if (request instanceof WriteMultipleRegistersRequest r) {
-			// FC16 tasks might be split to multiple request
-			startAddress = r.getReference();
-			length = r.getWordCount();
-		} else {
-			startAddress = task.startAddress;
-			length = task.length;
+		b //
+				.append(";ref=").append(startAddress).append("/0x").append(Integer.toHexString(startAddress)) //
+				.append(";length=").append(length); //
+		switch (logVerbosity) {
+		case NONE, DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_DURATION_TRACE_EVENTS -> {
 		}
-		b.append(startAddress);
-		b.append("/0x");
-		b.append(Integer.toHexString(startAddress));
-		b.append(";length=");
-		b.append(length);
-		b.append("]");
-		if (!suffix.isEmpty()) {
-			b.append(" ").append(suffix);
+		case READS_AND_WRITES_VERBOSE -> {
+			if (request != null) {
+				var hexString = this.payloadToString(request);
+				if (!hexString.isBlank()) {
+					b.append(";request=").append(hexString);
+				}
+			}
+			if (response != null) {
+				var hexString = this.payloadToString(response);
+				if (!hexString.isBlank()) {
+					b.append(";response=").append(hexString);
+				}
+			}
 		}
-		return b.toString();
+		}
+		return b //
+				.append("]") //
+				.toString();
 	}
+
+	/**
+	 * Converts the actual payload of the REQUEST to a human readable format
+	 * suitable for logs; without header data (like Unit-ID, function code,
+	 * checksum, etc).
+	 * 
+	 * @param request the request
+	 * @return a string
+	 */
+	protected abstract String payloadToString(REQUEST request);
+
+	/**
+	 * Converts the actual payload of the RESPONSE to a human readable format
+	 * suitable for logs; without header data (like Unit-ID, function code,
+	 * checksum, etc).
+	 * 
+	 * @param response the response
+	 * @return a string
+	 */
+	protected abstract String payloadToString(RESPONSE response);
 
 	/**
 	 * Sends a {@link ModbusRequest} and returns the {@link ModbusResponse}.

@@ -32,13 +32,13 @@ public class WaitDelayHandlerTest {
 
 	@Test
 	public void testGenerateWaitDelayTask() {
-		// 10 - BUFFER_MS -> 0
-		var possibleDelays = Lists.newArrayList(10L, 50L, 100L);
+		// 12 - BUFFER_MS -> 0
+		var possibleDelays = Lists.newArrayList(5L, 20L, 100L);
 		assertEquals(0, WaitDelayHandler.generateWaitDelayTask(possibleDelays, NO_OP).initialDelay);
 
-		// 30 - BUFFER_MS -> 10
+		// 40 - BUFFER_MS -> 20
 		possibleDelays = Lists.newArrayList(30L, 50L, 50L);
-		assertEquals(10, WaitDelayHandler.generateWaitDelayTask(possibleDelays, NO_OP).initialDelay);
+		assertEquals(20, WaitDelayHandler.generateWaitDelayTask(possibleDelays, NO_OP).initialDelay);
 
 		// Empty
 		possibleDelays = Lists.newArrayList();

@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
@@ -30,11 +33,11 @@ public abstract class AbstractReadDigitalInputsTask<//
 	}
 
 	@Override
-	protected final Boolean[] parseResponse(RESPONSE response) throws OpenemsException {
+	protected final Boolean[] parseResponse(RESPONSE response) {
 		return toBooleanArray(this.parseBitResponse(response));
 	}
 
-	protected abstract BitVector parseBitResponse(RESPONSE response) throws OpenemsException;
+	protected abstract BitVector parseBitResponse(RESPONSE response);
 
 	/**
 	 * Convert a {@link BitVector} to a {@link Boolean} array.
@@ -48,5 +51,12 @@ public abstract class AbstractReadDigitalInputsTask<//
 			bools[i] = v.getBit(i);
 		}
 		return bools;
+	}
+
+	@Override
+	protected final String payloadToString(RESPONSE response) {
+		return Stream.of(this.parseResponse(response)) //
+				.map(b -> b == null ? "-" : (b ? "1" : "0")) //
+				.collect(Collectors.joining());
 	}
 }

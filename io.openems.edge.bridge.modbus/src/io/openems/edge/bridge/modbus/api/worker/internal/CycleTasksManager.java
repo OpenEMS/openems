@@ -74,11 +74,6 @@ public class CycleTasksManager {
 		this.cycleTimeIsTooShortChannel.accept(cycleTimeIsTooShort);
 		if (cycleTimeIsTooShort) {
 			this.waitDelayHandler.timeIsInvalid();
-			if (this.isTraceLog()) {
-				this.log.info("onBeforeProcessImage: stop early." //
-						+ " State: " + this.state //
-						+ " WaitDelay: " + waitDelayHandlerLog);
-			}
 			return;
 		}
 
@@ -91,12 +86,15 @@ public class CycleTasksManager {
 		// On defectiveComponents invalidate time measurement
 		if (this.cycleTasks.containsDefectiveComponent(this.defectiveComponents)) {
 			this.waitDelayHandler.timeIsInvalid();
+			waitDelayHandlerLog += " DEFECTIVE_COMPONENT";
 		}
 
 		// Initialize next Cycle
 		if (this.isTraceLog()) {
 			this.log.info("State: " + this.state + " -> " + StateMachine.INITIAL_WAIT //
-					+ " (in onBeforeProcessImage) WaitDelay: " + waitDelayHandlerLog);
+					+ " (in onBeforeProcessImage)" //
+					+ " Delay [" + this.waitDelayHandler.getWaitDelayTask().initialDelay + "]" //
+					+ " " + waitDelayHandlerLog);
 		}
 		this.state = StateMachine.INITIAL_WAIT;
 

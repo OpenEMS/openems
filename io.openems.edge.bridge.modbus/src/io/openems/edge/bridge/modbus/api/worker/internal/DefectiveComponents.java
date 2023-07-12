@@ -4,27 +4,43 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.common.type.TypeUtils;
 
-// TODO add method to inform about repeated read/write error for a Component.
-// Use this information to dynamically increase delay.
-
 public class DefectiveComponents {
-	/**
-	 * Do not retry reading from/writing to a defective Component for PAUSE_SECONDS.
-	 */
-	public static final int PAUSE_SECONDS = 30;
+
+	public static final int INCREASE_WAIT_SECONDS = 2;
+	public static final int MAX_WAIT_SECONDS = 5 * 60; // 5 minutes
+
+	private final Logger log = LoggerFactory.getLogger(DefectiveComponents.class);
+
+	private static record NextTry(Instant timestamp, int count) {
+	}
 
 	private final Clock clock;
-	private final Map<String, Instant> nextTries = new HashMap<>();
+	private final AtomicReference<LogVerbosity> logVerbosity;
+	private final Map<String, NextTry> nextTries = new HashMap<>();
 
-	public DefectiveComponents() {
-		this(Clock.systemDefaultZone());
+	public DefectiveComponents(AtomicReference<LogVerbosity> logVerbosity) {
+		this(Clock.systemDefaultZone(), logVerbosity);
+	}
+
+	protected DefectiveComponents() {
+		this(Clock.systemDefaultZone(), new AtomicReference<>(LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS));
 	}
 
 	protected DefectiveComponents(Clock clock) {
+		this(clock, new AtomicReference<>(LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS));
+	}
+
+	protected DefectiveComponents(Clock clock, AtomicReference<LogVerbosity> logVerbosity) {
 		this.clock = clock;
+		this.logVerbosity = logVerbosity;
 	}
 
 	/**
@@ -35,7 +51,20 @@ public class DefectiveComponents {
 	 */
 	public synchronized void add(String componentId) {
 		TypeUtils.assertNull("DefectiveComponents add() takes no null values", componentId);
-		this.nextTries.put(componentId, Instant.now(this.clock).plusSeconds(PAUSE_SECONDS));
+		this.nextTries.compute(componentId, (k, v) -> {
+			var count = (v == null) ? 1 : v.count + 1;
+			var wait = Math.min(INCREASE_WAIT_SECONDS * count, MAX_WAIT_SECONDS);
+			if (this.isTraceLog()) {
+				final String log;
+				if (count == 1) {
+					log = "Add [" + componentId + "] to defective Components.";
+				} else {
+					log = "Increase wait for defective Component [" + componentId + "].";
+				}
+				this.log.info(log + " Wait [" + wait + "s]" + " Count [" + count + "]");
+			}
+			return new NextTry(Instant.now(this.clock).plusSeconds(wait), count);
+		});
 	}
 
 	/**
@@ -45,7 +74,9 @@ public class DefectiveComponents {
 	 */
 	public synchronized void remove(String componentId) {
 		TypeUtils.assertNull("DefectiveComponents remove() takes no null values", componentId);
-		this.nextTries.remove(componentId);
+		if (this.nextTries.remove(componentId) != null && this.isTraceLog()) {
+			this.log.info("Remove [" + componentId + "] from defective Components.");
+		}
 	}
 
 	/**
@@ -66,11 +97,20 @@ public class DefectiveComponents {
 	 *         defective components
 	 */
 	public synchronized Boolean isDueForNextTry(String componentId) {
-		var dueTime = this.nextTries.get(componentId);
-		if (dueTime == null) {
+		var nextTry = this.nextTries.get(componentId);
+		if (nextTry == null) {
 			return null;
 		}
 		var now = Instant.now(this.clock);
-		return now.isAfter(dueTime);
+		return now.isAfter(nextTry.timestamp);
+	}
+
+	private boolean isTraceLog() {
+		return switch (this.logVerbosity.get()) {
+		case READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE,
+				READS_AND_WRITES_DURATION_TRACE_EVENTS ->
+			true;
+		case NONE, DEBUG_LOG -> false;
+		};
 	}
 }

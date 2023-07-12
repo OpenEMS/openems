@@ -60,7 +60,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.execute = execute;
 		this.invalidate = invalidate;
 
-		this.defectiveComponents = new DefectiveComponents();
+		this.defectiveComponents = new DefectiveComponents(logVerbosity);
 		this.tasksSupplier = new TasksSupplierImpl();
 		this.cycleTasksManager = new CycleTasksManager(this.tasksSupplier, this.defectiveComponents,
 				cycleTimeIsTooShortChannel, cycleDelayChannel, logVerbosity);

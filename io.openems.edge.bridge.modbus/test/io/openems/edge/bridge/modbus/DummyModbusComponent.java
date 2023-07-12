@@ -8,6 +8,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.DummyComponentContext;
@@ -16,12 +17,16 @@ import io.openems.edge.common.test.DummyConfigurationAdmin.DummyConfiguration;
 
 public class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
 
-	public DummyModbusComponent(String id, BridgeModbus bridge) throws OpenemsException {
-		this(id, bridge, 0);
+	public static final String DEFAULT_COMPONENT_ID = "device0";
+	public static final String DEFAULT_BRIDGE_ID = "modbus0";
+	public static final int DEFAULT_UNIT_ID = 1;
+
+	public DummyModbusComponent() throws OpenemsException {
+		this(DEFAULT_COMPONENT_ID, DEFAULT_BRIDGE_ID);
 	}
 
-	public DummyModbusComponent(String id, BridgeModbus bridge, int unitId) throws OpenemsException {
-		this(id, bridge, unitId, new io.openems.edge.common.channel.ChannelId[0]);
+	public DummyModbusComponent(String id, String bridgeId) throws OpenemsException {
+		this(id, new DummyModbusBridge(bridgeId), DEFAULT_UNIT_ID, new io.openems.edge.common.channel.ChannelId[0]);
 	}
 
 	public DummyModbusComponent(String id, BridgeModbus bridge, int unitId,
