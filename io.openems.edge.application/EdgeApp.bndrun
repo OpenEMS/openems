@@ -186,7 +186,7 @@
 	com.google.gson;version='[2.10.1,2.10.2)',\
 	com.google.guava;version='[32.1.1,32.1.2)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
-	com.squareup.okio;version='[3.3.0,3.3.1)',\
+	com.squareup.okio;version='[3.4.0,3.4.1)',\
 	com.sun.jna;version='[5.13.0,5.13.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
