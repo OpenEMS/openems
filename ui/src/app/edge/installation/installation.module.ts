@@ -63,7 +63,7 @@ export function BoxSerialNumberValidator(control: FormControl): ValidationErrors
 
 export function BatteryAndBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
-  return /^\d{24}$/.test(control.value) ? null : { "batteryAndBmsBoxSerialNumber": true };
+  return /^[a-zA-Z0-9]{24}$/.test(control.value) ? null : { "batteryAndBmsBoxSerialNumber": true };
 }
 
 export function CommercialBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
