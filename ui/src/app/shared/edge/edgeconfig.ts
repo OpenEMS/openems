@@ -1,5 +1,5 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { AdvertWidgets, Widgets } from '../type/widget';
+import { Widgets } from '../type/widget';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {

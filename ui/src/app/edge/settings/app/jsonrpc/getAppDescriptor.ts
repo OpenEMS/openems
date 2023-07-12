@@ -1,4 +1,5 @@
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
@@ -35,7 +36,7 @@ export namespace GetAppDescriptor {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
             }
         ) {
@@ -46,8 +47,8 @@ export namespace GetAppDescriptor {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: AppDescriptor
+            public override readonly id: string,
+            public override readonly result: AppDescriptor
         ) {
             super(id, result);
         }

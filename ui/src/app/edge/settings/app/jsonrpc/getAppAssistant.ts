@@ -1,5 +1,6 @@
 import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
@@ -38,7 +39,7 @@ export namespace GetAppAssistant {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
             }
         ) {
@@ -49,8 +50,8 @@ export namespace GetAppAssistant {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: AppAssistant
+            public override readonly id: string,
+            public override readonly result: AppAssistant
         ) {
             super(id, result);
         }

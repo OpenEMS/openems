@@ -7,6 +7,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
+
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
@@ -110,7 +111,7 @@ export class Service extends AbstractService {
     this.notificationEvent.next(notification);
   }
 
-  public handleError(error: any) {
+  public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
     // let notification: Notification = {

@@ -1,8 +1,9 @@
-import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.component';
-import { BehaviorSubject } from 'rxjs';
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
+import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_Asymmetric_PeakShaving',
@@ -16,7 +17,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         this.meterId = this.component.properties['meter.id'];
         return [
             new ChannelAddress(this.meterId, 'ActivePower'),
@@ -26,7 +27,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
         ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         let activePowerArray: number[] = [
             currentData.allComponents[this.meterId + '/ActivePowerL1'],

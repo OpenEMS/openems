@@ -45,10 +45,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
-  private legendOptions: { label: string, strokeThroughHidingStyle: boolean }[] = [];
-
   protected errorResponse: JsonrpcResponseError | null = null;
-  protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
