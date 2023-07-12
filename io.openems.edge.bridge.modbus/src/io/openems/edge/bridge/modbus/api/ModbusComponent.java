@@ -52,8 +52,8 @@ public interface ModbusComponent extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getModbusCommunicationFailed() {
-		return this.getModbusCommunicationFailedChannel().value();
+	public default boolean getModbusCommunicationFailed() {
+		return this.getModbusCommunicationFailedChannel().value().get();
 	}
 
 	/**
