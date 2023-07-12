@@ -12,5 +12,6 @@ export type User = {
     id: string,
     name: string,
     globalRole: "admin" | "installer" | "owner" | "guest",
-    language: string
+    language: string,
+    hasMultipleEdges: boolean
 };

@@ -25,8 +25,8 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-ess-chart", service, translate);

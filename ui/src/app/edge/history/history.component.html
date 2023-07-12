@@ -7,8 +7,7 @@
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod.value"
-          [style.height]="energyChartHeight"></energy>
+        <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">

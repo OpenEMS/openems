@@ -26,7 +26,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     };
     private static PROPERTY_MODE: string = '_PropertyMode';
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         this.outputChannel = ChannelAddress.fromString(
             this.component.properties['outputChannelAddress']);
         this.inputChannel = ChannelAddress.fromString(
@@ -41,7 +41,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         // Mode
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];

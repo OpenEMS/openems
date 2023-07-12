@@ -21,7 +21,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
     ) {
         super(service);

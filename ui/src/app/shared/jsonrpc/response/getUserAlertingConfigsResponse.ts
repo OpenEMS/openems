@@ -31,8 +31,8 @@ export interface UserSettingResponse {
 export class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             userSettings: UserSettingResponse[]
         }
     ) {

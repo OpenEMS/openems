@@ -20,7 +20,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
   protected readonly TextIndentation = TextIndentation;
 
-  protected getChannelAddresses(): ChannelAddress[] {
+  protected override getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [];
 
     for (let phase of this.phases) {
@@ -31,7 +31,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
     return channelAddresses;
   }
 
-  protected onCurrentData(currentData: CurrentData): void {
+  protected override onCurrentData(currentData: CurrentData): void {
     for (let phase of this.phases) {
       let powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
       phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);

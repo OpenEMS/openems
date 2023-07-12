@@ -21,8 +21,8 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-single-chart", service, translate);

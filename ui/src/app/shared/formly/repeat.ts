@@ -9,13 +9,13 @@ export class RepeatTypeComponent extends FieldArrayType {
   // TODO: add explicit constructor
 
 
-    public add(i?: number, initialModel?: any): void {
+    public override add(i?: number, initialModel?: any): void {
         i = Number(i) + 1;
         super.add(i, initialModel);
         this.formControl.markAsDirty();
     }
 
-    public remove(i: number): void {
+    public override remove(i: number): void {
         super.remove(i);
         this.formControl.markAsDirty();
     }
