@@ -22,8 +22,8 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("channelthreshold-single-chart", service, translate);

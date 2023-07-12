@@ -20,8 +20,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-total-chart", service, translate);

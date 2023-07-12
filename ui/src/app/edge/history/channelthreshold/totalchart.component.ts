@@ -21,8 +21,8 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
   };
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("channelthreshold-total-chart", service, translate);

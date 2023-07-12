@@ -21,8 +21,8 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("timeslotpeakshaving-chart", service, translate);

@@ -27,7 +27,12 @@ addIcons({
 
 export class UserPermission {
   public static isUserAllowedToSeeOverview(user: User): boolean {
-    return Role.isAtLeast(user.globalRole, Role.INSTALLER);
+
+    if (Role.isAtLeast(user.globalRole, Role.INSTALLER)) {
+      return true;
+    }
+
+    return user.hasMultipleEdges;
   }
 }
 

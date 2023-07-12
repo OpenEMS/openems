@@ -7,6 +7,7 @@ import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.compo
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common_Autarchy } from './common/autarchy/Autarchy';
+import { CommonEnergyMonitor } from './common/energy/energy';
 import { Common_Production } from './common/production/Production';
 import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -19,8 +20,6 @@ import { ConsumptionComponent } from './consumption/widget.component';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
-import { EnergyComponent } from './energy/energy.component';
-import { EnergyModalComponent } from './energy/modal/modal.component';
 import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
@@ -68,10 +67,8 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     SharedModule,
     Common_Autarchy,
     Common_Production,
-    Common_Selfconsumption
-  ],
-  entryComponents: [
-    EnergyModalComponent
+    Common_Selfconsumption,
+    CommonEnergyMonitor
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -93,8 +90,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
-    EnergyComponent,
-    EnergyModalComponent,
     FixDigitalOutputChartOverviewComponent,
     FixDigitalOutputSingleChartComponent,
     FixDigitalOutputTotalChartComponent,
