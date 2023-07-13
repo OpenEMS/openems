@@ -1,132 +1,132 @@
 <header></header>
 <ion-content>
-<ion-grid>
+  <ion-grid>
 
-  <ion-row class="ion-justify-content-center">
-    <ion-col size="12" size-md="6">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-          <ion-label>Predefined Commands</ion-label>
-        </ion-item>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Predefined Commands</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"
-            (modelChange)="updatePredefined()"></formly-form>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
+          <ion-card-content>
+            <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"
+              (modelChange)="updatePredefined()"></formly-form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-    <ion-col size="12" size-md="6">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-          <ion-label>Manual System Execute</ion-label>
-        </ion-item>
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Manual System Execute</ion-label>
+          </ion-item>
 
-        <ion-card-content>
-          <form [formGroup]="form" (ngSubmit)="submit()">
-            <ion-item>
-              <ion-label>Username</ion-label>
-              <ion-input formControlName="username" type="text">
-              </ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Password</ion-label>
-              <ion-input formControlName="password" type="password"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Timeout</ion-label>
-              <ion-input formControlName="timeoutSeconds" type="number"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label>Run in background</ion-label>
-              <ion-toggle formControlName="runInBackground"></ion-toggle>
-            </ion-item>
-            <ion-item>
-              <ion-label>Command</ion-label>
-              <ion-input formControlName="command" type="text"></ion-input>
-            </ion-item>
-            <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-
-  <!-- show last output -->
-  <ion-row class="ion-justify-content-center" *ngIf="stdout.length > 0 || stderr.length > 0 || loading">
-    <ion-col size="12">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-          <ion-label>Latest output</ion-label>
-        </ion-item>
-        <ion-card-content>
-          <ngx-loading [show]="loading"></ngx-loading>
-          <ng-container *ngIf="!loading">
-            <ion-item-group *ngIf="stdout.length > 0">
-              <ion-item-divider>
-                <ion-label>Output</ion-label>
-              </ion-item-divider>
-              <ion-item style="font-family: monospace">
-                <pre><ng-container *ngFor="let line of stdout">{{ line }}<br/></ng-container></pre>
+          <ion-card-content>
+            <form [formGroup]="form" (ngSubmit)="submit()">
+              <ion-item>
+                <ion-label>Username</ion-label>
+                <ion-input formControlName="username" type="text">
+                </ion-input>
               </ion-item>
-            </ion-item-group>
-            <ion-item-group *ngIf="stderr.length > 0">
-              <ion-item-divider>
-                <ion-label>Error</ion-label>
-              </ion-item-divider>
-              <ion-item style="font-family: monospace">
-                <pre><ng-container *ngFor="let line of stderr">{{ line }}<br/></ng-container></pre>
+              <ion-item>
+                <ion-label>Password</ion-label>
+                <ion-input formControlName="password" type="password"></ion-input>
               </ion-item>
-            </ion-item-group>
-          </ng-container>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
+              <ion-item>
+                <ion-label>Timeout</ion-label>
+                <ion-input formControlName="timeoutSeconds" type="number"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label>Run in background</ion-label>
+                <ion-toggle formControlName="runInBackground"></ion-toggle>
+              </ion-item>
+              <ion-item>
+                <ion-label>Command</ion-label>
+                <ion-input formControlName="command" type="text"></ion-input>
+              </ion-item>
+              <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  <!-- show command log -->
-  <ion-row class="ion-justify-content-center" *ngIf="commandLogs.length > 0">
-    <ion-col size="12">
-      <ion-card>
-        <ion-item lines="full" color="light">
-          <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-          <ion-label>Last commands</ion-label>
-        </ion-item>
+    <!-- show last output -->
+    <ion-row class="ion-justify-content-center" *ngIf="stdout.length > 0 || stderr.length > 0 || loading">
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Latest output</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ngx-loading [show]="loading"></ngx-loading>
+            <ng-container *ngIf="!loading">
+              <ion-item-group *ngIf="stdout.length > 0">
+                <ion-item-divider>
+                  <ion-label>Output</ion-label>
+                </ion-item-divider>
+                <ion-item style="font-family: monospace">
+                  <pre><ng-container *ngFor="let line of stdout">{{ line }}<br/></ng-container></pre>
+                </ion-item>
+              </ion-item-group>
+              <ion-item-group *ngIf="stderr.length > 0">
+                <ion-item-divider>
+                  <ion-label>Error</ion-label>
+                </ion-item-divider>
+                <ion-item style="font-family: monospace">
+                  <pre><ng-container *ngFor="let line of stderr">{{ line }}<br/></ng-container></pre>
+                </ion-item>
+              </ion-item-group>
+            </ng-container>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-        <ion-card-content>
-          <ion-grid>
-            <ion-row>
-              <ion-col size="1">
-                <ion-label color="primary">Timeout</ion-label>
-              </ion-col>
-              <ion-col size="1">
-                <ion-label color="primary">Run in background</ion-label>
-              </ion-col>
-              <ion-col size="9">
-                <ion-label color="primary">Command</ion-label>
-              </ion-col>
-              <ion-col size="1"></ion-col>
-            </ion-row>
-            <ion-row *ngFor="let l of commandLogs">
-              <ion-col size="1">{{ l.params.timeoutSeconds }}</ion-col>
-              <ion-col size="1">{{ l.params.runInBackground }}</ion-col>
-              <ion-col size="9">{{ l.params.command }}</ion-col>
-              <ion-col size="1">
-                <ion-button (click)="formGroup.controls.username.value = l.params.username;
+    <!-- show command log -->
+    <ion-row class="ion-justify-content-center" *ngIf="commandLogs.length > 0">
+      <ion-col size="12">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Last commands</ion-label>
+          </ion-item>
+
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="1">
+                  <ion-label color="primary">Timeout</ion-label>
+                </ion-col>
+                <ion-col size="1">
+                  <ion-label color="primary">Run in background</ion-label>
+                </ion-col>
+                <ion-col size="9">
+                  <ion-label color="primary">Command</ion-label>
+                </ion-col>
+                <ion-col size="1"></ion-col>
+              </ion-row>
+              <ion-row *ngFor="let l of commandLogs">
+                <ion-col size="1">{{ l.params.timeoutSeconds }}</ion-col>
+                <ion-col size="1">{{ l.params.runInBackground }}</ion-col>
+                <ion-col size="9">{{ l.params.command }}</ion-col>
+                <ion-col size="1">
+                  <ion-button (click)="formGroup.controls.username.value = l.params.username;
                 formGroup.controls.password.value = l.params.password;
                 formGroup.controls.timeoutSeconds.value = l.params.timeoutSeconds;
                 formGroup.controls.runInBackground.value = l.params.runInBackground;
                 formGroup.controls.command.value = l.params.command">Repeat
-                </ion-button>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
