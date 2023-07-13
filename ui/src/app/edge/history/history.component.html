@@ -12,8 +12,8 @@
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-        <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <storageWidget [period]="service.historyPeriod.value"></storageWidget>
+        <ion-col *ngSwitchCase="'Common_Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <storageWidget></storageWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
           <productionWidget></productionWidget>
@@ -96,7 +96,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfï¿½gbar</ion-label>
           </ion-item>
           <ion-card-content>
             <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>

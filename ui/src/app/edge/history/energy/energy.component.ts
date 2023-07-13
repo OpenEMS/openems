@@ -676,7 +676,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             result.push(new ChannelAddress('_sum', 'GridBuyActiveEnergy'));
             result.push(new ChannelAddress('_sum', 'GridSellActiveEnergy'));
             break;
-          case 'Storage':
+          case 'Common_Storage':
             result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'));
             result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
             break;
@@ -702,7 +702,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
           case 'Consumption':
             result.push(new ChannelAddress('_sum', 'ConsumptionActivePower'));
             break;
-          case 'Storage':
+          case 'Common_Storage':
             result.push(new ChannelAddress('_sum', 'EssSoc'));
             result.push(new ChannelAddress('_sum', 'EssActivePower'));
             break;

@@ -8,6 +8,7 @@ import { ChannelthresholdChartOverviewComponent } from './edge/history/channelth
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
+import { OverviewComponent as StorageChartOverviewComponent } from './edge/history/common/storage/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -22,7 +23,6 @@ import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peak
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
-import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { LiveDataService } from './edge/live/livedataservice';

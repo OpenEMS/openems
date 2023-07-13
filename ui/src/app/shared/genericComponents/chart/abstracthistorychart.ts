@@ -233,6 +233,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     } else {
 
       // Shows Line-Chart
+      // Promise.
       Promise.all([
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
@@ -379,6 +380,10 @@ export abstract class AbstractHistoryChart implements OnInit {
               this.errorResponse = response;
               this.initializeChart();
             });
+          } else {
+            resolve(new QueryHistoricTimeseriesEnergyResponse("", {
+              data: { null: null }
+            }));
           }
         });
       });

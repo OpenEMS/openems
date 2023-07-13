@@ -52,23 +52,18 @@ import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widge
 import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
 import { SinglethresholdChartOverviewComponent } from './singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { SinglethresholdWidgetComponent } from './singlethreshold/widget.component';
-import { StorageChargerChartComponent } from './storage/chargerchart.component';
-import { StorageESSChartComponent } from './storage/esschart.component';
-import { StorageSingleChartComponent } from './storage/singlechart.component';
-import { SocStorageChartComponent } from './storage/socchart.component';
-import { StorageChartOverviewComponent } from './storage/storagechartoverview/storagechartoverview.component';
-import { StorageTotalChartComponent } from './storage/totalchart.component';
-import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Common_Storage } from './common/storage/Storage';
 
 @NgModule({
   imports: [
     SharedModule,
     Common_Autarchy,
     Common_Production,
-    Common_Selfconsumption
+    Common_Selfconsumption,
+    Common_Storage
   ],
   entryComponents: [
     EnergyModalComponent
@@ -116,13 +111,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     SinglethresholdChartComponent,
     SinglethresholdChartOverviewComponent,
     SinglethresholdWidgetComponent,
-    SocStorageChartComponent,
-    StorageChargerChartComponent,
-    StorageChartOverviewComponent,
-    StorageComponent,
-    StorageESSChartComponent,
-    StorageSingleChartComponent,
-    StorageTotalChartComponent,
     SymmetricPeakshavingChartComponent,
     SymmetricPeakshavingChartOverviewComponent,
     SymmetricPeakshavingWidgetComponent,

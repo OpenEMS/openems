@@ -1,0 +1,12 @@
+<oe-flat-widget *ngIf="isInitialized" [title]="'General.storageSystem' | translate"
+    [icon]="{name: 'oe-storage', color: 'success', size: 'large'}" button
+    routerLink="/device/{{edge.id}}/history/storagechart">
+    <ng-container>
+        <oe-flat-widget-line [name]="'General.chargePower'| translate" [channelAddress]="'_sum' + '/EssDcChargeEnergy'"
+            [converter]="CONVERT_TO_KILO_WATTHOURS">
+        </oe-flat-widget-line>
+        <oe-flat-widget-line [name]="'General.dischargePower'| translate"
+            [channelAddress]="'_sum' + '/EssDcDischargeEnergy'" [converter]="CONVERT_TO_KILO_WATTHOURS">
+        </oe-flat-widget-line>
+    </ng-container>
+</oe-flat-widget>

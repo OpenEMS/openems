@@ -2,13 +2,13 @@ import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 
 export enum WidgetClass {
-    'Energymonitor',
     'Common_Autarchy',
     'Common_Selfconsumption',
-    'Storage',
-    'Grid',
     'Common_Production',
+    'Common_Storage',
     'Consumption',
+    'Energymonitor',
+    'Grid',
 }
 
 export enum WidgetNature {
@@ -70,7 +70,7 @@ export class Widgets {
                         } else {
                             return false;
                         }
-                    case 'Storage':
+                    case 'Common_Storage':
                         return config.hasStorage();
                     case 'Common_Production':
                     case 'Common_Selfconsumption':
