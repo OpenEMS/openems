@@ -60,7 +60,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.execute = execute;
 		this.invalidate = invalidate;
 
-		this.defectiveComponents = new DefectiveComponents();
+		this.defectiveComponents = new DefectiveComponents(logVerbosity);
 		this.tasksSupplier = new TasksSupplierImpl();
 		this.cycleTasksManager = new CycleTasksManager(this.tasksSupplier, this.defectiveComponents,
 				cycleTimeIsTooShortChannel, cycleDelayChannel, logVerbosity);
@@ -126,6 +126,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.tasksSupplier.addProtocol(sourceId, protocol);
+		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 
 	/**
@@ -135,6 +136,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void removeProtocol(String sourceId) {
 		this.tasksSupplier.removeProtocol(sourceId);
+		this.defectiveComponents.remove(sourceId); // Cleanup
 	}
 
 	/**

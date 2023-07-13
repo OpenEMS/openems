@@ -5,6 +5,7 @@ import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -20,12 +21,17 @@ public class FC4ReadInputRegistersTask
 	}
 
 	@Override
-	protected ReadInputRegistersRequest createModbusRequest(int startAddress, int length) {
-		return new ReadInputRegistersRequest(startAddress, length);
+	protected ReadInputRegistersRequest createModbusRequest() {
+		return new ReadInputRegistersRequest(this.startAddress, this.length);
 	}
 
 	@Override
 	protected InputRegister[] parseResponse(ReadInputRegistersResponse response) throws OpenemsException {
 		return response.getRegisters();
+	}
+
+	@Override
+	protected String payloadToString(ReadInputRegistersResponse response) {
+		return ModbusUtils.registersToHexString(response.getRegisters());
 	}
 }

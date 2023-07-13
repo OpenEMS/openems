@@ -4,6 +4,7 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
 
 public class FC6WriteRegisterTask extends
@@ -31,5 +32,10 @@ public class FC6WriteRegisterTask extends
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	protected String payloadToString(WriteSingleRegisterRequest request) {
+		return ModbusUtils.registersToHexString(request.getRegister());
 	}
 }

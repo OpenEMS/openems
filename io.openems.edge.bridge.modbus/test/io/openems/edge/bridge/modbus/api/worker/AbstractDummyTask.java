@@ -31,6 +31,16 @@ public abstract class AbstractDummyTask extends AbstractTask<ModbusRequest, Modb
 		this.delay = delay;
 	}
 
+	@Override
+	protected String payloadToString(ModbusRequest request) {
+		return "";
+	}
+
+	@Override
+	protected String payloadToString(ModbusResponse response) {
+		return "";
+	}
+
 	/**
 	 * Callback on Execute.
 	 * 

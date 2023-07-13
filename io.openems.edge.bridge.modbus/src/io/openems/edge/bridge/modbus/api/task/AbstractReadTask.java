@@ -1,6 +1,6 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import java.util.function.Consumer;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -42,17 +42,16 @@ public abstract class AbstractReadTask<//
 	@Override
 	public ExecuteState execute(AbstractModbusBridge bridge) {
 		try {
-			var response = this.executeRequest(bridge, //
-					this.createModbusRequest(this.startAddress, this.length));
+			var response = this.executeRequest(bridge, this.createModbusRequest());
 			// On error a log message has already been logged
 
 			try {
 				var result = this.parseResponse(response);
 				validateResponse(result, this.length);
-				this.fillElements(result, (message) -> this.logError(this.log, "", null, message));
+				this.fillElements(result);
 
 			} catch (OpenemsException e1) {
-				this.logError(this.log, "", null, "Execute failed: " + e1.getMessage());
+				logError(this.log, e1, "Parsing Response failed");
 				throw e1;
 			}
 			return ExecuteState.OK;
@@ -84,27 +83,32 @@ public abstract class AbstractReadTask<//
 	 * Fills {@link ModbusElement}s with values from response.
 	 * 
 	 * @param response the response values
-	 * @param logError callback to log a error message
+	 * @throws OpenemsException on error
 	 */
 	@SuppressWarnings("unchecked")
-	private void fillElements(T[] response, Consumer<String> logError) {
+	private void fillElements(T[] response) throws OpenemsException {
 		var position = 0;
+		var errors = new ArrayList<String>();
 
 		for (var element : this.elements) {
 			if (this.elementClazz.isInstance(element)) {
 				try {
 					this.handleResponse((ELEMENT) element, position, response);
 				} catch (OpenemsException e) {
-					logError.accept("Unable to fill Modbus Element. " //
+					errors.add("Unable to fill Modbus Element. " //
 							+ element.toString() + " Error: " + e.getMessage());
 				}
 			} else {
-				logError.accept("Wrong type while filling Modbus Element. " //
+				errors.add("Wrong type while filling Modbus Element. " //
 						+ element.toString() + " " //
 						+ "Expected [" + this.elementClazz.getSimpleName() + "] " //
 						+ "Got [" + element.getClass().getSimpleName() + "]");
 			}
 			position = this.calculateNextPosition(element, position);
+		}
+
+		if (!errors.isEmpty()) {
+			throw new OpenemsException(String.join(", ", errors));
 		}
 	}
 
@@ -135,11 +139,9 @@ public abstract class AbstractReadTask<//
 	/**
 	 * Factory for a {@link ModbusRequest}.
 	 * 
-	 * @param startAddress the startAddress of the modbus register
-	 * @param length       the length
 	 * @return a new {@link ModbusRequest}
 	 */
-	protected abstract REQUEST createModbusRequest(int startAddress, int length);
+	protected abstract REQUEST createModbusRequest();
 
 	/**
 	 * Parses a {@link ModbusResponse} to an array of values.
@@ -150,4 +152,8 @@ public abstract class AbstractReadTask<//
 	 */
 	protected abstract T[] parseResponse(RESPONSE response) throws OpenemsException;
 
+	@Override
+	protected final String payloadToString(REQUEST request) {
+		return "";
+	}
 }

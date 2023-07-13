@@ -19,8 +19,8 @@ public class FC2ReadInputsTask
 	}
 
 	@Override
-	protected ReadInputDiscretesRequest createModbusRequest(int startAddress, int length) {
-		return new ReadInputDiscretesRequest(startAddress, length);
+	protected ReadInputDiscretesRequest createModbusRequest() {
+		return new ReadInputDiscretesRequest(this.startAddress, this.length);
 	}
 
 	@Override

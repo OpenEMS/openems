@@ -6,8 +6,16 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.DummyModbusComponent;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 
 public class FC16WriteRegistersTaskTest {
@@ -50,4 +58,16 @@ public class FC16WriteRegistersTaskTest {
 		}
 	}
 
+	@Test
+	public void testToLogMessage() throws OpenemsException {
+		var component = new DummyModbusComponent();
+		var task = new FC16WriteRegistersTask(30, new UnsignedDoublewordElement(30));
+		task.setParent(component);
+		var request = new WriteMultipleRegistersRequest(30,
+				new Register[] { new SimpleRegister(123), new SimpleRegister(456) });
+		var response = (WriteMultipleRegistersResponse) request.getResponse();
+
+		assertEquals("FC16WriteRegisters [device0;unitid=1;ref=30/0x1e;length=2;request=007b 01c8]",
+				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
+	}
 }

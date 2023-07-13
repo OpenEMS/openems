@@ -14,6 +14,8 @@ import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
@@ -33,7 +35,7 @@ public class FC16WriteRegistersTask
 	@Override
 	public ExecuteState execute(AbstractModbusBridge bridge) {
 		var requests = mergeWriteRegisters(this.elements, message -> this.log.warn(message)).stream() //
-				.map(e -> new WriteMultipleRegistersRequest(startAddress, e.getRegisters())) //
+				.map(e -> new WriteMultipleRegistersRequest(e.startAddress(), e.getRegisters())) //
 				.toList();
 
 		if (requests.isEmpty()) {
@@ -78,13 +80,13 @@ public class FC16WriteRegistersTask
 					final MergedWriteRegisters write;
 					if (writes.isEmpty()) {
 						// no writes created yet
-						write = MergedWriteRegisters.of(element.getStartAddress());
+						write = MergedWriteRegisters.of(e.getStartAddress());
 						writes.add(write);
 					} else {
 						var lastWrite = writes.get(writes.size() - 1);
-						if (lastWrite.getLastAddress() + 1 != element.getStartAddress()) {
+						if (lastWrite.getLastAddress() + 1 != e.getStartAddress()) {
 							// there is a hole between last element and current element
-							write = MergedWriteRegisters.of(element.getStartAddress());
+							write = MergedWriteRegisters.of(e.getStartAddress());
 							writes.add(write);
 						} else {
 							// no hole -> combine writes
@@ -117,5 +119,18 @@ public class FC16WriteRegistersTask
 		public int getLastAddress() {
 			return this.startAddress + this.registers.size() - 1;
 		}
+	}
+
+	@Override
+	protected String payloadToString(WriteMultipleRegistersRequest request) {
+		return ModbusUtils.registersToHexString(request.getRegisters());
+	}
+
+	@Override
+	protected String toLogMessage(LogVerbosity logVerbosity, WriteMultipleRegistersRequest request,
+			WriteMultipleRegistersResponse response, Exception exception) {
+		// Read StartAddress and Length from the actual Sub-Request
+		return this.toLogMessage(logVerbosity, request.getReference(), request.getWordCount(), request, response,
+				exception);
 	}
 }

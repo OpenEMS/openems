@@ -344,15 +344,14 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			 * Forward Channel Write-Value to Element
 			 */
 			this.channelMaps.keySet().forEach(channel -> {
-				if (channel instanceof WriteChannel<?>) {
-					((WriteChannel<?>) channel).onSetNextWrite(value -> {
+				if (channel instanceof WriteChannel<?> writeChannel) {
+					writeChannel.onSetNextWrite(value -> {
 						// dynamically get the Converter; this allows the converter to be changed
 						var converter = this.channelMaps.get(channel);
 						var convertedValue = converter.channelToElement(value);
-						if (this.element instanceof ModbusRegisterElement) {
+						if (this.element instanceof ModbusRegisterElement<?> registerElement) {
 							try {
-								((ModbusRegisterElement<?>) this.element)
-										.setNextWriteValue(Optional.ofNullable(convertedValue));
+								registerElement.setNextWriteValue(Optional.ofNullable(convertedValue));
 							} catch (OpenemsException | IllegalArgumentException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 										"Unable to write to ModbusRegisterElement. " //
@@ -365,9 +364,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 									e.printStackTrace();
 								}
 							}
-						} else if (this.element instanceof ModbusCoilElement) {
+						} else if (this.element instanceof ModbusCoilElement coilElement) {
 							try {
-								((ModbusCoilElement) this.element).setNextWriteValue(
+								coilElement.setNextWriteValue(
 										Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
 							} catch (OpenemsException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
