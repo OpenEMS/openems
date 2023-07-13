@@ -18,6 +18,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
+
     // Grid-Mode
     let lines: OeFormlyField[] = [{
       type: 'channel-line',

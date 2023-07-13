@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
-import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { Icon } from 'src/app/shared/type/widget';
+
+import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({

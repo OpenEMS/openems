@@ -69,6 +69,7 @@ export namespace GetApps {
         cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
         appId: string,
         name: string,
+        shortName?: string,
         image: string,
         status: Status,
         instanceIds: string[],

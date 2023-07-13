@@ -52,6 +52,7 @@ export namespace Currency {
   }
 
   export enum Label {
+    OERE_PER_KWH = "�re/kWh",
     CENT_PER_KWH = "Cent/kWh"
   }
 }

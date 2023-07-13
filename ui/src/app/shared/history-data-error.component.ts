@@ -32,7 +32,7 @@ function toType(response: JsonrpcResponseError | null): ErrorType {
         return null;
     }
     switch (message) {
-        case "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit leider nicht möglich":
+        case "Die Anzeige und der Export von Daten ï¿½ber einen lï¿½ngeren Zeitraum ist derzeit leider nicht mï¿½glich":
             return 'TOO_LONG';
         default:
             return 'TEMPORARY';

@@ -584,6 +584,43 @@
     "loggedIn": "Angemeldet.",
     "loggedInAs": "Angemeldet als Benutzer '{{ value }}'."
   },
+  "Register": {
+    "title": "Account anlegen",
+    "segment": {
+      "user": "Benutzer",
+      "installer": "Installateur"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Kontaktdaten",
+      "company": "Firma",
+      "companyName": "Firmenname",
+      "firstname": "Vorname",
+      "lastname": "Nachname",
+      "street": "Straße | Hausnummer",
+      "zip": "PLZ",
+      "city": "Ort",
+      "country": "Land",
+      "phone": "Telefonnummer",
+      "email": "E-Mail Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort wiederholen",
+      "confirmEmail": "E-Mail Adresse wiederholen"
+    },
+    "button": "Anlegen",
+    "errors": {
+      "requiredFields": "Bitte alle Felder ausfüllen",
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
+    },
+    "success": "Registrierung erfolgreich",
+    "createUser": "Installateurszugang anlegen"
+  },
   "Role": {
     "guest": "Gast",
     "owner": "Eigentümer",

@@ -586,9 +586,41 @@
     "loggedInAs": "Logged in as '{{ value }}'."
   },
   "Register": {
+    "title": "Create account",
+    "segment": {
+      "user": "User",
+      "installer": "Installer"
+    },
     "Form": {
-      "firstname": "First name"
-    }
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Contact Details",
+      "companyName": "Company name",
+      "firstname": "First name",
+      "lastname": "Last name",
+      "street": "Street",
+      "zip": "Postal code",
+      "city": "City",
+      "country": "Country",
+      "phone": "Phone number",
+      "email": "E-Mail",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "company": "Company",
+      "confirmEmail": "confirm E-Mail"
+    },
+    "button": "Create",
+    "errors": {
+      "requiredFields": "Please fill in all fields",
+      "passwordNotEqual": "Passwords are not equal",
+      "emailNotEqual": "E-Mails are not equal"
+    },
+    "success": "Registration successful",
+    "createUser": "Create installer account"
   },
   "Role": {
     "guest": "Guest",

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({

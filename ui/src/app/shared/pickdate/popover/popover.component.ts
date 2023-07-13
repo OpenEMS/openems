@@ -4,10 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from 'angular-mydatepicker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from 'date-fns/esm';
+
 import { Edge } from '../../edge/edge';
 import { DefaultTypes } from '../../service/defaulttypes';
 import { Service } from '../../shared';
-
 
 @Component({
     selector: 'pickdatepopover',

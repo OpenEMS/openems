@@ -24,7 +24,7 @@
       "rules": {
         "unused-imports/no-unused-imports": "error",
         "semi": [
-          "warn",
+          "error",
           "always"
         ],
         "quote-props": [

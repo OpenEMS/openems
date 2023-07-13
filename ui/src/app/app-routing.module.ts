@@ -103,7 +103,7 @@ const routes: Routes = [
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
       { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
       { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
-      { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex }, { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
+      { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
