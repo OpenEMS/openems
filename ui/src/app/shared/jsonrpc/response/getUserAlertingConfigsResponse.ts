@@ -1,6 +1,6 @@
 import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { Role } from "../../type/role";
 
+import { Role } from "../../type/role";
 
 export interface UserSettingResponse {
     userId: string,
