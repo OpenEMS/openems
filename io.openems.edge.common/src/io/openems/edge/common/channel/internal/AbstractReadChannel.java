@@ -17,7 +17,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -161,10 +160,6 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 						"Ignoring next value for [" + this.address() + "]: Channel is Cumulated and value is null");
 			}
 			return;
-		}
-
-		if (this instanceof StateChannel && value == null) {
-			this.log.error("Setting null value on StateChannel [" + this.address() + "] is not allowed");
 		}
 
 		this.nextValue = new Value<>(this, value);
