@@ -31,7 +31,7 @@ export class SetUserInformationRequest extends JsonrpcRequest {
     private static METHOD: string = "setUserInformation";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             user: {
                 firstname: string,
                 lastname: string,

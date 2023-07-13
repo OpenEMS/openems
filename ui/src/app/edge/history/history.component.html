@@ -7,8 +7,7 @@
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod.value"
-          [style.height]="energyChartHeight"></energy>
+        <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
@@ -25,7 +24,7 @@
           <consumptionWidget [period]="service.historyPeriod.value"></consumptionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <selfconsumptionWidget [period]="service.historyPeriod.value"></selfconsumptionWidget>
+          <selfconsumptionWidget></selfconsumptionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget></autarchyWidget>

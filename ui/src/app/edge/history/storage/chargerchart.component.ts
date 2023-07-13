@@ -23,8 +23,8 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-charger-chart", service, translate);

@@ -20,7 +20,7 @@
             [name]="('General.TOTAL'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
             [channelAddress]="'_sum/ProductionAcActivePower'">
         </oe-modal-line>
-        <oe-modal-line *ngFor="let phase of ['L1','L2','L3']" [textIndent]="TextIndentation.SIMPLE"
+        <oe-modal-line *ngFor="let phase of ['L1','L2','L3']" [textIndent]="TextIndentation.SINGLE"
             [name]=" ('General.phase'| translate) + '&nbsp;' + phase"
             [channelAddress]="'_sum/ProductionAcActivePower' + phase" [converter]="CONVERT_TO_WATT">
         </oe-modal-line>

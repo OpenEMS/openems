@@ -22,7 +22,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
     ) {
         super(service);

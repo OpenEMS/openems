@@ -25,8 +25,8 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("gridOptimizedCharge-chart", service, translate);

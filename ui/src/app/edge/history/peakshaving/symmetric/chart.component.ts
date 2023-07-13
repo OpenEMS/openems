@@ -21,8 +21,8 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("symmetricpeakshaving-chart", service, translate);
