@@ -116,7 +116,8 @@ export class ChartComponent extends AbstractHistoryChart {
               data['ProductionActivePower']?.map((value, index) =>
                 value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
-            stack: [1, 2]
+            stack: [1, 2],
+            order: 2
           }],
 
           // Charge Power
