@@ -247,7 +247,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       maxBarThickness: 100,
       ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
-      order: element.order ?? 10
+      order: element.order ?? Number.MAX_VALUE
     };
     return dataset;
   }

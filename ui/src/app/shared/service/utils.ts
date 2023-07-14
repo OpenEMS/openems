@@ -598,7 +598,7 @@ export namespace HistoryUtils {
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
     }],
-    /** Works like z-Index, the smaller the number, the further forward it is displayed, default 10 */
+    /** The smaller the number, the further forward it is displayed */
     order?: number
   }
 
