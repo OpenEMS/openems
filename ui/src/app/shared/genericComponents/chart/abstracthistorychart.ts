@@ -30,22 +30,21 @@ export abstract class AbstractHistoryChart implements OnInit {
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
   @Input() public isOnlyChart: boolean = false;
-  protected spinnerId: string = uuidv4();
-
-  protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   public edge: Edge | null = null;
-
   public loading: boolean = true;
   public labels: Date[] = [];
   public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
   public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
   public colors: any[] = [];
   public chartObject: HistoryUtils.ChartData = null;
-  public chartType: 'line' | 'bar' = 'line';
+
+  protected spinnerId: string = uuidv4();
+  protected chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
+  protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
@@ -60,6 +59,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.updateChart();
     });
   }
+
 
   ngOnInit() {
     this.startSpinner();

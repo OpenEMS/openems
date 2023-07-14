@@ -5,7 +5,6 @@ import { EdgeConfig } from "./edgeconfig";
 export namespace DummyConfig {
 
     const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date());
-
     export function from(...components: Component[]): EdgeConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{

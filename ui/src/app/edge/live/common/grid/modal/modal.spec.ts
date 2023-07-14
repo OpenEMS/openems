@@ -3,7 +3,8 @@ import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/test
 import { GridMode } from "src/app/shared/shared";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
-import { CHANNEL_LINE, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, expectView } from "./constants.spec";
+
+import { CHANNEL_LINE, expectView, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "./constants.spec";
 
 const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
   "_sum/GridMode": GridMode.ON_GRID,

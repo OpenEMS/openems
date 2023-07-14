@@ -49,7 +49,6 @@ export class OeFormlyViewTester {
 
         return result;
 
-
       case "channel-line": {
         let tmp = OeFormlyViewTester.applyLineOrItem(field, context);
         if (tmp == null) {

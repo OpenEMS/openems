@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({
