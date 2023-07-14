@@ -632,11 +632,10 @@ export namespace HistoryUtils {
   export namespace ValueConverter {
 
     export const NEGATIVE_AS_ZERO = (value) => {
-      if (value > 0) {
-        return value;
-      } else {
-        return 0;
+      if (value == null) {
+        return null;
       }
+      return Math.max(0, value);
     };
 
     export const NON_NEGATIVE = (value) => {
