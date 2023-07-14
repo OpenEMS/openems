@@ -103,7 +103,7 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 0,
             hiddenOnInit: true,
             noStrokeThroughLegendIfHidden: false,
-            order: 0
+            order: 1
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -132,7 +132,8 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssCharge'];
             },
             color: 'rgb(0,223,0)',
-            stack: 1
+            stack: 1,
+            order: 6
           },
 
           // Discharge Power
@@ -148,7 +149,8 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssDischarge'];
             },
             color: 'rgb(200,0,0)',
-            stack: 2
+            stack: 2,
+            order: 5
           },
 
           // Sell to grid
@@ -161,7 +163,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridSell'];
             },
             color: 'rgb(0,0,200)',
-            stack: 1
+            stack: 1,
+            order: 4
           },
 
           // Buy from Grid
@@ -174,7 +177,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridBuy'];
             },
             color: 'rgb(0,0,0)',
-            stack: 2
+            stack: 2,
+            order: 2
           },
 
           // Consumption
@@ -190,7 +194,7 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 3,
             hiddenOnInit: true,
             noStrokeThroughLegendIfHidden: false,
-            order: 1
+            order: 0
           }
         ];
       },
