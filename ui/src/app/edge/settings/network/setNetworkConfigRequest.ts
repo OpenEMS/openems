@@ -27,7 +27,7 @@ export class SetNetworkConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "setNetworkConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             interfaces: {
                 [name: string]: NetworkInterface
             }

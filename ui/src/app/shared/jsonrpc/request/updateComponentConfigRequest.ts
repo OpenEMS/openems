@@ -23,7 +23,7 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "updateComponentConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string,
             properties: {
                 name: string,

@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { WorkMode } from 'src/app/shared/type/general';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({
