@@ -102,7 +102,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 1
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -115,7 +116,8 @@ export class ChartComponent extends AbstractHistoryChart {
               data['ProductionActivePower']?.map((value, index) =>
                 value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
-            stack: [1, 2]
+            stack: [1, 2],
+            order: 2
           }],
 
           // Charge Power
@@ -131,20 +133,8 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssCharge'];
             },
             color: 'rgb(0,223,0)',
-            stack: 1
-          },
-
-          // Sell to grid
-          {
-            name: translate.instant('General.gridSell'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridSellActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridSell'];
-            },
-            color: 'rgb(0,0,200)',
-            stack: 1
+            stack: 1,
+            order: 6
           },
 
           // Discharge Power
@@ -160,7 +150,22 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssDischarge'];
             },
             color: 'rgb(200,0,0)',
-            stack: 2
+            stack: 2,
+            order: 5
+          },
+
+          // Sell to grid
+          {
+            name: translate.instant('General.gridSell'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/GridSellActiveEnergy'];
+            },
+            converter: () => {
+              return data['GridSell'];
+            },
+            color: 'rgb(0,0,200)',
+            stack: 1,
+            order: 4
           },
 
           // Buy from Grid
@@ -173,7 +178,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridBuy'];
             },
             color: 'rgb(0,0,0)',
-            stack: 2
+            stack: 2,
+            order: 2
           },
 
           // Consumption
@@ -188,7 +194,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(253,197,7)',
             stack: 3,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 0
           }
         ];
       },
@@ -216,7 +223,8 @@ export class ChartComponent extends AbstractHistoryChart {
         (chartType === 'line' && {
           unit: YAxisTitle.PERCENTAGE,
           position: 'right',
-          yAxisId: ChartAxis.RIGHT
+          yAxisId: ChartAxis.RIGHT,
+          displayGrid: false
         })
       ]
     };

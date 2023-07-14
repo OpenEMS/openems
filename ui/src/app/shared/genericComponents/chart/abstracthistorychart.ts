@@ -246,7 +246,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       ...(stack != null && { stack: stack.toString() }),
       maxBarThickness: 100,
       ...(element.borderDash != null && { borderDash: element.borderDash }),
-      yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId
+      yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
+      order: element.order ?? Number.MAX_VALUE
     };
     return dataset;
   }
@@ -511,7 +512,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               padding: 10
             },
             gridLines: {
-              display: true
+              display: element.displayGrid ?? true
             },
             ticks: {
               beginAtZero: true,
@@ -533,7 +534,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               fontSize: 11
             },
             gridLines: {
-              display: true
+              display: element.displayGrid ?? true
             },
             ticks: {
               beginAtZero: false
