@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { SharedModule } from './../../shared/shared.module';
 import { Common_Autarchy } from './common/autarchy/Common_Autarchy';
 import { Common_Consumption } from './common/consumption/Common_Consumption';
@@ -22,16 +23,16 @@ import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover
 import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io/ChannelSingleThreshold/modal/modal.component';
 import { Controller_Io_FixDigitalOutputComponent } from './Controller/Io/FixDigitalOutput/Io_FixDigitalOutput';
-import { Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io/FixDigitalOutput/modal/modal.component';
+import { ModalComponent as Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io/FixDigitalOutput/modal/modal.component';
 import { Controller_Io_HeatingElement } from './Controller/Io/HeatingElement/Io_HeatingElement';
 import { Controller_Io_HeatpumpComponent } from './Controller/Io/Heatpump/Io_Heatpump';
 import { Controller_Io_HeatpumpModalComponent } from './Controller/Io/Heatpump/modal/modal.component';
 import { Controller_Asymmetric_PeakShavingComponent } from './Controller/PeakShaving/Asymmetric/Asymmetric';
 import { Controller_Asymmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Asymmetric/modal/modal.component';
-import { Controller_Symmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric/modal/modal.component';
-import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
 import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/modal/modal.component';
 import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller/PeakShaving/Symmetric_TimeSlot/Symmetric_TimeSlot';
+import { Controller_Symmetric_PeakShavingModalComponent } from './Controller/PeakShaving/Symmetric/modal/modal.component';
+import { Controller_Symmetric_PeakShavingComponent } from './Controller/PeakShaving/Symmetric/Symmetric';
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';

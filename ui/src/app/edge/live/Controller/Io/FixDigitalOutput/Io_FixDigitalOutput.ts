@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.component';
+import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 
+import { ModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Io_FixDigitalOutput',
@@ -15,6 +15,8 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
 
   protected getChannelAddresses(): ChannelAddress[] {
     this.outputChannel = this.component.properties['outputChannelAddress'];
+
+    this.presentModal();
     return [ChannelAddress.fromString(this.outputChannel)];
   }
 
@@ -34,7 +36,7 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
       return;
     }
     const modal = await this.modalController.create({
-      component: Controller_Io_FixDigitalOutputModalComponent,
+      component: ModalComponent,
       componentProps: {
         component: this.component,
         edge: this.edge

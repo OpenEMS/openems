@@ -1,4 +1,5 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props">
+<oe-modal [title]="props.attributes.title" *ngIf="props.options" [component]="props.options[0].component"
+    [formGroup]="formGroup">
     <ng-container *ngFor="let entry of props.options">
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
@@ -27,6 +28,13 @@
                 <!-- OeFormlyField.HorizontalLine -->
                 <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
 
+                <ng-container *ngIf="formGroup.controls[line.controlName]">
+                    <oe-modal-buttons *ngSwitchCase="'buttons-line'" [formGroup]="props.options[0].formGroup"
+                        (setFormGroup)="setFormGroup($event)" [controlName]="line.controlName"
+                        [component]="props.options[0].component" [buttons]="line.buttons"
+                        [channelAddress]="line.channel">
+                    </oe-modal-buttons>
+                </ng-container>
             </ng-container>
         </ng-container>
     </ng-container>

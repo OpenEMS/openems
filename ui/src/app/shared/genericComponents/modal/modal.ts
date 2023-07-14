@@ -56,6 +56,7 @@ export class ModalComponent {
                 name: key,
                 value: this.formGroup.value[key]
             });
+            console.log("🚀 ~ file: modal.ts:59 ~ ModalComponent ~ applyChanges ~ updateComponentArray:", updateComponentArray)
         }
 
         if (this.edge) {
