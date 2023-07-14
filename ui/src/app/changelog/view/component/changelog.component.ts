@@ -32,9 +32,20 @@ export class ChangelogComponent implements OnInit {
   }
 
   public readonly changelogs: {
-    version: string,
+    title?: string,
+    version?: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
+      {
+        title: 'Online-Monitoring',
+        changes: [
+          Changelog.openems('2023.7.0'),
+          Changelog.UI,
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Verbesserungen an 'Channels' in den Einstellungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Übersicht wird immer angezeigt, wenn der Nutzer Zugriff auf mehr als ein FEMS hat (oder mindestens Installateur ist)" }
+        ]
+      },
       {
         version: '2023.6.2',
         changes: [

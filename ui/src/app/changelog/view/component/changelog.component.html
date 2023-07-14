@@ -11,9 +11,8 @@
           <ng-container
             *ngFor="let changelog of changelogs | slice:0:(showAll ? changelogs.length : slice);  let last = last;">
             <ion-row>
-              <ion-title>
-                Version {{ changelog.version }}
-              </ion-title>
+              <ion-title *ngIf="changelog.title">{{ changelog.title }}</ion-title>
+              <ion-title *ngIf="changelog.version">Version {{ changelog.version }}</ion-title>
             </ion-row>
             <ion-row>
               <ul>
