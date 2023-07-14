@@ -102,7 +102,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 0
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -134,19 +135,6 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 1
           },
 
-          // Sell to grid
-          {
-            name: translate.instant('General.gridSell'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridSellActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridSell'];
-            },
-            color: 'rgb(0,0,200)',
-            stack: 1
-          },
-
           // Discharge Power
           {
             name: translate.instant('General.dischargePower'),
@@ -161,6 +149,19 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(200,0,0)',
             stack: 2
+          },
+
+          // Sell to grid
+          {
+            name: translate.instant('General.gridSell'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/GridSellActiveEnergy'];
+            },
+            converter: () => {
+              return data['GridSell'];
+            },
+            color: 'rgb(0,0,200)',
+            stack: 1
           },
 
           // Buy from Grid
@@ -188,7 +189,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(253,197,7)',
             stack: 3,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 1
           }
         ];
       },
@@ -216,7 +218,8 @@ export class ChartComponent extends AbstractHistoryChart {
         (chartType === 'line' && {
           unit: YAxisTitle.PERCENTAGE,
           position: 'right',
-          yAxisId: ChartAxis.RIGHT
+          yAxisId: ChartAxis.RIGHT,
+          displayGrid: false
         })
       ]
     };
