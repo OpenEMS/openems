@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -21,7 +22,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
     ) {
         super(service);

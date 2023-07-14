@@ -118,6 +118,38 @@
     "authenticationFailed": "Fallo de autentificación",
     "user": "Usuario"
   },
+  "Register": {
+    "segment": {
+      "user": "Usuario",
+      "installer": "Instalador"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Datos de contacto",
+      "companyName": "Nombre de la empresa",
+      "firstname": "Nombre",
+      "lastname": "Apellido",
+      "street": "Calle | número de casa",
+      "zip": "Código postal",
+      "city": "Ciudad",
+      "country": "País",
+      "phone": "Número de teléfono",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "button": "Crear",
+    "errors": {
+      "requiredFields": "Por favor, rellene todos los campos",
+      "passwordNotEqual": "Las contraseñas no son iguales"
+    },
+    "success": "Registro realizado con éxito"
+  },
   "Edge": {
     "Index": {
       "EmergencyReserve": {

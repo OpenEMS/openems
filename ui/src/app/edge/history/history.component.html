@@ -7,8 +7,7 @@
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod.value"
-          [style.height]="energyChartHeight"></energy>
+        <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
@@ -25,7 +24,7 @@
           <consumptionWidget [period]="service.historyPeriod.value"></consumptionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <selfconsumptionWidget [period]="service.historyPeriod.value"></selfconsumptionWidget>
+          <selfconsumptionWidget></selfconsumptionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget></autarchyWidget>
@@ -96,7 +95,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfÃ¼gbar</ion-label>
           </ion-item>
           <ion-card-content>
             <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>

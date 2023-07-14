@@ -11,9 +11,6 @@ export class ModalLineComponent extends AbstractModalLine {
     @Input()
     protected leftColumnWidth: number;
 
-    /** ControlName for Form Field */
-    @Input() public controlName: string;
-
     /** ControlName for Toggle Button */
     @Input() protected control:
         { type: 'TOGGLE' } |
@@ -29,6 +26,6 @@ export class ModalLineComponent extends AbstractModalLine {
 
 export enum TextIndentation {
     NONE = '0%',
-    SIMPLE = '5%',
+    SINGLE = '5%',
     DOUBLE = '10%'
 }

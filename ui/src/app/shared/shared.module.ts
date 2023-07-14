@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
+
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
@@ -16,6 +17,7 @@ import { MeterModule } from './edge/meter/meter.module';
 import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
 import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
+import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
 import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
@@ -71,7 +73,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'formly-field-radio-with-image', component: FormlyFieldRadioWithImageComponent },
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
-        { name: 'panel', component: PanelWrapperComponent }
+        { name: 'panel', component: PanelWrapperComponent },
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -106,6 +109,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyFieldRadioWithImageComponent,
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyWrapperDefaultValueWithCasesComponent,
+    FormlyFieldModalComponent,
     PanelWrapperComponent
   ],
   exports: [
@@ -140,4 +144,11 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ]
 })
 
-export class SharedModule { }
+export class SharedModule {
+
+  public static injector: Injector;
+
+  constructor(private injector: Injector) {
+    SharedModule.injector = injector;
+  }
+}

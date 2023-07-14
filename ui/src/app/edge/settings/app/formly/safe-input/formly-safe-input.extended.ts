@@ -10,6 +10,7 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
     protected pathToDisplayValue: string;
+    protected displayType: 'string' | 'boolean' | 'number';
 
     constructor(
         private modalController: ModalController
@@ -19,6 +20,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
 
     ngOnInit(): void {
         this.pathToDisplayValue = this.props["pathToDisplayValue"];
+        this.displayType = this.props["displayType"] ?? 'string';
     }
 
     protected onSelectItem() {

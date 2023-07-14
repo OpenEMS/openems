@@ -1,6 +1,6 @@
 {
     "name": "openems-ui",
-    "version": "2023.7.0-SNAPSHOT",
+    "version": "2023.8.0-SNAPSHOT",
     "license": "AGPL-3.0",
     "private": true,
     "dependencies": {
@@ -20,7 +20,7 @@
         "angular-mydatepicker": "^0.11.5",
         "chart.js": "^2.9.4",
         "classlist.js": "^1.1.20150312",
-        "compare-versions": "^5.0.3",
+        "compare-versions": "^6.0.0",
         "d3": "^7.8.5",
         "date-fns": "^2.30.0",
         "file-saver-es": "^2.0.5",

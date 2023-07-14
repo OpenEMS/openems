@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
@@ -217,36 +218,6 @@ export class Utils {
       return formatNumber(value, 'de', '1.0-0') + ' W';
     } else {
       return '0 W';
-    }
-  };
-
-  /**
-   * Converts a value in Watt [W] to KiloWatt [kW].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_TO_VOLT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else if (value >= 0) {
-      return formatNumber(value / 1000, 'de', '1.0-0') + ' V';
-    } else {
-      return '0 V';
-    }
-  };
-
-  /**
-   * Converts a value in Milliampere [mA] to Ampere[A].
-   * 
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-  public static CONVERT_TO_CURRENT = (value: any): string => {
-    if (value == null) {
-      return '-';
-    } else {
-      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
     }
   };
 
@@ -563,6 +534,15 @@ export class Utils {
     }
   }
 }
+export enum YAxisTitle {
+  PERCENTAGE,
+  ENERGY
+}
+
+export enum ChartAxis {
+  LEFT = 'left',
+  RIGHT = 'right'
+}
 export namespace HistoryUtils {
 
   export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (data: number[]): number[] | null[] => {
@@ -583,10 +563,6 @@ export namespace HistoryUtils {
     }];
   }
 
-  export enum YAxisTitle {
-    PERCENTAGE,
-    ENERGY
-  }
   export type InputChannel = {
 
     /** Must be unique, is used as identifier in {@link ChartData.input} */
@@ -610,8 +586,20 @@ export namespace HistoryUtils {
     /** color in rgb-Format */
     color: string,
     /** the stack for barChart */
-    stack?: number,
+    stack?: number | number[],
+    /** False per default */
+    hideLabelInLegend?: boolean,
+    /** Borderstyle of label in legend */
+    borderDash?: number[],
+    /** axisId from yAxes  */
+    yAxisId?: ChartAxis,
+    customUnit?: YAxisTitle,
+    tooltip?: [{
+      afterTitle: (channelData?: { [name: string]: number[] }) => string,
+      stackIds: number[]
+    }]
   }
+
   /**
  * Data from a subscription to Channel or from a historic data query.
  * 
@@ -629,20 +617,25 @@ export namespace HistoryUtils {
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,
-      afterTitle?: string
+      afterTitle?: (stack: string) => string,
     },
+    yAxes: yAxes[],
+  }
+
+  export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
+    position: 'left' | 'right' | 'bottom' | 'top',
+    yAxisId: ChartAxis
   }
 
   export namespace ValueConverter {
 
     export const NEGATIVE_AS_ZERO = (value) => {
-      if (value > 0) {
-        return value;
-      } else {
-        return 0;
+      if (value == null) {
+        return null;
       }
+      return Math.max(0, value);
     };
 
     export const NON_NEGATIVE = (value) => {
@@ -658,6 +651,14 @@ export namespace HistoryUtils {
         return value;
       } else {
         return 0;
+      }
+    };
+
+    export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
+      if (value == null) {
+        return null;
+      } else {
+        return Math.abs(Math.min(0, value));
       }
     };
   }

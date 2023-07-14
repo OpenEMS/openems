@@ -374,6 +374,8 @@
         }
       },
       "App": {
+        "NAME": "App Center",
+        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
         "header": "The App Manager is currently in a first test version.",
         "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
         "installed": "Installed",
@@ -388,7 +390,7 @@
         "errorCompatible": "Compatibility errors",
         "notAvailable": "Not available",
         "Key": {
-          "enterKey": "Enter the license key you received when you ordered the app here",
+          "enterKey": "Enter the license key you received with the order of the app",
           "useRegisteredKey": "Redeem already registered licence key?",
           "registeredKey": "Registered licence keys",
           "successRegisterKey": "successfully registered Key",
@@ -402,7 +404,8 @@
           "invalid": "licence key is invalid",
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
           "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
-          "invalidPattern": "Input is invalid"
+          "invalidPattern": "Input is invalid",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Note</span>: When entering the licence key, watch out for possible typos: <ul><li>small L \"l\" vs. capital i \"I\" </li><li>zero \"0\" vs. capital o \"O\"</li></ul>We always recommend copying the licence key from the delivery note and pasting it into the field above instead of typing it in manually.<br>"
         },
         "successInstall": "Successfully installed App",
         "failInstall": "Error installing App '{{error}}'",
@@ -583,9 +586,41 @@
     "loggedInAs": "Logged in as '{{ value }}'."
   },
   "Register": {
+    "title": "Create account",
+    "segment": {
+      "user": "User",
+      "installer": "Installer"
+    },
     "Form": {
-      "firstname": "First name"
-    }
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Contact Details",
+      "companyName": "Company name",
+      "firstname": "First name",
+      "lastname": "Last name",
+      "street": "Street",
+      "zip": "Postal code",
+      "city": "City",
+      "country": "Country",
+      "phone": "Phone number",
+      "email": "E-Mail",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "company": "Company",
+      "confirmEmail": "confirm E-Mail"
+    },
+    "button": "Create",
+    "errors": {
+      "requiredFields": "Please fill in all fields",
+      "passwordNotEqual": "Passwords are not equal",
+      "emailNotEqual": "E-Mails are not equal"
+    },
+    "success": "Registration successful",
+    "createUser": "Create installer account"
   },
   "Role": {
     "guest": "Guest",
@@ -606,5 +641,16 @@
       "UPDATE_SEARCH": "Checking for updates...",
       "UPDATE_TIME": "(This can take up to 10 minutes)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Save Configuration",
+    "SAVE_DESCRIPTION": "Saving the configuration will overwrite the existing one for this {{edgeShortName}} and will be applied on page reload.",
+    "Component": "Component",
+    "ADD_CHANNEL": "Add Channel",
+    "ADD": "Add",
+    "VALUE": "Value",
+    "SET_VALUE": "Set value",
+    "MORE_CHANNELS": "Add More Channels",
+    "CHANNEL": "Channel"
   }
 }
