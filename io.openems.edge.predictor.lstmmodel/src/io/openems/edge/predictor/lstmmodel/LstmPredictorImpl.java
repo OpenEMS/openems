@@ -2,9 +2,13 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -16,7 +20,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+import com.google.gson.JsonElement;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -26,8 +34,8 @@ import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
-import io.openems.edge.predictor.lstmmodel.util.makeMultipleModel;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
+import io.openems.edge.timedata.api.Timedata;
 
 //import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
 
@@ -42,9 +50,9 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 	private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
 
 	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::convertListIntegerToListDouble;
-//
-//	@Reference
-//	private Timedata timedata;
+
+	@Reference
+	private Timedata timedata;
 
 	protected Config config;
 
@@ -58,6 +66,14 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				LstmPredictor.ChannelId.values() //
 
 		);
+		
+//		double minOfTrainingData = -1255.666667;
+//		double maxOfTrainingData = 10694.0;
+//		
+//		//makeMultipleModel models = new makeMultipleModel();
+//		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
+//		System.out.println(predict.predictedAndScaledBack);
+//		System.out.println(predict.dataShouldBe);
 
 	}
 
@@ -82,43 +98,43 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
 
-//		var nowDate = ZonedDateTime.now(this.componentManager.getClock());
-//		// From now time to Last 4 weeks
-//		var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
-//
-//		System.out.println("From date : " + fromDate //
-//				+ "to current date : " + nowDate //
-//				+ " equals to : " + zonedDateTimeDifference(fromDate, nowDate, ChronoUnit.DAYS) + " days");
-//
-//		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
-//
-//		// Query database
-//		try {
-//			queryResult = this.timedata.queryHistoricData(null, fromDate, nowDate, Sets.newHashSet(channelAddress),
-//					new Resolution(15, ChronoUnit.MINUTES));
-//		} catch (OpenemsNamedException e) {
-//			this.logError(this.log, e.getMessage());
-//			e.printStackTrace();
-//			return Prediction24Hours.EMPTY;
-//		}
-//
-//		// Extract data
-//		List<Integer> data = queryResult.values().stream() //
-//				.map(SortedMap::values) //
-//				.flatMap(Collection::stream) //
-//				.map(v -> {
-//					if (v.isJsonNull()) {
-//						return (Integer) null;
-//					}
-//					return v.getAsInt();
-//				}).collect(Collectors.toList());
-//
-//		if (isAllNulls(data)) {
-//			System.out.println("Data is all null, use different predictor");
-//			return null;
-//		}
-//
-//		System.out.println("adsfgsad" + data);
+		var nowDate = ZonedDateTime.now(this.componentManager.getClock());
+		// From now time to Last 4 weeks
+		var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
+
+		System.out.println("From date : " + fromDate //
+				+ "to current date : " + nowDate //
+				+ " equals to : " + zonedDateTimeDifference(fromDate, nowDate, ChronoUnit.DAYS) + " days");
+
+		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
+
+		// Query database
+		try {
+			queryResult = this.timedata.queryHistoricData(null, fromDate, nowDate, Sets.newHashSet(channelAddress),
+					new Resolution(15, ChronoUnit.MINUTES));
+		} catch (OpenemsNamedException e) {
+			this.logError(this.log, e.getMessage());
+			e.printStackTrace();
+			return Prediction24Hours.EMPTY;
+		}
+
+		// Extract data
+		List<Integer> data = queryResult.values().stream() //
+				.map(SortedMap::values) //
+				.flatMap(Collection::stream) //
+				.map(v -> {
+					if (v.isJsonNull()) {
+						return (Integer) null;
+					}
+					return v.getAsInt();
+				}).collect(Collectors.toList());
+
+		if (isAllNulls(data)) {
+			System.out.println("Data is all null, use different predictor");
+			return null;
+		}
+
+		System.out.println("adsfgsad" + data);
 //
 //		ArrayList<Double> doubleListData = new ArrayList<>();
 //		
@@ -210,16 +226,12 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		// x[][] = makeMultipleModel();
 
 		// ToDo: make this dynamic
-		double minOfTrainingData = -1255.666667;
-		double maxOfTrainingData = 10694.0;
+		
 
 		ZonedDateTime t1 = ZonedDateTime.now();
 		ZonedDateTime t2 = ZonedDateTime.now();
 
-		makeMultipleModel models = new makeMultipleModel();
-		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
-		System.out.println(predict.predictedAndScaledBack);
-		System.out.println(predict.dataShouldBe);
+		
 
 		return null;
 

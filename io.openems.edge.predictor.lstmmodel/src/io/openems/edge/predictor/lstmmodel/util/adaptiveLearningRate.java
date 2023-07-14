@@ -65,6 +65,11 @@ public class adaptiveLearningRate {
 
 		if (i == 0) {
 			localLearningRate = globalLearningRate / Math.pow(Math.pow(gradient, 2), 0.5);
+			if (Math.pow(Math.pow(gradient, 2), 0.5) == 0) {
+				// System.out.println("G");
+				return globalLearningRate;
+			}
+			// System.out.println("l");
 			return localLearningRate;
 
 		}
@@ -73,25 +78,24 @@ public class adaptiveLearningRate {
 			double temp1 = globalLearningRate / localLearningRate;
 			double temp2 = Math.pow(temp1, 2);
 			double temp3 = temp2 + Math.pow(gradient, 2);
-			if (temp3 == 0) {
-				if (globalLearningRate == Double.NaN || localLearningRate == 0.0) {
-					System.out.println(i + " " + localLearningRate);
-				}
+			if (localLearningRate == 0) {
+				// System.out.println("G");
 
-				return localLearningRate;
-			} else {
-				localLearningRate = globalLearningRate / Math.pow(temp3, 0.5);
+				return globalLearningRate;
 
-				if (localLearningRate == Double.NaN || localLearningRate == 0.0) {
-					System.out.println(i + " " + localLearningRate);
-				}
-				return localLearningRate;
+			}
+			localLearningRate = globalLearningRate / Math.pow(temp3, 0.5);
+			if (temp3 < 0) {
+				// System.out.println("G");
+				return globalLearningRate;
 			}
 
+			// System.out.println("l");
+			return localLearningRate;
 		}
 
 	}
-	
+
 //	double adagradOptimizer1(double globalLearningRate, double localLearningRate, double gradient, int i) {
 //
 //		if (i == 0) {

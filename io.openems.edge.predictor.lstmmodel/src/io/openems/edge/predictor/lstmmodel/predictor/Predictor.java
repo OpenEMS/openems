@@ -1,3 +1,4 @@
+
 package io.openems.edge.predictor.lstmmodel.predictor;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Predictor {
 //		System.out.println("ri:"+Ro.size());
 //		System.out.println("rz:"+Rz.size());
 		//System.out.println("wi:"+wi.size());
+		System.out.println(val.size());
 		ArrayList<Double>result = new ArrayList<Double>();
 		for (int i = 0; i < inputData.size(); i++) {
 			//System.out.println(val.get(i));

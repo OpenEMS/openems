@@ -19,7 +19,7 @@ public class Engine implements EngineDriver {
 	private double learningRate;
 	public Lstm generalLstm;
 
-	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
+	public ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 
 	public ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
@@ -29,7 +29,7 @@ public class Engine implements EngineDriver {
 	 * 
 	 * @param epochs Number of times the forward and backward propagation.
 	 */
-	public void fit(int epochs,ArrayList<ArrayList<Double>> val) {
+	public void fit(int epochs, ArrayList<ArrayList<Double>> val) {
 
 		ArrayList<ArrayList<Double>> wieghtMatrix = new ArrayList<ArrayList<Double>>();
 
@@ -51,9 +51,8 @@ public class Engine implements EngineDriver {
 		ls.setRo(val);
 		ls.setRz(val);
 		ls.setCt(val);
-		ls.setYt(val);		
-	
-	
+		ls.setYt(val);
+//	
 
 		wieghtMatrix = ls.train();
 
@@ -89,7 +88,7 @@ public class Engine implements EngineDriver {
 			wieghtMatrix = ls.train();
 			this.weights.add(wieghtMatrix);
 
-			int percentage = 90;
+			// int percentage = 90;
 			// this.earlyStop(percentage, wieghtMatrix);
 			if (this.weights
 					.size() == this.validatorCounter/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
@@ -101,9 +100,10 @@ public class Engine implements EngineDriver {
 			}
 
 		}
-		int ind = this.selectWeight(this.bestWeights);
-		wieghtMatrix.clear();
-		this.finalWeight = this.bestWeights.get(ind);
+		// int ind = this.selectWeight(this.bestWeights);
+
+		// wieghtMatrix.clear();
+		// this.finalWeight = this.bestWeights.get(ind);
 	}
 
 //	/**
@@ -330,7 +330,7 @@ public class Engine implements EngineDriver {
 			this.validatorCounter = validatorCounter;
 			return this;
 		}
-		
+
 //		public EngineBuilder  setWi() {
 //			return this;
 //		}
@@ -344,6 +344,6 @@ public class Engine implements EngineDriver {
 	@Override
 	public void fit(int epochs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

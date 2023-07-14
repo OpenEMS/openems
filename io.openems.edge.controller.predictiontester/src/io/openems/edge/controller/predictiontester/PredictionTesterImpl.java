@@ -56,6 +56,7 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		try {
 			Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_CONSUMPTION).getValues();
+			System.out.println();
 			System.out.println(predictedProduction == null ? "null data" : Arrays.toString(predictedProduction));
 		} catch (Exception e) {
 			e.printStackTrace();

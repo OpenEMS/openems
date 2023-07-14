@@ -12,9 +12,9 @@ public class ReadModel {
 
 	public ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
-	public ArrayList<ArrayList<Double>> getFinalWeight(String fileName) {
+	public ArrayList<ArrayList<Double>> getFinalWeight() {
 		try {
-			String relativePath = "\\testResults\\" + fileName;
+			String relativePath ="\\testResults\\model.txt";
 			String actualPath = new File(".").getCanonicalPath() + relativePath;
 			BufferedReader br = new BufferedReader(new FileReader(actualPath));
 

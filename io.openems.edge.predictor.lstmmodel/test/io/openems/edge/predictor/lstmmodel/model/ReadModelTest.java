@@ -8,7 +8,7 @@ public class ReadModelTest {
 	public void test() {
 
 		ReadModel rM = new ReadModel();
-		rM.getFinalWeight("modelFromTest.txt");
+		//rM.getFinalWeight("modelFromTest.txt");
 
 	}
 

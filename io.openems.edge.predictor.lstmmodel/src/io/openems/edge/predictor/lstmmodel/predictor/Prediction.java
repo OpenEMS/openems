@@ -9,6 +9,7 @@ import io.openems.edge.predictor.lstmmodel.preprocessing.RMSErrorCalculator;
 //import com.example.LstmPredictorImpl.Predictor;
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstmmodel.predictor.ScaleBack;
+import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
 import io.openems.edge.predictor.lstmmodel.predictor.Preprocessing;
 
 public class Prediction {
@@ -30,6 +31,7 @@ public class Prediction {
 		//ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
 
 		Data obj = new Data(10);
+		ReadModels obj5 = new ReadModels();
 		
 
 		ArrayList<Double> dataToPredict = obj.sevenDaysData;
@@ -94,7 +96,9 @@ public class Prediction {
 	/**
 		 * Make prediction
 		 */
-		predicted = Predictor.Predict(dataGroupedByMinute1, obj.model.dataList);
+		System.out.println(obj5.allModel);
+		predicted = Predictor.Predict(dataGroupedByMinute1, obj5.allModel.get(obj5.allModel.size()-1));
+		
 		
 
 		/**

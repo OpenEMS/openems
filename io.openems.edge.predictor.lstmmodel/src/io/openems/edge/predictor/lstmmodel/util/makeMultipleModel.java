@@ -1,4 +1,5 @@
 package io.openems.edge.predictor.lstmmodel.util;
+import io.openems.edge.predictor.lstmmodel.validation.Validation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,13 +9,13 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
+import io.openems.edge.predictor.lstmmodel.model.SaveModel;
 import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessingImpl;
 import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
 import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
-import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
 import io.openems.edge.predictor.lstmmodel.preprocessing.Suffle;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
-
+import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
 /**
  * 
  * @author bishal.ghimire class to make 96 model
@@ -29,7 +30,7 @@ public class makeMultipleModel {
 	ArrayList<OffsetDateTime> dates;
 	ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 	ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
-	ArrayList<ArrayList<ArrayList<Double>>> weightMatrix = new ArrayList<ArrayList<ArrayList<Double>>>();
+	ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 	ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
 	ArrayList<ArrayList<Double>> weight2 = new ArrayList<ArrayList<Double>>();
    
@@ -42,7 +43,7 @@ public class makeMultipleModel {
 
 	public makeMultipleModel() {
 		// weight1 =  generateInitialWeightMatrix(7);
-		 weight2 =  generateInitialWeightMatrix(7);
+		ReadModels mo =  new ReadModels();
 
 		ReadCsv csv = new ReadCsv();
 		values = csv.data;
@@ -52,6 +53,8 @@ public class makeMultipleModel {
 		 */
 		InterpolationManager inter = new InterpolationManager(values); // The result of interpolation is in
 																		// inter.interpolated
+		
+		
 		/**
 		 * Grouping the interpolated data by hour
 		 */
@@ -66,6 +69,7 @@ public class makeMultipleModel {
 		 */
 
 		for (int i = 0; i < groupAsHour.groupedDataByHour.size(); i++) {
+			
 			GroupBy groupAsMinute = new GroupBy(groupAsHour.groupedDataByHour.get(i),
 					groupAsHour.groupedDateByHour.get(i));
 			groupAsMinute.minute();
@@ -77,6 +81,8 @@ public class makeMultipleModel {
 		 */
 		ArrayList<ArrayList<ArrayList<Double>>> allModel = new ArrayList<ArrayList<ArrayList<Double>>>();
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
+			System.out.println("");
+			System.out.println(i+1+"/"+dataGroupedByMinute.size());
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
 				int windowsSize = 7;
 				PreProcessingImpl preprocessing = new PreProcessingImpl(dataGroupedByMinute.get(i).get(j), windowsSize);
@@ -110,11 +116,11 @@ public class makeMultipleModel {
 							.setTargetVector(obj1.target) //
 							.setValidateData(obj2.data) //
 							.setValidateTarget(obj2.target) //
-							.setValidatorCounter(60)//
+							.setValidatorCounter(2500)//
 							.build();
 				
 
-					int epochs = 1000;
+					int epochs = 5000;
 //					if (i==0 && j==0) {
 //					
 //						
@@ -137,13 +143,28 @@ public class makeMultipleModel {
 //					
 //
 //				}
-					//System.out.println(weight1.size());
+					//System.out.println(mo.allModel.get(mo.allModel.size()-1).get(j));
 					
-					model.fit(epochs,weight2);
 					
-					weight1 = model.finalWeight;
-					weightMatrix.add(model.finalWeight);
+					model.fit(epochs,mo.allModel.get(mo.allModel.size()-1).get(j));
 					
+					weight1 = model.weights.get(model.weights.size()-1);
+					//weight2=weight1;
+					weightMatrix.add(model.weights);
+					/*
+					 * checking condition for validation
+					 * This can be modified
+					 */
+//					if (weightMatrix.size()>=75) {
+//						SaveModel save =new SaveModel();
+//						save.saveModels(weightMatrix);
+//
+//					
+//						Validation obj3 = new Validation();
+//						ReadModels obj4 = new ReadModels();
+//						weightMatrix = obj4.allModel;
+//						
+//					}
 					
 				}
 
@@ -151,6 +172,8 @@ public class makeMultipleModel {
 					e.printStackTrace();
 
 				}
+				
+				
 			}
 
 			/**
@@ -158,35 +181,44 @@ public class makeMultipleModel {
 			 */
 
 		}
+		SaveModel save1 =new SaveModel();
+		save1.saveModels(weightMatrix);
+		
+		//Validation obj3 = new Validation();
+		//ReadModels obj4 = new ReadModels();
+		//weightMatrix = obj4.allModel;
+		
+//		SaveModel save =new SaveModel();
+//		save.saveModels(weightMatrix);
 
-		saveModel(weightMatrix);
+		//saveModel(weightMatrix);
 		System.out.println("Model Saved");
 	}
 
-	public void saveModel(ArrayList<ArrayList<ArrayList<Double>>> weightMatrix) {
-		// String path="C:\\Users\\bishal.ghimire\\Desktop\\data\\model.txt";
-		try {
-			String filename = "\\testResults\\model.txt";
-			String path = new File(".").getCanonicalPath() + filename;
-			FileWriter fw = new FileWriter(path);
-			BufferedWriter bw = new BufferedWriter(fw);
+//	public void saveModel(ArrayList<ArrayList<ArrayList<Double>>> weightMatrix) {
+//		// String path="C:\\Users\\bishal.ghimire\\Desktop\\data\\model.txt";
+//		try {
+//			String filename = "\\testResults\\model.txt";
+//			String path = new File(".").getCanonicalPath() + filename;
+//			FileWriter fw = new FileWriter(path);
+//			BufferedWriter bw = new BufferedWriter(fw);
+//
+//			for (ArrayList<ArrayList<Double>> innerList : weightMatrix) {
+//				for (ArrayList<Double> innerInnerList : innerList) {
+//					for (Double value : innerInnerList) {
+//						bw.write(value.toString() + " ");
+//					}
+//					bw.newLine();
+//				}
+//				bw.newLine();
+//			}
+//
+//			bw.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
-			for (ArrayList<ArrayList<Double>> innerList : weightMatrix) {
-				for (ArrayList<Double> innerInnerList : innerList) {
-					for (Double value : innerInnerList) {
-						bw.write(value.toString() + " ");
-					}
-					bw.newLine();
-				}
-				bw.newLine();
-			}
-
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
+	
 public ArrayList<ArrayList<Double>> generateInitialWeightMatrix(int windowSize){
 	ArrayList<ArrayList<Double>> initialWeight = new ArrayList<ArrayList<Double>>();
 	ArrayList<Double> temp1 = new ArrayList<Double>();
@@ -207,8 +239,8 @@ public ArrayList<ArrayList<Double>> generateInitialWeightMatrix(int windowSize){
 		double ri=1.00;
 		double ro=1.00;
 		double rz=1.00;
-		double ct = 0.00;
-		double yt=0.00;
+		double ct=1.00;
+		double yt=1.00;
 		
 		temp1.add(wi);
 		temp2.add(wo);

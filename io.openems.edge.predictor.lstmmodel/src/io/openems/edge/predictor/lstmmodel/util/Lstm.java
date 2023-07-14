@@ -165,7 +165,7 @@ public class Lstm {
 		ArrayList<Double> err = new ArrayList<Double>();
 		err.add(mW.errorList.get(ind));
 
-		returnArray.add(err);
+		//returnArray.add(err);
 		return returnArray;
 
 	}

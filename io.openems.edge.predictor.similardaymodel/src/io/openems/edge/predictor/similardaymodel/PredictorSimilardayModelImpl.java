@@ -121,6 +121,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 				// get as Array
 				.toList();
 
+		List<ZonedDateTime> result1 = queryResult.keySet().stream().toList();
 		// Num of Data per day
 		// TODO change this variable based on the resolution which is 900 in query
 		var numOfDataPerDay = 96;
@@ -132,7 +133,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
-		
+
 		Integer[] res = nextOneDayPredictions.stream().toArray(Integer[]::new);
 		System.out.println(res.length);
 

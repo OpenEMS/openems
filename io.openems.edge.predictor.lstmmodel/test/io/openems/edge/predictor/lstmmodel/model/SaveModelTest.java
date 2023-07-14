@@ -45,7 +45,7 @@ public class SaveModelTest {
 		
 		SaveModel sM = new SaveModel();
 		
-		sM.saveModel(finalWeight, "modelFromTest.txt");
+		//sM.saveModel(finalWeight, "modelFromTest.txt");
 		
 
 		

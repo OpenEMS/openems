@@ -2,6 +2,7 @@ package io.openems.edge.predictor.lstmmodel;
 
 import static org.junit.Assert.assertEquals;
 
+
 import java.awt.Color;
 import java.io.IOException;
 import java.time.Instant;
@@ -12,6 +13,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import io.openems.edge.predictor.lstmmodel.LstmPredictorImpl;
+import io.openems.edge.predictor.lstmmodel.util.makeMultipleModel;
+import io.openems.edge.predictor.lstmmodel.validation.Validation;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -29,13 +32,18 @@ public class LstmModelPredictorTest {
 //
 	@Test
 	public void test() throws Exception {
-		LstmPredictorImpl obj1 = new LstmPredictorImpl();
+		
+		
+		//makeMultipleModel obj = new makeMultipleModel();
+		Validation obj1 = new Validation();
+		LstmPredictorImpl obj5 = new LstmPredictorImpl ();
+	
 		
 //
 //		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 //				ZoneOffset.UTC);
 //
-//		var values = Data.data;
+//	     var values = Data.data;
 		
 		
 //
