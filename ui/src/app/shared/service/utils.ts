@@ -597,7 +597,9 @@ export namespace HistoryUtils {
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
-    }]
+    }],
+    /** The smaller the number, the further forward it is displayed */
+    order?: number
   }
 
   /**
@@ -626,17 +628,18 @@ export namespace HistoryUtils {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
     position: 'left' | 'right' | 'bottom' | 'top',
-    yAxisId: ChartAxis
+    yAxisId: ChartAxis,
+    /** Default: true */
+    displayGrid?: boolean
   }
 
   export namespace ValueConverter {
 
     export const NEGATIVE_AS_ZERO = (value) => {
-      if (value > 0) {
-        return value;
-      } else {
-        return 0;
+      if (value == null) {
+        return null;
       }
+      return Math.max(0, value);
     };
 
     export const NON_NEGATIVE = (value) => {

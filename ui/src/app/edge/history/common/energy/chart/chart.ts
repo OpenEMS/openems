@@ -36,34 +36,26 @@ export class ChartComponent extends AbstractHistoryChart {
               powerChannel: new ChannelAddress('_sum', 'GridActivePower'),
               energyChannel: new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
               ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO })
-            },
-              {
-                name: 'GridSell',
-                powerChannel: new ChannelAddress('_sum', 'GridActivePower'),
-                energyChannel: new ChannelAddress('_sum', 'GridSellActiveEnergy'),
-                ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE })
-              });
+            }, {
+              name: 'GridSell',
+              powerChannel: new ChannelAddress('_sum', 'GridActivePower'),
+              energyChannel: new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+              ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE })
+            });
             break;
           case 'Storage':
-            newObj.push(
-              {
-                name: 'EssSoc',
-                powerChannel: new ChannelAddress('_sum', 'EssSoc')
-              },
-              {
-                name: 'EssActivePower',
-                powerChannel: new ChannelAddress('_sum', 'EssActivePower')
-              },
-              {
-                name: 'EssCharge',
-                powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
-                energyChannel: new ChannelAddress('_sum', 'EssDcChargeEnergy')
-              },
-              {
-                name: 'EssDischarge',
-                powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
-                energyChannel: new ChannelAddress('_sum', 'EssDcDischargeEnergy')
-              });
+            newObj.push({
+              name: 'EssSoc',
+              powerChannel: new ChannelAddress('_sum', 'EssSoc')
+            }, {
+              name: 'EssCharge',
+              powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
+              energyChannel: new ChannelAddress('_sum', 'EssDcChargeEnergy')
+            }, {
+              name: 'EssDischarge',
+              powerChannel: new ChannelAddress('_sum', 'EssActivePower'),
+              energyChannel: new ChannelAddress('_sum', 'EssDcDischargeEnergy')
+            });
             break;
           case 'Common_Selfconsumption':
           case 'Common_Production':
@@ -71,13 +63,11 @@ export class ChartComponent extends AbstractHistoryChart {
               name: 'ProductionActivePower',
               powerChannel: new ChannelAddress('_sum', 'ProductionActivePower'),
               energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy')
-            },
-              {
-                name: 'ProductionDcActual',
-                powerChannel: new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy')
-              }
-            );
+            }, {
+              name: 'ProductionDcActual',
+              powerChannel: new ChannelAddress('_sum', 'ProductionDcActualPower'),
+              energyChannel: new ChannelAddress('_sum', 'ProductionActiveEnergy')
+            });
             break;
         }
 
@@ -112,7 +102,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 1
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -125,7 +116,8 @@ export class ChartComponent extends AbstractHistoryChart {
               data['ProductionActivePower']?.map((value, index) =>
                 value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
-            stack: [1, 2]
+            stack: [1, 2],
+            order: 2
           }],
 
           // Charge Power
@@ -136,12 +128,30 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             converter: () => {
               return chartType === 'line' ?
-                data['ProductionDcActual']?.map((value, index) => {
-                  return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(data['EssCharge']?.[index], value));
+                data['EssCharge']?.map((value, index) => {
+                  return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
                 }) : data['EssCharge'];
             },
             color: 'rgb(0,223,0)',
-            stack: 1
+            stack: 1,
+            order: 6
+          },
+
+          // Discharge Power
+          {
+            name: translate.instant('General.dischargePower'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/EssDcDischargeEnergy'];
+            },
+            converter: () => {
+              return chartType === 'line' ?
+                data['EssDischarge']?.map((value, index) => {
+                  return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+                }) : data['EssDischarge'];
+            },
+            color: 'rgb(200,0,0)',
+            stack: 2,
+            order: 5
           },
 
           // Sell to grid
@@ -154,23 +164,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridSell'];
             },
             color: 'rgb(0,0,200)',
-            stack: 1
-          },
-
-          // Discharge Power
-          {
-            name: translate.instant('General.dischargePower'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/EssDcDischargeEnergy'];
-            },
-            converter: () => {
-              return chartType === 'line' ?
-                data['ProductionDcActual']?.map((value, index) => {
-                  return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(data['EssDischarge']?.[index], value));
-                }) : data['EssDischarge'];
-            },
-            color: 'rgb(200,0,0)',
-            stack: 2
+            stack: 1,
+            order: 4
           },
 
           // Buy from Grid
@@ -183,7 +178,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridBuy'];
             },
             color: 'rgb(0,0,0)',
-            stack: 2
+            stack: 2,
+            order: 2
           },
 
           // Consumption
@@ -198,7 +194,8 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(253,197,7)',
             stack: 3,
             hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            noStrokeThroughLegendIfHidden: false,
+            order: 0
           }
         ];
       },
@@ -226,7 +223,8 @@ export class ChartComponent extends AbstractHistoryChart {
         (chartType === 'line' && {
           unit: YAxisTitle.PERCENTAGE,
           position: 'right',
-          yAxisId: ChartAxis.RIGHT
+          yAxisId: ChartAxis.RIGHT,
+          displayGrid: false
         })
       ]
     };

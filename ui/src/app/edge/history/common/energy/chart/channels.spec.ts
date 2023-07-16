@@ -58,7 +58,7 @@ export namespace History {
               "padding": 10
             },
             "gridLines": {
-              "display": true
+              "display": false
             },
             "ticks": {
               "beginAtZero": true,
