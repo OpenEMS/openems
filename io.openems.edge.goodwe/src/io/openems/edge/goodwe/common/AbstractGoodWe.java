@@ -86,8 +86,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	protected final ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		var protocol = new ModbusProtocol(this, //
 
-				// TODO should this be ReadElementOnce to be available quicker at start? Or
-				// change Priority after first read.
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
