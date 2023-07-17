@@ -961,8 +961,8 @@ public class BatterySoltaroSingleRackVersionBImpl extends AbstractOpenemsModbusC
 	private void createDynamicChannels(int numberOfModules) {
 		try {
 			for (var i = 0; i < numberOfModules; i++) {
-				var ameVolt = new ModbusElement<?>[SENSORS_PER_MODULE];
-				var ameTemp = new ModbusElement<?>[SENSORS_PER_MODULE];
+				var ameVolt = new ModbusElement<?, ?>[SENSORS_PER_MODULE];
+				var ameTemp = new ModbusElement<?, ?>[SENSORS_PER_MODULE];
 				for (var j = 0; j < SENSORS_PER_MODULE; j++) {
 					var sensor = i * SENSORS_PER_MODULE + j;
 					{

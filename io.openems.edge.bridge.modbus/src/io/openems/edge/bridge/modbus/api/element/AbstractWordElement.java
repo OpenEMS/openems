@@ -19,7 +19,8 @@ import io.openems.common.types.OpenemsType;
  * @param <SELF> the subclass of myself
  * @param <T>    the target type
  */
-public abstract class AbstractWordElement<SELF, T> extends AbstractModbusRegisterElement<SELF, T> {
+public abstract class AbstractWordElement<SELF extends ModbusElement<SELF, T>, T>
+		extends ModbusRegisterElement<SELF, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 

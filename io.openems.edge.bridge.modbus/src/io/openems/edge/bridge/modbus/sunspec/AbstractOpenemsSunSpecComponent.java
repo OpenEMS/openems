@@ -21,7 +21,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -283,7 +282,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		var elements = new ModbusElement<?>[model.points().length];
+		var elements = new ModbusElement<?, ?>[model.points().length];
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
@@ -361,7 +360,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @throws OpenemsException on error
 	 */
 	@SafeVarargs
-	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(AbstractModbusElement<?, T>... elements)
+	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(ModbusElement<?, T>... elements)
 			throws OpenemsException {
 		// Register listeners for elements
 		@SuppressWarnings("unchecked")

@@ -46,7 +46,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -238,23 +237,23 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsException on error
 	 */
 	protected void createProtocolFromModules(List<FieldbusModule> modules) throws OpenemsException {
-		List<ModbusCoilElement> readCoilElements0 = new ArrayList<>();
-		List<ModbusCoilElement> readCoilElements512 = new ArrayList<>();
+		List<CoilElement> readCoilElements0 = new ArrayList<>();
+		List<CoilElement> readCoilElements512 = new ArrayList<>();
 		for (FieldbusModule module : modules) {
 			Collections.addAll(readCoilElements0, module.getInputCoil0Elements());
 			Collections.addAll(readCoilElements512, module.getInputCoil512Elements());
-			for (ModbusCoilElement element : module.getOutputCoil512Elements()) {
+			for (CoilElement element : module.getOutputCoil512Elements()) {
 				var writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
 		if (!readCoilElements0.isEmpty()) {
-			this.protocol.addTask(new FC1ReadCoilsTask(0, Priority.LOW,
-					readCoilElements0.stream().toArray(ModbusCoilElement[]::new)));
+			this.protocol.addTask(
+					new FC1ReadCoilsTask(0, Priority.LOW, readCoilElements0.stream().toArray(CoilElement[]::new)));
 		}
 		if (!readCoilElements512.isEmpty()) {
-			this.protocol.addTask(new FC1ReadCoilsTask(512, Priority.LOW,
-					readCoilElements512.stream().toArray(ModbusCoilElement[]::new)));
+			this.protocol.addTask(
+					new FC1ReadCoilsTask(512, Priority.LOW, readCoilElements512.stream().toArray(CoilElement[]::new)));
 		}
 	}
 

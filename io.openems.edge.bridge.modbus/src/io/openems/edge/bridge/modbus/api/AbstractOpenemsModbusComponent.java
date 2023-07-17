@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
@@ -260,7 +260,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
 	 * the value forward and backwards.
 	 */
-	public class ChannelMapper<ELEMENT extends AbstractModbusElement<?, ?>> {
+	public class ChannelMapper<ELEMENT extends ModbusElement<?, ?>> {
 
 		private final ELEMENT element;
 		private final Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
@@ -349,7 +349,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						// dynamically get the Converter; this allows the converter to be changed
 						var converter = this.channelMaps.get(channel);
 						var convertedValue = converter.channelToElement(value);
-						if (this.element instanceof ModbusRegisterElement<?> registerElement) {
+						if (this.element instanceof ModbusRegisterElement<?, ?> registerElement) {
 							try {
 								registerElement.setNextWriteValue(Optional.ofNullable(convertedValue));
 							} catch (OpenemsException | IllegalArgumentException e) {
@@ -364,7 +364,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 									e.printStackTrace();
 								}
 							}
-						} else if (this.element instanceof ModbusCoilElement coilElement) {
+						} else if (this.element instanceof CoilElement coilElement) {
 							try {
 								coilElement.setNextWriteValue(
 										Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
@@ -394,7 +394,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
-	protected final <T extends AbstractModbusElement<?, ?>> ChannelMapper<T> m(T element) {
+	protected final <T extends ModbusElement<?, ?>> ChannelMapper<T> m(T element) {
 		return new ChannelMapper<>(element);
 	}
 
@@ -416,8 +416,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element   the ModbusElement
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
-			T element) {
+	protected final <T extends ModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId, T element) {
 		return this.m(channelId, element, DIRECT_1_TO_1);
 	}
 
@@ -431,8 +430,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        Channel
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
-			T element, ChannelMetaInfo channelMetaInfo) {
+	protected final <T extends ModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId, T element,
+			ChannelMetaInfo channelMetaInfo) {
 		return this.m(channelId, element, DIRECT_1_TO_1, channelMetaInfo);
 	}
 
@@ -446,8 +445,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
-			T element, ElementToChannelConverter converter) {
+	protected final <T extends ModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId, T element,
+			ElementToChannelConverter converter) {
 		return new ChannelMapper<>(element) //
 				.m(channelId, converter) //
 				.build();
@@ -465,8 +464,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        Channel
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
-			T element, ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
+	protected final <T extends ModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId, T element,
+			ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
 		return new ChannelMapper<>(element) //
 				.m(channelId, converter, channelMetaInfo) //
 				.build();

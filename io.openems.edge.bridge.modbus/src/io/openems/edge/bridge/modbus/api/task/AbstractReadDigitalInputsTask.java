@@ -8,27 +8,27 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 public abstract class AbstractReadDigitalInputsTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse> //
-		extends AbstractReadTask<REQUEST, RESPONSE, ModbusCoilElement, Boolean> {
+		extends AbstractReadTask<REQUEST, RESPONSE, CoilElement, Boolean> {
 
 	public AbstractReadDigitalInputsTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, ModbusCoilElement... elements) {
-		super(name, responseClazz, ModbusCoilElement.class, startAddress, priority, elements);
+			Priority priority, CoilElement... elements) {
+		super(name, responseClazz, CoilElement.class, startAddress, priority, elements);
 	}
 
 	@Override
-	protected void handleResponse(ModbusCoilElement element, int position, Boolean[] response) throws OpenemsException {
+	protected void handleResponse(CoilElement element, int position, Boolean[] response) throws OpenemsException {
 		element.setInputCoil(response[position]);
 	}
 
 	@Override
-	protected int calculateNextPosition(ModbusElement<?> modbusElement, int position) {
+	protected int calculateNextPosition(ModbusElement<?, ?> modbusElement, int position) {
 		return position + 1;
 	}
 

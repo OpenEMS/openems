@@ -18,7 +18,7 @@ import io.openems.common.types.OpenemsType;
  * An StringWordElement represents a String value. Each Register (= 2 bytes)
  * represents two characters.
  */
-public class StringWordElement extends AbstractModbusRegisterElement<StringWordElement, String> {
+public class StringWordElement extends ModbusRegisterElement<StringWordElement, String> {
 
 	private static final ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 

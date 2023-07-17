@@ -2,16 +2,13 @@ package io.openems.edge.bridge.modbus.api.element;
 
 import java.util.Optional;
 
-import io.openems.common.types.OpenemsType;
-
 /**
  * A DummyCoilElement is a placeholder for an empty {@link ModbusCoilElement}.
  */
-public class DummyCoilElement extends AbstractModbusElement<DummyCoilElement, Boolean>
-		implements ModbusCoilElement, DummyElement {
+public class DummyCoilElement extends CoilElement implements DummyElement {
 
 	public DummyCoilElement(int startAddress) {
-		super(OpenemsType.BOOLEAN, startAddress);
+		super(startAddress);
 	}
 
 	@Override

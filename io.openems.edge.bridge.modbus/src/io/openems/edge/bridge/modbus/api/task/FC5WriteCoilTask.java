@@ -4,15 +4,15 @@ import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
 import com.ghgande.j2mod.modbus.msg.WriteCoilResponse;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 
 /**
  * Implements a Write Single Coil Task, using Modbus function code 5
  * (http://www.simplymodbus.ca/FC05.htm).
  */
-public class FC5WriteCoilTask extends AbstractWriteTask.Single<WriteCoilRequest, WriteCoilResponse, ModbusCoilElement> {
+public class FC5WriteCoilTask extends AbstractWriteTask.Single<WriteCoilRequest, WriteCoilResponse, CoilElement> {
 
-	public FC5WriteCoilTask(int startAddress, ModbusCoilElement element) {
+	public FC5WriteCoilTask(int startAddress, CoilElement element) {
 		super("FC5WriteCoil", WriteCoilResponse.class, startAddress, element);
 	}
 

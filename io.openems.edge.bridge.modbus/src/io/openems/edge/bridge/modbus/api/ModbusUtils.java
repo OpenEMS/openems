@@ -15,8 +15,7 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.Priority;
@@ -36,7 +35,7 @@ public class ModbusUtils {
 	 * @throws OpenemsException on error with the {@link ModbusProtocol} object
 	 */
 	public static <T> CompletableFuture<T> readELementOnce(ModbusProtocol modbusProtocol,
-			AbstractModbusRegisterElement<?, T> element, boolean tryAgainOnError) throws OpenemsException {
+			ModbusRegisterElement<?, T> element, boolean tryAgainOnError) throws OpenemsException {
 		// Prepare result
 		final var result = new CompletableFuture<T>();
 
@@ -76,7 +75,7 @@ public class ModbusUtils {
 	 * @throws OpenemsException on error with the {@link ModbusProtocol} object
 	 */
 	public static <T> CompletableFuture<List<T>> readELementsOnce(ModbusProtocol modbusProtocol,
-			AbstractModbusRegisterElement<?, T>[] elements, boolean tryAgainOnError) throws OpenemsException {
+			ModbusRegisterElement<?, T>[] elements, boolean tryAgainOnError) throws OpenemsException {
 		if (elements.length == 0) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}

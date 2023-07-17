@@ -386,7 +386,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 			} //
 			Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 				for (var i = 0; i < numberOfModules; i++) {
-					var elements = new ModbusElement<?>[type.getSensorsPerModule()];
+					var elements = new ModbusElement<?, ?>[type.getSensorsPerModule()];
 					for (var j = 0; j < type.getSensorsPerModule(); j++) {
 						var sensorIndex = i * type.getSensorsPerModule() + j;
 						var channelId = CellChannelFactory.create(r, type, sensorIndex);
@@ -411,7 +411,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
-				ModbusElement<?>[] elements = {
+				ModbusElement<?, ?>[] elements = {
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
@@ -486,7 +486,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
-				ModbusElement<?>[] elements = {
+				ModbusElement<?, ?>[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
@@ -561,7 +561,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
-				ModbusElement<?>[] elements = {
+				ModbusElement<?, ?>[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),

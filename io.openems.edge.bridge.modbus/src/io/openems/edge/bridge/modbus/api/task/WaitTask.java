@@ -33,7 +33,7 @@ public abstract non-sealed class WaitTask implements Task {
 	}
 
 	@Override
-	public final ModbusElement<?>[] getElements() {
+	public final ModbusElement<?, ?>[] getElements() {
 		return new ModbusElement[0];
 	}
 

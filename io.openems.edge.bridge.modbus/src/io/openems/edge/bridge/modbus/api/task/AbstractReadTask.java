@@ -11,7 +11,6 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -33,7 +32,7 @@ public abstract class AbstractReadTask<//
 	private final Class<?> elementClazz;
 
 	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<ELEMENT> elementClazz, int startAddress,
-			Priority priority, ModbusElement<?>... elements) {
+			Priority priority, ModbusElement<?, ?>... elements) {
 		super(name, responseClazz, startAddress, elements);
 		this.elementClazz = elementClazz;
 		this.priority = priority;
@@ -134,7 +133,7 @@ public abstract class AbstractReadTask<//
 	 * @param modbusElement current Element
 	 * @return next position
 	 */
-	protected abstract int calculateNextPosition(ModbusElement<?> modbusElement, int position);
+	protected abstract int calculateNextPosition(ModbusElement<?, ?> modbusElement, int position);
 
 	/**
 	 * Factory for a {@link ModbusRequest}.
