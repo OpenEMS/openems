@@ -18,6 +18,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask.MergedWriteRegisters;
 
 /**
  * Implements a Write Holding Registers Task, using Modbus function code 16
@@ -28,7 +29,7 @@ public class FC16WriteRegistersTask
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
-	public FC16WriteRegistersTask(int startAddress, ModbusElement<?, ?>... elements) {
+	public FC16WriteRegistersTask(int startAddress, ModbusElement<?, ?, ?>... elements) {
 		super("FC16WriteRegisters", WriteMultipleRegistersResponse.class, startAddress, elements);
 	}
 
@@ -70,7 +71,7 @@ public class FC16WriteRegistersTask
 	 * @param logWarn  {@link Consumer} to log a warning
 	 * @return a list of CombinedWriteRegisters
 	 */
-	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement<?, ?>[] elements,
+	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement<?, ?, ?>[] elements,
 			Consumer<String> logWarn) {
 		final var writes = new ArrayList<MergedWriteRegisters>();
 		for (var element : elements) {

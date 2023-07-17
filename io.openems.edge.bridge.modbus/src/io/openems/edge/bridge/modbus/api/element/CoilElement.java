@@ -8,14 +8,12 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.type.TypeUtils;
 
 /**
  * A CoilElement has a size of one Modbus Coil or 1 bit.
  */
-public class CoilElement extends ModbusElement<CoilElement, Boolean> {
+public class CoilElement extends ModbusElement<CoilElement, Boolean, Boolean> {
 
 	private final Logger log = LoggerFactory.getLogger(CoilElement.class);
 
@@ -37,22 +35,22 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean> {
 		return this.nextWriteValue;
 	}
 
-	@Override
-	public void _setNextWriteValue(Optional<Boolean> valueOpt) throws OpenemsException {
-		if (this.isDebug()) {
-			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
-		}
-		this.nextWriteValue = valueOpt;
-		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
-	}
+//	@Override
+//	public void _setNextWriteValue(Optional<Boolean> valueOpt) throws OpenemsException {
+//		if (this.isDebug()) {
+//			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+//		}
+//		this.nextWriteValue = valueOpt;
+//		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
+//	}
 
+	@Override
 	/**
 	 * Sets the boolean value of this Element from Modbus Coil.
 	 *
 	 * @param coil the value
-	 * @throws OpenemsException on error
 	 */
-	public void setInputCoil(Boolean coil) throws OpenemsException {
+	public void setInput(Boolean coil) {
 		if (this.isDebug()) {
 			this.log.info("Element [" + this + "] set input coil to [" + coil + "]");
 		}
@@ -71,15 +69,15 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean> {
 	 * @param valueOpt the Optional value
 	 * @throws OpenemsException on error
 	 */
-	public final void setNextWriteValue(Optional<Boolean> valueOpt) throws OpenemsException {
-		if (valueOpt.isPresent()) {
-			this._setNextWriteValue(//
-					Optional.of(//
-							TypeUtils.<Boolean>getAsType(OpenemsType.BOOLEAN, valueOpt.get())));
-		} else {
-			this._setNextWriteValue(Optional.empty());
-		}
-	}
+//	public final void setNextWriteValue(Optional<Boolean> valueOpt) throws OpenemsException {
+//		if (valueOpt.isPresent()) {
+//			this._setNextWriteValue(//
+//					Optional.of(//
+//							TypeUtils.<Boolean>getAsType(OpenemsType.BOOLEAN, valueOpt.get())));
+//		} else {
+//			this._setNextWriteValue(Optional.empty());
+//		}
+//	}
 
 	/**
 	 * Gets the next write value and resets it.
@@ -94,13 +92,13 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean> {
 	 */
 	public final Optional<Boolean> getNextWriteValueAndReset() {
 		var valueOpt = this.getNextWriteValue();
-		try {
-			if (valueOpt.isPresent()) {
-				this._setNextWriteValue(Optional.empty());
-			}
-		} catch (OpenemsException e) {
-			// can be safely ignored
-		}
+//		try {
+//			if (valueOpt.isPresent()) {
+//				this._setNextWriteValue(Optional.empty());
+//			}
+//		} catch (OpenemsException e) {
+//			 can be safely ignored
+//		}
 		return valueOpt;
 	}
 

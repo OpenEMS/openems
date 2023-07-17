@@ -2,14 +2,16 @@ package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An UnsignedWordElement represents an Integer value in an
- * {@link AbstractWordElement}.
+ * {@link AbstractSingleWordElement}.
  */
-public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement, Integer> {
+public class UnsignedWordElement extends AbstractSingleWordElement<UnsignedWordElement, Integer> {
 
 	public UnsignedWordElement(int address) {
 		super(OpenemsType.INTEGER, address);

@@ -18,10 +18,11 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 /**
  * A ModbusElement represents one row of a Modbus definition table.
  *
- * @param <SELF> the subclass of myself
- * @param <T>    the target type
+ * @param <SELF>   the subclass of myself
+ * @param <BINARY> the binary type
+ * @param <T>      the OpenEMS type
  */
-public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
+public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY, T> {
 
 	// TODO private
 	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
@@ -41,7 +42,7 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 
 	protected Task task = null;
 
-	public ModbusElement(OpenemsType type, int startAddress, int length) {
+	protected ModbusElement(OpenemsType type, int startAddress, int length) {
 		this.type = type;
 		this.startAddress = startAddress;
 		this.length = length;
@@ -53,6 +54,9 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 	 * @return myself
 	 */
 	protected abstract SELF self();
+
+	// TODO protected
+	public abstract void setInput(BINARY value);
 
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
@@ -115,6 +119,7 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 		return this.task;
 	}
 
+	// TODO INPUT
 	protected final void setValue(T value) {
 		if (this.isDebug) {
 			this.log.info("Element [" + this + "] set value to [" + value + "].");
@@ -134,6 +139,7 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 	 *
 	 * @param bridge the {@link AbstractModbusBridge}
 	 */
+	@Deprecated
 	public final void invalidate(AbstractModbusBridge bridge) {
 		this.invalidValueCounter++;
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
@@ -193,6 +199,9 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 	 * @throws OpenemsException         on error
 	 * @throws IllegalArgumentException on error
 	 */
-	public abstract void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException, IllegalArgumentException;
-	// TODO
+	// TODO protected
+	// TODO Optional<TARGET>
+	public void setNextWriteValue(Optional<?> valueOpt) throws OpenemsException, IllegalArgumentException {
+
+	}
 }

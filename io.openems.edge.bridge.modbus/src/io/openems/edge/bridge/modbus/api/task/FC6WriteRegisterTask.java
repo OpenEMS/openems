@@ -5,12 +5,12 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
+import io.openems.edge.bridge.modbus.api.element.AbstractSingleWordElement;
 
 public class FC6WriteRegisterTask extends
-		AbstractWriteTask.Single<WriteSingleRegisterRequest, WriteSingleRegisterResponse, AbstractWordElement<?, ?>> {
+		AbstractWriteTask.Single<WriteSingleRegisterRequest, WriteSingleRegisterResponse, AbstractSingleWordElement<?, ?>> {
 
-	public FC6WriteRegisterTask(int startAddress, AbstractWordElement<?, ?> element) {
+	public FC6WriteRegisterTask(int startAddress, AbstractSingleWordElement<?, ?> element) {
 		super("FC6WriteRegister", WriteSingleRegisterResponse.class, startAddress, element);
 	}
 

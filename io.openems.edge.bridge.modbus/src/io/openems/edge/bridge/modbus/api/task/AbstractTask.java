@@ -33,13 +33,14 @@ public abstract non-sealed class AbstractTask<//
 	protected final Class<RESPONSE> responseClazz;
 	protected final int startAddress;
 	protected final int length;
-	protected final ModbusElement<?, ?>[] elements;
+	protected final ModbusElement<?, ?, ?>[] elements;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 
-	public AbstractTask(String name, Class<RESPONSE> responseClazz, int startAddress, ModbusElement<?, ?>... elements) {
+	public AbstractTask(String name, Class<RESPONSE> responseClazz, int startAddress,
+			ModbusElement<?, ?, ?>... elements) {
 		this.name = name;
 		this.responseClazz = responseClazz;
 		this.startAddress = startAddress;
@@ -60,7 +61,7 @@ public abstract non-sealed class AbstractTask<//
 	}
 
 	// Override for Task.getElements()
-	public ModbusElement<?, ?>[] getElements() {
+	public ModbusElement<?, ?, ?>[] getElements() {
 		return this.elements;
 	}
 
@@ -211,7 +212,7 @@ public abstract non-sealed class AbstractTask<//
 	 * Deactivate.
 	 */
 	public void deactivate() {
-		for (ModbusElement<?, ?> element : this.elements) {
+		for (ModbusElement<?, ?, ?> element : this.elements) {
 			element.deactivate();
 		}
 	}

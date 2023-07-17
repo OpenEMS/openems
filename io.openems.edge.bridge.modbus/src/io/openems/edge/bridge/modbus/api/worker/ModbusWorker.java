@@ -33,7 +33,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	// Callbacks
 	private final Function<Task, ExecuteState> execute;
-	private final Consumer<ModbusElement<?, ?>[]> invalidate;
+	private final Consumer<ModbusElement<?, ?, ?>[]> invalidate;
 
 	private final DefectiveComponents defectiveComponents;
 	private final TasksSupplierImpl tasksSupplier;
@@ -54,7 +54,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 *                                   channel
 	 * @param logVerbosity               the configured {@link LogVerbosity}
 	 */
-	public ModbusWorker(Function<Task, ExecuteState> execute, Consumer<ModbusElement<?, ?>[]> invalidate,
+	public ModbusWorker(Function<Task, ExecuteState> execute, Consumer<ModbusElement<?, ?, ?>[]> invalidate,
 			Consumer<Boolean> cycleTimeIsTooShortChannel, Consumer<Long> cycleDelayChannel,
 			AtomicReference<LogVerbosity> logVerbosity) {
 		this.execute = execute;

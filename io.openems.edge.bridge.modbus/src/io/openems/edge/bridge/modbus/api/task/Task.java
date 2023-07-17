@@ -14,7 +14,7 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	 *
 	 * @return an array of ModbusElements
 	 */
-	public ModbusElement<?, ?>[] getElements();
+	public ModbusElement<?, ?, ?>[] getElements();
 
 	/**
 	 * Gets the start Modbus register address.

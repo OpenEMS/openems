@@ -7,9 +7,9 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An SignedWordElement represents a Short value in an
- * {@link AbstractWordElement}.
+ * {@link AbstractSingleWordElement}.
  */
-public class SignedWordElement extends AbstractWordElement<SignedWordElement, Short> {
+public class SignedWordElement extends AbstractSingleWordElement<SignedWordElement, Short> {
 
 	public SignedWordElement(int address) {
 		super(OpenemsType.SHORT, address);

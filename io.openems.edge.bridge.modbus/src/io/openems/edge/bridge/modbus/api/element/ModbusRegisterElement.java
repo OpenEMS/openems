@@ -11,67 +11,68 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.type.TypeUtils;
 
 /**
  * A ModbusRegisterElement represents one or more Modbus Registers.
  *
- * @param <SELF> the subclass of myself
- * @param <T>    the target type
+ * @param <SELF>   the subclass of myself
+ * @param <BINARY> the binary type
+ * @param <T>      the OpenEMS type
  */
-public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>, T> extends ModbusElement<SELF, T> {
+public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, InputRegister[], T>, T>
+		extends ModbusElement<SELF, InputRegister[], T> {
 
 	private final Logger log = LoggerFactory.getLogger(ModbusRegisterElement.class);
 
 	/** ByteOrder of the input registers. */
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
-	public ModbusRegisterElement(OpenemsType type, int startAddress, int length) {
+	protected ModbusRegisterElement(OpenemsType type, int startAddress, int length) {
 		super(type, startAddress, length);
 	}
 
-	/**
-	 * Sets the value of this Element from InputRegisters.
-	 *
-	 * @param registers the InputRegisters
-	 * @throws OpenemsException on error
-	 */
-	// TODO final?
-	public void setInputRegisters(InputRegister... registers) throws OpenemsException {
-		if (this.isDebug()) {
-			var b = new StringBuilder("Element [" + this + "] set input registers to [");
-			for (var i = 0; i < registers.length; i++) {
-				b.append(registers[i].getValue());
-				if (i < registers.length - 1) {
-					b.append(",");
-				}
-			}
-			b.append("].");
-			this.log.info(b.toString());
-		}
-		if (registers.length != this.length) {
-			throw new OpenemsException("Modbus Element [" + this + "]: registers length [" + registers.length
-					+ "] does not match required size of [" + this.length + "]");
-		}
-		this._setInputRegisters(registers);
-	}
+//	/**
+//	 * Sets the value of this Element from InputRegisters.
+//	 *
+//	 * @param registers the InputRegisters
+//	 * @throws OpenemsException on error
+//	 */
+//	// TODO final?
+//	public void setInputRegisters(InputRegister... registers) throws OpenemsException {
+//		if (this.isDebug()) {
+//			var b = new StringBuilder("Element [" + this + "] set input registers to [");
+//			for (var i = 0; i < registers.length; i++) {
+//				b.append(registers[i].getValue());
+//				if (i < registers.length - 1) {
+//					b.append(",");
+//				}
+//			}
+//			b.append("].");
+//			this.log.info(b.toString());
+//		}
+//		if (registers.length != this.length) {
+//			throw new OpenemsException("Modbus Element [" + this + "]: registers length [" + registers.length
+//					+ "] does not match required size of [" + this.length + "]");
+//		}
+//		this._setInputRegisters(registers);
+//	}
 
-	/**
-	 * Sets a value that should be written to the Modbus device.
-	 *
-	 * @param valueOpt the Optional value
-	 * @throws OpenemsException         on error
-	 * @throws IllegalArgumentException on error
-	 */
-	public final void setNextWriteValue(Optional<Object> valueOpt) throws OpenemsException, IllegalArgumentException {
-		if (valueOpt.isPresent()) {
-			this._setNextWriteValue(//
-					Optional.of(//
-							TypeUtils.<T>getAsType(this.getType(), valueOpt.get())));
-		} else {
-			this._setNextWriteValue(Optional.empty());
-		}
-	}
+//	/**
+//	 * Sets a value that should be written to the Modbus device.
+//	 *
+//	 * @param valueOpt the Optional value
+//	 * @throws OpenemsException         on error
+//	 * @throws IllegalArgumentException on error
+//	 */
+//	public final void setNextWriteValue(Optional<Object> valueOpt) throws OpenemsException, IllegalArgumentException {
+//		if (valueOpt.isPresent()) {
+//			this._setNextWriteValue(//
+//					Optional.of(//
+//							TypeUtils.<TARGET>getAsType(this.getType(), valueOpt.get())));
+//		} else {
+//			this._setNextWriteValue(Optional.empty());
+//		}
+//	}
 
 	/**
 	 * Gets the next write value and resets it.
@@ -87,13 +88,13 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>,
 	// TODO final?
 	public Optional<Register[]> getNextWriteValueAndReset() {
 		var valueOpt = this.getNextWriteValue();
-		try {
-			if (valueOpt.isPresent()) {
-				this._setNextWriteValue(Optional.empty());
-			}
-		} catch (OpenemsException e) {
-			// can be safely ignored
-		}
+//		try {
+//			if (valueOpt.isPresent()) {
+//				this._setNextWriteValue(Optional.empty());
+//			}
+//		} catch (OpenemsException e) {
+//			// can be safely ignored
+//		}
 		return valueOpt;
 	}
 
@@ -133,6 +134,6 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>,
 		return this.byteOrder;
 	}
 
-	protected abstract void _setInputRegisters(InputRegister... registers);
+//	protected abstract void _setInputRegisters(InputRegister... registers);
 
 }

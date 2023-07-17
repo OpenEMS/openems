@@ -14,7 +14,6 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -133,15 +132,15 @@ public class BitsWordElement extends UnsignedWordElement {
 	 * @param registers the InputRegisters
 	 */
 	@Override
-	protected void _setInputRegisters(InputRegister... registers) {
-		if (registers.length != 1) {
-			throw new IllegalArgumentException("Expected only one Register instead of [" + registers.length
-					+ "] for Component [" + this.component.id() + "] on address [" + this.getStartAddress() + "]");
-		}
+	public void setInput(InputRegister register) {
+//		if (registers.length != 1) {
+//			throw new IllegalArgumentException("Expected only one Register instead of [" + registers.length
+//					+ "] for Component [" + this.component.id() + "] on address [" + this.getStartAddress() + "]");
+//		}
 
 		// convert Register to int
 		var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
-		buff.put(registers[0].toBytes());
+		buff.put(register.toBytes());
 		var value = Short.toUnsignedInt(buff.getShort(0));
 
 		for (var bitIndex = 0; bitIndex < 16; bitIndex++) {
@@ -269,10 +268,10 @@ public class BitsWordElement extends UnsignedWordElement {
 		throw new IllegalArgumentException("BitsWordElement.getNextWriteValue() should never be called");
 	}
 
-	@Override
-	public void _setNextWriteValue(Optional<Integer> valueOpt) throws OpenemsException {
-		throw new IllegalArgumentException("BitsWordElement._setNextWriteValue() should never be called");
-	}
+//	@Override
+//	public void _setNextWriteValue(Optional<Integer> valueOpt) throws OpenemsException {
+//		throw new IllegalArgumentException("BitsWordElement._setNextWriteValue() should never be called");
+//	}
 
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Integer value) {
 		throw new IllegalArgumentException("BitsWordElement.toByteBuffer() should never be called");

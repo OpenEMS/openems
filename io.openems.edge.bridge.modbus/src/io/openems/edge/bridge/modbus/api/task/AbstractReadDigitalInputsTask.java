@@ -24,11 +24,11 @@ public abstract class AbstractReadDigitalInputsTask<//
 
 	@Override
 	protected void handleResponse(CoilElement element, int position, Boolean[] response) throws OpenemsException {
-		element.setInputCoil(response[position]);
+		element.setInput(response[position]);
 	}
 
 	@Override
-	protected int calculateNextPosition(ModbusElement<?, ?> modbusElement, int position) {
+	protected int calculateNextPosition(ModbusElement<?, ?, ?> modbusElement, int position) {
 		return position + 1;
 	}
 

@@ -486,7 +486,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 								.bit(12, BatterySoltaroSingleRackVersionC.ChannelId.SLAVE_BMS_INIT)//
 						))); //
 		{
-			ModbusElement<?, ?>[] elements = {
+			ModbusElement<?, ?, ?>[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2080)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER,
@@ -559,7 +559,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL1 (Level1 warning registers RW)
 		{
-			ModbusElement<?, ?>[] elements = {
+			ModbusElement<?, ?, ?>[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2040)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_RECOVER,
@@ -632,7 +632,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL2 (Level2 Protection registers RW)
 		{
-			ModbusElement<?, ?>[] elements = {
+			ModbusElement<?, ?, ?>[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2400)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_RECOVER,
@@ -719,7 +719,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 		 */
 		Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 			for (var i = 0; i < numberOfModules; i++) {
-				var elements = new ModbusElement<?, ?>[type.getSensorsPerModule()];
+				var elements = new ModbusElement<?, ?, ?>[type.getSensorsPerModule()];
 				for (var j = 0; j < type.getSensorsPerModule(); j++) {
 					var sensorIndex = i * type.getSensorsPerModule() + j;
 					var channelId = CellChannelFactory.create(type, sensorIndex);

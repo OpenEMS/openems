@@ -11,7 +11,7 @@ import io.openems.common.types.OpenemsType;
  * A DummyRegisterElement is a placeholder for an empty
  * {@link ModbusRegisterElement}.
  */
-public class DummyRegisterElement extends ModbusRegisterElement<DummyRegisterElement, Void> {
+public class DummyRegisterElement extends AbstractMultipleWordsElement<DummyRegisterElement, Void> {
 
 	public DummyRegisterElement(int address) {
 		this(address, address);
@@ -24,20 +24,20 @@ public class DummyRegisterElement extends ModbusRegisterElement<DummyRegisterEle
 	/**
 	 * We are not setting a value for a DummyElement.
 	 */
-	@Override
-	public void setInputRegisters(InputRegister... registers) {
-	}
+//	@Override
+//	public void setInputRegisters(InputRegister... registers) {
+//	}
 
-	@Override
-	protected void _setInputRegisters(InputRegister... registers) {
-	}
+//	@Override
+//	protected void _setInputRegisters(InputRegister... registers) {
+//	}
 
-	@Override
-	@Deprecated
-	public void _setNextWriteValue(Optional<Void> valueOpt) {
-		// ignore write
-		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
-	}
+//	@Override
+//	@Deprecated
+//	public void _setNextWriteValue(Optional<Void> valueOpt) {
+//		// ignore write
+//		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
+//	}
 
 	@Override
 	public Optional<Register[]> getNextWriteValue() {
@@ -47,6 +47,11 @@ public class DummyRegisterElement extends ModbusRegisterElement<DummyRegisterEle
 	@Override
 	protected DummyRegisterElement self() {
 		return this;
+	}
+
+	@Override
+	public void setInput(InputRegister[] value) {
+		// ignore
 	}
 
 }

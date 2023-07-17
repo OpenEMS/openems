@@ -1,26 +1,22 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
 /**
  * A DoubleWordElement has a size of two Modbus Registers or 32 bit.
  *
  * @param <SELF> the subclass of myself
- * @param <T>    the target type
+ * @param <T>    the OpenEMS type
  */
-public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF, T>, T>
-		extends ModbusRegisterElement<SELF, T> {
+public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF, InputRegister[], T>, T>
+		extends AbstractMultipleWordsElement<SELF, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
 
@@ -29,10 +25,11 @@ public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF,
 	}
 
 	@Override
-	protected final void _setInputRegisters(InputRegister... registers) {
+	public void setInput(InputRegister[] registers) {
+		// TODO check length
 		// fill buffer
 		var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
-		if (this.wordOrder == WordOrder.MSWLSW) {
+		if (this.getWordOrder() == WordOrder.MSWLSW) {
 			buff.put(registers[0].toBytes());
 			buff.put(registers[1].toBytes());
 		} else {
@@ -54,27 +51,27 @@ public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF,
 	 */
 	protected abstract T fromByteBuffer(ByteBuffer buff);
 
-	@Override
-	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
-		if (valueOpt.isPresent()) {
-			if (this.isDebug()) {
-				this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
-			}
-			var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
-			buff = this.toByteBuffer(buff, valueOpt.get());
-			var b = buff.array();
-			if (this.wordOrder == WordOrder.MSWLSW) {
-				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
-						new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) }));
-			} else {
-				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
-						new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) }));
-			}
-		} else {
-			this.setNextWriteValueRegisters(Optional.empty());
-		}
-		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
-	}
+//	@Override
+//	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
+//		if (valueOpt.isPresent()) {
+//			if (this.isDebug()) {
+//				this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+//			}
+//			var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
+//			buff = this.toByteBuffer(buff, valueOpt.get());
+//			var b = buff.array();
+//			if (this.wordOrder == WordOrder.MSWLSW) {
+//				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
+//						new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) }));
+//			} else {
+//				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
+//						new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) }));
+//			}
+//		} else {
+//			this.setNextWriteValueRegisters(Optional.empty());
+//		}
+//		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
+//	}
 
 	/**
 	 * Converts the current OpenemsType to a 4-byte ByteBuffer.
@@ -84,19 +81,4 @@ public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF,
 	 * @return the ByteBuffer
 	 */
 	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
-
-	/**
-	 * Sets the Word-Order. Default is "MSWLSW" - "Most Significant Word; Least
-	 * Significant Word". See http://www.simplymodbus.ca/FAQ.htm#Order.
-	 *
-	 * @param wordOrder the new Word-Order
-	 * @return myself
-	 */
-	public final SELF wordOrder(WordOrder wordOrder) {
-		this.wordOrder = wordOrder;
-		return this.self();
-	}
-
-	private WordOrder wordOrder = WordOrder.MSWLSW;
-
 }

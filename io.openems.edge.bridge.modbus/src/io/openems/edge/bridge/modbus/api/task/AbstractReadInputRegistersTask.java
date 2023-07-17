@@ -16,18 +16,18 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 		extends AbstractReadTask<REQUEST, RESPONSE, ModbusRegisterElement, InputRegister> {
 
 	public AbstractReadInputRegistersTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			Priority priority, ModbusElement<?, ?>... elements) {
+			Priority priority, ModbusElement<?, ?, ?>... elements) {
 		super(name, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 
 	@Override
 	protected void handleResponse(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {
-		element.setInputRegisters(Arrays.copyOfRange(response, position, position + element.length));
+		element.setInput(Arrays.copyOfRange(response, position, position + element.length));
 	}
 
 	@Override
-	protected int calculateNextPosition(ModbusElement<?, ?> modbusElement, int position) {
+	protected int calculateNextPosition(ModbusElement<?, ?, ?> modbusElement, int position) {
 		return position + modbusElement.length;
 	}
 }
