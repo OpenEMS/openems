@@ -42,30 +42,26 @@ While IntelliJ also works, Eclipse IDE is the officially supported development e
 
 .Eclipse Code formatter
 
-Use OpenEMS Code Formatter Rules
+Use `Eclipse [built-in]` Code Formating Rules
 
- * Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> ActiveProfile -> select
- 
-  Java Conventions [build-in]
-  
-Before you commit files, run the Eclipse code formatter on java sourcecode file (Ctrl + Shift + F).
+ * Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> ActiveProfile -> select -> `Eclipse [built-in]`
+     
+Before you commit files, run the Eclipse code formatter on each java source code file (Ctrl + Shift + F).
 
 .Eclipse Checkstyle plugin
 
 Use Eclipse checkstyle plugin `Eclipse-cs`. Install it with
   
-* Eclipse -> Help -> Eclipse Marketplace -> Find -> Eclipse-cs -> Install 
+* Eclipse -> Help -> Eclipse Marketplace -> Find -> `Eclipse-cs` -> Install 
 
 Configure it with
 
 * Eclipse -> Window -> Preferences -> New -> 
-** Type: Project Relative Configuration 
-** Name: OpenEMS 
-** Location: /cnf/checkstyle.xml
+** Type: `Project Relative Configuration` 
+** Name: `OpenEMS` 
+** Location: `/cnf/checkstyle.xml`
 
-Later set `OpenEMS` as default.
-
-Enable Checkstyle for every bundle you like in the Bndtools Explorer in the bundles context menu.      
+Later set `OpenEMS` as default. Enable Checkstyle for every bundle you like in the Bndtools Explorer in the bundles context menu.      
 
 == OpenEMS UI
 
