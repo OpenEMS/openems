@@ -14,7 +14,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 public class EnumUtils {
 
 	/**
-	 * Converts the Enum UPPER_UNDERSCORE name to UPPER_CAMEL-case.
+	 * Converts the Enum {@link CaseFormat#UPPER_UNDERSCORE} name to
+	 * {@link CaseFormat#UPPER_CAMEL}-case.
 	 * 
 	 * @param <ENUM> the type
 	 * @param e      the enum
