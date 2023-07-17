@@ -25,7 +25,7 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean> {
 	private Optional<Boolean> nextWriteValue = Optional.empty();
 
 	public CoilElement(int startAddress) {
-		super(OpenemsType.BOOLEAN, startAddress);
+		super(OpenemsType.BOOLEAN, startAddress, 1);
 	}
 
 	/**
@@ -35,11 +35,6 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean> {
 	 */
 	public Optional<Boolean> getNextWriteValue() {
 		return this.nextWriteValue;
-	}
-
-	@Override
-	public int getLength() {
-		return 1;
 	}
 
 	@Override

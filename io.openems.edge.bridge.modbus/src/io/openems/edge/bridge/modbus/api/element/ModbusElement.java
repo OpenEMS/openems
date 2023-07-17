@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.task.Task;
  */
 public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 
+	// TODO private
 	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
 	private final Logger log = LoggerFactory.getLogger(ModbusElement.class);
@@ -30,14 +31,20 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 	private final OpenemsType type;
 	private final int startAddress;
 
+	/**
+	 * Number of Registers or Coils.
+	 */
+	public final int length;
+
 	// Counts for how many cycles no valid value was
 	private int invalidValueCounter = 0;
 
 	protected Task task = null;
 
-	public ModbusElement(OpenemsType type, int startAddress) {
+	public ModbusElement(OpenemsType type, int startAddress, int length) {
 		this.type = type;
 		this.startAddress = startAddress;
+		this.length = length;
 	}
 
 	/**
@@ -178,13 +185,6 @@ public abstract class ModbusElement<SELF extends ModbusElement<SELF, T>, T> {
 		this.onUpdateCallbacks.clear();
 		this.onSetNextWriteCallbacks.clear();
 	}
-
-	/**
-	 * Number of Registers or Coils.
-	 *
-	 * @return the number of Registers or Coils
-	 */
-	public abstract int getLength(); // TODO constructor
 
 	/**
 	 * Sets a value that should be written to the Modbus device.

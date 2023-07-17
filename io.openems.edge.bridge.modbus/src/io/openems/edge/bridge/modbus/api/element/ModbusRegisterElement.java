@@ -26,8 +26,8 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>,
 	/** ByteOrder of the input registers. */
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
-	public ModbusRegisterElement(OpenemsType type, int startAddress) {
-		super(type, startAddress);
+	public ModbusRegisterElement(OpenemsType type, int startAddress, int length) {
+		super(type, startAddress, length);
 	}
 
 	/**
@@ -49,9 +49,9 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>,
 			b.append("].");
 			this.log.info(b.toString());
 		}
-		if (registers.length != this.getLength()) {
+		if (registers.length != this.length) {
 			throw new OpenemsException("Modbus Element [" + this + "]: registers length [" + registers.length
-					+ "] does not match required size of [" + this.getLength() + "]");
+					+ "] does not match required size of [" + this.length + "]");
 		}
 		this._setInputRegisters(registers);
 	}
@@ -100,9 +100,9 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, T>,
 	private Optional<Register[]> nextWriteValue = Optional.empty();
 
 	protected final void setNextWriteValueRegisters(Optional<Register[]> writeValueOpt) throws OpenemsException {
-		if (writeValueOpt.isPresent() && writeValueOpt.get().length != this.getLength()) {
+		if (writeValueOpt.isPresent() && writeValueOpt.get().length != this.length) {
 			throw new OpenemsException("Modbus Element [" + this + "]: write registers length ["
-					+ writeValueOpt.get().length + "] does not match required size of [" + this.getLength() + "]");
+					+ writeValueOpt.get().length + "] does not match required size of [" + this.length + "]");
 		}
 		this.nextWriteValue = writeValueOpt;
 	}

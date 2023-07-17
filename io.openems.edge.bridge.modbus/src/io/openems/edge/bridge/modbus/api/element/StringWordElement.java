@@ -25,16 +25,9 @@ public class StringWordElement extends ModbusRegisterElement<StringWordElement, 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 
 	protected ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
-	private final int length;
 
 	public StringWordElement(int startAddress, int length) {
-		super(OpenemsType.STRING, startAddress);
-		this.length = length;
-	}
-
-	@Override
-	public final int getLength() {
-		return this.length;
+		super(OpenemsType.STRING, startAddress, length);
 	}
 
 	@Override

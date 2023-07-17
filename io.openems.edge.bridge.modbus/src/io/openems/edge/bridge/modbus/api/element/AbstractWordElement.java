@@ -25,12 +25,7 @@ public abstract class AbstractWordElement<SELF extends ModbusElement<SELF, T>, T
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 
 	public AbstractWordElement(OpenemsType type, int startAddress) {
-		super(type, startAddress);
-	}
-
-	@Override
-	public final int getLength() {
-		return 1;
+		super(type, startAddress, 1);
 	}
 
 	@Override

@@ -5,15 +5,10 @@ import java.util.Optional;
 /**
  * A DummyCoilElement is a placeholder for an empty {@link ModbusCoilElement}.
  */
-public class DummyCoilElement extends CoilElement implements DummyElement {
+public class DummyCoilElement extends CoilElement {
 
 	public DummyCoilElement(int startAddress) {
 		super(startAddress);
-	}
-
-	@Override
-	public int getLength() {
-		return 1;
 	}
 
 	@Override

@@ -252,11 +252,11 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					// Fill gaps with DummyModbusElements
 					var lastElement = readElements.peekLast();
 					if (lastElement != null) {
-						var gap = address - lastElement.getStartAddress() - lastElement.getLength();
+						var gap = address - lastElement.getStartAddress() - lastElement.length;
 						if (gap > 0) {
 							readElements.add(new DummyRegisterElement(//
-									lastElement.getStartAddress() + lastElement.getLength(),
-									lastElement.getStartAddress() + lastElement.getLength() + gap - 1));
+									lastElement.getStartAddress() + lastElement.length,
+									lastElement.getStartAddress() + lastElement.length + gap - 1));
 						}
 					}
 
@@ -296,13 +296,13 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 			var taskElements = new ArrayDeque<ModbusElement<?, ?>>();
 			var element = readElements.pollFirst();
 			while (element != null) {
-				if (length + element.getLength() > 126 /* limit of j2mod */) {
+				if (length + element.length > 126 /* limit of j2mod */) {
 					this.addReadTask(taskElements);
 					length = 0;
 					taskElements.clear();
 				}
 				taskElements.add(element);
-				length += element.getLength();
+				length += element.length;
 				element = readElements.pollFirst();
 			}
 			this.addReadTask(taskElements);
@@ -317,7 +317,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 			while (element != null) {
 				var lastElement = taskElements.peekLast();
 				if (lastElement != null
-						&& (lastElement.getStartAddress() + lastElement.getLength() < element.getStartAddress())) {
+						&& (lastElement.getStartAddress() + lastElement.length < element.getStartAddress())) {
 					// Found gap
 					this.addWriteTask(taskElements);
 					taskElements.clear();

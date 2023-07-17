@@ -52,8 +52,8 @@ public abstract non-sealed class AbstractTask<//
 						+ "Got [" + element.getStartAddress() + "/0x" + Integer.toHexString(element.getStartAddress())
 						+ "] Expected [" + nextStartAddress + "/0x" + Integer.toHexString(nextStartAddress) + "]");
 			}
-			nextStartAddress += element.getLength();
-			length += element.getLength();
+			nextStartAddress += element.length;
+			length += element.length;
 			element.setModbusTask(this);
 		}
 		this.length = length;

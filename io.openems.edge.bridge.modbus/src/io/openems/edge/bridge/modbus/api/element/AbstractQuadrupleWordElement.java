@@ -25,12 +25,7 @@ public abstract class AbstractQuadrupleWordElement<SELF extends ModbusElement<SE
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
 
 	public AbstractQuadrupleWordElement(OpenemsType type, int startAddress) {
-		super(type, startAddress);
-	}
-
-	@Override
-	public final int getLength() {
-		return 4;
+		super(type, startAddress, 4);
 	}
 
 	@Override

@@ -287,7 +287,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
 			var element = point.get().generateModbusElement(startAddress);
-			startAddress += element.getLength();
+			startAddress += element.length;
 			elements[i] = element;
 
 			var channelId = point.getChannelId();
