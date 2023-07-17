@@ -69,13 +69,15 @@ export class SingleChartComponent extends AbstractHistoryChart {
                 });
 
                 for (let i = 1; i < 4; i++) {
+                    let variableName = 'effectivePowerL' + i;
+                    let currentValue = eval(variableName);
                     datasets.push({
                         name: this.translate.instant('General.phase') + ' ' + 'L' + i,
                         converter: () => {
                             if (!this.showPhases) {
                                 return null;
                             }
-                            return data['EssActivePowerL' + i] ?? null;
+                            return currentValue ?? null;
                         },
                         color: 'rgb(' + this.phaseColors[i - 1] + ')'
                     });

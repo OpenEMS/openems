@@ -89,6 +89,10 @@ export class TotalChartComponent extends AbstractHistoryChart {
                     name: this.translate.instant('General.TOTAL'),
                     converter: () => { return effectivePower; },
                     color: 'rgb(0,223,0)'
+                }, {
+                    name: 'Fenecon HOME', //(component.alias)
+                    converter: () => { return data['EssActivePower']; },
+                    color: 'rgb(0,0,255)'
                 });
 
                 console.log(' new data', data);

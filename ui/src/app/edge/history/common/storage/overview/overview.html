@@ -10,7 +10,7 @@
 
   <ng-container *ngIf="showTotal">
     <ion-card-content>
-      <storageTotalChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases">
+      <storageTotalChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases" [showTotal]="showTotal">
       </storageTotalChart>
       <!-- Info Text -->
       <ion-row class="ion-justify-content-center">
@@ -36,7 +36,8 @@
   <ng-container *ngIf="!showTotal">
     <ng-container *ngIf="essComponents?.length === 1">
       <ion-card-content class="underline">
-        <storageSingleChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases">
+        <storageSingleChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases"
+          [showTotal]="showTotal">
         </storageSingleChart>
       </ion-card-content>
       <!-- Info Text -->
@@ -64,12 +65,13 @@
 
   <ng-container *ngIf="essComponents?.length > 1">
     <ion-card-content class="underline">
-      <storageSingleChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases">
+      <storageSingleChart [chartTitle]="'General.TOTAL' | translate" [showPhases]="showPhases" [showTotal]="showTotal">
       </storageSingleChart>
     </ion-card-content>
     <ng-container *ngFor="let component of essComponents">
       <ion-card-content class="underline">
-        <storageEssChart [chartTitle]="component.alias" [componentId]="component.id" [showPhases]="showPhases">
+        <storageEssChart [chartTitle]="component.alias" [componentId]="component.id" [showPhases]="showPhases"
+          [showTotal]="showTotal">
         </storageEssChart>
       </ion-card-content>
     </ng-container>
