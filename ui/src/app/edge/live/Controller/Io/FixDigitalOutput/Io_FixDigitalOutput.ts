@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.component';
+import { ChannelAddress, CurrentData } from 'src/app/shared/shared';
 
+import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Io_FixDigitalOutput',
@@ -13,12 +13,12 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
   public state: string = '-';
   public outputChannel: string;
 
-  protected getChannelAddresses(): ChannelAddress[] {
+  protected override getChannelAddresses(): ChannelAddress[] {
     this.outputChannel = this.component.properties['outputChannelAddress'];
     return [ChannelAddress.fromString(this.outputChannel)];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
     let channel = currentData.allComponents[this.outputChannel];
     if (channel != null) {
       if (channel == 1) {

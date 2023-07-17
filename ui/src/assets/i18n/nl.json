@@ -115,6 +115,38 @@
     "authenticationFailed": "Authenticatie mislukt",
     "user": "Gebruiker"
   },
+  "Register": {
+    "segment": {
+      "user": "Gebruiker",
+      "installer": "Installateur"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Contactgegevens",
+      "companyName": "Bedrijfsnaam",
+      "firstname": "Voornaam",
+      "lastname": "Achternaam",
+      "street": "Straat | huisnummer",
+      "zip": "Postcode",
+      "city": "Stad",
+      "country": "Land",
+      "phone": "Telefoonnummer",
+      "email": "E-Mail - adres",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord"
+    },
+    "button": "Maken",
+    "errors": {
+      "requiredFields": "Gelieve alle velden in te vullen"
+    },
+    "passwordNotEqual": "Wachtwoorden zijn niet gelijk",
+    "success": "Registratie succesvol"
+  },
   "Edge": {
     "Index": {
       "EmergencyReserve": {

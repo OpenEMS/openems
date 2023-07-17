@@ -55,8 +55,8 @@ export namespace GetApps {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 apps: App[]
             }
         ) {
@@ -69,6 +69,7 @@ export namespace GetApps {
         cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
         appId: string,
         name: string,
+        shortName?: string,
         image: string,
         status: Status,
         instanceIds: string[],

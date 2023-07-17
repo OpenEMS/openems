@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@angular/core";
 
+import { DataService } from "../../shared/genericComponents/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
 
 @Injectable()
 export class HistoryDataService extends DataService {

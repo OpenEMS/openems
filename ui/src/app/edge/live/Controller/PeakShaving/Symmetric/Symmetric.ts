@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
 import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Controller_Symmetric_PeakShavingModalComponent } from './modal/modal.component';
-import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
     selector: 'Controller_Symmetric_PeakShaving',
@@ -14,7 +15,7 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         return [
             new ChannelAddress(this.component.properties['meter.id'], 'ActivePower'),
             new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
@@ -22,7 +23,7 @@ export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidge
         ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         // Show 0 for negative activePower
         this.activePower = currentData.allComponents[this.component.properties['meter.id'] + '/ActivePower'] >= 0

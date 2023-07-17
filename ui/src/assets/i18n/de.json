@@ -402,7 +402,8 @@
           "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
           "valid": "Lizenzschlüssel ist gültig",
           "invalid": "Lizenzschlüssel ist ungültig",
-          "invalidPattern": "Eingabe ist ungültig"
+          "invalidPattern": "Eingabe ist ungültig",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>"
         },
         "successInstall": "App erfolgreich installiert",
         "failInstall": "Installation der App fehlgeschlagen: {{error}}",
@@ -583,6 +584,43 @@
     "loggedIn": "Angemeldet.",
     "loggedInAs": "Angemeldet als Benutzer '{{ value }}'."
   },
+  "Register": {
+    "title": "Account anlegen",
+    "segment": {
+      "user": "Benutzer",
+      "installer": "Installateur"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Kontaktdaten",
+      "company": "Firma",
+      "companyName": "Firmenname",
+      "firstname": "Vorname",
+      "lastname": "Nachname",
+      "street": "Straße | Hausnummer",
+      "zip": "PLZ",
+      "city": "Ort",
+      "country": "Land",
+      "phone": "Telefonnummer",
+      "email": "E-Mail Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort wiederholen",
+      "confirmEmail": "E-Mail Adresse wiederholen"
+    },
+    "button": "Anlegen",
+    "errors": {
+      "requiredFields": "Bitte alle Felder ausfüllen",
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
+    },
+    "success": "Registrierung erfolgreich",
+    "createUser": "Installateurszugang anlegen"
+  },
   "Role": {
     "guest": "Gast",
     "owner": "Eigentümer",
@@ -602,5 +640,16 @@
       "UPDATE_SEARCH": "Suche nach Updates...",
       "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Konfiguration speichern",
+    "SAVE_DESCRIPTION": "Das Speichern der neuen Konfiguration überschreibt die bestehende für dieses {{edgeShortName}} und wird beim Neuladen der Seite übernommen.",
+    "Component": "Komponente",
+    "ADD_CHANNEL": "Kanal hinzufügen",
+    "ADD": "hinzufügen",
+    "VALUE": "Wert",
+    "SET_VALUE": "Eingestellter Wert",
+    "MORE_CHANNELS": "Weitere Kanäle hinzufügen",
+    "CHANNEL": "Kanal"
   }
 }
