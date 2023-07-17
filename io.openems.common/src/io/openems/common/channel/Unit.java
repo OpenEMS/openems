@@ -6,9 +6,8 @@ import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import com.google.common.base.CaseFormat;
-
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.EnumUtils;
 
 /**
  * Units of measurement used in OpenEMS.
@@ -364,8 +363,7 @@ public enum Unit {
 
 	@Override
 	public String toString() {
-		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name())
-				+ (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
+		return EnumUtils.nameAsCamelCase(this) + (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
 	}
 
 	/**

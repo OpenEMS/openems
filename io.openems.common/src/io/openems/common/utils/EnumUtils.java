@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -11,6 +12,17 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class EnumUtils {
+
+	/**
+	 * Converts the Enum UPPER_UNDERSCORE name to UPPER_CAMEL-case.
+	 * 
+	 * @param <ENUM> the type
+	 * @param e      the enum
+	 * @return the name as Camel-Case
+	 */
+	public static <ENUM extends Enum<ENUM>> String nameAsCamelCase(ENUM e) {
+		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, e.name());
+	}
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link Boolean}.
