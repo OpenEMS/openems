@@ -101,8 +101,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(45,143,171)',
             stack: 0,
-            hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false,
+            hiddenOnInit: false,
             order: 1
           },
 
@@ -193,8 +192,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(253,197,7)',
             stack: 3,
-            hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false,
+            hiddenOnInit: false,
             order: 0
           }
         ];

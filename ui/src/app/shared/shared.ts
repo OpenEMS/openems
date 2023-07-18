@@ -58,4 +58,3 @@ export namespace Currency {
     CENT_PER_KWH = "Cent/kWh"
   }
 }
-
