@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Optional;
 
@@ -30,6 +31,8 @@ public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, Inp
 	protected ModbusRegisterElement(OpenemsType type, int startAddress, int length) {
 		super(type, startAddress, length);
 	}
+
+	protected abstract T convert(ByteBuffer buff);
 
 //	/**
 //	 * Sets the value of this Element from InputRegisters.

@@ -20,7 +20,7 @@ public class SignedDoublewordElement extends AbstractDoubleWordElement<SignedDou
 	}
 
 	@Override
-	protected Long fromByteBuffer(ByteBuffer buff) {
+	protected Long convert(ByteBuffer buff) {
 		return Long.valueOf(buff.getInt());
 	}
 

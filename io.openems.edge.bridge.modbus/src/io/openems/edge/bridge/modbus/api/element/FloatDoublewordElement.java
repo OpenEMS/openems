@@ -20,7 +20,7 @@ public class FloatDoublewordElement extends AbstractDoubleWordElement<FloatDoubl
 	}
 
 	@Override
-	protected Float fromByteBuffer(ByteBuffer buff) {
+	protected Float byteBufferToValue(ByteBuffer buff) {
 		return buff.order(this.getByteOrder()).getFloat(0);
 	}
 

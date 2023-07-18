@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
@@ -50,8 +51,13 @@ public class DummyRegisterElement extends AbstractMultipleWordsElement<DummyRegi
 	}
 
 	@Override
-	public void setInput(InputRegister[] value) {
-		// ignore
+	protected Void convert(ByteBuffer buff) {
+		return null;
+	}
+
+	@Override
+	protected InputRegister[] valueToBinary(Void value) {
+		return new InputRegister[length];
 	}
 
 }

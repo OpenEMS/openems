@@ -20,7 +20,7 @@ public class UnsignedDoublewordElement extends AbstractDoubleWordElement<Unsigne
 	}
 
 	@Override
-	protected Long fromByteBuffer(ByteBuffer buff) {
+	protected Long convert(ByteBuffer buff) {
 		return Integer.toUnsignedLong(buff.getInt(0));
 	}
 

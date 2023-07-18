@@ -24,36 +24,6 @@ public abstract class AbstractQuadrupleWordElement<SELF extends ModbusElement<SE
 		super(type, startAddress, 4);
 	}
 
-	@Override
-	public void setInput(InputRegister[] registers) {
-		// fill buffer
-		var buff = ByteBuffer.allocate(8).order(this.getByteOrder());
-		if (this.getWordOrder() == WordOrder.MSWLSW) {
-			buff.put(registers[0].toBytes());
-			buff.put(registers[1].toBytes());
-			buff.put(registers[2].toBytes());
-			buff.put(registers[3].toBytes());
-		} else {
-			buff.put(registers[3].toBytes());
-			buff.put(registers[2].toBytes());
-			buff.put(registers[1].toBytes());
-			buff.put(registers[0].toBytes());
-		}
-		buff.rewind();
-		// convert registers to Long
-		var value = this.fromByteBuffer(buff);
-		// set value
-		super.setValue(value);
-	}
-
-	/**
-	 * Converts a 8-byte ByteBuffer to the target OpenemsType.
-	 *
-	 * @param buff the ByteBuffer
-	 * @return an instance of the current OpenemsType
-	 */
-	protected abstract T fromByteBuffer(ByteBuffer buff);
-
 //	@Override
 //	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 //		if (this.isDebug()) {

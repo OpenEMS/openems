@@ -24,7 +24,7 @@ public abstract class AbstractReadDigitalInputsTask<//
 
 	@Override
 	protected void handleResponse(CoilElement element, int position, Boolean[] response) throws OpenemsException {
-		element.setInput(response[position]);
+		element.setInputValue(response[position]);
 	}
 
 	@Override

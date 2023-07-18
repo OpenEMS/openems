@@ -24,33 +24,6 @@ public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF,
 		super(type, startAddress, 2);
 	}
 
-	@Override
-	public void setInput(InputRegister[] registers) {
-		// TODO check length
-		// fill buffer
-		var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
-		if (this.getWordOrder() == WordOrder.MSWLSW) {
-			buff.put(registers[0].toBytes());
-			buff.put(registers[1].toBytes());
-		} else {
-			buff.put(registers[1].toBytes());
-			buff.put(registers[0].toBytes());
-		}
-		buff.rewind();
-		// convert registers to Long
-		var value = this.fromByteBuffer(buff);
-		// set value
-		super.setValue(value);
-	}
-
-	/**
-	 * Converts a 4-byte ByteBuffer to the the current OpenemsType.
-	 *
-	 * @param buff the ByteBuffer
-	 * @return an instance of the given OpenemsType
-	 */
-	protected abstract T fromByteBuffer(ByteBuffer buff);
-
 //	@Override
 //	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 //		if (valueOpt.isPresent()) {

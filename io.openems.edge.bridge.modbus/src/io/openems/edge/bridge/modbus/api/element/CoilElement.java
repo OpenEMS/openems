@@ -50,7 +50,7 @@ public class CoilElement extends ModbusElement<CoilElement, Boolean, Boolean> {
 	 *
 	 * @param coil the value
 	 */
-	public void setInput(Boolean coil) {
+	public void setInputValue(Boolean coil) {
 		if (this.isDebug()) {
 			this.log.info("Element [" + this + "] set input coil to [" + coil + "]");
 		}

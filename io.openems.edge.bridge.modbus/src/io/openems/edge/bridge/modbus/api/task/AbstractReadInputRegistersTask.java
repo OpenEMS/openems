@@ -23,7 +23,7 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 	@Override
 	protected void handleResponse(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {
-		element.setInput(Arrays.copyOfRange(response, position, position + element.length));
+		element.setInputValue(Arrays.copyOfRange(response, position, position + element.length));
 	}
 
 	@Override

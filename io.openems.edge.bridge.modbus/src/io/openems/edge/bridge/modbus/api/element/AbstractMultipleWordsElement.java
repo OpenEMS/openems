@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,24 @@ public abstract class AbstractMultipleWordsElement<SELF extends ModbusElement<SE
 
 	protected AbstractMultipleWordsElement(OpenemsType type, int startAddress, int length) {
 		super(type, startAddress, length);
+	}
+
+	@Override
+	protected final T binaryToValue(InputRegister[] registers) {
+		// TODO check length
+		// fill buffer
+		var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
+		if (this.getWordOrder() == WordOrder.MSWLSW) {
+			for (int i = 0; i < this.length; i++) {
+				buff.put(registers[i].toBytes());
+			}
+		} else {
+			for (int i = this.length - 1; i >= 0; i--) {
+				buff.put(registers[i].toBytes());
+			}
+		}
+		buff.rewind();
+		return this.byteBufferToValue(buff);
 	}
 
 	/**

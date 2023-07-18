@@ -1,9 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
-import java.util.Optional;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 
 /**
@@ -22,7 +20,7 @@ public class FloatQuadruplewordElement extends AbstractQuadrupleWordElement<Floa
 	}
 
 	@Override
-	protected Double fromByteBuffer(ByteBuffer buff) {
+	protected Double convert(ByteBuffer buff) {
 		return Double.valueOf(buff.getDouble());
 	}
 

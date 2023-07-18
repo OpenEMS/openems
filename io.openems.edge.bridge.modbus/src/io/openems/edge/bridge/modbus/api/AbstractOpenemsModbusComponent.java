@@ -4,7 +4,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -351,8 +350,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						var convertedValue = converter.channelToElement(value);
 						if (this.element instanceof ModbusRegisterElement<?, ?> registerElement) {
 							try {
-								// TODO
-//								registerElement.setNextWriteValue(Optional.ofNullable(convertedValue));
+								registerElement.setNextWriteValueFromObject(convertedValue);
 //							} catch (OpenemsException | IllegalArgumentException e) {
 							} catch (IllegalArgumentException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
@@ -367,14 +365,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 								}
 							}
 						} else if (this.element instanceof CoilElement coilElement) {
-							try {
-								coilElement.setNextWriteValue(
-										Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
-							} catch (OpenemsException e) {
-								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
-										"Unable to write to ModbusCoilElement " //
-												+ "[" + this.element.startAddress + "]: " + e.getMessage());
-							}
+//							try {
+							coilElement.setNextWriteValue(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue));
+//							} catch (OpenemsException e) {
+//								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+//										"Unable to write to ModbusCoilElement " //
+//												+ "[" + this.element.startAddress + "]: " + e.getMessage());
+//							}
 						} else {
 							AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 									"Unable to write to Element " //

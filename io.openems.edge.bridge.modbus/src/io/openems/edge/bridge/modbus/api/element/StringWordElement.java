@@ -27,7 +27,7 @@ public class StringWordElement extends AbstractMultipleWordsElement<StringWordEl
 	}
 
 	@Override
-	public void setInput(InputRegister[] registers) {
+	public void setInputValue(InputRegister[] registers) {
 		// convert registers
 		var buff = ByteBuffer.allocate(this.length * 2).order(this.getByteOrder());
 		for (InputRegister r : registers) {

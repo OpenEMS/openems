@@ -20,8 +20,7 @@ public class UnsignedQuadruplewordElement extends AbstractQuadrupleWordElement<U
 	}
 
 	@Override
-	protected Long fromByteBuffer(ByteBuffer buff) {
-
+	protected Long convert(ByteBuffer buff) {
 		return buff.getLong(0);
 	}
 

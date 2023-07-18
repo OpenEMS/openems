@@ -2,8 +2,6 @@ package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -23,7 +21,7 @@ public class UnsignedWordElement extends AbstractSingleWordElement<UnsignedWordE
 	}
 
 	@Override
-	protected Integer fromByteBuffer(ByteBuffer buff) {
+	protected Integer convert(ByteBuffer buff) {
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 

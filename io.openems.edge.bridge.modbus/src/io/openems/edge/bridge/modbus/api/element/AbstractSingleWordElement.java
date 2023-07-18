@@ -25,27 +25,12 @@ public abstract class AbstractSingleWordElement<SELF extends ModbusRegisterEleme
 	}
 
 	@Override
-	public final void setInput(InputRegister[] registers) {
+	protected T binaryToValue(InputRegister[] registers) {
 		// TODO check length
-		this.setInput(registers[0]);
-	}
-
-	protected void setInput(InputRegister register) {
-		// convert register
 		var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
-		buff.put(register.toBytes());
-		var value = this.fromByteBuffer(buff);
-		// set value
-		super.setValue(value);
+		buff.put(registers[0].toBytes());
+		return this.convert(buff);
 	}
-
-	/**
-	 * Converts a 2-byte ByteBuffer to the the target OpenemsType.
-	 *
-	 * @param buff the ByteBuffer
-	 * @return an instance of the current OpenemsType
-	 */
-	protected abstract T fromByteBuffer(ByteBuffer buff);
 
 //	@Override
 //	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
