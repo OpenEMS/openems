@@ -243,7 +243,7 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 			Collections.addAll(readCoilElements0, module.getInputCoil0Elements());
 			Collections.addAll(readCoilElements512, module.getInputCoil512Elements());
 			for (CoilElement element : module.getOutputCoil512Elements()) {
-				var writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
+				var writeCoilTask = new FC5WriteCoilTask(element.startAddress, element);
 				this.protocol.addTask(writeCoilTask);
 			}
 		}

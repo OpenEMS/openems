@@ -252,11 +252,11 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					// Fill gaps with DummyModbusElements
 					var lastElement = readElements.peekLast();
 					if (lastElement != null) {
-						var gap = address - lastElement.getStartAddress() - lastElement.length;
+						var gap = address - lastElement.startAddress - lastElement.length;
 						if (gap > 0) {
 							readElements.add(new DummyRegisterElement(//
-									lastElement.getStartAddress() + lastElement.length,
-									lastElement.getStartAddress() + lastElement.length + gap - 1));
+									lastElement.startAddress + lastElement.length,
+									lastElement.startAddress + lastElement.length + gap - 1));
 						}
 					}
 
@@ -316,8 +316,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 			var element = writeElements.pollFirst();
 			while (element != null) {
 				var lastElement = taskElements.peekLast();
-				if (lastElement != null
-						&& (lastElement.getStartAddress() + lastElement.length < element.getStartAddress())) {
+				if (lastElement != null && (lastElement.startAddress + lastElement.length < element.startAddress)) {
 					// Found gap
 					this.addWriteTask(taskElements);
 					taskElements.clear();
@@ -401,7 +400,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		}
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
-						elements.peekFirst().getStartAddress(), Priority.HIGH,
+						elements.peekFirst().startAddress, Priority.HIGH,
 						elements.toArray(new ModbusElement[elements.size()])));
 	}
 
@@ -417,7 +416,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		}
 		this.modbusProtocol.addTask(//
 				new FC16WriteRegistersTask(//
-						elements.peekFirst().getStartAddress(), elements.toArray(new ModbusElement[elements.size()])));
+						elements.peekFirst().startAddress, elements.toArray(new ModbusElement[elements.size()])));
 	}
 
 	/**

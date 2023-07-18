@@ -48,10 +48,10 @@ public abstract non-sealed class AbstractTask<//
 		var nextStartAddress = startAddress;
 		var length = 0;
 		for (var element : elements) {
-			if (element.getStartAddress() != nextStartAddress) {
+			if (element.startAddress != nextStartAddress) {
 				throw new IllegalArgumentException("StartAddress for Modbus Element wrong. " //
-						+ "Got [" + element.getStartAddress() + "/0x" + Integer.toHexString(element.getStartAddress())
-						+ "] Expected [" + nextStartAddress + "/0x" + Integer.toHexString(nextStartAddress) + "]");
+						+ "Got [" + element.startAddress + "/0x" + Integer.toHexString(element.startAddress) + "] " //
+						+ "Expected [" + nextStartAddress + "/0x" + Integer.toHexString(nextStartAddress) + "]");
 			}
 			nextStartAddress += element.length;
 			length += element.length;

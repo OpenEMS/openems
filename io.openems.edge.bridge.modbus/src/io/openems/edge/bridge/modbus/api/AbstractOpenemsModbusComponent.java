@@ -278,7 +278,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 */
 		public ChannelMapper<ELEMENT> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
-			return this.m(channelId, converter, new ChannelMetaInfo(this.element.getStartAddress()));
+			return this.m(channelId, converter, new ChannelMetaInfo(this.element.startAddress));
 		}
 
 		/**
@@ -357,7 +357,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 							} catch (IllegalArgumentException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 										"Unable to write to ModbusRegisterElement. " //
-												+ "Address [" + this.element.getStartAddress() + "] " //
+												+ "Address [" + this.element.startAddress + "] " //
 												+ "Channel [" + channel.address() + "]. " //
 												+ "Exception [" + e.getClass().getSimpleName() + "] " //
 												+ ": " + e.getMessage());
@@ -373,12 +373,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 							} catch (OpenemsException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 										"Unable to write to ModbusCoilElement " //
-												+ "[" + this.element.getStartAddress() + "]: " + e.getMessage());
+												+ "[" + this.element.startAddress + "]: " + e.getMessage());
 							}
 						} else {
 							AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 									"Unable to write to Element " //
-											+ "[" + this.element.getStartAddress() + "]: it is not a ModbusElement");
+											+ "[" + this.element.startAddress + "]: it is not a ModbusElement");
 						}
 					});
 				}

@@ -30,11 +30,11 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 	private final Logger log = LoggerFactory.getLogger(ModbusElement.class);
 
 	private final OpenemsType type;
-	private final int startAddress;
 
-	/**
-	 * Number of Registers or Coils.
-	 */
+	/** The start address of this Modbus element. */
+	public final int startAddress;
+
+	/** Number of Registers or Coils. */
 	public final int length;
 
 	// Counts for how many cycles no valid value was
@@ -57,16 +57,6 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 
 	// TODO protected
 	public abstract void setInput(BINARY value);
-
-	/**
-	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
-	 * set.
-	 *
-	 * @param callback the callback
-	 */
-	public final void onSetNextWrite(Consumer<Optional<T>> callback) {
-		this.onSetNextWriteCallbacks.add(callback);
-	}
 
 	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
@@ -95,12 +85,14 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 	}
 
 	/**
-	 * Gets the start address of this Modbus element.
+	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
+	 * set.
 	 *
-	 * @return the start address
+	 * @param callback the callback
 	 */
-	public final int getStartAddress() {
-		return this.startAddress;
+	public final SELF onSetNextWrite(Consumer<Optional<T>> callback) {
+		this.onSetNextWriteCallbacks.add(callback);
+		return this.self();
 	}
 
 	/**

@@ -268,7 +268,7 @@ public class SingleRack {
 						.subList(x * maxElementsPerTask, Math.min((x + 1) * maxElementsPerTask, elements.size())) //
 						.stream() //
 						.toArray(ModbusElement[]::new);
-				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].startAddress, Priority.LOW, taskElements));
 			}
 
 		}
@@ -292,7 +292,7 @@ public class SingleRack {
 						.subList(x * maxElementsPerTask, Math.min((x + 1) * maxElementsPerTask, elements.size())) //
 						.stream() //
 						.toArray(ModbusElement[]::new);
-				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].startAddress, Priority.LOW, taskElements));
 			}
 		}
 

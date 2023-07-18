@@ -57,7 +57,7 @@ public class BitsWordElement extends UnsignedWordElement {
 	 * @return myself for builder pattern
 	 */
 	public BitsWordElement bit(int bitIndex, ChannelId channelId, BitConverter converter) {
-		return this.bit(bitIndex, channelId, converter, new ChannelMetaInfoBit(this.getStartAddress(), bitIndex));
+		return this.bit(bitIndex, channelId, converter, new ChannelMetaInfoBit(this.startAddress, bitIndex));
 	}
 
 	/**

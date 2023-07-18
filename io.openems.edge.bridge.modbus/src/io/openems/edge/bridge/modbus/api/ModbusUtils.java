@@ -40,7 +40,7 @@ public class ModbusUtils {
 		final var result = new CompletableFuture<T>();
 
 		// Activate task
-		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
+		final Task task = new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element);
 		modbusProtocol.addTask(task);
 
 		// Register listener for element
@@ -84,7 +84,7 @@ public class ModbusUtils {
 		final var result = new CompletableFuture<List<T>>();
 
 		// Activate task
-		final Task task = new FC3ReadRegistersTask(elements[0].getStartAddress(), Priority.HIGH, elements);
+		final Task task = new FC3ReadRegistersTask(elements[0].startAddress, Priority.HIGH, elements);
 		modbusProtocol.addTask(task);
 
 		// Register listener for each element

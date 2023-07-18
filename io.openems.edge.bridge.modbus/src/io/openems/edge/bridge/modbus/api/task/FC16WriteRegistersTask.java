@@ -18,7 +18,6 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask.MergedWriteRegisters;
 
 /**
  * Implements a Write Holding Registers Task, using Modbus function code 16
@@ -81,13 +80,13 @@ public class FC16WriteRegistersTask
 					final MergedWriteRegisters write;
 					if (writes.isEmpty()) {
 						// no writes created yet
-						write = MergedWriteRegisters.of(e.getStartAddress());
+						write = MergedWriteRegisters.of(e.startAddress);
 						writes.add(write);
 					} else {
 						var lastWrite = writes.get(writes.size() - 1);
-						if (lastWrite.getLastAddress() + 1 != e.getStartAddress()) {
+						if (lastWrite.getLastAddress() + 1 != e.startAddress) {
 							// there is a hole between last element and current element
-							write = MergedWriteRegisters.of(e.getStartAddress());
+							write = MergedWriteRegisters.of(e.startAddress);
 							writes.add(write);
 						} else {
 							// no hole -> combine writes

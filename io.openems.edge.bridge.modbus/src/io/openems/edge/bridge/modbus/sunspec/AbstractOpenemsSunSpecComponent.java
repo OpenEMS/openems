@@ -335,20 +335,20 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			switch (point.get().accessMode) {
 			case READ_ONLY:
 				// Read-Only -> replace element with dummy
-				element = new DummyRegisterElement(element.getStartAddress(),
-						element.getStartAddress() + point.get().type.length - 1);
+				element = new DummyRegisterElement(element.startAddress,
+						element.startAddress + point.get().type.length - 1);
 				break;
 			case READ_WRITE:
 			case WRITE_ONLY:
 				// Add a Write-Task
 				// TODO create one FC16WriteRegistersTask for entire block
-				final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
+				final Task writeTask = new FC16WriteRegistersTask(element.startAddress, element);
 				this.modbusProtocol.addTask(writeTask);
 				break;
 			}
 		}
 
-		final Task readTask = new FC3ReadRegistersTask(elements[0].getStartAddress(), priority, elements);
+		final Task readTask = new FC3ReadRegistersTask(elements[0].startAddress, priority, elements);
 		this.modbusProtocol.addTask(readTask);
 	}
 
@@ -381,7 +381,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		}
 
 		// Activate task
-		final Task task = new FC3ReadRegistersTask(elements[0].getStartAddress(), Priority.HIGH, elements);
+		final Task task = new FC3ReadRegistersTask(elements[0].startAddress, Priority.HIGH, elements);
 		this.modbusProtocol.addTask(task);
 
 		// Prepare result
