@@ -42,7 +42,7 @@ While IntelliJ also works, Eclipse IDE is the officially supported development e
 
 .Eclipse Code formatter
 
-Use `Eclipse [built-in]` Code Formating Rules
+Use `Eclipse [built-in]` Code Formatting Rules
 
  * Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> ActiveProfile -> select -> `Eclipse [built-in]`
      
