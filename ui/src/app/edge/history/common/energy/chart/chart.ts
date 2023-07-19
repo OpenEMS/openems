@@ -102,7 +102,7 @@ export class ChartComponent extends AbstractHistoryChart {
             color: 'rgb(45,143,171)',
             stack: 0,
             hiddenOnInit: false,
-            order: 1
+            ...(chartType === 'line' && { order: 1 })
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -164,7 +164,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,0,200)',
             stack: 1,
-            order: 4
+            ...(chartType === 'line' && { order: 4 })
           },
 
           // Buy from Grid
@@ -178,7 +178,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,0,0)',
             stack: 2,
-            order: 2
+            ...(chartType === 'line' && { order: 2 })
           },
 
           // Consumption
