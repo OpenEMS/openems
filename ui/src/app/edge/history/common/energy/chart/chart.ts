@@ -121,7 +121,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(0,223,0)',
             stack: 1,
-            order: 6
+            ...(chartType === 'line' && { order: 6 })
           },
 
           // Discharge Power
@@ -138,7 +138,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(200,0,0)',
             stack: 2,
-            order: 5
+            ...(chartType === 'line' && { order: 5 })
           },
 
           // Sell to grid
