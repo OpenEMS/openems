@@ -79,18 +79,6 @@ export class ChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
         return [
-          ...[chartType === 'line' &&
-          {
-            name: translate.instant('General.soc'),
-            converter: () => {
-              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
-            },
-            color: 'rgb(189, 195, 199)',
-            borderDash: [10, 10],
-            yAxisId: ChartAxis.RIGHT,
-            stack: 1,
-            customUnit: YAxisTitle.PERCENTAGE
-          }],
           {
             name: translate.instant('General.production'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -101,7 +89,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(45,143,171)',
             stack: 0,
-            hiddenOnInit: false,
+            hiddenOnInit: chartType == 'line' ? false : true,
             order: 1
           },
 
@@ -192,9 +180,21 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(253,197,7)',
             stack: 3,
-            hiddenOnInit: false,
+            hiddenOnInit: chartType == 'line' ? false : true,
             ...(chartType === 'line' && { order: 0 })
-          }
+          },
+          ...[chartType === 'line' &&
+          {
+            name: translate.instant('General.soc'),
+            converter: () => {
+              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
+            },
+            color: 'rgb(189, 195, 199)',
+            borderDash: [10, 10],
+            yAxisId: ChartAxis.RIGHT,
+            stack: 1,
+            customUnit: YAxisTitle.PERCENTAGE
+          }]
         ];
       },
       tooltip: {
@@ -220,6 +220,7 @@ export class ChartComponent extends AbstractHistoryChart {
         // Right Yaxis, only shown for line-chart
         (chartType === 'line' && {
           unit: YAxisTitle.PERCENTAGE,
+          customTitle: '%',
           position: 'right',
           yAxisId: ChartAxis.RIGHT,
           displayGrid: false

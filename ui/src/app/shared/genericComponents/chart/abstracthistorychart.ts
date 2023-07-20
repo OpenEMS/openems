@@ -495,7 +495,6 @@ export abstract class AbstractHistoryChart implements OnInit {
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): ChartOptions {
 
-
     let tooltipsLabel: string | null = null;
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));
 
@@ -508,8 +507,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              padding: 10
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
             },
             gridLines: {
               display: element.displayGrid ?? true
@@ -517,7 +515,6 @@ export abstract class AbstractHistoryChart implements OnInit {
             ticks: {
               beginAtZero: true,
               max: 100,
-              padding: 5,
               stepSize: 20
             }
           });
@@ -529,7 +526,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 5,
               fontSize: 11
             },
@@ -632,6 +629,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
           chartLegendLabelItems.push({
+
             text: dataset.label,
             datasetIndex: index,
             fillStyle: dataset.backgroundColor.toString(),
@@ -667,6 +665,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       // We hid a dataset ... rerender the chart
       chart.update();
     };
+
+    // Chart.defaults.global.legend.
     return options;
   }
 
