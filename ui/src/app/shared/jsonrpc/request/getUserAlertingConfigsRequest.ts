@@ -19,7 +19,7 @@ export class GetUserAlertingConfigsRequest extends JsonrpcRequest {
     private static METHOD: string = "getUserAlertingConfigs";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string
         }
     ) {

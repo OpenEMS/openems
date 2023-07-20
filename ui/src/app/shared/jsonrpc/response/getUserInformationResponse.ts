@@ -30,8 +30,8 @@ import { JsonrpcResponseSuccess } from "../base";
 export class GetUserInformationResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             user: {
                 firstname: string,
                 lastname: string,

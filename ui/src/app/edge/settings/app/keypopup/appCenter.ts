@@ -1,6 +1,5 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Wrapper for Requests specific to AppCenter.
  * 
@@ -32,7 +31,7 @@ export namespace AppCenter {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 payload: JsonrpcRequest
             }
         ) {

@@ -10,8 +10,8 @@ import { Role } from 'src/app/shared/type/role';
 })
 export class ElectricityMeterComponent extends AbstractModalLine implements OnInit {
 
-    protected readonly Role = Role;
-    protected readonly Utils = Utils;
+    protected override readonly Role = Role;
+    protected override readonly Utils = Utils;
     protected readonly TextIndentation = TextIndentation;
 
     protected readonly phases: { key: string, name: string, power: number | null, current: number | null, voltage: number | null }[] = [
@@ -20,7 +20,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
         { key: "L3", name: "", power: null, current: null, voltage: null }
     ];
 
-    protected getChannelAddresses(): ChannelAddress[] {
+    protected override getChannelAddresses(): ChannelAddress[] {
         let channelAddresses: ChannelAddress[] = [];
         for (let phase of [1, 2, 3]) {
             channelAddresses.push(
@@ -32,7 +32,7 @@ export class ElectricityMeterComponent extends AbstractModalLine implements OnIn
         return channelAddresses;
     }
 
-    protected onCurrentData(currentData: CurrentData): void {
+    protected override onCurrentData(currentData: CurrentData): void {
         this.phases.forEach((phase) => {
             var power = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
             phase.name = "Phase " + phase.key;

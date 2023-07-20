@@ -11,9 +11,6 @@ export class ModalLineComponent extends AbstractModalLine {
     @Input()
     protected leftColumnWidth: number;
 
-    /** ControlName for Form Field */
-    @Input() public controlName: string;
-
     /** ControlName for Toggle Button */
     @Input() protected control:
         { type: 'TOGGLE' } |

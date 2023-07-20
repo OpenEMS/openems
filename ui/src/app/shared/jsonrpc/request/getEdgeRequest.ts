@@ -22,7 +22,7 @@ export class GetEdgeRequest extends JsonrpcRequest {
     private static METHOD: string = "getEdge";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string
         }
     ) {
