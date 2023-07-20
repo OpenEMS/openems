@@ -138,6 +138,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 
 				final var edgeOpt = this.metadata.getEdge(edgeId);
 				edgeOpt.ifPresent(edge -> {
+					// TODO remove Fault check with configuration.
 					if (level.isAtLeast(Level.FAULT)) {
 						this.tryAddEdge(edge, level);
 					} else {

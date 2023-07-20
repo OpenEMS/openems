@@ -15,10 +15,11 @@ import com.google.gson.JsonElement;
 
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
+import io.openems.common.exceptions.OpenemsException;
 
 public class Dummy {
 
@@ -67,9 +68,9 @@ public class Dummy {
 		}
 	}
 
-	public static class MetadataImpl extends SimpleMetadataImpl {
+	public static class OfflineEdgeMetadataImpl extends SimpleMetadataImpl {
 		private List<Edge> edges;
-		private Map<String, List<AlertingSetting>> settings;
+		private Map<String, List<OfflineEdgeAlertingSetting>> settings;
 
 		/**
 		 * Initialize Metadata with test data.
@@ -77,7 +78,7 @@ public class Dummy {
 		 * @param edges    to add
 		 * @param settings to add
 		 */
-		public void initialize(List<Edge> edges, Map<String, List<AlertingSetting>> settings) {
+		public void initialize(List<Edge> edges, Map<String, List<OfflineEdgeAlertingSetting>> settings) {
 			this.edges = edges;
 			this.settings = settings;
 		}
@@ -87,7 +88,7 @@ public class Dummy {
 			return true;
 		}
 
-		public Map<String, List<AlertingSetting>> getSettings() {
+		public Map<String, List<OfflineEdgeAlertingSetting>> getSettings() {
 			return this.settings;
 		}
 
@@ -102,9 +103,10 @@ public class Dummy {
 		}
 
 		@Override
-		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+		public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
 			return this.settings.get(edgeId);
 		}
+
 	}
 
 	public static class EventAdminImpl implements EventAdmin {

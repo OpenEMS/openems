@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -21,9 +21,11 @@ import io.openems.common.utils.JsonUtils;
  *   "result": {
  *      userSettings: [
  *          {
- *           userId: string,
+ *           userLogin: string,
  *           role: {@link Role},
- *           delayTime": number
+ *           offlineEdgeDelay: number,
+ *           faultEdgeDelay: number,
+ *           warningEdgeDelay: number
  *          }
  *      ]
  *   }
@@ -32,9 +34,9 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
-	private final List<AlertingSetting> settings;
+	private final List<UserAlertingSettings> settings;
 
-	public GetUserAlertingConfigsResponse(UUID id, List<AlertingSetting> settings) {
+	public GetUserAlertingConfigsResponse(UUID id, List<UserAlertingSettings> settings) {
 		super(id);
 		this.settings = settings;
 	}
@@ -46,11 +48,13 @@ public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 				.build();
 	}
 
-	private JsonElement toJson(AlertingSetting setting) {
+	private JsonElement toJson(UserAlertingSettings setting) {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("userId", setting.getUserId()) //
-				.add("role", setting.getUserRole().asJson()) //
-				.addProperty("delayTime", setting.getDelayTime()) //
+				.addProperty("userLogin", setting.userLogin()) //
+				.add("role", setting.userRole().asJson()) //
+				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
+				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //
+				.addProperty("warningEdgeDelay", setting.edgeWarningDelay()) //
 				.build(); //
 	}
 

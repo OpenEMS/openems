@@ -15,7 +15,7 @@ import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
@@ -152,13 +152,13 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			return null;
 		}
 		try {
-			var alertingSettings = this.metadata.getUserAlertingSettings(edge.getId());
+			var alertingSettings = this.metadata.getEdgeOfflineAlertingSettings(edge.getId());
 			if (alertingSettings == null || alertingSettings.isEmpty()) {
 				return null;
 			}
 			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
 			for (var setting : alertingSettings) {
-				if (setting.getDelayTime() > 0 && this.shouldReceiveMail(edge, setting)) {
+				if (setting.delay() > 0 && this.shouldReceiveMail(edge, setting)) {
 					message.addRecipient(setting);
 				}
 			}
@@ -171,8 +171,8 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return null;
 	}
 
-	private boolean shouldReceiveMail(Edge edge, AlertingSetting setting) {
-		var lastMailRecievedAt = setting.getLastNotification();
+	private boolean shouldReceiveMail(Edge edge, OfflineEdgeAlertingSetting setting) {
+		var lastMailRecievedAt = setting.lastNotification();
 		if (lastMailRecievedAt == null) {
 			return true;
 		}
@@ -180,7 +180,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (lastMailRecievedAt.isAfter(edgeOfflineSince)) {
 			return false;
 		}
-		var nextMailRecieveAt = edgeOfflineSince.plus(setting.getDelayTime(), ChronoUnit.MINUTES);
+		var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
 		return nextMailRecieveAt.isAfter(lastMailRecievedAt);
 	}
 

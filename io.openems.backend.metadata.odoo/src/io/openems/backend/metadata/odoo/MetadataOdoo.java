@@ -31,8 +31,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Mailer;
@@ -405,18 +407,28 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId);
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getOfflineAlertingSettings(edgeId);
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getSumStateAlertingSettings(edgeId);
+	}
+
+	@Override
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException {
-		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) throws OpenemsException {
+		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, settings);
 	}
 
 	@Override

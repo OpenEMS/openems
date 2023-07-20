@@ -30,7 +30,7 @@ public interface Handler<T extends Message> {
 
 	/**
 	 * Handle given event.
-	 * 
+	 *
 	 * @param eventTopic to handle
 	 * @return {@link Consumer} to be scheduled in executor
 	 */

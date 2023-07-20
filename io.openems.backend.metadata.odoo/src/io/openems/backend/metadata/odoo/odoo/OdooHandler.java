@@ -19,16 +19,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
+import io.openems.backend.metadata.odoo.Field.AlertingSetting;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
+import io.openems.backend.metadata.odoo.Field.GenericField;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
 import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
+import io.openems.backend.metadata.odoo.Field.User;
 import io.openems.backend.metadata.odoo.MetadataOdoo;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
@@ -937,7 +942,7 @@ public class OdooHandler {
 	 * @return list of alerting settings
 	 * @throws OpenemsException on error
 	 */
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.requestUserAlertingSettings(edgeId, null);
 	}
 
@@ -949,63 +954,110 @@ public class OdooHandler {
 	 * @return {@link AlertingSetting} or {@link null} if no settings are stored
 	 * @throws OpenemsException on error
 	 */
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		var settings = this.requestUserAlertingSettings(edgeId, userId);
 		return settings.isEmpty() ? null : settings.get(0);
 	}
 
-	private List<AlertingSetting> requestUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	private List<UserAlertingSettings> requestUserAlertingSettings(String edgeName, String userLogin) throws OpenemsException {
 		// Define Fields
-		var edgeUserFields = new Field[] { //
-				Field.EdgeDeviceUserRole.ID, //
-				Field.EdgeDeviceUserRole.USER_ODOO_ID, //
-				Field.EdgeDeviceUserRole.ROLE, //
-				Field.EdgeDeviceUserRole.TIME_TO_WAIT, //
-				Field.EdgeDeviceUserRole.LAST_NOTIFICATION //
-		};
-		// Define Domains
-		var edgeNameField = new Field[] { Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, Field.EdgeDevice.NAME };
-		var edgeUserFilter = new Domain[] { //
-				new Domain(edgeNameField, Operator.EQ, edgeId), //
-				new Domain(Field.EdgeDeviceUserRole.USER_ODOO_ID, userId == null ? Operator.NE : Operator.EQ, userId) //
-		};
-		// Get all matching Edge Users
-		var edgeUsers = OdooUtils.searchRead(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
-				edgeUserFields, edgeUserFilter);
-		// Get all userIds
-		var userIds = Arrays.stream(edgeUsers) //
-				.map(e -> (Object[]) e.get(Field.EdgeDeviceUserRole.USER_ODOO_ID.id())) //
-				.map(e -> (Integer) e[0]) //
-				.toArray(Integer[]::new);
-		// read all login fields for the given user ids
-		var users = OdooUtils.readMany(this.credentials, Field.User.ODOO_MODEL, //
-				userIds, Field.User.LOGIN);
-		// map from OdooUserId to User
-		var usersMap = new HashMap<Integer, Map<String, Object>>(users.length);
-		for (var i = 0; i < users.length; i++) {
-			usersMap.put(userIds[i], users[i]);
-		}
-		// create result list;
-		var result = new ArrayList<AlertingSetting>(edgeUsers.length);
-		for (var edgeUser : edgeUsers) {
-			var userIdsArr = OdooUtils.getAs(Field.EdgeDeviceUserRole.USER_ODOO_ID, edgeUser, Object[].class);
-			if (userIdsArr.length != 2) {
-				this.parent.logWarn(this.log, "invalid dataset for EdgeUser[" + userIdsArr + ']');
-			} else {
-				var userOdooId = (Integer) userIdsArr[0];
+		final var userLoginField = new GenericField(AlertingSetting.USER_ODOO_ID, User.LOGIN);
+		final var edgeNameField = new GenericField(AlertingSetting.DEVICE_ODOO_ID, EdgeDevice.NAME);
 
-				if (usersMap.containsKey(userOdooId)) {
-					var edgeUserId = OdooUtils.getAs(Field.EdgeDeviceUserRole.ID, edgeUser, Integer.class);
-					var login = OdooUtils.getAs(Field.User.LOGIN, usersMap.get(userOdooId), String.class);
-					var role = OdooUtils.getAs(Field.EdgeDeviceUserRole.ROLE, edgeUser, String.class);
-					var timeToWait = OdooUtils.getAs(Field.EdgeDeviceUserRole.TIME_TO_WAIT, edgeUser, Integer.class);
-					var lastNotificationStr = OdooUtils.getAsOrElse(Field.EdgeDeviceUserRole.LAST_NOTIFICATION,
-							edgeUser, String.class, null);
-					var lastNotification = OdooUtils.DateTime.stringToDateTime(lastNotificationStr);
-					result.add(
-							new AlertingSetting(edgeUserId, login, Role.getRole(role), lastNotification, timeToWait));
-				}
-			}
+		final var fields = Field.getSqlQueryFields(AlertingSetting.class, userLoginField);
+
+		// Define Domains
+		final var edgeUserFilter = new Domain[] { //
+				new Domain(edgeNameField, Operator.EQ, edgeName), //
+				new Domain(userLoginField, edgeName == null ? Operator.NE : Operator.EQ, edgeName) //
+		};
+		// Get all matching Alerting settings
+		var alertingSettings = OdooUtils.searchRead(this.credentials, AlertingSetting.ODOO_MODEL, //
+				fields, edgeUserFilter);
+
+		// create result list;
+		var result = new ArrayList<UserAlertingSettings>(alertingSettings.length);
+		for (var setting : alertingSettings) {
+			var userId = OdooUtils.getAs(AlertingSetting.USER_ODOO_ID, setting, Integer.class);
+			var deviceId = OdooUtils.getAs(AlertingSetting.DEVICE_ODOO_ID, setting, Integer.class);
+
+			var login = OdooUtils.getAs(userLoginField, setting, String.class);
+
+			var edgeOfflineDelay = OdooUtils.getAs(AlertingSetting.OFFLINE_DELAY, setting, Integer.class);
+			var edgeOfflineNotification = OdooUtils.getAsOrElse(AlertingSetting.OFFLINE_LAST_NOTIFICATION, setting,
+					ZonedDateTime.class, null);
+
+			var edgeFaultDelay = OdooUtils.getAs(AlertingSetting.FAULT_DELAY, setting, Integer.class);
+			var edgeWarningDelay = OdooUtils.getAs(AlertingSetting.WARNING_DELAY, setting, Integer.class);
+			var sumStateNotification = OdooUtils.getAsOrElse(AlertingSetting.SUM_STATE_LAST_NOTIFICATION, setting,
+					ZonedDateTime.class, null);
+
+			result.add(new UserAlertingSettings(userId, deviceId, login, null, edgeOfflineDelay, edgeFaultDelay, edgeWarningDelay,
+					edgeOfflineNotification, sumStateNotification));
+		}
+		return result;
+	}
+
+	public List<OfflineEdgeAlertingSetting> getOfflineAlertingSettings(String edgeName) throws OpenemsException {
+		final var edgeNameField = new GenericField(AlertingSetting.DEVICE_ODOO_ID, EdgeDevice.NAME);
+
+		final var fields = new Field[] {
+				AlertingSetting.DEVICE_ODOO_ID,
+				AlertingSetting.USER_ODOO_ID,
+				AlertingSetting.OFFLINE_DELAY,
+				AlertingSetting.OFFLINE_LAST_NOTIFICATION
+		};
+
+		final var filter = new Domain[] { //
+				new Domain(edgeNameField, Operator.EQ, edgeName)
+		};
+
+		var alertingSettings = OdooUtils.searchRead(this.credentials, AlertingSetting.ODOO_MODEL, //
+				fields, filter);
+
+		var result = new ArrayList<OfflineEdgeAlertingSetting>(alertingSettings.length);
+		for (var setting : alertingSettings) {
+			var userId = OdooUtils.getAs(AlertingSetting.USER_ODOO_ID, setting, Integer.class);
+			var deviceId = OdooUtils.getAs(AlertingSetting.DEVICE_ODOO_ID, setting, Integer.class);
+
+			var delay = OdooUtils.getAs(AlertingSetting.OFFLINE_DELAY, setting, Integer.class);
+			var lastNotification = OdooUtils.getAsOrElse(AlertingSetting.OFFLINE_LAST_NOTIFICATION, setting,
+					ZonedDateTime.class, null);
+
+			result.add(new OfflineEdgeAlertingSetting(deviceId, userId, delay, lastNotification));
+		}
+		return result;
+	}
+
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeName) throws OpenemsException {
+		final var edgeNameField = new GenericField(AlertingSetting.DEVICE_ODOO_ID, EdgeDevice.NAME);
+
+		final var fields = new Field[] {
+				AlertingSetting.DEVICE_ODOO_ID,
+				AlertingSetting.USER_ODOO_ID,
+				AlertingSetting.FAULT_DELAY,
+				AlertingSetting.WARNING_DELAY,
+				AlertingSetting.SUM_STATE_LAST_NOTIFICATION
+		};
+
+		final var filter = new Domain[] { //
+				new Domain(edgeNameField, Operator.EQ, edgeName)
+		};
+
+		var alertingSettings = OdooUtils.searchRead(this.credentials, AlertingSetting.ODOO_MODEL, //
+				fields, filter);
+
+		var result = new ArrayList<SumStateAlertingSetting>(alertingSettings.length);
+		for (var setting : alertingSettings) {
+			var userId = OdooUtils.getAs(AlertingSetting.USER_ODOO_ID, setting, Integer.class);
+			var deviceId = OdooUtils.getAs(AlertingSetting.DEVICE_ODOO_ID, setting, Integer.class);
+
+			var faultDelay = OdooUtils.getAs(AlertingSetting.FAULT_DELAY, setting, Integer.class);
+			var warningDelay = OdooUtils.getAs(AlertingSetting.WARNING_DELAY, setting, Integer.class);
+			var lastNotification = OdooUtils.getAsOrElse(AlertingSetting.SUM_STATE_LAST_NOTIFICATION, setting,
+					ZonedDateTime.class, null);
+
+			result.add(new SumStateAlertingSetting(deviceId, userId, faultDelay, warningDelay, lastNotification));
 		}
 		return result;
 	}
@@ -1018,41 +1070,47 @@ public class OdooHandler {
 	 * @param userAlertingSettings list of users
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(MyUser user, String edgeId, List<AlertingSetting> userAlertingSettings)
+	public void setUserAlertingSettings(MyUser user, String edgeId, List<UserAlertingSettings> userAlertingSettings)
 			throws OpenemsException {
+
 		// search edge by id
 		var edgeIds = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
 				new Domain(Field.EdgeDevice.NAME, Operator.EQ, edgeId));
 		if (edgeIds.length != 1) {
 			throw new OpenemsException("Unable to find edge [" + edgeId + "]");
 		}
+		var deviceId = edgeIds[0];
 
-		final Field[] user_login = { Field.EdgeDeviceUserRole.USER_ODOO_ID, Field.User.LOGIN };
+		final var userLoginField = new GenericField(AlertingSetting.USER_ODOO_ID, User.LOGIN);
+
 		for (var setting : userAlertingSettings) {
 
-			var edgeUsers = OdooUtils.search(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL,
-					new Domain(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, Operator.EQ, edgeIds[0]),
-					new Domain(user_login, Operator.EQ, setting.getUserId()));
+			var alertingSettings = OdooUtils.search(this.credentials, AlertingSetting.ODOO_MODEL,
+					new Domain(AlertingSetting.DEVICE_ODOO_ID, Operator.EQ, deviceId),
+					new Domain(userLoginField, Operator.EQ, setting.userOdooId()));
 
-			if (edgeUsers.length > 0) {
-				// update founded record
-				OdooUtils.write(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, new Integer[] { edgeUsers[0] },
-						new FieldValue<>(Field.EdgeDeviceUserRole.TIME_TO_WAIT, setting.getDelayTime()));
+			if (alertingSettings.length > 0) {
+				// update found record
+				OdooUtils.write(this.credentials, AlertingSetting.ODOO_MODEL, new Integer[] { alertingSettings[0] },
+						new FieldValue<>(AlertingSetting.OFFLINE_DELAY, setting.edgeOfflineDelay()),
+						new FieldValue<>(AlertingSetting.FAULT_DELAY, setting.edgeFaultDelay()),
+						new FieldValue<>(AlertingSetting.WARNING_DELAY, setting.edgeWarningDelay()));
 			} else {
-				var globalRole = OdooUserRole.getRole(user.getGlobalRole());
-
-				OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
-						new FieldValue<>(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, edgeIds[0]), //
-						new FieldValue<>(Field.EdgeDeviceUserRole.USER_ODOO_ID, user.getOdooId()), //
-						new FieldValue<>(Field.EdgeDeviceUserRole.ROLE, globalRole.getOdooRole()), //
-						new FieldValue<>(Field.EdgeDeviceUserRole.TIME_TO_WAIT, setting.getDelayTime()));
+				OdooUtils.create(this.credentials, AlertingSetting.ODOO_MODEL, //
+						new FieldValue<>(AlertingSetting.DEVICE_ODOO_ID, deviceId), //
+						new FieldValue<>(AlertingSetting.USER_ODOO_ID, user.getOdooId()), //
+						new FieldValue<>(AlertingSetting.OFFLINE_DELAY, setting.edgeOfflineDelay()), //
+						new FieldValue<>(AlertingSetting.FAULT_DELAY, setting.edgeFaultDelay()), //
+						new FieldValue<>(AlertingSetting.WARNING_DELAY, setting.edgeWarningDelay()), //
+						new FieldValue<>(AlertingSetting.OFFLINE_LAST_NOTIFICATION, setting.lastEdgeOfflineNotification()), //
+						new FieldValue<>(AlertingSetting.SUM_STATE_LAST_NOTIFICATION, setting.lastSumStateNotification()));
 			}
 		}
 	}
 
 	/**
 	 * Gets the Edges of the given user matching the {@link PaginationOptions}.
-	 * 
+	 *
 	 * @param user              the current {@link MyUser}
 	 * @param paginationOptions the {@link PaginationOptions}
 	 * @return the edges
@@ -1074,7 +1132,7 @@ public class OdooHandler {
 
 	/**
 	 * Gets the edge with the {@link Role} of the user.
-	 * 
+	 *
 	 * @param user   the current {@link MyUser}
 	 * @param edgeId the id of the edge
 	 * @return the edge with the role of the user
@@ -1094,7 +1152,7 @@ public class OdooHandler {
 
 	/**
 	 * Get the SumState of the edge with the given edgeId, via a ODOO-Request.
-	 * 
+	 *
 	 * @param edgeId to search for
 	 * @return sumState as {@link Level}
 	 */

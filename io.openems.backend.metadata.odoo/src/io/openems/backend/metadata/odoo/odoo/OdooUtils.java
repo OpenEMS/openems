@@ -594,7 +594,7 @@ public class OdooUtils {
 	/**
 	 * Odoo returns unset values as false. So this Method checks if the value is
 	 * meant to be null.
-	 * 
+	 *
 	 * @param <T>          type to be expected
 	 * @param entry        raw entry value
 	 * @param expectedType class instance of expected type
@@ -658,6 +658,9 @@ public class OdooUtils {
 		}
 
 		try {
+			if(type.equals(ZonedDateTime.class)) {
+				return type.cast(OdooUtils.DateTime.stringToDateTime(entry.toString()));
+			}
 			return type.cast(entry);
 		} catch (Throwable t) {
 			log.warn(t.getMessage());
@@ -667,7 +670,7 @@ public class OdooUtils {
 
 	/**
 	 * Return Field value in values and cast it to value of type 'enumType'.
-	 * 
+	 *
 	 * @param <T>       expected type of value
 	 * @param field     to search for
 	 * @param values    map with values to search in

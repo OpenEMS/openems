@@ -43,7 +43,9 @@ import io.openems.common.event.EventReader;
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler {
 
+	// Maximum number of messages constructed at the same time
 	private static final byte THREAD_POOL_SIZE = 2;
+	// Queue size from which warnings are issued
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
 	protected final Scheduler scheduler;

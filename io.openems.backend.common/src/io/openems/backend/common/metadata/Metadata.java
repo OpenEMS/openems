@@ -14,6 +14,9 @@ import org.osgi.service.event.EventAdmin;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
@@ -298,27 +301,47 @@ public interface Metadata {
 	 * @return List of {@link AlertingSetting}
 	 * @throws OpenemsException on error
 	 */
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException;
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the offline-edge-alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link OfflineEdgeAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the sumState-alerting settings for given edge id.
+	 *
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link SumStateAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException;
 
 	/**
 	 * Gets the alerting settings for given edge id and userId.
 	 *
 	 * @param edgeId the Edge ID
 	 * @param userId the User ID
-	 * @return List of {@link UserRoleDelayTime}
+	 * @return List of {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
 
 	/**
 	 * Sets the alerting settings for the given list of users.
 	 *
-	 * @param user   {@link User} the current user
-	 * @param edgeId the Edge-ID
-	 * @param users  list of users to update
+	 * @param user   	{@link User} the current user
+	 * @param edgeId 	the Edge-ID
+	 * @param settings	list of updated {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException;
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.
@@ -346,7 +369,7 @@ public interface Metadata {
 
 	/**
 	 * Gets a map of Edge-IDs with the role of the given user.
-	 * 
+	 *
 	 * @param user              {@link User} the current user
 	 * @param paginationOptions the options of the requesting page
 	 * @return the role to the Edge-IDs
@@ -356,7 +379,7 @@ public interface Metadata {
 
 	/**
 	 * Gets the Role for a edge of the current user.
-	 * 
+	 *
 	 * @param user   {@link User} the current user
 	 * @param edgeId the Edge-ID
 	 * @return the role to the edge
@@ -366,7 +389,7 @@ public interface Metadata {
 
 	/**
 	 * Get the SumState of the edge with the given edgeId.
-	 * 
+	 *
 	 * @param edgeId to search for
 	 * @return sumState as {@link Optional} of {@link Level}
 	 */

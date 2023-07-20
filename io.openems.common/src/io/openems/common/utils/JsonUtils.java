@@ -39,26 +39,26 @@ public class JsonUtils {
 	/**
 	 * Provide a easy way to generate a JsonArray from a list using the given
 	 * convert function to add each element.
-	 * 
+	 *
 	 * @param list    to convert
 	 * @param convert function to convert elements
 	 * @param <T>     type of an element from list
-	 * 
+	 *
 	 * @return list as JsonArray
 	 */
 	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
 		} else {
-			var jab = new JsonArrayBuilder();
-			list.forEach(element -> jab.add(convert.apply(element)));
+			var jab = new JsonArrayBuilder(list.size());
+			list.forEach(e -> jab.add(convert.apply(e)));
 			return jab.build();
 		}
 	}
 
 	/**
 	 * Provide a easy way to generate a JsonArray from a collection of JsonElements.
-	 * 
+	 *
 	 * @param <T>  type of element from list
 	 * @param list to convert
 	 * @return list as JsonArray
@@ -76,6 +76,10 @@ public class JsonUtils {
 
 		protected JsonArrayBuilder() {
 			this(new JsonArray());
+		}
+
+		protected JsonArrayBuilder(int capacity) {
+			this(new JsonArray(capacity));
 		}
 
 		protected JsonArrayBuilder(JsonArray j) {
@@ -271,10 +275,10 @@ public class JsonUtils {
 
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject}.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -373,10 +377,10 @@ public class JsonUtils {
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject} if it is not
 		 * null.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -1567,11 +1571,7 @@ public class JsonUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
-		if (j == null) {
-			return null;
-		}
-
-		if (j.isJsonNull()) {
+		if ((j == null) || j.isJsonNull()) {
 			return null;
 		}
 
@@ -1741,7 +1741,7 @@ public class JsonUtils {
 	/**
 	 * Returns a sequential stream of the {@link JsonElement JsonElements} in the
 	 * {@link JsonArray}.
-	 * 
+	 *
 	 * @param jsonArray The {@link JsonArray}, assumed to be unmodified during use
 	 * @return a Stream of the elements
 	 */
@@ -1763,7 +1763,7 @@ public class JsonUtils {
 	/**
 	 * Returns a {@link Collector} that accumulates the input elements into a new
 	 * {@link JsonObject}.
-	 * 
+	 *
 	 * @param <T>         the type of the input
 	 * @param keyMapper   the key mapper
 	 * @param valueMapper the value mapper
@@ -1784,7 +1784,7 @@ public class JsonUtils {
 
 	/**
 	 * Returns a Collector that accumulates the input elements into a new JsonArray.
-	 * 
+	 *
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
 	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {

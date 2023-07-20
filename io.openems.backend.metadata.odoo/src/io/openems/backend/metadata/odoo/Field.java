@@ -33,6 +33,16 @@ public interface Field {
 	 */
 	public boolean isQuery();
 
+	private static <T extends Enum<? extends Field>> Stream<Field> getSqlQueryFieldsOf(Class<T> field){
+		return Stream.of(field.getEnumConstants()).map(v -> {
+			if (v instanceof Field f) {
+				return f;
+			} else {
+				return null;
+			}
+		}).filter(Field::isQuery);
+	}
+
 	/**
 	 * Gets all fields that should be queried as a comma separated string.
 	 *
@@ -44,6 +54,37 @@ public interface Field {
 				.filter(Field::isQuery) //
 				.map(Field::id) //
 				.collect(Collectors.joining(","));
+	}
+
+	public static <T extends Enum<? extends Field>> Field[] getSqlQueryFields(Class<T> field) {
+		return Field.getSqlQueryFieldsOf(field).toArray(Field[]::new);
+	}
+
+	public static <T extends Enum<? extends Field>> Field[] getSqlQueryFields(Class<T> field, Field... foreign) {
+		var querryStream = Field.getSqlQueryFieldsOf(field);
+		var foreignStream = Stream.of(foreign);
+		return Stream.concat(querryStream, foreignStream).toArray(Field[]::new);
+	}
+
+	public record GenericField(String id) implements Field {
+		public GenericField(Field... fields) {
+			this(Stream.of(fields).map(Field::name).collect(Collectors.joining(".")));
+		}
+
+		@Override
+		public int index() {
+			return -1;
+		}
+
+		@Override
+		public String name() {
+			return this.id.toUpperCase();
+		}
+
+		@Override
+		public boolean isQuery() {
+			return false;
+		}
 	}
 
 	/**
@@ -529,6 +570,57 @@ public interface Field {
 		private final boolean query;
 
 		private StockProductionLot(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+	}
+
+	public enum AlertingSetting implements Field {
+		DEVICE_ODOO_ID("device_id", true), //
+		USER_ODOO_ID("user_id", true), //
+		OFFLINE_DELAY("offline_delay", true), //
+		WARNING_DELAY("warning_delay", true), //
+		FAULT_DELAY("fault_delay", true), //
+		OFFLINE_LAST_NOTIFICATION("offline_last_notification", true), //
+		SUM_STATE_LAST_NOTIFICATION("sum_state_last_notification", true);
+
+		public static final String ODOO_MODEL = "openems.alerting";
+		public static final String ODOO_TABLE = AlertingSetting.ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private AlertingSetting(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {

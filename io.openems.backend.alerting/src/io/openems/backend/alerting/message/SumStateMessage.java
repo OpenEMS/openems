@@ -11,7 +11,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.utils.JsonUtils;
 
 public class SumStateMessage extends Message {
-	
+
 	public static final String TEMPLATE = "alerting_sumState_email";
 
 	// TODO implement delay settings; fixed delay is for testing only
@@ -60,7 +60,7 @@ public class SumStateMessage extends Message {
 
 	/**
 	 * Tell if mail should be sent.
-	 * 
+	 *
 	 * @return true if mail should be sent
 	 */
 	public boolean shouldSend() {
@@ -69,7 +69,7 @@ public class SumStateMessage extends Message {
 
 	/**
 	 * Update and prepare message for a next schedule.
-	 * 
+	 *
 	 * @return true if should be rescheduled;
 	 */
 	public boolean update() {
