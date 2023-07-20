@@ -142,7 +142,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       let nameSuffix = null;
 
       // Check if energyResponse is available
-      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse)) {
+      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse) != null) {
         nameSuffix = element.nameSuffix(energyResponse);
       }
 
