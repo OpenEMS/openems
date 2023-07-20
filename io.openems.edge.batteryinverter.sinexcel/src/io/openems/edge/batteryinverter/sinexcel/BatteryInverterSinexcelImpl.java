@@ -311,8 +311,10 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return this.stateMachine.getCurrentState().asCamelCase() //
-				+ "|" + this.getGridModeChannel().value().asOptionString();
+		return new StringBuilder() //
+				.append(this.stateMachine.debugLog()) //
+				.append("|Grid:").append(this.getGridModeChannel().value().asOptionString()) //
+				.toString();
 	}
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);

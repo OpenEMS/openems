@@ -125,10 +125,9 @@ public class EssGenericManagedSymmetricImpl
 
 	@Override
 	public String debugLog() {
-		return super.genericDebugLog() //
-				.append("|")
-				.append(this.channel(EssGenericManagedSymmetric.ChannelId.STATE_MACHINE).value().asOptionString()) //
-				.toString();
+		var sb = new StringBuilder(this.stateMachine.debugLog());
+		super.genericDebugLog(sb);
+		return sb.toString();
 	}
 
 	@Override
