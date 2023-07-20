@@ -508,7 +508,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType)
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 10
             },
             gridLines: {
