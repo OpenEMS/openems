@@ -658,7 +658,7 @@ public class OdooUtils {
 		}
 
 		try {
-			if(type.equals(ZonedDateTime.class)) {
+			if (type.equals(ZonedDateTime.class)) {
 				return type.cast(OdooUtils.DateTime.stringToDateTime(entry.toString()));
 			}
 			return type.cast(entry);

@@ -998,6 +998,13 @@ public class OdooHandler {
 		return result;
 	}
 
+	/**
+	 * Get all offline-alerting specific settings for edge.
+	 *
+	 * @param edgeName	 unique name of Edge
+	 * @return List of {@link OfflineEdgeAlertingSetting} or {@link null} if no settings are stored
+	 * @throws OpenemsException on error
+	 */
 	public List<OfflineEdgeAlertingSetting> getOfflineAlertingSettings(String edgeName) throws OpenemsException {
 		final var edgeNameField = new GenericField(AlertingSetting.DEVICE_ODOO_ID, EdgeDevice.NAME);
 
@@ -1029,6 +1036,13 @@ public class OdooHandler {
 		return result;
 	}
 
+	/**
+	 * Get all sum-state-alerting specific settings for edge.
+	 *
+	 * @param edgeName	 unique name of Edge
+	 * @return List of {@link SumStateAlertingSetting} or {@link null} if no settings are stored
+	 * @throws OpenemsException on error
+	 */
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeName) throws OpenemsException {
 		final var edgeNameField = new GenericField(AlertingSetting.DEVICE_ODOO_ID, EdgeDevice.NAME);
 

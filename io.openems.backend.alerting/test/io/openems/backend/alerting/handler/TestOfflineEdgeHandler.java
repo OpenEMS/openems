@@ -15,13 +15,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
+import io.openems.backend.alerting.Dummy.MailerImpl;
+import io.openems.backend.alerting.Dummy.MessageSchedulerServiceImpl;
+import io.openems.backend.alerting.Dummy.OfflineEdgeMetadataImpl;
+import io.openems.backend.alerting.Dummy.SimpleMetadataImpl;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.test.DummyMetadata;
-
-import static io.openems.backend.alerting.Dummy.*;
 
 public class TestOfflineEdgeHandler {
 
@@ -153,7 +155,7 @@ public class TestOfflineEdgeHandler {
 		assertNull(noHandler);
 	}
 
-	private static abstract class Utility {
+	private static class Utility {
 
 		private static final ZonedDateTime now = ZonedDateTime.now();
 
@@ -167,10 +169,9 @@ public class TestOfflineEdgeHandler {
 					Utility.getTestEdge(metadata, "4", Utility.now, false),
 					Utility.getTestEdge(metadata, "5", Utility.now.minusMonths(1), false), //
 					Utility.getTestEdge(metadata, "6", null, false)); //
-					
 
 			final Map<String, List<OfflineEdgeAlertingSetting>> settings = Map.of(//
-					"1", List.of( //
+					"1", List.of(//
 							new OfflineEdgeAlertingSetting(1, 1, 1, Utility.now.minusDays(1))), //
 					"2", List.of(), //
 					"3", List.of(//

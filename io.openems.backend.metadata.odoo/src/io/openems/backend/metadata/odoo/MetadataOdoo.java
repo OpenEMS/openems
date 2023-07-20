@@ -407,6 +407,11 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
+	}
+
+	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId);
 	}
@@ -419,11 +424,6 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getSumStateAlertingSettings(edgeId);
-	}
-
-	@Override
-	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
-		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override

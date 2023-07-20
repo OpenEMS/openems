@@ -252,6 +252,11 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
 		throw new UnsupportedOperationException("DummyMetadata.getSerialNumberForEdge() is not implemented");
 	}
+	
+	@Override
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+	}
 
 	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
@@ -266,11 +271,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
 		throw new UnsupportedOperationException("DummyMetadata.getSumStateAlertingSettings() is not implemented");
-	}
-
-	@Override
-	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override

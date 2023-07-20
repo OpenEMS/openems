@@ -294,6 +294,16 @@ public interface Metadata {
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
 	/**
+	 * Gets the alerting settings for given edge id and userId.
+	 *
+	 * @param edgeId the Edge ID
+	 * @param userId the User ID
+	 * @return List of {@link UserAlertingSettings}
+	 * @throws OpenemsException on error
+	 */
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+	
+	/**
 	 * Gets all the alerting settings for given edge id.
 	 *
 	 *
@@ -322,16 +332,6 @@ public interface Metadata {
 	 * @throws OpenemsException on error
 	 */
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException;
-
-	/**
-	 * Gets the alerting settings for given edge id and userId.
-	 *
-	 * @param edgeId the Edge ID
-	 * @param userId the User ID
-	 * @return List of {@link UserAlertingSettings}
-	 * @throws OpenemsException on error
-	 */
-	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
 
 	/**
 	 * Sets the alerting settings for the given list of users.

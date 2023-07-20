@@ -33,7 +33,7 @@ public interface Field {
 	 */
 	public boolean isQuery();
 
-	private static <T extends Enum<? extends Field>> Stream<Field> getSqlQueryFieldsOf(Class<T> field){
+	private static <T extends Enum<? extends Field>> Stream<Field> getSqlQueryFieldsOf(Class<T> field) {
 		return Stream.of(field.getEnumConstants()).map(v -> {
 			if (v instanceof Field f) {
 				return f;
@@ -56,10 +56,27 @@ public interface Field {
 				.collect(Collectors.joining(","));
 	}
 
+	/**
+	 * Gets all fields that should be queried as a list of {@link Field} for given
+	 * enum class.
+	 * 
+	 * @param <T>   enum implementing field
+	 * @param field class of enum
+	 * @return list of fields
+	 */
 	public static <T extends Enum<? extends Field>> Field[] getSqlQueryFields(Class<T> field) {
 		return Field.getSqlQueryFieldsOf(field).toArray(Field[]::new);
 	}
 
+	/**
+	 * Gets all fields that should be queried as a list of {@link Field} for given
+	 * enum class extended with given foreign fields.
+	 * 
+	 * @param <T>     enum implementing field
+	 * @param field   class of enum
+	 * @param foreign additional fields
+	 * @return list of fields
+	 */
 	public static <T extends Enum<? extends Field>> Field[] getSqlQueryFields(Class<T> field, Field... foreign) {
 		var querryStream = Field.getSqlQueryFieldsOf(field);
 		var foreignStream = Stream.of(foreign);
