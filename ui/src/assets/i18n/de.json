@@ -390,6 +390,7 @@
         "Key": {
           "enterKey": "Geben Sie hier den Lizenzschlüssel ein, den Sie mit der Bestellung der App erhalten haben",
           "useRegisteredKey": "Bereits registrierten Lizenzschlüssel einlösen?",
+          "useMasterKey": "Masterkey verwenden",
           "registeredKey": "Registrierte Lizenzschlüssel",
           "key": "Lizenzschlüssel",
           "validateKey": "Lizenzschlüssel validieren",
@@ -403,7 +404,8 @@
           "valid": "Lizenzschlüssel ist gültig",
           "invalid": "Lizenzschlüssel ist ungültig",
           "invalidPattern": "Eingabe ist ungültig",
-          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>"
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>",
+          "MASTER_KEY_HINT": "<br><span class=\"warning\">Hinweis</span>: Der Masterkey wird im Hintergrund verwendet. Es wird kein Key angezeigt. Sofern ein Lizenzschlüssel vorliegt, bitte diesen verwenden.<br>"
         },
         "successInstall": "App erfolgreich installiert",
         "failInstall": "Installation der App fehlgeschlagen: {{error}}",
