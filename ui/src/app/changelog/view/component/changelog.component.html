@@ -10,10 +10,14 @@
         <ion-card-content>
           <ng-container
             *ngFor="let changelog of changelogs | slice:0:(showAll ? changelogs.length : slice);  let last = last;">
-            <ion-row>
-              <ion-title>
+            <ion-row style="font-size: larger;">
+              <ion-label *ngIf="changelog.title">{{ changelog.title }}</ion-label>
+              <ion-label *ngIf="changelog.version">Version {{ changelog.version }}</ion-label>
+            </ion-row>
+            <ion-row style="font-size: larger;">
+              <ion-label>
                 Version {{ changelog.version }}
-              </ion-title>
+              </ion-label>
             </ion-row>
             <ion-row>
               <ul>
