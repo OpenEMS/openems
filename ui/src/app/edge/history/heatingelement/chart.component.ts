@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -22,9 +23,9 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("heatingelement-chart", service, translate);
   }
@@ -68,11 +69,11 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
           });
           datasets.push({
             label: 'Level',
-            data: levelData,
+            data: levelData
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
+            borderColor: 'rgba(200,0,0,1)'
           });
         }
         this.datasets = datasets;

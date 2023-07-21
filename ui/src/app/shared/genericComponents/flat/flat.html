@@ -11,6 +11,8 @@
 
         <!-- Check which title type is handed over. -->
         <ion-label *ngIf="title">{{ title }}</ion-label>
+
+        <ng-content select="[button]"></ng-content>
     </ion-item>
 
     <ion-card-content>

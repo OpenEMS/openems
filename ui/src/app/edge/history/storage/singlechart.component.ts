@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -21,8 +22,8 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-single-chart", service, translate);
@@ -129,7 +130,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
@@ -186,7 +187,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             ];
             resolve(result);
         });

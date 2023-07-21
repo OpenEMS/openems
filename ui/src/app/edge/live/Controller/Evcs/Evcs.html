@@ -1,5 +1,5 @@
 <oe-flat-widget button (click)="presentModal()" style="cursor: pointer;" *ngIf="isInitialized"
-  [title]="evcsComponent.alias" img="assets/img/evcs.png">
+  [title]="evcsComponent.alias" [icon]="{name: 'oe-evcs', color: 'environmental'}">
 
   <!-- Show if Connection is Successful -->
   <ng-container *ngIf="isConnectionSuccessful, else noConnection">

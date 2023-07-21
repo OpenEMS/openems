@@ -23,8 +23,8 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     public essComponents: EdgeConfig.Component[] = [];
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute,
+        public override service: Service,
+        private route: ActivatedRoute
 
     ) {
         super(service);
@@ -61,7 +61,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
             let channels: ChannelAddress[] = [];
             channels.push(
                 new ChannelAddress('_sum', 'EssDcChargeEnergy'),
-                new ChannelAddress('_sum', 'EssDcDischargeEnergy'),
+                new ChannelAddress('_sum', 'EssDcDischargeEnergy')
             );
             resolve(channels);
         });

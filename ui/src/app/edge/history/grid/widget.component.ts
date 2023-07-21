@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -19,8 +20,8 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute,
+        public override service: Service,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -55,7 +56,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
         return new Promise((resolve) => {
             let channels: ChannelAddress[] = [
                 new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-                new ChannelAddress('_sum', 'GridSellActiveEnergy'),
+                new ChannelAddress('_sum', 'GridSellActiveEnergy')
             ];
             resolve(channels);
         });

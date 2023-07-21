@@ -18,9 +18,8 @@ import io.openems.edge.bridge.mbus.api.ChannelRecord;
 import io.openems.edge.bridge.mbus.api.ChannelRecord.DataType;
 import io.openems.edge.bridge.mbus.api.MbusTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -29,7 +28,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
-		implements MeterAbbB23, SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements MeterAbbB23, ElectricityMeter, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -40,10 +39,14 @@ public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	public MeterAbbB23Impl() {
-		super(OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				MeterAbbB23.ChannelId.values());
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				MeterAbbB23.ChannelId.values() //
+		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -70,13 +73,13 @@ public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
 	protected void addChannelDataRecords() {
 		this.channelDataRecordsList
 				.add(new ChannelRecord(this.channel(MeterAbbB23.ChannelId.TOTAL_CONSUMED_ENERGY), 0));
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1), 1));
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2), 2));
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 3));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L1), 1));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L2), 2));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 3));
 		// TODO mapping seems to be wrong; L3 is repeated
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 4));
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 5));
-		this.channelDataRecordsList.add(new ChannelRecord(this.channel(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3), 6));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 4));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 5));
+		this.channelDataRecordsList.add(new ChannelRecord(this.channel(ElectricityMeter.ChannelId.ACTIVE_POWER_L3), 6));
 		this.channelDataRecordsList
 				.add(new ChannelRecord(this.channel(MeterAbbB23.ChannelId.MANUFACTURER_ID), DataType.Manufacturer));
 		this.channelDataRecordsList

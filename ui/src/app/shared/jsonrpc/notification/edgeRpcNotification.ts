@@ -19,7 +19,7 @@ export class EdgeRpcNotification extends JsonrpcNotification {
     public static readonly METHOD: string = "edgeRpc";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string,
             payload: JsonrpcNotification
         }

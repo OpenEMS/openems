@@ -2,9 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { FormlyFieldConfig } from '@ngx-formly/core';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { GetApps } from '../jsonrpc/getApps';
@@ -13,10 +12,11 @@ import { AppCenterAddRegisterKeyHistory } from './appCenterAddRegisterKeyHistory
 import { AppCenterGetRegisteredKeys } from './appCenterGetRegisteredKeys';
 import { AppCenterIsKeyApplicable } from './appCenterIsKeyApplicable';
 import { Key } from './key';
+import { Flags } from '../jsonrpc/flag/flags';
 
 @Component({
     selector: KeyModalComponent.SELECTOR,
-    templateUrl: './modal.component.html',
+    templateUrl: './modal.component.html'
 })
 export class KeyModalComponent implements OnInit {
 
@@ -36,6 +36,7 @@ export class KeyModalComponent implements OnInit {
     protected form: FormGroup;
     protected fields: FormlyFieldConfig[];
     protected model;
+    protected options: FormlyFormOptions;
 
     constructor(
         private service: Service,
@@ -48,10 +49,15 @@ export class KeyModalComponent implements OnInit {
 
     public ngOnInit(): void {
         this.form = new FormGroup({});
+        this.options = {
+            formState: {
+                gotInvalidKeyResponse: false
+            }
+        };
         this.model = {
             'useRegisteredKeys': false,
             'registeredKey': '',
-            'key': '',
+            'key': ''
         };
 
         if (this.behaviour === KeyValidationBehaviour.REGISTER) {
@@ -109,6 +115,9 @@ export class KeyModalComponent implements OnInit {
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
                 if (apps.every(app => {
+                    if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
+                        return true;
+                    }
                     for (const appFromBundle of bundle) {
                         if (appFromBundle.appId === app.appId) {
                             return true;
@@ -163,7 +172,7 @@ export class KeyModalComponent implements OnInit {
             props: {
                 label: this.translate.instant('Edge.Config.App.Key.useRegisteredKey')
             },
-            hide: this.registeredKeys.length === 0,
+            hide: this.registeredKeys.length === 0
         });
 
         fields.push({
@@ -193,7 +202,7 @@ export class KeyModalComponent implements OnInit {
                 'templateOptions.disabled': field => field.model.useRegisteredKeys
             },
             validators: {
-                validation: ['key'],
+                validation: ['key']
             },
             hooks: {
                 onInit: (field) => {
@@ -207,6 +216,15 @@ export class KeyModalComponent implements OnInit {
                 }
             }
         });
+
+        fields.push({
+            type: 'text',
+            props: {
+                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT')
+            },
+            hideExpression: '!formState.gotInvalidKeyResponse'
+        });
+
         return fields;
     }
 
@@ -316,7 +334,7 @@ export class KeyModalComponent implements OnInit {
             this.edge.sendRequest(this.websocket, new AppCenter.Request({
                 payload: new AppCenterAddRegisterKeyHistory.Request({
                     key: this.getRawAppKey(),
-                    ...(this.appId && { appId: this.appId }),
+                    ...(this.appId && { appId: this.appId })
                 })
             })).then(() => {
                 resolve();
@@ -383,6 +401,7 @@ export class KeyModalComponent implements OnInit {
             }).catch(reason => {
                 // this may happen if the key is not stored in the database
                 this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                this.options.formState.gotInvalidKeyResponse = true;
                 if (environment.debugMode) {
                     console.log('Failed to validate Key', reason);
                 }

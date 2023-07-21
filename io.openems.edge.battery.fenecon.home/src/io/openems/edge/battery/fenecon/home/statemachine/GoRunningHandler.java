@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.EnumUtils;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -105,4 +106,8 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		context.batteryStartUpRelayChannel.setNextWriteValue(value);
 	}
 
+	@Override
+	protected String debugLog() {
+		return State.GO_RUNNING.asCamelCase() + "-" + EnumUtils.nameAsCamelCase(this.state);
+	}
 }

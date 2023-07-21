@@ -23,7 +23,7 @@ export class AdministrationComponent implements OnInit {
     public modalCtrl: ModalController,
     public service: Service,
     private websocket: Websocket,
-    public translate: TranslateService,
+    public translate: TranslateService
   ) { }
 
   ngOnInit() {

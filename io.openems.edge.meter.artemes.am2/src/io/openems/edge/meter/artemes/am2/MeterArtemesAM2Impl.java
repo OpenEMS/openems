@@ -31,9 +31,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -42,7 +41,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
-		implements MeterArtemesAM2, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+		implements MeterArtemesAM2, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -59,8 +58,7 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				MeterArtemesAM2.ChannelId.values() //
 		);
 	}
@@ -88,41 +86,43 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
-				m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
-				m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
-				m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
-				new DummyRegisterElement(0x0006, 0x000B),
-				m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0x000C)),
-				m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
-				m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
-				m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
-				new DummyRegisterElement(0x0014, 0x0015),
-				m(SymmetricMeter.ChannelId.CURRENT, new SignedDoublewordElement(0x0016)),
-				m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018),
-						SCALE_FACTOR_MINUS_3),
-				m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C),
-						SCALE_FACTOR_MINUS_3),
-				m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020),
-						SCALE_FACTOR_MINUS_3),
-				m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedQuadruplewordElement(0X0024), SCALE_FACTOR_MINUS_3),
-				new DummyRegisterElement(0x0028, 0x0037),
-				m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038),
-						SCALE_FACTOR_MINUS_3),
-				m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C),
-						SCALE_FACTOR_MINUS_3),
-				m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
-						SCALE_FACTOR_MINUS_3),
-				m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
-						SCALE_FACTOR_MINUS_3),
-				new DummyRegisterElement(0x0048, 0x0071),
-				m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
+		return new ModbusProtocol(this,
+				new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
+						new DummyRegisterElement(0x0006, 0x000B),
+						m(ElectricityMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0x000C)),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
+						new DummyRegisterElement(0x0014, 0x0015),
+						m(ElectricityMeter.ChannelId.CURRENT, new SignedDoublewordElement(0x0016)),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedQuadruplewordElement(0X0024),
+								SCALE_FACTOR_MINUS_3),
+						new DummyRegisterElement(0x0028, 0x0037),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
+								SCALE_FACTOR_MINUS_3),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
+								SCALE_FACTOR_MINUS_3),
+						new DummyRegisterElement(0x0048, 0x0071),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
 
 				new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
 								SCALE_FACTOR_MINUS_1),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
-								SCALE_FACTOR_MINUS_1)));
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+								new UnsignedQuadruplewordElement(0x0041C), SCALE_FACTOR_MINUS_1)));
 	}
 
 	@Override
@@ -134,8 +134,7 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 }

@@ -10,11 +10,8 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
 
-public interface SimulatorEvcs
-		extends SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+public interface SimulatorEvcs extends ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT));

@@ -35,7 +35,7 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -50,7 +50,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID);
-	private static final DummyAsymmetricMeter METER = new DummyAsymmetricMeter(METER_ID);
+	private static final DummyElectricityMeter METER = new DummyElectricityMeter(METER_ID);
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss(ESS_ID);
 	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID,
 			new DummyPower(0));

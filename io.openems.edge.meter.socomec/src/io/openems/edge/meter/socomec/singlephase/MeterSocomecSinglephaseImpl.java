@@ -31,11 +31,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.socomec.AbstractSocomecMeter;
 import io.openems.edge.meter.socomec.SocomecMeter;
 
@@ -46,7 +45,7 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements MeterSocomecSinglephase, SocomecMeter,
-		SinglePhaseMeter, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+		SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(MeterSocomecSinglephaseImpl.class);
 
@@ -65,8 +64,8 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				SinglePhaseMeter.ChannelId.values(), //
 				SocomecMeter.ChannelId.values(), //
 				MeterSocomecSinglephase.ChannelId.values() //
 		);
@@ -103,69 +102,69 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
 						m(new UnsignedDoublewordElement(0xc558)) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, chain(//
+								.m(ElectricityMeter.ChannelId.VOLTAGE, SCALE_FACTOR_1) //
+								.m(ElectricityMeter.ChannelId.VOLTAGE_L1, chain(//
 										SCALE_FACTOR_1, //
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, chain(//
+								.m(ElectricityMeter.ChannelId.VOLTAGE_L2, chain(//
 										SCALE_FACTOR_1, //
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, chain(//
+								.m(ElectricityMeter.ChannelId.VOLTAGE_L3, chain(//
 										SCALE_FACTOR_1, //
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						new DummyRegisterElement(0xc55A, 0xc55D), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
-								.m(SymmetricMeter.ChannelId.CURRENT, SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
+								.m(ElectricityMeter.ChannelId.CURRENT, SCALE_FACTOR_1) //
+								.m(ElectricityMeter.ChannelId.CURRENT_L1,
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L2,
+								.m(ElectricityMeter.ChannelId.CURRENT_L2,
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L3,
+								.m(ElectricityMeter.ChannelId.CURRENT_L3,
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3)) //
 								.build(), //
 						new DummyRegisterElement(0xc562, 0xc567), //
 						m(new SignedDoublewordElement(0xc568)) //
-								.m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+								.m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, chain(//
+								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, chain(//
+								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, chain(//
+								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build(), //
 						m(new SignedDoublewordElement(0xc56A)) //
-								.m(SymmetricMeter.ChannelId.REACTIVE_POWER,
+								.m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, chain(//
+								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, chain(//
+								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, chain(//
+								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
 										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
 								.build()));
 		if (this.config.invert()) {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
 							SCALE_FACTOR_1), //
 					new DummyRegisterElement(0xC704, 0xC707), //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
 							SCALE_FACTOR_1) //
 			));
 		} else {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
 							SCALE_FACTOR_1), //
 					new DummyRegisterElement(0xC704, 0xC707), //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
 							SCALE_FACTOR_1) //
 			));
 		}
@@ -210,8 +209,7 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				SinglePhaseMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}

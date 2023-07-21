@@ -13,7 +13,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public chargerComponents: EdgeConfig.Component[] = [];
   public readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
 
-  protected getChannelAddresses(): ChannelAddress[] {
+  protected override getChannelAddresses(): ChannelAddress[] {
     //  Get Chargers
     this.chargerComponents =
       this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
@@ -21,7 +21,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     // Get productionMeters
     this.productionMeterComponents =
-      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }

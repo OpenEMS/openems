@@ -1,7 +1,8 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
-import { Controller_EvcsModalComponent } from './modal/modal.page';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
+import { Controller_EvcsModalComponent } from './modal/modal.page';
 
 @Component({
   selector: 'Controller_Evcs',
@@ -25,7 +26,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
   public readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     return [
       new ChannelAddress(this.componentId, 'ChargePower'),
       new ChannelAddress(this.componentId, 'Phases'),
@@ -40,7 +41,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
     ];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
 
     // Gets the Controller & Component for the given EVCS - Component.
     let controllers = this.config.getComponentsByFactory("Controller.Evcs");
@@ -147,7 +148,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
         controller: this.controller,
         edge: this.edge,
         componentId: this.componentId,
-        evcsComponent: this.evcsComponent,
+        evcsComponent: this.evcsComponent
         // getState: this.getState
       }
     });

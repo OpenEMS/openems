@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -22,9 +23,9 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   };
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("singlethreshold-chart", service, translate);
   }
@@ -87,7 +88,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)',
+              borderColor: 'rgba(0,191,255,1)'
             });
           }
           if (channel == inputChannel) {
@@ -146,7 +147,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
               this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.05)',
-                borderColor: 'rgba(189, 195, 199,1)',
+                borderColor: 'rgba(189, 195, 199,1)'
               });
             } else {
               datasets.push({
@@ -154,7 +155,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 data: data,
                 hidden: false,
                 yAxisID: 'yAxis1',
-                position: 'left',
+                position: 'left'
               });
 
               this.colors.push({

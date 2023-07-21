@@ -17,6 +17,8 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.channel.LongReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
@@ -25,9 +27,8 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,7 +41,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
-		implements SimulatorEvcs, SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements SimulatorEvcs, ElectricityMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -51,17 +52,11 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 	private Config config;
 
 	public SimulatorEvcsImpl() {
-
-		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
-		// or parts of the Meter Nature
-		// Therefore, some of the EVCS Nature Channels have to be changed or removed.
-		// Omit SymmetricMeter and add AsymmetricMeterEvcs because of duplicated default
-		// set and get methods in EVCS and SymmetricMeter.
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				SimulatorEvcs.ChannelId.values() //
 		);
 	}
@@ -175,9 +170,26 @@ public class SimulatorEvcsImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public MeterType getMeterType() {
-		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
-		// implements Meter. For now this quick fix solves issues with calculating
-		// `_sum/GridActivePower`.
-		return MeterType.GRID;
+		return MeterType.CONSUMPTION_METERED;
+	}
+
+	@Override
+	public void _setActiveConsumptionEnergy(Long value) {
+		ElectricityMeter.super._setActiveConsumptionEnergy(value);
+	}
+
+	@Override
+	public void _setActiveConsumptionEnergy(long value) {
+		ElectricityMeter.super._setActiveConsumptionEnergy(value);
+	}
+
+	@Override
+	public LongReadChannel getActiveConsumptionEnergyChannel() {
+		return ElectricityMeter.super.getActiveConsumptionEnergyChannel();
+	}
+
+	@Override
+	public Value<Long> getActiveConsumptionEnergy() {
+		return ElectricityMeter.super.getActiveConsumptionEnergy();
 	}
 }

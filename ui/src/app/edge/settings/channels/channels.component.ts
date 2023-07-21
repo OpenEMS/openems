@@ -1,51 +1,69 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
+import { environment } from 'src/environments';
+
+export type ComponentChannels = {
+  [componentId: string]: ChannelAddress[];
+}
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
   templateUrl: './channels.component.html'
 })
-export class ChannelsComponent implements OnInit, OnDestroy {
+export class ChannelsComponent {
 
   private static readonly SELECTOR = "channels";
-
-  public edge: Edge = null;
-  public config: EdgeConfig = null;
-  public subscribedChannels: ChannelAddress[] = [];
-
+  private static readonly URL_PREFIX = "channels";
+  protected readonly spinnerId = ChannelsComponent.SELECTOR;
+  protected readonly environment = environment;
+  protected edge: Edge = null;
+  protected config: EdgeConfig = null;
+  protected channelsToBeSubscribed: ChannelAddress[] = [];
+  private channels: ChannelAddress[] = [];
+  protected componentChannels: ComponentChannels[] = [];
+  protected componentChannelConfig: Map<String, EdgeConfig.ComponentChannel> = new Map();
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    protected translate: TranslateService
   ) { }
 
   public customAlertOptions: any = {
-    cssClass: 'wide-alert',
+    cssClass: 'wide-alert'
   };
 
-  ngOnInit() {
-    this.service.setCurrentComponent("Channels" /* TODO translate */, this.route).then(edge => {
+  ionViewWillEnter() {
+    this.service.setCurrentComponent("Channels", this.route).then(edge => {
       this.edge = edge;
     });
     this.service.getConfig().then(config => {
       this.config = config;
+      this.service.startSpinner(this.spinnerId);
+      this.loadSavedChannels();
     });
-    setTimeout(_ => this.loadSavedChannels(), 2000);
   }
 
-  subscribeChannel(componentId: string, channelId: string) {
-    this.subscribedChannels.forEach((item, index) => {
-      if (item.componentId === componentId && item.channelId === channelId) {
-        // had already been in the list
-        return;
-      }
-    });
-
+  /**
+   * Subscribes a channel
+   * 
+   * @param componentId the componentId
+   * @param channelId the channelId
+   */
+  protected subscribeChannel(componentId: string, channelId: string): void {
     let address = new ChannelAddress(componentId, channelId);
-    this.subscribedChannels.push(address);
+    if (this.componentChannels[componentId]?.filter(element => element.channelId == address.channelId)?.length === 0) {
+      this.componentChannels[componentId].push(address);
+    } else {
+      this.componentChannels[componentId] = [address];
+    }
+    this.channelsToBeSubscribed.push(address);
+    this.componentChannelConfig.set(address.toString(), this.config.getChannel(address));
 
     if (this.config) {
       let channelConfig = this.config.getChannel(address);
@@ -58,57 +76,87 @@ export class ChannelsComponent implements OnInit, OnDestroy {
     }
 
     if (this.edge) {
-      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, this.subscribedChannels);
+      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, this.channelsToBeSubscribed);
     }
+    this.saveChannels();
   }
+  /**
+   * Unsubscribes a channel
+   * 
+   * @param channelAddress the channelAddress to be unsubscribed
+   */
+  protected unsubscribeChannel(channelAddress: ChannelAddress): void {
+    this.componentChannels[channelAddress.componentId] = this.componentChannels[channelAddress.componentId]?.
+      filter(element => element.channelId !== channelAddress.channelId);
 
-  unsubscribeChannel(address: ChannelAddress) {
-    this.subscribedChannels.forEach((item, index) => {
-      if (item.componentId === address.componentId && item.channelId === address.channelId) {
-        this.subscribedChannels.splice(index, 1);
+    if (this.componentChannels[channelAddress.componentId]?.length === 0) {
+      delete this.componentChannels[channelAddress.componentId];
+    }
+    this.channelsToBeSubscribed.forEach((item, index) => {
+      if (item.componentId === channelAddress.componentId && item.channelId === channelAddress.channelId) {
+        this.channelsToBeSubscribed.splice(index, 1);
       }
     });
+    this.saveChannels();
   }
 
-  setChannelValue(address: ChannelAddress, value: any) {
+  protected setChannelValue(address: ChannelAddress, channelValue: any) {
     if (this.edge) {
       this.edge.sendRequest(
         this.service.websocket,
         new SetChannelValueRequest({
           componentId: address.componentId,
           channelId: address.channelId,
-          value: value
+          value: channelValue
         })
-      ).then(response => {
-        this.service.toast("Successfully set " + address.toString() + " to [" + value + "]", "success");
-      }).catch(reason => {
-        this.service.toast("Error setting " + address.toString() + " to [" + value + "]", 'danger');
+      ).then(() => {
+        this.service.toast("Successfully set " + address.toString() + " to [" + channelValue + "]", "success");
+      }).catch(() => {
+        this.service.toast("Error setting " + address.toString() + " to [" + channelValue + "]", 'danger');
       });
     }
   }
 
-  saveChannels() {
-    let dataStr = JSON.stringify(this.subscribedChannels);
-    localStorage.setItem("openems-ui-channels", dataStr);
-    localStorage.setItem("openems-ui-channels-date", new Date().toUTCString());
+  /**
+   * Saves Channels as queryParams in route
+   *  and navigates to the new route
+   */
+  private saveChannels(): void {
+    let data = Object.entries(this.channelsToBeSubscribed).map(([componentId, channels]) => {
+      return channels.toString();
+    }).toString();
+    this.router.navigate(['device/' + (this.edge.id) + '/settings/channels/'], { queryParams: { save: data } });
+  }
+
+  /**
+   * Saves channels for the current edge in localstorage
+   */
+  protected localSave() {
+    let dataStr = JSON.stringify(this.channelsToBeSubscribed);
+    localStorage.setItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id, dataStr);
     this.service.toast("Successfully saved subscribed channels", "success");
   }
 
-  loadSavedChannels() {
-    let storedValue = localStorage.getItem("openems-ui-channels");
-    let date = localStorage.getItem("openems-ui-channels-date");
-    if (storedValue) {
-      let channels: ChannelAddress[] = JSON.parse(storedValue);
-      let that = this;
-      channels.map(el => that.subscribeChannel(el.componentId, el.channelId));
-      this.service.toast(`Successfully loaded save from ${date}`, "success");
+  protected loadSavedChannels() {
+    this.service.startSpinner(ChannelsComponent.SELECTOR);
+    let address = this.route.snapshot.queryParamMap.get('save');
+    let storedValue = localStorage.getItem(ChannelsComponent.URL_PREFIX + "-" + this.edge.id);
+    if (address) {
+      this.channels = address.split(',')?.map(element => ChannelAddress.fromString(element));
+      this.channels.map(el => this.subscribeChannel(el.componentId, el.channelId));
+    } else if (storedValue) {
+      let savedData = JSON.parse(storedValue);
+      savedData.map(el => this.subscribeChannel(el.componentId, el.channelId));
+      this.service.toast("Successfully loaded saved channels", "success");
     }
+    this.service.stopSpinner(this.spinnerId);
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
+    this.componentChannels = [];
+    this.channelsToBeSubscribed = [];
     if (this.edge != null) {
       this.edge.unsubscribeChannels(this.websocket, ChannelsComponent.SELECTOR);
     }
   }
-
 }

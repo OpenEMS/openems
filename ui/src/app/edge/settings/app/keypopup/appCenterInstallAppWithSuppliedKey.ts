@@ -1,8 +1,4 @@
-import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { AddAppInstance } from "../jsonrpc/addAppInstance";
-import { App } from "./app";
-
+import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
 /**
  * Gets if a key can be redeemed.
@@ -35,7 +31,7 @@ export namespace AppCenterInstallAppWithSuppliedKeyRequest {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 installRequest: JsonrpcRequest
             }
         ) {

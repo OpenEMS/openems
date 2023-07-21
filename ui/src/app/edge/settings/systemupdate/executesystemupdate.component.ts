@@ -24,7 +24,7 @@ export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
 
   constructor(
     private websocket: Websocket,
-    private service: Service,) { }
+    private service: Service) { }
 
   ngOnInit() {
     this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);

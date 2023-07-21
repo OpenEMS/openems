@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -22,9 +23,9 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("consumption-evcs-chart", service, translate);
     }
@@ -74,7 +75,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
+                        borderColor: 'rgba(253,197,7,1)'
                     });
                 }
             });
@@ -92,7 +93,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ChargePower'),
+                new ChannelAddress(this.componentId, 'ChargePower')
             ];
             resolve(result);
         });

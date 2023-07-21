@@ -21,7 +21,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverCtrl: PopoverController,
+        public popoverCtrl: PopoverController
     ) { }
 
     public ngOnInit() {

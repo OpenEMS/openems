@@ -3,16 +3,13 @@ import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
     selector: 'oe-modal-line',
-    templateUrl: './modal-line.html',
+    templateUrl: './modal-line.html'
 })
 export class ModalLineComponent extends AbstractModalLine {
 
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input()
     protected leftColumnWidth: number;
-
-    /** ControlName for Form Field */
-    @Input() public controlName: string;
 
     /** ControlName for Toggle Button */
     @Input() protected control:
@@ -29,6 +26,6 @@ export class ModalLineComponent extends AbstractModalLine {
 
 export enum TextIndentation {
     NONE = '0%',
-    SIMPLE = '5%',
+    SINGLE = '5%',
     DOUBLE = '10%'
 }

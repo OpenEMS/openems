@@ -23,7 +23,7 @@ export class CreateComponentConfigRequest extends JsonrpcRequest {
     private static METHOD: string = "createComponentConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             factoryPid: string,
             properties: {
                 name: string,

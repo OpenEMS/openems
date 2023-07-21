@@ -1,15 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, Currency, CurrentData, EdgeConfig } from 'src/app/shared/shared';
+import { ChannelAddress, Currency, CurrentData } from 'src/app/shared/shared';
 
 @Component({
-    templateUrl: './modal.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './modal.html'
 })
 export class ModalComponent extends AbstractModal {
-
-    @Input() public component: EdgeConfig.Component;
 
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = this.Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
     protected storageStatuslabel: string;

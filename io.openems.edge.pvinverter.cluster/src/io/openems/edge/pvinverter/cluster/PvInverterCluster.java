@@ -6,11 +6,11 @@ import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public interface PvInverterCluster
-		extends ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		extends ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		EXECUTION_FAILED(Doc.of(Level.FAULT).text("Execution failed"));

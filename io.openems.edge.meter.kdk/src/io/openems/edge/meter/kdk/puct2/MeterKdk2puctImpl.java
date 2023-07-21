@@ -35,9 +35,8 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,7 +45,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
-		implements MeterKdk2puct, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+		implements MeterKdk2puct, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private static final long OLD_SOFTWARE_VERSION_CHECKSUM = 573118835; // hexadecimal 0x22291973
 	private static final int CT_RATIO_NOT_NEEDED = 1;
@@ -65,11 +64,14 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	public MeterKdk2puctImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				MeterKdk2puct.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values() //
+				MeterKdk2puct.ChannelId.values() //
 		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate
@@ -92,8 +94,7 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(MeterKdk2puct.class, accessMode, 100) //
 						.build());
 	}
@@ -109,16 +110,16 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x4021, 0x4022), //
 						m(MeterKdk2puct.ChannelId.SOFTWARE_VERSION_CHECK_SUM, new UnsignedDoublewordElement(0x4023))),
 				new FC3ReadRegistersTask(0x5002, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, //
 								new FloatDoublewordElement(0x5002), //
 								SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, //
 								new FloatDoublewordElement(0x5004), //
 								SCALE_FACTOR_3), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, //
 								new FloatDoublewordElement(0x5006), //
 								SCALE_FACTOR_3), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, //
+						m(ElectricityMeter.ChannelId.FREQUENCY, //
 								new FloatDoublewordElement(0x5008), //
 								SCALE_FACTOR_3), //
 						new DummyRegisterElement(0x500A, 0x500B), //
@@ -159,59 +160,59 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
 							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
 							SCALE_FACTOR_3), //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
 							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
 							SCALE_FACTOR_3) //
 			));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
 							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
 							SCALE_FACTOR_3), //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
 							SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
 							SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
 							SCALE_FACTOR_3) //
 			));
@@ -220,9 +221,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 		// update the channel values based on ct-ratio.
 		this.setUpdatedCurrentAndPowerChannels();
 
-		// update the Sum current and avg Voltage
-		this.calculateSumCurrent();
-		this.calculateAverageVoltage();
 		return modbusProtocol;
 	}
 
@@ -335,41 +333,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		consumer.accept(value.asOptional().map(t -> TypeUtils.multiply(t, ctRatio)).orElse(null));
-	}
-
-	/**
-	 * Calculate Sum Current from Current L1, L2 and L3.
-	 */
-	private void calculateSumCurrent() {
-		final Consumer<Value<Integer>> calculateSumCurrent = ignore -> {
-
-			// Set Current
-			this._setCurrent(TypeUtils.sum(//
-					this.getCurrentL1().get(), //
-					this.getCurrentL2().get(), //
-					this.getCurrentL3().get() //
-			));
-		};
-
-		this.getCurrentL1Channel().onSetNextValue(calculateSumCurrent);
-		this.getCurrentL2Channel().onSetNextValue(calculateSumCurrent);
-		this.getCurrentL3Channel().onSetNextValue(calculateSumCurrent);
-	}
-
-	/**
-	 * Calculate Average Voltage from Voltage L1, L2 and L3.
-	 */
-	private void calculateAverageVoltage() {
-		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
-			this._setVoltage(TypeUtils.averageRounded(//
-					this.getVoltageL1Channel().getNextValue().get(), //
-					this.getVoltageL2Channel().getNextValue().get(), //
-					this.getVoltageL3Channel().getNextValue().get() //
-			));
-		};
-		this.getVoltageL1Channel().onSetNextValue(calculateAverageVoltage);
-		this.getVoltageL2Channel().onSetNextValue(calculateAverageVoltage);
-		this.getVoltageL3Channel().onSetNextValue(calculateAverageVoltage);
 	}
 
 	@Override

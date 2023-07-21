@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
@@ -14,7 +14,7 @@ import { FieldWrapper } from "@ngx-formly/core";
             </ion-row>
         </ion-grid>
     </ion-item>
-    `,
+    `
 })
 export class PanelWrapperComponent extends FieldWrapper {
 }

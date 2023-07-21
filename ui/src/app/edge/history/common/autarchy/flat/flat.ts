@@ -8,7 +8,7 @@ import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public autarchyValue: number;
+    protected autarchyValue: number | null;
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
@@ -20,7 +20,7 @@ export class FlatComponent extends AbstractFlatWidget {
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
             new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
-            new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
+            new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
         ];
     }
 }

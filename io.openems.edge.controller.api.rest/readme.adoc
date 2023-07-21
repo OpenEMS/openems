@@ -43,7 +43,7 @@ The `GET` api also understands regular expressions. Send a GET request to http:/
     "address":"pvInverter0/ActivePower",
     "type":"INTEGER",
     "accessMode":"RO",
-    "text":"Negative values for Consumption; positive for Production",
+    "text":"",
     "unit":"W",
     "value":90
   },
@@ -59,7 +59,7 @@ The `GET` api also understands regular expressions. Send a GET request to http:/
     "address":"meter0/ActivePower",
     "type":"INTEGER",
     "accessMode":"RO",
-    "text":"Negative values for Consumption; positive for Production",
+    "text":"",
     "unit":"W",
     "value":465
   },

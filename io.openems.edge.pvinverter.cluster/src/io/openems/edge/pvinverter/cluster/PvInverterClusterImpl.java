@@ -30,9 +30,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -48,7 +47,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS //
 })
 public class PvInverterClusterImpl extends AbstractOpenemsComponent implements PvInverterCluster,
-		ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterClusterImpl.class);
 
@@ -60,7 +59,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 	public PvInverterClusterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				PvInverterCluster.ChannelId.values() //
 		);
@@ -112,7 +111,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 	private void calculateChannelValues() throws OpenemsNamedException {
 		var pvInverters = this.getPvInverters();
 
-		// SymmetricMeter
+		// ElectricityMeter
 		final var frequency = new CalculateAverage();
 		final var minActivePower = new CalculateIntegerSum();
 		final var maxActivePower = new CalculateIntegerSum();
@@ -126,8 +125,8 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 		final var maxApparentPower = new CalculateIntegerSum();
 		final var activePowerLimit = new CalculateIntegerSum();
 
-		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
-			// SymmetricMeter
+		for (var pvInverter : pvInverters) {
+			// ElectricityMeter
 			frequency.addValue(pvInverter.getFrequencyChannel());
 			minActivePower.addValue(pvInverter.getMinActivePowerChannel());
 			maxActivePower.addValue(pvInverter.getMaxActivePowerChannel());
@@ -142,7 +141,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 			activePowerLimit.addValue(pvInverter.getActivePowerLimitChannel());
 		}
 
-		// SymmetricMeter
+		// ElectricityMeter
 		this.getFrequencyChannel().setNextValue(frequency.calculate());
 		this._setMinActivePower(minActivePower.calculate());
 		this._setMaxActivePower(maxActivePower.calculate());
@@ -218,9 +217,7 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(PvInverterClusterImpl.class, accessMode, 100) //
-						.build());
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
 }

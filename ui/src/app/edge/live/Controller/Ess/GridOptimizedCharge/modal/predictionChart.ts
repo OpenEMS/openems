@@ -1,4 +1,3 @@
-
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
@@ -15,7 +14,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() protected refresh: boolean;
-    @Input() protected edge: Edge;
+    @Input() protected override edge: Edge;
     @Input() public component: EdgeConfig.Component;
     @Input() public targetEpochSeconds: number;
     @Input() public chargeStartEpochSeconds: number;
@@ -27,9 +26,9 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("prediction-chart", service, translate);
     }
@@ -174,22 +173,22 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     data: socData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
+                    position: 'right'
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
+                    position: 'right'
                 });
 
                 // Push the depending colors 
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)',
+                    borderColor: 'rgba(189, 195, 199,1)'
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)',
+                    borderColor: 'rgba(0,223,0,1)'
                 });
             }
 
@@ -208,7 +207,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc'),
+                new ChannelAddress('_sum', 'EssSoc')
             ];
             if (this.component != null && this.component.id) {
                 result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
