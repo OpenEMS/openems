@@ -16,6 +16,7 @@ import { Key } from './keypopup/key';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey } from './permissions';
 import { Flags } from './jsonrpc/flag/flags';
+import { App } from './keypopup/app';
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -54,6 +55,7 @@ export class IndexComponent implements OnInit, OnDestroy {
   public categories: { val: GetApps.Category, isChecked: boolean }[] = [];
 
   protected key: Key | null = null;
+  private useMasterKey: boolean = false;
   protected selectedBundle: number | null = null;
 
   // check if update is available
@@ -115,7 +117,7 @@ export class IndexComponent implements OnInit, OnDestroy {
             });
           });
 
-          this.updateSelection(null);
+          this.updateSelection();
 
         }).catch(reason => {
           console.error(reason.error);
@@ -141,8 +143,8 @@ export class IndexComponent implements OnInit, OnDestroy {
    * Updates the selected categories.
    * @param event the event of a click on a 'ion-fab-list' to stop it from closing
    */
-  protected updateSelection(event: PointerEvent) {
-    if (event != null) {
+  protected updateSelection(event?: PointerEvent) {
+    if (event) {
       event.stopPropagation();
     }
     this.installedApps.appCategories = [];
@@ -226,9 +228,25 @@ export class IndexComponent implements OnInit, OnDestroy {
     modal.onDidDismiss().then(data => {
       if (!data.data) {
         this.key = null;
-        this.updateSelection(null);
+        this.useMasterKey = false;
+        this.updateSelection();
         return; // no key selected
       }
+      if (data.data?.useMasterKey) {
+        this.selectedBundle = 0;
+        // set dummy key for available apps to install
+        this.key = {
+          keyId: null, bundles: [this.apps
+            .filter(e => !Flags.getByType(e.flags, Flags.SHOW_AFTER_KEY_REDEEM))
+            .map<App>(d => {
+              return { id: 0, appId: d.appId };
+            })]
+        };
+        this.useMasterKey = true;
+        this.updateSelection();
+        return;
+      }
+      this.useMasterKey = false;
       this.key = data.data.key;
       if (!this.key.bundles) {
         // load bundles
@@ -240,23 +258,27 @@ export class IndexComponent implements OnInit, OnDestroy {
           const result = (response as AppCenterGetPossibleApps.Response).result;
           this.key.bundles = result.bundles;
           this.selectedBundle = 0;
-          this.updateSelection(null);
+          this.updateSelection();
         });
       } else {
         this.selectedBundle = 0;
-        this.updateSelection(null);
+        this.updateSelection();
       }
     });
     return await modal.present();
   }
 
   protected onAppClicked(app: GetApps.App): void {
-    if (this.key != null) {
+    // navigate
+    if (this.key != null || this.useMasterKey) {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId]
-        , { queryParams: { name: app.name }, state: { app: app, appKey: this.key.keyId } });
+        , { queryParams: { name: app.name }, state: { app: app, appKey: this.key.keyId, useMasterKey: this.useMasterKey } });
     } else {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId], { queryParams: { name: app.name }, state: app });
     }
+    // reset keys
+    this.key = null;
+    this.useMasterKey = false;
   }
 
   /**

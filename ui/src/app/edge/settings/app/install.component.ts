@@ -33,6 +33,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   protected model: any | null = null;
 
   private key: string | null = null;
+  private useMasterKey: boolean = false;
   private appId: string | null = null;
   protected appName: string | null = null;
   private edge: Edge | null = null;
@@ -55,8 +56,13 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     const state = history?.state;
-    if (state && 'appKey' in state) {
-      this.key = state['appKey'];
+    if (state) {
+      if ('appKey' in state) {
+        this.key = state['appKey'];
+      }
+      if ('useMasterKey' in state) {
+        this.useMasterKey = state['useMasterKey'];
+      }
     }
     let appId = this.route.snapshot.params['appId'];
     let appName = this.route.snapshot.queryParams['name'];
@@ -179,7 +185,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         resolve(this.key);
         return;
       }
-      if (this.hasPredefinedKey) {
+      if (this.useMasterKey) {
         resolve(null);
         return;
       }
@@ -212,7 +218,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           reject();
           return; // no key selected
         }
-        resolve(event.data.key["keyId"]);
+        if (event.data?.useMasterKey) {
+          resolve(null);
+          return;
+        }
+        if (event.data?.key?.keyId) {
+          resolve(event.data.key.keyId);
+          return;
+        }
+        reject();
       });
     });
 

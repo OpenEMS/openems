@@ -393,6 +393,7 @@
         "Key": {
           "enterKey": "Enter the license key you received with the order of the app",
           "useRegisteredKey": "Redeem already registered licence key?",
+          "useMasterKey": "Use masterkey",
           "registeredKey": "Registered licence keys",
           "successRegisterKey": "successfully registered Key",
           "failedRegisterKey": "failed registering Key",
@@ -406,7 +407,8 @@
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
           "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
           "invalidPattern": "Input is invalid",
-          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Note</span>: When entering the licence key, watch out for possible typos: <ul><li>small L \"l\" vs. capital i \"I\" </li><li>zero \"0\" vs. capital o \"O\"</li></ul>We always recommend copying the licence key from the delivery note and pasting it into the field above instead of typing it in manually.<br>"
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Note</span>: When entering the licence key, watch out for possible typos: <ul><li>small L \"l\" vs. capital i \"I\" </li><li>zero \"0\" vs. capital o \"O\"</li></ul>We always recommend copying the licence key from the delivery note and pasting it into the field above instead of typing it in manually.<br>",
+          "MASTER_KEY_HINT": "<br><span class=\"warning\">Note</span>: The master key is used in the background. No key is displayed. If a licence key is available, please use it.<br>"
         },
         "successInstall": "Successfully installed App",
         "failInstall": "Error installing App '{{error}}'",
