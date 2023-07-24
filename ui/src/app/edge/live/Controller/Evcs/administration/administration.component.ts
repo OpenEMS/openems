@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../shared/shared';
 
 @Component({
   selector: AdministrationComponent.SELECTOR,

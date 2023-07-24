@@ -1,4 +1,4 @@
-<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen && show">
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen">
     <tr *ngIf="textIndent" [style.text-indent]="textIndent">
 
         <!-- Name of Parameter on the left side -->
@@ -10,6 +10,13 @@
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="displayValue">
             <!-- 'Normal' line, name and value  -->
             <ng-container>{{ displayValue }}</ng-container>
+        </td>
+
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="button">
+            <!-- 'Normal' line, name and value  -->
+            <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
+                [size]="button.icon?.size ??'medium'">
+            </ion-icon>
         </td>
 
         <ng-container *ngIf="formGroup && control">
