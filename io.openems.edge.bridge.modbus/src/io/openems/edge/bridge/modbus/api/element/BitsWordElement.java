@@ -23,7 +23,7 @@ import io.openems.edge.common.channel.WriteChannel;
  * A BitsWordElement is an {@link UnsignedWordElement} where every bit
  * represents a Boolean value.
  */
-public class BitsWordElement extends ModbusElement<BitsWordElement, Register, Boolean[]> {
+public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Register, Boolean[]> {
 
 	private final AbstractOpenemsModbusComponent component;
 

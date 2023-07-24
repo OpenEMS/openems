@@ -100,12 +100,12 @@ public interface SunSpecPoint {
 		}
 
 		/**
-		 * Generates a Modbus Element for the given point + startAddress.
+		 * Generates a {@link ModbusElement} for the given point + startAddress.
 		 *
 		 * @param startAddress the startAddress of the Point
 		 * @return a new Modbus Element
 		 */
-		public final ModbusElement<?, ?, ?> generateModbusElement(Integer startAddress) {
+		public final ModbusElement generateModbusElement(Integer startAddress) {
 			switch (this.type) {
 			case UINT16:
 			case ACC16:

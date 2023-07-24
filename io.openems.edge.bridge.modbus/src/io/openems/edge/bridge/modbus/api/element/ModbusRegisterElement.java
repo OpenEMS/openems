@@ -15,8 +15,8 @@ import io.openems.common.types.OpenemsType;
  * @param <BINARY> the binary type
  * @param <T>      the OpenEMS type
  */
-public abstract class ModbusRegisterElement<SELF extends ModbusElement<SELF, Register[], T>, T>
-		extends ModbusElement<SELF, Register[], T> {
+public abstract class ModbusRegisterElement<SELF extends AbstractModbusElement<SELF, Register[], T>, T>
+		extends AbstractModbusElement<SELF, Register[], T> {
 
 	/** ByteOrder of the input registers. */
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;

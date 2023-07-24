@@ -252,7 +252,7 @@ public class SingleRack {
 
 		// Cell voltages
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			var elements = new ArrayList<ModbusElement<?, ?, ?>>();
+			var elements = new ArrayList<ModbusElement>();
 			for (var j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + VOLTAGE;
 				var uwe = this.getUnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + j);
@@ -275,7 +275,7 @@ public class SingleRack {
 
 		// Cell temperatures
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			var elements = new ArrayList<ModbusElement<?, ?, ?>>();
+			var elements = new ArrayList<ModbusElement>();
 			for (var j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + TEMPERATURE;
 

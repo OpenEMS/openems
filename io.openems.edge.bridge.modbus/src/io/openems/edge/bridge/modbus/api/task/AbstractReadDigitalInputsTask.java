@@ -28,7 +28,7 @@ public abstract class AbstractReadDigitalInputsTask<//
 	}
 
 	@Override
-	protected int calculateNextPosition(ModbusElement<?, ?, ?> modbusElement, int position) {
+	protected int calculateNextPosition(ModbusElement modbusElement, int position) {
 		return position + 1;
 	}
 

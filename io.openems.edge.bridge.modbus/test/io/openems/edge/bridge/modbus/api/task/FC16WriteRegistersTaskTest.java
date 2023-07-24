@@ -24,7 +24,7 @@ public class FC16WriteRegistersTaskTest {
 		final var element1 = new UnsignedWordElement(1);
 		final var element2 = new UnsignedWordElement(2);
 		final var element3 = new UnsignedWordElement(3);
-		var elements = new ModbusElement<?, ?, ?>[] { element0, element1, element2, element3 };
+		var elements = new ModbusElement[] { element0, element1, element2, element3 };
 
 		// Has Hole (no value for element2)
 		element0.setNextWriteValue(null);

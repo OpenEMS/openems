@@ -10,7 +10,7 @@ import io.openems.common.types.OpenemsType;
  * @param <SELF> the subclass of myself
  * @param <T>    the OpenEMS type
  */
-public abstract class AbstractDoubleWordElement<SELF extends ModbusElement<SELF, Register[], T>, T>
+public abstract class AbstractDoubleWordElement<SELF extends AbstractModbusElement<SELF, Register[], T>, T>
 		extends AbstractMultipleWordsElement<SELF, T> {
 
 	public AbstractDoubleWordElement(OpenemsType type, int startAddress) {

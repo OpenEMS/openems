@@ -28,7 +28,7 @@ public class ModbusUtils {
 	 * @param <T>             the Type of the element
 	 * @param modbusProtocol  the {@link ModbusProtocol}, that is linked with a
 	 *                        {@link BridgeModbus}
-	 * @param element         the {@link AbstractModbusElement}
+	 * @param element         the {@link ModbusRegisterElement}
 	 * @param tryAgainOnError if true, tries to read till it receives a value; if
 	 *                        false, stops after first try and possibly return null
 	 * @return a future value, e.g. a Integer or null (if tryAgainOnError is false)
@@ -65,7 +65,7 @@ public class ModbusUtils {
 	 * @param <T>             the Type of the elements
 	 * @param modbusProtocol  the {@link ModbusProtocol}, that is linked with a
 	 *                        {@link BridgeModbus}
-	 * @param elements        the {@link AbstractModbusElement}s
+	 * @param elements        the {@link ModbusRegisterElement}s
 	 * @param tryAgainOnError if true, tries to read till it receives a value on
 	 *                        first register; if false, stops after first try and
 	 *                        possibly return null

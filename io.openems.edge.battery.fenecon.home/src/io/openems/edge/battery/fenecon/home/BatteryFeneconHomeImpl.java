@@ -731,8 +731,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					 * for Cell-Voltages.Channel-IDs are like "TOWER_0_OFFSET_2_TEMPERATURE_003".
 					 * Channel-IDs are like "TOWER_0_OFFSET_2_VOLTAGE_003".
 					 */
-					var ameVolt = new ModbusElement<?, ?, ?>[SENSORS_PER_MODULE];
-					var ameTemp = new ModbusElement<?, ?, ?>[SENSORS_PER_MODULE];
+					var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
+					var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
 					for (var j = 0; j < SENSORS_PER_MODULE; j++) {
 						{
 							// Create Voltage Channel

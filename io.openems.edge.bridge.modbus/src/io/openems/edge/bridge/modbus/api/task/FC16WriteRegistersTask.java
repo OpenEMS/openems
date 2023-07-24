@@ -28,7 +28,7 @@ public class FC16WriteRegistersTask
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
-	public FC16WriteRegistersTask(int startAddress, ModbusElement<?, ?, ?>... elements) {
+	public FC16WriteRegistersTask(int startAddress, ModbusElement... elements) {
 		super("FC16WriteRegisters", WriteMultipleRegistersResponse.class, startAddress, elements);
 	}
 
@@ -70,7 +70,7 @@ public class FC16WriteRegistersTask
 	 * @param logWarn  {@link Consumer} to log a warning
 	 * @return a list of CombinedWriteRegisters
 	 */
-	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement<?, ?, ?>[] elements,
+	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement[] elements,
 			Consumer<String> logWarn) {
 		final var writes = new ArrayList<MergedWriteRegisters>();
 		for (var element : elements) {
