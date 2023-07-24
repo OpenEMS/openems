@@ -21,14 +21,14 @@ public class SignedWordElement extends AbstractSingleWordElement<SignedWordEleme
 	}
 
 	@Override
-	protected Short convert(ByteBuffer buff) {
+	protected Short byteBufferToValue(ByteBuffer buff) {
 		return buff.order(this.getByteOrder()).getShort(0);
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
-		Short value = TypeUtils.getAsType(OpenemsType.SHORT, object);
-		return buff.putShort(value.shortValue());
+	protected void valueToByteBuffer(ByteBuffer buff, Short value) {
+		Short s = TypeUtils.getAsType(OpenemsType.SHORT, value);
+		buff.putShort(s.shortValue());
 	}
 
 }

@@ -20,6 +20,7 @@ public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusReque
 		super(name, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void handleResponse(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {

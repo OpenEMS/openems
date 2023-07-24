@@ -3,7 +3,6 @@ package io.openems.edge.wago;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
-import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -39,15 +38,15 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 
 		this.inputCoil0Elements = new CoilElement[] { //
 				parent.createModbusCoilElement(channel2.channelId(), coilOffset0), //
-				new DummyCoilElement(coilOffset0 + 1) //
+				new CoilElement(coilOffset0 + 1) //
 		};
 		this.inputCoil512Elements = new CoilElement[] { //
 				parent.createModbusCoilElement(channel1.channelId(), coilOffset512), //
-				new DummyCoilElement(coilOffset512 + 1), //
+				new CoilElement(coilOffset512 + 1), //
 		};
 		this.outputCoil512Elements = new CoilElement[] { //
 				parent.createModbusCoilElement(channel1.channelId(), coilOffset512), //
-				new DummyCoilElement(coilOffset512 + 1) //
+				new CoilElement(coilOffset512 + 1) //
 		};
 	}
 

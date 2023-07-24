@@ -1,11 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import java.nio.ByteBuffer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.types.OpenemsType;
 
@@ -15,10 +10,8 @@ import io.openems.common.types.OpenemsType;
  * @param <SELF> the subclass of myself
  * @param <T>    the OpenEMS type
  */
-public abstract class AbstractMultipleWordsElement<SELF extends ModbusElement<SELF, InputRegister[], T>, T>
+public abstract class AbstractMultipleWordsElement<SELF extends ModbusElement<SELF, Register[], T>, T>
 		extends ModbusRegisterElement<SELF, T> {
-
-	private final Logger log = LoggerFactory.getLogger(AbstractMultipleWordsElement.class);
 
 	private WordOrder wordOrder = WordOrder.MSWLSW;
 
@@ -27,21 +20,13 @@ public abstract class AbstractMultipleWordsElement<SELF extends ModbusElement<SE
 	}
 
 	@Override
-	protected final T binaryToValue(InputRegister[] registers) {
-		// TODO check length
-		// fill buffer
-		var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
-		if (this.getWordOrder() == WordOrder.MSWLSW) {
-			for (int i = 0; i < this.length; i++) {
-				buff.put(registers[i].toBytes());
-			}
-		} else {
-			for (int i = this.length - 1; i >= 0; i--) {
-				buff.put(registers[i].toBytes());
-			}
-		}
-		buff.rewind();
-		return this.byteBufferToValue(buff);
+	protected final T rawToValue(Register[] registers) {
+		return this.rawToValue(registers, this.wordOrder);
+	}
+
+	@Override
+	protected Register[] valueToRaw(T value) {
+		return this.valueToRaw(value, this.wordOrder);
 	}
 
 	/**
@@ -56,30 +41,8 @@ public abstract class AbstractMultipleWordsElement<SELF extends ModbusElement<SE
 		return this.self();
 	}
 
-	public final WordOrder getWordOrder() {
+	protected WordOrder getWordOrder() {
 		return this.wordOrder;
 	}
-
-//	@Override
-//	public void setInput(InputRegister[] registers) {
-//		// TODO check length
-//	}
-
-//	@Override
-//	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
-//		if (this.isDebug()) {
-//			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
-//		}
-//		if (valueOpt.isPresent()) {
-//			var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
-//			buff = this.toByteBuffer(buff, valueOpt.get());
-//			var b = buff.array();
-//			this.setNextWriteValueRegisters(Optional.of(new Register[] { //
-//					new SimpleRegister(b[0], b[1]) }));
-//		} else {
-//			this.setNextWriteValueRegisters(Optional.empty());
-//		}
-//		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
-//	}
 
 }

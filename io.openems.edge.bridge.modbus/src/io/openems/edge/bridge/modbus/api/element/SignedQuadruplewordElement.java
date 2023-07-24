@@ -20,13 +20,13 @@ public class SignedQuadruplewordElement extends AbstractQuadrupleWordElement<Sig
 	}
 
 	@Override
-	protected Long convert(ByteBuffer buff) {
+	protected Long byteBufferToValue(ByteBuffer buff) {
 		return Long.valueOf(buff.getLong());
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-		return buff.putLong(value.longValue());
+	protected void valueToByteBuffer(ByteBuffer buff, Long value) {
+		buff.putLong(value.longValue());
 	}
 
 }

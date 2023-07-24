@@ -20,14 +20,13 @@ public class UnsignedQuadruplewordElement extends AbstractQuadrupleWordElement<U
 	}
 
 	@Override
-	protected Long convert(ByteBuffer buff) {
+	protected Long byteBufferToValue(ByteBuffer buff) {
 		return buff.getLong(0);
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-
-		return buff.putLong(value);
+	protected void valueToByteBuffer(ByteBuffer buff, Long value) {
+		buff.putLong(value);
 	}
 
 }

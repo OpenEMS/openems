@@ -16,21 +16,18 @@ public class FC6WriteRegisterTask extends
 
 	@Override
 	protected WriteSingleRegisterRequest createModbusRequest() throws OpenemsException {
-		var valueOpt = this.element.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
-			var registers = valueOpt.get();
+		var registers = this.element.getNextWriteValueAndReset();
+		if (registers == null) {
+			return null;
+		}
 
-			if (registers.length == 1 && registers[0] != null) {
-				// found value -> write
-				var register = registers[0];
-				return new WriteSingleRegisterRequest(this.startAddress, register);
-
-			} else {
-				throw new OpenemsException("Expected exactly one register. Got [" + registers.length + "]");
-			}
+		if (registers.length == 1 && registers[0] != null) {
+			// found value -> write
+			var register = registers[0];
+			return new WriteSingleRegisterRequest(this.startAddress, register);
 
 		} else {
-			return null;
+			throw new OpenemsException("Expected exactly one register. Got [" + registers.length + "]");
 		}
 	}
 

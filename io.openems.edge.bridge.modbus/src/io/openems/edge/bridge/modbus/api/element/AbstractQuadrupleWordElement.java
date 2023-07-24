@@ -1,11 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import java.nio.ByteBuffer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.types.OpenemsType;
 
@@ -15,51 +10,11 @@ import io.openems.common.types.OpenemsType;
  * @param <SELF> the subclass of myself
  * @param <T>    the OpenEMS type
  */
-public abstract class AbstractQuadrupleWordElement<SELF extends ModbusElement<SELF, InputRegister[], T>, T>
+public abstract class AbstractQuadrupleWordElement<SELF extends ModbusElement<SELF, Register[], T>, T>
 		extends AbstractMultipleWordsElement<SELF, T> {
-
-	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
 
 	public AbstractQuadrupleWordElement(OpenemsType type, int startAddress) {
 		super(type, startAddress, 4);
 	}
 
-//	@Override
-//	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
-//		if (this.isDebug()) {
-//			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
-//		}
-//		if (valueOpt.isPresent()) {
-//			var buff = ByteBuffer.allocate(8).order(this.getByteOrder());
-//			buff = this.toByteBuffer(buff, valueOpt.get());
-//			var b = buff.array();
-//			if (this.wordOrder == WordOrder.MSWLSW) {
-//				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
-//						new SimpleRegister(b[0], b[1]), //
-//						new SimpleRegister(b[2], b[3]), //
-//						new SimpleRegister(b[4], b[5]), //
-//						new SimpleRegister(b[6], b[7]) //
-//				}));
-//			} else {
-//				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
-//						new SimpleRegister(b[6], b[7]), //
-//						new SimpleRegister(b[4], b[5]), //
-//						new SimpleRegister(b[2], b[3]), //
-//						new SimpleRegister(b[0], b[1]) //
-//				}));
-//			}
-//		} else {
-//			this.setNextWriteValueRegisters(Optional.empty());
-//		}
-//		this.onSetNextWriteCallbacks.forEach(callback -> callback.accept(valueOpt));
-//	}
-
-	/**
-	 * Converts the current OpenemsType to a 8-byte ByteBuffer.
-	 *
-	 * @param buff  the target ByteBuffer
-	 * @param value the value
-	 * @return the ByteBuffer
-	 */
-	protected abstract ByteBuffer toByteBuffer(ByteBuffer buff, T value);
 }

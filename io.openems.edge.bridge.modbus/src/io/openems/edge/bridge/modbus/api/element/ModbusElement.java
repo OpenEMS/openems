@@ -18,37 +18,45 @@ import io.openems.edge.common.type.TypeUtils;
 /**
  * A ModbusElement represents one row of a Modbus definition table.
  *
- * @param <SELF>   the subclass of myself
- * @param <BINARY> the binary type
- * @param <T>      the OpenEMS type
+ * @param <SELF> the subclass of myself
+ * @param <RAW>  the raw value type
+ * @param <T>    the value type
  */
-public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY, T> {
+public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, RAW, T> {
 
 	/** The start address of this Modbus element. */
 	public final int startAddress;
 	/** Number of Registers or Coils. */
 	public final int length;
-
-	// TODO private
-	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
+	/** The type of the read and write value. */
+	public final OpenemsType type;
 
 	private final Logger log = LoggerFactory.getLogger(ModbusElement.class);
-	private final OpenemsType type;
 	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
 	/** Counts for how many cycles no valid value was read. */
 	private int invalidValueCounter = 0;
-
 	/** The next Write-Value. */
-	private BINARY writeValue = null;
-
-	protected Task task = null;
+	private T nextWriteValue = null;
+	/** The Task - set via {@link #setModbusTask(Task)}. */
+	private Task task = null;
 
 	protected ModbusElement(OpenemsType type, int startAddress, int length) {
 		this.type = type;
 		this.startAddress = startAddress;
 		this.length = length;
 	}
+
+	protected abstract RAW valueToRaw(T value);
+
+	/**
+	 * Converts the RAW value from j2mod to the expected type.
+	 * 
+	 * @param value the raw value
+	 * @return the typed/converted value
+	 */
+	protected abstract T rawToValue(RAW value);
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
@@ -57,16 +65,28 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 	 */
 	protected abstract SELF self();
 
-	// TODO protected
-	public final void setInputValue(BINARY binary) {
-		var value = this.binaryToValue(binary);
-		
+	/**
+	 * Set the input/read value.
+	 * 
+	 * @param raw a value in raw format
+	 */
+	public final void setInputValue(RAW raw) {
+		// Convert to type
+		final T value;
+		if (raw != null) {
+			value = this.rawToValue(raw);
+		} else {
+			value = null;
+		}
+		// Log debug message
 		if (this.isDebug) {
 			this.log.info("Element [" + this + "] set value to [" + value + "].");
 		}
+		// Reset invalidValueCounter
 		if (value != null) {
 			this.invalidValueCounter = 0;
 		}
+		// Call Callbacks
 		for (Consumer<T> callback : this.onUpdateCallbacks) {
 			callback.accept(value);
 		}
@@ -77,29 +97,58 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 	 *
 	 * @param value the value; possibly null
 	 */
-	// TODO protected
-	// * @throws OpenemsException on error
-	// * @throws IllegalArgumentException on error
 	public final void setNextWriteValue(T value) {
-		var binary = this.valueToBinary(value);
-		this.writeValue = binary;
+		// Log debug message
+		if (this.isDebug()) {
+			this.log.info("Element [" + this + "] set next write value to [" + value + "].");
+		}
+		this.nextWriteValue = value;
 	}
 
-	protected abstract BINARY valueToBinary(T value);
-
-	protected abstract T binaryToValue(BINARY value);
-
+	/**
+	 * Sets a value that should be written to the Modbus device.
+	 *
+	 * @param value the value; possibly null
+	 */
 	public final void setNextWriteValueFromObject(Object value) {
 		this.setNextWriteValue(TypeUtils.getAsType(this.type, value));
 	}
 
 	/**
-	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
+	 * Gets the next write value.
 	 *
-	 * @return the OpenemsType
+	 * @return the next write value
 	 */
-	public final OpenemsType getType() {
-		return this.type;
+	protected final T getNextWriteValue() {
+		return this.nextWriteValue;
+	}
+
+	/**
+	 * Resets the next write value to null.
+	 */
+	protected void resetNextWriteValue() {
+		this.nextWriteValue = null;
+	}
+
+	/**
+	 * Gets the next write value and resets it.
+	 *
+	 * <p>
+	 * This method should be called once in every cycle on the
+	 * TOPIC_CYCLE_EXECUTE_WRITE event. It makes sure, that the nextWriteValue gets
+	 * initialized in every Cycle. If registers need to be written again in every
+	 * cycle, next setNextWriteValue()-method needs to be called on every Cycle.
+	 *
+	 * @return the next write value
+	 */
+	public final RAW getNextWriteValueAndReset() {
+		var value = this.nextWriteValue;
+		if (value == null) {
+			return null;
+		}
+		var result = this.valueToRaw(value);
+		this.resetNextWriteValue();
+		return result;
 	}
 
 	/**
@@ -151,12 +200,11 @@ public abstract class ModbusElement<SELF extends ModbusElement<?, ?, ?>, BINARY,
 	 *
 	 * @param bridge the {@link AbstractModbusBridge}
 	 */
-	@Deprecated
 	public final void invalidate(AbstractModbusBridge bridge) {
-//		this.invalidValueCounter++;
-//		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
-//			this.setValue(null);
-//		}
+		this.invalidValueCounter++;
+		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
+			this.setInputValue(null);
+		}
 	}
 
 	/*

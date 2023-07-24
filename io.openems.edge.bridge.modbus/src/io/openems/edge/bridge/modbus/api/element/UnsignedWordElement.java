@@ -21,14 +21,14 @@ public class UnsignedWordElement extends AbstractSingleWordElement<UnsignedWordE
 	}
 
 	@Override
-	protected Integer convert(ByteBuffer buff) {
+	protected Integer byteBufferToValue(ByteBuffer buff) {
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
-		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, object);
-		return buff.putShort(value.shortValue());
+	protected void valueToByteBuffer(ByteBuffer buff, Integer value) {
+		Integer i = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+		buff.putShort(i.shortValue());
 	}
 
 }

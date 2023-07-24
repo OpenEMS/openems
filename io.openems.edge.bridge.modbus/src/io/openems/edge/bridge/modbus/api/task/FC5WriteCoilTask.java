@@ -18,11 +18,9 @@ public class FC5WriteCoilTask extends AbstractWriteTask.Single<WriteCoilRequest,
 
 	@Override
 	protected WriteCoilRequest createModbusRequest() throws OpenemsException {
-		var valueOpt = this.element.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
-			boolean value = valueOpt.get();
+		var value = this.element.getNextWriteValueAndReset();
+		if (value != null) {
 			return new WriteCoilRequest(startAddress, value);
-
 		} else {
 			return null;
 		}
