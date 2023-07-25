@@ -8,7 +8,8 @@ import io.openems.edge.bridge.modbus.api.task.Task;
  * This abstract class serves as an Interface-like abstraction to avoid Java
  * Generics for external access.
  */
-public abstract sealed class ModbusElement permits AbstractModbusElement<?, ?, ?> {
+@SuppressWarnings("rawtypes")
+public abstract sealed class ModbusElement permits AbstractModbusElement {
 
 	/** The start address of this Modbus element. */
 	public final int startAddress;
