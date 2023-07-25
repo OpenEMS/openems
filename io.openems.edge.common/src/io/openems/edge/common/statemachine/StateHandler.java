@@ -36,4 +36,13 @@ public abstract class StateHandler<STATE extends State<STATE>, CONTEXT> {
 	protected void onExit(CONTEXT context) throws OpenemsNamedException {
 	}
 
+	/**
+	 * Gets a message that is suitable for a continuous Debug log. Returns 'null' by
+	 * default which causes output of the name of the State in Camel-Case.
+	 *
+	 * @return the debug log output
+	 */
+	protected String debugLog() {
+		return null;
+	}
 }

@@ -627,6 +627,7 @@ export namespace HistoryUtils {
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
+    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
     yAxisId: ChartAxis,
     /** Default: true */

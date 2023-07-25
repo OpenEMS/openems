@@ -31,7 +31,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
+		super.activate(null, id, "", true, LogVerbosity.NONE, 2);
 	}
 
 	/**
