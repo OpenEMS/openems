@@ -1,23 +1,15 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.metatype.annotations.Designate;
-
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
-public interface TouEntsoe extends OpenemsComponent, EventHandler {
+public interface TouEntsoe extends OpenemsComponent, TimeOfUseTariff {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING) //
+				.text("Unable to update prices from Entsoe API")), //
 		;
 
 		private final Doc doc;

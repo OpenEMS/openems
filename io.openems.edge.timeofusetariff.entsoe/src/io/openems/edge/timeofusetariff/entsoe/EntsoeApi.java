@@ -25,7 +25,7 @@ public class EntsoeApi {
 	 *                 https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_areas
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
-	 * @return
+	 * @return The response string.
 	 * @throws IOException on error
 	 */
 	protected static String query(String token, String areaCode, ZonedDateTime fromDate, ZonedDateTime toDate)

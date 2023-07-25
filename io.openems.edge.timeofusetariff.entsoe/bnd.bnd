@@ -6,11 +6,11 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	com.squareup.okio,\
-	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.timeofusetariff.api,\
 	io.openems.wrapper.okhttp,\
-
+	io.openems.common,\
+	
 -testpath: \
 	com.squareup.okio,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm,\
