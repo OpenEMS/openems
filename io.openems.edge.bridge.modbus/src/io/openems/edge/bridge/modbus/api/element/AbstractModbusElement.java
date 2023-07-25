@@ -30,10 +30,11 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
+	/** The next Write-Value. */
+	protected T nextWriteValue = null;
+
 	/** Counts for how many cycles no valid value was read. */
 	private int invalidValueCounter = 0;
-	/** The next Write-Value. */
-	private T nextWriteValue = this.initializeNextWriteValue();
 
 	protected AbstractModbusElement(OpenemsType type, int startAddress, int length) {
 		super(startAddress, length);
@@ -107,20 +108,6 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	}
 
 	/**
-	 * Gets the next write value.
-	 *
-	 * @return the next write value
-	 */
-	protected final T getNextWriteValue() {
-		return this.nextWriteValue;
-	}
-
-	/** Initializes the next write value with null. */
-	protected T initializeNextWriteValue() {
-		return null;
-	}
-
-	/**
 	 * Gets the next write value and resets it.
 	 *
 	 * <p>
@@ -137,8 +124,12 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 			return null;
 		}
 		var result = this.valueToRaw(value);
-		this.nextWriteValue = this.initializeNextWriteValue();
+		this.nextWriteValue = null;
+		this.onNextWriteValueReset();
 		return result;
+	}
+
+	protected void onNextWriteValueReset() {
 	}
 
 	/**

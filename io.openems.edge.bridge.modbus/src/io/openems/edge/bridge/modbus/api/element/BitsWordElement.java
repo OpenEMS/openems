@@ -39,6 +39,10 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 
 		// On Value Update: set the individual BooleanChannel-Values
 		this.onUpdateCallback(value -> {
+			if (value == null) {
+				value = new Boolean[16];
+			}
+
 			for (var bitIndex = 0; bitIndex < 16; bitIndex++) {
 				// Get Wrapper
 				var wrapper = this.channels[bitIndex];
@@ -115,7 +119,10 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 			var booleanWriteChannel = (WriteChannel<Boolean>) booleanChannel;
 			booleanWriteChannel.onSetNextWrite(value -> {
 				// Listen on Writes to the BooleanChannel and store the value
-				this.getNextWriteValue()[bitIndex] = value;
+				if (this.nextWriteValue == null) {
+					this.nextWriteValue = new Boolean[16];
+				}
+				this.nextWriteValue[bitIndex] = value;
 			});
 		}
 
@@ -219,17 +226,13 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 	}
 
 	@Override
-	protected Boolean[] initializeNextWriteValue() {
-		if (this.channels != null) { // this method is called during construction
-			// Clear all Write-Values
-			Stream.of(this.channels) //
-					.filter(Objects::nonNull) //
-					.map(ChannelWrapper::channel) //
-					.filter(WriteChannel.class::isInstance) //
-					.map(WriteChannel.class::cast) //
-					.forEach(WriteChannel::getNextWriteValueAndReset);
-		}
-
-		return new Boolean[16];
+	protected void onNextWriteValueReset() {
+		// Clear all Write-Values
+		Stream.of(this.channels) //
+				.filter(Objects::nonNull) //
+				.map(ChannelWrapper::channel) //
+				.filter(WriteChannel.class::isInstance) //
+				.map(WriteChannel.class::cast) //
+				.forEach(WriteChannel::getNextWriteValueAndReset);
 	}
 }

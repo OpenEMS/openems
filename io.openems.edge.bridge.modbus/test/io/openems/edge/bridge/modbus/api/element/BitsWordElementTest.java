@@ -14,6 +14,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
@@ -30,12 +31,27 @@ public class BitsWordElementTest {
 		final var channel1 = addBit(sut, 1);
 		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
 
-		// TODO ByteOrder is not handled here
 		sut.element.setInputValue(new SimpleRegister((byte) 0x00, (byte) 0x01));
 
 		assertTrue(channel0.getNextValue().get());
 		assertFalse(channel1.getNextValue().get());
 		assertTrue(channel2.getNextValue().get());
+	}
+
+	@Test
+	public void testInvalidate() throws Exception {
+		var sut = generateSut();
+		final var bridge = (AbstractModbusBridge) sut.getBridgeModbus();
+
+		final var channel0 = addBit(sut, 0);
+
+		sut.element.setInputValue(new SimpleRegister((byte) 0x00, (byte) 0x01));
+
+		assertTrue(channel0.getNextValue().get());
+		sut.element.invalidate(bridge); // invalidValueCounter = 1
+		assertTrue(channel0.getNextValue().get());
+		sut.element.invalidate(bridge); // invalidValueCounter = 2
+		assertNull(channel0.getNextValue().get());
 	}
 
 	@Test
