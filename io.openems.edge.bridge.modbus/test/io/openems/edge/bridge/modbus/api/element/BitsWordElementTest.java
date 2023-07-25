@@ -30,9 +30,9 @@ public class BitsWordElementTest {
 	public void testRead() throws Exception {
 		var sut = generateSut();
 
-		var channel0 = addBit(sut, 0);
-		var channel1 = addBit(sut, 1);
-		var channel2 = addBit(sut, 2, BitConverter.INVERT);
+		final var channel0 = addBit(sut, 0);
+		final var channel1 = addBit(sut, 1);
+		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
 
 		// TODO ByteOrder is not handled here
 		sut.element.setInputRegisters(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
@@ -58,9 +58,9 @@ public class BitsWordElementTest {
 	public void testWriteNone2() throws Exception {
 		var sut = generateSut();
 
-		var channel0 = addBit(sut, 0);
-		var channel1 = addBit(sut, 1);
-		var channel2 = addBit(sut, 2, BitConverter.INVERT);
+		final var channel0 = addBit(sut, 0);
+		final var channel1 = addBit(sut, 1);
+		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
 		addBit(sut, 3);
 
 		channel0.setNextWriteValue(false);
@@ -75,10 +75,10 @@ public class BitsWordElementTest {
 	public void testWriteBigEndian() throws Exception {
 		var sut = generateSut();
 
-		var channel0 = addBit(sut, 0);
-		var channel1 = addBit(sut, 1);
-		var channel2 = addBit(sut, 2, BitConverter.INVERT);
-		var channel8 = addBit(sut, 8);
+		final var channel0 = addBit(sut, 0);
+		final var channel1 = addBit(sut, 1);
+		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
+		final var channel8 = addBit(sut, 8);
 
 		channel0.setNextWriteValue(false);
 		channel1.setNextWriteValue(true);
@@ -94,10 +94,10 @@ public class BitsWordElementTest {
 		var sut = generateSut();
 		sut.element.byteOrder(LITTLE_ENDIAN);
 
-		var channel0 = addBit(sut, 0);
-		var channel1 = addBit(sut, 1);
-		var channel2 = addBit(sut, 2, BitConverter.INVERT);
-		var channel8 = addBit(sut, 8);
+		final var channel0 = addBit(sut, 0);
+		final var channel1 = addBit(sut, 1);
+		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
+		final var channel8 = addBit(sut, 8);
 
 		channel0.setNextWriteValue(false);
 		channel1.setNextWriteValue(true);
