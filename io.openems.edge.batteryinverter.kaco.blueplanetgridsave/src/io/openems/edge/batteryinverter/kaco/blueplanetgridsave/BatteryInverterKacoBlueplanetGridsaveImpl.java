@@ -386,8 +386,10 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 
 	@Override
 	public String debugLog() {
-		return this.stateMachine.getCurrentState().asCamelCase() //
-				+ "|" + this.getCurrentState().asCamelCase();
+		return new StringBuilder() //
+				.append(this.stateMachine.debugLog()) //
+				.append("|State:").append(this.getCurrentState().asCamelCase()) //
+				.toString();
 	}
 
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
