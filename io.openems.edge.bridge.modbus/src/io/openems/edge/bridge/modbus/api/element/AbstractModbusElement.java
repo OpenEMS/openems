@@ -163,6 +163,7 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	 * set.
 	 *
 	 * @param callback the callback
+	 * @return myself
 	 */
 	public final SELF onSetNextWrite(Consumer<Optional<T>> callback) {
 		this.onSetNextWriteCallbacks.add(callback);

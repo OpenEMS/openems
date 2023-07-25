@@ -57,7 +57,7 @@ public abstract class ModbusRegisterElement<SELF extends AbstractModbusElement<S
 		switch (wordOrder) {
 		case LSWMSW:
 			// Least significant word, most significant word
-			for (int i = 0; i < this.length; i++) {
+			for (int i = this.length - 1; i > -1; i--) {
 				result[i] = new SimpleRegister(b[i * 2], b[i * 2 + 1]);
 			}
 			break;
