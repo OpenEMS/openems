@@ -33,7 +33,7 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 	/** Counts for how many cycles no valid value was read. */
 	private int invalidValueCounter = 0;
 	/** The next Write-Value. */
-	private T nextWriteValue = null;
+	private T nextWriteValue = this.initializeNextWriteValue();
 
 	protected AbstractModbusElement(OpenemsType type, int startAddress, int length) {
 		super(startAddress, length);
@@ -115,11 +115,9 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 		return this.nextWriteValue;
 	}
 
-	/**
-	 * Resets the next write value to null.
-	 */
-	protected void resetNextWriteValue() {
-		this.nextWriteValue = null;
+	/** Initializes the next write value with null. */
+	protected T initializeNextWriteValue() {
+		return null;
 	}
 
 	/**
@@ -139,7 +137,7 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 			return null;
 		}
 		var result = this.valueToRaw(value);
-		this.resetNextWriteValue();
+		this.nextWriteValue = this.initializeNextWriteValue();
 		return result;
 	}
 

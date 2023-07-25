@@ -1,6 +1,9 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import io.openems.common.types.OpenemsType;
 
@@ -16,12 +19,19 @@ public class StringWordElement extends AbstractMultipleWordsElement<StringWordEl
 
 	@Override
 	protected String byteBufferToValue(ByteBuffer buff) {
-		for (var b : buff.array()) {
-			if (b == 0) {
-				b = 32;// replace '0' with ASCII space
+		var src = buff.array();
+		var out = new byte[src.length];
+		for (int i = 0; i < src.length; i += 2) {
+			if (this.getByteOrder() == BIG_ENDIAN) {
+				out[i] = src[i];
+				out[i + 1] = src[i + 1];
+
+			} else { // LITTLE_ENDIAN
+				out[i] = src[i + 1];
+				out[i + 1] = src[i];
 			}
 		}
-		return new String(buff.array()).trim();
+		return new String(tidyUp(out)).trim();
 	}
 
 	@Override
@@ -31,7 +41,21 @@ public class StringWordElement extends AbstractMultipleWordsElement<StringWordEl
 
 	@Override
 	protected void valueToByteBuffer(ByteBuffer buff, String value) {
-		ByteBuffer.wrap(value.getBytes());
+		buff.put(value.getBytes(StandardCharsets.US_ASCII));
+	}
+
+	private static byte[] tidyUp(byte[] array) {
+		for (var i = 0; i < array.length; i++) {
+			array[i] = tidyUp(array[i]);
+		}
+		return array;
+	}
+
+	private static byte tidyUp(byte b) {
+		if (b == 0) {
+			b = 32;// replace '0' with ASCII space
+		}
+		return b;
 	}
 
 }

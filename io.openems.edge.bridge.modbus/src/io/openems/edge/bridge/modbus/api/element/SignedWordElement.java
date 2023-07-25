@@ -22,7 +22,7 @@ public class SignedWordElement extends AbstractSingleWordElement<SignedWordEleme
 
 	@Override
 	protected Short byteBufferToValue(ByteBuffer buff) {
-		return buff.order(this.getByteOrder()).getShort(0);
+		return buff.getShort(0);
 	}
 
 	@Override

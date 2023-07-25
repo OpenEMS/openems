@@ -21,7 +21,7 @@ public class FloatQuadruplewordElement extends AbstractQuadrupleWordElement<Floa
 
 	@Override
 	protected Double byteBufferToValue(ByteBuffer buff) {
-		return Double.valueOf(buff.getDouble());
+		return buff.getDouble();
 	}
 
 	@Override

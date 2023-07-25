@@ -46,19 +46,8 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 					continue;
 				}
 
-				final Boolean setValue;
-				if (value == null) {
-					setValue = null;
-				} else {
-					var bit = value[bitIndex];
-					setValue = switch (wrapper.converter) {
-					case DIRECT_1_TO_1 -> bit;
-					case INVERT -> !bit;
-					};
-				}
-
 				// Set Value to Channel
-				wrapper.channel().setNextValue(setValue);
+				wrapper.channel().setNextValue(value[bitIndex]);
 			}
 		});
 	}
@@ -230,13 +219,17 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 	}
 
 	@Override
-	protected void resetNextWriteValue() {
-		// Clear all Write-Values
-		Stream.of(this.channels) //
-				.filter(Objects::nonNull) //
-				.map(ChannelWrapper::channel) //
-				.filter(WriteChannel.class::isInstance) //
-				.map(WriteChannel.class::cast) //
-				.forEach(WriteChannel::getNextWriteValueAndReset);
+	protected Boolean[] initializeNextWriteValue() {
+		if (this.channels != null) { // this method is called during construction
+			// Clear all Write-Values
+			Stream.of(this.channels) //
+					.filter(Objects::nonNull) //
+					.map(ChannelWrapper::channel) //
+					.filter(WriteChannel.class::isInstance) //
+					.map(WriteChannel.class::cast) //
+					.forEach(WriteChannel::getNextWriteValueAndReset);
+		}
+
+		return new Boolean[16];
 	}
 }

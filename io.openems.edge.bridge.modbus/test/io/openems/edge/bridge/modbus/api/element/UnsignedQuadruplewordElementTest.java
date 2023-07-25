@@ -22,7 +22,7 @@ public class UnsignedQuadruplewordElementTest {
 				new UnsignedQuadruplewordElement(0), //
 				LONG);
 		sut.element.debug();
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x01, (byte) 0x23), //
 				new SimpleRegister((byte) 0x45, (byte) 0x67), //
 				new SimpleRegister((byte) 0x89, (byte) 0xAB), //
@@ -36,7 +36,7 @@ public class UnsignedQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedQuadruplewordElement(0).wordOrder(LSWMSW), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x01, (byte) 0x23), //
 				new SimpleRegister((byte) 0x45, (byte) 0x67), //
 				new SimpleRegister((byte) 0x89, (byte) 0xAB), //
@@ -50,7 +50,7 @@ public class UnsignedQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedQuadruplewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x01, (byte) 0x23), //
 				new SimpleRegister((byte) 0x45, (byte) 0x67), //
 				new SimpleRegister((byte) 0x89, (byte) 0xAB), //
@@ -64,7 +64,7 @@ public class UnsignedQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedQuadruplewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x01, (byte) 0x23), //
 				new SimpleRegister((byte) 0x45, (byte) 0x67), //
 				new SimpleRegister((byte) 0x89, (byte) 0xAB), //
@@ -79,7 +79,7 @@ public class UnsignedQuadruplewordElementTest {
 				new UnsignedQuadruplewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0x2301_6745_AB89_EFCDL);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0xCD, (byte) 0xEF }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x89, (byte) 0xAB }, registers[1].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x45, (byte) 0x67 }, registers[2].toBytes());
@@ -92,7 +92,7 @@ public class UnsignedQuadruplewordElementTest {
 				new UnsignedQuadruplewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0x2301_6745_AB89_EFCDL);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x23 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x45, (byte) 0x67 }, registers[1].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x89, (byte) 0xAB }, registers[2].toBytes());

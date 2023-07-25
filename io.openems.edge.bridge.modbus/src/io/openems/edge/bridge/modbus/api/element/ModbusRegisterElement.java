@@ -55,19 +55,20 @@ public abstract class ModbusRegisterElement<SELF extends AbstractModbusElement<S
 		var b = buff.array();
 		var result = new Register[this.length];
 		switch (wordOrder) {
-		case LSWMSW:
-			// Least significant word, most significant word
-			for (int i = this.length - 1; i > -1; i--) {
-				result[i] = new SimpleRegister(b[i * 2], b[i * 2 + 1]);
-			}
-			break;
 
-		case MSWLSW:
+		case LSWMSW -> {
+			// Least significant word, most significant word
+			for (int i = 0, j = this.length - 1; i < this.length; i++, j--) {
+				result[i] = new SimpleRegister(b[j * 2], b[j * 2 + 1]);
+			}
+		}
+
+		case MSWLSW -> {
 			// Most significant word, least significant word
 			for (int i = 0; i < this.length; i++) {
 				result[i] = new SimpleRegister(b[i * 2], b[i * 2 + 1]);
 			}
-			break;
+		}
 		}
 		return result;
 	}
@@ -83,19 +84,19 @@ public abstract class ModbusRegisterElement<SELF extends AbstractModbusElement<S
 		var buff = this.buildByteBuffer();
 		switch (wordOrder) {
 
-		case LSWMSW:
-			// Least significant word, most significant word
-			for (int i = 0; i < this.length; i++) {
-				buff.put(registers[i].toBytes());
-			}
-			break;
-
-		case MSWLSW:
+		case LSWMSW -> {
 			// Most significant word, least significant word
 			for (int i = this.length - 1; i >= 0; i--) {
 				buff.put(registers[i].toBytes());
 			}
-			break;
+		}
+
+		case MSWLSW -> {
+			// Least significant word, most significant word
+			for (int i = 0; i < this.length; i++) {
+				buff.put(registers[i].toBytes());
+			}
+		}
 		}
 		buff.rewind();
 		return this.byteBufferToValue(buff);
