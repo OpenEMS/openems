@@ -59,4 +59,9 @@ public class DummyModbusComponent extends AbstractOpenemsModbusComponent impleme
 		return super.getModbusProtocol();
 	}
 
+	@Override
+	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
+		return super.addChannel(channelId);
+	}
+
 }
