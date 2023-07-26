@@ -230,7 +230,7 @@ public abstract non-sealed class AbstractTask<//
 
 	protected static void logError(Logger log, Exception e, String... messages) {
 		messages = Arrays.copyOf(messages, messages.length + 1);
-		messages[messages.length - 1] = "Error [" + e.getClass().getSimpleName() + ": " + e.getMessage() + "]";
+		messages[messages.length - 1] = e.getClass().getSimpleName() + ": " + e.getMessage();
 		log(log, Logger::error, messages);
 	}
 

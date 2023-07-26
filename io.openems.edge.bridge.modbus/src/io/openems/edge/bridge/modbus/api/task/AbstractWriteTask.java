@@ -56,7 +56,7 @@ public abstract class AbstractWriteTask<//
 			try {
 				request = this.createModbusRequest();
 			} catch (OpenemsException e) {
-				logError(this.log, e, "Create Modbus Request failed");
+				logError(this.log, e, "Creating Modbus Request failed.");
 				return ExecuteState.ERROR;
 			}
 
