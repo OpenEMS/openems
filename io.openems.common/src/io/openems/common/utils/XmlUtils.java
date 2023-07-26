@@ -215,6 +215,7 @@ public class XmlUtils {
 	/**
 	 * Iterates through a {@link Node}.
 	 * 
+	 * <p>
 	 * Source: https://stackoverflow.com/a/48153597/4137113
 	 * 
 	 * @param node the {@link Node}
@@ -235,14 +236,15 @@ public class XmlUtils {
 				if (!this.hasNext()) {
 					throw new NoSuchElementException();
 				}
-				return node.getChildNodes().item(index++);
+				return node.getChildNodes().item(this.index++);
 			}
 		};
 	}
 
 	/**
-	 * Iterates over {@link Node} through {@link Stream}
+	 * Iterates over {@link Node} through {@link Stream}.
 	 * 
+	 * <p>
 	 * Source: https://stackoverflow.com/a/62171621/4137113
 	 * 
 	 * @param node the {@link Node}
