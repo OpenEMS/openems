@@ -26,12 +26,12 @@ import io.openems.edge.common.currency.Currency;
 
 public class Utils {
 
-	public final static DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
+	private static final DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
 
 	private static record QueryResult(ZonedDateTime start, List<Float> prices) {
 		protected static class Builder {
 			private ZonedDateTime start;
-			private List<Float> prices = new ArrayList<>();;
+			private List<Float> prices = new ArrayList<>();
 
 			public Builder start(ZonedDateTime start) {
 				this.start = start;
@@ -42,10 +42,6 @@ public class Utils {
 				this.prices.addAll(prices);
 				return this;
 			}
-
-			// public QueryResult build() {
-			// return new QueryResult(this.start, this.prices);
-			// }
 
 			public ImmutableSortedMap<ZonedDateTime, Float> toMap() {
 
@@ -59,7 +55,7 @@ public class Utils {
 				}
 
 				return ImmutableSortedMap.copyOf(result);
-			};
+			}
 		}
 
 		public static Builder create() {
@@ -68,16 +64,18 @@ public class Utils {
 	}
 
 	/**
+	 * Parses the xml response from the Entso-E API.
 	 * 
-	 * @param xml
-	 * @param resolution PT15M or PT60M
-	 * @return
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
+	 * @param xml          The xml string to be parsed.
+	 * @param resolution   PT15M or PT60M
+	 * @param exchangeRate The exchange rate of user currency to EUR.
+	 * @return The {@link ImmutableSortedMap}
+	 * @throws ParserConfigurationException on error.
+	 * @throws SAXException                 on error
+	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parse(String xml, String resolution,
-			double currencyExchangeValue) throws ParserConfigurationException, SAXException, IOException {
+	protected static ImmutableSortedMap<ZonedDateTime, Float> parse(String xml, String resolution, double exchangeRate)
+			throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
@@ -121,7 +119,7 @@ public class Utils {
 							// <price.amount>
 							.filter(n -> n.getNodeName() == "price.amount") //
 							.map(XmlUtils::getContentAsString) //
-							.map(s -> Float.parseFloat(s) * (float) currencyExchangeValue) //
+							.map(s -> Float.parseFloat(s) * (float) exchangeRate) //
 							.toList());
 				});
 

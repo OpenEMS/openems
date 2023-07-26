@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
@@ -50,11 +52,11 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
-	private static final int EUR_EXHANGE_RATE = 1;
-
+	
 	private Config config = null;
-
+	private Currency currency;
 	private ZonedDateTime updateTimeStamp = null;
+	private static final int EUR_EXHANGE_RATE = 1;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private Meta meta;
@@ -66,6 +68,11 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		);
 	}
 
+	private final Consumer<Value<Integer>> callback = t -> {
+		this.currency = t.asEnum();
+		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+	};
+
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -73,14 +80,19 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		if (!config.enabled()) {
 			return;
 		}
-
 		this.config = config;
+		this.currency = this.meta.getCurrencyChannel().value().asEnum();
 		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+
+		// Trigger to activate when the currency from Meta is updated.
+		this.meta.getCurrencyChannel().onSetNextValue(this.callback);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+
+		this.meta.getCurrencyChannel().removeOnSetNextValueCallback(this.callback);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
 
@@ -94,16 +106,14 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		try {
 			var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
+			
 			final double exchangeRate;
-
-			if (this.config.currency() == Currency.EUR) {
+			if (this.currency == Currency.EUR) {
 				// No need to fetch from API.
 				exchangeRate = EUR_EXHANGE_RATE;
 			} else {
-				exchangeRate = Utils.exchangeRateParser(ExchangeRateApi.getExchangeRate(), this.config.currency());
+				exchangeRate = Utils.exchangeRateParser(ExchangeRateApi.getExchangeRate(), this.currency);
 			}
-
-			System.out.println("rate: " + exchangeRate);
 
 			// Parse the response for the prices
 			this.prices.set(Utils.parse(result, "PT60M", exchangeRate));

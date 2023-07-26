@@ -4,6 +4,8 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -22,7 +24,17 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING));
+		VERSION(Doc.of(OpenemsType.STRING)),
+
+		/**
+		 * Edge currency.
+		 * 
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: String
+		 * </ul>
+		 */
+		CURRENCY(Doc.of(Currency.values()));
 
 		private final Doc doc;
 
@@ -52,4 +64,12 @@ public interface Meta extends ModbusSlave {
 						.build());
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#Currency}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getCurrencyChannel() {
+		return this.channel(ChannelId.CURRENCY);
+	}
 }

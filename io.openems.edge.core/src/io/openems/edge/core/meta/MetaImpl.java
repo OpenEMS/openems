@@ -36,8 +36,10 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	@Activate
-	private void activate(ComponentContext context) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, true);
+
+		this.channel(Meta.ChannelId.CURRENCY).setNextValue(config.currency());
 
 		if (OpenemsComponent.validateSingleton(this.cm, Meta.SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
@@ -45,9 +47,10 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	@Modified
-	private void modified(ComponentContext context) {
+	private void modified(ComponentContext context, Config config) {
 		super.modified(context, SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, true);
 
+		this.channel(Meta.ChannelId.CURRENCY).setNextValue(config.currency());
 		if (OpenemsComponent.validateSingleton(this.cm, Meta.SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
@@ -58,5 +61,4 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	protected void deactivate() {
 		super.deactivate();
 	}
-
 }

@@ -12,13 +12,13 @@ import okhttp3.RequestBody;
 
 public class EntsoeApi {
 
-	public final static DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
-	public final static DateTimeFormatter FORMATTER_SECONDS = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mm:ssX");
-	public final static ZoneId UTC = ZoneId.of("UTC");
-	public final static String URI = "https://web-api.tp.entsoe.eu/api";
+	public static final DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
+	public static final DateTimeFormatter FORMATTER_SECONDS = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mm:ssX");
+	public static final ZoneId UTC = ZoneId.of("UTC");
+	public static final String URI = "https://web-api.tp.entsoe.eu/api";
 
 	/**
-	 * Queries the ENTSO-E API for day-ahead prices
+	 * Queries the ENTSO-E API for day-ahead prices.
 	 * 
 	 * @param token    the Security Token
 	 * @param areaCode Area EIC code; see
