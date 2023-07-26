@@ -184,9 +184,9 @@ public class HardyBarthEvcs extends
 				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
 		;
 
-		private final AppDef<OpenemsApp, Nameable, BundleParameter> def;
+		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
 
-		private SubPropertyFirstChargepoint(AppDef<OpenemsApp, Nameable, BundleParameter> def) {
+		private SubPropertyFirstChargepoint(AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -195,7 +195,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<OpenemsApp, Nameable, BundleParameter> def() {
+		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -239,9 +239,10 @@ public class HardyBarthEvcs extends
 				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
 		;
 
-		private final AppDef<OpenemsApp, Nameable, BundleParameter> def;
+		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
 
-		private SubPropertySecondChargepoint(AppDef<OpenemsApp, Nameable, BundleParameter> def) {
+		private SubPropertySecondChargepoint(
+				AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -250,7 +251,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<OpenemsApp, Nameable, BundleParameter> def() {
+		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 

@@ -31,7 +31,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
  */
 public class AppDef<APP extends OpenemsApp, //
 		PROPERTY extends Nameable, //
-		PARAMETER extends Type.Parameter> //
+		PARAMETER> //
 		implements OnlyIf<AppDef<APP, PROPERTY, PARAMETER>>, Self<AppDef<APP, PROPERTY, PARAMETER>> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AppDef.class);
@@ -229,7 +229,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends OpenemsApp, //
 			PROPERTY extends Nameable, //
-			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> of() {
+			PARAMETER> AppDef<APP, PROPERTY, PARAMETER> of() {
 		return new AppDef<APP, PROPERTY, PARAMETER>();
 	}
 
@@ -313,7 +313,7 @@ public class AppDef<APP extends OpenemsApp, //
 			PARAMETER extends PARAMETERO, //
 			APPO extends OpenemsApp, //
 			PROPERTYO extends Nameable, //
-			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+			PARAMETERO> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
 					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef, //
 					Consumer<AppDef<APP, PROPERTY, PARAMETER>> consumer //
 	) {
@@ -340,7 +340,7 @@ public class AppDef<APP extends OpenemsApp, //
 			PARAMETER extends PARAMETERO, //
 			APPO extends OpenemsApp, //
 			PROPERTYO extends Nameable, //
-			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+			PARAMETERO> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
 					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef //
 	) {
 		final var def = new AppDef<APP, PROPERTY, PARAMETER>();

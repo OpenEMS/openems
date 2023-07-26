@@ -27,7 +27,7 @@ public final class CommonProps {
 	 * @param <P> the type of the {@link Parameter}
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends Parameter & BundleProvider> AppDef<OpenemsApp, Nameable, P> defaultDef() {
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> defaultDef() {
 		return AppDef.<OpenemsApp, Nameable, P>of() //
 				// BundleProvider::getBundle dosn't work here it would result in a
 				// java.lang.invoke.LambdaConversionException because the generic type P gets

@@ -21,6 +21,7 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.SocomecMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -69,7 +70,7 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 		METER_ID(AppDef.componentId("meter1")), //
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type())), //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
 		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
 				def -> def.wrapField((app, property, l, parameter, field) -> {
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.formly.expression.ArrayExpression;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
@@ -64,6 +65,17 @@ public final class Exp {
 	 */
 	public static Variable staticValue(String value) {
 		return new Variable("'" + value + "'");
+	}
+
+	/**
+	 * Creates a {@link Variable} for a static {@link String} value.
+	 * 
+	 * @param <E>       the type of the enum
+	 * @param enumValue the value of the variable
+	 * @return the {@link Variable}
+	 */
+	public static <E extends Enum<E> & TranslatableEnum> Variable staticValue(E enumValue) {
+		return new Variable("'" + enumValue.getValue() + "'");
 	}
 
 	/**

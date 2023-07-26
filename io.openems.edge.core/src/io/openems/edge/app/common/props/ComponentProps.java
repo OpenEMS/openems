@@ -18,6 +18,7 @@ import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -50,11 +51,12 @@ public final class ComponentProps {
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
 	 * @param <T>   the type of the component
+	 * @param <PA>  the type of the parameters
 	 * @param type  the type of the {@link OpenemsComponent OpenemsComponents}
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier, T extends OpenemsComponent> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickComponentId(//
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, T extends OpenemsComponent, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickComponentId(//
 			final Class<T> type //
 	) {
 		return pickComponentId(type, null);
@@ -66,12 +68,13 @@ public final class ComponentProps {
 	 * 
 	 * @param <APP>  the type of the {@link OpenemsApp}
 	 * @param <T>    the type of the component
+	 * @param <PA>   the type of the parameters
 	 * @param type   the type of the {@link OpenemsComponent OpenemsComponents}
 	 * @param filter the filter of the components
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier, T extends OpenemsComponent> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickComponentId(//
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, T extends OpenemsComponent, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickComponentId(//
 			final Class<T> type, //
 			final Predicate<T> filter //
 	) {
@@ -85,12 +88,10 @@ public final class ComponentProps {
 		});
 	}
 
-	private static <APP extends OpenemsApp> AppDef<APP, Nameable, Parameter.BundleParameter> pickComponentId(//
+	private static <APP extends OpenemsApp, PA extends BundleProvider> AppDef<APP, Nameable, PA> pickComponentId(//
 			final Function<APP, List<? extends OpenemsComponent>> supplyComponents //
 	) {
-		return AppDef.<APP, Nameable, Parameter.BundleParameter, //
-				OpenemsApp, Nameable, Parameter.BundleParameter>copyOfGeneric(CommonProps.defaultDef()) //
-				.setLabel("Component-ID") //
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def.setLabel("Component-ID") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(supplyComponents.apply(app), //
 							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE);
@@ -100,7 +101,7 @@ public final class ComponentProps {
 						return JsonNull.INSTANCE;
 					}
 					return new JsonPrimitive(components.get(0).id());
-				});
+				}));
 	}
 
 	/**
@@ -108,29 +109,56 @@ public final class ComponentProps {
 	 * {@link OpenemsComponent} with the given starting id.
 	 * 
 	 * @param <APP>      the type of the {@link OpenemsApp}
+	 * @param <PA>       the type of the parameters
+	 * @param startingId the starting id of the components e. g. evcs for all evcss:
+	 *                   evcs0, evcs1, ...
+	 * @param filter     the filter to apply on the component list
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickComponentId(//
+			String startingId, //
+			final Predicate<OpenemsComponent> filter //
+	) {
+		return pickComponentId(app -> {
+			final var componentUtil = app.getComponentUtil();
+			final var components = componentUtil.getEnabledComponentsOfStartingId(startingId);
+			if (filter == null) {
+				return components;
+			}
+			return components.stream() //
+					.filter(filter) //
+					.toList();
+		});
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select a enabled
+	 * {@link OpenemsComponent} with the given starting id.
+	 * 
+	 * @param <APP>      the type of the {@link OpenemsApp}
+	 * @param <PA>       the type of the parameters
 	 * @param startingId the starting id of the components e. g. evcs for all evcss:
 	 *                   evcs0, evcs1, ...
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickComponentId(//
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickComponentId(//
 			String startingId //
 	) {
-		return pickComponentId(app -> {
-			final var componentUtil = app.getComponentUtil();
-			return componentUtil.getEnabledComponentsOfStartingId(startingId);
-		});
+		return pickComponentId(startingId, null);
 	}
 
 	/**
 	 * Creates a {@link AppDef} for a input to select a {@link ManagedSymmetricEss}.
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickManagedSymmetricEssId() {
-		return ComponentProps.<APP, ManagedSymmetricEss>pickComponentId(ManagedSymmetricEss.class) //
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickManagedSymmetricEssId() {
+		return ComponentProps.<APP, ManagedSymmetricEss, PA>pickComponentId(ManagedSymmetricEss.class) //
 				.setTranslatedLabel("essId.label") //
 				.setTranslatedDescription("essId.description");
 	}
@@ -139,11 +167,12 @@ public final class ComponentProps {
 	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}.
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickElectricityMeterId() {
-		return ComponentProps.<APP, ElectricityMeter>pickComponentId(ElectricityMeter.class) //
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickElectricityMeterId() {
+		return ComponentProps.<APP, ElectricityMeter, PA>pickComponentId(ElectricityMeter.class) //
 				.setTranslatedLabel("meterId.label") //
 				.setTranslatedDescription("meterId.description");
 	}
@@ -153,12 +182,13 @@ public final class ComponentProps {
 	 * with the {@link MeterType} {@link MeterType#GRID}.
 	 * 
 	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickElectricityGridMeterId() {
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickElectricityGridMeterId() {
 		return ComponentProps
-				.<APP, ElectricityMeter>pickComponentId(ElectricityMeter.class,
+				.<APP, ElectricityMeter, PA>pickComponentId(ElectricityMeter.class,
 						meter -> meter.getMeterType() == MeterType.GRID) //
 				.setTranslatedLabel("gridMeterId.label") //
 				.setTranslatedDescription("gridMeterId.description");
@@ -168,29 +198,73 @@ public final class ComponentProps {
 	 * Creates a {@link AppDef} for a input to select a {@link OpenemsComponent}
 	 * with the starting id 'modbus'.
 	 * 
-	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <APP>  the type of the {@link OpenemsApp}
+	 * @param <PA>   the type of the parameters
+	 * @param filter the filter to apply on the component list
 	 * @return the {@link AppDef}
 	 */
-	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier> //
-	AppDef<APP, Nameable, Parameter.BundleParameter> pickModbusId() {
-		return ComponentProps.<APP>pickComponentId("modbus") //
-				.setTranslatedLabel("modbusId") //
-				.setTranslatedDescription("modbusId.description") //
-				.also(def -> {
-					final var oldDefaultValue = def.getDefaultValue();
+	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier, //
+			PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickModbusId(//
+			final Predicate<OpenemsComponent> filter //
+	) {
+		return AppDef.copyOfGeneric(ComponentProps.pickComponentId("modbus", filter), def -> {
+			def.setTranslatedLabel("communication.modbusId") //
+					.setTranslatedDescription("communication.modbusId.description");
+			final var oldDefaultValue = def.getDefaultValue();
+			def.setDefaultValue((app, property, l, parameter) -> {
+				if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+					return new JsonPrimitive("modbus1");
+				}
 
-					def.setDefaultValue((app, property, l, parameter) -> {
-						if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
-							return new JsonPrimitive("modbus1");
-						}
+				return oldDefaultValue.get(app, property, l, parameter);
+			});
+		});
+	}
 
-						return oldDefaultValue.get(app, property, l, parameter);
-					});
-				});
+	/**
+	 * Creates a {@link AppDef} for a input to select a {@link OpenemsComponent}
+	 * with the starting id 'modbus'.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier, //
+			PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickModbusId() {
+		return pickModbusId(null);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select a {@link OpenemsComponent}
+	 * with the starting id 'modbus' and the factoryId 'Bridge.Modbus.Serial'.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier, //
+			PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickSerialModbusId() {
+		return pickModbusId(c -> c.serviceFactoryPid().equals("Bridge.Modbus.Serial"));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select a {@link OpenemsComponent}
+	 * with the starting id 'modbus' and the factoryId 'Bridge.Modbus.Tcp'.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param <PA>  the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier, //
+			PA extends BundleProvider> //
+	AppDef<APP, Nameable, PA> pickTcpModbusId() {
+		return pickModbusId(c -> c.serviceFactoryPid().equals("Bridge.Modbus.Tcp"));
 	}
 
 	private ComponentProps() {
-		super();
 	}
 
 }
