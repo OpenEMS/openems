@@ -19,7 +19,7 @@ import io.openems.common.session.Role;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.Parameter;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 
 /**
@@ -213,7 +213,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends OpenemsApp, //
 			PROPERTY extends Nameable, //
-			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> componentId(String componentId) {
+			PARAMETER> AppDef<APP, PROPERTY, PARAMETER> componentId(String componentId) {
 		return new AppDef<APP, PROPERTY, PARAMETER>() //
 				.setDefaultValue(componentId);
 	}
@@ -246,11 +246,11 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
 			PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
-			PARAMETER extends Type.Parameter.BundleParameter> AppDef<APP, PROPERTY, PARAMETER> of(//
+			PARAMETER extends BundleProvider> AppDef<APP, PROPERTY, PARAMETER> of(//
 					final Class<APP> clazz //
 	) {
 		return new AppDef<APP, PROPERTY, PARAMETER>() //
-				.setTranslationBundleSupplier(BundleParameter::getBundle);
+				.setTranslationBundleSupplier(BundleProvider::bundle);
 	}
 
 	/**

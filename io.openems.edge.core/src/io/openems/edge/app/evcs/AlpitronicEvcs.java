@@ -116,6 +116,7 @@ public class AlpitronicEvcs extends
 							return;
 						}
 						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id) //
+								.map(Exp::staticValue) //
 								.collect(Exp.toArrayExpression())
 								.every(v -> v.notEqual(Exp.currentModelValue(Nameable.of(EVCS_ID.apply(0)))));
 
@@ -134,29 +135,29 @@ public class AlpitronicEvcs extends
 			return AppDef.of(AlpitronicEvcs.class) //
 					.setTranslatedLabel("App.Evcs.chargingStation.label", number) //
 					.setDefaultValue((app, property, l, parameter) -> {
-						return new JsonPrimitive(TranslationUtil.getTranslation(parameter.getBundle(),
+						return new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(),
 								"App.Evcs.Alpitronic.chargingStation.label", number));
 					}) //
 					.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
 						field.addWrapper(Wrappers.PANEL) //
 								.hideKey() //
-								.onlyIf(number == 1, b -> b.setLabelExpression(Exp.ifElse(
-										Exp.currentModelValue(Property.NUMBER_OF_CONNECTORS) //
-												.equal(Exp.staticValue(1)),
-										StringExpression.of(""),
-										StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
-												"App.Evcs.chargingStation.label", number)))))
+								.onlyIf(number == 1,
+										b -> b.setLabelExpression(Exp.ifElse(
+												Exp.currentModelValue(Property.NUMBER_OF_CONNECTORS) //
+														.equal(Exp.staticValue(1)),
+												StringExpression.of(""),
+												StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
+														"App.Evcs.chargingStation.label", number)))))
 								.onlyShowIf(Exp.currentModelValue(Property.NUMBER_OF_CONNECTORS)
 										.greaterThanEqual(Exp.staticValue(number))) //
 								.setFieldGroup(JsonUtils.buildJsonArray() //
 										.add(CommonProps.alias().getField().get(app, property, l, parameter) //
-												.setDefaultValue(TranslationUtil.getTranslation(parameter.getBundle(),
+												.setDefaultValue(TranslationUtil.getTranslation(parameter.bundle(),
 														"App.Evcs.Alpitronic.chargingStation.label", number)) //
 												.onlyIf(number == 1, b -> {
-													b.setDefaultValueCases(
-															new DefaultValueOptions(Property.NUMBER_OF_CONNECTORS, //
-																	buildFirstAliasDefaultCases(app, l,
-																			parameter.getBundle())));
+													b.setDefaultValueCases(new DefaultValueOptions(
+															Property.NUMBER_OF_CONNECTORS, //
+															buildFirstAliasDefaultCases(app, l, parameter.bundle())));
 												}).build()) //
 										.build());
 					});

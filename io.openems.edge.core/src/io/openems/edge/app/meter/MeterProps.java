@@ -18,11 +18,10 @@ public final class MeterProps {
 	/**
 	 * Creates a {@link AppDef} for a {@link MeterType}.
 	 * 
-	 * @param <P>     the type of the parameters
 	 * @param exclude {@link MeterType}s to exclude
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> type(MeterType... exclude) {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> type(MeterType... exclude) {
 		final var optionsFactory = OptionsFactory.of(MeterType.class, exclude);
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
 				def -> def.setTranslatedLabel("App.Meter.mountType.label") //
@@ -61,11 +60,10 @@ public final class MeterProps {
 	/**
 	 * Creates a {@link AppDef} for a modbusUnitId for a meter.
 	 * 
-	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
 	 * @see CommunicationProps#modbusUnitId()
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> modbusUnitId() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> modbusUnitId() {
 		return AppDef.copyOfGeneric(CommunicationProps.modbusUnitId(), def -> {
 			def.setTranslatedDescription("App.Meter.modbusUnitId.description");
 		});

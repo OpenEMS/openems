@@ -23,7 +23,6 @@ import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -40,20 +39,19 @@ public final class EvcsProps {
 	/**
 	 * Creates a {@link AppDef} for selecting the number of charge points.
 	 * 
-	 * @param <P>      the type of the {@link Parameter}
 	 * @param maxValue the max number of charge points
 	 * @return the {@link AppDef}
 	 */
-	public static <P extends Parameter & BundleProvider> AppDef<OpenemsApp, Nameable, P> numberOfChargePoints(//
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> numberOfChargePoints(//
 			final int maxValue //
 	) {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef(),
-				def -> def.setTranslatedLabel("App.Evcs.numberOfChargingStations.label") //
-						.setDefaultValue(1) //
-						.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
-						field.setOptions(IntStream.rangeClosed(1, maxValue) //
-								.<Integer>mapToObj(value -> value) //
-								.toList(), JsonPrimitive::new, JsonPrimitive::new)));
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+				.setTranslatedLabel("App.Evcs.numberOfChargingStations.label") //
+				.setDefaultValue(1) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
+				field.setOptions(IntStream.rangeClosed(1, maxValue) //
+						.<Integer>mapToObj(value -> value) //
+						.toList(), JsonPrimitive::new, JsonPrimitive::new)));
 	}
 
 	private static void field(//
@@ -61,22 +59,22 @@ public final class EvcsProps {
 			Nameable property, //
 			Nameable acceptProperty, //
 			Language language, //
-			Parameter.BundleParameter parameter, //
+			BundleProvider parameter, //
 			FieldGroupBuilder field //
 	) {
 		field.hideKey();
 		field.setPopupInput(property, DisplayType.NUMBER);
 		field.setFieldGroup(JsonUtils.buildJsonArray() //
 				.add(JsonFormlyUtil.buildText() //
-						.setText(TranslationUtil.getTranslation(parameter.bundle, //
+						.setText(TranslationUtil.getTranslation(parameter.bundle(), //
 								"App.Evcs.Cluster.maxGrid.text1"))
 						.build())
 				.add(JsonFormlyUtil.buildText() //
-						.setText(TranslationUtil.getTranslation(parameter.bundle, //
+						.setText(TranslationUtil.getTranslation(parameter.bundle(), //
 								"App.Evcs.Cluster.maxGrid.text2"))
 						.build())
 				.add(JsonFormlyUtil.buildInputFromNameable(property) //
-						.setLabel(TranslationUtil.getTranslation(parameter.bundle,
+						.setLabel(TranslationUtil.getTranslation(parameter.bundle(),
 								"App.Evcs.Cluster.maxChargeFromGrid.short.label"))
 						.setInputType(NUMBER) //
 						.setMin(0) //
@@ -84,13 +82,13 @@ public final class EvcsProps {
 						.setUnit(Unit.WATT, language) //
 						.build())
 				.add(JsonFormlyUtil.buildText() //
-						.setText(TranslationUtil.getTranslation(parameter.bundle, //
+						.setText(TranslationUtil.getTranslation(parameter.bundle(), //
 								"App.Evcs.Cluster.maxGrid.text3"))
 						.build())
 				.add(JsonFormlyUtil.buildCheckboxFromNameable(acceptProperty) //
 						.isRequired(true) //
 						.requireTrue(language) //
-						.setLabel(TranslationUtil.getTranslation(parameter.bundle, "acceptCondition.label")) //
+						.setLabel(TranslationUtil.getTranslation(parameter.bundle(), "acceptCondition.label")) //
 						.build())
 				.build());
 	}
@@ -103,10 +101,9 @@ public final class EvcsProps {
 	 * @param acceptProperty the property of the accept field
 	 * @return the {@link AppDef}
 	 */
-	public static <T extends OpenemsApp & ComponentManagerSupplier> AppDef<T, Nameable, Parameter.BundleParameter> clusterMaxHardwarePower(
+	public static <T extends OpenemsApp & ComponentManagerSupplier> AppDef<T, Nameable, BundleProvider> clusterMaxHardwarePower(
 			Nameable acceptProperty) {
-		return AppDef.<T, Nameable, Parameter.BundleParameter, //
-				OpenemsApp, Nameable, Parameter.BundleParameter>copyOfGeneric(CommonProps.defaultDef()) //
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evcs.Cluster.maxChargeFromGrid.label") //
 				.setAllowedToSave(false) //
 				.setIsAllowedToSee((app, property, l, parameter, user) -> {
@@ -117,7 +114,7 @@ public final class EvcsProps {
 					return true;
 				}) //
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter,
-						field) -> field(app, property, acceptProperty, l, parameter, field));
+						field) -> field(app, property, acceptProperty, l, parameter, field)));
 	}
 
 	/**
@@ -130,7 +127,7 @@ public final class EvcsProps {
 	 * @param evcsIdProperty the property of the evcs id
 	 * @return the {@link AppDef}
 	 */
-	public static <T extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier> AppDef<T, Nameable, Parameter.BundleParameter> clusterMaxHardwarePowerSingleCp(
+	public static <T extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier> AppDef<T, Nameable, BundleProvider> clusterMaxHardwarePowerSingleCp(
 			Nameable acceptProperty, //
 			Nameable evcsIdProperty //
 	) {
@@ -149,6 +146,7 @@ public final class EvcsProps {
 					}
 
 					final var expression = existingEvcs.stream().map(OpenemsComponent::id) //
+							.map(Exp::staticValue) //
 							.collect(Exp.toArrayExpression()) //
 							.every(v -> v.notEqual(Exp.currentModelValue(evcsIdProperty)));
 

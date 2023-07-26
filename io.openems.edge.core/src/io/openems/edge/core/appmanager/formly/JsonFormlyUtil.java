@@ -9,6 +9,7 @@ import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RepeatBuilder;
 import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
+import io.openems.edge.core.appmanager.formly.builder.SelectGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.TextBuilder;
 
 /**
@@ -101,6 +102,27 @@ public class JsonFormlyUtil {
 	 */
 	public static SelectBuilder buildSelectFromNameable(Nameable nameable) {
 		return new SelectBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Select Group Builder for the given enum.
+	 *
+	 * @param <T>      the type of the enum
+	 * @param property the enum property
+	 * @return a {@link SelectGroupBuilder}
+	 */
+	public static <T extends Enum<T>> SelectGroupBuilder buildSelectGroup(T property) {
+		return new SelectGroupBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Select Group Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link SelectGroupBuilder}
+	 */
+	public static SelectGroupBuilder buildSelectGroupFromNameable(Nameable nameable) {
+		return new SelectGroupBuilder(nameable);
 	}
 
 	/**

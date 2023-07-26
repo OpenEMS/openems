@@ -23,10 +23,9 @@ public final class CommonPvInverterConfiguration {
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter ip-address.
 	 * 
-	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> ip() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ip() {
 		return AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
 				.setTranslatedDescription("App.PvInverter.ip.description"));
 	}
@@ -34,10 +33,9 @@ public final class CommonPvInverterConfiguration {
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter port.
 	 * 
-	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> port() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> port() {
 		return AppDef.copyOfGeneric(CommunicationProps.port(), def -> def //
 				.setTranslatedDescription("App.PvInverter.port.description"));
 	}
@@ -45,10 +43,9 @@ public final class CommonPvInverterConfiguration {
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter modbusUnitId.
 	 * 
-	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> modbusUnitId() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> modbusUnitId() {
 		return AppDef.copyOfGeneric(CommunicationProps.modbusUnitId(), def -> def //
 				.setTranslatedDescription("App.PvInverter.modbusUnitId.description"));
 	}

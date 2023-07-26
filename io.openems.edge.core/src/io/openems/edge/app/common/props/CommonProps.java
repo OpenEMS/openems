@@ -24,16 +24,11 @@ public final class CommonProps {
 	 * Creates a default {@link AppDef} with the
 	 * {@link AppDef#translationBundleSupplier} set.
 	 * 
-	 * @param <P> the type of the {@link Parameter}
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> defaultDef() {
-		return AppDef.<OpenemsApp, Nameable, P>of() //
-				// BundleProvider::getBundle dosn't work here it would result in a
-				// java.lang.invoke.LambdaConversionException because the generic type P gets
-				// thrown away at runtime and the normal Paramter doesn't implement
-				// BundleProvider https://bugs.openjdk.org/browse/JDK-8058112
-				.setTranslationBundleSupplier(t -> t.getBundle());
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> defaultDef() {
+		return AppDef.<OpenemsApp, Nameable, BundleProvider>of() //
+				.setTranslationBundleSupplier(BundleProvider::bundle);
 	}
 
 	/**
@@ -41,11 +36,11 @@ public final class CommonProps {
 	 * 
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleParameter> alias() {
-		return AppDef.copyOfGeneric(CommonProps.defaultDef(), //
-				def -> def.setTranslatedLabel("alias") //
-						.setDefaultValueToAppName() //
-						.setField(JsonFormlyUtil::buildInputFromNameable));
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> alias() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("alias") //
+				.setDefaultValueToAppName() //
+				.setField(JsonFormlyUtil::buildInputFromNameable));
 	}
 
 	/**

@@ -1,5 +1,8 @@
 package io.openems.edge.core.appmanager.formly.expression;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.Arrays;
 import java.util.function.Function;
 
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -12,8 +15,8 @@ public record ArrayExpression(String array) {
 	 * @param values the values of the array
 	 * @return the created {@link ArrayExpression}
 	 */
-	public static ArrayExpression of(String... values) {
-		return new ArrayExpression("[" + String.join(",", values) + "]");
+	public static ArrayExpression of(Variable... variable) {
+		return new ArrayExpression("[" + Arrays.stream(variable).map(Variable::variable).collect(joining(", ")) + "]");
 	}
 
 	/**

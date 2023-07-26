@@ -19,13 +19,13 @@ import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
+import io.openems.edge.core.appmanager.formly.expression.Variable;
 
 public final class CommunicationProps {
 
@@ -35,10 +35,9 @@ public final class CommunicationProps {
 	/**
 	 * Creates a {@link AppDef} for a {@link ModbusType}.
 	 * 
-	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> modbusType() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> modbusType() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.modbusIntegrationType") //
 				.setDefaultValue(ModbusType.TCP) //
@@ -49,10 +48,9 @@ public final class CommunicationProps {
 	/**
 	 * Creates a {@link AppDef} for a ip-address.
 	 * 
-	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> ip() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> ip() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.ipAddress") //
 				.setDefaultValue("192.168.178.85") //
@@ -63,10 +61,9 @@ public final class CommunicationProps {
 	/**
 	 * Creates a {@link AppDef} for a port.
 	 * 
-	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> port() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> port() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.port") //
 				.setTranslatedDescription("communication.port.description") //
@@ -79,10 +76,9 @@ public final class CommunicationProps {
 	/**
 	 * Creates a {@link AppDef} for a modbusUnitId.
 	 * 
-	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
 	 */
-	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> modbusUnitId() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> modbusUnitId() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("communication.modbusUnitId") //
 				.setTranslatedDescription("communication.modbusUnitId.description") //
@@ -108,7 +104,7 @@ public final class CommunicationProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier, //
-			PROP extends Nameable, PARAM extends BundleParameter> //
+			PROP extends Nameable, PARAM extends BundleProvider> //
 	AppDef<APP, PROP, PARAM> modbusGroup(//
 			PROP modbusId, //
 			AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
@@ -135,7 +131,7 @@ public final class CommunicationProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier, //
-			PROP extends Nameable, PARAM extends BundleParameter> //
+			PROP extends Nameable, PARAM extends BundleProvider> //
 	AppDef<APP, PROP, PARAM> modbusGroup(//
 			PROP modbusId, //
 			AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
@@ -167,8 +163,8 @@ public final class CommunicationProps {
 					final var usedIdStrings = Arrays.stream(alreadyUsedIds) //
 							.distinct() //
 							.sorted() //
-							.mapToObj(Integer::toString) //
-							.toArray(String[]::new);
+							.mapToObj(Exp::staticValue) //
+							.toArray(Variable[]::new);
 
 					// checks if the current modbus component is selected
 					final var expression = Exp.currentModelValue(modbusId).notEqual(Exp.staticValue(componentId)) //
@@ -184,10 +180,10 @@ public final class CommunicationProps {
 											.notEqual(Exp.currentModelValue(modbusId))));
 
 					final var message = Exp.ifElse(filteredArray.length().equal(Exp.staticValue(1)), //
-							StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
+							StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
 									"communication.modbusUnitId.alreadTaken.singular",
 									filteredArray.join(", ").insideTranslation(), componentId)), //
-							StringExpression.of(TranslationUtil.getTranslation(parameter.getBundle(),
+							StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
 									"communication.modbusUnitId.alreadTaken.plural",
 									filteredArray.join(", ").insideTranslation(), componentId)));
 

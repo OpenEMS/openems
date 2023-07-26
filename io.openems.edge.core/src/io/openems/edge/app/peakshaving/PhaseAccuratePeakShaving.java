@@ -68,7 +68,7 @@ public class PhaseAccuratePeakShaving
 		// Component-IDs
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlPeakShaving0")), //
 		// Properties
-		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
+		ALIAS(CommonProps.alias()), //
 		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(),
 				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
 						.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
@@ -77,23 +77,22 @@ public class PhaseAccuratePeakShaving
 				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
 						.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 								ComponentManagerSupplier::getComponentManager))), //
-		PEAK_SHAVING_POWER(AppDef.copyOf(Property.class, PeakShavingProps.peakShavingPowerPerPhase()) //
+		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPowerPerPhase(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
 				}) //
 				.setAutoGenerateField(false) //
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "peakShavingPower", //
-						ComponentManagerSupplier::getComponentManager)), //
-		RECHARGE_POWER(AppDef.copyOf(Property.class, PeakShavingProps.rechargePowerPerPhase()) //
+						ComponentManagerSupplier::getComponentManager))), //
+		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePowerPerPhase(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
 				}) //
 				.setAutoGenerateField(false) //
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "rechargePower", //
-						ComponentManagerSupplier::getComponentManager)), //
-		PEAK_SHAVING_RECHARGE_POWER_GROUP(AppDef.copyOfGeneric(PeakShavingProps.<PhaseAccuratePeakShaving, Property>//
-				peakShavingRechargePowerGroup(PEAK_SHAVING_POWER, RECHARGE_POWER)) //
-				.setTranslationBundleSupplier(BundleParameter::getBundle)), //
+						ComponentManagerSupplier::getComponentManager))), //
+		PEAK_SHAVING_RECHARGE_POWER_GROUP(
+				PeakShavingProps.peakShavingRechargePowerGroup(PEAK_SHAVING_POWER, RECHARGE_POWER)), //
 		;
 
 		private final AppDef<? super PhaseAccuratePeakShaving, ? super Property, ? super BundleParameter> def;

@@ -9,12 +9,12 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 public interface Type<P extends Nameable, //
 		A extends OpenemsApp, //
-		M extends io.openems.edge.core.appmanager.Type.Parameter> //
+		M> //
 		extends Self<Type<P, A, M>>, Nameable {
 
 	public static class AbstractType<P extends Nameable, //
 			A extends OpenemsApp, //
-			M extends io.openems.edge.core.appmanager.Type.Parameter> implements Type<P, A, M> {
+			M> implements Type<P, A, M> {
 
 		private final String name;
 		private final AppDef<? super A, ? super P, ? super M> def;
@@ -59,7 +59,7 @@ public interface Type<P extends Nameable, //
 			 * 
 			 * @return the {@link ResourceBundle}
 			 */
-			public ResourceBundle getBundle();
+			public ResourceBundle bundle();
 
 		}
 
@@ -71,7 +71,7 @@ public interface Type<P extends Nameable, //
 			}
 
 			@Override
-			public final ResourceBundle getBundle() {
+			public ResourceBundle bundle() {
 				return this.bundle;
 			}
 
