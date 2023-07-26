@@ -22,8 +22,6 @@ import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ComMode;
 import io.openems.edge.goodwe.common.enums.CpldWarningCode;
-import io.openems.edge.goodwe.common.enums.DiagnosticStatusHigh;
-import io.openems.edge.goodwe.common.enums.DiagnosticStatusLow;
 import io.openems.edge.goodwe.common.enums.DredCmd;
 import io.openems.edge.goodwe.common.enums.DredOffgridCheck;
 import io.openems.edge.goodwe.common.enums.EhBatteryFunctionActive;
@@ -558,8 +556,112 @@ public interface GoodWe extends OpenemsComponent {
 		BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		CPLD_WARNING_CODE(Doc.of(CpldWarningCode.values())), //
-		DIAG_STATUS_H(Doc.of(DiagnosticStatusHigh.values())), //
-		DIAG_STATUS_L(Doc.of(DiagnosticStatusLow.values())), //
+
+		// DIAGNOSIS STATUS HIGH
+		DIAG_STATUS_BATTERY_PRECHARGE_RELAY_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery Precharge Relay Off")), //
+
+		DIAG_STATUS_BYPASS_RELAY_STICK(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Bypass relay is sticking")), //
+
+		DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Meter voltage sample fault")), //
+
+		DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("DRED or ESD stop the inverter")), //
+
+		DIAG_STATUS_BATTERY_OFFGRID_DOD(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery SOC less than Offgrid DOD")), //
+
+		DIAG_STATUS_BATTERY_SOC_ADJUST_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Only for BYD, adjust the SOC")), //
+		/*
+		 * DIAGNOSIS STATUS LOW
+		 */
+		DIAG_STATUS_BATTERY_VOLT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by low battery voltage")), //
+
+		DIAG_STATUS_BATTERY_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by low SOC")), //
+
+		DIAG_STATUS_BATTERY_SOC_IN_BACK(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery SOC not recover to allow-discharge level")), //
+
+		DIAG_STATUS_BMS_DISCHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS not allow discharge")), //
+
+		DIAG_STATUS_DISCHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge time is set, 1: On, 0: OFF")), //
+
+		DIAG_STATUS_CHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Charge time is set, 1: On, 0: OFF")), //
+
+		DIAG_STATUS_DISCHARGE_DRIVE_ON(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge driver is turned on")), //
+
+		DIAG_STATUS_BMS_DISCHG_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS discharge current limit is too low")), //
+
+		DIAG_STATUS_DISCHARGE_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge current limit is too low (from App)")), //
+
+		DIAG_STATUS_METER_COMM_LOSS(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Smart Meter communication failure")), //
+
+		DIAG_STATUS_METER_CONNECT_REVERSE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Smart Meter connection reversed")), //
+
+		DIAG_STATUS_SELF_USE_LOAD_LIGHT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Low load power, cannot activate battery discharge")), //
+
+		DIAG_STATUS_EMS_DISCHARGE_IZERO(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Discharge current limit 0A from EMS")), //
+
+		DIAG_STATUS_DISCHARGE_BUS_HIGH(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery not discharge caused by over high PV voltage")), //
+
+		DIAG_STATUS_BATTERY_DISCONNECT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery disconnected")), //
+
+		DIAG_STATUS_BATTERY_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery overcharged")), //
+
+		DIAG_STATUS_BMS_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Lithium battery over temperature")), //
+
+		DIAG_STATUS_BMS_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Lithium battery overcharged or an individual cell voltage is higher")), //
+
+		DIAG_STATUS_BMS_CHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS does not allow charge")), //
+
+		DIAG_STATUS_SELF_USE_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Self-use mode turned off")), //
+
+		DIAG_STATUS_SOC_DELTA_OVER_RANGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC Jumps abnormally")), //
+
+		DIAG_STATUS_BATTERY_SELF_DISCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Battery discharge at low current for long time, continuously over 30% of battery SOC")), //
+
+		DIAG_STATUS_OFFGRID_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC is low under off-grid statues")), //
+
+		DIAG_STATUS_GRID_WAVE_UNSTABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Grid wave is bad, switch to back-up mode frequently")), //
+
+		DIAG_STATUS_FEED_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Export power limit is set")), //
+
+		DIAG_STATUS_PF_VALUE_SET(Doc.of(OpenemsType.BOOLEAN) //
+				.text("PF value is set")), //
+
+		DIAG_STATUS_REAL_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Active power value is set")), //
+
+		DIAG_STATUS_SOC_PROTECT_OFF(Doc.of(OpenemsType.BOOLEAN) //
+				.text("SOC protect Off")), //
+
 		EH_BATTERY_FUNCTION_ACTIVE(Doc.of(EhBatteryFunctionActive.values())), //
 		ARC_SELF_CHECK_STATUS(Doc.of(ArcSelfCheckStatus.values())), //
 
