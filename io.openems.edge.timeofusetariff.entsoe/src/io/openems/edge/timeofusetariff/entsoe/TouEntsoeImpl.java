@@ -50,6 +50,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
+	private static final int EUR_EXHANGE_RATE = 1;
 
 	private Config config = null;
 
@@ -97,7 +98,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 			if (this.config.currency() == Currency.EUR) {
 				// No need to fetch from API.
-				exchangeRate = 1.0;
+				exchangeRate = EUR_EXHANGE_RATE;
 			} else {
 				exchangeRate = Utils.exchangeRateParser(ExchangeRateApi.getExchangeRate(), this.config.currency());
 			}

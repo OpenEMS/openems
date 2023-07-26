@@ -212,7 +212,14 @@ public class XmlUtils {
 		return Integer.parseInt(node.getTextContent());
 	}
 
-	// Source: https://stackoverflow.com/a/48153597/4137113
+	/**
+	 * Iterates through a {@link Node}.
+	 * 
+	 * Source: https://stackoverflow.com/a/48153597/4137113
+	 * 
+	 * @param node the {@link Node}
+	 * @return the {@link Iterable}
+	 */
 	public static Iterable<Node> list(final Node node) {
 		return () -> new Iterator<Node>() {
 
@@ -220,12 +227,12 @@ public class XmlUtils {
 
 			@Override
 			public boolean hasNext() {
-				return index < node.getChildNodes().getLength();
+				return this.index < node.getChildNodes().getLength();
 			}
 
 			@Override
 			public Node next() {
-				if (!hasNext()) {
+				if (!this.hasNext()) {
 					throw new NoSuchElementException();
 				}
 				return node.getChildNodes().item(index++);
@@ -233,7 +240,14 @@ public class XmlUtils {
 		};
 	}
 
-	// Source: https://stackoverflow.com/a/62171621/4137113
+	/**
+	 * Iterates over {@link Node} through {@link Stream}
+	 * 
+	 * Source: https://stackoverflow.com/a/62171621/4137113
+	 * 
+	 * @param node the {@link Node}
+	 * @return the {@link Stream}
+	 */
 	public static Stream<Node> stream(final Node node) {
 		var childNodes = node.getChildNodes();
 		return IntStream.range(0, childNodes.getLength()).boxed().map(childNodes::item);
