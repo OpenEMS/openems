@@ -20,8 +20,8 @@ public abstract class AbstractMultipleWordsElement<SELF extends AbstractModbusEl
 	}
 
 	@Override
-	protected final T rawToValue(Register[] registers) {
-		return this.rawToValue(registers, this.wordOrder);
+	protected final T registersToValue(Register[] registers) {
+		return this.commonRegistersToValue(registers, this.wordOrder);
 	}
 
 	@Override

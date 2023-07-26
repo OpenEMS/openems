@@ -23,7 +23,7 @@ import io.openems.edge.common.channel.WriteChannel;
  * A BitsWordElement is an {@link UnsignedWordElement} where every bit
  * represents a Boolean value.
  */
-public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Register, Boolean[]> {
+public class BitsWordElement extends AbstractSingleWordElement<BitsWordElement, Boolean[]> {
 
 	private final AbstractOpenemsModbusComponent component;
 
@@ -34,7 +34,7 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 	private final ChannelWrapper[] channels = new ChannelWrapper[16];
 
 	public BitsWordElement(int address, AbstractOpenemsModbusComponent component) {
-		super(OpenemsType.INTEGER, address, 1);
+		super(OpenemsType.INTEGER, address);
 		this.component = component;
 
 		// On Value Update: set the individual BooleanChannel-Values
@@ -142,7 +142,7 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 	}
 
 	@Override
-	protected Register valueToRaw(Boolean[] values) {
+	protected Register[] valueToRaw(Boolean[] values) {
 		// Check if any Boolean is set; if none: return null immediately
 		if (Stream.of(values) //
 				.allMatch(Objects::isNull)) {
@@ -194,14 +194,17 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 		}
 
 		// create Register - always BIG_ENDIAN
-		return new SimpleRegister(b1, b0);
+		return new Register[] { new SimpleRegister(b1, b0) };
 	}
 
+	/**
+	 * Length of registers array is guaranteed to be 1 here.
+	 */
 	@Override
-	protected Boolean[] rawToValue(Register register) {
+	protected Boolean[] registersToValue(Register[] registers) {
 		// convert Register to int
 		var buff = ByteBuffer.allocate(2);
-		buff.put(register.toBytes());
+		buff.put(registers[0].toBytes());
 		var value = Short.toUnsignedInt(buff.getShort(0));
 
 		var result = new Boolean[16];
@@ -234,5 +237,19 @@ public class BitsWordElement extends AbstractModbusElement<BitsWordElement, Regi
 				.filter(WriteChannel.class::isInstance) //
 				.map(WriteChannel.class::cast) //
 				.forEach(WriteChannel::getNextWriteValueAndReset);
+	}
+
+	@Override
+	protected Boolean[] byteBufferToValue(ByteBuffer buff) {
+		// byteBufferToValue() is called by ModbusRegisterElement.rawToValue().
+		// It does not apply here.
+		throw new IllegalArgumentException("BitsWordElement.byteBufferToValue() should never be called");
+	}
+
+	@Override
+	protected void valueToByteBuffer(ByteBuffer buff, Boolean[] value) {
+		// byteBufferToValue() is called by ModbusRegisterElement.valueToRaw().
+		// It does not apply here.
+		throw new IllegalArgumentException("BitsWordElement.valueToByteBuffer() should never be called");
 	}
 }

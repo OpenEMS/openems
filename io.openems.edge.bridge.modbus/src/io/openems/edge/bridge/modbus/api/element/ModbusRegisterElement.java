@@ -73,13 +73,29 @@ public abstract class ModbusRegisterElement<SELF extends AbstractModbusElement<S
 		return result;
 	}
 
-	protected final T rawToValue(Register[] registers, WordOrder wordOrder) {
+	@Override
+	protected final T rawToValue(Register[] registers) {
 		if (registers.length != this.length) {
 			throw new IllegalArgumentException("Registers length does not match. " //
 					+ "Expected [" + this.length + "] " //
 					+ "Got [" + registers.length + "] " //
 					+ "for " + this.toString());
 		}
+		return this.registersToValue(registers);
+	}
+
+	/**
+	 * Converts the {@link Register}s from j2mod to the expected type.
+	 * 
+	 * <p>
+	 * The length of the registers array is guaranteed to match `this.length`.
+	 * 
+	 * @param registers the Registers
+	 * @return the typed/converted value
+	 */
+	protected abstract T registersToValue(Register[] registers);
+
+	protected final T commonRegistersToValue(Register[] registers, WordOrder wordOrder) {
 		// fill buffer
 		var buff = this.buildByteBuffer();
 		switch (wordOrder) {

@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -31,7 +32,7 @@ public class BitsWordElementTest {
 		final var channel1 = addBit(sut, 1);
 		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
 
-		sut.element.setInputValue(new SimpleRegister((byte) 0x00, (byte) 0x01));
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
 
 		assertTrue(channel0.getNextValue().get());
 		assertFalse(channel1.getNextValue().get());
@@ -45,7 +46,7 @@ public class BitsWordElementTest {
 
 		final var channel0 = addBit(sut, 0);
 
-		sut.element.setInputValue(new SimpleRegister((byte) 0x00, (byte) 0x01));
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
 
 		assertTrue(channel0.getNextValue().get());
 		sut.element.invalidate(bridge); // invalidValueCounter = 1
@@ -97,8 +98,14 @@ public class BitsWordElementTest {
 		channel2.setNextWriteValue(false);
 		channel8.setNextWriteValue(true);
 
-		var register = sut.element.getNextWriteValueAndReset();
-		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x06 }, register.toBytes());
+		var registers = sut.element.getNextWriteValueAndReset();
+		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x06 }, registers[0].toBytes());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRegistersLengthDoesNotMatch() throws Exception {
+		var sut = generateSut();
+		sut.element.setInputValue(new Register[2]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

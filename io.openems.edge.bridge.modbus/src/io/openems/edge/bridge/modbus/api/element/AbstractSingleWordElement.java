@@ -18,8 +18,9 @@ public abstract class AbstractSingleWordElement<SELF extends ModbusRegisterEleme
 	}
 
 	@Override
-	protected final T rawToValue(Register[] registers) {
-		return this.rawToValue(registers, WordOrder.MSWLSW /* makes no difference for SingleWord */);
+	protected T registersToValue(Register[] registers) {
+		// length of registers array is guaranteed to be 1 here.
+		return this.commonRegistersToValue(registers, WordOrder.MSWLSW /* makes no difference for SingleWord */);
 	}
 
 	@Override
