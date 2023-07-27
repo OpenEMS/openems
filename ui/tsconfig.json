@@ -12,6 +12,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "es2020",
+    "noImplicitOverride": true,
     "lib": [
       "es2018",
       "dom"

@@ -24,7 +24,7 @@ export class StorageComponent extends AbstractFlatWidget {
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
     protected isAtLeastInstaller: boolean = false;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
 
@@ -58,7 +58,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Get emergencyReserves
         this.emergencyReserveComponents = this.config
-            .getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve')
+            .getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
             .filter(component => component.isEnabled)
             .reduce((result, component) => {
                 return {
@@ -135,7 +135,7 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         for (let essId in this.prepareBatteryExtensionCtrl) {
             let controller = this.prepareBatteryExtensionCtrl[essId];

@@ -15,6 +15,7 @@ import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { Key } from './keypopup/key';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey } from './permissions';
+import { Flags } from './jsonrpc/flag/flags';
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -85,7 +86,10 @@ export class IndexComponent implements OnInit, OnDestroy {
       element.appCategories = [];
     });
 
-    this.service.setCurrentComponent(environment.edgeShortName + ' Apps', this.route).then(edge => {
+    this.service.setCurrentComponent({
+      languageKey: 'Edge.Config.App.NAME_WITH_EDGE_NAME',
+      interpolateParams: { edgeShortName: environment.edgeShortName }
+    }, this.route).then(edge => {
       this.edge = edge;
 
       this.service.metadata
@@ -145,10 +149,16 @@ export class IndexComponent implements OnInit, OnDestroy {
     this.availableApps.appCategories = [];
 
     var sortedApps = [];
-    this.apps.forEach(a => {
-      a.categorys.forEach(category => {
+    this.apps.forEach(app => {
+      app.categorys.forEach(category => {
         if (this.selectedBundle >= 0 && this.key) {
-          if (!this.key.bundles[this.selectedBundle].some((app) => app.appId === a.appId)) {
+          if (!this.key.bundles[this.selectedBundle].some((a) => app.appId === a.appId)) {
+            return false;
+          }
+        } else {
+          if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM)
+            && environment.production
+            && app.instanceIds.length === 0) {
             return false;
           }
         }
@@ -156,7 +166,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         if (!cat.isChecked) {
           return false;
         }
-        sortedApps.push(a);
+        sortedApps.push(app);
         return true;
       });
     });

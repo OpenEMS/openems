@@ -215,10 +215,16 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+		return new StringBuilder() //
+				.append(this.stateMachine.debugLog()) //
+				.append("|SoC:").append(this.getSoc()) //
+				.append("|Actual:").append(this.getVoltage()) //
+				.append(";").append(this.getCurrent()) //
+				.append("|Charge:").append(this.getChargeMaxVoltage()) //
+				.append(";").append(this.getChargeMaxCurrent()) //
+				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
+				.append(";").append(this.getDischargeMaxCurrent()) //
+				.toString();
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@angular/core";
 
+import { DataService } from "../../shared/genericComponents/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
-import { DataService } from "../../shared/genericComponents/shared/dataservice";
 
 @Injectable()
 export class HistoryDataService extends DataService {
@@ -33,12 +33,11 @@ export class HistoryDataService extends DataService {
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(date.from, date.to, Object.values(this.channelAddresses)))
               .then((response) => {
                 let allComponents = {};
-                let thisComponent = {};
                 let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
                 for (let [key, value] of Object.entries(result.data)) {
                   allComponents[key] = value;
                 }
-                this.currentValue.next({ thisComponent: thisComponent, allComponents: allComponents });
+                this.currentValue.next({ allComponents: allComponents });
               }).catch(err => console.warn(err))
               .finally(() => {
               });

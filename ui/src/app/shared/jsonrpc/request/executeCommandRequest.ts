@@ -23,7 +23,7 @@ export class ExecuteSystemCommandRequest extends JsonrpcRequest {
     private static METHOD: string = "executeSystemCommand";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             command: string,
             runInBackground: boolean,
             timeoutSeconds: number,

@@ -1,6 +1,5 @@
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
-
 /**
  * Registeres a Key to the current edge and the given app.
  * 
@@ -40,7 +39,7 @@ export namespace AppCenterAddRegisterKeyHistory {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 key: string,
                 appId: string,
             }

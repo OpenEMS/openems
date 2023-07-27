@@ -1,8 +1,9 @@
-import { BehaviorSubject } from 'rxjs';
-import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
-import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
+import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
+
+import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'Controller_Io_Heatpump',
@@ -10,7 +11,7 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
 })
 export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
-  public component: EdgeConfig.Component = null;
+  public override component: EdgeConfig.Component = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
   public isConnectionSuccessful: boolean;
   public mode: string;
@@ -18,7 +19,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
   private static PROPERTY_MODE: string = '_PropertyMode';
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     return [
       new ChannelAddress(this.component.id, 'Status'),
       new ChannelAddress(this.component.id, 'State'),
@@ -26,7 +27,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     ];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.componentId + '/State'] != 3 ? true : false;
 
     // Status
@@ -49,7 +50,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     }
 
     // Mode
-    switch (currentData.thisComponent[Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
+    switch (currentData.allComponents[this.component.id + '/' + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
       case 'AUTOMATIC': {
         this.mode = this.translate.instant('General.automatic');
         break;
