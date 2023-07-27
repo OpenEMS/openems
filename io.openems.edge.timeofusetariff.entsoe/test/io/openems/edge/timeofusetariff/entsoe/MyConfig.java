@@ -10,7 +10,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String securityToken;
 		private BiddingZone biddingZone;
-		private Currency currency;
 
 		private Builder() {
 		}
@@ -25,13 +24,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setBididngZone(BiddingZone biddingZone) {
+		public Builder setBiddingZone(BiddingZone biddingZone) {
 			this.biddingZone = biddingZone;
-			return this;
-		}
-		
-		public Builder setCurrency(Currency currency) {
-			this.currency = currency;
 			return this;
 		}
 
@@ -64,11 +58,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public BiddingZone biddingZone() {
 		return this.builder.biddingZone;
-	}
-
-	@Override
-	public Currency currency() {
-		return this.builder.currency;
 	}
 
 }

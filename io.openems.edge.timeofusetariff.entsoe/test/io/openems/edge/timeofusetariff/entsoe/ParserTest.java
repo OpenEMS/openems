@@ -1,5 +1,8 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -543,7 +546,13 @@ public class ParserTest {
 	public void testParse() throws IOException, ParserConfigurationException, SAXException {
 		var currencyExchangeValue = 1.0;
 		var result = Utils.parse(XML, "PT15M", currencyExchangeValue);
-		System.out.println(result);
-	}
 
+		assertTrue(result.firstEntry().getValue() == 109.93f);
+		assertTrue(result.lastEntry().getValue() == 65.07f);
+
+		result = Utils.parse(XML, "PT60M", currencyExchangeValue);
+
+		assertFalse(result.firstEntry().getValue() == 109.93f);
+		assertTrue(result.lastEntry().getValue() == 86.53f);
+	}
 }
