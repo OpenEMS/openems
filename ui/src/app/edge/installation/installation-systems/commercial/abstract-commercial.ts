@@ -138,6 +138,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 required: true
             },
             parsers: [Number],
+            validators: {
+                validation: ["onlyPositiveInteger"]
+            },
             // 10 is given as radix parameter.
             // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
             defaultValue: totalPvPower,

@@ -667,7 +667,7 @@
       "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
-      "POSITIVE_INTEGER": "Nur ganze positive Zahlen sind erlaubt."
+      "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt."
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",

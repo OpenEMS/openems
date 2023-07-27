@@ -666,7 +666,7 @@
       "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
-      "POSITIVE_INTEGER": "Only positive numbers are allowed."
+      "POSITIVE_INTEGER": "Only positive integer numbers are allowed."
     },
     "FORWARD": "continue",
     "LOAD": "load",

@@ -464,6 +464,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         max: 29999 // max feed in power limit value.
       },
       parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
       defaultValue: totalPvPower,
       hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
     });
