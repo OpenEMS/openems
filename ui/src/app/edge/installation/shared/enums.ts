@@ -59,7 +59,8 @@ export enum FeedInType {
 export enum WebLinks {
     GTC_LINK,
     WARRANTY_LINK_HOME,
-    WARRANTY_LINK_COMMERCIAL
+    WARRANTY_LINK_COMMERCIAL,
+    MANUAL_HOME
 }
 
 export namespace WebLinks {
@@ -91,6 +92,14 @@ export namespace WebLinks {
                         return environment.links.warranty.commercial.DE;
                     case "en":
                         return environment.links.warranty.commercial.EN;
+                }
+            case WebLinks.MANUAL_HOME:
+                switch (lang) {
+                    case "de":
+                    default:
+                        return environment.links.MANUALS.HOME.DE;
+                    case "en":
+                        return environment.links.MANUALS.HOME.EN;
                 }
         }
     }

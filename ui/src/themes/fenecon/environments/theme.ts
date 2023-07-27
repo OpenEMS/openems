@@ -42,6 +42,17 @@ export const theme = {
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
-        METER_SOCOMEC: 'https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
+        METER_SOCOMEC: 'https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf',
+
+        MANUALS: {
+            HOME: {
+                EN: "https://fenecon.de/wp-content/uploads/2023/06/FENECON-HOME-10-Quick-Installation-Guide-EN.pdf",
+                DE: "https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577"
+            },
+            COMMERCIAL: {
+                EN: "#",
+                DE: "#"
+            }
+        }
     }
 };

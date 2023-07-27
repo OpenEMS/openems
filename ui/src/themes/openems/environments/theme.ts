@@ -42,6 +42,17 @@ export const theme = {
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
-        METER_SOCOMEC: null
+        METER_SOCOMEC: null,
+
+        MANUALS: {
+            HOME: {
+                EN: "#",
+                DE: "#"
+            },
+            COMMERCIAL: {
+                EN: "#",
+                DE: "#"
+            }
+        }
     }
 };

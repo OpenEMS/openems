@@ -139,6 +139,11 @@ export abstract class AbstractIbn {
     warrantyLink: WebLinks;
   };
 
+  public manualLinks: {
+    home: WebLinks;
+  } = {
+      home: WebLinks.MANUAL_HOME
+    };
   //Controller-Id's
   public requiredControllerIds: SchedulerId[];
 

@@ -50,5 +50,16 @@ export interface Environment {
         },
 
         readonly METER_SOCOMEC: string,
+
+        readonly MANUALS: {
+            readonly HOME: {
+                readonly EN: string,
+                readonly DE: string,
+            },
+            readonly COMMERCIAL: {
+                readonly EN: string,
+                readonly DE: string,
+            }
+        }
     }
 }
