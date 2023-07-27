@@ -1,4 +1,5 @@
 package io.openems.edge.common.currency;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
