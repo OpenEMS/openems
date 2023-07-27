@@ -72,10 +72,17 @@ export class IndexComponent implements OnInit, OnDestroy {
       // Wait for Websocket
       await new Promise((resolve) => setTimeout(() => {
         if (this.websocket.status == 'waiting for credentials') {
-          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })));
+          let lang = this.route.snapshot.queryParamMap.get('lang') ?? null;
+          if (lang) {
+            localStorage.DEMO_LANGUAGE = lang;
+          }
+          resolve(
+            this.websocket
+              .login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })));
         }
       }, 2000)).then(() => { this.service.setCurrentComponent('', this.route); });
     } else {
+      localStorage.removeItem('DEMO_LANGUAGE');
       this.service.setCurrentComponent('', this.route);
     }
   }
