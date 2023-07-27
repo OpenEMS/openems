@@ -1,6 +1,6 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { Key } from "./key";
 
+import { Key } from "./key";
 
 /**
  * Gets the registered keys to the current edge and if provided to the given app.
@@ -42,7 +42,7 @@ export namespace AppCenterGetRegisteredKeys {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId?: string,
             }
         ) {
@@ -53,8 +53,8 @@ export namespace AppCenterGetRegisteredKeys {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 keys: Key[]
             }
         ) {

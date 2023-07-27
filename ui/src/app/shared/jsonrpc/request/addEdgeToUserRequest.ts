@@ -17,7 +17,7 @@ export class AddEdgeToUserRequest extends JsonrpcRequest {
     private static METHOD: string = "addEdgeToUser";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             setupPassword: string
         }
     ) {

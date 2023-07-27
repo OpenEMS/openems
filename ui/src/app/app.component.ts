@@ -32,8 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title,
-    private globalRouteChangeHandler: GlobalRouteChangeHandler
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
+    private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 

@@ -50,13 +50,13 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 this.isInitialized = true;
 
                 // get the channel addresses that should be subscribed
-                let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
+                let channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
                 let channelIds = this.getChannelIds();
                 for (let channelId of channelIds) {
-                    channelAddresses.push(new ChannelAddress(this.componentId, channelId));
+                    channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
 
-                this.dataService.getValues(channelAddresses, this.edge, this.componentId);
+                this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
                 this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
                     this.onCurrentData(value);
                 });
