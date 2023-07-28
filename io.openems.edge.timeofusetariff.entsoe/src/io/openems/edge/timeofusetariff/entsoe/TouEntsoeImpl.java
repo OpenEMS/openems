@@ -5,6 +5,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,11 +68,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		);
 	}
 
-	private final Consumer<Value<Integer>> callback = t -> {
-		this.currency = t.asEnum();
-		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
-	};
-
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -78,22 +76,28 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 		this.config = config;
-		this.currency = this.currencyProvider.getCurrent();
-		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+		Consumer<Currency> updateCurrency = t -> {
+			this.currency = t;
+			this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+		};
 
 		// Trigger to activate when the currency from Meta is updated.
-		this.currencyProvider.subscribe(this.callback);
+		this.currencyProvider.subscribe(updateCurrency);
+
+		updateCurrency.accept(this.currencyProvider.getCurrent());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.currencyProvider.unsubscribe(this.callback);
+		this.currencyProvider.unsubscribeAll();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
 
-	@Component
+	@Component(scope = ServiceScope.PROTOTYPE)
 	public static class CurrencyProviderOsgi implements CurrencyProvider {
+
+		private final List<Consumer<Value<Integer>>> subscriptions = new ArrayList<>();
 
 		@Reference
 		private Meta meta;
@@ -107,23 +111,28 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		 * 
 		 * @param consumer The callback {@link Consumer}.
 		 */
-		public void subscribe(Consumer<Value<Integer>> consumer) {
-			this.meta.getCurrencyChannel().onSetNextValue(consumer);
+		public void subscribe(Consumer<Currency> consumer) {
+
+			Consumer<Value<Integer>> c = t -> {
+				consumer.accept(t.asEnum());
+			};
+			subscriptions.add(c);
+			this.meta.getCurrencyChannel().onSetNextValue(c);
 		}
 
 		/**
-		 * Unsubscribe from the Currency channel.
-		 * 
-		 * @param consumer The callback {@link Consumer}.
+		 * Unsubscribes from all the Subscriptions.
 		 */
-		public void unsubscribe(Consumer<Value<Integer>> consumer) {
-			this.meta.getCurrencyChannel().removeOnSetNextValueCallback(consumer);
+		public void unsubscribeAll() {
+			subscriptions.forEach(t -> {
+				this.meta.getCurrencyChannel().removeOnSetNextValueCallback(t);
+			});
 		}
 	}
 
 	private final Runnable task = () -> {
 		var token = this.config.securityToken();
-		var areaCode = this.config.biddingZone().getName();
+		var areaCode = this.config.biddingZone().getCode();
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
 		var unableToUpdatePrices = false;
@@ -133,7 +142,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 			final double exchangeRate;
 			if (this.currency == Currency.EUR) {
-				// No need to fetch from API.
+				// No need to fetch exchange rate from API.
 				exchangeRate = EUR_EXHANGE_RATE;
 			} else {
 				exchangeRate = Utils.exchangeRateParser(ExchangeRateApi.getExchangeRate(), this.currency);

@@ -2,7 +2,6 @@ package io.openems.edge.timeofusetariff.entsoe;
 
 import java.util.function.Consumer;
 
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 
 public interface CurrencyProvider {
@@ -19,13 +18,11 @@ public interface CurrencyProvider {
 	 * 
 	 * @param consumer The callback {@link Consumer}.
 	 */
-	public void subscribe(Consumer<Value<Integer>> consumer);
+	public void subscribe(Consumer<Currency> consumer);
 
 	/**
-	 * Unsubscribe from the Currency channel.
-	 * 
-	 * @param consumer The callback {@link Consumer}.
+	 * Unsubscribes from all the Subscriptions.
 	 */
-	public void unsubscribe(Consumer<Value<Integer>> consumer);
+	public void unsubscribeAll();
 
 }

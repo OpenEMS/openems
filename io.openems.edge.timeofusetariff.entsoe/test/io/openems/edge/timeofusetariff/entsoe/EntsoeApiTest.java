@@ -17,7 +17,7 @@ public class EntsoeApiTest {
 	@Ignore
 	public void testQuery() throws IOException, ParserConfigurationException, SAXException {
 		var token = "";
-		var areaCode = BiddingZone.SWEDEN_ZONE_3.getName();
+		var areaCode = BiddingZone.SWEDEN_ZONE_3.getCode();
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).withZoneSameLocal(ZoneId.systemDefault());
 		var toDate = fromDate.plusDays(1);
 		var response = EntsoeApi.query(token, areaCode, fromDate, toDate);

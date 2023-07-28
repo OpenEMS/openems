@@ -72,4 +72,13 @@ public interface Meta extends ModbusSlave {
 	public default EnumReadChannel getCurrencyChannel() {
 		return this.channel(ChannelId.CURRENCY);
 	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#Currency} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrency(Currency currency) {
+		this.getCurrencyChannel().setNextValue(currency);
+	}
 }
