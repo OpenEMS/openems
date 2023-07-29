@@ -1,12 +1,13 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject, timer } from 'rxjs';
-import { retry, switchMap, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+
 import { environment } from '../environments';
-import { Service, Websocket } from './shared/shared';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
+import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
 @Component({
@@ -21,6 +22,8 @@ export class AppComponent implements OnInit, OnDestroy {
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
+  protected isUserAllowedToSeeOverview: boolean = false;
+
   constructor(
     private platform: Platform,
     public menu: MenuController,
@@ -29,16 +32,21 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
     private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+
+    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
+      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+    });
   }
 
   ngOnInit() {
 
     // Checks if sessionStorage is not null, undefined or empty string
-    if (sessionStorage.getItem("DEBUGMODE")) {
-      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
     this.titleService.setTitle(environment.edgeShortName);
@@ -50,7 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel',
+            role: 'cancel'
           }
         ]
       });
@@ -65,8 +73,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
   }
 
   private checkSmartphoneResolution(init: boolean): void {

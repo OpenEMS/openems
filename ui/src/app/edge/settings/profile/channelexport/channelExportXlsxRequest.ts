@@ -16,10 +16,10 @@ import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
  */
 export class ChannelExportXlsxRequest extends JsonrpcRequest {
 
-    static METHOD: string = "channelExportXlsx";
+    public static METHOD: string = "channelExportXlsx";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string
         }
     ) {

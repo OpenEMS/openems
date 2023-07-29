@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
-import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { Icon } from 'src/app/shared/type/widget';
+
+import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({
@@ -26,7 +27,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     };
     private static PROPERTY_MODE: string = '_PropertyMode';
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         this.outputChannel = ChannelAddress.fromString(
             this.component.properties['outputChannelAddress']);
         this.inputChannel = ChannelAddress.fromString(
@@ -38,10 +39,10 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
             this.propertyModeChannel,
             new ChannelAddress(this.component.id, '_PropertyHighThreshold'),
             new ChannelAddress(this.component.id, '_PropertyLowThreshold')
-        ]
+        ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         // Mode
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
@@ -61,16 +62,16 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         switch (outputChannelValue) {
             case 0:
                 this.state = this.translate.instant('General.inactive');
-                this.icon.name == 'help-outline'
+                this.icon.name == 'help-outline';
                 break;
             case 1:
-                this.state = this.translate.instant('General.active')
+                this.state = this.translate.instant('General.active');
                 break;
         }
 
-        this.inputChannelValue = currentData.allComponents[this.inputChannel.toString()]
-        this.highThresholdValue = currentData.allComponents[this.component.id + '/_PropertyHighThreshold']
-        this.lowThresholdValue = currentData.allComponents[this.component.id + '/_PropertyLowThreshold']
+        this.inputChannelValue = currentData.allComponents[this.inputChannel.toString()];
+        this.highThresholdValue = currentData.allComponents[this.component.id + '/_PropertyHighThreshold'];
+        this.lowThresholdValue = currentData.allComponents[this.component.id + '/_PropertyLowThreshold'];
     }
 
     async presentModal() {

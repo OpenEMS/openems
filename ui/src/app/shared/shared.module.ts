@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -9,17 +9,25 @@ import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
 import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
+
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
+import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
+import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
-import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
+import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfieldmodal';
+import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
+import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
+import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
+import { PanelWrapperComponent } from './formly/panel-wrapper.component';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
+import { HistoryDataErrorComponent } from './history-data-error.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
@@ -61,35 +69,48 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapperComponent }
+        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
+        { name: 'formly-field-radio-with-image', component: FormlyFieldRadioWithImageComponent },
+        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
+        { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
+        { name: 'panel', component: PanelWrapperComponent },
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent },
+        { name: 'repeat', component: RepeatTypeComponent }
       ],
       validators: [
         { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator },
+        { name: 'subnetmask', validation: SubnetmaskValidator }
       ],
       validationMessages: [
         { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
-      ],
+        { name: 'subnetmask', message: SubnetmaskValidatorMessage }
+      ]
     }),
     PipeModule,
-    Generic_ComponentsModule
+    Generic_ComponentsModule,
+    TranslateModule
   ],
   declarations: [
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
     // formly
     InputTypeComponent,
     FormlyWrapperFormFieldComponent,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
-    FormlySelectFieldWrapperComponent
+    FormlySelectFieldExtendedWrapperComponent,
+    FormlySelectFieldModalComponent,
+    FormlyFieldRadioWithImageComponent,
+    FormlyCheckBoxHyperlinkWrapperComponent,
+    FormlyWrapperDefaultValueWithCasesComponent,
+    FormlyFieldModalComponent,
+    PanelWrapperComponent
   ],
   exports: [
     // modules
@@ -111,7 +132,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     // components
     ChartOptionsComponent,
     HeaderComponent,
-    PercentageBarComponent,
+    HistoryDataErrorComponent,
+    PercentageBarComponent
   ],
   providers: [
     appRoutingProviders,
@@ -122,4 +144,11 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ]
 })
 
-export class SharedModule { }
+export class SharedModule {
+
+  public static injector: Injector;
+
+  constructor(private injector: Injector) {
+    SharedModule.injector = injector;
+  }
+}

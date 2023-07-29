@@ -53,13 +53,11 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
-	private Config config;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -76,21 +74,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		super.setModbus(modbus);
 	}
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
-		this._setCapacity(this.config.capacity());
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-	}
+	private Config config;
 
 	public GoodWeEssImpl() throws OpenemsNamedException {
 		super(//
@@ -109,6 +93,22 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 				GoodWe.ChannelId.values(), //
 				GoodWeEss.ChannelId.values() //
 		);
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
+		this._setCapacity(this.config.capacity());
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override

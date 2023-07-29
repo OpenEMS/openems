@@ -16,10 +16,10 @@ import { JsonrpcRequest } from "../base";
  */
 export class DeleteComponentConfigRequest extends JsonrpcRequest {
 
-    static METHOD: string = "deleteComponentConfig";
+    private static METHOD: string = "deleteComponentConfig";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string
         }
     ) {

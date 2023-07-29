@@ -15,7 +15,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final SubscribedEdgesChannelsWorker worker;
 	private final CompletableFuture<User> user = new CompletableFuture<>();
 
-	public WsData(B2bWebsocket parent) {
+	public WsData(Backend2BackendWebsocket parent) {
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
 	}
 

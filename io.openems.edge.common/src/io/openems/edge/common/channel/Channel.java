@@ -117,7 +117,7 @@ public interface Channel<T> {
 	 * <p>
 	 * Note that usually you should prefer the value() method.
 	 *
-	 * @return the 'next value'
+	 * @return the 'next value', never null
 	 */
 	public Value<T> getNextValue();
 
@@ -158,9 +158,9 @@ public interface Channel<T> {
 	/**
 	 * Gets the currently active value, wrapped in a @{link Value}.
 	 *
-	 * @return the active value
-	 * @throws IllegalArgumentException if value cannot be access, e.g. because the
-	 *                                  Channel is Write-Only.
+	 * @return the active value, never null
+	 * @throws IllegalArgumentException if value cannot be accessed, e.g. because
+	 *                                  the Channel is Write-Only.
 	 */
 	Value<T> value() throws IllegalArgumentException;
 

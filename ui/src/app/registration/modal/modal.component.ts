@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
+import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
 import { environment } from 'src/environments';
 
 @Component({
@@ -12,8 +13,9 @@ import { environment } from 'src/environments';
 })
 export class RegistrationModalComponent implements OnInit {
 
-  formGroup: FormGroup;
-  activeSegment: string = "owner";
+  protected formGroup: FormGroup;
+  protected activeSegment: string = "installer";
+  protected readonly countries = COUNTRY_OPTIONS(this.translate);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -53,6 +55,14 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
+    let email = this.formGroup.value.email;
+    let confirmEmail = this.formGroup.value.confirmEmail;
+
+    if (email != confirmEmail) {
+      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
+      return;
+    }
+
     let request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
@@ -76,7 +86,7 @@ export class RegistrationModalComponent implements OnInit {
     if (companyName) {
       request.params.user.company = {
         name: companyName
-      }
+      };
     }
 
     this.websocket.sendRequest(request)
@@ -105,8 +115,9 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     } else {
       return this.formBuilder.group({
@@ -118,8 +129,9 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     }
   }

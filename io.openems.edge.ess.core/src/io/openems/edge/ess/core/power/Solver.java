@@ -44,7 +44,7 @@ public class Solver {
 	private final Data data;
 	private final Optimizers optimizers = new Optimizers();
 
-	private boolean debugMode = PowerComponent.DEFAULT_DEBUG_MODE;
+	private boolean debugMode = EssPower.DEFAULT_DEBUG_MODE;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 

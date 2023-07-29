@@ -1,0 +1,14 @@
+<ion-item (click)="onSelectItem()" [disabled]="formControl.disabled" [button]="!formControl.disabled">
+    <ion-label [position]="to.labelPosition" style="max-width:none">
+        <span>{{ to.label }}</span>
+        <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+        <span *ngIf="to.description"><br /><small> {{ to.description }} </small></span>
+    </ion-label>
+    <div *ngIf="displayType === 'boolean'; else noBoolean">
+        <ion-checkbox [checked]="model[pathToDisplayValue]" disabled="true"></ion-checkbox>
+    </div>
+    <ng-template #noBoolean>
+        <ion-text>{{model[pathToDisplayValue]}}</ion-text>
+        <ion-icon name="caret-down-outline"></ion-icon>
+    </ng-template>
+</ion-item>

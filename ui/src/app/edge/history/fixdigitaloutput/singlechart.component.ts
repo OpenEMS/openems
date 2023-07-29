@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -22,9 +23,9 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("fixdigitaloutput-single-chart", service, translate);
   }
@@ -35,7 +36,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -58,7 +59,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
         let address = ChannelAddress.fromString(channel);
         let data = result.data[channel].map(value => {
           if (value == null) {
-            return null
+            return null;
           } else {
             return value * 100; // convert to % [0,100]
           }
@@ -69,8 +70,8 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
-        })
+          borderColor: 'rgba(0,191,255,1)'
+        });
       }
       this.datasets = datasets;
       this.loading = false;
@@ -98,7 +99,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    }
+    };
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }

@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -16,15 +17,15 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-charger-chart", service, translate);
@@ -36,7 +37,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -60,7 +61,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                 let address = ChannelAddress.fromString(channel);
                 let chargerData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -73,10 +74,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
-                    })
+                        borderColor: 'rgba(0,223,0,1)'
+                    });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -91,10 +92,10 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower'),
+                new ChannelAddress(this.componentId, 'ActualPower')
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -104,7 +105,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

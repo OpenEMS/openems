@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -25,8 +26,8 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute,
+        public override service: Service,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -41,7 +42,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -67,9 +68,9 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                     if (this.componentId + '/NoLimitationTime' in result.data) {
                         this.activeTimeNoChargeLimit = result.data[this.componentId + '/NoLimitationTime'];
                     }
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -78,7 +79,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
                 new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),
-                new ChannelAddress(this.componentId, 'NoLimitationTime'),
+                new ChannelAddress(this.componentId, 'NoLimitationTime')
             ];
             resolve(channeladdresses);
         });

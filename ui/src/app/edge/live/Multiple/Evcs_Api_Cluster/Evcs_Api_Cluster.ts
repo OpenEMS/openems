@@ -1,7 +1,8 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
-import { Evcs_Api_ClusterModalComponent } from './modal/evcsCluster-modal.page';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
+import { Evcs_Api_ClusterModalComponent } from './modal/evcsCluster-modal.page';
 
 @Component({
   selector: 'Evcs_Api_Cluster',
@@ -10,7 +11,7 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
 export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 
   public channelAddresses: ChannelAddress[] = [];
-  public evcsIdsInCluster: String[] = []
+  public evcsIdsInCluster: String[] = [];
   public evcssInCluster: EdgeConfig.Component[] = [];
   public evcsComponent: EdgeConfig.Component = null;
   public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
@@ -18,7 +19,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public alias: string;
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
 
     this.evcsIdsInCluster = this.config.components[this.componentId].properties["evcs.ids"];
     let nature = 'io.openems.edge.evcs.api.Evcs';
@@ -38,11 +39,11 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
       new ChannelAddress(this.componentId, 'EnergySession'),
       new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
       new ChannelAddress(this.componentId, 'MaximumHardwarePower')
-    )
-    return this.channelAddresses
+    );
+    return this.channelAddresses;
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
 
     this.evcsComponent = this.config.getComponent(this.componentId);
     this.alias = this.config.components[this.componentId].properties.alias ?? 'Edge.Index.Widgets.EVCS.chargingStationCluster';
@@ -76,7 +77,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
       new ChannelAddress(componentId, 'State'),
       new ChannelAddress(componentId, 'EnergySession'),
       new ChannelAddress(componentId, 'Alias')
-    )
+    );
   }
 
   async presentModal() {

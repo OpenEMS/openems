@@ -1,10 +1,11 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Category } from "src/app/edge/installation/shared/category";
+
 import { Utils } from "../../shared";
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
-    edge: {
+    fems: {
         id: string
     },
     installer: {
@@ -63,7 +64,7 @@ export type SetupProtocol = {
  *   "method": "submitSetupProtocol",
  *   "params": {
  *      protocol: {
- *          edge: {
+ *          fems: {
  *              id: string
  *          },
  *          customer: {
@@ -113,7 +114,7 @@ export type SetupProtocol = {
  */
 export class SubmitSetupProtocolRequest extends JsonrpcRequest {
 
-    static METHOD: string = "submitSetupProtocol";
+    private static METHOD: string = "submitSetupProtocol";
 
     public static translateFrom(protocol: SetupProtocol, translate: TranslateService): SubmitSetupProtocolRequest {
         // protocol.items are type category in the protocol recieved and need to be translated before the request being sent.
@@ -126,8 +127,8 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
                 category: Category.toTranslatedString(element.category, translate),
                 name: element.name,
                 value: element.value
-            }
-        })
+            };
+        });
 
         // 'Deep copy' to copy the object values from protocol recieved.
         // To avoid type issues from category to string.
@@ -138,7 +139,7 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
     }
 
     private constructor(
-        public readonly params: {
+        public override readonly params: {
             protocol: any
         }
     ) {

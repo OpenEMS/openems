@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -23,9 +24,9 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("consumption-single-chart", service, translate);
     }
@@ -36,7 +37,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -66,7 +67,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000;
                                 }
@@ -82,8 +83,8 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(253,197,7,0.05)',
-                                        borderColor: 'rgba(253,197,7,1)',
-                                    })
+                                        borderColor: 'rgba(253,197,7,1)'
+                                    });
                                 }
 
                                 // ConsumptionMeter
@@ -94,8 +95,8 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(255,64,64,0.1)',
-                                        borderColor: 'rgba(255,64,64,1)',
-                                    })
+                                        borderColor: 'rgba(255,64,64,1)'
+                                    });
                                 }
 
                                 if (this.showPhases == true) {
@@ -129,7 +130,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(255,193,193,0.1)',
-                                            borderColor: 'rgba(139,35,35,1)',
+                                            borderColor: 'rgba(139,35,35,1)'
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
@@ -139,7 +140,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(198,226,255,0.1)',
-                                            borderColor: 'rgba(198,226,255,1)',
+                                            borderColor: 'rgba(198,226,255,1)'
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
@@ -149,7 +150,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(121,205,205,0.1)',
-                                            borderColor: 'rgba(121,205,205,1)',
+                                            borderColor: 'rgba(121,205,205,1)'
                                         });
                                     }
                                 }
@@ -185,24 +186,19 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
             ];
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
 
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let meter of consumptionMeters) {
-                // Subscribe to SymmetricMeter 'ActivePower'
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));
-
-                if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
-                    // Subscribe to AsymmetricMeter 'ActivePowerL1/L2/L3'
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
-                    result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
-                }
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL1'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL2'));
+                result.push(new ChannelAddress(meter.id, 'ActivePowerL3'));
             }
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -212,7 +208,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

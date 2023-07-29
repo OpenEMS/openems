@@ -1,6 +1,5 @@
 package io.openems.edge.common.linecharacteristic;
 
-import java.security.PolicySpi;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -214,7 +213,7 @@ public class PolyLine {
 	 * <p>
 	 * Use this method to visualize the {@link PolyLine} in a spreadsheet.
 	 * 
-	 * @param polyLine the {@link PolicySpi}
+	 * @param polyLine the {@link PolyLine}
 	 */
 	public static void printAsCsv(PolyLine polyLine) {
 		System.out.println("x;y");

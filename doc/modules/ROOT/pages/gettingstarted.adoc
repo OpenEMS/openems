@@ -42,7 +42,7 @@ NOTE: OpenEMS uses the **git** version control system via the popular GitHub pla
 NOTE: Eclipse IDE is the recommended development environment for newcomers to OpenEMS. If you are more familiar with IntelliJ IDEA, feel free to use it. Follow xref:intellij.adoc[this guide].
 
 . Prepare Eclipse IDE
-.. Download Java Development Kit (JDK) 11 and install it. We recommend the https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[OpenJDK Temurin builds by the Adoptium project]
+.. Download Java Development Kit (JDK) 17 and install it. We recommend the https://adoptium.net/de/temurin/releases/?version=17[OpenJDK Temurin builds by the Adoptium project]
 .. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
 .. On first start you will get asked to create a workspace.
 Select your source code directory (`C:\Users\your.user\git\openems` in our example) and press btn:[Launch].
@@ -54,15 +54,15 @@ image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
 +
 Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
 
-.. Configure Eclipse IDE to use JDK 11.
+.. Configure Eclipse IDE to use JDK 17.
 +
 - In the Menu select btn:[Windows] → btn:[Preferences]
 - Select btn:[Java] - btn:[Installed JREs] in the navigation tree
 - Press the btn:[Add...] button
 - Keep btn:[Standard VM] selected and press btn:[Next >]
-- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-11.0.13.8-hotspot`)
+- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-17.0.6.10-hotspot`)
 - Press the btn:[Finish] button
-- Back in the Preferences window, tick the newly added JDK 11 and press btn:[Apply and Close]
+- Back in the Preferences window, tick the newly added JDK 17 and press btn:[Apply and Close]
 +
 .Creating a workspace in Eclipse IDE
 image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]

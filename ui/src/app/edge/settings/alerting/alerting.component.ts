@@ -58,15 +58,15 @@ export class AlertingComponent implements OnInit {
 
       this.sendRequest(request).then(response => {
         const result = response.result;
-        this.findRemoveAndSetCurrentUser(result.userSettings)
+        this.findRemoveAndSetCurrentUser(result.userSettings);
         if (edge?.roleIsAtLeast('admin')) {
           this.setRemainingUserSettings(result.userSettings);
         }
       }).catch(error => {
         this.error = error.error;
       }).finally(() => {
-        this.service.stopSpinner(this.spinnerId)
-      })
+        this.service.stopSpinner(this.spinnerId);
+      });
     });
   }
 
@@ -82,15 +82,15 @@ export class AlertingComponent implements OnInit {
   }
 
   private generateFormFor(userSettings: UserSettingRole): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: Delay[] = this.Delays
+    let delays: Delay[] = this.Delays;
     if (this.isInvalidDelay(userSettings.delayTime)) {
-      delays.push({ value: userSettings.delayTime, label: this.getLabelToDelay(userSettings.delayTime) })
+      delays.push({ value: userSettings.delayTime, label: this.getLabelToDelay(userSettings.delayTime) });
     }
     return {
       formGroup: new FormGroup({}),
       options: {
         formState: {
-          awesomeIsForced: false,
+          awesomeIsForced: false
         }
       },
       model: {
@@ -101,8 +101,8 @@ export class AlertingComponent implements OnInit {
         key: 'isActivated',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate'),
-        },
+          label: this.translate.instant('Edge.Config.Alerting.activate')
+        }
       },
       {
         key: 'delayTime',
@@ -111,16 +111,18 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
           type: 'number',
           required: true,
-          options: delays,
+          options: delays
         },
-        hideExpression: model => !model.isActivated,
+        hideExpression: model => !model.isActivated
       }
-      ],
+      ]
     };
   }
 
   private setRemainingUserSettings(userSettings: UserSettingResponse[]) {
-    if (!userSettings || userSettings.length === 0) return;
+    if (!userSettings || userSettings.length === 0) {
+      return;
+    }
 
     userSettings = this.sortedAlphabetically(userSettings);
     let otherUserSettings: RoleUsersSettings[] = [];
@@ -128,7 +130,7 @@ export class AlertingComponent implements OnInit {
     userSettings.forEach(userSetting => {
       let roleSettings = this.findOrGetNew(otherUserSettings, userSetting.role);
       this.addUserToRoleUserSettings(userSetting, roleSettings);
-    })
+    });
     this.otherUserSettings = this.sortedByRole(otherUserSettings);
   }
 
@@ -164,17 +166,17 @@ export class AlertingComponent implements OnInit {
   private addUserToRoleUserSettings(userSetting: UserSettingResponse, roleSetting: RoleUsersSettings) {
     let activated = userSetting.delayTime > 0;
     let delay = userSetting.delayTime == 0 ? 15 : userSetting.delayTime;
-    roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) })
+    roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) });
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
       isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay),
+      delayTime: new FormControl(delay)
     }));
   }
 
   private getDelayOptions(delay: number): Delay[] {
-    let delays: Delay[] = this.Delays
+    let delays: Delay[] = this.Delays;
     if (this.isInvalidDelay(delay)) {
-      delays.push({ value: delay, label: this.getLabelToDelay(delay) })
+      delays.push({ value: delay, label: this.getLabelToDelay(delay) });
     }
     return delays;
   }
@@ -189,7 +191,9 @@ export class AlertingComponent implements OnInit {
    * get if given delay is valid
    */
   protected isInvalidDelay(delay: number): boolean {
-    if (delay === 0) return false;
+    if (delay === 0) {
+      return false;
+    }
     return !AlertingComponent.DELAYS.includes(delay);
   }
 
@@ -197,7 +201,7 @@ export class AlertingComponent implements OnInit {
    * get list of delays with translated labels.
    */
   protected get Delays() {
-    return AlertingComponent.DELAYS.map((delay) => { return { value: delay, label: this.getLabelToDelay(delay) } });
+    return AlertingComponent.DELAYS.map((delay) => { return { value: delay, label: this.getLabelToDelay(delay) }; });
   }
 
   /**
@@ -209,12 +213,12 @@ export class AlertingComponent implements OnInit {
    */
   private getLabelToDelay(delay: number): string {
     if (delay >= 1440) {
-      delay = delay / 1440
+      delay = delay / 1440;
       return delay + ' ' + (delay == 1
         ? this.translate.instant("Edge.Config.Alerting.interval.day")
         : this.translate.instant("Edge.Config.Alerting.interval.days"));
     } else if (delay >= 60) {
-      delay = delay / 60
+      delay = delay / 60;
       return delay + ' ' + (delay == 1
         ? this.translate.instant("Edge.Config.Alerting.interval.hour")
         : this.translate.instant("Edge.Config.Alerting.interval.hours"));
@@ -232,28 +236,28 @@ export class AlertingComponent implements OnInit {
     let changedUserSettings: UserSetting[] = [];
 
     if (this.currentUserForm.formGroup.dirty) {
-      dirtyformGroups.push(this.currentUserForm.formGroup)
+      dirtyformGroups.push(this.currentUserForm.formGroup);
 
       changedUserSettings.push({
         delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        userId: this.currentUserInformation.userId,
-      })
+        userId: this.currentUserInformation.userId
+      });
     }
 
     let userOptions: UserSettingOptions[] = [];
     if (this.otherUserSettings) {
       for (let setting of this.otherUserSettings) {
         if (setting.form.dirty) {
-          dirtyformGroups.push(setting.form)
+          dirtyformGroups.push(setting.form);
 
           for (let user of setting.settings) {
-            let control = setting.form.controls[user.userId]
+            let control = setting.form.controls[user.userId];
             if (control.dirty) {
-              let delayTime = control.value['delayTime']
-              let isActivated = control.value['isActivated']
+              let delayTime = control.value['delayTime'];
+              let isActivated = control.value['isActivated'];
               changedUserSettings.push({
                 delayTime: isActivated ? delayTime : 0,
-                userId: user.userId,
+                userId: user.userId
               });
               userOptions.push(user);
             }
@@ -262,8 +266,8 @@ export class AlertingComponent implements OnInit {
       }
     }
 
-    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings })
-    this.sendRequestAndUpdate(request, dirtyformGroups)
+    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
+    this.sendRequestAndUpdate(request, dirtyformGroups);
 
     // reset options for users with a non-default option.
     var defaultSettingsCount = this.Delays.length;
@@ -281,7 +285,7 @@ export class AlertingComponent implements OnInit {
    * @returns @GetUserAlertingConfigsResponse containing logged in users data, as well as data other users, if user is admin
    */
   private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
-    this.service.startSpinner(this.spinnerId)
+    this.service.startSpinner(this.spinnerId);
     this.sendRequest(request)
       .then(() => {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -294,8 +298,8 @@ export class AlertingComponent implements OnInit {
         this.errorToast(this.translate.instant('General.changeFailed'), error.message);
       })
       .finally(() => {
-        this.service.stopSpinner(this.spinnerId)
-      })
+        this.service.stopSpinner(this.spinnerId);
+      });
   }
 
   /**
@@ -312,7 +316,7 @@ export class AlertingComponent implements OnInit {
         console.error(error);
         this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
         reject(reason);
-      })
+      });
     });
   }
 
@@ -325,7 +329,9 @@ export class AlertingComponent implements OnInit {
    * @returns true if any settings are changed, else false
    */
   protected isDirty(): boolean {
-    if (this.error || !this.currentUserForm) return false;
+    if (this.error || !this.currentUserForm) {
+      return false;
+    }
     return this.currentUserForm?.formGroup.dirty || this.otherUserSettings?.findIndex(setting => setting.form.dirty) != -1;
   }
 }

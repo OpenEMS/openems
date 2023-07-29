@@ -67,7 +67,7 @@ public class UpdateAppInstance {
 		}
 
 		public final UUID instanceId;
-		public String alias;
+		public final String alias;
 		public final JsonObject properties;
 
 		private Request(JsonrpcRequest request, UUID instanceId, String alias, JsonObject properties) {
@@ -96,8 +96,8 @@ public class UpdateAppInstance {
 
 	public static class Response extends JsonrpcResponseSuccess {
 
-		private final OpenemsAppInstance instance;
-		private final JsonArray warnings;
+		public final OpenemsAppInstance instance;
+		public final JsonArray warnings;
 
 		public Response(UUID id, OpenemsAppInstance instance, List<String> warnings) {
 			super(id);

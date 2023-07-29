@@ -1,8 +1,9 @@
-import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.component';
-import { BehaviorSubject } from 'rxjs';
-import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, CurrentData, Utils } from '../../../../../shared/shared';
+import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_Asymmetric_PeakShaving',
@@ -16,17 +17,17 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         this.meterId = this.component.properties['meter.id'];
         return [
             new ChannelAddress(this.meterId, 'ActivePower'),
             new ChannelAddress(this.meterId, 'ActivePowerL1'),
             new ChannelAddress(this.meterId, 'ActivePowerL2'),
             new ChannelAddress(this.meterId, 'ActivePowerL3')
-        ]
+        ];
     }
 
-    protected onCurrentData(currentData: CurrentData) {
+    protected override onCurrentData(currentData: CurrentData) {
 
         let activePowerArray: number[] = [
             currentData.allComponents[this.meterId + '/ActivePowerL1'],
@@ -34,17 +35,17 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             currentData.allComponents[this.meterId + '/ActivePowerL3']
         ];
 
-        let name: string[] = ['L1', 'L2', 'L3']
+        let name: string[] = ['L1', 'L2', 'L3'];
 
         this.mostStressedPhase.next({
 
             // Show most stressed Phase
             name: name[activePowerArray.indexOf(Math.max(...activePowerArray))],
             value: Math.max(...activePowerArray, 0)
-        })
+        });
 
-        this.peakShavingPower = this.component.properties['peakShavingPower']
-        this.rechargePower = this.component.properties['rechargePower']
+        this.peakShavingPower = this.component.properties['peakShavingPower'];
+        this.rechargePower = this.component.properties['rechargePower'];
     }
 
     async presentModal() {

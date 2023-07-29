@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
-import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
+
+import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Io_Api_DigitalInput',
@@ -13,7 +14,7 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
     public ioComponents: EdgeConfig.Component[] = null;
     public ioComponentCount = 0;
 
-    protected getChannelAddresses() {
+    protected override getChannelAddresses() {
         let channels: ChannelAddress[] = [];
         this.service.getConfig().then(config => {
 
@@ -27,8 +28,8 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
                 }
             }
             this.ioComponentCount = this.ioComponents.length;
-        })
-        return channels
+        });
+        return channels;
     }
 
     async presentModal() {
@@ -36,7 +37,7 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
             component: Io_Api_DigitalInput_ModalComponent,
             componentProps: {
                 edge: this.edge,
-                ioComponents: this.ioComponents,
+                ioComponents: this.ioComponents
             }
         });
         return await modal.present();

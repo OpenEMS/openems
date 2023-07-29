@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from './../shared';
@@ -21,8 +22,8 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("storage-single-chart", service, translate);
@@ -61,7 +62,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else if (value > 100 || value < 0) {
                                     return null;
                                 } else {
@@ -73,23 +74,23 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             } else {
                                 if (channelAddress.channelId === 'EssSoc') {
                                     datasets.push({
-                                        label: (moreThanOneESS ? this.translate.instant('General.total') : this.translate.instant('General.soc')),
+                                        label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
                                         data: data
-                                    })
+                                    });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
-                                    })
+                                        borderColor: 'rgba(0,223,0,1)'
+                                    });
                                 }
                                 if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
                                     datasets.push({
                                         label: (channelAddress.componentId == component.alias ? component.id : component.alias),
                                         data: data
-                                    })
+                                    });
                                     this.colors.push({
                                         backgroundColor: 'rgba(128,128,128,0.05)',
-                                        borderColor: 'rgba(128,128,128,1)',
-                                    })
+                                        borderColor: 'rgba(128,128,128,1)'
+                                    });
                                 }
                             }
                             if (channelAddress.channelId === 'ActualReserveSoc') {
@@ -97,12 +98,12 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     label:
                                         this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
                                     data: data,
-                                    borderDash: [3, 3],
-                                })
+                                    borderDash: [3, 3]
+                                });
                                 this.colors.push({
                                     backgroundColor: 'rgba(1, 1, 1,0)',
-                                    borderColor: 'rgba(1, 1, 1,1)',
-                                })
+                                    borderColor: 'rgba(1, 1, 1,1)'
+                                });
                             }
                         });
                     });
@@ -135,7 +136,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
             channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'));
 
             this.emergencyCapacityReserveComponents = config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
-                .filter(component => component.isEnabled)
+                .filter(component => component.isEnabled);
 
             this.emergencyCapacityReserveComponents
                 .forEach(component =>
@@ -149,7 +150,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                 });
             }
             resolve(channeladdresses);
-        })
+        });
     }
 
     protected setLabel() {
@@ -159,7 +160,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-        }
+        };
         options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }

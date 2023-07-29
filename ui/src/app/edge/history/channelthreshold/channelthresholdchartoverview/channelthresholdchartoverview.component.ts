@@ -23,7 +23,7 @@ export class ChannelthresholdChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -35,12 +35,12 @@ export class ChannelthresholdChartOverviewComponent implements OnInit {
                 for (let componentId of
                     config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
                         .concat(this.config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-                    this.channelthresholdComponents.push(componentId)
+                    this.channelthresholdComponents.push(componentId);
                 }
                 if (this.channelthresholdComponents.length > 0) {
                     this.showTotal = false;
                 }
-            })
+            });
         });
     }
 

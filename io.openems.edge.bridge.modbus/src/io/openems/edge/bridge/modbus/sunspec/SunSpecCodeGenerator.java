@@ -359,7 +359,8 @@ public class SunSpecCodeGenerator {
 			case "W":
 				return Unit.WATT;
 			case "Wh":
-				return Unit.WATT_HOURS;
+				// Validate manually: OpenEMS distinguishes CUMULATED and DISCRETE Watt-Hours.
+				return Unit.CUMULATED_WATT_HOURS;
 			}
 			throw new OpenemsException("Unhandled unit [" + s + "]");
 		};

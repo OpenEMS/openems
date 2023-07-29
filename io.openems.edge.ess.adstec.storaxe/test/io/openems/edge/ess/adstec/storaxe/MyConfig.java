@@ -7,10 +7,10 @@ import io.openems.common.utils.ConfigUtils;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		public String modbusId;
-		public int modbusUnitId;
-		public int capacity;
+		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private int capacity;
 
 		private Builder() {
 		}

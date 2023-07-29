@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -22,9 +23,9 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("heatingelement-chart", service, translate);
   }
@@ -32,11 +33,11 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   ngOnInit() {
     this.startSpinner();
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
+    this.setLabel();
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -61,19 +62,19 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
         if (level in result.data) {
           let levelData = result.data[level].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
-              return value
+              return value;
             }
-          })
+          });
           datasets.push({
             label: 'Level',
-            data: levelData,
+            data: levelData
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
-          })
+            borderColor: 'rgba(200,0,0,1)'
+          });
         }
         this.datasets = datasets;
         this.loading = false;
@@ -94,7 +95,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
-      let levels = new ChannelAddress(this.component.id, 'Level')
+      let levels = new ChannelAddress(this.component.id, 'Level');
       let channeladdresses = [levels];
       resolve(channeladdresses);
     });
@@ -102,7 +103,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
 
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].id = 'yAxis1'
+    options.scales.yAxes[0].id = 'yAxis1';
     options.scales.yAxes[0].scaleLabel.labelString = 'Level';
     options.scales.yAxes[0].ticks.beginAtZero = true;
     options.scales.yAxes[0].ticks.max = 3;
@@ -111,7 +112,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
       return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
-    }
+    };
     this.options = options;
   }
 

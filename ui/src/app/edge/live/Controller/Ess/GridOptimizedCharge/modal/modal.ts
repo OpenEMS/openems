@@ -34,8 +34,8 @@ export class ModalComponent extends AbstractModal {
             this.isAtLeastAdmin = true;
             if ('ess.id' in this.component.properties) {
                 channels.push(
-                    new ChannelAddress(this.component.properties['ess.id'], "Capacity"),
-                )
+                    new ChannelAddress(this.component.properties['ess.id'], "Capacity")
+                );
             }
         }
         channels.push(
@@ -48,69 +48,69 @@ export class ModalComponent extends AbstractModal {
             new ChannelAddress(this.component.id, "TargetMinute"),
             new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds")
-        )
-        return channels
+        );
+        return channels;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
         // If the gridfeed in Limit is avoided
-        if (currentData.thisComponent['SellToGridLimitState'] == SellToGridLimitState.ACTIVE_LIMIT_FIXED ||
-            (currentData.thisComponent['SellToGridLimitState'] == SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT &&
-                currentData.thisComponent['DelayChargeState'] != DelayChargeState.ACTIVE_LIMIT &&
-                currentData.thisComponent['SellToGridLimitMinimumChargeLimit'] > 0)) {
+        if (currentData.allComponents[this.component.id + '/SellToGridLimitState'] == SellToGridLimitState.ACTIVE_LIMIT_FIXED ||
+            (currentData.allComponents[this.component.id + '/SellToGridLimitState'] == SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT &&
+                currentData.allComponents[this.component.id + '/DelayChargeState'] != DelayChargeState.ACTIVE_LIMIT &&
+                currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.chargeLimit = {
                 name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
-                value: currentData.thisComponent['SellToGridLimitMinimumChargeLimit']
-            }
+                value: currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit']
+            };
             this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided');
 
         } else {
 
             // DelayCharge State
-            switch (currentData.thisComponent['DelayChargeState']) {
+            switch (currentData.allComponents[this.component.id + '/DelayChargeState']) {
                 case -1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
                     break;
-                case 0: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive')
+                case 0: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive');
                     break;
-                case 1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime')
+                case 1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime');
                     break;
-                case 2: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull')
+                case 2: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull');
                     break;
-                case 3: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated')
+                case 3: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated');
                     break;
-                case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible')
+                case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
                     break;
                 case 5:
 
                 // Case 6: 'DISABLED' hides 'state-line', so no Message needed 
-                case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
+                case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
                     break;
 
-                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed')
+                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed');
                     break;
             }
 
             // DelayCharge Maximum Charge Limit
-            if (currentData.thisComponent['DelayChargeMaximumChargeLimit'] != null) {
+            if (currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'] != null) {
                 this.chargeLimit = {
                     name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
-                    value: currentData.thisComponent['DelayChargeMaximumChargeLimit']
-                }
+                    value: currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit']
+                };
             }
         }
-        this.delayChargeState = currentData.thisComponent['DelayChargeState'];
+        this.delayChargeState = currentData.allComponents[this.component.id + '/DelayChargeState'];
 
         // Capacity (visible for admin only)
         if (this.edge.roleIsAtLeast(Role.ADMIN) && 'ess.id' in this.component.properties) {
-            this.channelCapacity = currentData.allComponents[this.component.properties['ess.id'] + '/Capacity']
+            this.channelCapacity = currentData.allComponents[this.component.properties['ess.id'] + '/Capacity'];
         }
 
-        this.maximumSellToGridPower = currentData.thisComponent['_PropertyMaximumSellToGridPower']
-        this.targetMinute = currentData.thisComponent['TargetMinute'];
-        this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit'];
-        this.targetEpochSeconds = currentData.thisComponent['TargetEpochSeconds'];
-        this.chargeStartEpochSeconds = currentData.thisComponent['PredictedChargeStartEpochSeconds'];
+        this.maximumSellToGridPower = currentData.allComponents[this.component.id + '/_PropertyMaximumSellToGridPower'];
+        this.targetMinute = currentData.allComponents[this.component.id + '/TargetMinute'];
+        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'];
+        this.targetEpochSeconds = currentData.allComponents[this.component.id + '/TargetEpochSeconds'];
+        this.chargeStartEpochSeconds = currentData.allComponents[this.component.id + '/PredictedChargeStartEpochSeconds'];
     }
 
     protected override getFormGroup(): FormGroup {
@@ -123,7 +123,7 @@ export class ModalComponent extends AbstractModal {
             ])),
             delayChargeRiskLevel: new FormControl(this.component.properties.delayChargeRiskLevel),
             manualTargetTime: new FormControl(this.component.properties.manualTargetTime)
-        })
+        });
     }
 }
 

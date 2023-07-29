@@ -106,7 +106,7 @@ To group these similar devices and services, OpenEMS defines "Natures" as sets o
 That is, a Nature extends a normal Java interface with channels.
 
 Examples of abstracting physical devices using Natures are:
--	"SymmetricMeter" for power meters
+-	"ElectricityMeter" for electricity meters
 -	"SymmetricEss" for symmetric battery energy storage systems
 -	"Evcs" for electric vehicle charging stations.
 

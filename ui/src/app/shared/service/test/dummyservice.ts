@@ -4,7 +4,6 @@ import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/qu
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
-import { AdvertWidgets } from "../../type/widget";
 import { AbstractService } from "../abstractservice";
 import { DefaultTypes } from "../defaulttypes";
 
@@ -15,7 +14,7 @@ export class DummyService extends AbstractService {
 
     private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
-    currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
+    public currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
 
     setLang(id: Language) {
         throw new Error("Method not implemented.");
@@ -58,13 +57,10 @@ export class DummyService extends AbstractService {
     toast(message: string, level: "success" | "warning" | "danger") {
         throw new Error("Method not implemented.");
     }
-    showAdvertWidgets(advertWidgets: AdvertWidgets) {
-        throw new Error("Method not implemented.");
-    }
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
-    handleError(error: any): void {
+    override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }
 

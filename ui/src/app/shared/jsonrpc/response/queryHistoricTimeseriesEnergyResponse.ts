@@ -20,8 +20,8 @@ export interface Cumulated {
 export class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             data: Cumulated;
         }
     ) {

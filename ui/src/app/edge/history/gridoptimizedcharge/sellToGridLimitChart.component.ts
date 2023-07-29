@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -25,9 +26,9 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("gridOptimizedCharge-chart", service, translate);
   }
@@ -36,11 +37,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
     this.gridMeter = this.component.properties['meter.id'];
     this.startSpinner();
     this.service.setCurrentComponent('', this.route);
-    this.setLabel()
+    this.setLabel();
   }
 
   ngOnDestroy() {
-    this.unsubscribeChartRefresh()
+    this.unsubscribeChartRefresh();
   }
 
   protected updateChart() {
@@ -68,7 +69,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
         if (this.gridMeter + '/ActivePower' in result.data) {
           let sellToGridData = result.data[this.gridMeter + '/ActivePower'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value < 0) {
               return value / -1000; // convert to kW and invert value
             } else {
@@ -78,12 +79,12 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.gridSell'),
             data: sellToGridData,
-            hidden: false,
+            hidden: false
           });
           this.colors.push({
             backgroundColor: 'rgba(0,0,200,0.05)',
-            borderColor: 'rgba(0,0,200,1)',
-          })
+            borderColor: 'rgba(0,0,200,1)'
+          });
         }
 
         /*
@@ -93,7 +94,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
 
           let sellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value == 0) {
               return 0;
             } else {
@@ -106,15 +107,15 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             data: sellToGridLimitData,
             hidden: false,
             borderDash: [3, 3]
-          })
+          });
           this.colors.push({
             backgroundColor: 'rgba(0,0,0,0.05)',
             borderColor: 'rgba(0,0,0,1)'
-          })
+          });
 
           let batterySellToGridLimitData = result.data[this.component.id + '/_PropertyMaximumSellToGridPower'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else if (value == 0) {
               return 0;
             } else {
@@ -129,11 +130,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             data: batterySellToGridLimitData,
             hidden: false,
             borderDash: [3, 3]
-          })
+          });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
-          })
+            borderColor: 'rgba(200,0,0,1)'
+          });
         }
 
         /*
@@ -143,7 +144,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
 
           let productionData = result.data['_sum/ProductionActivePower'].map(value => {
             if (value == null) {
-              return null
+              return null;
             } else {
               return value / 1000; // convert to kW
             }
@@ -151,12 +152,12 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.production'),
             data: productionData,
-            hidden: false,
+            hidden: false
           });
           this.colors.push({
             backgroundColor: 'rgba(45,143,171,0.05)',
             borderColor: 'rgba(45,143,171,1)'
-          })
+          });
         }
         this.datasets = datasets;
         this.loading = false;
@@ -186,7 +187,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
         result.push(new ChannelAddress(this.component.id, '_PropertyMaximumSellToGridPower'));
       }
       resolve(result);
-    })
+    });
   }
 
   protected setLabel() {
@@ -196,7 +197,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
       return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-    }
+    };
     this.options = options;
   }
 

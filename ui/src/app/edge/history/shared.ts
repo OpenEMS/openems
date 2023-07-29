@@ -36,6 +36,29 @@ export type TooltipItem = {
     yLabel: number
 }
 
+export type YAxis = {
+
+    id?: string,
+    position: string,
+    stacked?: boolean,
+    scaleLabel: {
+        display: boolean,
+        labelString: string,
+        padding?: number,
+        fontSize?: number
+    },
+    gridLines?: {
+        display: boolean
+    },
+    ticks: {
+        beginAtZero: boolean,
+        max?: number,
+        padding?: number,
+        stepSize?: number,
+        callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
+    }
+}
+
 export type ChartOptions = {
     layout?: {
         padding: {
@@ -74,26 +97,7 @@ export type ChartOptions = {
         intersect: boolean
     },
     scales: {
-        yAxes: [{
-            id?: string,
-            position: string,
-            scaleLabel: {
-                display: boolean,
-                labelString: string,
-                padding?: number,
-                fontSize?: number
-            },
-            gridLines?: {
-                display: boolean
-            },
-            ticks: {
-                beginAtZero: boolean,
-                max?: number,
-                padding?: number,
-                stepSize?: number,
-                callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
-            }
-        }],
+        yAxes: YAxis[],
         xAxes: [{
             bounds?: string,
             offset?: boolean,
@@ -129,7 +133,7 @@ export type ChartOptions = {
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
             title?(tooltipItems: TooltipItem[], data: Data): string,
-            afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
+            afterTitle?(item: ChartTooltipItem[], data: Data): string | string[],
             footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
     }
@@ -152,7 +156,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             tension: 0.1
         },
         rectangle: {
-            borderWidth: 2,
+            borderWidth: 2
         }
     },
     hover: {
@@ -187,7 +191,66 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
                     year: 'YYYY' // 2015,
                 }
-            },
+            }
+        }]
+    },
+    tooltips: {
+        mode: 'index',
+        intersect: false,
+        axis: 'x',
+        callbacks: {
+            title(tooltipItems: TooltipItem[], data: Data): string {
+                let date = new Date(tooltipItems[0].xLabel);
+                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+            }
+        }
+    }
+};
+
+export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {
+    maintainAspectRatio: false,
+    legend: {
+        labels: {},
+        position: 'bottom'
+    },
+    elements: {
+        point: {
+            radius: 0,
+            hitRadius: 0,
+            hoverRadius: 0
+        },
+        line: {
+            borderWidth: 2,
+            tension: 0.1
+        },
+        rectangle: {
+            borderWidth: 2
+        }
+    },
+    hover: {
+        mode: 'point',
+        intersect: true
+    },
+    scales: {
+        yAxes: [],
+        xAxes: [{
+            ticks: {},
+            stacked: false,
+            type: 'time',
+            time: {
+                minUnit: 'hour',
+                displayFormats: {
+                    millisecond: 'SSS [ms]',
+                    second: 'HH:mm:ss a', // 17:20:01
+                    minute: 'HH:mm', // 17:20
+                    hour: 'HH:[00]', // 17:20
+                    day: 'DD', // Sep 04 2015
+                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+                    month: 'MM', // September
+                    quarter: '[Q]Q - YYYY', // Q3 - 2015
+                    year: 'YYYY' // 2015,
+                }
+            }
         }]
     },
     tooltips: {
@@ -224,12 +287,11 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    * @returns resolution and timeformat
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
-
     let days = Math.abs(differenceInDays(toDate, fromDate));
     let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
     if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
+        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
@@ -241,7 +303,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
+            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 6) {
@@ -267,7 +329,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         // >> show Months
         resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
     }
-    return resolution
+    return resolution;
 }
 
 /**
@@ -280,7 +342,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
   * @returns true for visible labels; hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
     let value = sessionStorage.getItem(labelWithoutUnit);
     if (orElse != null && value == null) {
         return orElse;
@@ -299,7 +361,7 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
     if (visible == null) {
         return;
     }
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+    let labelWithoutUnit = "LABEL_" + label.split(":")[0];
     sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 
@@ -321,7 +383,6 @@ export type ChartData = {
         name: string,
         powerChannel: ChannelAddress,
         energyChannel: ChannelAddress
-        filter?: ChannelFilter
     }[],
     displayValue: {
         /** Name displayed in Label */
@@ -342,9 +403,4 @@ export type ChartData = {
     /** Name to be displayed on the left y-axis */
     yAxisTitle: string,
 }
-// Should be renamed
-export enum ChannelFilter {
-    NOT_NULL,
-    NOT_NULL_OR_NEGATIVE,
-    NOT_NULL_OR_POSITIVE
-}
+

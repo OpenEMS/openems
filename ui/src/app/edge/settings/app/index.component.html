@@ -1,17 +1,21 @@
 <!-- Template for app lists -->
 <ng-template #appsList let-appCatList="appCatList">
-  <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
+  <ion-col *ngFor="let app of appCatList.apps" size="6" size-xs="6" size-sm="4" size-lg="3" size-xl="2">
     <ion-card>
-      <ion-item lines="full" color="primary">
-        <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
-        <ion-label style="white-space: initial">
-          {{ app.name }}</ion-label>
+      <ion-item lines="full" color="primary" style="cursor: pointer" (click)="onAppClicked(app)">
+        <ion-icon slot="start" size="medium" name="grid-outline"></ion-icon>
+        <ion-label style="white-space: initial" class="ion-no-margin">
+          <!-- Use short name if existing otherwise use normal name -->
+          {{ app.shortName ?? app.name }}
+        </ion-label>
       </ion-item>
-      <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}" [state]="app"
-        style="cursor: pointer;">
-        <div [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
-          style="display: flex; align-items: center;justify-content: center; ">
-          <img *ngIf="app.image" [src]="app.image" />
+      <ion-card-content>
+        <div>
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer"
+            (click)="onAppClicked(app)"
+            [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
+            <img *ngIf="app.image" [src]="app.image" />
+          </div>
         </div>
         <p *ngIf="false">
           <small>Technischer Name: {{ app.appId }}</small><br />
@@ -21,19 +25,27 @@
             </a></small><br />
           <small>Cardinality: {{ app.cardinality }}</small>
         </p>
-        <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-          <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorCompatible</small><br />
-            <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-              }}</small><br />
-          </div>
-          <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorInstallable</small><br />
-            <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-              }}</small><br />
-          </div>
-        </div>
       </ion-card-content>
+      <ion-accordion-group>
+        <ion-accordion *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+          <ion-item slot="header" color="light">
+            <ion-label style="white-space: initial; text-align: center;"
+              translate>Edge.Config.App.notAvailable</ion-label>
+          </ion-item>
+          <div class="ion-padding" slot="content">
+            <ion-label>
+              <div *ngFor="let message of app.status.errorCompatibleMessages">
+                <span [innerHTML]="message"></span>
+              </div>
+            </ion-label>
+            <ion-label>
+              <div *ngFor="let message of app.status.errorInstallableMessages">
+                <span [innerHTML]="message"></span>
+              </div>
+            </ion-label>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
     </ion-card>
   </ion-col>
 </ng-template>
@@ -60,69 +72,89 @@
 
   <ion-grid>
     <ion-row *ngIf="true">
-      <ion-col size="12">
-        <ion-card>
+      <ion-col size="12" [attr.size-xl]="canEnterKey ? 8 : 12">
+        <ion-card *ngIf="isUpdateAvailable">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
-            <ion-text text-nowrap translate>Edge.Config.App.header
+            <ion-text text-nowrap>
               <a routerLink="/device/{{ edge.id }}/settings/systemupdate{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
-                *ngIf="isUpdateAvailable" text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
+                text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
                 edgeShortName: environment.edgeShortName } }}</a>
             </ion-text>
           </ion-item>
         </ion-card>
       </ion-col>
+      <ng-container *ngIf="canEnterKey">
+        <ion-col size="12" size-md="6" size-xl="2">
+          <ion-card style="cursor: pointer;" (click)="redeemKey()">
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
+              <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-xl="2">
+          <ion-card style="cursor: pointer;" (click)="registerKey()">
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
+              <ion-text text-nowrap translate>Edge.Config.App.Key.registerKey</ion-text>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+      </ng-container>
+    </ion-row>
+
+    <ion-row *ngIf="key && key.bundles">
+      <ion-col>
+        <ion-segment [(ngModel)]="selectedBundle">
+          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}}
+            (click)="updateSelection(null)">
+            <ion-text text-nowrap>
+              {{ bundle.length }}
+            </ion-text>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col size="12">
-        <ion-grid>
-          <div *ngFor="let appList of appLists">
-            <ng-container *ngIf="!isEmpty(appList)">
-              <ion-row style="position: -webkit-sticky;
+        <div *ngFor="let appList of appLists">
+          <ng-container *ngIf="!isEmpty(appList) && appList.shouldBeShown()">
+            <ion-row style="position: -webkit-sticky;
             position: sticky;
             top: 0px;
             z-index: 100;">
-                <ion-col size="12">
-                  <ion-card>
-                    <ion-item lines="full" color="primary">
-                      <ion-label style="text-align: center;" translate> {{ appList.name }}
-                      </ion-label>
-                    </ion-item>
-                  </ion-card>
-                </ion-col>
-              </ion-row>
-              <div *ngIf="showCategories(appList); then showAllCategories else showNoCategorie"></div>
-              <ng-template #showAllCategories>
-                <ion-row *ngFor="let appCatList of appList.appCategories">
-                  <ion-col size="12" size-xl="2" style="padding-top: 18px;">
-                    <ion-card>
-                      <ion-item lines="full" color="light">
-                        <ion-label style="text-align: center;">{{ appCatList.category.readableName }}</ion-label>
-                      </ion-item>
-                    </ion-card>
-                  </ion-col>
-                  <ion-col>
-                    <ion-grid>
-                      <ion-row>
-                        <template [ngTemplateOutlet]="appsList"
-                          [ngTemplateOutletContext]="{appCatList: appCatList}"></template>
-                      </ion-row>
-                    </ion-grid>
-                  </ion-col>
-                </ion-row>
-              </ng-template>
-              <ng-template #showNoCategorie>
-                <ion-row>
-                  <ng-container *ngFor="let appCatList of appList.appCategories">
+              <ion-col size="12">
+                <ion-card>
+                  <ion-item lines="full" color="primary">
+                    <ion-label style="text-align: center;" translate> {{ appList.name }}
+                    </ion-label>
+                  </ion-item>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngFor="let appCatList of appList.appCategories">
+              <ion-col size="12" size-xl="2" style="padding-top: 18px;">
+                <ion-card>
+                  <ion-item lines="full" color="light">
+                    <ion-label style="text-align: center; white-space: initial;">{{
+                      appCatList.category.readableName
+                      }}</ion-label>
+                  </ion-item>
+                </ion-card>
+              </ion-col>
+              <ion-col>
+                <ion-grid>
+                  <ion-row>
                     <template [ngTemplateOutlet]="appsList"
                       [ngTemplateOutletContext]="{appCatList: appCatList}"></template>
-                  </ng-container>
-                </ion-row>
-              </ng-template>
-            </ng-container>
-          </div>
-        </ion-grid>
+                  </ion-row>
+                </ion-grid>
+              </ion-col>
+            </ion-row>
+          </ng-container>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>

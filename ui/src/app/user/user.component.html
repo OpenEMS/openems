@@ -59,7 +59,7 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+        <ion-card *ngIf="showInformation">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
@@ -105,8 +105,7 @@
             <p class="ion-padding" translate>About.build</p>
             <ul>
               <li>
-                <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
-                  <span translate>About.build</span>: 2023.4.0-SNAPSHOT</a>
+                <a routerLinkActive="active" routerLink="/changelog">2023.8.0-SNAPSHOT</a>
               </li>
             </ul>
             <p class="ion-padding">

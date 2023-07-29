@@ -1,6 +1,5 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -26,6 +25,7 @@ export enum WidgetFactory {
     'Controller.Ess.FixActivePower',
     'Controller.Ess.GridOptimizedCharge',
     'Controller.Ess.Time-Of-Use-Tariff.Discharge',
+    'Controller.Ess.Time-Of-Use-Tariff',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
@@ -43,8 +43,8 @@ export type Icon = {
 }
 
 export class Widget {
-    name: WidgetNature | WidgetFactory | String;
-    componentId: string
+    public name: WidgetNature | WidgetFactory | String;
+    public componentId: string;
 }
 
 export class Widgets {

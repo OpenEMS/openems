@@ -8,14 +8,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		public String essId;
-		public String meterId;
-		public int maximumSellToGridPower;
-		public Mode mode;
-		public String manualTargetTime;
-		public boolean sellToGridLimitEnabled;
-		public int sellToGridLimitRampPercentage;
-		public DelayChargeRiskLevel delayChargeRiskLevel;
+		private String essId;
+		private String meterId;
+		private int maximumSellToGridPower;
+		private Mode mode;
+		private String manualTargetTime;
+		private boolean sellToGridLimitEnabled;
+		private int sellToGridLimitRampPercentage;
+		private DelayChargeRiskLevel delayChargeRiskLevel;
 
 		public Builder setId(String id) {
 			this.id = id;

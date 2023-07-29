@@ -1,7 +1,13 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { environment } from 'src/environments';
+
+import { ChangelogViewComponent } from './changelog/view/view';
+import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
-import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
+import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -10,15 +16,16 @@ import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridop
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history.component';
+import { HistoryDataService } from './edge/history/historydataservice';
+import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
-import { ProductionChartOverviewComponent } from './edge/history/production/productionchartoverview/productionchartoverview.component';
-import { SelfconsumptionChartOverviewComponent } from './edge/history/selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
+import { LiveDataService } from './edge/live/livedataservice';
 import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
@@ -37,55 +44,75 @@ import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { IndexComponent } from './index/index.component';
+import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', component: IndexComponent },
+  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
 
   { path: 'user', component: UserComponent },
+  { path: 'changelog', component: ChangelogViewComponent },
 
   // Edge Pages
-  { path: 'device/:edgeId', redirectTo: 'device/:edgeId/live', pathMatch: 'full' },
-  { path: 'device/:edgeId/live', component: EdgeLiveComponent },
-  { path: 'device/:edgeId/history', component: EdgeHistoryComponent },
+  {
+    path: 'device/:edgeId', component: EdgeComponent, children: [
+      { path: '', redirectTo: 'live', pathMatch: 'full' },
+      {
+        path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
+          useClass: LiveDataService,
+          provide: DataService
+        }], component: EdgeLiveComponent
+      },
+      {
+        path: 'history', providers: [{
+          useClass: HistoryDataService,
+          provide: DataService
+        }], component: HistoryParentComponent, children: [
+          { path: '', component: EdgeHistoryComponent },
+          // History Chart Pages
+          { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
+          { path: ':componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
+          { path: ':componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
+          { path: ':componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
+          { path: ':componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
+          { path: ':componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
+          { path: ':componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
+          { path: ':componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
+          { path: ':componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+          { path: ':componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
+          { path: ':componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
+          { path: 'autarchychart', component: AutarchyChartOverviewComponent },
+          { path: 'consumptionchart', component: ConsumptionChartOverviewComponent },
+          { path: 'gridchart', component: GridChartOverviewComponent },
+          { path: 'productionchart', component: ProductionChartOverviewComponent },
+          { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
+          { path: 'storagechart', component: StorageChartOverviewComponent }
+        ]
+      },
 
-  // History Chart Pages
-  { path: 'device/:edgeId/history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
-  { path: 'device/:edgeId/history/:componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
-  { path: 'device/:edgeId/history/autarchychart', component: AutarchyChartOverviewComponent },
-  { path: 'device/:edgeId/history/consumptionchart', component: ConsumptionChartOverviewComponent },
-  { path: 'device/:edgeId/history/gridchart', component: GridChartOverviewComponent },
-  { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
-  { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-  { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
+      { path: 'settings', data: { navbarTitleToBeTranslated: 'Menu.edgeSettings' }, component: EdgeSettingsComponent },
+      { path: 'settings/channels', component: EdgeSettingsChannelsComponent },
+      { path: 'settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent },
+      { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
+      { path: 'settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
+      { path: 'settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
+      { path: 'settings/network', component: EdgeSettingsNetworkComponent },
+      { path: 'settings/profile', component: EdgeSettingsProfileComponent },
+      { path: 'settings/profile/:componentId', component: AliasUpdateComponent },
+      { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
+      { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
+      { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
+      { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
+      { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
+      { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
+      { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
+      { path: 'settings/alerting', component: EdgeSettingsAlerting }
+    ]
+  },
 
-  { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
-  { path: 'device/:edgeId/settings/channels', component: EdgeSettingsChannelsComponent },
-  { path: 'device/:edgeId/settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent },
-  { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
-  { path: 'device/:edgeId/settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
-  { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
-  { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
-  { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
-  { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
-  { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
-  { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
-  { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
-  { path: 'device/:edgeId/settings/app', component: EdgeSettingsAppIndex },
-  { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
-  { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
-  { path: 'device/:edgeId/settings/app/single/:appId', component: EdgeSettingsAppSingle },
-  { path: 'device/:edgeId/settings/alerting', component: EdgeSettingsAlerting },
+
+  { path: 'demo', component: IndexComponent }
 ];
 
 export const appRoutingProviders: any[] = [

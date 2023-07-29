@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -22,9 +23,9 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("consumption-meter-chart", service, translate);
     }
@@ -35,7 +36,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -60,7 +61,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                 let address = ChannelAddress.fromString(channel);
                 let activePowerData = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -73,10 +74,10 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
-                    })
+                        borderColor: 'rgba(253,197,7,1)'
+                    });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -91,15 +92,15 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let meter of consumptionMeters) {
-                result.push(new ChannelAddress(meter.id, 'ActivePower'))
+                result.push(new ChannelAddress(meter.id, 'ActivePower'));
             }
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -109,7 +110,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

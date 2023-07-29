@@ -6,8 +6,8 @@ import * as d3 from 'd3';
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
 export class SectionValue {
-    absolute: number;
-    ratio: number;
+    public absolute: number;
+    public ratio: number;
 }
 
 export class SvgSquarePosition {
@@ -71,7 +71,7 @@ export class EnergyFlow {
 
     public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
         if (energyFlow == null) {
-            this.points = "0,0 0,0"
+            this.points = "0,0 0,0";
         } else {
             let p = energyFlow;
             this.points = p.topLeft.x + "," + p.topLeft.y
@@ -84,7 +84,7 @@ export class EnergyFlow {
                 + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
         }
         if (animationEnergyFlow == null) {
-            this.animationPoints = "0,0 0,0"
+            this.animationPoints = "0,0 0,0";
         } else {
             let p = animationEnergyFlow;
             this.animationPoints = p.topLeft.x + "," + p.topLeft.y
@@ -169,10 +169,10 @@ export abstract class AbstractSection {
      */
     protected adjustFillRefbyBrowser(): void {
         if (navigator.vendor.match(/apple/i)) {
-            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")"
+            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")";
         }
         else {
-            this.fillRef = "url(#" + this.sectionId + ")"
+            this.fillRef = "url(#" + this.sectionId + ")";
         }
     }
 
@@ -265,9 +265,9 @@ export abstract class AbstractSection {
         if (!sumRatio) {
             sumRatio = 0;
         } else if (sumRatio > 0 && sumRatio < 0.1) {
-            sumRatio = 0.1 // scale ratio to [0.1,1]
+            sumRatio = 0.1; // scale ratio to [0.1,1]
         } else if (sumRatio < 0 && sumRatio > -0.1) {
-            sumRatio = -0.1 // scale ratio to [-0.1,-1]
+            sumRatio = -0.1; // scale ratio to [-0.1,-1]
         }
         sumRatio *= 10;
 
@@ -353,7 +353,7 @@ export abstract class AbstractSection {
     }
 
     protected deg2rad(value: number): number {
-        return value * (Math.PI / 180)
+        return value * (Math.PI / 180);
     }
 
 }

@@ -1,11 +1,12 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments';
+
 import { PickDateComponent } from '../pickdate/pickdate.component';
-import { ChannelAddress, Edge, Service, Websocket } from '../shared';
+import { Edge, Service, Websocket } from '../shared';
 import { StatusSingleComponent } from '../status/single/status.component';
 
 @Component({
@@ -14,7 +15,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
+    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
     public environment = environment;
     public backUrl: string | boolean = '/';
@@ -30,11 +31,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public router: Router,
         public service: Service,
         public websocket: Websocket,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
         // set inital URL
-        this.updateUrl(window.location.pathname);
+        this.updateUrl(this.router.routerState.snapshot.url);
         // update backUrl on navigation events
         this.router.events.pipe(
             takeUntil(this.ngUnsubscribe),
@@ -42,21 +44,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        })
-
-        // subscribe for single status component
-        this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
-            if (edge != null) {
-                edge.subscribeChannels(this.websocket, '', [
-                    new ChannelAddress('_sum', 'State'),
-                ]);
-            }
-        })
+        });
     }
 
     // used to prevent 'Expression has changed after it was checked' error
     ngAfterViewChecked() {
-        this.cdRef.detectChanges()
+        this.cdRef.detectChanges();
     }
 
     updateUrl(url: string) {
@@ -69,7 +62,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         let urlArray = url.split('/');
         let file = urlArray.pop();
 
-        if (file == 'user' || file == 'settings' || urlArray.length > 3) {
+        if (file == 'user' || file == 'settings' || file == 'changelog' || urlArray.length > 3) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -88,7 +81,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
         if (url === '/user' && currentEdge != null) {
-            this.backUrl = '/device/' + currentEdge.id + "/live"
+            this.backUrl = '/device/' + currentEdge.id + "/live";
+            return;
+        }
+        if (url === '/changelog' && currentEdge != null) {
+            // TODO this does not work if Changelog was opened from /user
+            this.backUrl = '/device/' + currentEdge.id + "/settings/profile";
             return;
         }
 
@@ -156,14 +154,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history", { replaceUrl: true });
+            this.router.navigate(['../history'], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }
     }
 
     async presentSingleStatusModal() {
         const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
+            component: StatusSingleComponent
         });
         return await modal.present();
     }

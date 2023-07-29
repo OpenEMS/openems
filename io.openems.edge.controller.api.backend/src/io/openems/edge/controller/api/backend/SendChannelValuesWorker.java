@@ -37,10 +37,11 @@ public class SendChannelValuesWorker {
 
 	private final Logger log = LoggerFactory.getLogger(SendChannelValuesWorker.class);
 
-	private final BackendApiImpl parent;
+	private final ControllerApiBackendImpl parent;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
 			new ArrayBlockingQueue<>(1), //
-			new ThreadFactoryBuilder().setNameFormat(BackendApiImpl.COMPONENT_NAME + ":SendWorker-%d").build(), //
+			new ThreadFactoryBuilder().setNameFormat(ControllerApiBackendImpl.COMPONENT_NAME + ":SendWorker-%d")
+					.build(), //
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 
 	/**
@@ -58,7 +59,7 @@ public class SendChannelValuesWorker {
 	 */
 	private ImmutableMap<String, JsonElement> lastAllValues = ImmutableMap.of();
 
-	protected SendChannelValuesWorker(BackendApiImpl parent) {
+	protected SendChannelValuesWorker(ControllerApiBackendImpl parent) {
 		this.parent = parent;
 	}
 

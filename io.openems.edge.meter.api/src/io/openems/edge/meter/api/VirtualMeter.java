@@ -3,7 +3,7 @@ package io.openems.edge.meter.api;
 /**
  * A VirtualMeter is a meter that does not exist physically.
  */
-public interface VirtualMeter extends SymmetricMeter {
+public interface VirtualMeter extends ElectricityMeter {
 
 	/**
 	 * Whether or not to add the values of this meter to Sum.

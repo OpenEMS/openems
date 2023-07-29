@@ -45,7 +45,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {
@@ -102,6 +102,6 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   }
 
   private deg2rad(value: number): number {
-    return value * (Math.PI / 180)
+    return value * (Math.PI / 180);
   }
 }

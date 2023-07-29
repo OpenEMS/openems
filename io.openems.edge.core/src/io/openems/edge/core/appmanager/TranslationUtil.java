@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class TranslationUtil {
@@ -17,7 +18,10 @@ public class TranslationUtil {
 	 */
 	public static String getTranslation(ResourceBundle translationBundle, String key, Object... params) {
 		try {
-			var string = translationBundle.getString(key);
+			var string = Objects.requireNonNull(translationBundle).getString(Objects.requireNonNull(key));
+			if (params == null || params.length == 0) {
+				return string;
+			}
 			return MessageFormat.format(string, params);
 		} catch (MissingResourceException | IllegalArgumentException e) {
 			e.printStackTrace();

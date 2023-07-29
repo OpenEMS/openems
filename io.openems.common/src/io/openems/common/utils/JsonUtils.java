@@ -1,7 +1,6 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1143,7 +1142,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
-		var value = toInet4Address(toString(toPrimitive(jElement)));
+		var value = InetAddressUtils.parseOrNull(toString(toPrimitive(jElement)));
 		if (value != null) {
 			return value;
 		}
@@ -1159,7 +1158,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement, String memberName) throws OpenemsNamedException {
-		var value = toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName))));
+		var value = InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName))));
 		if (value != null) {
 			return value;
 		}
@@ -1174,7 +1173,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement) {
-		return Optional.ofNullable(toInet4Address(toString(toPrimitive(jElement))));
+		return Optional.ofNullable(InetAddressUtils.parseOrNull(toString(toPrimitive(jElement))));
 	}
 
 	/**
@@ -1187,7 +1186,8 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
-		return Optional.ofNullable(toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName)))));
+		return Optional.ofNullable(//
+				InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**
@@ -1739,6 +1739,28 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Returns a {@link Collector} that accumulates the input elements into a new
+	 * {@link JsonObject}.
+	 * 
+	 * @param <T>         the type of the input
+	 * @param keyMapper   the key mapper
+	 * @param valueMapper the value mapper
+	 * @return the {@link Collector}
+	 */
+	public static <T> Collector<T, ?, JsonObject> toJsonObject(//
+			final Function<T, ? extends String> keyMapper, //
+			final Function<T, ? extends JsonElement> valueMapper //
+	) {
+		return Collector.of(JsonObject::new, //
+				(t, u) -> {
+					t.add(keyMapper.apply(u), valueMapper.apply(u));
+				}, (t, u) -> {
+					u.entrySet().forEach(entry -> t.add(entry.getKey(), entry.getValue()));
+					return t;
+				});
+	}
+
+	/**
 	 * Returns a Collector that accumulates the input elements into a new JsonArray.
 	 * 
 	 * @return a Collector which collects all the input elements into a JsonArray
@@ -1927,18 +1949,6 @@ public class JsonUtils {
 		try {
 			return Enum.valueOf(enumType, name.toUpperCase());
 		} catch (IllegalArgumentException e) {
-			// handled below
-		}
-		return null;
-	}
-
-	private static Inet4Address toInet4Address(String name) {
-		if (name == null || name.isBlank()) {
-			return null;
-		}
-		try {
-			return (Inet4Address) Inet4Address.getByName(name);
-		} catch (UnknownHostException e) {
 			// handled below
 		}
 		return null;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { GetModbusProtocolExportXlsxRequest } from './modbusapi/getModbusProtoco
   selector: ProfileComponent.SELECTOR,
   templateUrl: './profile.component.html'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
 
   private static readonly SELECTOR = "profile";
 
@@ -31,17 +31,17 @@ export class ProfileComponent {
     private service: Service,
     private route: ActivatedRoute,
     public popoverController: PopoverController,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) { }
 
-  ionViewWillEnter() {
+  public ngOnInit() {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemProfile' }, this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        let categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
+        let categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"];
         this.components = config.listActiveComponents(categorizedComponentIds);
-      })
+      });
     });
   }
 
@@ -52,7 +52,7 @@ export class ProfileComponent {
         Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
       }).catch(reason => {
         this.service.toast(this.translate.instant('Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL') + ": " + (reason as JsonrpcResponseError).error.message, 'danger');
-      })
+      });
     });
   }
 
@@ -63,7 +63,7 @@ export class ProfileComponent {
         Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
       }).catch(reason => {
         console.warn(reason);
-      })
+      });
     });
   };
 

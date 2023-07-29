@@ -20,10 +20,10 @@ import { JsonrpcRequest } from "../base";
  */
 export class SubscribeSystemLogRequest extends JsonrpcRequest {
 
-    static METHOD: string = "subscribeSystemLog";
+    private static METHOD: string = "subscribeSystemLog";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             subscribe: boolean
         }
     ) {

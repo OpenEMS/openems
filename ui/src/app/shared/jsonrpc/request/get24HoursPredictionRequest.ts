@@ -1,5 +1,4 @@
 import { ChannelAddress } from "../../../shared/type/channeladdress";
-import { format } from 'date-fns';
 import { JsonrpcRequest } from "../base";
 import { JsonRpcUtils } from "../jsonrpcutils";
 
@@ -19,7 +18,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  */
 export class Get24HoursPredictionRequest extends JsonrpcRequest {
 
-    static METHOD: string = "get24HoursPrediction";
+    private static METHOD: string = "get24HoursPrediction";
 
     public constructor(
         private channels: ChannelAddress[]

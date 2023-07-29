@@ -1,7 +1,8 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
 import { Component } from '@angular/core';
-import { Controller_EvcsModalComponent } from './modal/modal.page';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../shared/shared';
+import { Controller_EvcsModalComponent } from './modal/modal.page';
 
 @Component({
   selector: 'Controller_Evcs',
@@ -25,7 +26,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
   public readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     return [
       new ChannelAddress(this.componentId, 'ChargePower'),
       new ChannelAddress(this.componentId, 'Phases'),
@@ -37,10 +38,10 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
       new ChannelAddress(this.componentId, 'MinimumHardwarePower'),
       new ChannelAddress(this.componentId, 'MaximumHardwarePower'),
       new ChannelAddress(this.componentId, 'SetChargePowerLimit')
-    ]
+    ];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
 
     // Gets the Controller & Component for the given EVCS - Component.
     let controllers = this.config.getComponentsByFactory("Controller.Evcs");
@@ -51,8 +52,8 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
       }
     }
     this.evcsComponent = this.config.getComponent(this.componentId);
-    this.isConnectionSuccessful = currentData.allComponents[this.componentId + '/State'] != 3 ? true : false
-    this.status = this.getState(currentData.allComponents[this.componentId + "/Status"], currentData.allComponents[this.componentId + "/Plug"])
+    this.isConnectionSuccessful = currentData.allComponents[this.componentId + '/State'] != 3 ? true : false;
+    this.status = this.getState(currentData.allComponents[this.componentId + "/Status"], currentData.allComponents[this.componentId + "/Plug"]);
 
     // Check if Energy since beginning is allowed
     if (currentData.allComponents[this.componentId + '/ChargePower'] > 0 || currentData.allComponents[this.componentId + '/Status'] == 2 || currentData.allComponents[this.componentId + '/Status'] == 7) {
@@ -62,9 +63,9 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
     // Mode
     if (this.isChargingEnabled) {
       if (this.chargeMode == 'FORCE_CHARGE') {
-        this.mode = this.translate.instant('General.manually')
+        this.mode = this.translate.instant('General.manually');
       } else if (this.chargeMode == 'EXCESS_POWER') {
-        this.mode = this.translate.instant('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName')
+        this.mode = this.translate.instant('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName');
       }
     }
 
@@ -72,7 +73,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
     if (this.controller) {
 
       // ChargeMode
-      this.chargeMode = this.controller.properties['chargeMode']
+      this.chargeMode = this.controller.properties['chargeMode'];
       // Check if Charging is enabled
       this.isChargingEnabled = this.controller.properties['enabledCharging'] ? true : false;
       // DefaultChargeMinPower
@@ -84,16 +85,16 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
           : '';
       // MaxChargingValue
       if (this.phases) {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], this.phases)
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], this.phases);
       } else {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], 3)
+        this.maxChargingValue = Utils.multiplySafely(this.controller.properties['forceChargeMinPower'], 3);
       }
       // EnergySessionLimit
-      this.energySessionLimit = this.controller.properties['energySessionLimit']
+      this.energySessionLimit = this.controller.properties['energySessionLimit'];
     }
 
     // Phases
-    this.phases = currentData.allComponents[this.componentId + '/Phases']
+    this.phases = currentData.allComponents[this.componentId + '/Phases'];
   }
 
   /**
@@ -147,7 +148,7 @@ export class Controller_EvcsComponent extends AbstractFlatWidget {
         controller: this.controller,
         edge: this.edge,
         componentId: this.componentId,
-        evcsComponent: this.evcsComponent,
+        evcsComponent: this.evcsComponent
         // getState: this.getState
       }
     });

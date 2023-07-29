@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -11,6 +12,18 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class EnumUtils {
+
+	/**
+	 * Converts the Enum {@link CaseFormat#UPPER_UNDERSCORE} name to
+	 * {@link CaseFormat#UPPER_CAMEL}-case.
+	 * 
+	 * @param <ENUM> the type
+	 * @param e      the enum
+	 * @return the name as Camel-Case
+	 */
+	public static <ENUM extends Enum<ENUM>> String nameAsCamelCase(ENUM e) {
+		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, e.name());
+	}
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link Boolean}.
@@ -25,6 +38,25 @@ public class EnumUtils {
 			ENUM member) {
 		try {
 			return Optional.of(getAsBoolean(map, member));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	/**
+	 * Gets the {@link JsonElement} as {@link Optional} {@link Enum}.
+	 * 
+	 * @param <ENUM>   the type {@link EnumMap}
+	 * @param <E>      the {@link Enum} type
+	 * @param enumType the class of the {@link Enum}
+	 * @param map      the {@link EnumMap}
+	 * @param member   the member of the {@link EnumMap}
+	 * @return the enum value
+	 */
+	public static <ENUM extends Enum<ENUM>, E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType,
+			EnumMap<ENUM, JsonElement> map, ENUM member) {
+		try {
+			return JsonUtils.getAsOptionalEnum(enumType, getAsPrimitive(map, member));
 		} catch (OpenemsNamedException e) {
 			return Optional.empty();
 		}
@@ -108,6 +140,22 @@ public class EnumUtils {
 	public static <ENUM extends Enum<ENUM>> Boolean getAsBoolean(EnumMap<ENUM, JsonElement> map, ENUM member)
 			throws OpenemsNamedException {
 		return JsonUtils.getAsBoolean(getAsPrimitive(map, member));
+	}
+
+	/**
+	 * Gets the member of the {@link EnumMap} as {@link Enum}.
+	 *
+	 * @param <ENUM>   the type {@link EnumMap}
+	 * @param <E>      the {@link Enum} type
+	 * @param enumType the class of the {@link Enum}
+	 * @param map      the {@link EnumMap}
+	 * @param member   the member
+	 * @return the enum value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>, E extends Enum<E>> E getAsEnum(Class<E> enumType,
+			EnumMap<ENUM, JsonElement> map, ENUM member) throws OpenemsNamedException {
+		return JsonUtils.getAsEnum(enumType, getAsPrimitive(map, member));
 	}
 
 	/**

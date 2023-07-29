@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -15,13 +16,14 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     private static readonly SELECTOR = "timeOfUseTariffDischargeWidget";
 
-    public activeTimeOverPeriod: number = null;
+    public delayedActiveTimeOverPeriod: number = null;
+    public chargedActiveTimeOverPeriod: number = null;
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute,
+        public override service: Service,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -31,12 +33,12 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
             this.edge = response;
             this.service.getConfig().then(config => {
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -51,9 +53,12 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
                     if (this.componentId + '/DelayedTime' in result.data) {
-                        this.activeTimeOverPeriod = result.data[this.componentId + '/DelayedTime'];
+                        this.delayedActiveTimeOverPeriod = result.data[this.componentId + '/DelayedTime'];
                     }
-                })
+                    if (this.componentId + '/ChargedTime' in result.data) {
+                        this.chargedActiveTimeOverPeriod = result.data[this.componentId + '/ChargedTime'];
+                    }
+                });
             });
         });
     }
@@ -61,7 +66,9 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
 
         return new Promise((resolve) => {
-            resolve([new ChannelAddress(this.componentId, 'DelayedTime')]);
+            resolve([
+                new ChannelAddress(this.componentId, 'DelayedTime'),
+                new ChannelAddress(this.componentId, 'ChargedTime')]);
         });
     }
 }

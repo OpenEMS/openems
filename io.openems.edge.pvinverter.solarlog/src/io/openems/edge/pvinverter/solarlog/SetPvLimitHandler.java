@@ -11,18 +11,18 @@ import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.pvinverter.solarlog.SolarLog.ChannelId;
+import io.openems.edge.pvinverter.solarlog.PvInverterSolarlog.ChannelId;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
-	private final SolarLogImpl parent;
+	private final PvInverterSolarlogImpl parent;
 	private final ManagedSymmetricPvInverter.ChannelId channelId;
 
 	private Integer lastPLimitPerc = null;
 	private LocalDateTime lastPLimitPercTime = LocalDateTime.MIN;
 
-	public SetPvLimitHandler(SolarLogImpl parent, ManagedSymmetricPvInverter.ChannelId activePowerLimit) {
+	public SetPvLimitHandler(PvInverterSolarlogImpl parent, ManagedSymmetricPvInverter.ChannelId activePowerLimit) {
 		this.parent = parent;
 		this.channelId = activePowerLimit;
 	}

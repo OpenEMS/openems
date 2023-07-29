@@ -27,12 +27,12 @@
     "gridBuyAdvanced": "Relación",
     "gridSell": "Fuente de alimentación",
     "gridSellAdvanced": "Fuente de alimentación",
-    "history": "Historia",
+    "HISTORY": "Historia",
     "inactive": "Inactivo",
     "info": "Informacion",
     "inputNotValid": "Entrada inválida",
     "insufficientRights": "Derechos insuficientes",
-    "live": "Live",
+    "LIVE": "Live",
     "load": "la cantidad",
     "manually": "a mano",
     "measuredValue": "Valor Medido",
@@ -43,7 +43,7 @@
     "offGrid": "No hay conexión de red",
     "ok": "ok",
     "On": "Conmutada",
-    "otherConsumption": "otro Consumo",
+    "otherConsumption": "otro consumo",
     "percentage": "Por ciento",
     "periodFromTo": "de {{ value1 }} para {{ value2 }}",
     "phase": "Fase",
@@ -57,7 +57,7 @@
     "state": "Estado",
     "storageSystem": "Almacenamiento",
     "systemState": "Estado del sistema",
-    "total": "consumo total",
+    "TOTAL": "consumo total",
     "totalState": "Condición general",
     "warning": "Advertencia",
     "Week": {
@@ -86,15 +86,14 @@
     "save": "Ahorrar"
   },
   "Menu": {
-    "aboutUI": "Sobre OpenEMS",
     "accessLevel": "Nivel de acceso",
-    "edgeSettings": "Configuración OpenEMS",
+    "edgeSettings": "Configuración",
     "generalSettings": "Configuración general",
     "index": "Visión general",
     "logout": "Desuscribirse",
     "menu": "Menú",
     "name": "Nombre",
-    "overview": "estudio OpenEMS",
+    "overview": "Todos los sistemas",
     "settings": "Ajustes",
     "user": "Usuario",
     "changelog": "Changelog",
@@ -120,17 +119,16 @@
     "user": "Usuario"
   },
   "Register": {
-    "title": "Crear una cuenta de usuario",
     "segment": {
       "user": "Usuario",
       "installer": "Instalador"
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
+        "acceptPrivacyPolicy": ""
       },
       "installer": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*"
+        "acceptPrivacyPolicy": ""
       },
       "contactDetails": "Datos de contacto",
       "companyName": "Nombre de la empresa",
@@ -143,11 +141,7 @@
       "phone": "Número de teléfono",
       "email": "Correo electrónico",
       "password": "Contraseña",
-      "confirmPassword": "Confirmar contraseña",
-      "isElectrician": "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
-      "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
-      "acceptAgb": "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "Me gustaría suscribirme al boletín de FENECON para recibir todas las novedades de FENECON."
+      "confirmPassword": "Confirmar contraseña"
     },
     "button": "Crear",
     "errors": {
@@ -171,8 +165,7 @@
         "storage": "Memoria",
         "storageCharge": "Carga del almacenaje",
         "storageDischarge": "Descarga de memoria",
-        "title": "Monitor de energía",
-        "excelExportWarning": "La visualización y exportación de datos durante un periodo de tiempo más largo sólo es posible actualmente de forma limitada. Por favor, inténtelo más tarde."
+        "title": "Monitor de energía"
       },
       "Widgets": {
         "autarchyInfo": "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
@@ -378,7 +371,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Precio actual",
           "delayedDischarge": "Retraso en el alta",
-          "storageDischarge": "Descarga de almacenamiento",
+          "STORAGE_DISCHARGE": "Descarga de almacenamiento",
           "State": {
             "notStarted": "El controlador aún no se ha iniciado ",
             "delayed": "Retraso",
@@ -499,12 +492,12 @@
           "error": "Error al cargar la configuración"
         },
         "interval": {
-          "hours": "horas",
-          "minute": "minuto",
-          "minutes": "minutos",
-          "day": "día",
-          "days": "días",
-          "hour": "hora"
+          "hours": "Horas",
+          "minute": "Minuto",
+          "minutes": "Minutos",
+          "day": "Día",
+          "days": "Días",
+          "hour": "Hora"
         }
       },
       "App": {
@@ -519,7 +512,8 @@
         "deleteApp": "Eliminar la aplicación",
         "updateApp": "Actualizar la aplicación",
         "errorInstallable": "Errores de instalación",
-        "errorCompatible": "Errores de compatibilidad"
+        "errorCompatible": "Errores de compatibilidad",
+        "notAvailable": "No disponible"
       }
     },
     "Service": {
@@ -544,14 +538,12 @@
   },
   "About": {
     "build": "Esta compilación",
-    "contact": "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
     "currentDevelopments": "Desarrollos actuales",
     "developed": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
     "faq": "Preguntas frecuentes (FAQ)",
     "language": "Seleccionar idioma:",
     "openEMS": "Acerca de OpenEMS",
-    "patchnotes": "Cambios en la supervisión de esta compilación",
-    "ui": "Interfaz de usario para OpenEMS"
+    "patchnotes": "Cambios en la supervisión de esta compilación"
   },
   "Notifications": {
     "authenticationFailed": "Sin conexión: error de autenticación.",

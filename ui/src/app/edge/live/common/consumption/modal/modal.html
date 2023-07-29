@@ -2,11 +2,11 @@
 
   <!-- Total -->
   <ng-container *ngIf="activePower">
-    <oe-modal-line [name]="'General.total' | translate" [value]="activePower.total" [converter]="Utils.CONVERT_TO_WATT">
+    <oe-modal-line [name]="'General.TOTAL' | translate" [value]="activePower.total" [converter]="Utils.CONVERT_TO_WATT">
     </oe-modal-line>
 
     <!-- 3 Phases -->
-    <oe-modal-line [textIndent]="TextIndentation.SIMPLE" *ngFor="let phase of activePower.phases" [name]="phase.name"
+    <oe-modal-line [textIndent]="TextIndentation.SINGLE" *ngFor="let phase of activePower.phases" [name]="phase.name"
       [value]="phase.value" [converter]="CONVERT_TO_WATT">
     </oe-modal-line>
     <oe-modal-horizontal-line
@@ -18,7 +18,7 @@
   <ng-container *ngIf="evcsChargePower.component.length > 0">
     <ng-container *ngIf="evcss.length > 1">
       <oe-modal-line
-        [name]="('General.total'| translate) + '&nbsp;' + ('Edge.Index.Widgets.EVCS.chargingPower'| translate)"
+        [name]="('General.TOTAL'| translate) + '&nbsp;' + ('Edge.Index.Widgets.EVCS.chargingPower'| translate)"
         [value]="evcsChargePower.total" [converter]="CONVERT_TO_WATT">
       </oe-modal-line>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -40,7 +40,7 @@
 
       <!-- 3 Phases -->
       <ng-container *ngFor="let phase of component.phases">
-        <oe-modal-line [textIndent]="TextIndentation.SIMPLE" [name]="phase.name" [value]="phase.value"
+        <oe-modal-line [textIndent]="TextIndentation.SINGLE" [name]="phase.name" [value]="phase.value"
           [converter]="CONVERT_TO_WATT">
         </oe-modal-line>
       </ng-container>

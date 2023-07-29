@@ -26,10 +26,10 @@ export interface UserSettingRequest {
  * </pre>
  */
 export class SetUserAlertingConfigsRequest extends JsonrpcRequest {
-    static METHOD: string = "setUserAlertingConfigs";
+    private static METHOD: string = "setUserAlertingConfigs";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string,
             userSettings: UserSetting[],
         }

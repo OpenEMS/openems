@@ -6,10 +6,11 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
 
 public class Utils {
+
 	/**
 	 * Gets the EdgeMetadata for one Edge.
 	 *
@@ -18,13 +19,14 @@ public class Utils {
 	 */
 	public static List<EdgeMetadata> getEdgeMetadata(Role role) {
 		return Lists.newArrayList(new EdgeMetadata(//
-				WebsocketApi.EDGE_ID, // Edge-ID
-				WebsocketApi.EDGE_COMMENT, // Comment
-				WebsocketApi.EDGE_PRODUCT_TYPE, // Product-Type
+				ControllerApiWebsocket.EDGE_ID, // Edge-ID
+				ControllerApiWebsocket.EDGE_COMMENT, // Comment
+				ControllerApiWebsocket.EDGE_PRODUCT_TYPE, // Product-Type
 				OpenemsConstants.VERSION, // Version
 				role, // Role
 				true, // Is Online
 				ZonedDateTime.now() // now
 		));
 	}
+
 }

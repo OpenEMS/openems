@@ -8,6 +8,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
@@ -18,7 +19,10 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
-@Component(name = CheckCardinality.COMPONENT_NAME)
+@Component(//
+		name = CheckCardinality.COMPONENT_NAME, //
+		scope = ServiceScope.PROTOTYPE //
+)
 public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckCardinality";
@@ -100,8 +104,8 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
 					continue;
 				}
-				for (var cat : app.getCategorys()) {
-					for (var catOther : this.openemsApp.getCategorys()) {
+				for (var cat : app.getCategories()) {
+					for (var catOther : this.openemsApp.getCategories()) {
 						if (cat == catOther) {
 							return cat;
 						}

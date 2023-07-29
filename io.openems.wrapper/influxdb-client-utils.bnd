@@ -2,10 +2,10 @@ Bundle-Name: influxdb-client-utils
 Bundle-Description: The Java InfluxDB 2.0 Client Utils
 Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 6.7.0
+Bundle-Version: 6.9.0
 
 Include-Resource: \
-	@influxdb-client-utils-6.7.0.jar,\
+	@influxdb-client-utils-6.9.0.jar,\
 
 Export-Package: \
 	com.influxdb.utils,\

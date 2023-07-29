@@ -117,8 +117,8 @@ public class SchedulerTest {
 	}
 
 	/* *********************************************** */
-	static class DummyMessage extends Message {
-		ZonedDateTime timeStamp;
+	private static class DummyMessage extends Message {
+		private ZonedDateTime timeStamp;
 
 		public DummyMessage(String messageId, int timeShift) {
 			super(messageId);
@@ -140,9 +140,7 @@ public class SchedulerTest {
 		}
 	}
 
-	static class DummyHandler implements Handler<DummyMessage> {
-		ZonedDateTime wasSentAt = null;
-
+	private static class DummyHandler implements Handler<DummyMessage> {
 		@Override
 		public Runnable getEventHandler(EventReader event) {
 			throw new UnsupportedOperationException();
@@ -155,7 +153,6 @@ public class SchedulerTest {
 
 		@Override
 		public void send(ZonedDateTime sentAt, List<DummyMessage> messages) {
-			this.wasSentAt = sentAt;
 		}
 
 		@Override

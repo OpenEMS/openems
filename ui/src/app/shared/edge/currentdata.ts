@@ -1,7 +1,9 @@
 import { DefaultTypes } from "../service/defaulttypes";
 import { Utils } from "../service/utils";
 
-// TODO this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
+/**
+ * @deprecated this class will eventually be dropped, when abstract-widgets are finished and used everywhere.
+ */
 export class CurrentData {
 
   public readonly summary: DefaultTypes.Summary;
@@ -40,7 +42,7 @@ export class CurrentData {
         effectivePower: null,
         effectiveChargePower: null,
         effectiveDischargePower: null,
-        capacity: null,
+        capacity: null
       }, production: {
         hasDC: false,
         powerRatio: null,
@@ -246,9 +248,9 @@ export class CurrentData {
               )
             )
           ) * 100, 0
-        ), 0)
+        ), 0);
     } else {
-      return null
+      return null;
     }
   }
 

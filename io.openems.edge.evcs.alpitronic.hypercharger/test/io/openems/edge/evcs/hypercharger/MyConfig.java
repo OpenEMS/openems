@@ -2,7 +2,7 @@ package io.openems.edge.evcs.hypercharger;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.evcs.hypercharger.Hypercharger.Connector;
+import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int modbusUnitId;
 		private int minHwPower;
 		private int maxHwPower;
-		private Hypercharger.Connector connector;
+		private EvcsAlpitronicHypercharger.Connector connector;
 
 		private Builder() {
 		}
@@ -44,7 +44,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setConnector(Hypercharger.Connector connector) {
+		public Builder setConnector(EvcsAlpitronicHypercharger.Connector connector) {
 			this.connector = connector;
 			return this;
 		}
@@ -82,7 +82,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.modbus_id(), this.modbus_id());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override

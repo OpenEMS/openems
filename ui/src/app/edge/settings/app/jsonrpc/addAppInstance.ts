@@ -40,7 +40,8 @@ export namespace AddAppInstance {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
+                key?: string, // only for newer versions
                 appId: string,
                 alias: string,
                 properties: {}
@@ -53,8 +54,8 @@ export namespace AddAppInstance {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 instanceId: string,
                 instance: GetAppInstances.AppInstance,
                 warnings: String[]

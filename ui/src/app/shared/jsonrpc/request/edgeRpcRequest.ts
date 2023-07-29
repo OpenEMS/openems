@@ -17,10 +17,10 @@ import { JsonrpcRequest } from "../base";
  */
 export class EdgeRpcRequest extends JsonrpcRequest {
 
-    static METHOD: string = "edgeRpc";
+    private static METHOD: string = "edgeRpc";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             edgeId: string,
             payload: JsonrpcRequest
         }

@@ -18,6 +18,7 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
@@ -30,7 +31,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
  * device.
  */
 @Designate(ocd = ConfigTcp.class, factory = true)
-@Component(name = "Bridge.Modbus.Tcp", //
+@Component(//
+		name = "Bridge.Modbus.Tcp", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -44,9 +46,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	@Reference
 	private Cycle cycle;
 
-	/**
-	 * The configured IP address.
-	 */
+	/** The configured IP address. */
 	private InetAddress ipAddress = null;
 	private int port;
 
@@ -59,10 +59,10 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
+	private void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
-		this.setIpAddress(InetAddress.getByName(config.ip()));
+		this.setIpAddress(InetAddressUtils.parseOrNull(config.ip()));
 		this.port = config.port();
 	}
 

@@ -1,5 +1,5 @@
-<oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()"
-    *ngIf="isInitialized">
+<oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
+    [title]="'General.storageSystem'| translate" (click)="presentModal()" *ngIf="isInitialized">
     <ng-container *ngFor="let component of essComponents, let i = index">
 
         <!-- Show Alias if there are more than one ESS -->
@@ -48,6 +48,9 @@
                 [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-template>
+
+        <oe-flat-widget-line *ngIf="isAtLeastInstaller && possibleBatteryExtensionMessage.get(component.id) as message"
+            [name]="message.text" leftColumnWidth="100" [style.color]="message.color"></oe-flat-widget-line>
 
         <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
         </oe-flat-widget-horizontal-line>
