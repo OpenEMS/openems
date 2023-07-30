@@ -10,14 +10,14 @@ openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java
 single_document="doc/modules/ROOT/pages/single_document.adoc"
 package_json="ui/package.json"
 package_lock="ui/package-lock.json"
-user_component="ui/src/app/user/user.component.html"
+changelog_constants="ui/src/app/changelog/view/component/changelog.constants.ts"
 
 # Reset files
 git checkout $openems_constants
 git checkout $single_document
 git checkout $package_json
 git checkout $package_lock
-git checkout $user_component
+git checkout $changelog_constants
 
 # Find new Version"
 major=$(grep 'VERSION_MAJOR =' $openems_constants | sed 's/^.*= \([0-9]\+\);/\1/')
@@ -40,9 +40,8 @@ sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_jso
 echo "# Update $package_lock"
 sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_lock
 
-echo "# Update $user_component"
-sed --in-place "s/\(<a .*github\.com\/OpenEMS\/openems\/\).*\(\".*\)/\1releases\/tag\/$new_version\2/" $user_component
-sed --in-place "s/\(.*About.Build.*: \).*\(<\/a>\)/\1$new_version ($release_date)\2/" $user_component
+echo "# Update $changelog_constants"
+sed --in-place "s/\(UI_VERSION = \).*$/\1\"$version_string\";/" $changelog_constants
 
 echo "# Finished"
 

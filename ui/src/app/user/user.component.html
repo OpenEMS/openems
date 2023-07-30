@@ -106,12 +106,14 @@
                 <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a routerLinkActive="active" routerLink="/changelog">2023.6.2 (14.07.2023-3)</a>
-              </li>
-            </ul>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.build</p>
+              <ul>
+                <li>
+                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                </li>
+              </ul>
+            </div>
             <p class="ion-padding">Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie
               sich bitte an unser Team unter <a href="mailto:service@fenecon.de">service@fenecon.de</a>. Für Fragen zu
               OpenEMS steht Ihnen das <a target="_blank" href="https://community.openems.io/">OpenEMS

@@ -26,7 +26,7 @@
               </ion-item>
               <ion-item>
                 <ion-label>{{ environment.edgeShortName }} Version</ion-label>
-                <a routerLinkActive="active" routerLink="/changelog">{{ edge.version }}</a>
+                <a routerLinkActive="active" routerLink="/changelog">{{ edge.version | version:edge.role }}</a>
               </ion-item>
               <ion-item>
                 <ion-label>Rolle</ion-label>

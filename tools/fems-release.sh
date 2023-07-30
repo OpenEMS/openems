@@ -24,7 +24,7 @@ initialize() {
     openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java"
     package_json="ui/package.json"
     package_lock_json="ui/package-lock.json"
-    user_component="ui/src/app/user/user.component.html"
+    changelog_constants="ui/src/app/changelog/view/component/changelog.constants.ts"
     initialize_version_from_string $(grep version $package_json | cut -d'"' -f4 | cut -d'-' -f1)
     release_date=$(date --iso-8601)
 
@@ -54,7 +54,7 @@ initialize() {
     git checkout $openems_constants 2>/dev/null
     git checkout $package_json 2>/dev/null
     git checkout $package_lock_json 2>/dev/null
-    git checkout $user_component 2>/dev/null
+    git checkout $changelog_constants 2>/dev/null
 }
 
 # Initializes variables version_major, version_minor, version_patch and version_snapshot
@@ -121,8 +121,8 @@ update_version_files() {
     echo "# Update $package_lock_json" 
     sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$version_string\2/" $package_lock_json
 
-    echo "# Update $user_component"
-    sed --in-place "s/\(<a .* routerLink=\"\/changelog\">\).*\(<\/a>\)/\1$version_string \\($release_date\\)\2/" $user_component
+    echo "# Update $changelog_constants"
+    sed --in-place "s/\(UI_VERSION = \).*$/\1\"$version_string\";/" $changelog_constants
 }
 
 start_release() {
