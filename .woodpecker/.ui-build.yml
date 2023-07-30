@@ -6,35 +6,37 @@
 # - git pull
 # - bash drone-docker.sh
 
+variables:
+  - &sftp-settings
+    server: 10.0.0.40
+    username: user
+    password: pass
+    ignore_branch: true
+    port: 2222
+    path: /cache
+    mount:
+      - cache
+
 clone:
-  git-clone:
+  git:
     when:
       branch:
         exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: woodpeckerci/plugin-git:v1.6.1
-    settings:
-      depth: 1
-      lfs: false
-      recursive: false
-      tags: false
-      partial: true
+    image: woodpeckerci/plugin-git
 
-pipeline:
+steps:
   restore-cache:
     when:
       branch:
         exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: drillster/drone-volume-cache
-    restore: true
-    mount:
-      - /woodpecker/.npm
-      - /woodpecker/.ng
-    volumes:
-      - cache:/cache
+    image: appleboy/drone-sftp-cache
+    settings:
+      restore: true
+      <<: *sftp-settings
     group: restore
 
   build-ui:
@@ -45,11 +47,16 @@ pipeline:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: openems-build:latest
     commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
+      - export npm_config_cache=$CACHE/npm
+      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+      - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
       - cd ui
-      - npm ci --prefer-offline --cache /woodpecker/.npm --force
+      - npm ci --prefer-offline --cache $CACHE/npm
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
-      - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
-      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ --deploy-url /${CI_COMMIT_BRANCH}/ -c "fenecon,fenecon-backend-prod,prod"
+      - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
+      - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
       - node_modules/.bin/ng lint
       - export CHROME_BIN=/usr/bin/google-chrome-stable
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
@@ -64,32 +71,49 @@ pipeline:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: openems-build:latest
     commands:
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
+      - export npm_config_cache=$CACHE/npm
+      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+      - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
       - cd ui
-      - npm ci --prefer-offline --cache /woodpecker/.npm --force
+      - npm ci --prefer-offline --cache $CACHE/npm --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
-      - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
+      - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
       - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ --deploy-url /${CI_COMMIT_BRANCH}/ -c "heckert,heckert-backend-prod,prod"
       - node_modules/.bin/ng lint
       - export CHROME_BIN=/usr/bin/google-chrome-stable
       - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
     group: build
-    
+
+  rebuild-cache:
+    when:
+      branch:
+        exclude: [main, develop]
+      path:
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
+    image: appleboy/drone-sftp-cache
+    settings:
+      rebuild: true
+      <<: *sftp-settings
+    group: refresh
+
   refresh-dev:
     when:
       branch:
         exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: appleboy/drone-scp
-    host: 10.0.0.40
-    user: fenecon-docs
-    secrets:
-      - source: ssh_key_intranet
-        target: ssh_key
-    rm: true
-    source: ./ui/target
-    strip_components: 3
-    target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    image: appleboy/drone-scp:latest
+    settings:
+      host: 10.0.0.40
+      user: fenecon-docs
+      key:
+        from_secret: ssh_key_intranet
+      #rm: true
+      source: ./ui/target
+      strip_components: 3
+      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
     group: refresh
 
   refresh-location:
@@ -98,27 +122,13 @@ pipeline:
         exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: appleboy/drone-ssh
-    host: 10.0.0.40
-    username: fenecon-docs
-    timeout: 10s
-    key:
-      from_secret: ssh_key_intranet
-    script:
-      - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
-    group: refresh
-
-  rebuild-cache:
-    when:
-      branch:
-        exclude: [main, develop]
-      path:
-        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
-    image: drillster/drone-volume-cache
-    rebuild: true
-    mount:
-      - /woodpecker/.npm
-      - /woodpecker/.ng
-    volumes:
-      - cache:/cache
+    image: appleboy/drone-ssh:latest
+    settings:
+      host: 10.0.0.40
+      username: fenecon-docs
+      timeout: 10s
+      key: 
+        from_secret: ssh_key_intranet 
+      script:
+        - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
     group: refresh
