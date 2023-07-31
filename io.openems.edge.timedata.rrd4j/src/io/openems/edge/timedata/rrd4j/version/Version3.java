@@ -100,6 +100,15 @@ public final class Version3 extends AbstractVersion implements Version {
 				System.arraycopy(values, 0, newValues, newValues.length - values.length, values.length);
 				newRobin.update(newValues);
 
+				// copy state especially needed for last value
+				final var newDs = newDb.getDatasource(0);
+				final var oldDs = oldDb.getDatasource(0);
+				// DS-Name needs to be the same for copying otherwise an exception will be
+				// thrown
+				newDs.setDsName(oldDs.getName());
+				oldDs.copyStateTo(newDs);
+				newDs.setDsName(Rrd4jConstants.createDefaultDatasourceNameOf(this));
+
 				return newDb;
 			} catch (Throwable e) {
 				if (newDb != null) {
@@ -127,6 +136,15 @@ public final class Version3 extends AbstractVersion implements Version {
 			final var length = Math.min(numberOfValues, values.length - 1);
 			System.arraycopy(values, 1, copiedValues, Math.max(numberOfValues - length - 1, 0), length);
 			robin.setValues(copiedValues);
+
+			// copy state especially needed for last value
+			final var newDs = newDb.getDatasource(0);
+			final var oldDs = oldDb.getDatasource(0);
+			// DS-Name needs to be the same for copying otherwise an exception will be
+			// thrown
+			newDs.setDsName(oldDs.getName());
+			oldDs.copyStateTo(newDs);
+			newDs.setDsName(Rrd4jConstants.createDefaultDatasourceNameOf(this));
 
 			return newDb;
 		} catch (Throwable e) {
