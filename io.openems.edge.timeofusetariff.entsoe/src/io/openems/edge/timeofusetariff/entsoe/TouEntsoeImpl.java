@@ -116,7 +116,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			Consumer<Value<Integer>> c = t -> {
 				consumer.accept(t.asEnum());
 			};
-			subscriptions.add(c);
+			this.subscriptions.add(c);
 			this.meta.getCurrencyChannel().onSetNextValue(c);
 		}
 
@@ -124,7 +124,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		 * Unsubscribes from all the Subscriptions.
 		 */
 		public void unsubscribeAll() {
-			subscriptions.forEach(t -> {
+			this.subscriptions.forEach(t -> {
 				this.meta.getCurrencyChannel().removeOnSetNextValueCallback(t);
 			});
 		}

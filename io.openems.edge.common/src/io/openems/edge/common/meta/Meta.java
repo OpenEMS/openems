@@ -31,7 +31,7 @@ public interface Meta extends ModbusSlave {
 		 * 
 		 * <ul>
 		 * <li>Interface: Meta
-		 * <li>Type: String
+		 * <li>Type: Currency
 		 * </ul>
 		 */
 		CURRENCY(Doc.of(Currency.values()));
@@ -78,7 +78,7 @@ public interface Meta extends ModbusSlave {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setCurrency(Currency currency) {
-		this.getCurrencyChannel().setNextValue(currency);
+	public default void _setCurrency(Currency value) {
+		this.getCurrencyChannel().setNextValue(value);
 	}
 }
