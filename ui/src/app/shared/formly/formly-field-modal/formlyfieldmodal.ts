@@ -48,7 +48,7 @@ export class FormlyFieldModalComponent extends FieldWrapper {
 
             // Prefill formGroup
             formControls.forEach((channel, key) => {
-                this.formGroup.registerControl(key, new FormControl(null))
+                this.formGroup.registerControl(key, new FormControl(null));
             });
 
             this.dataService.getValues(channels, edge, this.props.component.id);

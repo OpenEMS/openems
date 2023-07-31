@@ -96,7 +96,7 @@ export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
             "io.openems.edge.controller.api.Controller",
             "io.openems.edge.timedata.api.TimedataProvider"
         ]
-    }
+    };
 
     export const SOLAR_EDGE_PV_INVERTER = {
         id: "SolarEdge.PV-Inverter",
@@ -178,4 +178,4 @@ export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
         type: "GRID"
     },
     channels: {}
-})
+});

@@ -33,7 +33,7 @@ export abstract class AbstractFormlyComponent {
             type: "input",
             props: {
               attributes: {
-                title: view.title,
+                title: view.title
               },
               lines: view.lines,
               formGroup: this.form,

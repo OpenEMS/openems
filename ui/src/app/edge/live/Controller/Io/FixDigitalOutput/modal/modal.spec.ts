@@ -27,12 +27,12 @@ describe('ExampleSystemsTest', () => {
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
-            icon: { color: "success", size: "small", name: "power-outline" },
+            icon: { color: "success", size: "small", name: "power-outline" }
           },
           {
             name: "Aus",
             value: "false",
-            icon: { color: "danger", size: "small", name: "power-outline" },
+            icon: { color: "danger", size: "small", name: "power-outline" }
           }], true)
         ]
       }, "ctrlIoFixDigitalOutput0");
@@ -50,12 +50,12 @@ describe('ExampleSystemsTest', () => {
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
-            icon: { color: "success", size: "small", name: "power-outline" },
+            icon: { color: "success", size: "small", name: "power-outline" }
           },
           {
             name: "Aus",
             value: "false",
-            icon: { color: "danger", size: "small", name: "power-outline" },
+            icon: { color: "danger", size: "small", name: "power-outline" }
           }], false)
         ]
       }, "ctrlIoFixDigitalOutput0");
