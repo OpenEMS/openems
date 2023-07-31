@@ -3,7 +3,7 @@
         <ng-container *ngFor="let button of buttons">
             <ion-segment-button [value]="button.value" (click)="button.callback">
                 <ion-label>{{ button.name }}</ion-label>
-                <ion-icon style="width:40px" *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
+                <ion-icon *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
                     [color]="button.icon.color || 'success'" [size]="button.icon.size || 'medium'">
                 </ion-icon>
             </ion-segment-button>

@@ -1,10 +1,9 @@
-import { Form, FormGroup } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
-
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
+import { ChannelAddress, CurrentData, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
@@ -15,7 +14,7 @@ export abstract class AbstractFormlyComponent {
 
   protected readonly translate: TranslateService;
   protected fields: FormlyFieldConfig[] = [];
-  protected form: FormGroup = new FormGroup({});
+  protected form: FormGroup | null = null;
   protected websocket: Websocket;
   protected service: Service;
 
@@ -30,23 +29,15 @@ export abstract class AbstractFormlyComponent {
         .pipe(filter(config => !!config))
         .subscribe((config) => {
           var view = this.generateView(config, edge.role, this.translate);
-
           this.fields = [{
             type: "input",
             props: {
               attributes: {
                 title: view.title,
               },
-              required: true,
-              options: [
-                {
-                  ...(view.formToBeBuildt && { formToBeBuildt: view.formToBeBuildt }),
-                  formGroup: view.formGroup ?? new FormGroup({}),
-                  ...(view.component && { component: view.component })
-                },
-                {
-                  lines: view.lines,
-                }]
+              lines: view.lines,
+              formGroup: this.form,
+              ...(view.component && { component: view.component })
             },
             wrappers: ['formly-field-modal']
           }];
@@ -63,7 +54,7 @@ export abstract class AbstractFormlyComponent {
     */
   protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView;
 
-  protected static getFormGroup(): FormGroup {
+  protected static getFormGroup(component: EdgeConfig.Component, formBuilder: FormBuilder): FormGroup {
     return new FormGroup({});
   }
 }
@@ -71,8 +62,6 @@ export abstract class AbstractFormlyComponent {
 export type OeFormlyView = {
   title: string,
   lines: OeFormlyField[],
-  formGroup?: FormGroup,
-  formToBeBuildt?: { controlName: string, channel: string }[],
   component?: EdgeConfig.Component
 }
 
@@ -126,6 +115,6 @@ export namespace OeFormlyField {
     channel: string,
     buttons: ButtonLabel[],
     controlName: string,
-    formControlValues: (currentData: CurrentData) => Converter
+    converter?: (currentData: CurrentData) => any
   }
 }

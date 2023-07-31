@@ -1,41 +1,37 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props.options" [component]="props.options[0].component"
+<oe-modal [title]="props.attributes.title" *ngIf="props.component && formGroup" [component]="props.component"
     [formGroup]="formGroup">
-    <ng-container *ngFor="let entry of props.options">
-        <ng-container *ngFor="let line of entry.lines">
-            <ng-container [ngSwitch]="line.type">
+    <ng-container *ngFor="let line of props?.lines">
+        <!-- <ng-container *ngFor="let line of entry.lines"> -->
+        <ng-container [ngSwitch]="line.type">
 
-                <!-- OeFormlyField.ChannelLine -->
-                <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
-                    [converter]="line.converter">
-                </oe-modal-line>
+            <!-- OeFormlyField.ChannelLine -->
+            <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
+                [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
+            </oe-modal-line>
 
-                <!-- OeFormlyField.ChildrenLine -->
-                <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name">
-                    <ng-container *ngFor="let lineItem of line.children">
-                        <!-- OeFormlyField.Item -->
-                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
-                            [converter]="lineItem.converter">
-                        </oe-modal-line-item>
-                    </ng-container>
-                </oe-modal-line>
-
-                <!-- OeFormlyField.InfoLine -->
-                <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
-                </oe-modal-info-line>
-
-                <!-- OeFormlyField.HorizontalLine -->
-                <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
-
-                <ng-container *ngIf="formGroup.controls[line.controlName]">
-                    <oe-modal-buttons *ngSwitchCase="'buttons-line'" [formGroup]="props.options[0].formGroup"
-                        (setFormGroup)="setFormGroup($event)" [controlName]="line.controlName"
-                        [component]="props.options[0].component" [buttons]="line.buttons"
-                        [channelAddress]="line.channel">
-                    </oe-modal-buttons>
+            <!-- OeFormlyField.ChildrenLine -->
+            <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
+                [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+                <ng-container *ngFor="let lineItem of line.children">
+                    <!-- OeFormlyField.Item -->
+                    <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+                        [converter]="lineItem.converter">
+                    </oe-modal-line-item>
                 </ng-container>
+            </oe-modal-line>
+
+            <!-- OeFormlyField.InfoLine -->
+            <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
+            </oe-modal-info-line>
+
+            <!-- OeFormlyField.HorizontalLine -->
+            <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
+            <ng-container *ngSwitchCase="'buttons-line'">
+                <oe-modal-buttons *ngIf="formGroup" [formGroup]="formGroup" [controlName]="line.controlName"
+                    [component]="props.component" [buttons]="line.buttons" [channelAddress]="line.channel">
+                </oe-modal-buttons>
             </ng-container>
         </ng-container>
+        <!-- </ng-container> -->
     </ng-container>
 </oe-modal>

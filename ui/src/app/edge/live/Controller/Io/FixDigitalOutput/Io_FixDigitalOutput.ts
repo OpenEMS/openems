@@ -16,7 +16,6 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
   protected getChannelAddresses(): ChannelAddress[] {
     this.outputChannel = this.component.properties['outputChannelAddress'];
 
-    this.presentModal();
     return [ChannelAddress.fromString(this.outputChannel)];
   }
 
@@ -39,7 +38,6 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
       component: ModalComponent,
       componentProps: {
         component: this.component,
-        edge: this.edge
       }
     });
     return await modal.present();
