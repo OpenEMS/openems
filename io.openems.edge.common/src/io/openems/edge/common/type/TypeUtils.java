@@ -418,6 +418,17 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
+	 * are null, 'null' is returned.
+	 *
+	 * @param values the {@link Long} values
+	 * @return the sum
+	 */
+	public static Long sumLong(List<Long> values) {
+		return sum(values.toArray(Long[]::new));
+	}
+
+	/**
 	 * Safely add Integers. If one of them is null it is considered '0'. If all of
 	 * them are null, 'null' is returned.
 	 *
@@ -437,17 +448,6 @@ public class TypeUtils {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
-	 * are null, 'null' is returned.
-	 *
-	 * @param values the {@link Long} values
-	 * @return the sum
-	 */
-	public static Long sumLong(List<Long> values) {
-		return sum(values.toArray(Long[]::new));
 	}
 
 	/**
