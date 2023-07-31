@@ -129,7 +129,7 @@ prepare_deb_template() {
 
 build_deb() {
     cd tools
-    dpkg --build "debian" "../${DEB_FILE}"
+    dpkg-deb -Zxz --build "debian" "../${DEB_FILE}"
     echo "## Built ${DEB_FILE}"
     cd ..
 }
