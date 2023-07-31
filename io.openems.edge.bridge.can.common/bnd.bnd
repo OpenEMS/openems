@@ -1,0 +1,21 @@
+Bundle-Name: OpenEMS Edge Bridge CAN
+Bundle-Vendor: opernikus GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Export-Package: \
+	io.openems.edge.bridge.can,\
+	io.openems.edge.bridge.can.api,\
+	io.openems.edge.bridge.can.api.data,\
+	io.openems.edge.bridge.can.api.element,\
+	io.openems.edge.bridge.can.api.task,\
+	io.openems.edge.bridge.can.io,\
+	io.openems.edge.bridge.can.io.hw
+	
+		
+-buildpath: \
+	${buildpath},\
+	com.ghgande.j2mod,\
+	io.openems.common,\
+	io.openems.edge.common
+-testpath: \
+	${testpath}
