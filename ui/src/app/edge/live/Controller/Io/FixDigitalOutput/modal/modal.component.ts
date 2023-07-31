@@ -1,9 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
-import { CurrentData, Edge, EdgeConfig } from 'src/app/shared/shared';
+import { CurrentData, EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
@@ -14,18 +12,18 @@ export class ModalComponent extends AbstractFormlyComponent {
   @Input() public component: EdgeConfig.Component;
 
   protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate, this.component, this.form);
+    return ModalComponent.generateView(config, role, this.translate, this.component.id);
   }
 
-  public static generateView(config: EdgeConfig, role: Role, translate: TranslateService, component: EdgeConfig.Component, formGroup: FormGroup): OeFormlyView {
+  public static generateView(config: EdgeConfig, role: Role, translate: TranslateService, componentId: string): OeFormlyView {
+    let component = config.components[componentId];
     let lines: OeFormlyField[] = [
       {
-        type: 'children-line',
-        children: null,
+        type: 'only-name-line',
         name: translate.instant('General.mode')
       },
       {
-        type: 'buttons-line',
+        type: 'buttons-from-channel-line',
         buttons: [
           {
             name: translate.instant('General.on'),

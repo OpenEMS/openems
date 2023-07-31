@@ -53,6 +53,16 @@ namespace Factory {
             "io.openems.edge.timedata.api.TimedataProvider"
         ]
     };
+
+    export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
+        id: "Controller.Io.FixDigitalOutput",
+        natureIds: [
+            "io.openems.edge.controller.io.fixdigitaloutput.ControllerIoFixDigitalOutput",
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.controller.api.Controller",
+            "io.openems.edge.timedata.api.TimedataProvider"
+        ]
+    }
 }
 
 /**
@@ -87,6 +97,18 @@ export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
         invert: false,
         modbusUnitId: 5,
         type: "GRID"
+    },
+    channels: {}
+});
+
+export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias,
+    factory: Factory.CONTROLLER_IO_FIX_DIGITAL_OUTPUT,
+    properties: {
+        enabled: true,
+        isOn: false,
+        outputChannelAddress: "io0/Relay3"
     },
     channels: {}
 });

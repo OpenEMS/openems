@@ -26,7 +26,8 @@
 
             <!-- OeFormlyField.HorizontalLine -->
             <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
-            <ng-container *ngSwitchCase="'buttons-line'">
+
+            <ng-container *ngSwitchCase="'buttons-from-channel-line'">
                 <oe-modal-buttons *ngIf="formGroup" [formGroup]="formGroup" [controlName]="line.controlName"
                     [component]="props.component" [buttons]="line.buttons" [channelAddress]="line.channel">
                 </oe-modal-buttons>

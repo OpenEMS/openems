@@ -71,9 +71,9 @@ export type OeFormlyField =
   | OeFormlyField.ChildrenLine
   | OeFormlyField.ChannelLine
   | OeFormlyField.HorizontalLine
-  | OeFormlyField.ButtonsLine;
-
-
+  | OeFormlyField.ButtonsFromChannelLine
+  | OeFormlyField.ButtonsFromValueLine
+  | OeFormlyField.OnlyNameLine;
 
 export namespace OeFormlyField {
 
@@ -109,12 +109,26 @@ export namespace OeFormlyField {
     type: 'horizontal-line',
   }
 
-  export type ButtonsLine = {
-    type: 'buttons-line',
+  export type ButtonsFromValueLine = {
+    type: 'buttons-from-value-line',
+    /** The channel will be used as value for the buttons */
+    value: string,
+    buttons: ButtonLabel[],
+    controlName: string,
+    converter?: (currentData: CurrentData) => any
+  }
+
+  export type ButtonsFromChannelLine = {
+    type: 'buttons-from-channel-line',
     /** The channel will be used as value for the buttons */
     channel: string,
     buttons: ButtonLabel[],
     controlName: string,
     converter?: (currentData: CurrentData) => any
+  }
+
+  export type OnlyNameLine = {
+    type: 'only-name-line',
+    name: string
   }
 }

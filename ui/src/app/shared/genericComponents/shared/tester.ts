@@ -1,3 +1,5 @@
+import { CurrentData } from "../../edge/currentdata";
+import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
 
@@ -90,8 +92,11 @@ export class OeFormlyViewTester {
 
       /**
        * OeFormlyField.Info
+       * | 
+       * OeFormlyField.OnlyNameLine
        */
-      case "info-line": {
+      case "info-line":
+      case "only-name-line": {
         return {
           type: field.type,
           name: field.name
@@ -104,6 +109,19 @@ export class OeFormlyViewTester {
       case "horizontal-line": {
         return {
           type: field.type
+        };
+      }
+
+      /**
+  * OeFormlyField.Horizontal
+  */
+      case "buttons-from-channel-line": {
+        let value = OeFormlyViewTester.applyButtonsFromChannelLine(field, context);
+
+        return {
+          type: field.type,
+          buttons: field.buttons,
+          value: value
         };
       }
     }
@@ -138,6 +156,18 @@ export class OeFormlyViewTester {
       value: value
     };
   }
+
+  private static applyButtonsFromChannelLine(field: OeFormlyField.ButtonsFromChannelLine, context: OeFormlyViewTester.Context) {
+
+    let rawValue = field.channel && field.channel in context ? context[field.channel] : null;
+    let currentData = { allComponents: context };
+
+    let value: string = field.converter
+      ? field.converter(currentData)
+      : rawValue === null ? null : "" + rawValue;
+
+    return value;
+  }
 }
 
 export namespace OeFormlyViewTester {
@@ -154,7 +184,10 @@ export namespace OeFormlyViewTester {
     | Field.Item
     | Field.ChannelLine
     | Field.ChildrenLine
-    | Field.HorizontalLine;
+    | Field.HorizontalLine
+    | Field.OnlyNameLine
+    | Field.ButtonsFromValueLine
+    | Field.ButtonsFromChannelLine;
 
   export namespace Field {
 
@@ -184,6 +217,23 @@ export namespace OeFormlyViewTester {
 
     export type HorizontalLine = {
       type: 'horizontal-line',
+    }
+
+    export type OnlyNameLine = {
+      type: 'only-name-line',
+      name: string
+    }
+
+    export type ButtonsFromValueLine = {
+      type: 'buttons-from-value-line',
+      buttons: ButtonLabel[],
+      value: string | number
+    }
+
+    export type ButtonsFromChannelLine = {
+      type: 'buttons-from-channel-line',
+      buttons: ButtonLabel[],
+      value: string | number | boolean
     }
   }
 
