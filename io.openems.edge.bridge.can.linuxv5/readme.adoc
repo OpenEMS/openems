@@ -1,0 +1,33 @@
+= CAN Bridge for Linux Kernel V5
+
+The "CAN OpenEMS bridge" provides a simple (single frame) raw CAN communication mechanism, to 
+* send and receive single CAN frame messages 
+* directly map the appropriate data to OpenEMS channels (almost same mechanism as in the Modbus bridge).
+
+This bundle is prepare to work with the Linux Kernel V5.x CAN Socket API.
+
+
+== Dependencies
+
+The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/clehne/librevpi-dio-java for more information).
+The library provides access to CAN hardware via generic linux CAN Socket API.   
+
+A binary version of this library (https://github.com/clehne/librevpi-dio-java, Branch: `V2023.02`, Date: `2023.03.10` ). 
+ is already included in this OpenEMS Bundle.
+
+
+To build the library by yourself checkout the project and build it with 
+[source]
+----
+make clean
+make libkernel5_1
+----
+
+
+== Notes
+* the configuration allows to switch between a CAN simulation and a real CAN device 
+* for more information have a look at the readme.adoc in io.openems.edge.bridge.can.common
+
+
+
+

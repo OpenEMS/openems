@@ -1,0 +1,204 @@
+= CAN Bridge Common
+
+This is a collection of CAN classes and CAN API methods used by the bundles
+
+* io.openems.edge.bridge.can.linuxv4
+* io.openems.edge.bridge.can.linuxv5
+
+and by bundles using a CAN bridge. 
+
+The "CAN OpenEMS bridge" provides a simple raw CAN communication mechanism, to 
+* send and receive single CAN frame messages 
+* directly map the appropriate data to OpenEMS channels (almost same mechanism as in the Modbus bridge).
+
+
+== Dependencies
+
+The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/clehne/librevpi-dio-java for more information).
+The library provides access to CAN hardware via generic linux CAN Socket API.   
+
+A binary version of this library (https://github.com/clehne/librevpi-dio-java, Branch: `V2023.02`, Date: `2023.03.10` ). 
+ is already included in this OpenEMS Bundle.
+
+
+
+== Notes
+* the configuration allows to switch between a CAN simulation and a real CAN device 
+
+
+=== Preparation of Kunbus Revolution Pi CAN enhancement board
+
+The CAN interface needs to be up and configured before OpenEMS is started. 
+To do so, initialize the CAN driver before (as user `root`):
+
+[source]
+----
+ ip link set can0 type can bitrate 250000
+ ip link set can0 type can restart-ms 100
+ ip link set can0 up
+----
+ 
+Note that `250000` is the bitrate of the CAN bus (250kBaud). You can select your preferred bitrate by changing the value.
+Note also: It turns out, that the CAN interface is not that stable if new devices are physically connected/disconnected 
+from CAN. To handle this, you should also use the "restart-ms" option which automatically restarts the CAN hardware 
+in case of any error.
+
+
+
+=== Using the CAN Bridge in own bundles
+
+Below is an example of how to use the CAN bridge
+
+[source,java]
+----
+public class MyCanImpl extends AbstractOpenemsCanComponent	
+                  implements Battery, OpenemsComponent, EventHandler {
+
+	@Override
+	@Reference(policy = ReferencePolicy.STATIC, 
+	           policyOption = ReferencePolicyOption.GREEDY, 
+	           cardinality = ReferenceCardinality.MANDATORY)
+	protected void setCan(BridgeCan can) {
+		super.setCan(can);
+	}
+	
+	public MyCanImpl() {
+		super(OpenemsComponent.ChannelId.values(), //
+			Battery.ChannelId.values(), //
+			MyCanImpl.ChannelId.values()
+	);
+	
+	@Activate
+	void activate(ComponentContext context, Config config) 
+				throws OpenemsException, OpenemsNamedException {
+		try {
+			if (super.activate(context, config.id(), config.alias(), 
+					config.enabled(), this.cm, "can",
+					config.can_id())) {
+				return;
+			}
+	}
+	
+	@Deactivate
+	protected void deactivate() {
+		try {
+			this.getCanbridge().getCanConnection().removeCyclicalAll();
+		} catch (OpenemsException e) {
+		}
+		super.deactivate();
+	}
+	
+	..
+	..	
+	
+	@Override
+	protected CanProtocol defineCanProtocol() 
+	                  throws OpenemsException {
+		CanProtocol protocol = new CanProtocol(this);
+		
+		//Define mapping of single CAN Identifier to channel
+        
+		Collection<AbstractCanChannelElement<?,?>> elements = new ArrayList<>();
+		    	
+		//Byte 0,1
+		elements.add( Battery.ChannelId.CHARGE_MAX_VOLTAGE, 
+			new UnsignedWordElement(0, 16, 0, 0, 0xffff, 
+			ByteOrder.LITTLE_ENDIAN));
+			
+		//Byte 2 Bit 0
+		elements.add( MyChannel.ChannelId.ON, 
+		    new BitElement( 2, 0 ));
+		   		
+		//Byte 3 
+		elements.add( Battery.ChannelId.SOC, 
+			new UnsignedByteElement(3), 
+			ElementToChannelConverter.SCALE_FACTOR_MINUS_1);
+				
+		protocol.addTask(new CanFrameReadTask(
+			canBridge,
+			true, 
+			CAN_IDENTIFIER_29_BIT,
+			600,                //timeout for this can frame 
+			Priority.HIGH,
+			elements.toArray(new AbstractCanChannelElement<?, ?>[0])
+		)
+    	
+		//Define mapping of values to single CAN Identifier to write
+		CanFrameWriteTask cmdTask = new CanFrameWriteTask(
+					this.getCanbridge(),
+					true,   //use LOW Level CAN cyclical send 
+							//mechanism of the CAN library 
+							//(more stable cycle times)
+					true,   //true == use 29 bit identifier
+					0,	    //CAN Address Offset 
+					100,    //send cycle time
+					Priority.HIGH,
+					myPersonalCanWriteFrame//see description below
+			);
+		protocol.addTask( cmdTask );
+		
+		return protocol;
+	}
+	
+
+}
+----
+
+
+Definition of a CAN write data object: 
+
+[source,java]
+----
+
+
+public class MyPersonalCanWriteFrame extends AbstractCanChannelElement<MyPersonalCanWriteFrame, Integer> {
+
+	private static final int canAddressIdentifier = 0x162;
+	private byte value1;
+	private byte value2;
+	
+	public MyPersonalCanWriteFrame() {
+		super(OpenemsType.INTEGER);
+	}
+	
+	public void initiallyPrepareCANRequest() {	}
+
+	@Override
+	public boolean hasOwnCanTemplateFormat() {
+		return true;
+	}
+	
+	@Override
+	public byte[] getOwnCanTemplateData() throws OpenemsException {
+		this.setBmsIdentifier();
+		byte[] data = new byte[] {
+				this.value1,
+				this.value2,        
+				0,
+				0,
+				0,
+				0,
+				0,
+				0
+		};
+		return data;
+	}
+	
+	@Override
+	public synchronized void onCanFrameSuccessfullySend() throws OpenemsException {
+		byte[] canData = this.canFrame.getData();
+		canData[0] = (byte)(this.value1+1); 
+	}
+	
+	private void setBmsIdentifier() throws OpenemsException {
+		this.canFrame.setAddress( canAddressIdentifier );
+	}
+
+	@Override
+	public void setCanFrame(CanFrameImpl canFrameImpl) {
+		super.setCanFrame(canFrameImpl);
+		this.canFrame.setExtendedAddress(true);
+	}
+}
+
+----
