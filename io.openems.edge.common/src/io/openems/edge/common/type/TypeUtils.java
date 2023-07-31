@@ -414,7 +414,7 @@ public class TypeUtils {
 	 * @return the sum
 	 */
 	public static Integer sumInt(List<Integer> values) {
-		return sum(values.toArray(new Integer[0]));
+		return sum(values.toArray(Integer[]::new));
 	}
 
 	/**
@@ -446,8 +446,8 @@ public class TypeUtils {
 	 * @param values the {@link Long} values
 	 * @return the sum
 	 */
-	public static Long sum(List<Long> values) {
-		return sum(values.toArray(new Long[0]));
+	public static Long sumLong(List<Long> values) {
+		return sum(values.toArray(Long[]::new));
 	}
 
 	/**
@@ -759,7 +759,7 @@ public class TypeUtils {
 	 * @return the average value; or null if all values are null
 	 */
 	public static Integer averageInt(List<Integer> values) {
-		return averageInt(values.toArray(new Integer[0]));
+		return averageInt(values.toArray(Integer[]::new));
 	}
 
 	/**
