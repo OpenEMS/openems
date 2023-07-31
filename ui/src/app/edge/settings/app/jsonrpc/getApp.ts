@@ -47,7 +47,7 @@ export namespace GetApp {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
             }
         ) {
@@ -58,8 +58,8 @@ export namespace GetApp {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 app: GetApps.App
             }
         ) {

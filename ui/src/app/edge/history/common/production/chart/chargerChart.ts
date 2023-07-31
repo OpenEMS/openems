@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
 
@@ -34,7 +34,11 @@ export class ChargerChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY
+      yAxes: [{
+        unit: YAxisTitle.ENERGY,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT
+      }]
     };
   }
 }

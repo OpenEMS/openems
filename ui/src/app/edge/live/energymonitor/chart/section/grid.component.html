@@ -10,10 +10,12 @@
     </svg:defs>
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
     <ng-container *ngIf="buyAnimationTrigger">
-        <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints" style="fill:var(--ion-background-color)" />
+        <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints"
+            style="fill:var(--ion-background-color)" />
     </ng-container>
     <ng-container *ngIf="sellAnimationTrigger">
-        <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints" style="fill:var(--ion-background-color)" />
+        <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints"
+            style="fill:var(--ion-background-color)" />
     </ng-container>
 </svg:g>
 <svg:g *ngIf="isEnabled && squarePosition && square"
@@ -23,7 +25,8 @@
         <ng-container *ngIf="valueText; else no_text">{{valueText}}</ng-container>
         <ng-template #no_text>-</ng-template>
     </svg:text>
-    <svg:use style="color: var(--ion-color-dark)" [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length"
-        [attr.height]="square.image.length" [attr.href]="square.image.image + '#root'">
+    <svg:use style="color: var(--ion-color-dark)" [attr.x]="square.image.x" [attr.y]="square.image.y"
+        [attr.width]="square.image.length" [attr.height]="square.image.length"
+        [attr.href]="square.image.image + '#root'">
     </svg:use>
 </svg:g>

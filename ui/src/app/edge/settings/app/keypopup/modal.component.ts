@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { FormlyFieldConfig } from '@ngx-formly/core';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
@@ -36,6 +36,7 @@ export class KeyModalComponent implements OnInit {
     protected form: FormGroup;
     protected fields: FormlyFieldConfig[];
     protected model;
+    protected options: FormlyFormOptions;
 
     constructor(
         private service: Service,
@@ -48,6 +49,11 @@ export class KeyModalComponent implements OnInit {
 
     public ngOnInit(): void {
         this.form = new FormGroup({});
+        this.options = {
+            formState: {
+                gotInvalidKeyResponse: false
+            }
+        };
         this.model = {
             'useRegisteredKeys': false,
             'registeredKey': '',
@@ -210,6 +216,15 @@ export class KeyModalComponent implements OnInit {
                 }
             }
         });
+
+        fields.push({
+            type: 'text',
+            props: {
+                description: this.translate.instant('Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT')
+            },
+            hideExpression: '!formState.gotInvalidKeyResponse'
+        });
+
         return fields;
     }
 
@@ -386,6 +401,7 @@ export class KeyModalComponent implements OnInit {
             }).catch(reason => {
                 // this may happen if the key is not stored in the database
                 this.service.toast(this.translate.instant('Edge.Config.App.Key.invalid'), 'danger');
+                this.options.formState.gotInvalidKeyResponse = true;
                 if (environment.debugMode) {
                     console.log('Failed to validate Key', reason);
                 }

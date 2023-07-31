@@ -23,7 +23,7 @@ export class StorageComponent extends AbstractHistoryWidget implements OnInit, O
     public essComponents: EdgeConfig.Component[] = [];
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
 
     ) {
