@@ -1,11 +1,12 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { FieldWrapper } from "@ngx-formly/core";
-import { ChannelAddress, Service, Websocket } from "../../shared";
-import { DataService } from "../../genericComponents/shared/dataservice";
-import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
+import { LiveDataService } from "src/app/edge/live/livedataservice";
+
+import { DataService } from "../../genericComponents/shared/dataservice";
+import { ChannelAddress, Service, Websocket } from "../../shared";
 
 @Component({
     selector: 'formly-field-modal',
@@ -15,7 +16,7 @@ import { filter, takeUntil } from "rxjs/operators";
         provide: DataService
     }]
 })
-export class FormlyFieldModalComponent extends FieldWrapper {
+export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, OnDestroy {
 
     protected formGroup: FormGroup = new FormGroup({});
     private stopOnDestroy: Subject<void> = new Subject<void>();

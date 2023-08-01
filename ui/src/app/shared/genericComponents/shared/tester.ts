@@ -7,6 +7,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/re
 import { HistoryUtils } from "../../service/utils";
 import { TestContext } from "../../test/utils.spec";
 import { AbstractHistoryChart } from "../chart/abstracthistorychart";
+import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
@@ -301,7 +302,9 @@ export namespace OeFormlyViewTester {
     | Field.Item
     | Field.ChannelLine
     | Field.ChildrenLine
-    | Field.HorizontalLine;
+    | Field.HorizontalLine
+    | Field.ButtonsFromChannelLine
+    | Field.ButtonsFromValueLine;
 
   export namespace Field {
 
@@ -331,6 +334,26 @@ export namespace OeFormlyViewTester {
 
     export type HorizontalLine = {
       type: 'horizontal-line',
+    }
+
+    export type OnlyNameLine = {
+      type: 'only-name-line',
+      name: string
+    }
+
+
+    export type ButtonsFromValueLine = {
+      type: 'buttons-from-value-line',
+      /** The channel will be used as value for the buttons */
+      value: string,
+      buttons: ButtonLabel[]
+    }
+
+    export type ButtonsFromChannelLine = {
+      type: 'buttons-from-channel-line',
+      /** The channel will be used as value for the buttons */
+      value: string,
+      buttons: ButtonLabel[]
     }
   }
 
