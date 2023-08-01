@@ -276,4 +276,23 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		this.getGridEnergyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#TOTAL_QUARTERLY_PRICES}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getTotalQuarterlyPricesChannel() {
+		return this.channel(ChannelId.TOTAL_QUARTERLY_PRICES);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#TOTAL_QUARTERLY_PRICES} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setTotalQuarterlyPricesChannel(Integer value) {
+		this.getGridEnergyChannel().setNextValue(value);
+	}
+
 }

@@ -1,10 +1,13 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static org.junit.Assert.assertTrue;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -130,7 +133,6 @@ public class TimeOfUseTariffControllerTest {
 			DEFAULT_CONSUMPTION_PREDICTION_HOURLY);
 
 	@Test
-	@Ignore
 	public void scheduleChargeForEveryQuarter() throws Exception {
 
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -185,7 +187,7 @@ public class TimeOfUseTariffControllerTest {
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(ZonedDateTime.now(clock),
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hour1yPrices(ZonedDateTime.now(clock),
 				DEFAULT_HOURLY_PRICES_SUMMER);
 
 		new ControllerTest(new TimeOfUseTariffControllerImpl()) //
@@ -224,7 +226,7 @@ public class TimeOfUseTariffControllerTest {
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(ZonedDateTime.now(clock),
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hour1yPrices(ZonedDateTime.now(clock),
 				DEFAULT_HOURLY_PRICES_SUMMER);
 
 		new ControllerTest(new TimeOfUseTariffControllerImpl()) //
@@ -247,7 +249,6 @@ public class TimeOfUseTariffControllerTest {
 	}
 
 	@Test
-	@Ignore
 	public void scheduleDelayDischargeForEveryQuarter() throws Exception {
 
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
@@ -282,5 +283,67 @@ public class TimeOfUseTariffControllerTest {
 						.input(ESS_CAPACITY, 12000) //
 						.input(ESS_SOC, 50) //
 				);
+	}
+
+	@Test
+	public void scheduleTest() {
+
+		final var essUsableEnergy = 12000;
+		final var currentAvailableEnergy = 6000;
+		final var dischargeEnergy = 2250;
+		final var chargeEnergy = -2250;
+		var allowedChargeEnergyFromGrid = 0;
+
+		var schedule = new Schedule(ControlMode.DELAY_DISCHARGE, //
+				essUsableEnergy, //
+				currentAvailableEnergy, //
+				dischargeEnergy, //
+				chargeEnergy, //
+				DEFAULT_HOURLY_PRICES_SUMMER, //
+				DEFAULT_CONSUMPTION_PREDICTION_HOURLY, //
+				DEFAULT_PRODUCTION_PREDICTION_HOURLY, //
+				allowedChargeEnergyFromGrid);
+
+		schedule.createSchedule();
+
+		var expectedBatteryValues = Arrays.asList(0, 0, 0, 0, //
+				873, 2250, 1558, 1160, //
+				136, 23, 0, -793, //
+				-1408, -829, -1541, -2250, //
+				-1226, -202, 284, 914, //
+				1534, 1226, 1235, 977);
+
+		var calculatedBatteryValues = schedule.periods.stream().map(t -> {
+			return t.chargeDischargeEnergy;
+		}).collect(Collectors.toList());
+
+		assertTrue(expectedBatteryValues.equals(calculatedBatteryValues));
+
+		allowedChargeEnergyFromGrid = 1500;
+
+		schedule = new Schedule(ControlMode.CHARGE_CONSUMPTION, //
+				essUsableEnergy, //
+				currentAvailableEnergy, //
+				dischargeEnergy, //
+				chargeEnergy, //
+				DEFAULT_HOURLY_PRICES_SUMMER, //
+				DEFAULT_CONSUMPTION_PREDICTION_HOURLY, //
+				DEFAULT_PRODUCTION_PREDICTION_HOURLY, //
+				allowedChargeEnergyFromGrid);
+
+		schedule.createSchedule();
+
+		expectedBatteryValues = Arrays.asList(-479, -292, -787, -569, //
+				2250, 2250, 1558, 1160, //
+				136, 23, 442, -793, //
+				-1408, -829, -1541, -2250, //
+				-1226, -202, 284, 914, //
+				1534, 1226, 1235, 977);
+
+		calculatedBatteryValues = schedule.periods.stream().map(t -> {
+			return t.chargeDischargeEnergy;
+		}).collect(Collectors.toList());
+
+		assertTrue(expectedBatteryValues.equals(calculatedBatteryValues));
 	}
 }

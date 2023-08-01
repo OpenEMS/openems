@@ -107,10 +107,11 @@ public class StromdaoCorrently extends
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var alias = this.getString(p, l, Property.ALIAS);
-			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_ID);
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_PROVIDER_ID);
+
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
 			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
 			var comp = TimeOfUseProps.getComponents(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Corrently",

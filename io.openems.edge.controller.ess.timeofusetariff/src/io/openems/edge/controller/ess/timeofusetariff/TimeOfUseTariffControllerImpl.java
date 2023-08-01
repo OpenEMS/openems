@@ -5,11 +5,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,9 +27,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError;
@@ -105,17 +106,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private static final int MINUTES_PER_PERIOD = 15;
 	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(isReserveSocEnabled=true))")
 	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
 	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
@@ -132,7 +131,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
@@ -156,12 +155,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
-		case AUTOMATIC:
-			this.modeAutomatic(now);
-			break;
-		case OFF:
-			this.modeOff();
-			break;
+		case AUTOMATIC -> this.modeAutomatic(now);
+		case OFF -> this.modeOff();
 		}
 
 		this.updateVisualizationChannels();
@@ -178,63 +173,65 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Runs the logic every interval or when the schedule is not created due to
 		// unavailability of values.
-		if (this.nextQuarter == null || now.isEqual(this.nextQuarter) || this.schedule.periods.isEmpty()) {
-
-			// Prediction values
-			final var predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
-					.getValues();
-			final var predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
-					.getValues();
-
-			// Prices contains the price values and the time it is retrieved.
-			final var prices = this.timeOfUseTariff.getPrices();
-			this.channel(TimeOfUseTariffController.ChannelId.TOTAL_QUARTERLY_PRICES)
-					.setNextValue(prices.getValues().length);
-
-			// Ess information.
-			final var netEssCapacity = this.ess.getCapacity().getOrError();
-			final var soc = this.ess.getSoc().getOrError();
-
-			// Calculate available energy using "netCapacity" and "soc".
-			var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
-			this.channel(TimeOfUseTariffController.ChannelId.AVAILABLE_CAPACITY).setNextValue(currentAvailableEnergy);
-
-			// Calculate the net usable energy of the battery.
-			final var limitEnergy = this.getLimitEnergy(netEssCapacity);
-			final var netUsableEnergy = TypeUtils.max(0, netEssCapacity - limitEnergy);
-
-			// Calculate current usable energy [Wh] in the battery.
-			currentAvailableEnergy = TypeUtils.max(0, currentAvailableEnergy - limitEnergy);
-			this.channel(TimeOfUseTariffController.ChannelId.USABLE_CAPACITY).setNextValue(currentAvailableEnergy);
-
-			// Power Values for scheduling battery for individual periods.
-			var power = this.ess.getPower();
-			var dischargePower = power.getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-			var chargePower = power.getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-
-			// If both values are 0, its likely that components are not yet activated
-			// completely.
-			// TODO: Handle cases where max and min power are very low in beginning.
-			if (dischargePower == 0 && chargePower == 0) {
-				return;
-			}
-
-			// Power to Energy.
-			var dischargeEnergy = dischargePower / PERIODS_PER_HOUR;
-			var chargeEnergy = chargePower / PERIODS_PER_HOUR;
-			var allowedChargeEnergyFromGrid = this.config.maxPower() / PERIODS_PER_HOUR;
-
-			// Initialize Schedule
-			this.schedule = new Schedule(this.config.controlMode(), netUsableEnergy, currentAvailableEnergy,
-					dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption, predictionProduction,
-					allowedChargeEnergyFromGrid);
-
-			// Generate Final schedule.
-			this.schedule.createSchedule();
-
-			// Update next quarter.
-			this.nextQuarter = now.plus(TIME_PER_PERIOD);
+		if (!(this.nextQuarter == null || now.isEqual(this.nextQuarter) || this.schedule.periods.isEmpty())) {
+			// Sets the charge or discharge of the system based on the mode.
+			this.setChargeOrDischarge();
+			return;
 		}
+
+		// Prediction values
+		final var predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
+				.getValues();
+		final var predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
+				.getValues();
+
+		// Prices contains the price values and the time it is retrieved.
+		final var prices = this.timeOfUseTariff.getPrices();
+		this._setTotalQuarterlyPricesChannel(prices.getValues().length);
+
+		// Ess information.
+		final var netEssCapacity = this.ess.getCapacity().getOrError();
+		final var soc = this.ess.getSoc().getOrError();
+
+		// Calculate available energy using "netCapacity" and "soc".
+		var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
+		this.channel(TimeOfUseTariffController.ChannelId.AVAILABLE_CAPACITY).setNextValue(currentAvailableEnergy);
+
+		// Calculate the net usable energy of the battery.
+		final var limitEnergy = this.getLimitEnergy(netEssCapacity);
+		final var netUsableEnergy = TypeUtils.max(0, netEssCapacity - limitEnergy);
+
+		// Calculate current usable energy [Wh] in the battery.
+		currentAvailableEnergy = TypeUtils.max(0, currentAvailableEnergy - limitEnergy);
+		this.channel(TimeOfUseTariffController.ChannelId.USABLE_CAPACITY).setNextValue(currentAvailableEnergy);
+
+		// Power Values for scheduling battery for individual periods.
+		var power = this.ess.getPower();
+		var dischargePower = power.getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var chargePower = power.getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+
+		// If both values are 0, its likely that components are not yet activated
+		// completely.
+		// TODO: Handle cases where max and min power are very low in beginning.
+		if (dischargePower == 0 && chargePower == 0) {
+			return;
+		}
+
+		// Power to Energy.
+		var dischargeEnergy = dischargePower / PERIODS_PER_HOUR;
+		var chargeEnergy = chargePower / PERIODS_PER_HOUR;
+		var allowedChargeEnergyFromGrid = this.config.maxPower() / PERIODS_PER_HOUR;
+
+		// Initialize Schedule
+		this.schedule = new Schedule(this.config.controlMode(), netUsableEnergy, currentAvailableEnergy,
+				dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption, predictionProduction,
+				allowedChargeEnergyFromGrid);
+
+		// Generate Final schedule.
+		this.schedule.createSchedule();
+
+		// Update next quarter.
+		this.nextQuarter = now.plus(TIME_PER_PERIOD);
 
 		// Sets the charge or discharge of the system based on the mode.
 		this.setChargeOrDischarge();
@@ -272,9 +269,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			// If there is complete delay discharge ('0') or partial delay from battery.
 			dischargeValue = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 
-			if (this.ess instanceof HybridEss) {
+			if (this.ess instanceof HybridEss hybridEss) {
 				// DC or Hybrid system: limit AC export power to DC production power
-				var hybridEss = (HybridEss) this.ess;
 				dischargeValue += TypeUtils.subtract(this.ess.getActivePower().get(),
 						hybridEss.getDcDischargePower().get());
 			}
@@ -305,13 +301,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
-		var limitSoc = 0;
-		for (ControllerEssLimitTotalDischarge ctrl : this.ctrlLimitTotalDischarges) {
-			limitSoc = TypeUtils.max(limitSoc, ctrl.getMinSoc().get());
-		}
-		for (ControllerEssEmergencyCapacityReserve ctrl : this.ctrlEmergencyCapacityReserves) {
-			limitSoc = TypeUtils.max(limitSoc, ctrl.getActualReserveSoc().get());
-		}
+		var limitSoc = IntStream.concat(//
+				this.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().get()), //
+				this.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().get())) //
+				.max().orElse(0);
 		this.channel(TimeOfUseTariffController.ChannelId.MIN_SOC).setNextValue(limitSoc);
 
 		return netEssCapacity /* [Wh] */ / 100 * limitSoc;
@@ -384,18 +377,19 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
 			GetScheduleRequest request) {
 
-		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), MINUTES_PER_PERIOD);
-		var fromDate = now.minusHours(3);
+		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(),
+				MINUTES_PER_PERIOD);
+		final var fromDate = now.minusHours(3);
 
-		var channeladdressPrices = new ChannelAddress("ctrlEssTimeOfUseTariff0", "QuarterlyPrices");
-		var channeladdressStateMachine = new ChannelAddress("ctrlEssTimeOfUseTariff0", "StateMachine");
-		var channeladdress = Stream.of(channeladdressPrices, channeladdressStateMachine).collect(Collectors.toSet());
+		final var channeladdressPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
+		final var channeladdressStateMachine = new ChannelAddress(this.id(), "StateMachine");
+
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult = new TreeMap<>();
 
 		// Query database for last three hours, with 15 minute resolution.
 		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channeladdress),
-					new Resolution(15, ChronoUnit.MINUTES));
+			queryResult = this.timedata.queryHistoricData(null, fromDate, now,
+					Set.of(channeladdressPrices, channeladdressStateMachine), new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();
@@ -415,12 +409,12 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				// Mapping to absolute state machine values since query result gives average
 				// values.
 				.map(t -> {
-					if (t.isJsonNull()) {
-						return null;
+					if (t.isJsonPrimitive() && t.getAsJsonPrimitive().isNumber()) {
+						// 'double' to 'int' for appropriate state machine values.
+						return new JsonPrimitive(t.getAsInt());
 					}
 
-					// 'double' to 'int' for appropriate state machine values.
-					return new JsonPrimitive(t.getAsInt());
+					return JsonNull.INSTANCE;
 				})
 				// get as Array
 				.collect(JsonUtils.toJsonArray());
@@ -429,12 +423,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		final var priceValuesFuture = new JsonArray();
 
 		// Create StateMachine for future values based on schedule created.
-		for (int index = 0; index < this.schedule.periods.size(); index++) {
-			var period = this.schedule.periods.get(index);
-			priceValuesFuture.add(new JsonPrimitive(period.price));
-			stateMachineValuesFuture
-					.add(new JsonPrimitive(period.getStateMachine(this.config.controlMode()).getValue()));
-		}
+		this.schedule.periods.forEach(period -> {
+			priceValuesFuture.add(period.price);
+			stateMachineValuesFuture.add(period.getStateMachine(this.config.controlMode()).getValue());
+		});
 
 		// Concatenate Price values.
 		final var prices = Stream.concat(//
@@ -444,7 +436,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				.collect(JsonUtils.toJsonArray());
 
 		// Concatenate State Machine values.
-		final JsonArray states = Stream.concat(//
+		final var states = Stream.concat(//
 				JsonUtils.stream(stateMachineValuesPast), // last three hours data
 				JsonUtils.stream(stateMachineValuesFuture)) //
 				.limit(96) //
@@ -471,7 +463,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			schedule.add(result.build());
 		}
 
-		var response = new GetScheduleResponse(request.getId(), schedule.build().getAsJsonArray());
+		var response = new GetScheduleResponse(request.getId(), schedule.build());
 		return CompletableFuture.completedFuture(response);
 	}
 }

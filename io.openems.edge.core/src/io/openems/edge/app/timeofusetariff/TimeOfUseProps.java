@@ -9,6 +9,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
@@ -21,18 +22,13 @@ public final class TimeOfUseProps {
 	private TimeOfUseProps() {
 	}
 
-	private static final AppDef<OpenemsApp, Nameable, BundleParameter> defaultDef() {
-		return AppDef.<OpenemsApp, Nameable, BundleParameter>of() //
-				.setTranslationBundleSupplier(BundleParameter::getBundle);
-	}
-
 	/**
 	 * Creates a {@link AppDef} for a ToU control mode.
 	 * 
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleParameter> controlMode() {
-		return defaultDef() //
+		return CommonProps.defaultDef() //
 				.setTranslatedLabel("App.TimeOfUseTariff.controlMode.label")//
 				.setTranslatedDescriptionWithAppPrefix("App.TimeOfUseTariff.controlMode.description") //
 				.setDefaultValue(ControlMode.DELAY_DISCHARGE.name()) //

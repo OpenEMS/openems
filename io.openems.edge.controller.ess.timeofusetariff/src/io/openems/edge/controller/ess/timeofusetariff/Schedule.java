@@ -155,9 +155,9 @@ public class Schedule {
 	 */
 	public void createSchedule() {
 		for (int index = 0; index < this.periods.size(); index++) {
-			var period = this.periods.get(index);
-			var requiredEnergy = period.requiredEnergy;
-			var essInitialEnergy = period.essInitialEnergy;
+			final var period = this.periods.get(index);
+			final var requiredEnergy = period.requiredEnergy;
+			final var essInitialEnergy = period.essInitialEnergy;
 
 			if (requiredEnergy >= essInitialEnergy) {
 				// recalculate the required energy needed.
@@ -185,7 +185,7 @@ public class Schedule {
 		for (int index = 0; index < this.periods.size(); index++) {
 
 			// Current period.
-			var period = this.periods.get(index);
+			final var period = this.periods.get(index);
 
 			// calculate initial energy for current period.
 			final int essInitialEnergyForCurrentPeriod = TypeUtils.max(0, essInitialEnergy);
@@ -212,11 +212,11 @@ public class Schedule {
 	 */
 	private void updateEssAndGridEnergyInPeriod(int index) {
 
-		var period = this.periods.get(index);
-		var chargeDischargeEnergy = period.chargeDischargeEnergy;
-		var requiredEnergy = period.requiredEnergy;
-		var essInitialEnergy = period.essInitialEnergy;
-		var gridEnergy = period.gridEnergy;
+		final var period = this.periods.get(index);
+		final var chargeDischargeEnergy = period.chargeDischargeEnergy;
+		final var requiredEnergy = period.requiredEnergy;
+		final var essInitialEnergy = period.essInitialEnergy;
+		final var gridEnergy = period.gridEnergy;
 
 		// Calculate maximum allowed charge and discharge energies
 		final var maximumAllowedChargeInBattery = TypeUtils.max(this.maxChargeEnergyPerPeriod,
@@ -268,7 +268,7 @@ public class Schedule {
 	private void calculateSchedule(int requiredEnergy, int expensivePeriod) {
 
 		// Cheapest period index with available charge energy.
-		var cheapHour = this.getCheapestHourBeforePeriod(expensivePeriod, this.periods, this.essUsableEnergy);
+		var cheapHour = this.getCheapestHourIndexBeforePeriod(expensivePeriod, this.periods, this.essUsableEnergy);
 
 		if (cheapHour == null) {
 			// no cheap hour Calculated
@@ -303,7 +303,7 @@ public class Schedule {
 
 	/**
 	 * Returns the cheapest period with available charge energy before the specified
-	 * period index.
+	 * period index. Returns null if cheapest hour is not found.
 	 * 
 	 * @param expensivePeriodIndex The period index before which the cheap hour
 	 *                             should be found.
@@ -311,7 +311,7 @@ public class Schedule {
 	 * @param essUsableEnergy      The usable energy in the battery.
 	 * @return The index of the cheapest hour, or null if none is found.
 	 */
-	private Integer getCheapestHourBeforePeriod(int expensivePeriodIndex, List<Period> periods, int essUsableEnergy) {
+	private Integer getCheapestHourIndexBeforePeriod(int expensivePeriodIndex, List<Period> periods, int essUsableEnergy) {
 
 		Integer cheapHourIndex = null;
 		for (int index = 0; index < expensivePeriodIndex; index++) {
@@ -343,18 +343,10 @@ public class Schedule {
 	 * @return the available charge/Discharge energy.
 	 */
 	private int getAvailableEnergy(Integer cheapHourIndex) {
-		var availableEnergy = 0;
-
-		switch (this.controlMode) {
-		case CHARGE_CONSUMPTION:
-			availableEnergy = this.getAvailableChargeEnergyForPeriod(cheapHourIndex);
-			break;
-		case DELAY_DISCHARGE:
-			availableEnergy = this.getAvailableDischargeEnergyForPeriod(cheapHourIndex);
-			break;
-		}
-
-		return availableEnergy;
+		return switch (this.controlMode) {
+		case CHARGE_CONSUMPTION -> this.getAvailableChargeEnergyForPeriod(cheapHourIndex);
+		case DELAY_DISCHARGE -> this.getAvailableDischargeEnergyForPeriod(cheapHourIndex);
+		};
 	}
 
 	/**
@@ -364,30 +356,26 @@ public class Schedule {
 	 * @return the available charge energy.
 	 */
 	private int getAvailableChargeEnergyForPeriod(int index) {
-		var availableEnergy = 0;
-		var period = this.periods.get(index);
-		var availableCapacity = TypeUtils.subtract(this.essUsableEnergy, period.essInitialEnergy);
+		final var period = this.periods.get(index);
+		final var availableCapacity = TypeUtils.subtract(this.essUsableEnergy, period.essInitialEnergy);
 
 		// No space for charging. (SoC is already 100.)
 		if (availableCapacity == 0) {
-			return availableEnergy;
+			return 0;
 		}
 
-		var currentChargeDischargeEnergy = period.chargeDischargeEnergy;
-		var maxChargeEnergy = (period.requiredEnergy > 0)
+		final var maxChargeEnergy = (period.requiredEnergy > 0)
 				? -TypeUtils.max(0, this.maxAllowedChargeEnergyFromGrid - period.consumptionPrediction)
 				: this.maxChargeEnergyPerPeriod;
 
-		if (currentChargeDischargeEnergy < 0) {
+		if (period.chargeDischargeEnergy < 0) {
 			// charge is already set for this period.
-			availableEnergy = TypeUtils.min(availableCapacity,
-					TypeUtils.abs(maxChargeEnergy - currentChargeDischargeEnergy));
+			return TypeUtils.min(availableCapacity, TypeUtils.abs(maxChargeEnergy - period.chargeDischargeEnergy));
 		} else {
 			// No charge set.
-			availableEnergy = TypeUtils.min(availableCapacity, TypeUtils.abs(maxChargeEnergy));
+			return TypeUtils.min(availableCapacity, TypeUtils.abs(maxChargeEnergy));
 		}
 
-		return availableEnergy;
 	}
 
 	/**
@@ -397,19 +385,16 @@ public class Schedule {
 	 * @return the available discharge energy.
 	 */
 	private int getAvailableDischargeEnergyForPeriod(int index) {
-		var period = this.periods.get(index);
-		var initialEnergyForCurrentPeriod = period.essInitialEnergy;
-		var currentChargeDischargeEnergy = this.periods.get(index).chargeDischargeEnergy;
+		final var period = this.periods.get(index);
+		final var initialEnergyForCurrentPeriod = period.essInitialEnergy;
+		final var currentChargeDischargeEnergy = period.chargeDischargeEnergy;
 
-		final int availableDischargeEnergy;
 		if (initialEnergyForCurrentPeriod == 0 || currentChargeDischargeEnergy < 0) {
 			// Empty Battery || Excess PV available..
-			availableDischargeEnergy = 0;
+			return 0;
 		} else {
-			availableDischargeEnergy = TypeUtils.min(this.maxDischargeEnergyPerPeriod, currentChargeDischargeEnergy);
+			return TypeUtils.min(this.maxDischargeEnergyPerPeriod, currentChargeDischargeEnergy);
 		}
-
-		return availableDischargeEnergy;
 	}
 
 	/**
@@ -423,7 +408,7 @@ public class Schedule {
 		var period = this.periods.get(cheapHour);
 
 		switch (this.controlMode) {
-		case CHARGE_CONSUMPTION:
+		case CHARGE_CONSUMPTION -> {
 			energy = -energy; // Charge energy is always negative.
 
 			if (period.chargeDischargeEnergy <= 0) {
@@ -436,14 +421,14 @@ public class Schedule {
 
 			// Update grid energy.
 			period.gridEnergy = -period.chargeDischargeEnergy;
-			break;
+		}
 
-		case DELAY_DISCHARGE:
+		case DELAY_DISCHARGE -> {
 			period.chargeDischargeEnergy = TypeUtils.max(period.chargeDischargeEnergy - energy, 0);
 
 			// Update grid energy.
 			period.gridEnergy += energy;
-			break;
+		}
 		}
 	}
 
@@ -461,31 +446,24 @@ public class Schedule {
 
 		fromIndex++; // Exclude the cheap hour index (first index) from the search.
 
-		for (int index = fromIndex; index <= toIndex; index++) {
-			if (periods.get(index).essInitialEnergy == essUsableEnergy) {
-				return true;
-			}
-		}
-
-		return false;
+		return periods.subList(fromIndex, toIndex).stream() //
+				.anyMatch(p -> p.essInitialEnergy == essUsableEnergy);
 	}
 
 	@Override
 	public String toString() {
 		var b = new StringBuilder();
-		b.append(String.format("  %10s  %10s %10s %10s    %10s%10s   %10s \n", "Index.", "Product.", "Consumpt.",
-				"price.", "Battery.", "  Grid.", "EssEnegery.", "  State."));
-		for (int index = 0; index < this.periods.size(); index++) {
-			var period = this.periods.get(index);
-			var production = period.productionPrediction;
-			var consumption = period.consumptionPrediction;
-			var price = period.price;
-			var chargeDischarge = period.chargeDischargeEnergy;
-			var grid = period.gridEnergy;
-			var initialEnergy = period.essInitialEnergy;
-			var state = period.getStateMachine(this.controlMode).toString();
-			b.append(String.format("%10d %10d %10d     %10f %10d %10d  %10d   %10s \n", index, production, consumption,
-					price, chargeDischarge, grid, initialEnergy, state));
+		b.append("%10s %10s %10s %10s %10s %10s %10s \n".formatted("Index.", "Product.", "Consumpt.", "price.",
+				"Battery.", "Grid.", "EssEnegery.", "State."));
+		final var iterator = this.periods.listIterator();
+		while (iterator.hasNext()) {
+			final var index = iterator.nextIndex();
+			final var period = iterator.next();
+			b.append("%10d %10d %10d %10f %10d %10d %10d %10s\n".formatted(index, //
+					period.productionPrediction, period.consumptionPrediction, //
+					period.price, period.chargeDischargeEnergy, //
+					period.gridEnergy, period.essInitialEnergy, //
+					period.getStateMachine(this.controlMode).toString()));
 		}
 		return b.toString();
 	}

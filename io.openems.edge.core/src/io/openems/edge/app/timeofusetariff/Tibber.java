@@ -109,10 +109,11 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var alias = this.getString(p, l, Property.ALIAS);
-			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_PROVIDER_ID);
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_ID);
+
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
 			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
