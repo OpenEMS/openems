@@ -1,27 +1,13 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import static org.junit.Assert.assertEquals;
-
-
 import java.awt.Color;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
 
 import org.junit.Test;
-import io.openems.edge.predictor.lstmmodel.LstmPredictorImpl;
-import io.openems.edge.predictor.lstmmodel.util.makeMultipleModel;
-import io.openems.edge.predictor.lstmmodel.validation.Validation;
+//import io.openems.edge.predictor.lstmmodel.validation.ValidationUpdated;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.Plot;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.common.test.Plot.AxisFormat;
-import io.openems.edge.timedata.test.DummyTimedata;
 
 public class LstmModelPredictorTest {
 
@@ -35,12 +21,13 @@ public class LstmModelPredictorTest {
 		
 		
 		//makeMultipleModel obj = new makeMultipleModel();
-		Validation obj1 = new Validation();
-		LstmPredictorImpl obj5 = new LstmPredictorImpl ();
+		//Validation obj1 = new Validation();
+		 //Prediction obj2 = new Prediction(33246,73953495);
+		//LstmPredictorImpl obj5 = new LstmPredictorImpl ();
 	
 		
 //
-//		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+//	final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 //				ZoneOffset.UTC);
 //
 //	     var values = Data.data;
@@ -82,36 +69,38 @@ public class LstmModelPredictorTest {
 //
 	}
 //
-//	private void makePlot(Integer[] predictedValues, Integer[] p) {
-//		Plot.Data dataActualValues = Plot.data();
-//		Plot.Data dataPredictedValues = Plot.data();
-//
-//		for (int i = 0; i < 96; i++) {
-//			dataActualValues.xy(i, predictedValues[i]);
-//			dataPredictedValues.xy(i, p[i]);
-//		}
-//
-//		Plot plot = Plot.plot(//
-//				Plot.plotOpts() //
-//						.title("Pridction Charts") //
-//						.legend(Plot.LegendFormat.BOTTOM)) //
-//				.xAxis("x, every 15min data for a day", Plot.axisOpts() //
-//						.format(AxisFormat.NUMBER_INT) //
-//						.range(0, 96)) //
-//				.yAxis("y, Watts ", Plot.axisOpts() //
-//						.format(AxisFormat.NUMBER_INT)) //
-//				.series("Actual", dataActualValues, Plot.seriesOpts() //
-//						.color(Color.BLACK)) //
-//				.series("Prediction", dataPredictedValues, Plot.seriesOpts() //
-//						.color(Color.RED)); //
-//
-//		try {
-//			String path = "./testResults";
-//			plot.save(path + "/prediction", "png");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
+	private void makePlot(Integer[] predictedValues, Integer[] p) {
+		Plot.Data dataActualValues = Plot.data();
+		Plot.Data dataPredictedValues = Plot.data();
+
+		for (int i = 0; i < 96; i++) {
+			dataActualValues.xy(i, predictedValues[i]);
+			dataPredictedValues.xy(i, p[i]);
+		}
+
+		Plot plot = Plot.plot(//
+				Plot.plotOpts() //
+						.title("Pridction Charts") //
+						.legend(Plot.LegendFormat.BOTTOM)) //
+				.xAxis("x, every 15min data for a day", Plot.axisOpts() //
+						.format(AxisFormat.NUMBER_INT) //
+						.range(0, 96)) //
+				.yAxis("y, Watts ", Plot.axisOpts() //
+						.format(AxisFormat.NUMBER_INT)) //
+				.series("Actual", dataActualValues, Plot.seriesOpts() //
+						.color(Color.BLACK)) //
+				.series("Prediction", dataPredictedValues, Plot.seriesOpts() //
+						.color(Color.RED)); //
+
+		try {
+			String path = "./testResults";
+			plot.save(path + "/prediction", "png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 //
 }

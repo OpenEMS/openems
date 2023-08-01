@@ -17,12 +17,12 @@ public class TrainTestSplit {
 		this.trainIndexLower = 0;
 		this.trainIndexHigher = (int) (percentage * size);
 		
-		this.validateIndexLower =0; //trainIndexHigher+1 ;
-		this.validateIndexHigher = size-1;//validateIndexLower + (int) (valSplit * size);
+		this.validateIndexLower =trainIndexHigher+1 ;
+		this.validateIndexHigher = validateIndexLower + (int) (valSplit * size);
 
 		this.testIndexLower = validateIndexLower ;
 		this.testIndexHigher = testIndexLower + (int) (valSplit * size);
-		//this.validateIndexHigher = this.testIndexHigher;// here we are ignoring the test data 
+		this.validateIndexHigher = this.testIndexHigher;// here we are ignoring the test data 
 
 
 

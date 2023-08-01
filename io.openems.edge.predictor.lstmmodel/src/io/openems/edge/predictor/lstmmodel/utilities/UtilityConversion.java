@@ -29,8 +29,7 @@ public class UtilityConversion {
 	 */
 	public static List<Double> convertListIntegerToListDouble(List<Integer> toBeConverted) {
 		return toBeConverted.stream() //
-				.mapToDouble(
-						i ->  i == null ? null :  i) //
+				.mapToDouble(i -> i == null ? null : i) //
 				.boxed() //
 				.collect(Collectors.toList());
 	}
@@ -81,6 +80,20 @@ public class UtilityConversion {
 		return data.stream() //
 				.mapToDouble(Double::doubleValue) //
 				.toArray();
+	}
+
+	public static ArrayList<ArrayList<Double>> convert2DArrayTo2DArrayList(double[][] data) {
+		ArrayList<ArrayList<Double>> toReturn = new ArrayList<ArrayList<Double>>();
+		for (int i = 0; i < data.length; i++) {
+			ArrayList<Double> temp = new ArrayList<Double>();
+			for (int j = 0; j < data[i].length; j++) {
+				temp.add(data[i][j]);
+
+			}
+			toReturn.add(temp);
+		}
+		return toReturn;
+
 	}
 
 }

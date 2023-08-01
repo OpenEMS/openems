@@ -3,7 +3,6 @@ package io.openems.edge.predictor.lstmmodel.preprocessing;
 import static io.openems.edge.predictor.lstmmodel.utilities.SlidingWindowSpliterator.windowed;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,10 +38,10 @@ public class PreProcessingImpl {
 		this.dataList = (ArrayList<Double>) data;
 		this.windowSize = windowSize;
 
-		this.max = 10694.0;//Collections.max(this.dataList);
-		this.min = -1255.666667;//Collections.min(this.dataList);
+		this.max = 73953495 ;//Collections.max(this.dataList);
+		this.min =33246;//Collections.min(this.dataList);
 		// TODO make percentage dynamic
-		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
+		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.6, 0.3);
 	}
 
 	/**

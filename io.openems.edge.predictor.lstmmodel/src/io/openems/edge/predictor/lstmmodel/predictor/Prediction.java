@@ -1,49 +1,34 @@
 package io.openems.edge.predictor.lstmmodel.predictor;
 
+import java.awt.Color;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
-import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessing;
-import io.openems.edge.predictor.lstmmodel.preprocessing.RMSErrorCalculator;
-//import com.example.LstmPredictorImpl.Predictor;
+import io.openems.edge.common.test.Plot;
+import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-import io.openems.edge.predictor.lstmmodel.predictor.ScaleBack;
-import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
-import io.openems.edge.predictor.lstmmodel.predictor.Preprocessing;
 
 public class Prediction {
 	public ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
-	public ArrayList<Double> dataShouldBe =  new ArrayList<Double>();
-
+	public ArrayList<Double> dataShouldBe = new ArrayList<Double>();
 	
 
-	public Prediction(double minOfTrainingData,double maxOfTrainingData) {
-		// TODO Auto-generated method stub
-		// on calling this we should get 96 data points
+	public Prediction(double minOfTrainingData, double maxOfTrainingData,int weekNumber) {
 
 		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
-
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
 		ArrayList<Double> scaledData = new ArrayList<Double>();
 		ArrayList<Double> predicted = new ArrayList<Double>();
-		//ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
-
-		Data obj = new Data(10);
-		ReadModels obj5 = new ReadModels();
 		
 
+		Data obj = new Data(weekNumber);
 		ArrayList<Double> dataToPredict = obj.sevenDaysData;
 		ArrayList<OffsetDateTime> dateToPredict = obj.sevenDayDates;
-		//int windowSize = 7;
-
-		//System.out.println(dataToPredict.size());
 
 		dataShouldBe = obj.eighthDayData;
-		ArrayList<OffsetDateTime> dateShouldBe = obj.eighthDayDate;
-//		System.out.println(dateShouldBe);
-//		System.out.println(dataShouldBe);
 
 		/**
 		 * Interpolate
@@ -76,65 +61,69 @@ public class Prediction {
 			obj3.minute();
 			dataGroupedByMinute.add(obj3.groupedDataByMin);
 			dateGroupedByMinute.add(obj3.groupedDateByMin);
-		}
-////		System.out.println(dataGroupedByMinute);
-////		System.out.println(dateGroupedByMinute);
 
-		
+		}
 
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
-////			 Preprocessing obj4 =new Preprocessing(dataGroupedByMinute.get(i).get(j));
-////			 obj4.scale();
-////			 scaledData.add(obj4.scaledData);
 				dataGroupedByMinute1.add(dataGroupedByMinute.get(i).get(j));
-////			 
+
 			}
 
 		}
 
-	/**
+		/**
 		 * Make prediction
 		 */
-		System.out.println(obj5.allModel);
-		predicted = Predictor.Predict(dataGroupedByMinute1, obj5.allModel.get(obj5.allModel.size()-1));
 		
+		predicted = Predictor.Predict(dataGroupedByMinute1, ReadModels.allModel.get(ReadModels.allModel.size() - 1));
 		
+
 
 		/**
 		 * scale back //
 		 */
-////		int k=0;
-		for (int i = 0; i<predicted.size();i++) {
-////			 for (int j = 0; j<dataGroupedByMinute.get(i).size();j++) {
-			
-////				 
-				 predictedAndScaledBack.add(ScaleBack.scaleBack(dataToPredict,predicted.get(i),minOfTrainingData,maxOfTrainingData));
-////				 k=k+1;
-////				 
-////		
+
+		for (int i = 0; i < predicted.size(); i++) {
+
+			predictedAndScaledBack
+					.add(ScaleBack.scaleBack( predicted.get(i), minOfTrainingData, maxOfTrainingData));
+
 		}
-////		}
-////	
-double error= RMSErrorCalculator.calculateRMSError( dataShouldBe, predictedAndScaledBack);
-//		
-///for (int i = 0; i<predictedAndScaledBack.size();i++) {		
-//System.out.println( predictedAndScaledBack);	
-////System.out.print("    ,      ");
-//System.out.println(dataShouldBe);
-//System.out.print(dataGroupedByMinute);
 
-//
-////System.out.println("");
-////		
-////		
-////	}
-//System.out.println("Predicted: "+predictedAndScaledBack);
-//System.out.println("Orginal: "+dataShouldBe);
-//
-//System.out.println(error);
-
-//System.out.println( predictedAndScaledBack);	
+		
 
 	}
+	public static void makePlot(ArrayList<Double> predictedValues, ArrayList<Double> p,int weekNumber) {
+		Plot.Data dataActualValues = Plot.data();
+		Plot.Data dataPredictedValues = Plot.data();
+
+		for (int i = 0; i < 96; i++) {
+			dataActualValues.xy(i, predictedValues.get(i));
+			dataPredictedValues.xy(i, p.get(i));
+		}
+
+		Plot plot = Plot.plot(//
+				Plot.plotOpts() //
+						.title("Prediction Charts for week "+ weekNumber) //
+						.legend(Plot.LegendFormat.BOTTOM)) //
+				.xAxis("x, every 15min data for a day", Plot.axisOpts() //
+						.format(AxisFormat.NUMBER_INT) //
+						.range(0, 96)) //
+				.yAxis("y, Kilo Watts ", Plot.axisOpts() //
+						.format(AxisFormat.NUMBER_INT)) //
+				.series("Actual", dataActualValues, Plot.seriesOpts() //
+						.color(Color.BLACK)) //
+				.series("Prediction", dataPredictedValues, Plot.seriesOpts() //
+						.color(Color.RED)); //
+
+		try {
+			String path = "./testResults";
+			plot.save(path + "/prediction", "png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 }

@@ -2,6 +2,7 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
@@ -67,11 +68,11 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 		);
 		
-//		double minOfTrainingData = -1255.666667;
-//		double maxOfTrainingData = 10694.0;
+		double minOfTrainingData = 0;
+		double maxOfTrainingData = 4.33486544444E11;
 //		
 //		//makeMultipleModel models = new makeMultipleModel();
-//		Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
+		//Prediction predict = new Prediction(minOfTrainingData, maxOfTrainingData);
 //		System.out.println(predict.predictedAndScaledBack);
 //		System.out.println(predict.dataShouldBe);
 
@@ -135,6 +136,11 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		}
 
 		System.out.println("adsfgsad" + data);
+		
+	//get date
+		
+		
+		System.exit(0);
 //
 //		ArrayList<Double> doubleListData = new ArrayList<>();
 //		
@@ -259,6 +265,16 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 	 */
 	static long zonedDateTimeDifference(ZonedDateTime fromDate, ZonedDateTime nowDate, ChronoUnit unit) {
 		return unit.between(fromDate, nowDate);
+		
+		
+		
 	}
+ArrayList<ZonedDateTime>getDate(ZonedDateTime fromDate, ZonedDateTime toDateTime, int interval){
+	ArrayList<ZonedDateTime> date = new ArrayList<ZonedDateTime>();
+	return date;
+	
+		
+	}
+	
 
 }

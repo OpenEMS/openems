@@ -21,7 +21,7 @@ public class ReadCsv {
 	public void getDataFromCSV() {
 
 		try {
-			String filename = "\\testResults\\loadValues.csv";
+			String filename = "\\testResults\\time_series_15min_singleindex_filtered.csv";
 			String path = new File(".").getCanonicalPath() + filename;
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));

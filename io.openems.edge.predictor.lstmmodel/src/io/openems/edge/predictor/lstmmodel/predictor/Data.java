@@ -124,9 +124,27 @@ public class Data {
 		//System.out.println(model1.dataList);
 
 	}
+	public ArrayList<Double> getData(int days){
+		ArrayList<Double> data = new ArrayList<Double>();
+		/**
+		 * Reads the data from database
+		 */
+		
+		
+		
+		return data;
+	}
+	public ArrayList<OffsetDateTime>getDate(){
+		ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
+		/**
+		 * Reads the date from database
+		 */
+		return date;
+		
+	}
 
 	public void dataForWeekN(int n) { // Pass n less than 358
-		int dataPointsForday = 288;
+		int dataPointsForday = 96;
 		int sevenDaysdDataPoint = dataPointsForday * 7;
 		int startingpoint = n * (sevenDaysdDataPoint-1);
 		int endPoint = startingpoint + sevenDaysdDataPoint-1 ;

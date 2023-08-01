@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.lstmmodel.validation;
 
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-import io.openems.edge.predictor.lstmmodel.model.SaveModel;
 import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
 import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
 import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessingImpl;
@@ -11,9 +10,9 @@ import io.openems.edge.predictor.lstmmodel.utilities.MathUtils;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,7 +25,8 @@ public class Validation {
 	ArrayList<OffsetDateTime> dates;
 
 	public Validation() {
-		validate();
+		this.validate();
+		
 	}
 
 	public void validate() {
@@ -34,25 +34,14 @@ public class Validation {
 		 * Read the models
 		 */
 
-		ReadModels obj = new ReadModels();
-//		 finalModel = transpose(obj.allModel);
-//		 for(int i =0;i<finalModel.size();i++) {
-//		 
-//		 System.out.print(finalModel);
-//		 }
-//		 
-//
-//		/**
-//		 * Get the data
-//		 */
 		ReadCsv csv = new ReadCsv();
 		values = csv.data;
 		dates = csv.dates;
-//
-//		/**
-//		 * preprocessing
-//		 */
-//		
+
+		/**
+		 * Preprocess 
+		 */
+		
 
 		/**
 		 * compute interpolation
@@ -81,18 +70,16 @@ public class Validation {
 			dateGroupedByMinute.add(groupAsMinute.groupedDateByMin);
 		}
 
-		System.out.println(obj.allModel.size());
-		System.out.println(obj.allModel.get(0).size());
+		
 
 
 		/**
 		 * compute model //
 		 */
+		ReadModels obj = new ReadModels();
 		for (int h = 0; h < obj.allModel.size(); h++) {
 			//
 			System.out.print(h);
-			ArrayList<ArrayList<ArrayList<Double>>> allModel = new ArrayList<ArrayList<ArrayList<Double>>>();
-			
 			ArrayList<Double>rmsTemp1 = new ArrayList<Double>();
 		   
 			int k = 0;
@@ -101,59 +88,49 @@ public class Validation {
 				
 				
 				for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
-					System.out.println("Data Index: " + i + "," + j);
-					System.out.println("weight Index: " + h + "," + k);
+					
 
-					System.out.println("Data by minutes" + dataGroupedByMinute.get(i).get(j));
+					
 
-					System.out.print("model: " + obj.allModel.get(h).get(k));
-					// System.exit(0);
+	
 					int windowsSize = 7;
 					PreProcessingImpl preprocessing = new PreProcessingImpl(dataGroupedByMinute.get(i).get(j),
 							windowsSize);
 					preprocessing.scale(0.2, 0.8);
 					try {
 
-						double[][] trainData = preprocessing.getFeatureData(
-								preprocessing.trainTestSplit.trainIndexLower,
-								preprocessing.trainTestSplit.trainIndexHigher);
-
 						double[][] validateData = preprocessing.getFeatureData(
 								preprocessing.trainTestSplit.validateIndexLower,
 								preprocessing.trainTestSplit.validateIndexHigher);
-
-						double[][] testData = preprocessing.getFeatureData(preprocessing.trainTestSplit.testIndexLower,
-								preprocessing.trainTestSplit.testIndexHigher);
-
-						double[] trainTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.trainIndexLower,
-								preprocessing.trainTestSplit.trainIndexHigher);
 
 						double[] validateTarget = preprocessing.getTargetData(
 								preprocessing.trainTestSplit.validateIndexLower,
 								preprocessing.trainTestSplit.validateIndexHigher);
 
-						Suffle obj1 = new Suffle(trainData, trainTarget);
+		
 						Suffle obj2 = new Suffle(validateData, validateTarget);
 
 						/**
 						 * changing double [][] to ArrayList<ArralList<Double>>
 						 */
 
-						// System.out.print("Data Passed for valodation"+obj2.data);
-						ArrayList<ArrayList<Double>> val = obj.allModel.get(h).get(k);
-
+			
+						ArrayList<ArrayList<Double>> val = ReadModels.allModel.get(h).get(k);
+						
+						
+	
+						
 						ArrayList<Double> result = Predict(obj2.data, val);
+					   
+				
 						double rms = computeRms(obj2.target, result);
 						rmsTemp1.add(rms);
-						
-						//System.exit(0);
-
+						System.out.println(rms);
 						k = k + 1;
-						//System.out.println("Result :" + result);
+						
 
-					} //
-//			}
-//	
+					} 
+
 					catch (Exception e) {
 						e.printStackTrace();
 
@@ -167,23 +144,19 @@ public class Validation {
 
 		}
 		
-		System.out.println(rmsTemp2.size()+","+rmsTemp2.get(0).size());
+		
 		
 		List<List<Integer>> minInd =findMinimumIndices(rmsTemp2);
-		System.out.println("Minimum Index :" +minInd);
-		obj. updateModel(minInd);
+		Integer optimumWeightIndex  = estimateOptimumWeightIndex(minInd);
+		
+		System.out.println("Minimum Index :" +optimumWeightIndex);
+		obj. updateModel(optimumWeightIndex);
 		
 	}
 
 	public static ArrayList<Double> Predict(double[][] data, ArrayList<ArrayList<Double>> val) {
 
-//		System.out.println("wi:"+wi.size());
-//		System.out.println("wo:"+wo.size());
-//		System.out.println("wz:"+wz.size());
-//		System.out.println("ri:"+Ri.size());
-//		System.out.println("ri:"+Ro.size());
-//		System.out.println("rz:"+Rz.size());
-		// System.out.println("wi:"+wi.size());
+
 		System.out.println(val.size());
 		ArrayList<Double> result = new ArrayList<Double>();
 		for (int i = 0; i < data.length; i++) {
@@ -207,13 +180,12 @@ public class Validation {
 		double ct = 0;
 
 		double yt = 0;
-//		System.out.println("Input data size: "+inputData.size());
-//		System.out.println("Wi size"+wi.size());
+	
 
 		for (int i = 0; i < data.length; i++) {
-			double it = MathUtils.sigmoid(wi.get(i) * data.length + Ri.get(i) * yt);
-			double ot = MathUtils.sigmoid(wo.get(i) * data.length + Ro.get(i) * yt);
-			double zt = MathUtils.tanh(wz.get(i) * data.length + Rz.get(i) * yt);
+			double it = MathUtils.sigmoid(wi.get(i) * data[i] + Ri.get(i) * yt);
+			double ot = MathUtils.sigmoid(wo.get(i) * data[i] + Ro.get(i) * yt);
+			double zt = MathUtils.tanh(wz.get(i) * data[i] + Rz.get(i) * yt);
 			ct = ct + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}
@@ -232,11 +204,11 @@ public class Validation {
 				.average()//
 				.orElse(0.0));
 
-//		
+		
 	}
 	
 	
-	
+
 	 public static List<List<Integer>> findMinimumIndices(ArrayList<ArrayList<Double>> matrix) {
 	        List<List<Integer>> minimumIndices = new ArrayList<>();
 
@@ -250,7 +222,7 @@ public class Validation {
 	            double min = matrix.get(0).get(col);
 	            List<Integer> minIndices = new ArrayList<>(Arrays.asList(0, col));
 
-	            for (int row = 1; row < matrix.size(); row++) {
+	            for (int row = 0; row < matrix.size(); row++) {
 	                double value = matrix.get(row).get(col);
 
 	                if (value < min) {
@@ -262,39 +234,50 @@ public class Validation {
 
 	            minimumIndices.add(minIndices);
 	        }
+	        for(int i=0;i< minimumIndices.size();i++) {
+	        	System.out.println(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
+	        	
+	        }
 
 	        return minimumIndices;
 	    }
 	
-//	 public static List<List<Integer>> findMinimumIndices(ArrayList<ArrayList<Double>> matrix) {
-//	        List<List<Integer>> minimumIndices = new ArrayList<>();
-//
-//	        if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
-//	            return minimumIndices;  // Empty matrix, return empty list
-//	        }
-//
-//	        int numRows = matrix.size();
-//
-//	        for (int row = 0; row < numRows; row++) {
-//	            ArrayList<Double> currentRow = matrix.get(row);
-//	            double min = currentRow.get(0);
-//	            int minIndex = 0;
-//
-//	            for (int col = 1; col < currentRow.size(); col++) {
-//	                double value = currentRow.get(col);
-//
-//	                if (value < min) {
-//	                    min = value;
-//	                    minIndex = col;
-//	                }
-//	            }
-//
-//	            minimumIndices.add(List.of(row, minIndex));
-//	        }
-//
-//	        return minimumIndices;
-//	    }
-//	 
+
+ public static Integer estimateOptimumWeightIndex(List<List<Integer>> index) {
 	
+	 Integer toReturn ;
+	 ArrayList<Integer>temp = new ArrayList<Integer>();
+	 for (int i= 0;i<index.size();i++) {
+		 temp.add(index.get(i).get(0));
+	 }
+	 toReturn = findValueWithMaxCount(temp);
+	 return toReturn;
+	 }
+ public static Integer findValueWithMaxCount(ArrayList<Integer> numbers) {
+     if (numbers == null || numbers.isEmpty()) {
+         return null; // Return null for an empty list or null input
+     }
+
+     // Create a HashMap to store the count of each value
+     HashMap<Integer, Integer> countMap = new HashMap<>();
+
+     // Traverse the ArrayList and count occurrences of each value
+     for (Integer num : numbers) {
+         countMap.put(num, countMap.getOrDefault(num, 0) + 1);
+     }
+
+     // Find the value with maximum count
+     int maxCount = 0;
+     Integer maxCountValue = null;
+     for (Map.Entry<Integer, Integer> entry : countMap.entrySet()) {
+         int count = entry.getValue();
+         if (count > maxCount) {
+             maxCount = count;
+             maxCountValue = entry.getKey();
+         }
+     }
+
+     return maxCountValue;
+ }
 
 }

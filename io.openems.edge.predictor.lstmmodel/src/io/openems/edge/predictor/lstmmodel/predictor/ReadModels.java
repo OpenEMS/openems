@@ -1,67 +1,5 @@
 package io.openems.edge.predictor.lstmmodel.predictor;
 import io.openems.edge.predictor.lstmmodel.model.SaveModel;
-//import java.util.ArrayList;
-
-//import java.io.BufferedReader;
-//import java.io.File;
-//import java.io.FileReader;
-//import java.io.IOException;
-//
-//
-//public class ReadModels {
-//	
-//	public static final String FILENAME = "\\testResults\\model.txt";
-//	ArrayList<ArrayList<Double>> data = new ArrayList<ArrayList<Double>>();
-//	
-//	public ReadModels() {
-//		try {
-//			String filename = "\\testResults\\model.txt";
-//			String path = new File(".").getCanonicalPath() + filename;
-//			String filePath = path;
-//	         data = parseFile(filePath);
-//		}
-//
-//
-//	 catch (IOException e) {
-//		e.printStackTrace();
-//	}
-//		
-//		
-//		
-//		
-//
-//       
-//    }
-//
-//		
-//	
-//	
-//	public static ArrayList<ArrayList<Double>> parseFile(String filePath) {
-//		
-//        ArrayList<ArrayList<Double>> result = new ArrayList<>();
-//
-//        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-//            String line;
-//            
-//            while ((line = reader.readLine()) != null) {
-//                String[] numbers = line.split(" ");
-//                ArrayList<Double> row = new ArrayList<>();
-//                for (String number : numbers) {
-//                    double value = Double.parseDouble(number);
-//                    row.add(value);
-//                }
-//                result.add(row);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return result;
-//    }
-//
-//   
-//}
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -79,27 +17,14 @@ public class ReadModels {
 			String filename = "\\testResults\\model.txt";
 			String path = new File(".").getCanonicalPath() + filename;
 			String filePath = path;
-//        String filename = "data.txt"; // Replace with your file path
+
 			dataList = readDataFile(filePath);
-			//
+
 			
 			
 
 			allModel = reshape();
-			//System.out.println(dataList);
-			//System.exit(0);
 			
-			//
-			
-//        for (ArrayList<ArrayList<Double>> outerList : dataList) {
-//            for (ArrayList<Double> innerList : outerList) {
-//                for (Double value : innerList) {
-//                    System.out.print(value + " ");
-//                }
-//                System.out.println();
-//            }
-//            System.out.println();
-//    	}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -135,17 +60,10 @@ public class ReadModels {
 						innerList.add(Double.parseDouble(value));
 					}
 					outerList.add(innerList);
-					innerList = new ArrayList();
+					innerList = new ArrayList<Double>();
 				}
 			}
 
-//            if (!innerList.isEmpty()) {
-//                outerList.add(innerList);
-//            }
-//
-//            if (!outerList.isEmpty()) {
-//                dataList.add(outerList);
-//            }
 
 			scanner.close();
 		} catch (FileNotFoundException e) {
@@ -157,10 +75,8 @@ public class ReadModels {
 
 	public ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape() {
 
-		int m = 12 * 24;
+		int m = 4 * 24;
 		int n = dataList.size() / m;
-//		System.out.println();
-//		System.exit(0);
 		int o =0;
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> temp2 = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		for (int i = 0; i < n; i++) {
@@ -177,8 +93,6 @@ public class ReadModels {
 		return temp2;
 	}
 public static void updateModel(List<List<Integer>>index) {
-	System.out.println("optimum weight");
-	System.out.print(allModel.size() +","+ allModel.get(0).size());
 	ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
 	ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 	
@@ -192,12 +106,17 @@ public static void updateModel(List<List<Integer>>index) {
 	
 	}
 	finalWeight.add(optimumWeight);
-	SaveModel obj =new SaveModel();
+	SaveModel.saveModels(finalWeight);
 	
-	obj.saveModels(finalWeight);
-	
-	obj.saveModels(finalWeight, "BestModels.txt");
+	SaveModel.saveModels(finalWeight, "BestModels.txt");
 	
 }
+public static void updateModel(Integer index) {
+	ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+	ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
+	optimumWeight=allModel.get(index);
+	finalWeight.add(optimumWeight);
+	SaveModel.saveModels(finalWeight);
 
+}
 }

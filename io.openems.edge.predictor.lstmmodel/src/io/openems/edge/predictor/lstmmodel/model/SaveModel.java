@@ -7,65 +7,60 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SaveModel {
-	public void SaveModel() {
-		
-	}
-
-
+	
 
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix, String fileName) {
 
 		try {
 			String relativePath = "\\testResults\\" + fileName;
-			 String path = new File(".").getCanonicalPath() + relativePath;
-		        FileWriter fw = new FileWriter(path);
-		        BufferedWriter bw = new BufferedWriter(fw);
+			String path = new File(".").getCanonicalPath() + relativePath;
+			FileWriter fw = new FileWriter(path);
+			BufferedWriter bw = new BufferedWriter(fw);
 
-		        for (ArrayList<ArrayList<ArrayList<Double>>> level1 : weightMatrix) {
-		            for (ArrayList<ArrayList<Double>> level2 : level1) {
-		                for (ArrayList<Double> level3 : level2) {
-		                    for (Double value : level3) {
-		                        bw.write(value.toString() + " ");
-		                    }
-		                    bw.newLine();
-		                }
-		                bw.newLine();
-		            }
-		            bw.newLine();
-		        }
+			for (ArrayList<ArrayList<ArrayList<Double>>> level1 : weightMatrix) {
+				for (ArrayList<ArrayList<Double>> level2 : level1) {
+					for (ArrayList<Double> level3 : level2) {
+						for (Double value : level3) {
+							bw.write(value.toString() + " ");
+						}
+						bw.newLine();
+					}
+					bw.newLine();
+				}
+				bw.newLine();
+			}
 
-		        bw.close();
+			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix) {
-	    try {
-	        String filename = "\\testResults\\model.txt";
-	        String path = new File(".").getCanonicalPath() + filename;
-	        FileWriter fw = new FileWriter(path);
-	        BufferedWriter bw = new BufferedWriter(fw);
+		try {
+			String filename = "\\testResults\\model.txt";
+			String path = new File(".").getCanonicalPath() + filename;
+			FileWriter fw = new FileWriter(path);
+			BufferedWriter bw = new BufferedWriter(fw);
 
-	        for (ArrayList<ArrayList<ArrayList<Double>>> level1 : weightMatrix) {
-	            for (ArrayList<ArrayList<Double>> level2 : level1) {
-	                for (ArrayList<Double> level3 : level2) {
-	                    for (Double value : level3) {
-	                        bw.write(value.toString() + " ");
-	                    }
-	                    bw.newLine();
-	                }
-	                bw.newLine();
-	            }
-	            bw.newLine();
-	        }
+			for (ArrayList<ArrayList<ArrayList<Double>>> level1 : weightMatrix) {
+				for (ArrayList<ArrayList<Double>> level2 : level1) {
+					for (ArrayList<Double> level3 : level2) {
+						for (Double value : level3) {
+							bw.write(value.toString() + " ");
+						}
+						bw.newLine();
+					}
+					bw.newLine();
+				}
+				bw.newLine();
+			}
 
-	        bw.close();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-
 
 }
