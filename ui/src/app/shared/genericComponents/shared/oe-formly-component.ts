@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
+
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
@@ -36,7 +37,6 @@ export abstract class AbstractFormlyComponent {
                 title: view.title
               },
               lines: view.lines,
-              formGroup: this.form,
               ...(view.component && { component: view.component })
             },
             wrappers: ['formly-field-modal']
@@ -53,10 +53,6 @@ export abstract class AbstractFormlyComponent {
     * @param translate the Translate-Service
     */
   protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView;
-
-  protected static getFormGroup(component: EdgeConfig.Component, formBuilder: FormBuilder): FormGroup {
-    return new FormGroup({});
-  }
 }
 
 export type OeFormlyView = {

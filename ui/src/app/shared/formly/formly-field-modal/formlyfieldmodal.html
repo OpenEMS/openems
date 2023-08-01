@@ -1,7 +1,6 @@
 <oe-modal [title]="props.attributes.title" *ngIf="props.component && formGroup" [component]="props.component"
     [formGroup]="formGroup">
     <ng-container *ngFor="let line of props?.lines">
-        <!-- <ng-container *ngFor="let line of entry.lines"> -->
         <ng-container [ngSwitch]="line.type">
 
             <!-- OeFormlyField.ChannelLine -->
@@ -37,6 +36,5 @@
                 </oe-modal-buttons>
             </ng-container>
         </ng-container>
-        <!-- </ng-container> -->
     </ng-container>
 </oe-modal>

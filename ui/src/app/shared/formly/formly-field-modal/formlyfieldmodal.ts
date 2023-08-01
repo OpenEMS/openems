@@ -66,7 +66,7 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
                         return;
                     }
 
-                    let value;
+                    let value: number | string | null;
                     if (control.converter != null && currentData) {
                         value = control.converter(currentData);
                     } else {
