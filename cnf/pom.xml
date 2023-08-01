@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>32.1.1-jre</version>
+			<version>32.1.2-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -266,7 +266,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.15.5</version>
+			<version>0.15.6</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -277,27 +277,27 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.9.0</version>
+			<version>6.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.9.0</version>
+			<version>6.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.9.0</version>
+			<version>6.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>6.9.0</version>
+			<version>6.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
-			<version>1.5.3</version>
+			<version>1.5.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
@@ -307,7 +307,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.7.2</version>
+			<version>1.7.3</version>
 		</dependency>
 		<dependency>
 			<!-- HTML processing -->

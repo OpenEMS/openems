@@ -142,7 +142,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       let nameSuffix = null;
 
       // Check if energyResponse is available
-      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse)) {
+      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse) != null) {
         nameSuffix = element.nameSuffix(energyResponse);
       }
 
@@ -246,7 +246,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       ...(stack != null && { stack: stack.toString() }),
       maxBarThickness: 100,
       ...(element.borderDash != null && { borderDash: element.borderDash }),
-      yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId
+      yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
+      order: element.order ?? Number.MAX_VALUE
     };
     return dataset;
   }
@@ -507,11 +508,11 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 10
             },
             gridLines: {
-              display: true
+              display: element.displayGrid ?? true
             },
             ticks: {
               beginAtZero: true,
@@ -528,12 +529,12 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 5,
               fontSize: 11
             },
             gridLines: {
-              display: true
+              display: element.displayGrid ?? true
             },
             ticks: {
               beginAtZero: false

@@ -79,18 +79,6 @@ export class ChartComponent extends AbstractHistoryChart {
       input: input,
       output: (data: HistoryUtils.ChannelData) => {
         return [
-          ...[chartType === 'line' &&
-          {
-            name: translate.instant('General.soc'),
-            converter: () => {
-              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
-            },
-            color: 'rgb(189, 195, 199)',
-            borderDash: [10, 10],
-            yAxisId: ChartAxis.RIGHT,
-            stack: 1,
-            customUnit: YAxisTitle.PERCENTAGE
-          }],
           {
             name: translate.instant('General.production'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -101,8 +89,8 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(45,143,171)',
             stack: 0,
-            hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            hiddenOnInit: chartType == 'line' ? false : true,
+            order: 1
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem
@@ -115,7 +103,8 @@ export class ChartComponent extends AbstractHistoryChart {
               data['ProductionActivePower']?.map((value, index) =>
                 value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
-            stack: [1, 2]
+            stack: [1, 2],
+            order: 2
           }],
 
           // Charge Power
@@ -131,20 +120,8 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssCharge'];
             },
             color: 'rgb(0,223,0)',
-            stack: 1
-          },
-
-          // Sell to grid
-          {
-            name: translate.instant('General.gridSell'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridSellActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridSell'];
-            },
-            color: 'rgb(0,0,200)',
-            stack: 1
+            stack: 1,
+            ...(chartType === 'line' && { order: 6 })
           },
 
           // Discharge Power
@@ -160,7 +137,22 @@ export class ChartComponent extends AbstractHistoryChart {
                 }) : data['EssDischarge'];
             },
             color: 'rgb(200,0,0)',
-            stack: 2
+            stack: 2,
+            ...(chartType === 'line' && { order: 5 })
+          },
+
+          // Sell to grid
+          {
+            name: translate.instant('General.gridSell'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/GridSellActiveEnergy'];
+            },
+            converter: () => {
+              return data['GridSell'];
+            },
+            color: 'rgb(0,0,200)',
+            stack: 1,
+            ...(chartType === 'line' && { order: 4 })
           },
 
           // Buy from Grid
@@ -173,7 +165,8 @@ export class ChartComponent extends AbstractHistoryChart {
               return data['GridBuy'];
             },
             color: 'rgb(0,0,0)',
-            stack: 2
+            stack: 2,
+            ...(chartType === 'line' && { order: 2 })
           },
 
           // Consumption
@@ -187,9 +180,21 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(253,197,7)',
             stack: 3,
-            hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
-          }
+            hiddenOnInit: chartType == 'line' ? false : true,
+            ...(chartType === 'line' && { order: 0 })
+          },
+          ...[chartType === 'line' &&
+          {
+            name: translate.instant('General.soc'),
+            converter: () => {
+              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
+            },
+            color: 'rgb(189, 195, 199)',
+            borderDash: [10, 10],
+            yAxisId: ChartAxis.RIGHT,
+            stack: 1,
+            customUnit: YAxisTitle.PERCENTAGE
+          }]
         ];
       },
       tooltip: {
@@ -215,8 +220,10 @@ export class ChartComponent extends AbstractHistoryChart {
         // Right Yaxis, only shown for line-chart
         (chartType === 'line' && {
           unit: YAxisTitle.PERCENTAGE,
+          customTitle: '%',
           position: 'right',
-          yAxisId: ChartAxis.RIGHT
+          yAxisId: ChartAxis.RIGHT,
+          displayGrid: false
         })
       ]
     };

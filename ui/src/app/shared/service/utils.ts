@@ -597,7 +597,9 @@ export namespace HistoryUtils {
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
       stackIds: number[]
-    }]
+    }],
+    /** The smaller the number, the further forward it is displayed */
+    order?: number
   }
 
   /**
@@ -625,8 +627,11 @@ export namespace HistoryUtils {
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
+    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
-    yAxisId: ChartAxis
+    yAxisId: ChartAxis,
+    /** Default: true */
+    displayGrid?: boolean
   }
 
   export namespace ValueConverter {
