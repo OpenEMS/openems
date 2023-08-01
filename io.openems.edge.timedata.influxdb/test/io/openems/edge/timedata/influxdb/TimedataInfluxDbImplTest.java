@@ -24,6 +24,7 @@ public class TimedataInfluxDbImplTest {
 						.setOrg("-") //
 						.setApiKey("username:password") //
 						.setBucket("database/retentionPolicy") //
+						.setMeasurement("data") //
 						.setNoOfCycles(1) //
 						.setMaxQueueSize(5000) //
 						.setReadOnly(false) //
