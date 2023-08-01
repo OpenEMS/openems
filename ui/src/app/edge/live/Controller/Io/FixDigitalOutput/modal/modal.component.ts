@@ -43,7 +43,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     ];
 
     return {
-      title: component.alias,
+      title: component.alias ?? component.id,
       lines: lines,
       component: component
     };

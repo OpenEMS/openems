@@ -9,6 +9,10 @@
                 [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
             </oe-modal-line>
 
+            <oe-modal-line *ngSwitchCase="'only-name-line'" [filter]="line.filter"
+                [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+            </oe-modal-line>
+
             <!-- OeFormlyField.ChildrenLine -->
             <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
                 [textIndent]="line.indentation ?? '0%'" [name]="line.name">

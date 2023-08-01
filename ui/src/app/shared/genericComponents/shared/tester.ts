@@ -99,9 +99,10 @@ export class OeFormlyViewTester {
       }
 
       /**
-       * OeFormlyField.Info
+       * OeFormlyField.Info | OeFormlyField.OnlyNameLine
        */
-      case "info-line": {
+      case "info-line":
+      case "only-name-line": {
         return {
           type: field.type,
           name: field.name
@@ -114,6 +115,19 @@ export class OeFormlyViewTester {
       case "horizontal-line": {
         return {
           type: field.type
+        };
+      }
+
+      /**
+       * OeFormlyField.ButtonsFromChannelLine
+       */
+      case "buttons-from-channel-line": {
+        let value = OeFormlyViewTester.applyButtonsFromChannelLine(field, context);
+
+        return {
+          type: field.type,
+          buttons: field.buttons,
+          value: value
         };
       }
     }
@@ -147,6 +161,18 @@ export class OeFormlyViewTester {
       rawValue: rawValue,
       value: value
     };
+  }
+
+  private static applyButtonsFromChannelLine(field: OeFormlyField.ButtonsFromChannelLine, context: OeFormlyViewTester.Context) {
+
+    let rawValue = field.channel && field.channel in context ? context[field.channel] : null;
+    let currentData = { allComponents: context };
+
+    let value: string = field.converter
+      ? field.converter(currentData)
+      : rawValue === null ? null : "" + rawValue;
+
+    return value;
   }
 }
 
@@ -303,6 +329,7 @@ export namespace OeFormlyViewTester {
     | Field.ChannelLine
     | Field.ChildrenLine
     | Field.HorizontalLine
+    | Field.OnlyNameLine
     | Field.ButtonsFromChannelLine
     | Field.ButtonsFromValueLine;
 
@@ -352,7 +379,7 @@ export namespace OeFormlyViewTester {
     export type ButtonsFromChannelLine = {
       type: 'buttons-from-channel-line',
       /** The channel will be used as value for the buttons */
-      value: string,
+      value: string | boolean | number,
       buttons: ButtonLabel[]
     }
   }
