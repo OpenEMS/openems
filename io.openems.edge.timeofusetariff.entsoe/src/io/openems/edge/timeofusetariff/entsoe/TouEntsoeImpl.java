@@ -48,18 +48,20 @@ import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 )
 public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe, OpenemsComponent, TimeOfUseTariff {
 
+	private static final int EUR_EXHANGE_RATE = 1;
+	private static final int API_EXECUTE_HOUR = 14;
+
 	private final Logger log = LoggerFactory.getLogger(TouEntsoeImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
 
+	@Reference
+	private CurrencyProvider currencyProvider;
+
 	private Config config = null;
 	private Currency currency;
 	private ZonedDateTime updateTimeStamp = null;
-	private static final int EUR_EXHANGE_RATE = 1;
-
-	@Reference
-	private CurrencyProvider currencyProvider;
 
 	public TouEntsoeImpl() {
 		super(//
@@ -76,8 +78,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 		this.config = config;
-		Consumer<Currency> updateCurrency = t -> {
-			this.currency = t;
+		Consumer<Currency> updateCurrency = currency -> {
+			this.currency = currency;
 			this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 		};
 
@@ -109,23 +111,23 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		/**
 		 * Subscribes to the Currency channel to trigger on update.
 		 * 
-		 * @param consumer The callback {@link Consumer}.
+		 * @param updateCurrency The callback {@link Consumer}.
 		 */
-		public void subscribe(Consumer<Currency> consumer) {
+		public void subscribe(Consumer<Currency> updateCurrency) {
 
-			Consumer<Value<Integer>> c = t -> {
-				consumer.accept(t.asEnum());
+			Consumer<Value<Integer>> subscription = currency -> {
+				updateCurrency.accept(currency.asEnum());
 			};
-			this.subscriptions.add(c);
-			this.meta.getCurrencyChannel().onSetNextValue(c);
+			this.subscriptions.add(subscription);
+			this.meta.getCurrencyChannel().onSetNextValue(subscription);
 		}
 
 		/**
 		 * Unsubscribes from all the Subscriptions.
 		 */
 		public void unsubscribeAll() {
-			this.subscriptions.forEach(t -> {
-				this.meta.getCurrencyChannel().removeOnSetNextValueCallback(t);
+			this.subscriptions.forEach(subscription -> {
+				this.meta.getCurrencyChannel().removeOnSetNextValueCallback(subscription);
 			});
 		}
 	}
@@ -169,7 +171,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		 * Schedule next price update at 2 o clock every day.
 		 */
 		var now = ZonedDateTime.now();
-		var nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
+		var nextRun = now.withHour(API_EXECUTE_HOUR).truncatedTo(ChronoUnit.HOURS);
 		if (unableToUpdatePrices) {
 			// If the prices are not updated, try again in next minute.
 			nextRun = now.plusMinutes(1).truncatedTo(ChronoUnit.MINUTES);

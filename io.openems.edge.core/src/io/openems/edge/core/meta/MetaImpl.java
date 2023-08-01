@@ -40,7 +40,6 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 		super.activate(context, SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, true);
 
 		this.applyConfig(config);
-
 		if (OpenemsComponent.validateSingleton(this.cm, Meta.SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
