@@ -182,12 +182,12 @@ export abstract class AbstractHistoryChart implements OnInit {
     if (Array.isArray(element.stack)) {
       for (let stack of element.stack) {
         datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject));
-        colors.push(AbstractHistoryChart.getColors(element.color, chartType));
+        colors.push(AbstractHistoryChart.getColors(element, chartType));
         legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
       }
     } else {
       datasets.push(AbstractHistoryChart.getDataSet(element, label, data, element.stack, chartObject));
-      colors.push(AbstractHistoryChart.getColors(element.color, chartType));
+      colors.push(AbstractHistoryChart.getColors(element, chartType));
       legendOptions.push(AbstractHistoryChart.getLegendOptions(label, element));
     }
 
@@ -220,10 +220,14 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param color the color
    * @returns the backgroundColor and borderColor
    */
-  public static getColors(color: string, chartType: 'line' | 'bar'): { backgroundColor: string, borderColor: string } {
+  public static getColors(element: HistoryUtils.DisplayValues, chartType: 'line' | 'bar'): { backgroundColor: string, borderColor: string } {
+
     return {
-      backgroundColor: 'rgba(' + (chartType == 'bar' ? color.split('(').pop().split(')')[0] + ',0.4)' : color.split('(').pop().split(')')[0] + ',0.05)'),
-      borderColor: 'rgba(' + color.split('(').pop().split(')')[0] + ',1)'
+      backgroundColor: element.showBackgroundColor === false
+        // FillStyle needs to be set, to be able to work, even if you dont want to show it
+        ? 'rgba(0,0,0,0)' :
+        'rgba(' + (chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
+      borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)'
     };
   }
 
@@ -537,7 +541,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               display: element.displayGrid ?? true
             },
             ticks: {
-              beginAtZero: false
+              beginAtZero: true
             }
           });
           break;
@@ -634,7 +638,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           chartLegendLabelItems.push({
             text: dataset.label,
             datasetIndex: index,
-            fillStyle: dataset.backgroundColor.toString(),
+            fillStyle: dataset.backgroundColor?.toString(),
             hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
             lineWidth: 2,
             strokeStyle: dataset.borderColor.toString(),

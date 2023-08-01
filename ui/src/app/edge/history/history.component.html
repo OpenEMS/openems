@@ -39,9 +39,8 @@
           <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </fixDigitalOutputWidget>
         </ion-col>
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-          <symmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-          </symmetricPeakshavingWidget>
+        <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <symmetricWidget [componentId]="widget.componentId"></symmetricWidget>
         </ion-col>
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
           <asymmetricPeakshavingWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">

@@ -585,6 +585,8 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
+    /** default true, shows backgroundcolor */
+    showBackgroundColor?: boolean,
     /** the stack for barChart */
     stack?: number | number[],
     /** False per default */

@@ -6,6 +6,7 @@ import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as SymmetricOverviewComponent } from './edge/history/peakshaving/symmetric/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -19,7 +20,6 @@ import { HistoryComponent as EdgeHistoryComponent } from './edge/history/history
 import { HistoryDataService } from './edge/history/historydataservice';
 import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
-import { SymmetricPeakshavingChartOverviewComponent } from './edge/history/peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
@@ -79,7 +79,7 @@ const routes: Routes = [
           { path: ':componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
           { path: ':componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
           { path: ':componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
-          { path: ':componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+          { path: ':componentId/symmetricpeakshavingchart', component: SymmetricOverviewComponent },
           { path: ':componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
           { path: ':componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
           { path: 'autarchychart', component: AutarchyChartOverviewComponent },
@@ -87,7 +87,7 @@ const routes: Routes = [
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-          { path: 'storagechart', component: StorageChartOverviewComponent }
+          { path: 'storagechart', component: StorageChartOverviewComponent },
         ]
       },
 

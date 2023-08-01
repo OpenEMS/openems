@@ -9,6 +9,7 @@ export enum WidgetClass {
     'Grid',
     'Common_Production',
     'Consumption',
+    'Common_SymmetricPeakShaving'
 }
 
 export enum WidgetNature {
@@ -61,6 +62,7 @@ export class Widgets {
                 }
                 switch (clazz) {
                     case 'Common_Autarchy':
+                    case 'Common_SymmetricPeakShaving':
                     case 'Grid':
                         return config.hasMeter();
                     case 'Energymonitor':

@@ -43,9 +43,6 @@ import { HistoryParentComponent } from './historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { AsymmetricPeakshavingChartComponent } from './peakshaving/asymmetric/chart.component';
 import { AsymmetricPeakshavingWidgetComponent } from './peakshaving/asymmetric/widget.component';
-import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
-import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
-import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
 import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
@@ -62,6 +59,7 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Common_SymmetricPeakShaving } from './peakshaving/symmetric/Symmetric'
 
 @NgModule({
   imports: [
@@ -69,7 +67,8 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     Common_Autarchy,
     Common_Production,
     Common_Selfconsumption,
-    CommonEnergyMonitor
+    CommonEnergyMonitor,
+    Common_SymmetricPeakShaving
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -119,9 +118,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     StorageESSChartComponent,
     StorageSingleChartComponent,
     StorageTotalChartComponent,
-    SymmetricPeakshavingChartComponent,
-    SymmetricPeakshavingChartOverviewComponent,
-    SymmetricPeakshavingWidgetComponent,
     TimeOfUseTariffDischargeChartComponent,
     TimeOfUseTariffDischargeChartOverviewComponent,
     TimeOfUseTariffDischargeWidgetComponent,
