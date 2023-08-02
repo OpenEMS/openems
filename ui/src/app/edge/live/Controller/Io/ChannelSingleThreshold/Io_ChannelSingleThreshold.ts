@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Icon } from 'src/app/shared/type/widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { Icon } from 'src/app/shared/type/widget';
+
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './modal/modal.component';
 
 @Component({
@@ -29,7 +30,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public switchValue: number | string;
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     let outputChannelAddress: string | string[] = this.component.properties['outputChannelAddress'];
     if (typeof outputChannelAddress === 'string') {
       this.outputChannel = ChannelAddress.fromString(outputChannelAddress);
@@ -45,7 +46,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
       ChannelAddress.fromString(this.component.id + '/_PropertyMode')];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
 
     this.switchValue = this.component.properties['threshold'];
 

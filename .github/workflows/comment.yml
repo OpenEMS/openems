@@ -1,37 +1,38 @@
 name: Comment Pull_Request
 on:
   workflow_run:
-    workflows: [Upload data]
+    workflows: [Build OpenEMS]
     types:
       - completed
 
 jobs:
-  download:
+  comment_jacoco:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: 'Download artifact'
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               run_id: context.payload.workflow_run.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
             });
             let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "pr_comment"
+              return artifact.name == 'jacoco_report'
             })[0];
             let download = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifact.id,
-               archive_format: 'zip',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
             });
             let fs = require('fs');
-            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/jacoco_report.zip`, Buffer.from(download.data));
 
       - name: 'Unzip artifact'
-        run: unzip pr_comment.zip
+        run: unzip jacoco_report.zip
 
       - name: 'Comment on PR'
         uses: actions/github-script@v6
@@ -39,8 +40,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let fs = require('fs');
-            let comment = fs.readFileSync('./pr_badge');
-            let issue_number = Number(fs.readFileSync('./pr_number'));
+            let comment = fs.readFileSync('./jacoco_report_badge', { encoding: 'utf8', flag: 'r' });
+            let issue_number = Number(fs.readFileSync('./jacoco_report_number'));
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

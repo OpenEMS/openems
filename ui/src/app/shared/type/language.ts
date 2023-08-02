@@ -37,6 +37,7 @@ export class Language {
 
     public static getByKey(key: string): Language | null {
         for (let language of Language.ALL) {
+
             if (language.key == key) {
                 return language;
             }

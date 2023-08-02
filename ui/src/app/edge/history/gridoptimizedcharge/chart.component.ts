@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -23,8 +24,8 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("gridOptimizedCharge-chart", service, translate);
