@@ -139,9 +139,9 @@
           "chargeLimitReached": "Charge limit reached",
           "chargeMode": "Charge Mode",
           "chargeTarget": "Charge target",
-          "charging": "Is charing",
+          "charging": "Is charging",
           "chargingLimit": "Charging limit",
-          "chargingPower": "Charing power",
+          "chargingPower": "Charging power",
           "chargingStation": "Charging Station",
           "chargingStationCluster": "Charging station cluster",
           "chargingStationDeactivated": "Charging station deactivated",
@@ -197,7 +197,8 @@
             "maxChargingDetails": "If the car can not load the entered maximum value, the power will be automatically limited.",
             "name": "Force charging",
             "shortName": "Manually"
-          }
+          },
+          "Uncontrollable": "This charging station can not be controlled."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
