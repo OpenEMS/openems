@@ -11,14 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.task.AbstractTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
  * A ModbusElement represents one row of a Modbus definition table.
  *
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
+public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T> {
 
 	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
@@ -26,22 +27,23 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	private final OpenemsType type;
 	private final int startAddress;
-	private final boolean isIgnored;
 
 	// Counts for how many cycles no valid value was
 	private int invalidValueCounter = 0;
 
-	protected AbstractTask abstractTask = null;
+	protected Task task = null;
 
 	public AbstractModbusElement(OpenemsType type, int startAddress) {
-		this(type, startAddress, false);
-	}
-
-	public AbstractModbusElement(OpenemsType type, int startAddress, boolean isIgnored) {
 		this.type = type;
 		this.startAddress = startAddress;
-		this.isIgnored = isIgnored;
 	}
+
+	/**
+	 * Gets an instance of the correct subclass of myself.
+	 *
+	 * @return myself
+	 */
+	protected abstract SELF self();
 
 	@Override
 	public final void onSetNextWrite(Consumer<Optional<T>> callback) {
@@ -65,9 +67,9 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
-	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback) {
+	public SELF onUpdateCallback(Consumer<T> onUpdateCallback) {
 		this.onUpdateCallbacks.add(onUpdateCallback);
-		return this;
+		return this.self();
 	}
 
 	@Override
@@ -76,17 +78,12 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public boolean isIgnored() {
-		return this.isIgnored;
+	public void setModbusTask(Task task) {
+		this.task = task;
 	}
 
-	@Override
-	public void setModbusTask(AbstractTask abstractTask) {
-		this.abstractTask = abstractTask;
-	}
-
-	public AbstractTask getModbusTask() {
-		return this.abstractTask;
+	public Task getModbusTask() {
+		return this.task;
 	}
 
 	protected void setValue(T value) {
@@ -102,13 +99,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public boolean invalidate(AbstractModbusBridge bridge) {
+	public void invalidate(AbstractModbusBridge bridge) {
 		this.invalidValueCounter++;
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
 			this.setValue(null);
-			return true;
 		}
-		return false;
 	}
 
 	/*
@@ -121,7 +116,7 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 * 
 	 * @return myself
 	 */
-	public AbstractModbusElement<T> debug() {
+	public AbstractModbusElement<?, ?> debug() {
 		this.isDebug = true;
 		return this;
 	}
@@ -132,7 +127,19 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	@Override
 	public String toString() {
-		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName());
+		sb.append("type=");
+		sb.append(this.type.name());
+		sb.append(";ref=");
+		sb.append(this.startAddress);
+		sb.append("/0x");
+		sb.append(Integer.toHexString(this.startAddress));
+		if (this.isDebug) {
+			sb.append(";DEBUG");
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override

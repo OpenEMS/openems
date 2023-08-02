@@ -2,39 +2,32 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Arrays;
 
+import com.ghgande.j2mod.modbus.msg.ModbusRequest;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.common.taskmanager.Priority;
 
-public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<InputRegister> {
+@SuppressWarnings("rawtypes")
+public abstract class AbstractReadInputRegistersTask<REQUEST extends ModbusRequest, RESPONSE extends ModbusResponse>
+		extends AbstractReadTask<REQUEST, RESPONSE, ModbusRegisterElement, InputRegister> {
 
-	public AbstractReadInputRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
-		super(startAddress, priority, elements);
+	public AbstractReadInputRegistersTask(String name, Class<RESPONSE> responseClazz, int startAddress,
+			Priority priority, ModbusElement<?>... elements) {
+		super(name, responseClazz, ModbusRegisterElement.class, startAddress, priority, elements);
 	}
 
 	@Override
-	protected boolean isCorrectElementInstance(ModbusElement<?> modbusElement) {
-		return modbusElement instanceof ModbusRegisterElement;
-	}
-
-	@Override
-	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, InputRegister[] response)
+	protected void handleResponse(ModbusRegisterElement element, int position, InputRegister[] response)
 			throws OpenemsException {
-		((ModbusRegisterElement<?>) modbusElement)
-				.setInputRegisters(Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
+		element.setInputRegisters(Arrays.copyOfRange(response, position, position + element.getLength()));
 	}
 
 	@Override
-	protected String getRequiredElementName() {
-		return "ModbusRegisterElement";
-	}
-
-	@Override
-	protected int increasePosition(int position, ModbusElement<?> modbusElement) {
+	protected int calculateNextPosition(ModbusElement<?> modbusElement, int position) {
 		return position + modbusElement.getLength();
 	}
 }

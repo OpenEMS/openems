@@ -16,24 +16,16 @@ import io.openems.common.types.OpenemsType;
 /**
  * A DoubleWordElement has a size of two Modbus Registers or 32 bit.
  *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
+public abstract class AbstractDoubleWordElement<SELF, T> extends AbstractModbusRegisterElement<SELF, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
 
 	public AbstractDoubleWordElement(OpenemsType type, int startAddress) {
 		super(type, startAddress);
 	}
-
-	/**
-	 * Gets an instance of the correct subclass of myself.
-	 *
-	 * @return myself
-	 */
-	@Override
-	protected abstract E self();
 
 	@Override
 	public final int getLength() {
@@ -104,7 +96,7 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 	 * @param wordOrder the new Word-Order
 	 * @return myself
 	 */
-	public final E wordOrder(WordOrder wordOrder) {
+	public final SELF wordOrder(WordOrder wordOrder) {
 		this.wordOrder = wordOrder;
 		return this.self();
 	}

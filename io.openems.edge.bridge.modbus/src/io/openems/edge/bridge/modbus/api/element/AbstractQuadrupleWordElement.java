@@ -16,10 +16,10 @@ import io.openems.common.types.OpenemsType;
 /**
  * A QuadrupleWordElement has a size of four Modbus Registers or 64 bit.
  *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
+public abstract class AbstractQuadrupleWordElement<SELF, T> extends AbstractModbusRegisterElement<SELF, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractDoubleWordElement.class);
 
@@ -108,7 +108,7 @@ public abstract class AbstractQuadrupleWordElement<E, T> extends AbstractModbusR
 	 * @param wordOrder the WordOrder
 	 * @return myself
 	 */
-	public final E wordOrder(WordOrder wordOrder) {
+	public final SELF wordOrder(WordOrder wordOrder) {
 		this.wordOrder = wordOrder;
 		return this.self();
 	}

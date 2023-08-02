@@ -7,7 +7,8 @@ import io.openems.common.types.OpenemsType;
 /**
  * A DummyCoilElement is a placeholder for an empty {@link ModbusCoilElement}.
  */
-public class DummyCoilElement extends AbstractModbusElement<Boolean> implements ModbusCoilElement, DummyElement {
+public class DummyCoilElement extends AbstractModbusElement<DummyCoilElement, Boolean>
+		implements ModbusCoilElement, DummyElement {
 
 	public DummyCoilElement(int startAddress) {
 		super(OpenemsType.BOOLEAN, startAddress);
@@ -34,5 +35,10 @@ public class DummyCoilElement extends AbstractModbusElement<Boolean> implements 
 	@Override
 	public Optional<Boolean> getNextWriteValue() {
 		return Optional.empty();
+	}
+
+	@Override
+	protected DummyCoilElement self() {
+		return this;
 	}
 }

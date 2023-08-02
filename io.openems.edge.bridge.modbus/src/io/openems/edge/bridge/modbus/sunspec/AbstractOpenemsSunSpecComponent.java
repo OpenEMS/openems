@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -167,8 +168,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					}
 
 					// Handle SunSpec Block
-					int length = values.get(1);
-
 					if (blockId == 1 /* SunSpecModel.S_1 */) {
 						this.commonBlockCounter++;
 					}
@@ -199,8 +198,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						}
 					}
 
+					// Stop reading if all expectedBlocks have been read
+					if (remainingBlocks.isEmpty()) {
+						finished.complete(null);
+						return;
+					}
+
 					// Read next block recursively
-					var nextBlockStartAddress = startAddress + 2 + length;
+					var nextBlockStartAddress = startAddress + 2 + values.get(1);
 					try {
 
 						final var readNextBlockFuture = this.readNextBlock(nextBlockStartAddress, remainingBlocks);
@@ -278,15 +283,15 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];
+		var elements = new ModbusElement<?>[model.points().length];
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			AbstractModbusElement<?> element = point.get().generateModbusElement(startAddress);
+			var element = point.get().generateModbusElement(startAddress);
 			startAddress += element.getLength();
 			elements[i] = element;
 
-			SunSChannelId<?> channelId = point.getChannelId();
+			var channelId = point.getChannelId();
 			this.addChannel(channelId);
 
 			if (point.get().scaleFactor.isPresent()) {
@@ -294,7 +299,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				// - find the ScaleFactor-Point
 				var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
 				SunSpecPoint scaleFactorPoint = null;
-				for (SunSpecPoint sfPoint : model.points()) {
+				for (var sfPoint : model.points()) {
 					if (sfPoint.name().equals(scaleFactorName)) {
 						scaleFactorPoint = sfPoint;
 						break;
@@ -336,6 +341,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			case READ_WRITE:
 			case WRITE_ONLY:
 				// Add a Write-Task
+				// TODO create one FC16WriteRegistersTask for entire block
 				final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
 				this.modbusProtocol.addTask(writeTask);
 				break;
@@ -355,7 +361,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @throws OpenemsException on error
 	 */
 	@SafeVarargs
-	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(AbstractModbusElement<T>... elements)
+	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(AbstractModbusElement<?, T>... elements)
 			throws OpenemsException {
 		// Register listeners for elements
 		@SuppressWarnings("unchecked")

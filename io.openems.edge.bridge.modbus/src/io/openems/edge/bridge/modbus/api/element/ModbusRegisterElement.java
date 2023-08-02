@@ -10,6 +10,8 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * A ModbusRegisterElement represents one or more Modbus Registers.
+ * 
+ * @param <T> the target type
  */
 public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 

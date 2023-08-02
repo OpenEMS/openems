@@ -16,10 +16,10 @@ import io.openems.common.types.OpenemsType;
 /**
  * A WordElement has a size of one Modbus Registers or 16 bit.
  *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
+ * @param <SELF> the subclass of myself
+ * @param <T>    the target type
  */
-public abstract class AbstractWordElement<E, T> extends AbstractModbusRegisterElement<E, T> {
+public abstract class AbstractWordElement<SELF, T> extends AbstractModbusRegisterElement<SELF, T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 
