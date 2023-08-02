@@ -323,7 +323,7 @@ public class Schedule {
 
 			// Checks if the battery gets full after the cheap period and before the current
 			// period.
-			var batteryCapacityisFull = this.batteryCapacityisFull(index, expensivePeriodIndex, periods,
+			var batteryCapacityisFull = this.batteryCapacityGetsFull(index, expensivePeriodIndex, periods,
 					essUsableEnergy);
 			if (batteryCapacityisFull) {
 				continue;
@@ -443,7 +443,7 @@ public class Schedule {
 	 * @param essUsableEnergy The Usable energy in the battery.
 	 * @return True if the battery is full within the index range, False otherwise.
 	 */
-	private boolean batteryCapacityisFull(int from, int to, List<Period> periods, int essUsableEnergy) {
+	private boolean batteryCapacityGetsFull(int from, int to, List<Period> periods, int essUsableEnergy) {
 		// Exclude the cheap hour index (first index) from the search.
 		return periods.subList(from + 1, to).stream() //
 				.anyMatch(p -> p.essInitialEnergy == essUsableEnergy);
