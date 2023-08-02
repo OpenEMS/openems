@@ -1,14 +1,15 @@
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { ModalController, PopoverController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
-import { PopoverComponent } from '../popover/popover';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { AdministrationComponent } from '../administration/administration.component';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 
-type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER' | 'OFF';
+import { AdministrationComponent } from '../administration/administration.component';
+import { PopoverComponent } from '../popover/popover';
+
+type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 @Component({
   templateUrl: './modal.html'
 })
@@ -73,7 +74,9 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, 'EnergySession'),
       new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
       new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
-      new ChannelAddress(this.component.id, 'SetChargePowerLimit')
+      new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
+      new ChannelAddress(this.controller.id, '_PropertyChargeMode'),
+      new ChannelAddress(this.controller.id, '_PropertyEnabledCharging')
     ];
   }
 
@@ -111,17 +114,30 @@ export class ModalComponent extends AbstractModal {
         this.formGroup.controls['energySessionLimit'].markAsDirty();
       }
     });
+
+    this.formGroup?.get('chargeMode').valueChanges.subscribe((newValue) => {
+      // Here, you can check the 'newValue' and update the form control accordingly
+      if (newValue === 'OFF') {
+        this.formGroup.get('enabledCharging').setValue(false);
+        this.formGroup.get('enabledCharging').markAsDirty();
+        this.formGroup.get('chargeMode').markAsPristine();
+      } else {
+        this.formGroup.get('enabledCharging').setValue(true);
+        this.formGroup.get('enabledCharging').markAsDirty();
+      }
+    });
   }
 
   protected override getFormGroup(): FormGroup {
     return this.formBuilder.group({
-      chargeMode: new FormControl(this.controller.properties.chargeMode),
+      chargeMode: new FormControl(this.controller.properties.enabledCharging == false ? 'OFF' : this.controller.properties.chargeMode),
       energyLimit: new FormControl(this.controller.properties['energySessionLimit'] > 0),
       minGuarantee: new FormControl(this.minGuarantee),
       defaultChargeMinPower: new FormControl(this.controller.properties.defaultChargeMinPower),
       forceChargeMinPower: new FormControl(this.controller.properties.forceChargeMinPower),
       priority: new FormControl(this.controller.properties.priority),
-      energySessionLimit: new FormControl(this.controller.properties.energySessionLimit)
+      energySessionLimit: new FormControl(this.controller.properties.energySessionLimit),
+      enabledCharging: new FormControl(this.isChargingEnabled)
     });
   }
 
