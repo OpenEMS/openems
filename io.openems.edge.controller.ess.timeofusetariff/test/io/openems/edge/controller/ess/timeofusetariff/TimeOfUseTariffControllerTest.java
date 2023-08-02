@@ -187,7 +187,7 @@ public class TimeOfUseTariffControllerTest {
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hour1yPrices(ZonedDateTime.now(clock),
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hourlyPrices(ZonedDateTime.now(clock),
 				DEFAULT_HOURLY_PRICES_SUMMER);
 
 		new ControllerTest(new TimeOfUseTariffControllerImpl()) //
@@ -226,7 +226,7 @@ public class TimeOfUseTariffControllerTest {
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hour1yPrices(ZonedDateTime.now(clock),
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.hourlyPrices(ZonedDateTime.now(clock),
 				DEFAULT_HOURLY_PRICES_SUMMER);
 
 		new ControllerTest(new TimeOfUseTariffControllerImpl()) //

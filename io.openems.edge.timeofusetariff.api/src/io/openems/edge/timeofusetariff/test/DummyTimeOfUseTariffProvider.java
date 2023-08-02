@@ -16,7 +16,7 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 	 * @param now          {@ZonedDateTime} given during test.
 	 * @return a {@link DummyTimeOfUseTariffProvider}.
 	 */
-	public static DummyTimeOfUseTariffProvider hour1yPrices(ZonedDateTime now, Float... hourlyPrices) {
+	public static DummyTimeOfUseTariffProvider hourlyPrices(ZonedDateTime now, Float... hourlyPrices) {
 		return new DummyTimeOfUseTariffProvider(now, hourlyPrices);
 	}
 

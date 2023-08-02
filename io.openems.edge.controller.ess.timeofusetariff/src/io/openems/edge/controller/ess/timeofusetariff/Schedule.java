@@ -311,7 +311,8 @@ public class Schedule {
 	 * @param essUsableEnergy      The usable energy in the battery.
 	 * @return The index of the cheapest hour, or null if none is found.
 	 */
-	private Integer getCheapestHourIndexBeforePeriod(int expensivePeriodIndex, List<Period> periods, int essUsableEnergy) {
+	private Integer getCheapestHourIndexBeforePeriod(int expensivePeriodIndex, List<Period> periods,
+			int essUsableEnergy) {
 
 		Integer cheapHourIndex = null;
 		for (int index = 0; index < expensivePeriodIndex; index++) {
@@ -436,17 +437,15 @@ public class Schedule {
 	 * Checks if the battery gets full within cheap period and the current period
 	 * index.
 	 * 
-	 * @param fromIndex       Index of the cheap hour.
-	 * @param toIndex         The current index.
+	 * @param from            Index of the cheap hour.
+	 * @param to              The current index.
 	 * @param periods         The list of periods.
 	 * @param essUsableEnergy The Usable energy in the battery.
 	 * @return True if the battery is full within the index range, False otherwise.
 	 */
-	private boolean batteryCapacityisFull(int fromIndex, int toIndex, List<Period> periods, int essUsableEnergy) {
-
-		fromIndex++; // Exclude the cheap hour index (first index) from the search.
-
-		return periods.subList(fromIndex, toIndex).stream() //
+	private boolean batteryCapacityisFull(int from, int to, List<Period> periods, int essUsableEnergy) {
+		// Exclude the cheap hour index (first index) from the search.
+		return periods.subList(from + 1, to).stream() //
 				.anyMatch(p -> p.essInitialEnergy == essUsableEnergy);
 	}
 

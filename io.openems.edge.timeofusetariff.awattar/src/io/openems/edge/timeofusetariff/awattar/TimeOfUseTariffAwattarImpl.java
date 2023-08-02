@@ -119,13 +119,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		 */
 		var now = ZonedDateTime.now();
 		var nextRun = now.plusHours(1).truncatedTo(ChronoUnit.HOURS);
-
-		if (now.isAfter(nextRun)) {
-			nextRun = nextRun.plusHours(1);
-		}
-
-		var duration = Duration.between(now, nextRun);
-		var delay = duration.getSeconds();
+		var delay = Duration.between(now, nextRun).getSeconds();
 
 		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
 	};
