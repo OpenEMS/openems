@@ -87,7 +87,7 @@ const routes: Routes = [
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-          { path: 'storagechart', component: StorageChartOverviewComponent },
+          { path: 'storagechart', component: StorageChartOverviewComponent }
         ]
       },
 

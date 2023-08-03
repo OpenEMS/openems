@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils, EdgeConfig, } from '../../../../../shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
     selector: 'symmetricWidget',

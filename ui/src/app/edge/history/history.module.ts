@@ -59,7 +59,7 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
-import { Common_SymmetricPeakShaving } from './peakshaving/symmetric/Symmetric'
+import { Common_SymmetricPeakShaving } from './peakshaving/symmetric/Symmetric';
 
 @NgModule({
   imports: [
