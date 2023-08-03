@@ -21,6 +21,9 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.PowerConstraint;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -29,7 +32,10 @@ import io.openems.edge.ess.power.api.Pwr;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
-		implements ControllerEssFixActivePower, Controller, OpenemsComponent {
+		implements ControllerEssFixActivePower, Controller, OpenemsComponent, TimedataProvider {
+
+	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
+			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -38,6 +44,9 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	private ManagedSymmetricEss ess;
 
 	private Config config;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerEssFixActivePowerImpl() {
 		super(//
@@ -76,17 +85,25 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		switch (this.config.mode()) {
-		case MANUAL_ON:
-			// Apply Active-Power Set-Point
-			var acPower = getAcPower(this.ess, this.config.hybridEssMode(), this.config.power());
-			PowerConstraint.apply(this.ess, this.id(), //
-					this.config.phase(), Pwr.ACTIVE, this.config.relationship(), acPower);
-			break;
+		var isActive = false;
+		try {
+			isActive = switch (this.config.mode()) {
+			case MANUAL_ON -> {
+				// Apply Active-Power Set-Point
+				var acPower = getAcPower(this.ess, this.config.hybridEssMode(), this.config.power());
+				PowerConstraint.apply(this.ess, this.id(), //
+						this.config.phase(), Pwr.ACTIVE, this.config.relationship(), acPower);
+				yield true; // is active
+			}
 
-		case MANUAL_OFF:
-			// Do nothing
-			break;
+			case MANUAL_OFF -> {
+				// Do nothing
+				yield false; // is not active
+			}
+			};
+
+		} finally {
+			this.calculateCumulatedActiveTime.update(isActive);
 		}
 	}
 
@@ -114,5 +131,10 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		}
 
 		return null; /* should never happen */
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

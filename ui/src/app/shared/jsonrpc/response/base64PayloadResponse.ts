@@ -16,8 +16,8 @@ import { JsonrpcResponseSuccess } from "../base";
 export class Base64PayloadResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             payload: string
         }
     ) {

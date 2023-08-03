@@ -13,7 +13,7 @@ export class FlatComponent extends AbstractFlatWidget {
   public chargerComponents: EdgeConfig.Component[] = [];
   public readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
 
-  protected getChannelAddresses(): ChannelAddress[] {
+  protected override getChannelAddresses(): ChannelAddress[] {
     //  Get Chargers
     this.chargerComponents =
       this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")

@@ -120,6 +120,38 @@
     "authenticationFailed": "Échec de l'authentification",
     "user": "Utilisateur"
   },
+  "Register": {
+    "segment": {
+      "user": "Utilisateur",
+      "installer": "Installateur"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Coordonnées",
+      "companyName": "Nom de la société",
+      "firstname": "Prénom",
+      "lastname": "Nom de famille",
+      "street": "Rue | Numéro de maison",
+      "zip": "Code postal",
+      "city": "Ville",
+      "country": "Pays",
+      "phone": "Numéro de téléphone",
+      "email": "Courrier électronique.",
+      "password": "Mot de passe.",
+      "confirmPassword": "Confirmer le mot de passe."
+    },
+    "button": "Créer",
+    "errors": {
+      "requiredFields": "Veuillez remplir tous les champs",
+      "passwordNotEqual": "Les mots de passe ne sont pas égaux."
+    },
+    "success": "Inscription réussie"
+  },
   "Edge": {
     "Index": {
       "EmergencyReserve": {

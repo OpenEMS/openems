@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+
 import { DefaultTypes } from "../../service/defaulttypes";
 
 @Directive()
@@ -52,16 +53,12 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
     let channelAddresses = this.getChannelAddresses();
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
-      let thisComponent = {};
       let allComponents = {};
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca];
-        if (channelAddress.componentId === this.componentId) {
-          thisComponent[channelAddress.channelId] = result.data[ca];
-        }
       }
-      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+      this.onCurrentData({ allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
     });

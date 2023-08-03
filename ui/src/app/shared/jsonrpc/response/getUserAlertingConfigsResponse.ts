@@ -1,6 +1,6 @@
 import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { Role } from "../../type/role";
 
+import { Role } from "../../type/role";
 
 export interface UserSettingResponse {
     userId: string,
@@ -31,8 +31,8 @@ export interface UserSettingResponse {
 export class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             userSettings: UserSettingResponse[]
         }
     ) {

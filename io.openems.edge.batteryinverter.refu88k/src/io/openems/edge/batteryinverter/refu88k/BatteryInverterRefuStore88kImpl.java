@@ -470,7 +470,8 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public String debugLog() {
-		return "P:" + this.getActivePower().asString() //
+		return this.stateMachine.debugLog() //
+				+ "|P:" + this.getActivePower().asString() //
 				+ "|Q:" + this.getReactivePower().asString() //
 				+ "|DC:" + this.channel(BatteryInverterRefuStore88k.ChannelId.DCV).value().asString() //
 				+ "|" + this.channel(BatteryInverterRefuStore88k.ChannelId.ST).value().asOptionString() //

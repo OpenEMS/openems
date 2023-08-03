@@ -1,0 +1,29 @@
+<ng-container [ngSwitch]="chargeMode">
+    <ng-container *ngSwitchCase="'EXCESS_POWER'">
+        <ion-card-content>
+            <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName' | translate)"
+                style="text-align: center">
+            </oe-modal-info-line>
+            <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        </ion-card-content>
+        <ion-card-content>
+            <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.OptimizedChargeMode.info' | translate)"
+                style="text-align: center"></oe-modal-info-line>
+
+        </ion-card-content>
+    </ng-container>
+    <ng-container *ngSwitchCase="'FORCE_CHARGE'">
+        <ion-card-content>
+            <oe-modal-info-line [info]="('General.manually' | translate)"
+                style="text-align: center"></oe-modal-info-line>
+            <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        </ion-card-content>
+        <ion-card-content>
+            <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.ForceChargeMode.info' | translate)"
+                style="text-align: center"></oe-modal-info-line>
+
+            <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.ForceChargeMode.maxChargingDetails' | translate)"
+                style="text-align: center"></oe-modal-info-line>
+        </ion-card-content>
+    </ng-container>
+</ng-container>
