@@ -64,6 +64,8 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		}
 
 		case FINISHED:
+			// Finished. Battery should have started up.
+			context.retryModbusCommunication();
 			return State.RUNNING;
 		}
 

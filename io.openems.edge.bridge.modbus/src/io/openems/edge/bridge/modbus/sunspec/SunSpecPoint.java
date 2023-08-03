@@ -6,9 +6,9 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -100,12 +100,12 @@ public interface SunSpecPoint {
 		}
 
 		/**
-		 * Generates a Modbus Element for the given point + startAddress.
+		 * Generates a {@link ModbusElement} for the given point + startAddress.
 		 *
 		 * @param startAddress the startAddress of the Point
 		 * @return a new Modbus Element
 		 */
-		public final AbstractModbusElement<?> generateModbusElement(Integer startAddress) {
+		public final ModbusElement generateModbusElement(Integer startAddress) {
 			switch (this.type) {
 			case UINT16:
 			case ACC16:
