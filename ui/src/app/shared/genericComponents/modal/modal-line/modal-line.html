@@ -66,8 +66,8 @@
         <td style="width: 100%" *ngIf="control?.type === 'RANGE'">
             <ng-container [formGroup]="formGroup">
                 <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.min ?? 1"
-                    [max]="control.properties.max ?? 100" style="padding-top: 8px;" [formControlName]="controlName"
-                    debounce="500">
+                    [max]="control.properties.max ?? 100" [step]="control.properties.step ?? 1"
+                    style="padding-top: 8px;" [formControlName]="controlName" debounce="500">
                     <ion-label slot="start">
                         {{ control.properties.min | unitvalue:control.properties.unit}}
                     </ion-label>

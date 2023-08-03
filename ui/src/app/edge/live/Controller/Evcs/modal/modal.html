@@ -62,7 +62,7 @@
       <ng-container *ngIf="formGroup.value.chargeMode === 'FORCE_CHARGE'">
         <ng-container>
           <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging'| translate"
-            [value]="formGroup.value['forceChargeMinPower'] * numberOfPhases" [component]="component"
+            [value]="formatNumber(formGroup.value['forceChargeMinPower'] * numberOfPhases)" [component]="component"
             [converter]="Utils.CONVERT_TO_WATT">
           </oe-modal-line>
 
@@ -103,7 +103,7 @@
             [converter]="Utils.CONVERT_TO_WATT">
           </oe-modal-line>
           <oe-modal-line [formGroup]="formGroup" controlName="defaultChargeMinPower"
-            [control]="{type: 'RANGE', properties: {min: minChargePower, max: maxChargePower, unit: 'W'}}">
+            [control]="{type: 'RANGE', properties: {min: minChargePower, max: maxChargePower, unit: 'W', step: 100 }}">
           </oe-modal-line>
         </ng-container>
 
@@ -133,12 +133,12 @@
             [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
           </oe-modal-line>
 
-          <oe-modal-line [formGroup]="formGroup" controlName="energySessionLimit"
-            [control]="{type: 'RANGE', properties: {min: 1000, max: 100000, unit: 'kWh'}}">
+          <!-- Using "kWh " (with space) to not use the default unitvalue pipe conversion -->
+          <oe-modal-line [formGroup]="formGroup" controlName="energySessionLimitKwh"
+            [control]="{type: 'RANGE', properties: {min: 1, max: 100, unit: 'kWh ', step:1}}">
           </oe-modal-line>
         </ng-container>
       </ng-container>
-
 
     </ng-container>
     <!--Uncontrollable Evcs-->
