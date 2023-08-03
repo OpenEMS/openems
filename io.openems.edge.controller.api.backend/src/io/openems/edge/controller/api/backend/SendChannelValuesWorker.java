@@ -330,9 +330,6 @@ public class SendChannelValuesWorker {
 			// Try to send
 			var wasSent = this.parent.parent.websocket.sendMessage(message);
 
-			// Set the UNABLE_TO_SEND channel
-			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
-
 			if (wasSent) {
 				// Successfully sent: update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -365,7 +362,10 @@ public class SendChannelValuesWorker {
 			final var message = new AggregatedDataNotification();
 			message.add(this.timestamp.toEpochMilli(), this.allValues);
 
-			this.parent.parent.websocket.sendMessage(message);
+			final var wasSent = this.parent.parent.websocket.sendMessage(message);
+
+			// Set the UNABLE_TO_SEND channel
+			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
 		}
 
 	}
