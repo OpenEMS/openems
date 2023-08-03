@@ -227,13 +227,11 @@ public class Schedule {
 		Integer chargeDischargeEnergyUpdated = null;
 
 		// simulate 'Balancing'.
-		if (period.isExcessPvAvailable()) {
-			// Excess PV energy is present
-			chargeDischargeEnergyUpdated = TypeUtils.max(maximumAllowedChargeInBattery, requiredEnergy);
-		} else {
-			// Normal Discharging.
-			chargeDischargeEnergyUpdated = TypeUtils.min(maximumAllowedDischargeInBattery, requiredEnergy);
-		}
+		chargeDischargeEnergyUpdated = period.isExcessPvAvailable()
+				// Excess PV energy is present
+				? TypeUtils.max(maximumAllowedChargeInBattery, requiredEnergy)
+				// Normal Discharging.
+				: TypeUtils.min(maximumAllowedDischargeInBattery, requiredEnergy);
 
 		if (gridEnergy != null && chargeDischargeEnergy != null) {
 			// Not initial run.
