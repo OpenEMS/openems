@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Unit;
+import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.timedata.CommonTimedataService;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.type.TypeUtils;
@@ -42,6 +45,7 @@ public class Rrd4jSupplier {
 	@Reference
 	private VersionHandler versionHandler;
 
+	private final KeyLock keyLock = new KeyLock();
 	private final RrdBackendFactory factory;
 
 	protected Rrd4jSupplier(//
@@ -69,19 +73,21 @@ public class Rrd4jSupplier {
 	 * @return the RrdDb
 	 * @throws IOException on error
 	 */
-	public synchronized RrdDb getRrdDb(//
+	public RrdDb getRrdDb(//
 			final String rrdDbId, //
 			final ChannelAddress channelAddress, //
 			final Unit channelUnit, //
 			final long startTime //
 	) throws IOException {
-		var rrdDb = this.getExistingRrdDb(channelAddress, rrdDbId);
-		if (rrdDb != null) {
-			// Database exists
-			return this.updateRrdDbToLatestDefinition(rrdDb, rrdDbId, channelAddress, channelUnit);
-		}
-		// Create new database
-		return this.createNewDb(rrdDbId, channelAddress, channelUnit, startTime);
+		return this.keyLock.lock(rrdDbId + "/" + channelAddress.toString(), () -> {
+			var rrdDb = this.getExistingRrdDb(channelAddress, rrdDbId);
+			if (rrdDb != null) {
+				// Database exists
+				return this.updateRrdDbToLatestDefinition(rrdDb, rrdDbId, channelAddress, channelUnit);
+			}
+			// Create new database
+			return this.createNewDb(rrdDbId, channelAddress, channelUnit, startTime);
+		});
 	}
 
 	/**
@@ -94,16 +100,18 @@ public class Rrd4jSupplier {
 	 * @return the {@link RrdDb} or null if not existing
 	 * @throws IOException on IO-Error
 	 */
-	public synchronized RrdDb getExistingUpdatedRrdDb(//
+	public RrdDb getExistingUpdatedRrdDb(//
 			final String rrdDbId, //
 			final ChannelAddress channelAddress, //
 			final Unit channelUnit //
 	) throws IOException {
-		var rrdDb = this.getExistingRrdDb(channelAddress, rrdDbId);
-		if (rrdDb == null) {
-			return null;
-		}
-		return this.updateRrdDbToLatestDefinition(rrdDb, rrdDbId, channelAddress, channelUnit);
+		return this.keyLock.lock(rrdDbId + "/" + channelAddress.toString(), () -> {
+			var rrdDb = this.getExistingRrdDb(channelAddress, rrdDbId);
+			if (rrdDb == null) {
+				return null;
+			}
+			return this.updateRrdDbToLatestDefinition(rrdDb, rrdDbId, channelAddress, channelUnit);
+		});
 	}
 
 	/**
@@ -358,6 +366,18 @@ public class Rrd4jSupplier {
 			System.arraycopy(input, 0, result, 0, Math.min(result.length, input.length));
 		}
 		return result;
+	}
+
+	private class KeyLock {
+
+		private final Map<String, Object> locks = new ConcurrentHashMap<>();
+
+		public <T, E extends Exception> T lock(String key, ThrowingSupplier<T, E> supplier) throws E {
+			synchronized (this.locks.computeIfAbsent(key, t -> new Object())) {
+				return supplier.get();
+			}
+		}
+
 	}
 
 }

@@ -123,7 +123,7 @@ public class Version3Test {
 		try (final var db = version2.createNewDb(config)) {
 			// writing test data from 04:00 to 06:00
 			for (var hour : List.of(4, 5, 6)) {
-				for (int i = 60 * 60 * hour + 1; i <= 60 * 60 * (hour + 1); i++) {
+				for (int i = 60 * 60 * (hour - 1) + 1; i <= 60 * 60 * hour; i++) {
 					db.createSample(START.getEpochSecond() + i) //
 							.setValue(0, hour) //
 							.update();
