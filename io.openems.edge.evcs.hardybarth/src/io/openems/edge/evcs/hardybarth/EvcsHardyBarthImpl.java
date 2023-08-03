@@ -76,6 +76,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
 		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
 		this._setPowerPrecision(230);
+		this._setPhases(Phases.THREE_PHASE);
 
 		if (config.enabled()) {
 			this.api = new HardyBarthApi(config.ip(), this);
@@ -249,7 +250,6 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		if (current > 0) {
 			// Send stop pause request
 			resultPause = this.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 0);
-			this.debugLog("Wake up HardyBarth " + this.alias() + " from the pause");
 		} else {
 			// Send pause charging request
 			resultPause = this.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 1);

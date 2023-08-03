@@ -39,9 +39,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -371,9 +371,16 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	@Override
 	public String debugLog() {
-		return "Actual:" + this.getVoltage() + ";" + this.getCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent(); //
+		return new StringBuilder() //
+				.append(this.stateMachine.debugLog()) //
+				.append("|SoC:").append(this.getSoc()) //
+				.append("|Actual:").append(this.getVoltage()) //
+				.append(";").append(this.getCurrent()) //
+				.append("|Charge:").append(this.getChargeMaxVoltage()) //
+				.append(";").append(this.getChargeMaxCurrent()) //
+				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
+				.append(";").append(this.getDischargeMaxCurrent()) //
+				.toString();
 	}
 
 	@Override
@@ -731,8 +738,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					 * for Cell-Voltages.Channel-IDs are like "TOWER_0_OFFSET_2_TEMPERATURE_003".
 					 * Channel-IDs are like "TOWER_0_OFFSET_2_VOLTAGE_003".
 					 */
-					var ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
-					var ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+					var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
+					var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
 					for (var j = 0; j < SENSORS_PER_MODULE; j++) {
 						{
 							// Create Voltage Channel

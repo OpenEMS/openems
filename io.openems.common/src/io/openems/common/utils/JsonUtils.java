@@ -509,6 +509,19 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
+	}
+
+	/**
 	 * Gets the member of the {@link JsonElement} as {@link JsonElement}.
 	 *
 	 * @param jElement   the {@link JsonElement}
@@ -1714,6 +1727,16 @@ public class JsonUtils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if the given {@link JsonElement} is a {@link Number}.
+	 * 
+	 * @param j the {@link JsonElement} to check
+	 * @return true if the element is a {@link Number}, otherwise false
+	 */
+	public static boolean isNumber(JsonElement j) {
+		return j.isJsonPrimitive() && j.getAsJsonPrimitive().isNumber();
 	}
 
 	/**

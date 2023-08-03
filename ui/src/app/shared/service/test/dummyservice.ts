@@ -60,7 +60,7 @@ export class DummyService extends AbstractService {
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
-    handleError(error: any): void {
+    override handleError(error: any): void {
         throw new Error("Method not implemented.");
     }
 

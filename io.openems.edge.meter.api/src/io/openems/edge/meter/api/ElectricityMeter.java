@@ -1678,9 +1678,9 @@ public interface ElectricityMeter extends OpenemsComponent {
 	public static void calculateSumActiveProductionEnergyFromPhases(ElectricityMeter meter) {
 		final Consumer<Value<Long>> calculate = ignore -> {
 			meter._setActiveProductionEnergy(TypeUtils.sum(//
-					meter.getActivePowerL1Channel().getNextValue().get(), //
-					meter.getActivePowerL2Channel().getNextValue().get(), //
-					meter.getActivePowerL3Channel().getNextValue().get())); //
+					meter.getActiveProductionEnergyL1Channel().getNextValue().get(), //
+					meter.getActiveProductionEnergyL2Channel().getNextValue().get(), //
+					meter.getActiveProductionEnergyL3Channel().getNextValue().get())); //
 		};
 		meter.getActiveProductionEnergyL1Channel().onSetNextValue(calculate);
 		meter.getActiveProductionEnergyL2Channel().onSetNextValue(calculate);
