@@ -16,8 +16,7 @@ public abstract class AbstractWriteTask<//
 		RESPONSE extends ModbusResponse> //
 		extends AbstractTask<REQUEST, RESPONSE> implements WriteTask {
 
-	public AbstractWriteTask(String name, Class<RESPONSE> responseClazz, int startAddress,
-			ModbusElement<?>... elements) {
+	public AbstractWriteTask(String name, Class<RESPONSE> responseClazz, int startAddress, ModbusElement... elements) {
 		super(name, responseClazz, startAddress, elements);
 	}
 
@@ -39,7 +38,7 @@ public abstract class AbstractWriteTask<//
 	public abstract static class Single<//
 			REQUEST extends ModbusRequest, //
 			RESPONSE extends ModbusResponse, //
-			ELEMENT extends ModbusElement<?>> //
+			ELEMENT extends ModbusElement> //
 			extends AbstractWriteTask<REQUEST, RESPONSE> {
 
 		protected final ELEMENT element;

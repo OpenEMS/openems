@@ -10,14 +10,14 @@ import com.ghgande.j2mod.modbus.msg.WriteCoilResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 
 public class FC5WriteCoilTaskTest {
 
 	@Test
 	public void testToLogMessage() throws OpenemsException {
 		var component = new DummyModbusComponent();
-		var task = new FC5WriteCoilTask(20, new DummyCoilElement(20));
+		var task = new FC5WriteCoilTask(20, new CoilElement(20));
 		task.setParent(component);
 		var request = new WriteCoilRequest(20, true);
 		var response = (WriteCoilResponse) request.getResponse();

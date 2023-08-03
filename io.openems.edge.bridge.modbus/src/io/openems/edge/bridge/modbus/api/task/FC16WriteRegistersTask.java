@@ -28,7 +28,7 @@ public class FC16WriteRegistersTask
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
-	public FC16WriteRegistersTask(int startAddress, ModbusElement<?>... elements) {
+	public FC16WriteRegistersTask(int startAddress, ModbusElement... elements) {
 		super("FC16WriteRegisters", WriteMultipleRegistersResponse.class, startAddress, elements);
 	}
 
@@ -70,23 +70,24 @@ public class FC16WriteRegistersTask
 	 * @param logWarn  {@link Consumer} to log a warning
 	 * @return a list of CombinedWriteRegisters
 	 */
-	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement<?>[] elements,
+	protected static List<MergedWriteRegisters> mergeWriteRegisters(ModbusElement[] elements,
 			Consumer<String> logWarn) {
 		final var writes = new ArrayList<MergedWriteRegisters>();
 		for (var element : elements) {
-			if (element instanceof ModbusRegisterElement<?> e) {
-				e.getNextWriteValueAndReset().ifPresent(registers -> {
+			if (element instanceof ModbusRegisterElement<?, ?> e) {
+				var registers = e.getNextWriteValueAndReset();
+				if (registers != null) {
 					// found value registers -> add to 'writes'
 					final MergedWriteRegisters write;
 					if (writes.isEmpty()) {
 						// no writes created yet
-						write = MergedWriteRegisters.of(e.getStartAddress());
+						write = MergedWriteRegisters.of(e.startAddress);
 						writes.add(write);
 					} else {
 						var lastWrite = writes.get(writes.size() - 1);
-						if (lastWrite.getLastAddress() + 1 != e.getStartAddress()) {
+						if (lastWrite.getLastAddress() + 1 != e.startAddress) {
 							// there is a hole between last element and current element
-							write = MergedWriteRegisters.of(e.getStartAddress());
+							write = MergedWriteRegisters.of(e.startAddress);
 							writes.add(write);
 						} else {
 							// no hole -> combine writes
@@ -94,7 +95,7 @@ public class FC16WriteRegistersTask
 						}
 					}
 					write.add(registers);
-				});
+				}
 			} else {
 				logWarn.accept(
 						"Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");

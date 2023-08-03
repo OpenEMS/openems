@@ -17,14 +17,13 @@ import io.openems.edge.common.taskmanager.Priority;
 
 /**
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
- * {@link AbstractModbusElement} which have register addresses in the same
- * range.
+ * {@link ModbusElement}s which have register addresses in the same range.
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractReadTask<//
 		REQUEST extends ModbusRequest, //
 		RESPONSE extends ModbusResponse, //
-		ELEMENT extends ModbusElement, //
+		ELEMENT extends AbstractModbusElement, //
 		T> //
 		extends AbstractTask<REQUEST, RESPONSE> implements ReadTask {
 
@@ -33,7 +32,7 @@ public abstract class AbstractReadTask<//
 	private final Class<?> elementClazz;
 
 	public AbstractReadTask(String name, Class<RESPONSE> responseClazz, Class<ELEMENT> elementClazz, int startAddress,
-			Priority priority, ModbusElement<?>... elements) {
+			Priority priority, ModbusElement... elements) {
 		super(name, responseClazz, startAddress, elements);
 		this.elementClazz = elementClazz;
 		this.priority = priority;
@@ -134,7 +133,7 @@ public abstract class AbstractReadTask<//
 	 * @param modbusElement current Element
 	 * @return next position
 	 */
-	protected abstract int calculateNextPosition(ModbusElement<?> modbusElement, int position);
+	protected abstract int calculateNextPosition(ModbusElement modbusElement, int position);
 
 	/**
 	 * Factory for a {@link ModbusRequest}.

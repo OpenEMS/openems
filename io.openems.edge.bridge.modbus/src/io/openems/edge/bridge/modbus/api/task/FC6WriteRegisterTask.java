@@ -5,32 +5,29 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractWordElement;
+import io.openems.edge.bridge.modbus.api.element.AbstractSingleWordElement;
 
 public class FC6WriteRegisterTask extends
-		AbstractWriteTask.Single<WriteSingleRegisterRequest, WriteSingleRegisterResponse, AbstractWordElement<?, ?>> {
+		AbstractWriteTask.Single<WriteSingleRegisterRequest, WriteSingleRegisterResponse, AbstractSingleWordElement<?, ?>> {
 
-	public FC6WriteRegisterTask(int startAddress, AbstractWordElement<?, ?> element) {
+	public FC6WriteRegisterTask(int startAddress, AbstractSingleWordElement<?, ?> element) {
 		super("FC6WriteRegister", WriteSingleRegisterResponse.class, startAddress, element);
 	}
 
 	@Override
 	protected WriteSingleRegisterRequest createModbusRequest() throws OpenemsException {
-		var valueOpt = this.element.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
-			var registers = valueOpt.get();
+		var registers = this.element.getNextWriteValueAndReset();
+		if (registers == null) {
+			return null;
+		}
 
-			if (registers.length == 1 && registers[0] != null) {
-				// found value -> write
-				var register = registers[0];
-				return new WriteSingleRegisterRequest(this.startAddress, register);
-
-			} else {
-				throw new OpenemsException("Expected exactly one register. Got [" + registers.length + "]");
-			}
+		if (registers.length == 1 && registers[0] != null) {
+			// found value -> write
+			var register = registers[0];
+			return new WriteSingleRegisterRequest(this.startAddress, register);
 
 		} else {
-			return null;
+			throw new OpenemsException("Expected exactly one register. Got [" + registers.length + "]");
 		}
 	}
 

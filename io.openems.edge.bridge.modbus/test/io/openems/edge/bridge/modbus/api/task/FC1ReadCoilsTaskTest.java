@@ -9,7 +9,7 @@ import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
+import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 public class FC1ReadCoilsTaskTest {
@@ -17,7 +17,7 @@ public class FC1ReadCoilsTaskTest {
 	@Test
 	public void testToLogMessage() throws OpenemsException {
 		var component = new DummyModbusComponent();
-		var task = new FC1ReadCoilsTask(10, Priority.HIGH, new DummyCoilElement(10), new DummyCoilElement(11));
+		var task = new FC1ReadCoilsTask(10, Priority.HIGH, new CoilElement(10), new CoilElement(11));
 		task.setParent(component);
 		var request = task.createModbusRequest();
 		var response = (ReadCoilsResponse) request.getResponse();

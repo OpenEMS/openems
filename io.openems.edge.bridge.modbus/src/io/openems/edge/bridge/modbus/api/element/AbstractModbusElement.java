@@ -11,32 +11,45 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * A ModbusElement represents one row of a Modbus definition table.
  *
  * @param <SELF> the subclass of myself
- * @param <T>    the target type
+ * @param <RAW>  the raw value type
+ * @param <T>    the value type
  */
-public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T> {
+public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModbusElement<?, ?, ?>, RAW, T>
+		extends ModbusElement {
 
-	protected final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
+	/** The type of the read and write value. */
+	public final OpenemsType type;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusElement.class);
+	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Optional<T>>> onSetNextWriteCallbacks = new ArrayList<>();
 
-	private final OpenemsType type;
-	private final int startAddress;
+	/** The next Write-Value. */
+	protected T nextWriteValue = null;
 
-	// Counts for how many cycles no valid value was
+	/** Counts for how many cycles no valid value was read. */
 	private int invalidValueCounter = 0;
 
-	protected Task task = null;
-
-	public AbstractModbusElement(OpenemsType type, int startAddress) {
+	protected AbstractModbusElement(OpenemsType type, int startAddress, int length) {
+		super(startAddress, length);
 		this.type = type;
-		this.startAddress = startAddress;
 	}
+
+	protected abstract RAW valueToRaw(T value);
+
+	/**
+	 * Converts the RAW value from j2mod to the expected type.
+	 * 
+	 * @param value the raw value
+	 * @return the typed/converted value
+	 */
+	protected abstract T rawToValue(RAW value);
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
@@ -45,17 +58,79 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	 */
 	protected abstract SELF self();
 
-	@Override
-	public final void onSetNextWrite(Consumer<Optional<T>> callback) {
-		this.onSetNextWriteCallbacks.add(callback);
+	/**
+	 * Set the input/read value.
+	 * 
+	 * @param raw a value in raw format
+	 */
+	public final void setInputValue(RAW raw) {
+		// Convert to type
+		final T value;
+		if (raw != null) {
+			value = this.rawToValue(raw);
+		} else {
+			value = null;
+		}
+		// Log debug message
+		if (this.isDebug) {
+			this.log.info("Element [" + this + "] set value to [" + value + "].");
+		}
+		// Reset invalidValueCounter
+		if (value != null) {
+			this.invalidValueCounter = 0;
+		}
+		// Call Callbacks
+		for (Consumer<T> callback : this.onUpdateCallbacks) {
+			callback.accept(value);
+		}
 	}
 
-	@Override
-	public OpenemsType getType() {
-		return this.type;
+	/**
+	 * Sets a value that should be written to the Modbus device.
+	 *
+	 * @param value the value; possibly null
+	 */
+	public final void setNextWriteValue(T value) {
+		// Log debug message
+		if (this.isDebug()) {
+			this.log.info("Element [" + this + "] set next write value to [" + value + "].");
+		}
+		this.nextWriteValue = value;
 	}
 
-	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+	/**
+	 * Sets a value that should be written to the Modbus device.
+	 *
+	 * @param value the value; possibly null
+	 */
+	public final void setNextWriteValueFromObject(Object value) {
+		this.setNextWriteValue(TypeUtils.getAsType(this.type, value));
+	}
+
+	/**
+	 * Gets the next write value and resets it.
+	 *
+	 * <p>
+	 * This method should be called once in every cycle on the
+	 * TOPIC_CYCLE_EXECUTE_WRITE event. It makes sure, that the nextWriteValue gets
+	 * initialized in every Cycle. If registers need to be written again in every
+	 * cycle, next setNextWriteValue()-method needs to be called on every Cycle.
+	 *
+	 * @return the next write value
+	 */
+	public final RAW getNextWriteValueAndReset() {
+		var value = this.nextWriteValue;
+		if (value == null) {
+			return null;
+		}
+		var result = this.valueToRaw(value);
+		this.nextWriteValue = null;
+		this.onNextWriteValueReset();
+		return result;
+	}
+
+	protected void onNextWriteValueReset() {
+	}
 
 	/**
 	 * The onUpdateCallback is called on reception of a new value.
@@ -67,42 +142,28 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
-	public SELF onUpdateCallback(Consumer<T> onUpdateCallback) {
+	public final SELF onUpdateCallback(Consumer<T> onUpdateCallback) {
 		this.onUpdateCallbacks.add(onUpdateCallback);
 		return this.self();
 	}
 
-	@Override
-	public int getStartAddress() {
-		return this.startAddress;
+	/**
+	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
+	 * set.
+	 *
+	 * @param callback the callback
+	 * @return myself
+	 */
+	public final SELF onSetNextWrite(Consumer<Optional<T>> callback) {
+		this.onSetNextWriteCallbacks.add(callback);
+		return this.self();
 	}
 
 	@Override
-	public void setModbusTask(Task task) {
-		this.task = task;
-	}
-
-	public Task getModbusTask() {
-		return this.task;
-	}
-
-	protected void setValue(T value) {
-		if (this.isDebug) {
-			this.log.info("Element [" + this + "] set value to [" + value + "].");
-		}
-		if (value != null) {
-			this.invalidValueCounter = 0;
-		}
-		for (Consumer<T> callback : this.onUpdateCallbacks) {
-			callback.accept(value);
-		}
-	}
-
-	@Override
-	public void invalidate(AbstractModbusBridge bridge) {
+	public final void invalidate(AbstractModbusBridge bridge) {
 		this.invalidValueCounter++;
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
-			this.setValue(null);
+			this.setInputValue(null);
 		}
 	}
 
@@ -116,9 +177,9 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	 * 
 	 * @return myself
 	 */
-	public AbstractModbusElement<?, ?> debug() {
+	public SELF debug() {
 		this.isDebug = true;
-		return this;
+		return this.self();
 	}
 
 	protected boolean isDebug() {
@@ -145,5 +206,6 @@ public abstract class AbstractModbusElement<SELF, T> implements ModbusElement<T>
 	@Override
 	public void deactivate() {
 		this.onUpdateCallbacks.clear();
+		this.onSetNextWriteCallbacks.clear();
 	}
 }
