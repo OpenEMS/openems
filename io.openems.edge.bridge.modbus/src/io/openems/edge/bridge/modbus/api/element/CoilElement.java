@@ -14,7 +14,7 @@ import io.openems.common.types.OpenemsType;
 /**
  * A CoilElement has a size of one Modbus Coil or 1 bit.
  */
-public class CoilElement extends AbstractModbusElement<Boolean> implements ModbusCoilElement {
+public class CoilElement extends AbstractModbusElement<CoilElement, Boolean> implements ModbusCoilElement {
 
 	private final Logger log = LoggerFactory.getLogger(CoilElement.class);
 	private final List<Consumer<Optional<Boolean>>> onSetNextWriteCallbacks = new ArrayList<>();
@@ -51,5 +51,10 @@ public class CoilElement extends AbstractModbusElement<Boolean> implements Modbu
 		}
 		// set value
 		super.setValue(coil);
+	}
+
+	@Override
+	protected CoilElement self() {
+		return this;
 	}
 }

@@ -228,8 +228,8 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 				.map(method -> method.apply(this.remoteAccessMode)) //
 				.collect(Collectors.toUnmodifiableList());
 
-		Deque<AbstractModbusElement<?>> readElements = new ArrayDeque<>();
-		Deque<AbstractModbusElement<?>> writeElements = new ArrayDeque<>();
+		var readElements = new ArrayDeque<ModbusElement<?>>();
+		var writeElements = new ArrayDeque<ModbusElement<?>>();
 		for (var entry : natureStartAddresses.entrySet()) {
 			var natureStartAddress = entry.getKey();
 			var hash = entry.getValue();
@@ -261,8 +261,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 						}
 					}
 
-					if (record instanceof ModbusRecordChannel) {
-						var r = (ModbusRecordChannel) record;
+					if (record instanceof ModbusRecordChannel r) {
 						m(r.getChannelId(), element);
 
 					} else {
@@ -295,7 +294,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		 */
 		{
 			var length = 0;
-			var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
+			var taskElements = new ArrayDeque<ModbusElement<?>>();
 			var element = readElements.pollFirst();
 			while (element != null) {
 				if (length + element.getLength() > 126 /* limit of j2mod */) {
@@ -314,7 +313,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		 * Add the Write-Task(s)
 		 */
 		{
-			var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
+			var taskElements = new ArrayDeque<ModbusElement<?>>();
 			var element = writeElements.pollFirst();
 			while (element != null) {
 				var lastElement = taskElements.peekLast();
@@ -362,7 +361,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param address the address of the {@link ModbusElement}
 	 * @return the {@link ModbusElement}
 	 */
-	private static AbstractModbusElement<?> generateModbusElement(ModbusType type, int address) {
+	private static AbstractModbusElement<?, ?> generateModbusElement(ModbusType type, int address) {
 		switch (type) {
 		case ENUM16:
 		case UINT16:
@@ -391,7 +390,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param elements the {@link ModbusElement}s
 	 * @throws OpenemsException on error
 	 */
-	private void addReadTask(Deque<AbstractModbusElement<?>> elements) throws OpenemsException {
+	private void addReadTask(Deque<ModbusElement<?>> elements) throws OpenemsException {
 		if (elements.isEmpty()) {
 			return;
 		}
@@ -404,7 +403,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
 						elements.peekFirst().getStartAddress(), Priority.HIGH,
-						elements.toArray(new AbstractModbusElement[elements.size()])));
+						elements.toArray(new ModbusElement[elements.size()])));
 	}
 
 	/**
@@ -413,14 +412,13 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param elements the {@link ModbusElement}s
 	 * @throws OpenemsException on error
 	 */
-	private void addWriteTask(Deque<AbstractModbusElement<?>> elements) throws OpenemsException {
+	private void addWriteTask(Deque<ModbusElement<?>> elements) throws OpenemsException {
 		if (elements.isEmpty()) {
 			return;
 		}
 		this.modbusProtocol.addTask(//
 				new FC16WriteRegistersTask(//
-						elements.peekFirst().getStartAddress(),
-						elements.toArray(new AbstractModbusElement[elements.size()])));
+						elements.peekFirst().getStartAddress(), elements.toArray(new ModbusElement[elements.size()])));
 	}
 
 	/**

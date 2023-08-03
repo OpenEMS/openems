@@ -313,6 +313,7 @@ export class Utils {
     }
   };
 
+
   /**
    * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
    * 

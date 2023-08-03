@@ -7,6 +7,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.task.AbstractTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
  * A ModbusElement represents one or more registers or coils in an
@@ -29,21 +30,14 @@ public interface ModbusElement<T> {
 	public abstract int getLength();
 
 	/**
-	 * Set the {@link AbstractTask}, where this Element belongs to.
+	 * Set the {@link Task}, where this Element belongs to.
 	 *
 	 * <p>
 	 * This is called by the {@link AbstractTask} constructor.
 	 *
-	 * @param abstractTask the AbstractTask
+	 * @param task the {@link Task}
 	 */
-	public void setModbusTask(AbstractTask abstractTask);
-
-	/**
-	 * Whether this Element should be ignored (= DummyElement).
-	 *
-	 * @return true for ignored elements
-	 */
-	public boolean isIgnored();
+	public void setModbusTask(Task task);
 
 	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
@@ -75,9 +69,8 @@ public interface ModbusElement<T> {
 	 * 'invalidateElementsAfterReadErrors' config setting of the bridge.
 	 *
 	 * @param bridge the {@link AbstractModbusBridge}
-	 * @return true if Channel was invalidated
 	 */
-	public boolean invalidate(AbstractModbusBridge bridge);
+	public void invalidate(AbstractModbusBridge bridge);
 
 	/**
 	 * This is called on deactivate of the Modbus-Bridge. It can be used to clear

@@ -121,6 +121,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		var modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
 	}
@@ -164,6 +165,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		modbus.removeProtocol(this.id());
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
 	}
@@ -240,6 +242,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return this.protocol;
 	}
 
+	@Override
+	public void retryModbusCommunication() {
+		var bridge = this.modbus.get();
+		bridge.retryModbusCommunication(this.id());
+	}
+
 	/**
 	 * Defines the Modbus protocol.
 	 *
@@ -252,12 +260,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
 	 * the value forward and backwards.
 	 */
-	public class ChannelMapper<T extends AbstractModbusElement<?>> {
+	public class ChannelMapper<ELEMENT extends AbstractModbusElement<?, ?>> {
 
-		private final T element;
+		private final ELEMENT element;
 		private final Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
 
-		public ChannelMapper(T element) {
+		public ChannelMapper(ELEMENT element) {
 			this.element = element;
 		}
 
@@ -268,7 +276,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 * @param converter the {@link ElementToChannelConverter}
 		 * @return the element parameter
 		 */
-		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
+		public ChannelMapper<ELEMENT> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
 			return this.m(channelId, converter, new ChannelMetaInfo(this.element.getStartAddress()));
 		}
@@ -282,7 +290,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 *                        Channel
 		 * @return the element parameter
 		 */
-		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
+		public ChannelMapper<ELEMENT> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
 			Channel<?> channel = AbstractOpenemsModbusComponent.this.channel(channelId);
 			channel.setMetaInfo(channelMetaInfo);
@@ -301,7 +309,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 *                         {@link WriteTask}s
 		 * @return the element parameter
 		 */
-		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
+		public ChannelMapper<ELEMENT> m(io.openems.edge.common.channel.ChannelId channelId,
 				Function<Object, Object> elementToChannel, Function<Object, Object> channelToElement) {
 			var converter = new ElementToChannelConverter(elementToChannel, channelToElement);
 			return this.m(channelId, converter);
@@ -312,7 +320,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 *
 		 * @return the {@link ChannelMapper}
 		 */
-		public T build() {
+		public ELEMENT build() {
 			/*
 			 * Forward Element Read-Value to Channel
 			 */
@@ -336,15 +344,14 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			 * Forward Channel Write-Value to Element
 			 */
 			this.channelMaps.keySet().forEach(channel -> {
-				if (channel instanceof WriteChannel<?>) {
-					((WriteChannel<?>) channel).onSetNextWrite(value -> {
+				if (channel instanceof WriteChannel<?> writeChannel) {
+					writeChannel.onSetNextWrite(value -> {
 						// dynamically get the Converter; this allows the converter to be changed
 						var converter = this.channelMaps.get(channel);
 						var convertedValue = converter.channelToElement(value);
-						if (this.element instanceof ModbusRegisterElement) {
+						if (this.element instanceof ModbusRegisterElement<?> registerElement) {
 							try {
-								((ModbusRegisterElement<?>) this.element)
-										.setNextWriteValue(Optional.ofNullable(convertedValue));
+								registerElement.setNextWriteValue(Optional.ofNullable(convertedValue));
 							} catch (OpenemsException | IllegalArgumentException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 										"Unable to write to ModbusRegisterElement. " //
@@ -357,9 +364,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 									e.printStackTrace();
 								}
 							}
-						} else if (this.element instanceof ModbusCoilElement) {
+						} else if (this.element instanceof ModbusCoilElement coilElement) {
 							try {
-								((ModbusCoilElement) this.element).setNextWriteValue(
+								coilElement.setNextWriteValue(
 										Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
 							} catch (OpenemsException e) {
 								AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
@@ -387,7 +394,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
-	protected final <T extends AbstractModbusElement<?>> ChannelMapper<T> m(T element) {
+	protected final <T extends AbstractModbusElement<?, ?>> ChannelMapper<T> m(T element) {
 		return new ChannelMapper<>(element);
 	}
 
@@ -397,7 +404,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param bitsWordElement the ModbusElement
 	 * @return the element parameter
 	 */
-	protected final AbstractModbusElement<?> m(BitsWordElement bitsWordElement) {
+	protected final BitsWordElement m(BitsWordElement bitsWordElement) {
 		return bitsWordElement;
 	}
 
@@ -409,7 +416,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element   the ModbusElement
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element) {
 		return this.m(channelId, element, DIRECT_1_TO_1);
 	}
@@ -424,7 +431,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        Channel
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ChannelMetaInfo channelMetaInfo) {
 		return this.m(channelId, element, DIRECT_1_TO_1, channelMetaInfo);
 	}
@@ -439,7 +446,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param converter the ElementToChannelConverter
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter) {
 		return new ChannelMapper<>(element) //
 				.m(channelId, converter) //
@@ -458,7 +465,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 *                        Channel
 	 * @return the element parameter
 	 */
-	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
+	protected final <T extends AbstractModbusElement<?, ?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
 		return new ChannelMapper<>(element) //
 				.m(channelId, converter, channelMetaInfo) //

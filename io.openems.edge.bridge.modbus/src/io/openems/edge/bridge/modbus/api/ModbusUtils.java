@@ -3,12 +3,20 @@ package io.openems.edge.bridge.modbus.api;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.Priority;
@@ -28,7 +36,7 @@ public class ModbusUtils {
 	 * @throws OpenemsException on error with the {@link ModbusProtocol} object
 	 */
 	public static <T> CompletableFuture<T> readELementOnce(ModbusProtocol modbusProtocol,
-			AbstractModbusElement<T> element, boolean tryAgainOnError) throws OpenemsException {
+			AbstractModbusRegisterElement<?, T> element, boolean tryAgainOnError) throws OpenemsException {
 		// Prepare result
 		final var result = new CompletableFuture<T>();
 
@@ -68,7 +76,7 @@ public class ModbusUtils {
 	 * @throws OpenemsException on error with the {@link ModbusProtocol} object
 	 */
 	public static <T> CompletableFuture<List<T>> readELementsOnce(ModbusProtocol modbusProtocol,
-			AbstractModbusElement<T>[] elements, boolean tryAgainOnError) throws OpenemsException {
+			AbstractModbusRegisterElement<?, T>[] elements, boolean tryAgainOnError) throws OpenemsException {
 		if (elements.length == 0) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
@@ -141,5 +149,54 @@ public class ModbusUtils {
 		shortBuf.put(1, byte1);
 
 		return shortBuf.getShort();
+	}
+
+	/**
+	 * Converts a byte array to a String in the form "00C1 00B2".
+	 * 
+	 * @param data byte array
+	 * @return string
+	 */
+	public static String byteArrayToHexString(byte[] data) {
+		return IntStream.range(0, data.length / 2) //
+				.mapToObj(i -> String.format("%2s%2s", //
+						Integer.toHexString(data[i]), Integer.toHexString(data[i + 1])).replace(' ', '0'))
+				.collect(Collectors.joining(" "));
+	}
+
+	/**
+	 * Converts a int to a String in the form "00C1".
+	 * 
+	 * @param data byte array
+	 * @return string
+	 */
+	public static String intToHexString(int data) {
+		return String.format("%4s", Integer.toHexString(data)).replace(' ', '0');
+	}
+
+	/**
+	 * Converts a {@link Register} array to a String in the form "00C1 00B2".
+	 * 
+	 * @param registers {@link Register} array
+	 * @return string
+	 */
+	public static String registersToHexString(Register... registers) {
+		return registersToHexString(registers, Register::getValue);
+	}
+
+	/**
+	 * Converts a {@link InputRegister} array to a String in the form "00C1 00B2".
+	 * 
+	 * @param registers {@link InputRegister} array
+	 * @return string
+	 */
+	public static String registersToHexString(InputRegister... registers) {
+		return registersToHexString(registers, InputRegister::getValue);
+	}
+
+	private static <T> String registersToHexString(T[] registers, Function<T, Integer> fnct) {
+		return Arrays.stream(registers) //
+				.map(r -> intToHexString(fnct.apply(r))) //
+				.collect(Collectors.joining(" "));
 	}
 }
