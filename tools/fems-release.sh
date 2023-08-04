@@ -104,6 +104,7 @@ prepare_next_snapshot() {
     VERSION_STRING="SNAPSHOT"
     VERSION="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH-$VERSION_STRING"
     common_update_version_in_code
+    common_build_ui # updates package-lock.json
     git add .
     git status
     git commit --no-edit -m "Start development of version $VERSION"
