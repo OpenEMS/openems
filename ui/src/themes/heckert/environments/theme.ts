@@ -44,6 +44,16 @@ export const theme = {
         },
 
         // Currently the links are different with different prefixes. so adding whole url.
-        METER_SOCOMEC: 'https://docs.intranet.fenecon.de/feature/OEM/de/_/latest/_attachments/Benutzerhandbuecher/Heckert_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
+        METER_SOCOMEC: 'https://docs.intranet.fenecon.de/feature/OEM/de/_/latest/_attachments/Benutzerhandbuecher/Heckert_App_Socomec_Zaehler_Benutzerhandbuch.pdf',
+        MANUALS: {
+            HOME: {
+                EN: "#",
+                DE: "#"
+            },
+            COMMERCIAL: {
+                EN: "#",
+                DE: "#"
+            }
+        }
     }
 };

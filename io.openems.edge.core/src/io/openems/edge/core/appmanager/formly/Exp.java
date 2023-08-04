@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.formly.expression.ArrayExpression;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
@@ -26,7 +27,7 @@ public final class Exp {
 	 * @return the {@link Variable}
 	 */
 	public static Variable currentValue(Nameable property) {
-		return new Variable("control.value." + property.name());
+		return new Variable("control.value?." + property.name());
 	}
 
 	/**
@@ -67,6 +68,17 @@ public final class Exp {
 	}
 
 	/**
+	 * Creates a {@link Variable} for a static {@link String} value.
+	 * 
+	 * @param <E>       the type of the enum
+	 * @param enumValue the value of the variable
+	 * @return the {@link Variable}
+	 */
+	public static <E extends Enum<E> & TranslatableEnum> Variable staticValue(E enumValue) {
+		return new Variable("'" + enumValue.getValue() + "'");
+	}
+
+	/**
 	 * Creates a {@link Variable} for a static {@link Number} value.
 	 * 
 	 * @param value the value of the variable
@@ -89,11 +101,11 @@ public final class Exp {
 	/**
 	 * Creates a array of the given values.
 	 * 
-	 * @param values the values of the array
+	 * @param variable the variables of the array
 	 * @return a {@link ArrayExpression}
 	 */
-	public static ArrayExpression array(String... values) {
-		return ArrayExpression.of(values);
+	public static ArrayExpression array(Variable... variable) {
+		return ArrayExpression.of(variable);
 	}
 
 	/**
@@ -102,12 +114,12 @@ public final class Exp {
 	 * 
 	 * @return the {@link Collector}
 	 */
-	public static Collector<String, ?, ArrayExpression> toArrayExpression() {
+	public static Collector<Variable, ?, ArrayExpression> toArrayExpression() {
 		return Collector.of(ArrayList::new, ArrayList::add, (t, u) -> {
 			t.addAll(u);
 			return t;
 		}, t -> {
-			return ArrayExpression.of(t.toArray(String[]::new));
+			return ArrayExpression.of(t.toArray(Variable[]::new));
 		});
 	}
 

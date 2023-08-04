@@ -6,35 +6,37 @@
 # - git pull
 # - bash drone-docker.sh
 
+variables:
+  - &sftp-settings
+    server: 10.0.0.40
+    username: user
+    password: pass
+    ignore_branch: true
+    port: 2222
+    path: /cache
+    mount:
+      - cache
+
 clone:
-  git-clone:
+  git:
     when:
       branch:
         exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
-    image: woodpeckerci/plugin-git:v1.6.1
-    settings:
-      depth: 1
-      lfs: false
-      recursive: false
-      tags: false
-      partial: true
+    image: woodpeckerci/plugin-git
 
-pipeline:
+steps:
   restore-cache:
     when:
       branch:
         exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
-    image: drillster/drone-volume-cache
-    restore: true
-    mount:
-      - /woodpecker/.gradle
-      - /woodpecker/.m2
-    volumes:
-      - cache:/cache
+    image: appleboy/drone-sftp-cache
+    settings:
+      restore: true
+      <<: *sftp-settings
 
   build-java:
     when:
@@ -43,14 +45,14 @@ pipeline:
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: openems-build:latest
-    environment:
-      - GRADLE_USER_HOME=/woodpecker/.gradle
     commands:
-      - mkdir -p /woodpecker/.m2 && ln -s /woodpecker/.m2 ~/.m2
-      - ./gradlew --build-cache build
-      - ./gradlew resolve.EdgeApp
-      - ./gradlew resolve.BackendApp
+      - export CACHE=$CI_WORKSPACE/cache
+      - mkdir -p $CACHE
+      - export GRADLE_USER_HOME=$CACHE/gradle
+      - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
+      - ./gradlew --build-cache build buildEdge buildBackend resolve.EdgeApp resolve.BackendApp
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+
 
   rebuild-cache:
     when:
@@ -58,10 +60,7 @@ pipeline:
         exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
-    image: drillster/drone-volume-cache
-    rebuild: true
-    mount:
-      - /woodpecker/.gradle
-      - /woodpecker/.m2
-    volumes:
-      - cache:/cache
+    image: appleboy/drone-sftp-cache
+    settings:
+      rebuild: true
+      <<: *sftp-settings

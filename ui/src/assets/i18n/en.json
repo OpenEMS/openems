@@ -139,9 +139,9 @@
           "chargeLimitReached": "Charge limit reached",
           "chargeMode": "Charge Mode",
           "chargeTarget": "Charge target",
-          "charging": "Is charing",
+          "charging": "Is charging",
           "chargingLimit": "Charging limit",
-          "chargingPower": "Charing power",
+          "chargingPower": "Charging power",
           "chargingStation": "Charging Station",
           "chargingStationCluster": "Charging station cluster",
           "chargingStationDeactivated": "Charging station deactivated",
@@ -197,7 +197,8 @@
             "maxChargingDetails": "If the car can not load the entered maximum value, the power will be automatically limited.",
             "name": "Force charging",
             "shortName": "Manually"
-          }
+          },
+          "Uncontrollable": "This charging station can not be controlled."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -390,8 +391,9 @@
         "errorCompatible": "Compatibility errors",
         "notAvailable": "Not available",
         "Key": {
-          "enterKey": "Enter the license key you received when you ordered the app here",
+          "enterKey": "Enter the license key you received with the order of the app",
           "useRegisteredKey": "Redeem already registered licence key?",
+          "useMasterKey": "Use masterkey",
           "registeredKey": "Registered licence keys",
           "successRegisterKey": "successfully registered Key",
           "failedRegisterKey": "failed registering Key",
@@ -404,7 +406,9 @@
           "invalid": "licence key is invalid",
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
           "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
-          "invalidPattern": "Input is invalid"
+          "invalidPattern": "Input is invalid",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Note</span>: When entering the licence key, watch out for possible typos: <ul><li>small L \"l\" vs. capital i \"I\" </li><li>zero \"0\" vs. capital o \"O\"</li></ul>We always recommend copying the licence key from the delivery note and pasting it into the field above instead of typing it in manually.<br>",
+          "MASTER_KEY_HINT": "<br><span class=\"warning\">Note</span>: The master key is used in the background. No key is displayed. If a licence key is available, please use it.<br>"
         },
         "successInstall": "Successfully installed App",
         "failInstall": "Error installing App '{{error}}'",
@@ -662,7 +666,7 @@
       "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
-      "POSITIVE_INTEGER": "Only positive numbers are allowed."
+      "POSITIVE_INTEGER": "Only positive integer numbers are allowed."
     },
     "FORWARD": "continue",
     "LOAD": "load",
@@ -916,5 +920,16 @@
       "UPDATE_SEARCH": "Checking for updates...",
       "UPDATE_TIME": "(This can take up to 10 minutes)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Save Configuration",
+    "SAVE_DESCRIPTION": "Saving the configuration will overwrite the existing one for this {{edgeShortName}} and will be applied on page reload.",
+    "Component": "Component",
+    "ADD_CHANNEL": "Add Channel",
+    "ADD": "Add",
+    "VALUE": "Value",
+    "SET_VALUE": "Set value",
+    "MORE_CHANNELS": "Add More Channels",
+    "CHANNEL": "Channel"
   }
 }

@@ -1,7 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -73,7 +73,6 @@ export class Service extends AbstractService {
     private router: Router,
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
-    public modalCtrl: ModalController,
     public translate: TranslateService
   ) {
     super();
@@ -113,7 +112,7 @@ export class Service extends AbstractService {
     this.notificationEvent.next(notification);
   }
 
-  public handleError(error: any) {
+  public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
     // let notification: Notification = {

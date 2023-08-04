@@ -59,7 +59,7 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+        <ion-card *ngIf="showInformation">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
@@ -106,12 +106,14 @@
                 <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a routerLinkActive="active" routerLink="/changelog">2023.6.2 (2023-06-21)</a>
-              </li>
-            </ul>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.build</p>
+              <ul>
+                <li>
+                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                </li>
+              </ul>
+            </div>
             <p class="ion-padding">Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie
               sich bitte an unser Team unter <a href="mailto:service@fenecon.de">service@fenecon.de</a>. Für Fragen zu
               OpenEMS steht Ihnen das <a target="_blank" href="https://community.openems.io/">OpenEMS

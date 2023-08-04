@@ -156,6 +156,7 @@ public class GetApp {
 					.addProperty("cardinality", app.getCardinality().name()) //
 					.addProperty("appId", app.getAppId()) //
 					.addProperty("name", app.getName(language)) //
+					.addProperty("shortName", app.getShortName(language)) //
 					.addPropertyIfNotNull("image", image) //
 					.add("flags", Arrays.stream(app.flags()) //
 							.map(Flag::toJson) //

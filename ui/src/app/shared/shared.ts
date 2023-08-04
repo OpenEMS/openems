@@ -28,13 +28,11 @@ addIcons({
 export class UserPermission {
   public static isUserAllowedToSeeOverview(user: User): boolean {
 
-    switch (user.id) {
-      case 'volta-x':
-      case 'intersolar2023':
-        return true;
+    if (Role.isAtLeast(user.globalRole, Role.INSTALLER)) {
+      return true;
     }
 
-    return Role.isAtLeast(user.globalRole, Role.INSTALLER);
+    return user.hasMultipleEdges;
   }
 }
 

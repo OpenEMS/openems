@@ -26,7 +26,7 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute
     ) {
         super(service);

@@ -2,6 +2,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -9,7 +10,7 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
-    public readonly id: string = 'commercial-30-anschluss';
+    public override readonly id: string = 'commercial-30-anschluss';
 
     constructor(translate: TranslateService) {
         super([

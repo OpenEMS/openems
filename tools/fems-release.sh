@@ -1,150 +1,112 @@
 #!/bin/bash
+#
+# Creates a FEMS-Release on main branch
+
 set -e
 
 main() {
-    initialize
-    update_fems_branches
+    initialize_environment
     print_header
-    merge_from_openems
+    check_dependencies
+    update_fems_branches
     start_release
+    common_update_version_in_code
     update_changelog
-    update_version_files
+    common_build_edge_and_ui_in_parallel
     finish_release
     prepare_next_snapshot
     push_to_remote
-
     echo "# FINISHED"
 }
 
-initialize() {
+initialize_environment() {
     # Set working directory
-    cd "$(dirname "$0")/.."
+    SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+    cd ${SCRIPT_DIR}/..
+
+    # Include commons
+    source $SCRIPT_DIR/common.sh
+    common_initialize_environment
 
     # Set environment variables
-    openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java"
-    package_json="ui/package.json"
-    package_lock_json="ui/package-lock.json"
-    user_component="ui/src/app/user/user.component.html"
-    initialize_version_from_string $(grep version $package_json | cut -d'"' -f4 | cut -d'-' -f1)
-    release_date=$(date --iso-8601)
+    THEME="fenecon"
+    RELEASE_DATE=$(date --iso-8601)
+    PREV_VERSION=$VERSION
+    SRC_CHANGELOG_COMPONENT="ui/src/app/changelog/view/component/changelog.component.ts"
 
-    # Validate
-    if [ $(git remote -v | grep -c '^openems') -eq 0 ]; then
-	    echo "# Missing Remote openems"
-	    echo "git remote add openems https://github.com/OpenEMS/openems.git"
-	    exit 1
-    fi
+    # Target version without SNAPSHOT
+    VERSION_STRING=""
+    VERSION="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH"
+
+    # Reset files
+    git checkout $SRC_OPENEMS_CONSTANTS 2>/dev/null
+    git checkout $SRC_PACKAGE_JSON 2>/dev/null
+    git checkout $SRC_CHANGELOG_CONSTANTS 2>/dev/null
+}
+
+# Check for required dependencies
+check_dependencies() {
+    hash code 2>/dev/null || { echo >&2 "I require 'code' but it's not installed. Aborting."; exit 1; }
 
     if [ $(git remote -v | grep -c '^origin') -eq 0 ]; then
-	    echo "# Missing Remote origin"
-	    echo "git remote add origin https://git.intranet.fenecon.de/FENECON/fems.git"
-	    exit 1
+        echo "# Missing Remote origin"
+        echo "git remote add origin https://git.intranet.fenecon.de/FENECON/fems.git"
+        exit 1
     fi
 
     if [ $(dpkg -l | grep -c git-flow) -eq 0 ]; then
-	    echo "# Missing git-flow"
-	    echo "apt install git-flow"
-	    echo "git flow init"
-	    echo "git config --global user.name \"...\""
-	    echo "git config --global user.email ..."
-	    exit 1
-    fi
-
-    # Reset files
-    git checkout $openems_constants 2>/dev/null
-    git checkout $package_json 2>/dev/null
-    git checkout $package_lock_json 2>/dev/null
-    git checkout $user_component 2>/dev/null
-}
-
-# Initializes variables version_major, version_minor, version_patch and version_snapshot
-initialize_version_from_string() {
-    tmp_version=$(echo $1 | cut -d'-' -f1)
-    version_major=$(echo $tmp_version | cut -d'.' -f1)
-    version_minor=$(echo $tmp_version | cut -d'.' -f2)
-    version_patch=$(echo $tmp_version | cut -d'.' -f3)
-    version_snapshot=$(echo $1 | cut -s -d'-' -f2)
-    if [ "$version_snapshot" = "" ]; then
-        version_string="$version_major.$version_minor.$version_patch"
-    else
-        version_string="$version_major.$version_minor.$version_patch-$version_snapshot"
+        echo "# Missing git-flow"
+        echo "apt install git-flow"
+        echo "git flow init"
+        echo "git config --global user.name \"...\""
+        echo "git config --global user.email ..."
+        exit 1
     fi
 }
 
 print_header() {
     echo "#"
-    echo "# Releasing version: $version_string"
-    echo "#              date: $release_date"    
+    echo "# Releasing version: $VERSION"
+    echo "#              date: $RELEASE_DATE"    
     echo "#"
     echo
 }
 
 update_fems_branches() {
-    echo "# Fetch remotes"
-    git fetch
-
     echo "# Update branch fems/main"
-    git checkout main
-    git pull
+    git fetch origin main:main
 
     echo "# Update branch fems/develop"
     git checkout develop
     git pull
 }
 
-merge_from_openems() {
-    echo "# Merge from openems/develop"
-    git fetch openems develop
-    git merge openems/develop --no-edit
-
-    echo "# Push to fems/develop"
-    git push origin develop
+# Git Flow: start release branch
+start_release() {
+    git flow release start "$VERSION"
 }
 
 update_changelog() {
-    echo "# Update Changelog! ($(pwd)/ui/src/app/changelog/changelog.component.ts)"
+    echo "# Update Changelog! ($SRC_CHANGELOG_COMPONENT)"
+    code $SRC_CHANGELOG_COMPONENT
     read -p ""
-    git add .
-    git commit --no-edit -m "Update Changelog for $version_string" || true
-}
-
-update_version_files() {
-    echo "# Update $openems_constants"
-    sed --in-place "s/\(VERSION_MAJOR = \)\([0-9]\+\);$/\1$version_major;/" $openems_constants
-    sed --in-place "s/\(VERSION_MINOR = \)\([0-9]\+\);$/\1$version_minor;/" $openems_constants
-    sed --in-place "s/\(VERSION_PATCH = \)\([0-9]\+\);$/\1$version_patch;/" $openems_constants
-    sed --in-place "s/\(VERSION_STRING = \)\"\(.*\)\";$/\1\"$version_snapshot\";/" $openems_constants
-
-    echo "# Update $package_json" 
-    sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$version_string\2/" $package_json
-
-    echo "# Update $package_lock_json" 
-    sed --in-place "s/\(^  \"version\": \"\).*\(\".*$\)/\1$version_string\2/" $package_lock_json
-
-    echo "# Update $user_component"
-    sed --in-place "s/\(<a .* routerLink=\"\/changelog\">\).*\(<\/a>\)/\1$version_string \\($release_date\\)\2/" $user_component
-}
-
-start_release() {
-    git checkout develop
-    git flow release start "$version_string"
 }
 
 finish_release() {
     git add .
     git status
-    git commit --no-edit -m "Push version to $version_string"
-    git flow release finish "$version_string" -n
+    git commit --no-edit -m "Push version to $VERSION"
+    git flow release finish "$VERSION" -n
     git checkout develop
 }
 
 prepare_next_snapshot() {
-    version_patch=$(echo $version_patch | awk '{print $0+1}')
-    initialize_version_from_string "$version_major.$version_minor.$version_patch-SNAPSHOT"
-    update_version_files
+    VERSION_STRING="SNAPSHOT"
+    VERSION="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH-$VERSION_STRING"
+    common_update_version_in_code
     git add .
     git status
-    git commit --no-edit -m "Start development of version $version_string"
+    git commit --no-edit -m "Start development of version $VERSION"
 }
 
 push_to_remote() {

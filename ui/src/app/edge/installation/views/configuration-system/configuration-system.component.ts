@@ -9,6 +9,7 @@ import { Commercial50EigenverbrauchsOptimierung } from '../../installation-syste
 import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
 import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
 import { ComponentData } from '../../shared/ibndatatypes';
+import { WebLinks } from '../../shared/enums';
 
 @Component({
   selector: ConfigurationSystemComponent.SELECTOR,
@@ -88,7 +89,7 @@ export class ConfigurationSystemComponent implements OnInit {
         window.open('https://www.heckertsolar.com/wp-content/uploads/2022/06/Montage_und-Serviceanleitung-Symphon-E-1.pdf');
         break;
       case 'home':
-        window.open('https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577');
+        window.open(WebLinks.getLink(this.ibn.manualLinks.home));
         break;
       case 'commercial-30':
         window.open('https://fenecon.de/downloadcenter-commercial-30/');

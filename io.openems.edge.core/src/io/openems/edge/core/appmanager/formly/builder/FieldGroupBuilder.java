@@ -12,6 +12,8 @@ public final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
 
 	private JsonArray fieldGroup;
 
+	private boolean setChildrenInProps;
+
 	public FieldGroupBuilder(Nameable property) {
 		super(property);
 	}
@@ -25,6 +27,12 @@ public final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
 		this.addWrapper(Wrappers.SAFE_INPUT);
 		this.templateOptions.addProperty("pathToDisplayValue", displayValue.name());
 		this.templateOptions.addProperty("displayType", displayType.getTypeName());
+		this.setSetChildrenInProps(true);
+		return this;
+	}
+
+	private FieldGroupBuilder setSetChildrenInProps(boolean setChildrenInProps) {
+		this.setChildrenInProps = setChildrenInProps;
 		return this;
 	}
 
@@ -40,7 +48,14 @@ public final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
 		templateOptions.remove("required");
 		JsonUtils.getAsOptionalJsonObject(object, "expressionProperties") //
 				.map(t -> t.remove("templateOptions.required"));
+
+		if (this.setChildrenInProps) {
+			templateOptions.add("fields", this.fieldGroup);
+			return object;
+		}
+
 		object.add("fieldGroup", this.fieldGroup);
+
 		return JsonUtils.buildJsonObject() //
 				.add("hideExpression", object.remove("hideExpression")) //
 				.add("fieldGroup", JsonUtils.buildJsonArray() //

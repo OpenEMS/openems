@@ -108,14 +108,14 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 								.setOptions(this.buildMeterOptions(language)) //
 								.build()) //
 						.add(JsonFormlyUtil.buildSelect(Property.MODBUS_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusId.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusId")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "communication.modbusId.description")) //
 								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("modbus"),
 										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusUnitId")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
 								.setInputType(InputType.NUMBER) //

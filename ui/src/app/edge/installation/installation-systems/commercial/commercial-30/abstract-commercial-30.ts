@@ -1,6 +1,7 @@
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
 import { FeedInType } from '../../../shared/enums';
 import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
@@ -9,9 +10,9 @@ import { AbstractCommercialIbn } from '../abstract-commercial';
 
 export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
-    public readonly defaultNumberOfModules = 9;
+    public override readonly defaultNumberOfModules = 9;
 
-    public readonly type: string = 'Fenecon-Commercial-30';
+    public override readonly type: string = 'Fenecon-Commercial-30';
 
     public fillForms(
         numberOfTowers: number,

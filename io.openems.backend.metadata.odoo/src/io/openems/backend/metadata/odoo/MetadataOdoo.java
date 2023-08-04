@@ -145,6 +145,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		var name = JsonUtils.getAsString(jUser, "name");
 		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
 		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
+		var hasMultipleEdges = JsonUtils.getAsBoolean(jUser, "has_multiple_edges");
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -153,7 +154,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			roles.put(edgeId, role);
 		}
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles,
+				hasMultipleEdges);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {

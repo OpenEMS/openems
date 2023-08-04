@@ -1,15 +1,16 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+
 import { SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { AbstractIbn, View } from './abstract-ibn';
 
 export class GeneralIbn extends AbstractIbn {
 
-    public readonly id = 'general';
+    public override readonly id = 'general';
 
-    public showViewCount = false;
+    public override showViewCount = false;
 
     constructor(translate: TranslateService) {
         super([

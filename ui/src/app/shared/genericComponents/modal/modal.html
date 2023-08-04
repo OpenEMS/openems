@@ -2,7 +2,6 @@
   <ion-toolbar color="primary">
     <ion-title translate>{{title}}</ion-title>
     <ion-buttons slot="end">
-
       <!-- Additional Toolbarbuttons -->
       <ng-container *ngIf="toolbarButtons !== null">
         <ng-container *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
@@ -14,7 +13,7 @@
         </ng-container>
 
         <ng-template #singleButton>
-          <ion-button [href]="toolbarButtons.url" target="_blank">
+          <ion-button [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
             <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
               [color]="toolbarButtons.icon?.color ??'light'" [size]="toolbarButtons.icon?.size ??'medium'">
             </ion-icon>
@@ -22,7 +21,8 @@
         </ng-template>
       </ng-container>
 
-      <oe-help-button *ngif="helpKey" [key]="helpKey"></oe-help-button>
+      <ng-content select="[button]"></ng-content>
+      <oe-help-button *ngIf="helpKey" [key]="helpKey"></oe-help-button>
 
       <ion-button (click)="modalController.dismiss()">
         <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
@@ -39,7 +39,8 @@
 
     <!-- For gap between header and content  -->
     <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
-    <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    <ng-container *ngTemplateOutlet="contentTpl">
+    </ng-container>
   </form>
 
   <!-- If FormGroup not used -->

@@ -47,6 +47,9 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Aggregated values Persistence Priority", description = "Send only Channels as aggregated values with a Persistence Priority greater-or-equals this.")
 	PersistencePriority aggregationPriority() default PersistencePriority.LOW;
 
+	@AttributeDefinition(name = "Resend values Persistence Priority", description = "Resend only Channels with a Persistence Priority greater-or-equals this. Should match with the persistence priority configured in your timedata.")
+	PersistencePriority resendPriority() default PersistencePriority.HIGH;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 

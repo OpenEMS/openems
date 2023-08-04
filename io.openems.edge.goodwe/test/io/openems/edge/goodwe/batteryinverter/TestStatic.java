@@ -29,5 +29,4 @@ public class TestStatic {
 		assertEquals(5680,
 				(int) GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(20, 466) /* 9320 */, 15000));
 	}
-
 }

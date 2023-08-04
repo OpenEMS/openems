@@ -20,6 +20,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.MicrocareSdm630Meter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -71,7 +72,7 @@ public class MicrocareSdm630Meter
 		METER_ID(AppDef.componentId("meter0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		TYPE(MeterProps.type()), //
+		TYPE(MeterProps.type(MeterType.GRID)), //
 		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
 				def -> def.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);

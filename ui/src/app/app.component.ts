@@ -7,6 +7,7 @@ import { Subject, timer } from 'rxjs';
 import { filter, retry, switchMap, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../environments';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
@@ -41,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
+    private globalRouteChangeHandler: GlobalRouteChangeHandler,
     private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
@@ -54,8 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.pollSystemStatus();
 
     // Checks if sessionStorage is not null, undefined or empty string
-    if (sessionStorage.getItem("DEBUGMODE")) {
-      this.environment.debugMode = JSON.parse(sessionStorage.getItem("DEBUGMODE"));
+    if (localStorage.getItem("DEBUGMODE")) {
+      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
     }
 
     this.titleService.setTitle(environment.edgeShortName);

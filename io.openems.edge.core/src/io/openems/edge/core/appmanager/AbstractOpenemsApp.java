@@ -69,7 +69,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			OpenemsNamedException> appPropertyConfigurationFactory();
 
 	protected final void assertCheckables(ConfigurationTarget t, Checkable... checkables) throws OpenemsNamedException {
-		if (t != ConfigurationTarget.ADD && t != ConfigurationTarget.UPDATE) {
+		if (!t.isAddOrUpdate()) {
 			return;
 		}
 		final List<String> errors = new ArrayList<>();
@@ -571,6 +571,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	@Override
+	public String getShortName(Language language) {
+		return AbstractOpenemsApp.getNullableTranslation(language, this.getAppId() + ".Name.short");
+	}
+
+	@Override
 	public String getImage() {
 		var imageName = this.getClass().getSimpleName() + ".png";
 		var image = base64OfImage(this.getClass().getResource(imageName));
@@ -607,6 +612,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
 	}
 
+	protected static String getNullableTranslation(Language language, String key) {
+		return TranslationUtil.getNullableTranslation(getTranslationBundle(language), key);
+	}
+
 	/**
 	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
 	 * 
@@ -630,6 +639,21 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			break;
 		}
 		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
+	}
+
+	/**
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
+	 * 
+	 * <p>
+	 * Used in {@link OpenemsApps} to create their {@link Type#getParamter()}.
+	 * 
+	 * @param l the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
+	 * @implNote just a name alias to
+	 *           {@link AbstractOpenemsApp#getTranslationBundle(Language)}
+	 */
+	public static ResourceBundle createResourceBundle(Language l) {
+		return getTranslationBundle(l);
 	}
 
 	protected static final String base64OfImage(URL url) {

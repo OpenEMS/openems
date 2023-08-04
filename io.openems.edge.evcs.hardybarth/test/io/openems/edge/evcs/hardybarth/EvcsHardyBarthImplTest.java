@@ -15,8 +15,8 @@ public class EvcsHardyBarthImplTest {
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setIp("192.168.8.101") //
-						.setMaxHwCurrent(32) //
-						.setMinHwCurrent(6) //
+						.setMaxHwCurrent(32_000) //
+						.setMinHwCurrent(6_000) //
 						.build())
 				.next(new TestCase());
 	}

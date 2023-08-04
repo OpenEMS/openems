@@ -17,6 +17,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 
 	private final EvcsHardyBarthImpl parent;
 	private int chargingFinishedCounter = 0;
+	private int errorCounter = 0;
 
 	public HardyBarthReadWorker(EvcsHardyBarthImpl parent) {
 		this.parent = parent;
@@ -92,29 +93,29 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		var powerL2 = (Long) this.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
 		var powerL3 = (Long) this.getValueForChannel(EvcsHardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
 
-		Integer phases = null;
+		// TODO: Handle phases, having each phase value in the Nature
+		// Keep last value if no power value was given
+		var phases = this.parent.getPhasesAsInt();
 		if (powerL1 != null && powerL2 != null && powerL3 != null) {
 
 			var sum = powerL1 + powerL2 + powerL3;
 
-			if (sum > 900) {
+			if (sum > 300) {
 				phases = 0;
 
-				if (powerL1 >= 300) {
+				if (powerL1 >= 100) {
 					phases += 1;
 				}
-				if (powerL2 >= 300) {
+				if (powerL2 >= 100) {
 					phases += 1;
 				}
-				if (powerL3 >= 300) {
+				if (powerL3 >= 100) {
 					phases += 1;
 				}
 			}
 		}
 		this.parent._setPhases(phases);
-		if (phases != null) {
-			this.parent.debugLog("Used phases: " + phases);
-		}
+		this.parent.debugLog("Used phases: " + phases);
 
 		// CHARGE_POWER
 		var chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, value -> {
@@ -129,24 +130,26 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 			return activePower < 100 ? 0 : activePower;
 		}, "secc", "port0", "metering", "power", "active_total", "actual");
 
-		//
 		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
 
 		// STATUS
 		var status = (Status) this.getValueFromJson(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
 				value -> {
+
 					String stringValue = TypeUtils.getAsType(OpenemsType.STRING, value);
 					if (stringValue == null) {
-						return Status.UNDEFINED;
+						this.errorCounter++;
+						this.parent.debugLog("Hardy Barth RAW_STATUS would be null! Raw value: " + value);
+						if (this.errorCounter > 3) {
+							return Status.ERROR;
+						}
+						return this.parent.getStatus();
 					}
 
-					Status rawStatus = Status.UNDEFINED;
-					switch (stringValue) {
-					case "A":
-						rawStatus = Status.NOT_READY_FOR_CHARGING;
-						break;
-					case "B":
-						rawStatus = Status.READY_FOR_CHARGING;
+					Status rawStatus = switch (stringValue) {
+					case "A" -> Status.NOT_READY_FOR_CHARGING;
+					case "B" -> {
+						var tmpStatus = Status.READY_FOR_CHARGING;
 
 						// Detect if the car is full
 						int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
@@ -154,7 +157,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 								.orElse(0) && chargePower <= 0) {
 
 							if (this.chargingFinishedCounter >= 90) {
-								rawStatus = Status.CHARGING_FINISHED;
+								tmpStatus = Status.CHARGING_FINISHED;
 							} else {
 								this.chargingFinishedCounter++;
 							}
@@ -163,25 +166,34 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 
 							// Charging rejected because we are forcing to pause charging
 							if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
-								rawStatus = Status.CHARGING_REJECTED;
+								tmpStatus = Status.CHARGING_REJECTED;
 							}
 						}
-						break;
-					case "C":
-					case "D":
-						rawStatus = Status.CHARGING;
-						break;
-					case "E":
-					case "F":
-						rawStatus = Status.ERROR;
-						break;
-					default:
-						rawStatus = Status.UNDEFINED;
-						break;
+						yield tmpStatus;
 					}
-					if (stringValue.equals("B")) {
+					case "C", "D" -> Status.CHARGING;
+					case "E", "F" -> {
+						this.errorCounter++;
+						this.parent.debugLog("Hardy Barth RAW_STATUS would be an error! Raw value: " + stringValue
+								+ " - Error counter: " + this.errorCounter);
+						if (this.errorCounter > 3) {
+							yield Status.ERROR;
+						}
+						yield this.parent.getStatus();
+					}
+					default -> {
+						this.parent.debugLog("State " + stringValue + " is not a valid state");
+						yield Status.UNDEFINED;
+					}
+					};
+
+					if (!stringValue.equals("B")) {
 						this.chargingFinishedCounter = 0;
 					}
+					if (!stringValue.equals("E") || !stringValue.equals("F")) {
+						this.errorCounter = 0;
+					}
+
 					return rawStatus;
 				}, "secc", "port0", "ci", "charge", "cp", "status");
 

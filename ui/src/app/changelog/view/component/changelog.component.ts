@@ -32,9 +32,33 @@ export class ChangelogComponent implements OnInit {
   }
 
   public readonly changelogs: {
-    version: string,
+    title?: string,
+    version?: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
+      {
+        version: '2023.8.1',
+        changes: [
+          Changelog.openems('2023.7.0'),
+          Changelog.UI + "Darstellungsfehler auf iOS, Tipp- und Übersetzungsfehler, Entfernen non-funktionale 'Alerting'-Funktion aus lokalem Monitoring",
+          "Daten Nachsenden: nach Übertragungsfehlern (z. B. Ausfall der Internetverbindung oder Wartungsarbeiten am Backend) werden fehlende Daten später nachgesendet",
+          "Lokales Monitoring: Daten im lokalen Monitoring sind nun bis zu 15 Monate lang verfügbar",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.app(App.EVCS_AC) + "Technische Überarbeitung des Widgets, Speichern-Button",
+          Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + "Verbesserte Verarbeitung der Phasen- und Status-Informationen",
+          "App Center: Allgemeine Verbesserungen",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Verbesserungen an 'Channels' in den Einstellungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Übersicht wird immer angezeigt, wenn der Nutzer Zugriff auf mehr als ein FEMS hat (oder mindestens Installateur ist)" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Umfangreiches Refactoring/Code-Bereinigung in der Historie" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI/IBN Home: Link zur englischen Anleitung, Validator für maximale Einspeiseleistung" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Verbessertes Sprachhandling für Demo-Zugang" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Auch Service-/Admin-User können Keys einlösen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Edge: Verbesserung des Debug-Logs für Komponenten mit interner State-Machine" },
+          { roleIsAtLeast: Role.ADMIN, change: "Edge: Fehlerbehebung bei der Energieberechnung für einzelne Phasen eines Zählers" },
+          Changelog.library(Library.FASTEXCEL, Library.GUAVA, Library.OKIO, Library.JAVA_WEBSOCKET)
+        ]
+      },
       {
         version: '2023.6.2',
         changes: [

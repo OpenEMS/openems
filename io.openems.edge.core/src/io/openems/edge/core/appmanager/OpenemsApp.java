@@ -70,6 +70,14 @@ public interface OpenemsApp {
 	public String getName(Language language);
 
 	/**
+	 * Gets the short name of the {@link OpenemsApp}.
+	 * 
+	 * @param language the language of the name
+	 * @return a human readable short name; can be null
+	 */
+	public String getShortName(Language language);
+
+	/**
 	 * Gets the {@link OpenemsAppCardinality} of the {@link OpenemsApp}.
 	 *
 	 * @return the usage

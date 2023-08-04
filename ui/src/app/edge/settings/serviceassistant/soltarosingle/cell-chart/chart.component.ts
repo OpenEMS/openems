@@ -1,4 +1,3 @@
-
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
@@ -7,6 +6,7 @@ import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart'
 import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Service, Utils } from 'src/app/shared/shared';
+
 import { ChannelChartDescription } from '../../abstractbattery.component';
 
 @Component({
@@ -26,8 +26,8 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("soltarocell-chart", service, translate);

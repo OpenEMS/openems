@@ -5,11 +5,12 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+
 import { Category } from '../../shared/category';
 import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
-import { Meter } from '../../shared/meter';
 import { IbnUtils } from '../../shared/ibnutils';
+import { Meter } from '../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
 
@@ -17,14 +18,14 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
     private static readonly SELECTOR = 'Commercial';
 
-    public readonly showRundSteuerManual: boolean = false;
+    public override readonly showRundSteuerManual: boolean = false;
 
-    public showViewCount: boolean = false;
+    public override showViewCount: boolean = false;
 
     public modbusBridgeType: ModbusBridgeType;
 
     // configuration-emergency-reserve
-    public emergencyReserve?= {
+    public override emergencyReserve?= {
         isEnabled: true,
         minValue: 15,
         value: 20,
@@ -32,13 +33,13 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     };
 
     // protocol-dynamic-feed-in-limitation
-    public feedInLimitation?= {
+    public override feedInLimitation?= {
         feedInType: FeedInType.EXTERNAL_LIMITATION,
         maximumFeedInPower: 0
     };
 
     // Protocol line side meter fuse
-    public lineSideMeterFuse?: {
+    public override lineSideMeterFuse?: {
         category: Category;
         fixedValue?: number;
         otherValue?: number;
@@ -56,7 +57,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     }
 
     //Configuration Summary
-    public gtcAndWarrantyLinks: {
+    public override gtcAndWarrantyLinks: {
         gtcLink: WebLinks;
         warrantyLink: WebLinks;
     } = {
@@ -137,6 +138,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 required: true
             },
             parsers: [Number],
+            validators: {
+                validation: ["onlyPositiveInteger"]
+            },
             // 10 is given as radix parameter.
             // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
             defaultValue: totalPvPower,
@@ -145,7 +149,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         return fields;
     }
 
-    public addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
+    public override addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
 
         const feedInLimitation = this.feedInLimitation;
         feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION
@@ -640,7 +644,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         return false;
     }
 
-    public setNonAbstractFields(ibnString: any) {
+    public override setNonAbstractFields(ibnString: any) {
 
         // Configuration commercial modbus bridge
         if ('modbusBridgeType' in ibnString) {

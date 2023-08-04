@@ -11,7 +11,7 @@ import { Controller_Io_HeatpumpModalComponent } from './modal/modal.component';
 })
 export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
-  public component: EdgeConfig.Component = null;
+  public override component: EdgeConfig.Component = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
   public isConnectionSuccessful: boolean;
   public mode: string;
@@ -19,7 +19,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
   private static PROPERTY_MODE: string = '_PropertyMode';
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     return [
       new ChannelAddress(this.component.id, 'Status'),
       new ChannelAddress(this.component.id, 'State'),
@@ -27,7 +27,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     ];
   }
 
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.componentId + '/State'] != 3 ? true : false;
 
     // Status

@@ -3,6 +3,8 @@ import { environment } from "src/environments";
 
 export class Changelog {
 
+    public static readonly UI_VERSION = "2023.8.1";
+
     public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
     public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
     public static readonly UI = Changelog.GENERAL_OPTIMIZATION + " am Online-Monitoring. ";

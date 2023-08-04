@@ -4,6 +4,7 @@ public enum DisplayType {
 	STRING("string"), //
 	BOOLEAN("boolean"), //
 	NUMBER("number"), //
+	OPTION_GROUP("optionGroup"), //
 	;
 
 	private final String typeName;

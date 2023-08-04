@@ -23,9 +23,6 @@ export function canEnterKey(edge: Edge, user: User): boolean {
     if (isTestUser(user)) {
         return true;
     }
-    if (edge.roleIsAtLeast(Role.ADMIN)) {
-        return false;
-    }
     if (edge.roleIsAtLeast(Role.OWNER)) {
         return true;
     }
