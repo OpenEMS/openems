@@ -6,11 +6,10 @@ public enum Currency implements OptionsEnum {
 	UNDEFINED(-1, "-"), //
 	EUR(0, "€"), //
 	SEK(1, "kr"), //
-	USD(2, "$");
+	;
 
 	private final String name;
 	private final int value;
-	public static final Currency DEFAULT = EUR;
 
 	private Currency(int value, String name) {
 		this.value = value;

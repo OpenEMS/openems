@@ -12,6 +12,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.OpenemsConstants;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 
@@ -62,6 +63,13 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	}
 
 	private void applyConfig(Config config) {
-		this._setCurrency(config.currency());
+		this._setCurrency(this.getCurrency(config));
+	}
+
+	private Currency getCurrency(Config config) {
+		return switch (config.currency()) {
+		case EUR -> Currency.EUR;
+		case SEK -> Currency.SEK;
+		};
 	}
 }

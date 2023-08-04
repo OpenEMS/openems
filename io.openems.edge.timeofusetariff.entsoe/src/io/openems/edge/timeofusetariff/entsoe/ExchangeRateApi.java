@@ -12,13 +12,12 @@ public class ExchangeRateApi {
 	private static final String URL = String.format(BASE_URL, "EUR");
 
 	/**
-	 * Fetches the exchange rate from base currency EUR to the currency requested by
-	 * user.
+	 * Fetches the exchange rates from base currency EUR.
 	 * 
 	 * @return the Response string.
 	 * @throws IOException on error.
 	 */
-	protected static String getExchangeRate() throws IOException {
+	protected static String getExchangeRates() throws IOException {
 		var request = new Request.Builder() //
 				.url(URL) //
 				.build();

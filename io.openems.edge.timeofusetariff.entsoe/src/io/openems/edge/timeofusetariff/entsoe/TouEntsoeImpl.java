@@ -21,7 +21,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +54,10 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
+	private final List<Consumer<Value<Integer>>> subscriptions = new ArrayList<>();
 
 	@Reference
-	private CurrencyProvider currencyProvider;
+	private Meta meta;
 
 	private Config config = null;
 	private Currency currency;
@@ -78,58 +78,46 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 		this.config = config;
+
 		Consumer<Currency> updateCurrency = currency -> {
 			this.currency = currency;
 			this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 		};
 
 		// Trigger to activate when the currency from Meta is updated.
-		this.currencyProvider.subscribe(updateCurrency);
+		this.subscribe(updateCurrency);
 
-		updateCurrency.accept(this.currencyProvider.getCurrent());
+		updateCurrency.accept(this.meta.getCurrencyChannel().getNextValue().asEnum());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.currencyProvider.unsubscribeAll();
+		this.unsubscribeAll();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
 
-	@Component(scope = ServiceScope.PROTOTYPE)
-	public static class CurrencyProviderOsgi implements CurrencyProvider {
+	/**
+	 * Subscribes to the Currency channel to trigger on update.
+	 * 
+	 * @param updateCurrency The callback {@link Consumer}.
+	 */
+	private void subscribe(Consumer<Currency> updateCurrency) {
 
-		private final List<Consumer<Value<Integer>>> subscriptions = new ArrayList<>();
+		Consumer<Value<Integer>> subscription = currency -> {
+			updateCurrency.accept(currency.asEnum());
+		};
+		this.subscriptions.add(subscription);
+		this.meta.getCurrencyChannel().onSetNextValue(subscription);
+	}
 
-		@Reference
-		private Meta meta;
-
-		public Currency getCurrent() {
-			return this.meta.getCurrencyChannel().getNextValue().asEnum();
-		}
-
-		/**
-		 * Subscribes to the Currency channel to trigger on update.
-		 * 
-		 * @param updateCurrency The callback {@link Consumer}.
-		 */
-		public void subscribe(Consumer<Currency> updateCurrency) {
-
-			Consumer<Value<Integer>> subscription = currency -> {
-				updateCurrency.accept(currency.asEnum());
-			};
-			this.subscriptions.add(subscription);
-			this.meta.getCurrencyChannel().onSetNextValue(subscription);
-		}
-
-		/**
-		 * Unsubscribes from all the Subscriptions.
-		 */
-		public void unsubscribeAll() {
-			this.subscriptions.forEach(subscription -> {
-				this.meta.getCurrencyChannel().removeOnSetNextValueCallback(subscription);
-			});
-		}
+	/**
+	 * Unsubscribes from all the Subscriptions.
+	 */
+	private void unsubscribeAll() {
+		this.subscriptions.forEach(subscription -> {
+			this.meta.getCurrencyChannel().removeOnSetNextValueCallback(subscription);
+		});
 	}
 
 	private final Runnable task = () -> {
@@ -142,13 +130,10 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		try {
 			var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
 
-			final double exchangeRate;
-			if (this.currency == Currency.EUR) {
-				// No need to fetch exchange rate from API.
-				exchangeRate = EUR_EXHANGE_RATE;
-			} else {
-				exchangeRate = Utils.exchangeRateParser(ExchangeRateApi.getExchangeRate(), this.currency);
-			}
+			final double exchangeRate = this.currency == Currency.EUR
+					// No need to fetch exchange rate from API.
+					? EUR_EXHANGE_RATE
+					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), this.currency);
 
 			// Parse the response for the prices
 			this.prices.set(Utils.parse(result, "PT60M", exchangeRate));
