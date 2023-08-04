@@ -69,7 +69,7 @@ export type OeFormlyField =
   | OeFormlyField.HorizontalLine
   | OeFormlyField.ButtonsFromChannelLine
   | OeFormlyField.ButtonsFromValueLine
-  | OeFormlyField.OnlyNameLine;
+  | OeFormlyField.NameLine;
 
 export namespace OeFormlyField {
 
@@ -125,8 +125,8 @@ export namespace OeFormlyField {
     converter?: (value: number | null) => string
   }
 
-  export type OnlyNameLine = {
-    type: 'only-name-line',
+  export type NameLine = {
+    type: 'name-line',
     name: string
   }
 }

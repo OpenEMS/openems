@@ -1,7 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { CONTROLLER_IO_FIX_DIGITAL_OUTPUT, DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyView } from "src/app/shared/genericComponents/shared/oe-formly-component";
-import { BUTTONS_FROM_CHANNEL_LINE, ONLY_NAME_LINE, OeFormlyViewTester, expectView } from "src/app/shared/genericComponents/shared/tester";
+import { BUTTONS_FROM_CHANNEL_LINE, NAME_LINE, OeFormlyViewTester, expectView } from "src/app/shared/genericComponents/shared/tester";
 import { EdgeConfig } from "src/app/shared/shared";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
@@ -29,7 +29,7 @@ describe('ExampleSystemsTest', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(true), TEST_CONTEXT, {
         title: "ctrlIoFixDigitalOutput0",
         lines: [
-          ONLY_NAME_LINE("Modus"),
+          NAME_LINE("Modus"),
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
@@ -52,7 +52,7 @@ describe('ExampleSystemsTest', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(false), TEST_CONTEXT, {
         title: "Terassenbeleuchtung",
         lines: [
-          ONLY_NAME_LINE("Modus"),
+          NAME_LINE("Modus"),
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
@@ -80,7 +80,7 @@ describe('ExampleSystemsTest', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Terassenbeleuchtung",
         lines: [
-          ONLY_NAME_LINE("Modus"),
+          NAME_LINE("Modus"),
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",

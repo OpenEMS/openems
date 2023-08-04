@@ -21,7 +21,7 @@ export class ModalComponent extends AbstractFormlyComponent {
     let component = config.components[componentId];
     let lines: OeFormlyField[] = [
       {
-        type: 'only-name-line',
+        type: 'name-line',
         name: translate.instant('General.mode')
       },
       {

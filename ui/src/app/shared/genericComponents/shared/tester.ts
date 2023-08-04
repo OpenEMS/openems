@@ -105,7 +105,7 @@ export class OeFormlyViewTester {
        * OeFormlyField.Info | OeFormlyField.OnlyNameLine
        */
       case "info-line":
-      case "only-name-line": {
+      case "name-line": {
         return {
           type: field.type,
           name: field.name
@@ -331,7 +331,7 @@ export namespace OeFormlyViewTester {
     | Field.ChannelLine
     | Field.ChildrenLine
     | Field.HorizontalLine
-    | Field.OnlyNameLine
+    | Field.NameLine
     | Field.ButtonsFromChannelLine
     | Field.ButtonsFromValueLine;
 
@@ -365,8 +365,8 @@ export namespace OeFormlyViewTester {
       type: 'horizontal-line',
     }
 
-    export type OnlyNameLine = {
-      type: 'only-name-line',
+    export type NameLine = {
+      type: 'name-line',
       name: string
     }
 
@@ -471,8 +471,8 @@ export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
   name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
 };
 
-export const ONLY_NAME_LINE = (name: string): OeFormlyViewTester.Field => ({
-  type: "only-name-line",
+export const NAME_LINE = (name: string): OeFormlyViewTester.Field => ({
+  type: "name-line",
   name: name
 });
 
