@@ -102,7 +102,7 @@ export class OeFormlyViewTester {
       }
 
       /**
-       * OeFormlyField.Info | OeFormlyField.OnlyNameLine
+       * OeFormlyField.Info | OeFormlyField.NameLine
        */
       case "info-line":
       case "name-line": {
