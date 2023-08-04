@@ -1,6 +1,3 @@
-import { AbstractFormlyComponent, OeFormlyView } from "../genericComponents/shared/oe-formly-component";
-import { OeFormlyViewTester } from "../genericComponents/shared/tester";
-import { TestContext } from "../test/utils.spec";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";

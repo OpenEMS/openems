@@ -4,7 +4,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { filter } from "rxjs/operators";
 
-import { ChannelAddress, CurrentData, EdgeConfig, Service, Websocket } from "../../shared";
+import { ChannelAddress, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
