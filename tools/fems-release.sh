@@ -90,8 +90,6 @@ update_changelog() {
     echo "# Update Changelog! ($SRC_CHANGELOG_COMPONENT)"
     code $SRC_CHANGELOG_COMPONENT
     read -p ""
-    git add .
-    git commit --no-edit -m "Update Changelog for $VERSION" || true
 }
 
 finish_release() {

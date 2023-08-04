@@ -36,9 +36,9 @@ common_update_version_in_code() {
 
 # Build OpenEMS Edge and UI in parallel
 common_build_edge_and_ui_in_parallel() {
-    common_build_edge & # run in parallel
-    common_build_ui & # run in parallel
-    wait # wait for edge+ui
+    # TODO use 'parallel' tool for reliable implementation
+    common_build_edge
+    common_build_ui
 }
 
 # Build OpenEMS Edge
