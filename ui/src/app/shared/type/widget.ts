@@ -38,7 +38,7 @@ export enum WidgetFactory {
 
 export type Icon = {
     color: string;
-    size: string;
+    size?: string;
     name: string;
 }
 

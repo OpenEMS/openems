@@ -1,3 +1,6 @@
+import { AbstractFormlyComponent, OeFormlyView } from "../genericComponents/shared/oe-formly-component";
+import { OeFormlyViewTester } from "../genericComponents/shared/tester";
+import { TestContext } from "../test/utils.spec";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";
@@ -88,7 +91,7 @@ namespace Factory {
         ]
     };
 
-export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
+    export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
         id: "Controller.Io.FixDigitalOutput",
         natureIds: [
             "io.openems.edge.controller.io.fixdigitaloutput.ControllerIoFixDigitalOutput",

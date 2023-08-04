@@ -68,7 +68,8 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
 
                     let value: number | string | null;
                     if (control.converter != null && currentData) {
-                        value = control.converter(currentData);
+                        let channel = currentData.allComponents[control.channel];
+                        value = control.converter(channel);
                     } else {
                         value = currentData.allComponents[control.channel];
                     }

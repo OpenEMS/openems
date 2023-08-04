@@ -110,8 +110,9 @@ export namespace OeFormlyField {
     /** The channel will be used as value for the buttons */
     value: string,
     buttons: ButtonLabel[],
+    /** Controlname needs to be the same as controller property to be updated*/
     controlName: string,
-    converter?: (currentData: CurrentData) => any
+    converter?: (value: number | null) => string
   }
 
   export type ButtonsFromChannelLine = {
@@ -119,8 +120,9 @@ export namespace OeFormlyField {
     /** The channel will be used as value for the buttons */
     channel: string,
     buttons: ButtonLabel[],
+    /** Controlname needs to be the same as controller property to be updated*/
     controlName: string,
-    converter?: (currentData: CurrentData) => any
+    converter?: (value: number | null) => string
   }
 
   export type OnlyNameLine = {

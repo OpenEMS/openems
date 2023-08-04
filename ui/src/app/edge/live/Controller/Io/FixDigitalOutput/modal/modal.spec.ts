@@ -1,14 +1,19 @@
-import { BUTTONS_FROM_CHANNEL_LINE, ONLY_NAME_LINE } from "src/app/edge/live/common/grid/modal/constants.spec";
+import { TranslateService } from "@ngx-translate/core";
 import { CONTROLLER_IO_FIX_DIGITAL_OUTPUT, DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
+import { OeFormlyView } from "src/app/shared/genericComponents/shared/oe-formly-component";
+import { BUTTONS_FROM_CHANNEL_LINE, ONLY_NAME_LINE, OeFormlyViewTester, expectView } from "src/app/shared/genericComponents/shared/tester";
+import { EdgeConfig } from "src/app/shared/shared";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
-
-import { expectView } from "./constants.spec";
+import { ModalComponent } from "./modal.component";
 
 const VIEW_CONTEXT = (isOn: boolean): OeFormlyViewTester.Context => ({
   "ctrlIoFixDigitalOutput0/_PropertyIsOn": isOn ? 1 : 0 // false
 });
+
+function generateView(config: EdgeConfig, role: Role, translate: TranslateService, componentId: string): OeFormlyView {
+  return ModalComponent.generateView(config, role, translate, componentId);
+}
 
 describe('ExampleSystemsTest', () => {
   let TEST_CONTEXT;
@@ -28,15 +33,15 @@ describe('ExampleSystemsTest', () => {
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
-            icon: { color: "success", size: "small", name: "power-outline" }
+            icon: { color: "success", name: "power-outline" }
           },
           {
             name: "Aus",
             value: "false",
-            icon: { color: "danger", size: "small", name: "power-outline" }
-          }], true)
+            icon: { color: "danger", name: "power-outline" }
+          }], "true")
         ]
-      }, "ctrlIoFixDigitalOutput0");
+      }, generateView, "ctrlIoFixDigitalOutput0");
     }
 
     // Relay aus
@@ -51,15 +56,15 @@ describe('ExampleSystemsTest', () => {
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
-            icon: { color: "success", size: "small", name: "power-outline" }
+            icon: { color: "success", name: "power-outline" }
           },
           {
             name: "Aus",
             value: "false",
-            icon: { color: "danger", size: "small", name: "power-outline" }
-          }], false)
+            icon: { color: "danger", name: "power-outline" }
+          }], "false")
         ]
-      }, "ctrlIoFixDigitalOutput0");
+      }, generateView, "ctrlIoFixDigitalOutput0");
     }
 
     // Relay null
@@ -79,15 +84,15 @@ describe('ExampleSystemsTest', () => {
           BUTTONS_FROM_CHANNEL_LINE([{
             name: "An",
             value: "true",
-            icon: { color: "success", size: "small", name: "power-outline" }
+            icon: { color: "success", name: "power-outline" }
           },
           {
             name: "Aus",
             value: "false",
-            icon: { color: "danger", size: "small", name: "power-outline" }
-          }], false)
+            icon: { color: "danger", name: "power-outline" }
+          }], "-")
         ]
-      }, "ctrlIoFixDigitalOutput0");
+      }, generateView, "ctrlIoFixDigitalOutput0");
     }
   });
 });

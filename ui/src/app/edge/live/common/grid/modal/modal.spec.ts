@@ -1,10 +1,12 @@
 import { DummyConfig, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
-import { GridMode } from "src/app/shared/shared";
+import { CHANNEL_LINE, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, OeFormlyViewTester, PHASE_ADMIN, PHASE_GUEST, expectView } from "src/app/shared/genericComponents/shared/tester";
+import { EdgeConfig, GridMode } from "src/app/shared/shared";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
-import { CHANNEL_LINE, expectView, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "./constants.spec";
+import { TranslateService } from "@ngx-translate/core";
+import { OeFormlyView } from "src/app/shared/genericComponents/shared/oe-formly-component";
+import { ModalComponent } from "./modal";
 
 const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
   "_sum/GridMode": GridMode.ON_GRID,
@@ -16,6 +18,10 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
   "meter0/ActivePowerL2": 1500,
   ...properties
 });
+
+function generateView(config: EdgeConfig, role: Role, translate: TranslateService, componentId: string): OeFormlyView {
+  return ModalComponent.generateView(config, role, translate);
+}
 
 describe('ExampleSystemsTest', () => {
   let TEST_CONTEXT;
@@ -30,7 +36,7 @@ describe('ExampleSystemsTest', () => {
         title: "Netz",
         lines: [
         ]
-      });
+      }, generateView);
     }
 
     {
@@ -51,7 +57,7 @@ describe('ExampleSystemsTest', () => {
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
-      });
+      }, generateView);
 
       // Owner and Guest
       expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
@@ -65,7 +71,7 @@ describe('ExampleSystemsTest', () => {
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
-      });
+      }, generateView);
 
       // Offgrid
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ '_sum/GridMode': GridMode.OFF_GRID }), TEST_CONTEXT, {
@@ -84,7 +90,7 @@ describe('ExampleSystemsTest', () => {
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
-      });
+      }, generateView);
     }
 
     {
@@ -113,7 +119,7 @@ describe('ExampleSystemsTest', () => {
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
-      });
+      }, generateView);
 
       // Owner and Guest -> two meters
       expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
@@ -134,7 +140,7 @@ describe('ExampleSystemsTest', () => {
           LINE_HORIZONTAL,
           LINE_INFO_PHASES_DE
         ]
-      });
+      }, generateView);
     }
   });
 });

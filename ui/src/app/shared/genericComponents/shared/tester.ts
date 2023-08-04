@@ -11,6 +11,9 @@ import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
+import { EdgeConfig } from "../../shared";
+import { Role } from "../../type/role";
+import { TranslateService } from "@ngx-translate/core";
 
 export class OeFormlyViewTester {
 
@@ -166,10 +169,9 @@ export class OeFormlyViewTester {
   private static applyButtonsFromChannelLine(field: OeFormlyField.ButtonsFromChannelLine, context: OeFormlyViewTester.Context) {
 
     let rawValue = field.channel && field.channel in context ? context[field.channel] : null;
-    let currentData = { allComponents: context };
 
     let value: string = field.converter
-      ? field.converter(currentData)
+      ? field.converter(rawValue)
       : rawValue === null ? null : "" + rawValue;
 
     return value;
@@ -405,3 +407,83 @@ export namespace OeFormlyViewTester {
     };
   }
 }
+
+/**
+ * Used for unit testing Views
+ * 
+ * @param config the Edgeconfig 
+ * @param role the role, this user has at least this role for this EMS 
+ * @param viewContext the viewContext
+ * @param testContext the testContext
+ * @param view the view, how it should be lookinglike
+ * @param callback the 
+ * @param componentId 
+ */
+export function expectView(config: EdgeConfig, role: Role, viewContext: OeFormlyViewTester.Context,
+  testContext: TestContext, view: OeFormlyViewTester.View, generateView: (config: EdgeConfig, role: Role, translate: TranslateService, componentId?: string) => OeFormlyView, componentId?: string): void {
+  expect(OeFormlyViewTester.apply(generateView(config, role, testContext.translate, componentId), viewContext)).toEqual(view);
+};
+
+export const CHANNEL_LINE = (name: string, value: string): OeFormlyViewTester.Field => ({
+  type: "channel-line",
+  name: name,
+  value: value
+});
+
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
+  type: "children-line",
+  name: name,
+  indentation: TextIndentation.SINGLE,
+  children: [
+    {
+      type: "item",
+      value: voltage
+    },
+    {
+      type: "item",
+      value: current
+    },
+    {
+      type: "item",
+      value: power
+    }
+  ]
+});
+
+export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
+  type: "children-line",
+  name: name,
+  indentation: TextIndentation.SINGLE,
+  children: [
+    {
+      type: "item",
+      value: power
+    }
+  ]
+});
+
+export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
+  type: "horizontal-line"
+};
+
+export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
+  type: "info-line",
+  name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
+};
+
+export const ONLY_NAME_LINE = (name: string): OeFormlyViewTester.Field => ({
+  type: "only-name-line",
+  name: name
+});
+
+export const BUTTONS_FROM_CHANNEL_LINE = (buttons: ButtonLabel[], value: string | number | boolean): OeFormlyViewTester.Field => ({
+  type: "buttons-from-channel-line",
+  buttons: buttons,
+  value: value
+});
+
+export const BUTTONS_FROM_VALUE_LINE = (buttons: ButtonLabel[], value: string): OeFormlyViewTester.Field => ({
+  type: "buttons-from-value-line",
+  buttons: buttons,
+  value: value
+});

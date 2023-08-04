@@ -1,5 +1,19 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props.component && formGroup" [component]="props.component"
-    [formGroup]="formGroup">
+<!-- If formgroup needed -->
+<ng-container *ngIf="props.component, else noFormGroup">
+    <oe-modal [title]="props.attributes.title" *ngIf="formGroup" [component]="props.component" [formGroup]="formGroup">
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    </oe-modal>
+</ng-container>
+
+<!-- If no formGroup needed -->
+<ng-template #noFormGroup>
+    <oe-modal [title]="props.attributes.title">
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    </oe-modal>
+</ng-template>
+
+<!-- Modal content -->
+<ng-template #contentTpl>
     <ng-container *ngFor="let line of props?.lines">
         <ng-container [ngSwitch]="line.type">
 
@@ -30,6 +44,7 @@
             <!-- OeFormlyField.HorizontalLine -->
             <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
 
+            <!-- OeFormlyField.ButtonsFromChannelLine -->
             <ng-container *ngSwitchCase="'buttons-from-channel-line'">
                 <oe-modal-buttons *ngIf="formGroup" [formGroup]="formGroup" [controlName]="line.controlName"
                     [component]="props.component" [buttons]="line.buttons" [channelAddress]="line.channel">
@@ -37,4 +52,4 @@
             </ng-container>
         </ng-container>
     </ng-container>
-</oe-modal>
+</ng-template>

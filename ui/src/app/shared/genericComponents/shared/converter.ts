@@ -52,6 +52,10 @@ export namespace Converter {
         : FORMAT_WATT(0));
   };
 
+  export const IS_RELAY_ON: Converter = (raw): string => {
+    return IF_NUMBER(raw, value => (value === 1).toString());
+  };
+
   /**
    * Converter for Grid-Sell-Power.
    * 
