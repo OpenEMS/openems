@@ -152,6 +152,15 @@
 		</dependency>
 		<!-- io -->
 		<dependency>
+			<!-- Jenetics - Java Genetic Algorithm Library -->
+			<!-- Release notes:
+			https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<!-- 6.3.0 is the last version that is compatible with Java 11 -->
+			<version>6.3.0</version>
+		</dependency>
+		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
 			<version>3.1.6</version>

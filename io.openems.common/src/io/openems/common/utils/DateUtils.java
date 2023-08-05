@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.function.BiFunction;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -23,6 +24,17 @@ public class DateUtils {
 	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
 	private DateUtils() {
+	}
+
+	/**
+	 * Rounds a {@link ZonedDateTime} down to given minutes.
+	 *
+	 * @param d       the {@link ZonedDateTime}
+	 * @param minutes the minutes to round down to; max 59
+	 * @return the rounded result
+	 */
+	public static ZonedDateTime roundZonedDateTimeDownToMinutes(ZonedDateTime d, int minutes) {
+		return d.withMinute(d.getMinute() - d.getMinute() % minutes).truncatedTo(ChronoUnit.MINUTES);
 	}
 
 	/**

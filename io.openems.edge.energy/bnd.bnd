@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Controller Symmetric Fix-ActivePower
+Bundle-Name: OpenEMS Edge Energy
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -8,9 +8,14 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
+	io.openems.edge.controller.ess.fixactivepower,\
+	io.openems.edge.controller.evcs,\
 	io.openems.edge.energy.api,\
-	io.openems.edge.ess.api,\
+	io.openems.edge.predictor.api,\
+	io.openems.edge.scheduler.api,\
 	io.openems.edge.timedata.api,\
+	io.openems.edge.timeofusetariff.api,\
+	io.openems.wrapper.okhttp,\
 	
 -testpath: \
 	${testpath}
