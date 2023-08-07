@@ -15,7 +15,7 @@ export class FlatComponent extends AbstractFlatWidget {
     protected autarchyValue: number | null;
     private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
     private static readonly EXCEL_EXTENSION = '.xlsx';
-
+    protected readonly isMobile = this.service.isSmartphoneResolution;
 
     protected override onCurrentData(currentData: CurrentData) {
         this.autarchyValue =
