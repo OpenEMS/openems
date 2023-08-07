@@ -18,14 +18,14 @@ public class SignedWordElementTest {
 	@Test
 	public void testReadBigEndian() throws OpenemsException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(new SignedWordElement(0), SHORT);
-		sut.element.setInputRegisters(new Register[] { new SimpleRegister((byte) 0xAB, (byte) 0xCD) });
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0xAB, (byte) 0xCD) });
 		assertEquals((short) 0xABCD, sut.channel.getNextValue().get());
 	}
 
 	@Test
 	public void testReadLittleEndian() throws OpenemsException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(new SignedWordElement(0).byteOrder(LITTLE_ENDIAN), SHORT);
-		sut.element.setInputRegisters(new Register[] { new SimpleRegister((byte) 0xAB, (byte) 0xCD) });
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0xAB, (byte) 0xCD) });
 		assertEquals((short) 0xCDAB, sut.channel.getNextValue().get());
 	}
 
@@ -33,7 +33,7 @@ public class SignedWordElementTest {
 	public void testWriteBigEndian() throws IllegalArgumentException, OpenemsNamedException {
 		var sut = new ModbusTest.FC6WriteRegister<>(new SignedWordElement(0), SHORT);
 		sut.channel.setNextWriteValueFromObject(0x1234);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34 }, registers[0].toBytes());
 	}
 
@@ -41,7 +41,7 @@ public class SignedWordElementTest {
 	public void testWriteLittleEndian() throws IllegalArgumentException, OpenemsNamedException {
 		var sut = new ModbusTest.FC6WriteRegister<>(new SignedWordElement(0).byteOrder(LITTLE_ENDIAN), SHORT);
 		sut.channel.setNextWriteValueFromObject(0x1234);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x34, (byte) 0x12 }, registers[0].toBytes());
 	}
 }
