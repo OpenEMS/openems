@@ -132,7 +132,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           let edgeIds = Object.keys(metadata.edges);
           this.onlyOneEdgeAvailable = edgeIds.length <= 1;
           this.noEdges = edgeIds.length === 0;
-          this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+          this.loggedInUserCanInstall = environment.backend === 'OpenEMS Backend' && Role.isAtLeast(metadata.user.globalRole, "installer");
 
           // Forward directly to device page, if
           // - Direct local access to Edge
