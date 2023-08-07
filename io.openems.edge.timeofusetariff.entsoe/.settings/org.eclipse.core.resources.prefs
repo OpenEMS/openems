@@ -1,9 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/timeofusetariff/entsoe/Config.java=UTF-8
-encoding//src/io/openems/edge/timeofusetariff/entsoe/TouEntsoe.java=UTF-8
-encoding//src/io/openems/edge/timeofusetariff/entsoe/TouEntsoeImpl.java=UTF-8
-encoding//test/io/openems/edge/timeofusetariff/entsoe/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/timeofusetariff/entsoe/TouEntsoeTest.java=UTF-8
 encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8

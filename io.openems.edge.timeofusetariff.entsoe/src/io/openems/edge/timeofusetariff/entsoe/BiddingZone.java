@@ -15,19 +15,19 @@ public enum BiddingZone {
 	/**
 	 * BZN|SE1.
 	 */
-	SWEDEN_ZONE_1("10Y1001A1001A44P"), //
+	SWEDEN_SE1("10Y1001A1001A44P"), //
 	/**
 	 * BZN|SE2.
 	 */
-	SWEDEN_ZONE_2("10Y1001A1001A45N"), //
+	SWEDEN_SE2("10Y1001A1001A45N"), //
 	/**
 	 * BZN|SE3.
 	 */
-	SWEDEN_ZONE_3("10Y1001A1001A46L"), //
+	SWEDEN_SE3("10Y1001A1001A46L"), //
 	/**
 	 * BZN|SE4.
 	 */
-	SWEDEN_ZONE_4("10Y1001A1001A47J"), //
+	SWEDEN_SE4("10Y1001A1001A47J"), //
 	;
 
 	private final String code;

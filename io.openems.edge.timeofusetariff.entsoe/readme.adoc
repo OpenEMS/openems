@@ -4,4 +4,8 @@ This implementation uses the ENTSO-E transparency platform to receive day-ahead 
 
 To request a (free) authentication token, please see chapter "2. Authentication and Authorisation" in the official API documentation: https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_authentication_and_authorisation
 
+Euro-denominated prices retrieved from ENTSO-E are subsequently converted to the user's currency using the Exchange Rates API.
+
+For detailed information about the Exchange Rates API, please refer to: https://exchangerate.host/#/docs
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.entsoe[Source Code icon:github[]]

@@ -65,7 +65,7 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#Currency}.
+	 * Gets the Channel for {@link ChannelId#CURRENCY}.
 	 *
 	 * @return the Channel
 	 */
@@ -74,7 +74,7 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#Currency} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENCY} Channel.
 	 *
 	 * @param value the next value
 	 */

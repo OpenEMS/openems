@@ -47,7 +47,6 @@ import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 )
 public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe, OpenemsComponent, TimeOfUseTariff {
 
-	private static final int EUR_EXHANGE_RATE = 1;
 	private static final int API_EXECUTE_HOUR = 14;
 
 	private final Logger log = LoggerFactory.getLogger(TouEntsoeImpl.class);
@@ -130,9 +129,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		try {
 			var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
 
-			final double exchangeRate = this.currency == Currency.EUR
-					// No need to fetch exchange rate from API.
-					? EUR_EXHANGE_RATE
+			final double exchangeRate = this.currency == Currency.EUR //
+					? 1 // No need to fetch exchange rate from API.
 					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), this.currency);
 
 			// Parse the response for the prices
