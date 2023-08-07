@@ -16,8 +16,8 @@ export class ChartComponent implements OnInit, AfterViewChecked {
   @Input() public title: string = '';
   @Input() public showPhases: boolean | null = null;
   @Input() public showTotal: boolean | null = null;
-  @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
-  @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
+  @Output() public showTotalChange: EventEmitter<boolean> = new EventEmitter();
+  @Output() public showPhasesChange: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
 
   // Manually trigger ChangeDetection through Inputchange
@@ -48,8 +48,8 @@ export class ChartComponent implements OnInit, AfterViewChecked {
     if (this.isPopoverNeeded) {
       if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
         this.showPopover = false;
-        this.setShowPhases.emit(false);
-        this.setShowTotal.emit(true);
+        this.showPhasesChange.emit(false);
+        this.showTotalChange.emit(true);
       } else {
         this.showPopover = true;
       }
@@ -70,8 +70,8 @@ export class ChartComponent implements OnInit, AfterViewChecked {
     popover.onDidDismiss().then((data) => {
       this.showPhases = data.role == 'Phases' ? data.data : this.showPhases;
       this.showTotal = data.role == 'Total' ? data.data : this.showTotal;
-      this.setShowPhases.emit(this.showPhases);
-      this.setShowTotal.emit(this.showTotal);
+      this.showPhasesChange.emit(this.showPhases);
+      this.showTotalChange.emit(this.showTotal);
     });
     await popover.present();
   }

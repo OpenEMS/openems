@@ -1,5 +1,5 @@
-<oe-chart [title]="'General.consumption' | translate" [isPopoverNeeded]="true" (setShowPhases)="setShowPhases($event)"
-    [showPhases]="showPhases" [period]="service.historyPeriod.value" *ngIf="isInitialized">
+<oe-chart [title]="'General.consumption' | translate" [isPopoverNeeded]="true" [(showPhases)]="showPhases"
+    [period]="service.historyPeriod.value" *ngIf="isInitialized">
     <consumptionchart [isOnlyChart]="true" [showPhases]="showPhases">
     </consumptionchart>
 </oe-chart>

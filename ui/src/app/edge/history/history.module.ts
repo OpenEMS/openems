@@ -8,6 +8,7 @@ import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.compo
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common_Autarchy } from './common/autarchy/Autarchy';
+import { Common_Consumption } from './common/consumption/Consumption';
 import { CommonEnergyMonitor } from './common/energy/energy';
 import { Common_Production } from './common/production/Production';
 import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
@@ -55,7 +56,6 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
-import { Common_Consumption } from './common/consumption/Consumption';
 
 @NgModule({
   imports: [
@@ -63,9 +63,7 @@ import { Common_Consumption } from './common/consumption/Consumption';
     Common_Autarchy,
     Common_Production,
     Common_Consumption,
-Common_Selfconsumption
-  ],
-  entryComponents: [
+    Common_Selfconsumption,
     CommonEnergyMonitor
   ],
   declarations: [

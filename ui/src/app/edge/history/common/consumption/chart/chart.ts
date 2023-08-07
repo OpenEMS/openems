@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
@@ -10,8 +11,12 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    this.spinnerId = "consumption";
+  protected override getChartData() {
+    return ChartComponent.getChartData(this.spinnerId, this.config, this.translate, this.showPhases, this.phaseColors);
+  }
+
+  public static getChartData(spinnerId: string, config: EdgeConfig, translate: TranslateService, showPhases: boolean, phaseColors: string[]): HistoryUtils.ChartData {
+    spinnerId = "consumption";
 
     let inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
@@ -28,14 +33,14 @@ export class ChartComponent extends AbstractHistoryChart {
       });
     });
 
-    let evcsComponents: EdgeConfig.Component[] = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+    let evcsComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(
         component.factoryId == 'Evcs.Cluster' ||
         component.factoryId == 'Evcs.Cluster.PeakShaving' ||
         component.factoryId == 'Evcs.Cluster.SelfConsumption'));
 
-    let consumptionMeters: EdgeConfig.Component[] = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
+    let consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
 
     evcsComponents.forEach(component => {
       inputChannel.push({
@@ -51,7 +56,7 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy')
       });
 
-      if (this.config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
+      if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
         ['L1', 'L2', 'L3'].forEach(phase => {
           inputChannel.push({
             name: meter.id + '/ActivePower' + phase,
@@ -70,7 +75,7 @@ export class ChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         let datasets: HistoryUtils.DisplayValues[] = [];
         datasets.push({
-          name: this.translate.instant('General.TOTAL'),
+          name: translate.instant('General.TOTAL'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
             return energyValues?.result.data['_sum/ConsumptionActiveEnergy'];
           },
@@ -83,10 +88,10 @@ export class ChartComponent extends AbstractHistoryChart {
           noStrokeThroughLegendIfHidden: false
         });
 
-        if (this.showPhases) {
+        if (showPhases) {
           ['L1', 'L2', 'L3'].forEach((phase, index) => {
             datasets.push({
-              name: this.translate.instant('General.phase') + " " + phase,
+              name: translate.instant('General.phase') + " " + phase,
               nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                 return energyValues?.result.data['_sum/ConsumptionActiveEnergy' + phase];
               },
@@ -94,7 +99,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 console.log("data", data);
                 return data['ConsumptionActivePower' + phase];
               },
-              color: this.phaseColors[Math.min(index, this.phaseColors.length - 1)],
+              color: phaseColors[Math.min(index, phaseColors.length - 1)],
               stack: 1
             });
           });
@@ -128,26 +133,27 @@ export class ChartComponent extends AbstractHistoryChart {
             stack: 2
           });
 
-          if (this.showPhases) {
+          if (showPhases) {
             ['L1', 'L2', 'L3'].forEach((phase, index) => {
               datasets.push({
-                name: meter.alias + " " + this.translate.instant('General.phase') + " " + phase,
+                name: meter.alias + " " + translate.instant('General.phase') + " " + phase,
                 nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                   return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy' + phase];
                 },
                 converter: () => {
                   return data[meter.id + '/ActivePower' + phase];
                 },
-                color: this.phaseColors[index],
+                color: phaseColors[index],
                 stack: 2
               });
             });
           }
         });
 
+        // other consumption
         if (consumptionMeters.length > 0 || evcsComponents.length > 0) {
           datasets.push({
-            name: this.translate.instant('General.otherConsumption'),
+            name: translate.instant('General.otherConsumption'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
@@ -164,7 +170,12 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-2'
       },
-      unit: HistoryUtils.YAxisTitle.ENERGY
+      yAxes: [
+        {
+          unit: YAxisTitle.ENERGY,
+          position: 'left',
+          yAxisId: ChartAxis.LEFT
+        }]
     };
   }
 }
