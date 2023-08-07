@@ -24,7 +24,7 @@ export class GetEdgesRequest extends JsonrpcRequest {
     private static METHOD: string = "getEdges";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             page: number,
             query?: string,
             limit?: number

@@ -19,7 +19,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
   public component: EdgeConfig.Component = null;
-  public edge: Edge;
+  public override edge: Edge;
   private currencyLabel: string; // Default
 
   ngOnChanges() {
@@ -29,8 +29,8 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   };
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("timeOfUseTariffDischarge-chart", service, translate);

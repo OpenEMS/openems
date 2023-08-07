@@ -19,7 +19,7 @@ export class ExecuteSystemUpdateRequest extends JsonrpcRequest {
     public static METHOD: string = "executeSystemUpdate";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             isDebug: boolean
         }
     ) {

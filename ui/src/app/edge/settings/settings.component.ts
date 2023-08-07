@@ -14,6 +14,7 @@ export class SettingsComponent implements OnInit {
   public environment = environment;
 
   public canSeeAppCenter: boolean | undefined;
+  protected isEdgeBackend: boolean = environment.backend === 'OpenEMS Edge';
 
   constructor(
     private route: ActivatedRoute,

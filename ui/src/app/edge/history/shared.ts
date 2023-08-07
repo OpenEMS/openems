@@ -36,6 +36,29 @@ export type TooltipItem = {
     yLabel: number
 }
 
+export type YAxis = {
+
+    id?: string,
+    position: string,
+    stacked?: boolean,
+    scaleLabel: {
+        display: boolean,
+        labelString: string,
+        padding?: number,
+        fontSize?: number
+    },
+    gridLines?: {
+        display: boolean
+    },
+    ticks: {
+        beginAtZero: boolean,
+        max?: number,
+        padding?: number,
+        stepSize?: number,
+        callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
+    }
+}
+
 export type ChartOptions = {
     layout?: {
         padding: {
@@ -74,27 +97,7 @@ export type ChartOptions = {
         intersect: boolean
     },
     scales: {
-        yAxes: [{
-            id?: string,
-            position: string,
-            stacked?: boolean,
-            scaleLabel: {
-                display: boolean,
-                labelString: string,
-                padding?: number,
-                fontSize?: number
-            },
-            gridLines?: {
-                display: boolean
-            },
-            ticks: {
-                beginAtZero: boolean,
-                max?: number,
-                padding?: number,
-                stepSize?: number,
-                callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
-            }
-        }],
+        yAxes: YAxis[],
         xAxes: [{
             bounds?: string,
             offset?: boolean,
@@ -130,7 +133,7 @@ export type ChartOptions = {
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
             title?(tooltipItems: TooltipItem[], data: Data): string,
-            afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
+            afterTitle?(item: ChartTooltipItem[], data: Data): string | string[],
             footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
     }
@@ -168,9 +171,68 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                 labelString: ""
             },
             ticks: {
-                beginAtZero: false
+                beginAtZero: true
             }
         }],
+        xAxes: [{
+            ticks: {},
+            stacked: false,
+            type: 'time',
+            time: {
+                minUnit: 'hour',
+                displayFormats: {
+                    millisecond: 'SSS [ms]',
+                    second: 'HH:mm:ss a', // 17:20:01
+                    minute: 'HH:mm', // 17:20
+                    hour: 'HH:[00]', // 17:20
+                    day: 'DD', // Sep 04 2015
+                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+                    month: 'MM', // September
+                    quarter: '[Q]Q - YYYY', // Q3 - 2015
+                    year: 'YYYY' // 2015,
+                }
+            }
+        }]
+    },
+    tooltips: {
+        mode: 'index',
+        intersect: false,
+        axis: 'x',
+        callbacks: {
+            title(tooltipItems: TooltipItem[], data: Data): string {
+                let date = new Date(tooltipItems[0].xLabel);
+                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+            }
+        }
+    }
+};
+
+export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {
+    maintainAspectRatio: false,
+    legend: {
+        labels: {},
+        position: 'bottom'
+    },
+    elements: {
+        point: {
+            radius: 0,
+            hitRadius: 0,
+            hoverRadius: 0
+        },
+        line: {
+            borderWidth: 2,
+            tension: 0.1
+        },
+        rectangle: {
+            borderWidth: 2
+        }
+    },
+    hover: {
+        mode: 'point',
+        intersect: true
+    },
+    scales: {
+        yAxes: [],
         xAxes: [{
             ticks: {},
             stacked: false,
@@ -225,7 +287,6 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    * @returns resolution and timeformat
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
-
     let days = Math.abs(differenceInDays(toDate, fromDate));
     let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
@@ -301,7 +362,6 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
         return;
     }
     let labelWithoutUnit = "LABEL_" + label.split(":")[0];
-
     sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 

@@ -1,4 +1,5 @@
-<oe-flat-widget [title]="'General.production' | translate" [icon]="{name: 'oe-production', color: 'production'}" (click)="presentModal()">
+<oe-flat-widget [title]="'General.production' | translate" [icon]="{name: 'oe-production', color: 'production'}"
+    (click)="presentModal()">
     <ng-container *ngFor="let component of productionMeterComponents, let i = index">
         <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActivePower'"
             [converter]="CONVERT_WATT_TO_KILOWATT">
