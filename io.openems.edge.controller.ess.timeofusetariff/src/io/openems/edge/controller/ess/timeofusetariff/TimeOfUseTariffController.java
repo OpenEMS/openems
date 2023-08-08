@@ -27,9 +27,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.persistencePriority(PersistencePriority.HIGH)), //
 		CHARGED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("The controller currently recharge the battery")),
-		CHARGE_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)//
-				.text("The amount of energy set to charge from grid in a period")), //
 
 		/**
 		 * Aggregated seconds when storage is blocked for discharge.
@@ -39,9 +36,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.persistencePriority(PersistencePriority.HIGH)), //
 		DELAYED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("The controller currently blocks discharge")),
-		DISCHARGE_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)//
-				.text("The amount of energy set to discharge from the battery in a period")), //
 
 		CHARGE_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge/Discharge energy calculated for the period.")), //
@@ -142,44 +136,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	 */
 	public default void _setCharged(boolean value) {
 		this.getChargedChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#CHARGE_VALUE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getChargeValueChannel() {
-		return this.channel(ChannelId.CHARGE_VALUE);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_VALUE}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setChargeValue(Integer value) {
-		this.getChargeValueChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#DISCHARGE_VALUE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getDischargeValueChannel() {
-		return this.channel(ChannelId.DISCHARGE_VALUE);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#DISCHARGE_VALUE}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDischargeValue(Integer value) {
-		this.getDischargeValueChannel().setNextValue(value);
 	}
 
 	/**

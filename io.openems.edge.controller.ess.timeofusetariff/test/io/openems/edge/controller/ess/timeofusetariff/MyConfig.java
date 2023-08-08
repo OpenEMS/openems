@@ -78,7 +78,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int maxPower() {
+	public int maxChargePowerFromGrid() {
 		return this.builder.maxPower;
 	}
 

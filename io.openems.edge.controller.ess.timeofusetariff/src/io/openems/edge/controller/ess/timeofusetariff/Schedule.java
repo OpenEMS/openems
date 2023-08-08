@@ -169,6 +169,8 @@ public class Schedule {
 			// Simulates and updates the schedule.
 			this.simulateSchedule();
 		}
+
+		System.out.println(this.toString());
 	}
 
 	/**
@@ -194,7 +196,7 @@ public class Schedule {
 			period.essInitialEnergy = essInitialEnergyForCurrentPeriod;
 
 			// updates 'chargeDischarge energy' and 'Grid energy' values.
-			this.updateEssAndGridEnergyInPeriod(index);
+			this.updateEssAndGridEnergyInPeriod(period);
 
 			// estimating initial Energy for next period.
 			final int essInitialEnergyForNextPeriod = TypeUtils.max(0, essInitialEnergy - period.chargeDischargeEnergy);
@@ -208,11 +210,9 @@ public class Schedule {
 	 * Updates the 'chargeDischarge energy' and 'Grid energy' values for the
 	 * appropriate period mentioned by index.
 	 * 
-	 * @param index The index of the period.
+	 * @param period The {@link Period}.
 	 */
-	private void updateEssAndGridEnergyInPeriod(int index) {
-
-		final var period = this.periods.get(index);
+	private void updateEssAndGridEnergyInPeriod(Period period) {
 		final var chargeDischargeEnergy = period.chargeDischargeEnergy;
 		final var requiredEnergy = period.requiredEnergy;
 		final var essInitialEnergy = period.essInitialEnergy;
@@ -223,11 +223,8 @@ public class Schedule {
 				(essInitialEnergy - this.essUsableEnergy));
 		final var maximumAllowedDischargeInBattery = TypeUtils.min(this.maxDischargeEnergyPerPeriod, essInitialEnergy);
 
-		// Initializing with current value.
-		Integer chargeDischargeEnergyUpdated = null;
-
 		// simulate 'Balancing'.
-		chargeDischargeEnergyUpdated = period.isExcessPvAvailable()
+		var chargeDischargeEnergyUpdated = period.isExcessPvAvailable()
 				// Excess PV energy is present
 				? TypeUtils.max(maximumAllowedChargeInBattery, requiredEnergy)
 				// Normal Discharging.
@@ -238,7 +235,7 @@ public class Schedule {
 			switch (this.controlMode) {
 			case CHARGE_CONSUMPTION:
 				if (period.isChargeFromGridScheduled()) {
-					// if Charge is set additional to excess PV.
+					// if force charge is scheduled.
 					chargeDischargeEnergyUpdated = TypeUtils.max(maximumAllowedChargeInBattery, chargeDischargeEnergy);
 				}
 				break;
@@ -260,13 +257,13 @@ public class Schedule {
 	/**
 	 * Calculates and schedules the required energy before the index period.
 	 * 
-	 * @param requiredEnergy  The energy needed to be scheduled in battery.
-	 * @param expensivePeriod Expensive period index.
+	 * @param requiredEnergy       The energy needed to be scheduled in battery.
+	 * @param expensivePeriodIndex The index of the expensive period.
 	 */
-	private void calculateSchedule(int requiredEnergy, int expensivePeriod) {
+	private void calculateSchedule(int requiredEnergy, int expensivePeriodIndex) {
 
 		// Cheapest period index with available charge energy.
-		var cheapHour = this.getCheapestHourIndexBeforePeriod(expensivePeriod, this.periods, this.essUsableEnergy);
+		var cheapHour = this.getCheapestHourIndexBeforePeriod(expensivePeriodIndex, this.periods, this.essUsableEnergy);
 
 		if (cheapHour == null) {
 			// no cheap hour Calculated
@@ -274,27 +271,28 @@ public class Schedule {
 		}
 
 		var cheapPeriod = this.periods.get(cheapHour);
+		var expensivePeriod = this.periods.get(expensivePeriodIndex);
 
 		// schedule
-		if (cheapPeriod.price < this.periods.get(expensivePeriod).price) {
+		if (cheapPeriod.price < expensivePeriod.price) {
 
 			// available 'charge' energy when the mode is CHARGE_CONSUMPTION.
 			// available 'discharge' energy when the mode is DELAY_DISCAHRGE.
-			var availableEnergy = this.getAvailableEnergy(cheapHour);
+			var availableEnergy = this.getAvailableEnergy(cheapPeriod);
 
 			// check if the required energy to charge/discharge is more than available
 			// energy.
 			if (requiredEnergy > availableEnergy) {
 
 				// update schedule
-				this.updateSchedule(availableEnergy, cheapHour);
+				this.updateSchedule(availableEnergy, cheapPeriod);
 
 				// Calculate to schedule remaining energy.
 				var remainingEnergy = requiredEnergy - availableEnergy;
-				this.calculateSchedule(remainingEnergy, expensivePeriod);
+				this.calculateSchedule(remainingEnergy, expensivePeriodIndex);
 			} else {
 				// update schedule
-				this.updateSchedule(requiredEnergy, cheapHour);
+				this.updateSchedule(requiredEnergy, cheapPeriod);
 			}
 		}
 	}
@@ -314,7 +312,8 @@ public class Schedule {
 
 		Integer cheapHourIndex = null;
 		for (int index = 0; index < expensivePeriodIndex; index++) {
-			var availableEnergy = this.getAvailableEnergy(index);
+			var period = this.periods.get(index);
+			var availableEnergy = this.getAvailableEnergy(period);
 			if (availableEnergy <= 0) {
 				continue;
 			}
@@ -338,24 +337,31 @@ public class Schedule {
 	/**
 	 * Redirects to the appropriate method based on the control mode selected.
 	 * 
-	 * @param cheapHourIndex Index of the cheapest period.
+	 * <p>
+	 * Redirected to {@link Schedule#getAvailableChargeEnergyForPeriod(Period)} when
+	 * {@link ControlMode#CHARGE_CONSUMPTION}.
+	 * 
+	 * <p>
+	 * Redirected to {@link Schedule#getAvailableDischargeEnergyForPeriod(Period)}
+	 * when {@link ControlMode#DELAY_DISCHARGE}.
+	 * 
+	 * @param period The {@link Period}.
 	 * @return the available charge/Discharge energy.
 	 */
-	private int getAvailableEnergy(Integer cheapHourIndex) {
+	private int getAvailableEnergy(Period period) {
 		return switch (this.controlMode) {
-		case CHARGE_CONSUMPTION -> this.getAvailableChargeEnergyForPeriod(cheapHourIndex);
-		case DELAY_DISCHARGE -> this.getAvailableDischargeEnergyForPeriod(cheapHourIndex);
+		case CHARGE_CONSUMPTION -> this.getAvailableChargeEnergyForPeriod(period);
+		case DELAY_DISCHARGE -> this.getAvailableDischargeEnergyForPeriod(period);
 		};
 	}
 
 	/**
 	 * Returns the available charge energy for the period.
 	 * 
-	 * @param index index of the period.
+	 * @param period The {@link Period}.
 	 * @return the available charge energy.
 	 */
-	private int getAvailableChargeEnergyForPeriod(int index) {
-		final var period = this.periods.get(index);
+	private int getAvailableChargeEnergyForPeriod(Period period) {
 		final var availableCapacity = TypeUtils.subtract(this.essUsableEnergy, period.essInitialEnergy);
 
 		// No space for charging. (SoC is already 100.)
@@ -380,11 +386,10 @@ public class Schedule {
 	/**
 	 * Returns the available Discharge energy for the period.
 	 * 
-	 * @param index index of the period.
+	 * @param period The {@link Period}.
 	 * @return the available discharge energy.
 	 */
-	private int getAvailableDischargeEnergyForPeriod(int index) {
-		final var period = this.periods.get(index);
+	private int getAvailableDischargeEnergyForPeriod(Period period) {
 		final var initialEnergyForCurrentPeriod = period.essInitialEnergy;
 		final var currentChargeDischargeEnergy = period.chargeDischargeEnergy;
 
@@ -400,12 +405,10 @@ public class Schedule {
 	 * Updates the 'chargeDischarge energy' and 'Grid energy' values for cheap hour
 	 * period.
 	 * 
-	 * @param energy    the energy to schedule.
-	 * @param cheapHour index of the cheap period.
+	 * @param energy the energy to schedule.
+	 * @param period The {@link Period}.
 	 */
-	private void updateSchedule(int energy, int cheapHour) {
-		var period = this.periods.get(cheapHour);
-
+	private void updateSchedule(int energy, Period period) {
 		switch (this.controlMode) {
 		case CHARGE_CONSUMPTION -> {
 			energy = -energy; // Charge energy is always negative.

@@ -74,6 +74,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
+	private static final int PERIODS_PER_HOUR = 4;
+	private static final int MINUTES_PER_PERIOD = 15;
+	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
 
 	/**
 	 * Delayed Time is aggregated also after restart of OpenEMS.
@@ -102,9 +105,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private Config config = null;
 	private Schedule schedule;
 	private ZonedDateTime nextQuarter = null;
-	private static final int PERIODS_PER_HOUR = 4;
-	private static final int MINUTES_PER_PERIOD = 15;
-	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -220,7 +220,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Power to Energy.
 		var dischargeEnergy = dischargePower / PERIODS_PER_HOUR;
 		var chargeEnergy = chargePower / PERIODS_PER_HOUR;
-		var allowedChargeEnergyFromGrid = this.config.maxPower() / PERIODS_PER_HOUR;
+		var allowedChargeEnergyFromGrid = this.config.maxChargePowerFromGrid() / PERIODS_PER_HOUR;
 
 		// Initialize Schedule
 		this.schedule = new Schedule(this.config.controlMode(), netUsableEnergy, currentAvailableEnergy,
@@ -243,8 +243,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * 
 	 * @throws OpenemsNamedException on error.
 	 */
-	private void setChargeOrDischarge() throws OpenemsNamedException {
+	private void setChargeOrDischarge() {
 		if (this.schedule.periods.isEmpty()) {
+			this.setDefaultValues();
 			return;
 		}
 
@@ -252,42 +253,40 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		final var stateMachine = period.getStateMachine(this.config.controlMode());
 		var charged = false;
 		var delayed = false;
-		Integer chargeValue = null;
-		Integer dischargeValue = null;
 
-		switch (stateMachine) {
-		case CHARGING:
+		var activePower = switch (stateMachine) {
+		case CHARGING -> {
 			charged = true;
-			chargeValue = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
-
-			// Force Charging with charge energy.
-			this.ess.setActivePowerLessOrEquals(chargeValue);
-			break;
-		case DELAYED:
+			yield period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
+		}
+		case DELAYED -> {
 			delayed = true;
-
-			// If there is complete delay discharge ('0') or partial delay from battery.
-			dischargeValue = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
+			var value = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 
 			if (this.ess instanceof HybridEss hybridEss) {
 				// DC or Hybrid system: limit AC export power to DC production power
-				dischargeValue += TypeUtils.subtract(this.ess.getActivePower().get(),
-						hybridEss.getDcDischargePower().get());
+				value += TypeUtils.subtract(this.ess.getActivePower().get(), hybridEss.getDcDischargePower().get());
 			}
 
-			// Set result
-			this.ess.setActivePowerLessOrEquals(dischargeValue);
-			break;
-		case ALLOWS_DISCHARGE:
-		case STANDBY:
-			// Do Nothing
-			break;
+			yield value;
+		}
+		// Do not set active power
+		case ALLOWS_DISCHARGE -> null;
+		case STANDBY -> null;
+		};
+
+		if (activePower != null) {
+			try {
+				this.ess.setActivePowerLessOrEquals(activePower);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+				delayed = false;
+				charged = false;
+			}
 		}
 
 		this._setDelayed(delayed);
 		this._setCharged(charged);
-		this._setChargeValue(chargeValue);
-		this._setDischargeValue(dischargeValue);
 		this._setStateMachine(stateMachine);
 	}
 
@@ -314,10 +313,16 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * Apply the mode OFF logic.
 	 */
 	private void modeOff() {
-		// Update the timer.
+		this.setDefaultValues();
+	}
+
+	/**
+	 * Sets the Default values to the channels, if the Periods are not yet
+	 * calculated or if the Mode is 'OFF'.
+	 */
+	private void setDefaultValues() {
 		this._setCharged(false);
 		this._setDelayed(false);
-		this._setChargeValue(null);
 		this._setStateMachine(StateMachine.STANDBY);
 	}
 
@@ -328,6 +333,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		if (this.schedule == null || this.schedule.periods.isEmpty()) {
 			// Values are not yet calculated.
+			this.setDefaultValues();
 			return;
 		}
 
