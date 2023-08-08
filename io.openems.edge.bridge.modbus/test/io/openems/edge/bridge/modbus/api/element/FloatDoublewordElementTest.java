@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
 import static io.openems.common.types.OpenemsType.FLOAT;
+import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +21,7 @@ public class FloatDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatDoublewordElement(0), //
 				FLOAT);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x44, (byte) 0x9A), //
 				new SimpleRegister((byte) 0x51, (byte) 0xEC) //
 		});
@@ -30,9 +31,9 @@ public class FloatDoublewordElementTest {
 	@Test
 	public void testReadBigEndianLswMsw() throws OpenemsException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
-				new FloatDoublewordElement(0).wordOrder(WordOrder.LSWMSW), //
+				new FloatDoublewordElement(0).wordOrder(LSWMSW), //
 				FLOAT);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x51, (byte) 0xEC), //
 				new SimpleRegister((byte) 0x44, (byte) 0x9A) //
 		});
@@ -44,7 +45,7 @@ public class FloatDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatDoublewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				FLOAT);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xEC, (byte) 0x51), //
 				new SimpleRegister((byte) 0x9A, (byte) 0x44) //
 		});
@@ -52,11 +53,11 @@ public class FloatDoublewordElementTest {
 	}
 
 	@Test
-	public void testReadLittleEndianlswMsw() throws OpenemsException {
+	public void testReadLittleEndianLswMsw() throws OpenemsException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
-				new FloatDoublewordElement(0).byteOrder(LITTLE_ENDIAN).wordOrder(WordOrder.LSWMSW), //
+				new FloatDoublewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				FLOAT);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x9A, (byte) 0x44), //
 				new SimpleRegister((byte) 0xEC, (byte) 0x51) //
 		});
@@ -69,7 +70,7 @@ public class FloatDoublewordElementTest {
 				new FloatDoublewordElement(0), //
 				FLOAT);
 		sut.channel.setNextWriteValueFromObject(1234.56F);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x44, (byte) 0x9A }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x51, (byte) 0xEC }, registers[1].toBytes());
 	}

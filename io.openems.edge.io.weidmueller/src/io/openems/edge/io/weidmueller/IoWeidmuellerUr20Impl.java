@@ -121,8 +121,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 							this.modules.get(module).add(channel);
 							element.bit(i, channelId);
 						}
-						tasks = new Task[] {
-								new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element) };
+						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
 						break;
 					}
 
@@ -134,17 +133,16 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 							var channel = (BooleanWriteChannel) this.addChannel(channelId);
 
 							var outputElement = new CoilElement(nextOutputCoil++);
-							var channelMetaInfoBit = new ChannelMetaInfoBitReadAndWrite(inputElement.getStartAddress(),
-									i, PROCESS_DATA_OUTPUT_BASE_COIL, outputElement.getStartAddress());
+							var channelMetaInfoBit = new ChannelMetaInfoBitReadAndWrite(inputElement.startAddress, i,
+									PROCESS_DATA_OUTPUT_BASE_COIL, outputElement.startAddress);
 							writeChannels.add(channel);
-							myTasks.add(new FC5WriteCoilTask(outputElement.getStartAddress(),
+							myTasks.add(new FC5WriteCoilTask(outputElement.startAddress,
 									m(channelId, outputElement, channelMetaInfoBit)));
 
 							this.modules.get(module).add(channel);
 							inputElement.bit(i, channelId, channelMetaInfoBit);
 						}
-						myTasks.add(
-								new FC3ReadRegistersTask(inputElement.getStartAddress(), Priority.HIGH, inputElement));
+						myTasks.add(new FC3ReadRegistersTask(inputElement.startAddress, Priority.HIGH, inputElement));
 						tasks = myTasks.toArray(Task[]::new);
 						break;
 					}
