@@ -30,13 +30,9 @@ public enum BiddingZone {
 	SWEDEN_SE4("10Y1001A1001A47J"), //
 	;
 
-	private final String code;
+	public final String code;
 
 	private BiddingZone(String code) {
 		this.code = code;
-	}
-
-	public String getCode() {
-		return this.code;
 	}
 }

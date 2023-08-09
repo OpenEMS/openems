@@ -5,8 +5,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +51,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
-	private final List<Consumer<Value<Integer>>> subscriptions = new ArrayList<>();
 
 	@Reference
 	private Meta meta;
@@ -69,6 +66,11 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		);
 	}
 
+	private final Consumer<Value<Integer>> updateCurrency = currency -> {
+		this.currency = currency.asEnum();
+		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+	};
+
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
@@ -76,75 +78,63 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		if (!config.enabled()) {
 			return;
 		}
+
+		if (config.securityToken() == null) {
+			this.logError(this.log, "Please enter Security token to access ENTSO-E");
+			return;
+		}
 		this.config = config;
 
-		Consumer<Currency> updateCurrency = currency -> {
-			this.currency = currency;
-			this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
-		};
-
 		// Trigger to activate when the currency from Meta is updated.
-		this.subscribe(updateCurrency);
+		this.setMeta();
 
-		updateCurrency.accept(this.meta.getCurrencyChannel().getNextValue().asEnum());
+		this.updateCurrency.accept(this.meta.getCurrencyChannel().getNextValue());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.unsubscribeAll();
+		this.unsetMeta();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
 
 	/**
-	 * Subscribes to the Currency channel to trigger on update.
-	 * 
-	 * @param updateCurrency The callback {@link Consumer}.
+	 * Initializes the Currency channel listener. Adds the callback to the channel.
 	 */
-	private void subscribe(Consumer<Currency> updateCurrency) {
-
-		Consumer<Value<Integer>> subscription = currency -> {
-			updateCurrency.accept(currency.asEnum());
-		};
-		this.subscriptions.add(subscription);
-		this.meta.getCurrencyChannel().onSetNextValue(subscription);
+	private void setMeta() {
+		this.meta.getCurrencyChannel().onSetNextValue(this.updateCurrency);
 	}
 
 	/**
-	 * Unsubscribes from all the Subscriptions.
+	 * Removes the Callback from Currency Channel.
 	 */
-	private void unsubscribeAll() {
-		this.subscriptions.forEach(subscription -> {
-			this.meta.getCurrencyChannel().removeOnSetNextValueCallback(subscription);
-		});
+	private void unsetMeta() {
+		this.meta.getCurrencyChannel().removeOnSetNextValueCallback(this.updateCurrency);
 	}
 
 	private final Runnable task = () -> {
 		var token = this.config.securityToken();
-		var areaCode = this.config.biddingZone().getCode();
+		var areaCode = this.config.biddingZone().code;
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
 		var unableToUpdatePrices = false;
 
 		try {
-			var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
+			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
+			final var entsoeCurrency = Utils.parseCurrency(result);
 
-			final double exchangeRate = this.currency == Currency.EUR //
+			final var exchangeRate = this.currency.toString() == entsoeCurrency //
 					? 1 // No need to fetch exchange rate from API.
 					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), this.currency);
 
 			// Parse the response for the prices
-			this.prices.set(Utils.parse(result, "PT60M", exchangeRate));
+			this.prices.set(Utils.parsePrices(result, "PT60M", exchangeRate));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();
 		} catch (IOException | ParserConfigurationException | SAXException | OpenemsNamedException e) {
+			this.logWarn(this.log, e.getMessage());
 			e.printStackTrace();
-			if (e instanceof OpenemsNamedException) {
-				this.logWarn(this.log, "Unable to get the currency exchange rate " + e.getMessage());
-			} else {
-				this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());
-			}
 			unableToUpdatePrices = true;
 		}
 
@@ -171,7 +161,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Override
 	public TimeOfUsePrices getPrices() {
 		// return empty TimeOfUsePrices if data is not yet available.
-		if (this.updateTimeStamp == null) {
+		if (!this.config.enabled() || this.updateTimeStamp == null) {
 			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 

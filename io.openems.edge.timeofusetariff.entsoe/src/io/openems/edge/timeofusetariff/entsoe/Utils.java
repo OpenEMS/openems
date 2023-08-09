@@ -64,9 +64,9 @@ public class Utils {
 	}
 
 	/**
-	 * Parses the xml response from the Entso-E API.
+	 * Parses the XML response from the Entso-E API to get the Day-Ahead prices.
 	 * 
-	 * @param xml          The xml string to be parsed.
+	 * @param xml          The XML string to be parsed.
 	 * @param resolution   PT15M or PT60M
 	 * @param exchangeRate The exchange rate of user currency to EUR.
 	 * @return The {@link ImmutableSortedMap}
@@ -74,7 +74,7 @@ public class Utils {
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parse(String xml, String resolution, double exchangeRate)
+	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution, double exchangeRate)
 			throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
 		var dBuilder = dbFactory.newDocumentBuilder();
@@ -127,10 +127,39 @@ public class Utils {
 	}
 
 	/**
+	 * Parses the XML response from the Entso-E API to extract the currency
+	 * associated with the prices.
+	 * 
+	 * @param xml The XML string to be parsed.
+	 * @return The currency string.
+	 * @throws ParserConfigurationException on error.
+	 * @throws SAXException                 on error
+	 * @throws IOException                  on error
+	 */
+	protected static String parseCurrency(String xml) throws ParserConfigurationException, SAXException, IOException {
+		var dbFactory = DocumentBuilderFactory.newInstance();
+		var dBuilder = dbFactory.newDocumentBuilder();
+		var is = new InputSource(new StringReader(xml));
+		var doc = dBuilder.parse(is);
+		var root = doc.getDocumentElement();
+
+		var result = stream(root) //
+				// <TimeSeries>
+				.filter(n -> n.getNodeName() == "TimeSeries") //
+				.flatMap(XmlUtils::stream) //
+				// <currency_Unit.name>
+				.filter(n -> n.getNodeName() == "currency_Unit.name") //
+				.map(XmlUtils::getContentAsString) //
+				.findFirst().get();
+
+		return result;
+	}
+
+	/**
 	 * Parses the response string from Exchange rate API.
 	 * 
 	 * @param response The Response string from ExcahngeRate API.
-	 * @param currency The {@link Curreny} selected by User.
+	 * @param currency The {@link Currency} selected by User.
 	 * @return the exchange rate.
 	 * @throws OpenemsNamedException on error.
 	 */

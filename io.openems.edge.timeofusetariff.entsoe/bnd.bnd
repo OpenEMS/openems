@@ -12,4 +12,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.okhttp,\
 	
 -testpath: \
+	org.jetbrains.kotlin.osgi-bundle,\
 	${testpath}

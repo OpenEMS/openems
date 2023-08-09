@@ -16,12 +16,10 @@ public class EntsoeApiTest {
 	@Test
 	@Ignore
 	public void testQuery() throws IOException, ParserConfigurationException, SAXException {
-		var token = "";
-		var areaCode = BiddingZone.SWEDEN_SE3.getCode();
+		var token = ""; // Fill personal security token and remove 'Ignore' tag while testing.
+		var areaCode = BiddingZone.SWEDEN_SE3.code;
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).withZoneSameLocal(ZoneId.systemDefault());
 		var toDate = fromDate.plusDays(1);
-		var response = EntsoeApi.query(token, areaCode, fromDate, toDate);
-
-		System.out.println(response);
+		EntsoeApi.query(token, areaCode, fromDate, toDate);
 	}
 }

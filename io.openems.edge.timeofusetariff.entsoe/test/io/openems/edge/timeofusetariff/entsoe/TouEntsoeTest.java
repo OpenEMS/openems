@@ -21,7 +21,5 @@ public class TouEntsoeTest {
 						.setSecurityToken("foo-bar") //
 						.setBiddingZone(BiddingZone.GERMANY) //
 						.build());
-
-		// Thread.sleep(5000);
 	}
 }

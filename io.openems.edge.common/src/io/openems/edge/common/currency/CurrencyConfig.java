@@ -17,5 +17,17 @@ public enum CurrencyConfig {
 	/**
 	 * Swedish Krona.
 	 */
-	SEK,
+	SEK;
+
+	/**
+	 * Converts the {@link CurrencyConfig} to the {@link Currency}.
+	 * 
+	 * @return The {@link Currency}.
+	 */
+	public Currency toCurrency() {
+		return switch (this) {
+		case EUR -> Currency.EUR;
+		case SEK -> Currency.SEK;
+		};
+	}
 }

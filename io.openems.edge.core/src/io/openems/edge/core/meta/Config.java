@@ -12,7 +12,7 @@ import io.openems.edge.common.currency.CurrencyConfig;
 
 	String webconsole_configurationFactory_nameHint() default "Core Meta";
 
-	@AttributeDefinition(name = "Currency", description = "Currency to be used for energy purchase; Energy price value is converted to appropraite currency based on current exchange rate")
+	@AttributeDefinition(name = "Currency", description = "Every monetary value is inherently expressed in this Currency. Values obtained in a different currency (e.g. energy prices from a web service) are internally converted to this Currency using the current exchange rate.")
 	CurrencyConfig currency() default CurrencyConfig.EUR;
 
 }
