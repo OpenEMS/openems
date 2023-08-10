@@ -19,7 +19,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.internal.AbstractReadChannel;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class ModbusTest<TASK extends Task, ELEMENT extends AbstractModbusElement<?, ?>, CHANNEL extends Channel<?>>
+public class ModbusTest<TASK extends Task, ELEMENT extends ModbusElement, CHANNEL extends Channel<?>>
 		extends DummyModbusComponent {
 
 	private static final String CHANNEL_ID = "CHANNEL";
@@ -39,26 +39,25 @@ public class ModbusTest<TASK extends Task, ELEMENT extends AbstractModbusElement
 		this.getModbusProtocol().addTask(this.task);
 	}
 
-	public static class FC1ReadCoils<CHANNEL extends AbstractReadChannel<?, ?>>
-			extends ModbusTest<FC1ReadCoilsTask, CoilElement, CHANNEL> {
-		public FC1ReadCoils(CoilElement element, OpenemsType openemsType) throws OpenemsException {
+	public static class FC1ReadCoils<ELEMENT extends CoilElement, CHANNEL extends AbstractReadChannel<?, ?>>
+			extends ModbusTest<FC1ReadCoilsTask, ELEMENT, CHANNEL> {
+		public FC1ReadCoils(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
 					(startAddress, priority) -> new FC1ReadCoilsTask(startAddress, priority, element), //
 					AccessMode.READ_ONLY, openemsType);
 		}
 	}
 
-	public static class FC5WriteCoil<ELEMENT extends AbstractModbusElement<?, ?>, CHANNEL extends WriteChannel<?>>
+	public static class FC5WriteCoil<ELEMENT extends CoilElement, CHANNEL extends WriteChannel<?>>
 			extends ModbusTest<FC5WriteCoilTask, ELEMENT, CHANNEL> {
-		@SuppressWarnings("unchecked")
-		public FC5WriteCoil(ModbusCoilElement element, OpenemsType openemsType) throws OpenemsException {
-			super((ELEMENT) element, //
+		public FC5WriteCoil(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
+			super(element, //
 					(startAddress, priority) -> new FC5WriteCoilTask(startAddress, element), //
 					AccessMode.READ_WRITE, openemsType);
 		}
 	}
 
-	public static class FC3ReadRegisters<ELEMENT extends AbstractModbusElement<?, ?>, CHANNEL extends AbstractReadChannel<?, ?>>
+	public static class FC3ReadRegisters<ELEMENT extends ModbusElement, CHANNEL extends AbstractReadChannel<?, ?>>
 			extends ModbusTest<FC3ReadRegistersTask, ELEMENT, CHANNEL> {
 		public FC3ReadRegisters(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
@@ -67,7 +66,7 @@ public class ModbusTest<TASK extends Task, ELEMENT extends AbstractModbusElement
 		}
 	}
 
-	public static class FC6WriteRegister<ELEMENT extends AbstractWordElement<?, ?>, CHANNEL extends WriteChannel<?>>
+	public static class FC6WriteRegister<ELEMENT extends AbstractSingleWordElement<?, ?>, CHANNEL extends WriteChannel<?>>
 			extends ModbusTest<FC6WriteRegisterTask, ELEMENT, CHANNEL> {
 		public FC6WriteRegister(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
@@ -76,7 +75,7 @@ public class ModbusTest<TASK extends Task, ELEMENT extends AbstractModbusElement
 		}
 	}
 
-	public static class FC16WriteRegisters<ELEMENT extends AbstractModbusElement<?, ?>, CHANNEL extends WriteChannel<?>>
+	public static class FC16WriteRegisters<ELEMENT extends ModbusElement, CHANNEL extends WriteChannel<?>>
 			extends ModbusTest<FC16WriteRegistersTask, ELEMENT, CHANNEL> {
 		public FC16WriteRegisters(ELEMENT element, OpenemsType openemsType) throws OpenemsException {
 			super(element, //
@@ -84,5 +83,4 @@ public class ModbusTest<TASK extends Task, ELEMENT extends AbstractModbusElement
 					AccessMode.READ_WRITE, openemsType);
 		}
 	}
-
 }

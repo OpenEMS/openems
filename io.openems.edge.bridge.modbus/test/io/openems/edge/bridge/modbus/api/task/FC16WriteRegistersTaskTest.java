@@ -2,8 +2,6 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Optional;
-
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
@@ -26,13 +24,13 @@ public class FC16WriteRegistersTaskTest {
 		final var element1 = new UnsignedWordElement(1);
 		final var element2 = new UnsignedWordElement(2);
 		final var element3 = new UnsignedWordElement(3);
-		var elements = new ModbusElement<?>[] { element0, element1, element2, element3 };
+		var elements = new ModbusElement[] { element0, element1, element2, element3 };
 
 		// Has Hole (no value for element2)
-		element0.setNextWriteValue(Optional.empty());
-		element1.setNextWriteValue(Optional.of(100));
-		element2.setNextWriteValue(Optional.empty());
-		element3.setNextWriteValue(Optional.of(300));
+		element0.setNextWriteValue(null);
+		element1.setNextWriteValue(100);
+		element2.setNextWriteValue(null);
+		element3.setNextWriteValue(300);
 
 		{
 			var result = FC16WriteRegistersTask.mergeWriteRegisters(elements, (message) -> System.out.println(message));
@@ -45,10 +43,10 @@ public class FC16WriteRegistersTaskTest {
 		}
 
 		// Has NO Hole (all values set)
-		element0.setNextWriteValue(Optional.of(100));
-		element1.setNextWriteValue(Optional.of(200));
-		element2.setNextWriteValue(Optional.of(300));
-		element3.setNextWriteValue(Optional.of(400));
+		element0.setNextWriteValue(100);
+		element1.setNextWriteValue(200);
+		element2.setNextWriteValue(300);
+		element3.setNextWriteValue(400);
 		{
 			var result = FC16WriteRegistersTask.mergeWriteRegisters(elements, (message) -> System.out.println(message));
 

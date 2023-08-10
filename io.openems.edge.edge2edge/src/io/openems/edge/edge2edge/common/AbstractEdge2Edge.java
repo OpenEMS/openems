@@ -228,8 +228,8 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 				.map(method -> method.apply(this.remoteAccessMode)) //
 				.collect(Collectors.toUnmodifiableList());
 
-		var readElements = new ArrayDeque<ModbusElement<?>>();
-		var writeElements = new ArrayDeque<ModbusElement<?>>();
+		var readElements = new ArrayDeque<ModbusElement>();
+		var writeElements = new ArrayDeque<ModbusElement>();
 		for (var entry : natureStartAddresses.entrySet()) {
 			var natureStartAddress = entry.getKey();
 			var hash = entry.getValue();
@@ -253,11 +253,11 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					// Fill gaps with DummyModbusElements
 					var lastElement = readElements.peekLast();
 					if (lastElement != null) {
-						var gap = address - lastElement.getStartAddress() - lastElement.getLength();
+						var gap = address - lastElement.startAddress - lastElement.length;
 						if (gap > 0) {
 							readElements.add(new DummyRegisterElement(//
-									lastElement.getStartAddress() + lastElement.getLength(),
-									lastElement.getStartAddress() + lastElement.getLength() + gap - 1));
+									lastElement.startAddress + lastElement.length,
+									lastElement.startAddress + lastElement.length + gap - 1));
 						}
 					}
 
@@ -267,7 +267,9 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					} else {
 						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
 						if (onUpdateCallback != null) {
-							m(element).build().onUpdateCallback(value -> onUpdateCallback.accept(value));
+							// This is guaranteed to work because of sealed abstract classes
+							((AbstractModbusElement<?, ?, ?>) m(element).build())
+									.onUpdateCallback(value -> onUpdateCallback.accept(value));
 						}
 					}
 
@@ -294,16 +296,16 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		 */
 		{
 			var length = 0;
-			var taskElements = new ArrayDeque<ModbusElement<?>>();
+			var taskElements = new ArrayDeque<ModbusElement>();
 			var element = readElements.pollFirst();
 			while (element != null) {
-				if (length + element.getLength() > 126 /* limit of j2mod */) {
+				if (length + element.length > 126 /* limit of j2mod */) {
 					this.addReadTask(taskElements);
 					length = 0;
 					taskElements.clear();
 				}
 				taskElements.add(element);
-				length += element.getLength();
+				length += element.length;
 				element = readElements.pollFirst();
 			}
 			this.addReadTask(taskElements);
@@ -313,12 +315,11 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		 * Add the Write-Task(s)
 		 */
 		{
-			var taskElements = new ArrayDeque<ModbusElement<?>>();
+			var taskElements = new ArrayDeque<ModbusElement>();
 			var element = writeElements.pollFirst();
 			while (element != null) {
 				var lastElement = taskElements.peekLast();
-				if (lastElement != null
-						&& (lastElement.getStartAddress() + lastElement.getLength() < element.getStartAddress())) {
+				if (lastElement != null && (lastElement.startAddress + lastElement.length < element.startAddress)) {
 					// Found gap
 					this.addWriteTask(taskElements);
 					taskElements.clear();
@@ -358,10 +359,10 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * Create ModbusElement from type and address.
 	 * 
 	 * @param type    the {@link ModbusType}
-	 * @param address the address of the {@link ModbusElement}
-	 * @return the {@link ModbusElement}
+	 * @param address the address of the {@link AbstractModbusElement}
+	 * @return the {@link AbstractModbusElement}
 	 */
-	private static AbstractModbusElement<?, ?> generateModbusElement(ModbusType type, int address) {
+	private static ModbusElement generateModbusElement(ModbusType type, int address) {
 		switch (type) {
 		case ENUM16:
 		case UINT16:
@@ -387,10 +388,10 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * <li>Adds only if queue is not empty
 	 * </ul>
 	 * 
-	 * @param elements the {@link ModbusElement}s
+	 * @param elements the {@link AbstractModbusElement}s
 	 * @throws OpenemsException on error
 	 */
-	private void addReadTask(Deque<ModbusElement<?>> elements) throws OpenemsException {
+	private void addReadTask(Deque<ModbusElement> elements) throws OpenemsException {
 		if (elements.isEmpty()) {
 			return;
 		}
@@ -402,23 +403,23 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		}
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
-						elements.peekFirst().getStartAddress(), Priority.HIGH,
+						elements.peekFirst().startAddress, Priority.HIGH,
 						elements.toArray(new ModbusElement[elements.size()])));
 	}
 
 	/**
 	 * Adds a Write-Task with ModbusElements.
 	 * 
-	 * @param elements the {@link ModbusElement}s
+	 * @param elements the {@link AbstractModbusElement}s
 	 * @throws OpenemsException on error
 	 */
-	private void addWriteTask(Deque<ModbusElement<?>> elements) throws OpenemsException {
+	private void addWriteTask(Deque<ModbusElement> elements) throws OpenemsException {
 		if (elements.isEmpty()) {
 			return;
 		}
 		this.modbusProtocol.addTask(//
 				new FC16WriteRegistersTask(//
-						elements.peekFirst().getStartAddress(), elements.toArray(new ModbusElement[elements.size()])));
+						elements.peekFirst().startAddress, elements.toArray(new ModbusElement[elements.size()])));
 	}
 
 	/**

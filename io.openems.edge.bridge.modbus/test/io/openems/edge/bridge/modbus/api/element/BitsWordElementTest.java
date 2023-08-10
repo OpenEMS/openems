@@ -3,13 +3,10 @@ package io.openems.edge.bridge.modbus.api.element;
 import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Optional;
 
 import org.junit.Test;
 
@@ -18,6 +15,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
@@ -34,12 +32,27 @@ public class BitsWordElementTest {
 		final var channel1 = addBit(sut, 1);
 		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
 
-		// TODO ByteOrder is not handled here
-		sut.element.setInputRegisters(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
 
 		assertTrue(channel0.getNextValue().get());
 		assertFalse(channel1.getNextValue().get());
 		assertTrue(channel2.getNextValue().get());
+	}
+
+	@Test
+	public void testInvalidate() throws Exception {
+		var sut = generateSut();
+		final var bridge = (AbstractModbusBridge) sut.getBridgeModbus();
+
+		final var channel0 = addBit(sut, 0);
+
+		sut.element.setInputValue(new Register[] { new SimpleRegister((byte) 0x00, (byte) 0x01) });
+
+		assertTrue(channel0.getNextValue().get());
+		sut.element.invalidate(bridge); // invalidValueCounter = 1
+		assertTrue(channel0.getNextValue().get());
+		sut.element.invalidate(bridge); // invalidValueCounter = 2
+		assertNull(channel0.getNextValue().get());
 	}
 
 	@Test
@@ -51,7 +64,7 @@ public class BitsWordElementTest {
 		addBit(sut, 2, BitConverter.INVERT);
 		addBit(sut, 3);
 
-		assertEquals(Optional.empty(), sut.element.getNextWriteValueAndReset());
+		assertNull(sut.element.getNextWriteValueAndReset());
 	}
 
 	@Test
@@ -68,7 +81,7 @@ public class BitsWordElementTest {
 		channel2.setNextWriteValue(false);
 
 		System.out.println("NOTE: the following IllegalArgumentException is expected");
-		assertEquals(Optional.empty(), sut.element.getNextWriteValueAndReset());
+		assertNull(sut.element.getNextWriteValueAndReset());
 	}
 
 	@Test
@@ -85,27 +98,14 @@ public class BitsWordElementTest {
 		channel2.setNextWriteValue(false);
 		channel8.setNextWriteValue(true);
 
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x06 }, registers[0].toBytes());
 	}
 
-	@Test
-	public void testWriteLittleEndian() throws Exception {
+	@Test(expected = IllegalArgumentException.class)
+	public void testRegistersLengthDoesNotMatch() throws Exception {
 		var sut = generateSut();
-		sut.element.byteOrder(LITTLE_ENDIAN);
-
-		final var channel0 = addBit(sut, 0);
-		final var channel1 = addBit(sut, 1);
-		final var channel2 = addBit(sut, 2, BitConverter.INVERT);
-		final var channel8 = addBit(sut, 8);
-
-		channel0.setNextWriteValue(false);
-		channel1.setNextWriteValue(true);
-		channel2.setNextWriteValue(false);
-		channel8.setNextWriteValue(true);
-
-		var registers = sut.element.getNextWriteValueAndReset().get();
-		assertArrayEquals(new byte[] { (byte) 0x06, (byte) 0x01 }, registers[0].toBytes());
+		sut.element.setInputValue(new Register[2]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

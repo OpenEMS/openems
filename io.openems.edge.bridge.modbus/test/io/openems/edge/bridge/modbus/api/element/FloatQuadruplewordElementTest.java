@@ -22,7 +22,7 @@ public class FloatQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatQuadruplewordElement(0), //
 				DOUBLE);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x40, (byte) 0x93), //
 				new SimpleRegister((byte) 0x4A, (byte) 0x3D), //
 				new SimpleRegister((byte) 0x70, (byte) 0xA3), //
@@ -36,7 +36,7 @@ public class FloatQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatQuadruplewordElement(0).wordOrder(WordOrder.LSWMSW), //
 				DOUBLE);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xD7, (byte) 0x0A), //
 				new SimpleRegister((byte) 0x70, (byte) 0xA3), //
 				new SimpleRegister((byte) 0x4A, (byte) 0x3D), //
@@ -50,7 +50,7 @@ public class FloatQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatQuadruplewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				DOUBLE);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x0A, (byte) 0xD7), //
 				new SimpleRegister((byte) 0xA3, (byte) 0x70), //
 				new SimpleRegister((byte) 0x3D, (byte) 0x4A), //
@@ -64,7 +64,7 @@ public class FloatQuadruplewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new FloatQuadruplewordElement(0).wordOrder(WordOrder.LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				DOUBLE);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0x93, (byte) 0x40), //
 				new SimpleRegister((byte) 0x3D, (byte) 0x4A), //
 				new SimpleRegister((byte) 0xA3, (byte) 0x70), //
@@ -79,7 +79,7 @@ public class FloatQuadruplewordElementTest {
 				new FloatQuadruplewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(1234.56F);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x93, (byte) 0x40 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x00, (byte) 0x48 }, registers[1].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x00, (byte) 0x00 }, registers[2].toBytes());
