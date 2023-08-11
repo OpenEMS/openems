@@ -43,8 +43,8 @@ import io.openems.edge.core.appmanager.Type;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_ESS_TIME_OF_USE_TARIF_ID": "ctrlEssTimeOfUseTariff0",
-    	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0",
+    	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
+    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
     	"ACCESS_TOKEN": {token},
     	"CONTROL_MODE": {@link ControlMode}
     },
@@ -60,8 +60,8 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 	public static enum Property implements Type<Property, Tibber, Type.Parameter.BundleParameter>, Nameable {
 		// Components
-		CTRL_ESS_TIME_OF_USE_TARIF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
-		TIME_OF_USE_TARIF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
+		CTRL_ESS_TIME_OF_USE_TARIFF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
+		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
@@ -109,8 +109,8 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIF_PROVIDER_ID);
-			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_ID);
+			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
+			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);

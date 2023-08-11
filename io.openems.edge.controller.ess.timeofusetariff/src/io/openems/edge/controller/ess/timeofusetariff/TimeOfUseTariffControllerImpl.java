@@ -189,6 +189,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		final var prices = this.timeOfUseTariff.getPrices();
 		this._setTotalQuarterlyPricesChannel(prices.getValues().length);
 
+		if (prices.isEmpty()) {
+			return;
+		}
+
 		// Ess information.
 		final var netEssCapacity = this.ess.getCapacity().getOrError();
 		final var soc = this.ess.getSoc().getOrError();
