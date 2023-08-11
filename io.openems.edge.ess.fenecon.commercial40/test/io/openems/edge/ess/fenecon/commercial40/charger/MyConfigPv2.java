@@ -52,7 +52,7 @@ public class MyConfigPv2 extends AbstractComponentConfig implements ConfigPv2 {
 	private final Builder builder;
 
 	private MyConfigPv2(Builder builder) {
-		super(ConfigPv1.class, builder.id);
+		super(ConfigPv2.class, builder.id);
 		this.builder = builder;
 	}
 
