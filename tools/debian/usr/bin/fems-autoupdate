@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Use aptitude to automatically install updates.
+# Log and send to server.
+# Source: https://help.ubuntu.com/community/AutoWeeklyUpdateHowTo
+
+export DEBIAN_FRONTEND=noninteractive
+
+# create temp file and redirect everything
+tmpfile=$(/bin/mktemp)
+echo $tmpfile
+exec > >(tee ${tmpfile})
+exec 2>&1
+
+exec 8>/var/run/fems-autoupdate.lock
+if ! flock --nonblock 8; then
+	echo "# NOT Starting system update: fems-autoupdate is running"
+elif [ "$(/usr/bin/lsof /var/lib/dpkg/lock)" != "" ]; then
+	echo "# NOT Starting system update: dpkg is locked"
+else
+	echo "# Starting system update"
+
+	# avoid error: Failed to connect to bus: No such file or directory
+	NO_BUG=$(/bin/systemd-inhibit /bin/echo 1)
+
+	echo "# dpkg --configure -a"
+	if [ "${NO_BUG}" = "1" ]; then
+		/bin/systemd-inhibit /usr/bin/dpkg --configure -a
+	else
+		/usr/bin/yes | /usr/bin/dpkg --configure -a
+	fi
+
+	echo "# aptitude update"
+	/usr/bin/aptitude update > /dev/null
+	echo
+
+	echo "# aptitude safe-upgrade"
+	if [ "${NO_BUG}" = "1" ]; then
+		/bin/systemd-inhibit /usr/bin/aptitude -y safe-upgrade
+	else
+		/usr/bin/aptitude -y safe-upgrade
+	fi
+	echo
+
+	echo "# aptitude clean"
+	/usr/bin/aptitude clean
+
+	echo "# apt-get --assume-yes autoremove"
+	apt-get --assume-yes autoremove
+
+	echo
+	/bin/grep "fems\|openems" $tmpfile > /dev/null
+	if [ $? -ne 1 -o "$1" == "fems" ]; then # results found or error
+		echo "# restarting fems services"
+		/bin/systemctl daemon-reload
+		/bin/systemctl enable nginx
+		/bin/systemctl stop nginx
+		/bin/systemctl start --no-block nginx
+		/bin/systemctl enable openems
+		/bin/systemctl stop openems
+		/bin/systemctl start --no-block openems
+	else
+		echo "# not necessary to restart fems services"
+	fi
+fi
+
+echo
+echo "# Installed packages"
+/usr/bin/dpkg -l "fems*" "openems*" "influxdb" "nginx" "grafana"
+
+/usr/bin/fems-sendmessage ${tmpfile}
+
+rm ${tmpfile}
+rm -f /tmp/tmp.*
+

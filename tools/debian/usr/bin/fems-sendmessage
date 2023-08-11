@@ -1,0 +1,40 @@
+#!/usr/bin/python
+
+import json, time, os, sys, urllib2, re
+
+# Get system message
+if len(sys.argv) != 2:
+	print("no file given!")
+	exit(2)
+f = open(sys.argv[1], 'r')
+systemstate = f.read()
+f.close()
+
+# Get apikey
+apikey = None
+f = open("/etc/fems", "r")
+for line in f:
+	m = re.search('^apikey=(.*)$', line)
+	if m:
+		apikey = m.group(1)
+if not apikey:
+	exit(3)
+
+# Get Timestamp
+timestamp = int(time.time())
+
+# Send data to server
+message = {'jsonrpc': '2.0', 'params': {'FEMS Systemmessage': {timestamp: systemstate}}, 'id': 0, 'method': apikey}
+
+json_message = json.dumps(message)
+
+req = urllib2.Request('https://fenecon.de/fems2', json_message, {'Content-Type': 'application/json'})
+f = urllib2.urlopen(req)
+response = f.read()
+f.close()
+
+if response != "OK":
+	exit(1)
+else:
+	exit()
+
