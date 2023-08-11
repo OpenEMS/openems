@@ -1,7 +1,7 @@
 package io.openems.backend.common.edgewebsocket;
 
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -62,6 +62,6 @@ public interface EdgeWebsocket {
 	 * @param channelAddresses The {@link ChannelAddress}es
 	 * @return the values; possibly {@link JsonNull}
 	 */
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
+	public SortedMap<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
 
 }
