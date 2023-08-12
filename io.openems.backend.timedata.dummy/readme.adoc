@@ -1,0 +1,8 @@
+= Timedata Dummy 
+
+OpenEMS Backend dummy implementation for a timeseries database. 
+
+Using this bundle enables you to easily set up an OpenEMS Backend for testing purpose.
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.timedata.influx[Source Code icon:github[]]

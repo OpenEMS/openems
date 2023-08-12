@@ -1,0 +1,58 @@
+= Timedata
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+
+Live and historical data of an OpenEMS edge are handled by the nature https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/timedata/Timedata.java[Timedata].
+It describes basically methods to write and read edge data to/from a database. There are different kind of timedata provider within OpenEMS 
+(see xref:service.adoc[service] for concrete implementations).
+ 
+Within OpenEMS Backend the only component. which uses the different timedata providers directly, is the  
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.core/src/io/openems/backend/core/timedatamanager/TimedataManagerImpl.java[TimedataManager].
+It passes edge relevant data to **all** Timedata provider and it reads the data 
+from the **first** Timedata provider which can deliver it. 
+
+
+[NOTE]
+====
+
+Beginning with OpenEMS versions higher than 2023.08 data handling has changed within OpenEMS Edge, OpenEMS Backend and OpenEMS UI.  
+OpenEMS Edges will send different types of data to the OpenEMS Backend:
+
+* `TimestampedDataNotification` 
+ ** channel values who have changed 
+ ** every 5 minutes a full snapshot of all channel values is send, including channels who haven't changed over this time period. 
+* `AggregatedDataNotification` - 
+ ** average data (`avg`, e.g. power values) - will be send every 5 mins. 
+ ** maximum data (`max`, e.g. energy values) - will be send only once per day. 
+* `ResendDataNotification` - TBD (coming soon)
+
+Splitting the data enables OpenEMS to implement different timedata provider, 
+which do different handling of the data.
+This gives more flexibility when scaling OpenEMS.  
+Also due to performance reasons the computation of `AggregatedDataNotification` is done on the edge side. This helps keeping the cpu load 
+on the database server low.
+  
+To get a better understanding of the new edge data concept, have a look at the   
+xref:service.adoc.d/io.openems.backend.timedata.aggregatedinflux.adoc[Aggregated Influx] bundle.
+
+====
+
+
+
+ 
+
+
+
+
+
+
+
+

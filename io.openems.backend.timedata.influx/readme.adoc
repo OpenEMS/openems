@@ -1,0 +1,25 @@
+= Timedata InfluxDB 
+
+OpenEMS Backend implementation for https://www.influxdata.com/products/influxdb/[InfluxDB]
+
+InfluxDB is an open-source time series database (TSDB). It is optimized for storage and retrieval of time series data. 
+ 
+
+
+**Information Hints:**
+
+* Influx Database must have at least Version 1.8.10.
+* The Timedata InfluxDB bundle is the preferred database to use with OpenEMS. 
+This bundle is fine to get you started with OpenEMS. If you want to run OpenEMS 
+Backend with thousands of connected OpenEMS Edges, have a look at the
+xref:backend/service.adoc.d/io.openems.backend.timedata.aggregatedinflux.adoc[Aggregated Influx] bundle.
+* A great OpenSource tool to visualize InfluxDB data is https://grafana.com/[Grafana].
+It helps you getting a deep inside into the data collected with OpenEMS.
+* Before connecting OpenEMS Backend to your influx database, create the database manually:
+ 
+[source,shell]
+----
+curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE DATABASE influx0"
+----
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.timedata.influx[Source Code icon:github[]]
