@@ -1,4 +1,4 @@
-= Metadata 
+= Metadata
 :sectnums:
 :sectnumlevels: 4
 :toc:
@@ -10,35 +10,35 @@
 :imagesdir: ../../assets/images
 
 The nature https://github.com/OpenEMS/openems/blob/36343dde95c832d80ec55177b412427480973b45/io.openems.backend.common/src/io/openems/backend/common/metadata/Metadata.java#L32[Metadata]
- coordinates OpenEMS Backend communication with one or more OpenEMS Edges and with the OpenEMS UI. 
-It is responsible for identification and authorization of OpenEMS edges and 
-of Users using the OpenEMS UI. 
-Beside that the Metadata bundle is responsible for the 
-state of 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[users] and 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edges] 
+ coordinates OpenEMS Backend communication with one or more OpenEMS Edges and with the OpenEMS UI.
+It is responsible for identification and authorization of OpenEMS edges and
+of Users using the OpenEMS UI.
+Beside that the Metadata bundle is responsible for the
+state of
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[users] and
+https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edges]
 and accompanying processes.
 
 == Edges
 
 The Metadata nature provides access to the https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edge] object - the digital twin representation of the OpenEMS edge instance.
 
-Identification of OpenEMS Edges is done with a unique API key. 
-The API key is expected to include a lot of randomness. Because it is also 
-used to authorize the edge. 
+Identification of OpenEMS Edges is done with a unique API key.
+The API key is expected to include a lot of randomness. Because it is also
+used to authorize the edge.
 
-== User
+== Users
 
-The https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[User] 
+The https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[User]
 object includes meta information about a user. Furthermore it is
-used for identification/authorization of the user.  
+used for identification/authorization of the user.
 The metadata nature can be used to change various attributes,
  which are associated with a user (e.g. the users default languange).
 
 == Processes
 
 The metadata nature provides methods to
- 
-* add a user to an edge.
+
+* add user to an edge.
 * set and change alerting/notification settings.
 * set up new edge devices.
