@@ -34,6 +34,7 @@ export class UserComponent implements OnInit {
   public isEditModeDisabled: boolean = true;
   public form: { formGroup: FormGroup, fields: FormlyFieldConfig[], model: UserInformation };
   public showInformation: boolean = false;
+  public initialFields;
 
   constructor(
     public translate: TranslateService,
@@ -46,11 +47,11 @@ export class UserComponent implements OnInit {
     // Set currentLanguage to 
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
-
+    this.initialFields = this.getFields(); // needed for Skeleton
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        fields: this.getFields(),
+        fields: this.initialFields,
         model: userInformation
       };
       this.showInformation = true;
