@@ -48,7 +48,7 @@ export namespace History {
                         "ticks": {
                             "beginAtZero": true
                         }
-                    },
+                    }
                 ],
                 "xAxes": [
                     {
@@ -186,11 +186,11 @@ export namespace History {
         energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
             data: {
                 '_sum/EssActiveChargeEnergy': 44100,
-                '_sum/EssActiveDischargeEnergy': 39400,
+                '_sum/EssActiveDischargeEnergy': 39400
             }
         }),
         dataChannelWithValues: new QueryHistoricTimeseriesDataResponse("0", {
-            data: {
+            "data": {
                 "_sum/EssActivePower": [-546.875,
                 -505.4054054054054,
                 -440.625,
@@ -1644,11 +1644,11 @@ export namespace History {
         energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
             data: {
                 '_sum/EssActiveChargeEnergy': 167900,
-                '_sum/EssActiveDischargeEnergy': 150800,
+                '_sum/EssActiveDischargeEnergy': 150800
             }
         }),
         dataChannelWithValues: new QueryHistoricTimeseriesDataResponse("0", {
-            data: {
+            "data": {
                 "_sum/EssActivePower": [
                     -552.5125628140704,
                     -519.7183098591549,
