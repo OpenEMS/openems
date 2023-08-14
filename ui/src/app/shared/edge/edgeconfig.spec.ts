@@ -94,6 +94,13 @@ namespace Factory {
             "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter", "io.openems.edge.meter.api.AsymmetricMeter", "io.openems.edge.meter.api.SymmetricMeter", "io.openems.edge.bridge.modbus.api.ModbusComponent", "io.openems.edge.common.modbusslave.ModbusSlave", "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", "io.openems.edge.common.component.OpenemsComponent"
         ]
     };
+    export const CONTROLLER_SYMMETRIC_PEAKSHAVING = {
+        id: "Controller.Symmetric.PeakShaving",
+        natureIds: [
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.controller.api.Controller"
+        ]
+    };
 }
 
 /**
@@ -142,6 +149,21 @@ export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Compon
     properties: {
         invert: false,
         modbusUnitId: 5
+    },
+    channels: {}
+});
+
+export const CONTROLLER_PEAK_SHAVING = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias,
+    factory: Factory.CONTROLLER_SYMMETRIC_PEAKSHAVING,
+    properties: {
+        alias: "",
+        enabled: true,
+        ['ess.id']: "ess0",
+        ['meter.id']: "meter0",
+        peakShavingPower: 22000,
+        rechargePower: 18500
     },
     channels: {}
 });

@@ -15,8 +15,7 @@ export class ChartComponent extends AbstractHistoryChart {
     public override getChartData() {
         return ChartComponent.getChartData(this.config, this.translate, this.component.id);
     }
-    protected static getChartData(config: EdgeConfig, translate: TranslateService, componentId: string): HistoryUtils.ChartData {
-
+    public static getChartData(config: EdgeConfig, translate: TranslateService, componentId: string): HistoryUtils.ChartData {
         let meterId = config.getComponent(componentId).properties['meter.id'];
         let channels: HistoryUtils.InputChannel[] = [
             {
@@ -33,6 +32,10 @@ export class ChartComponent extends AbstractHistoryChart {
                 powerChannel: ChannelAddress.fromString('_sum/EssActivePower'),
                 energyChannel: ChannelAddress.fromString('_sum/EssActiveChargeEnergy')
             }, {
+                name: 'EssDischarge',
+                powerChannel: ChannelAddress.fromString('_sum/EssActivePower'),
+                energyChannel: ChannelAddress.fromString('_sum/EssActiveDischargeEnergy')
+            }, {
                 name: 'peakshavingPower',
                 powerChannel: ChannelAddress.fromString(componentId + '/_PropertyPeakShavingPower')
             }, {
@@ -45,6 +48,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 let datasets: HistoryUtils.DisplayValues[] = [];
                 datasets.push({
                     name: translate.instant('General.measuredValue'),
+                    nameSuffix: (query: QueryHistoricTimeseriesEnergyResponse) => {
+                        return query.result.data[meterId + '/ActiveEnergy'];
+                    },
                     converter: () => {
                         return data['ActivePower'];
                     },
@@ -68,10 +74,12 @@ export class ChartComponent extends AbstractHistoryChart {
                     showBackgroundColor: false,
                     borderDash: [3, 3]
                 });
+
+                // Charge Power
                 datasets.push({
                     name: translate.instant('General.chargePower'),
                     nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-                        return energyResponse.result.data['_sum/EssActivePower'];
+                        return energyResponse.result.data['_sum/EssActiveChargeEnergy'];
                     },
                     converter: () => {
                         return data['EssCharge']
@@ -84,7 +92,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 datasets.push({
                     name: translate.instant('General.dischargePower'),
                     nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-                        return energyResponse.result.data['_sum/EssActivePower'];
+                        return energyResponse.result.data['_sum/EssActiveDischargeEnergy'];
                     },
                     converter: () => {
                         return data['EssCharge']?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value));

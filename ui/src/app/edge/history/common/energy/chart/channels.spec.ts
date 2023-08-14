@@ -46,7 +46,7 @@ export namespace History {
               "display": true
             },
             "ticks": {
-              "beginAtZero": false
+              "beginAtZero": true
             }
           },
           {
@@ -142,7 +142,7 @@ export namespace History {
               "display": true
             },
             "ticks": {
-              "beginAtZero": false
+              "beginAtZero": true
             },
             "stacked": true
           }
@@ -502,7 +502,6 @@ export namespace History {
           null,
           null],
         '_sum/GridActivePower': [null, null, null, 31, 18, -6, 20, 16, 15, 14, 9, 20, 25, 25, 25, 21, 12, 9, 10, 11, 5, 3, -4, 15, 18, 23, -4, 0, 0, 2, 2, 3, 15, 8, 22, 27, 16, 3, 2, -5, 28, 27, 17, 1, 0, -1, -2, null, null, null, null, 11, 10, 4, 6, 7, 18, 8, 12, 9, 4, 13, 15, 12, 0, -1, -4, 2, -4, 5, 1, 30, 62, -5, -13, -6, -4, -17, -15, -17, -11, 15, 5, 4, 7, -29, -15, -13, -19, -14, -7, -16, 5, -18, -22, 0, -12, -11, -7, 21, -33, -7, -3, -4, -11, 3, -38, 4, 0, -19, 32, -16, -14, -18, 0, -1119, -3453, -3608, -3941, -4392, -3786, -4805, -4688, -3095, -2320, -2851, -3058, -4044, -5011, -2789, -6530, -5029, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-        // 'GridSell': [6476, 6488, -1000, 0],
         '_sum/EssSoc': [null,
           null,
           null,
