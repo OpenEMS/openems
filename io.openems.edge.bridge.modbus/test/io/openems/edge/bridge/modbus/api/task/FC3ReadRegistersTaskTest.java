@@ -19,7 +19,8 @@ public class FC3ReadRegistersTaskTest {
 	@Test
 	public void testToLogMessage() throws OpenemsException {
 		var component = new DummyModbusComponent();
-		var task = new FC3ReadRegistersTask(20, Priority.LOW, new UnsignedDoublewordElement(20));
+		var element = new UnsignedDoublewordElement(20);
+		var task = new FC3ReadRegistersTask(20, Priority.LOW, element);
 		task.setParent(component);
 		var request = task.createModbusRequest();
 		var response = (ReadMultipleRegistersResponse) request.getResponse();
@@ -27,5 +28,7 @@ public class FC3ReadRegistersTaskTest {
 
 		assertEquals("FC3ReadHoldingRegisters [device0;unitid=1;priority=LOW;ref=20/0x14;length=2;response=0064 00c8]",
 				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
+
+		task.handleResponse(element, 0, response.getRegisters());
 	}
 }

@@ -18,7 +18,8 @@ public class FC4ReadInputRegistersTaskTest {
 	@Test
 	public void testToLogMessage() throws OpenemsException {
 		var component = new DummyModbusComponent();
-		var task = new FC4ReadInputRegistersTask(20, Priority.LOW, new UnsignedDoublewordElement(20));
+		var element = new UnsignedDoublewordElement(20);
+		var task = new FC4ReadInputRegistersTask(20, Priority.LOW, element);
 		task.setParent(component);
 		var request = task.createModbusRequest();
 		var response = request.getResponse();
@@ -26,5 +27,7 @@ public class FC4ReadInputRegistersTaskTest {
 
 		assertEquals("FC4ReadInputRegisters [device0;unitid=1;priority=LOW;ref=20/0x14;length=2;response=03db 028e]",
 				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
+
+		task.handleResponse(element, 0, response.getRegisters());
 	}
 }

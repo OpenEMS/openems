@@ -14,7 +14,7 @@ import io.openems.edge.common.taskmanager.Priority;
  * (http://www.simplymodbus.ca/FC04.htm).
  */
 public class FC4ReadInputRegistersTask
-		extends AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> {
+		extends AbstractReadRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse, InputRegister> {
 
 	public FC4ReadInputRegistersTask(int startAddress, Priority priority, ModbusElement... elements) {
 		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
