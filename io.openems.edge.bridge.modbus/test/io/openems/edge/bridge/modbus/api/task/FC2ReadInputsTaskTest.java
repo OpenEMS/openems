@@ -1,7 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
@@ -17,10 +19,13 @@ import io.openems.edge.common.taskmanager.Priority;
 public class FC2ReadInputsTaskTest {
 
 	@Test
-	public void testToLogMessage() throws OpenemsException {
+	public void test() throws OpenemsException {
 		var component = new DummyModbusComponent();
+		var value = new AtomicReference<Boolean>();
 		var element10 = new CoilElement(10);
+		element10.onUpdateCallback(v -> value.set(v));
 		var element11 = new CoilElement(11);
+		element11.onUpdateCallback(v -> value.set(v));
 		var task = new FC2ReadInputsTask(10, Priority.HIGH, element10, element11);
 		task.setParent(component);
 		var request = task.createModbusRequest();
@@ -35,7 +40,10 @@ public class FC2ReadInputsTaskTest {
 		var values = IntStream.range(0, discretes.size()) //
 				.mapToObj(i -> Boolean.valueOf(discretes.getBit(i))) //
 				.toArray(Boolean[]::new);
-		task.handleResponse(element10, 0, values); // true
-		task.handleResponse(element11, 1, values); // false
+		assertNull(value.get());
+		task.handleResponse(element10, 0, values);
+		assertEquals(Boolean.valueOf(true), value.get());
+		task.handleResponse(element11, 1, values);
+		assertEquals(Boolean.valueOf(false), value.get());
 	}
 }
