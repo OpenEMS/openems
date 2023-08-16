@@ -103,11 +103,12 @@ public class Data {
 
 	ArrayList<Double> actualData = new ArrayList<Double>();
 	ArrayList<OffsetDateTime> actualDate = new ArrayList<OffsetDateTime>();
-	ArrayList<Double> sevenDaysData = new ArrayList<Double>();
-	ArrayList<OffsetDateTime> sevenDayDates = new ArrayList<OffsetDateTime>();
+	public ArrayList<Double> sevenDaysData = new ArrayList<Double>();
+	public ArrayList<OffsetDateTime> sevenDayDates = new ArrayList<OffsetDateTime>();
 
-	ArrayList<Double> eighthDayData = new ArrayList<Double>();
+	public ArrayList<Double> eighthDayData = new ArrayList<Double>();
 	ArrayList<OffsetDateTime> eighthDayDate = new ArrayList<OffsetDateTime>();
+	
 
 	public Data(int n) {
 		ReadCsv obj1 = new ReadCsv();
@@ -120,28 +121,28 @@ public class Data {
 //		model.add(x5);
 //		model.add(x6);
 		//model.add(x7);
-		dataForWeekN(n);
+		this.dataForWeekN(n);
 		//System.out.println(model1.dataList);
 
 	}
-	public ArrayList<Double> getData(int days){
-		ArrayList<Double> data = new ArrayList<Double>();
-		/**
-		 * Reads the data from database
-		 */
-		
-		
-		
-		return data;
-	}
-	public ArrayList<OffsetDateTime>getDate(){
-		ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
-		/**
-		 * Reads the date from database
-		 */
-		return date;
-		
-	}
+//	public ArrayList<Double> getData(int days){
+//		ArrayList<Double> data = new ArrayList<Double>();
+//		/**
+//		 * Reads the data from database
+//		 */
+//		
+//		
+//		
+//		return data;
+//	}
+//	public ArrayList<OffsetDateTime>getDate(){
+//		ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
+//		/**
+//		 * Reads the date from database
+//		 */
+//		return date;
+//		
+//	}
 
 	public void dataForWeekN(int n) { // Pass n less than 358
 		int dataPointsForday = 96;

@@ -1,17 +1,17 @@
-package io.openems.edge.predictor.lstmmodel.predictor;
+package io.openems.edge.predictor.lstm.predictor;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.List;
-
 import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
-import io.openems.edge.predictor.lstmmodel.preprocessing.Normalize;
-import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
+import io.openems.edge.predictor.lstmmodel.predictor.Predictor;
+import io.openems.edge.predictor.lstmmodel.predictor.Preprocessing;
+import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
+import io.openems.edge.predictor.lstmmodel.predictor.ScaleBack;
 
 public class Prediction {
 	public ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();

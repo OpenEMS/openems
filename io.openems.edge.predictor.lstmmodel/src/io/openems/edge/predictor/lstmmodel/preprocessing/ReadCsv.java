@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class ReadCsv {
 
-	public static final String FILENAME = "\\testResults\\time_series_15min_singleindex_filtered.csv";
+	public static final String FILENAME = "\\testResults\\Consumption_data_Fems_10005.csv";
 
 	public ArrayList<Double> data = new ArrayList<Double>();
 	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
@@ -23,7 +23,7 @@ public class ReadCsv {
 	public void getDataFromCSV() {
 
 		try {
-			String filename = "\\testResults\\time_series_15min_singleindex_filtered.csv";
+			String filename = "\\testResults\\Consumption_data_Fems_10005.csv";
 			String path = new File(".").getCanonicalPath() + filename;
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));

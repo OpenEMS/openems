@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class ReadCsv {
 
-	public static final String FILENAME = "\\testResults\\loadValues.csv";
+	public static final String FILENAME = "\\testResults\\Consumption_data_Fems_10005.csv";
 
 	public ArrayList<Double> data = new ArrayList<Double>();
 	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();

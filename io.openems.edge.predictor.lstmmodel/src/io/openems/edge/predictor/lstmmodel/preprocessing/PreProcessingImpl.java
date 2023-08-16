@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 
 public class PreProcessingImpl {
-	
+
 	public static final Function<double[], ArrayList<Double>> CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST = UtilityConversion::convertDoubleArrayToArrayListDouble;
 	public static final Function<List<List<Double>>, double[][]> CONVERT_2DDOUBLE_LIST_TO_2DDOUBLE_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
 
@@ -23,8 +23,6 @@ public class PreProcessingImpl {
 	private ArrayList<Double> scaleDataList;
 
 	public TrainTestSplit trainTestSplit;
-	
-	
 
 	public double[][] trainData;
 	public double[][] validateData;
@@ -34,14 +32,14 @@ public class PreProcessingImpl {
 	public double[] validateTarget;
 	public double[] testTarget;
 
-	public PreProcessingImpl(List<Double> data, int windowSize) {
+	public PreProcessingImpl(List<Double> data, int windowSize, double minTraining, double maxTraining) {
 		this.dataList = (ArrayList<Double>) data;
 		this.windowSize = windowSize;
 
-		this.max = 73953495 ;//Collections.max(this.dataList);
-		this.min =33246;//Collections.min(this.dataList);
+		this.max = maxTraining;// Collections.max(this.dataList);
+		this.min = minTraining;// Collections.min(this.dataList);
 		// TODO make percentage dynamic
-		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.6, 0.3);
+		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
 	}
 
 	/**
@@ -102,7 +100,7 @@ public class PreProcessingImpl {
 		double scaleFactor = maxScaled - minScaled;
 
 		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
-				.map(item -> (((item - this.min) / (this.max - this.min)) * (scaleFactor)) + minScaled) //
+				.map(item -> (((item - min) / (max - min)) * (scaleFactor)) + minScaled) //
 				.collect(Collectors.toList());
 	}
 
@@ -124,5 +122,5 @@ public class PreProcessingImpl {
 				.map(p -> p.intValue()) //
 				.toArray(Integer[]::new);
 
-}
+	}
 }

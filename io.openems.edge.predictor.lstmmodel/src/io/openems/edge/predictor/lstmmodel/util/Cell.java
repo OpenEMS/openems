@@ -58,6 +58,7 @@ public class Cell {
 		this.delI = this.delO = this.delZ = 0;
 		this.iT = 0;
 		this.xT = xt;
+
 		this.outputDataLoc = outputData;
 
 	}

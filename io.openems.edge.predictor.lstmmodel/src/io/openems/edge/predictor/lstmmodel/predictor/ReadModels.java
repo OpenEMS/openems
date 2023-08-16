@@ -13,22 +13,18 @@ public class ReadModels {
 
 	public ReadModels() {
 
-		try {
-			String filename = "\\testResults\\model.txt";
-			String path = new File(".").getCanonicalPath() + filename;
-			String filePath = path;
+		String filename = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstmmodel\\testResults\\model.txt";
+		String path =  filename;
+		
+		System.out.println(path);
+		String filePath = path;
 
-			dataList = readDataFile(filePath);
+		dataList = readDataFile(filePath);
 
-			
-			
+		
+		
 
-			allModel = reshape();
-			
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		allModel = reshape();
 
 	}
 

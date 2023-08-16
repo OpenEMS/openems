@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstmmodel.validation;
+package io.openems.edge.predictor.lstm.validator;
 
 import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;

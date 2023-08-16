@@ -14,9 +14,8 @@ public class Preprocessing {
 		
 		
 	}
-	public void scale() {
-		double max = 73953495;
-		double min = 33246;
+	public void scale(double min,double max) {
+		
 		double minScaled = 0.2;
 		double maxScaled = 0.8;
 

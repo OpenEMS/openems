@@ -17,6 +17,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.io.openems.edge.controller.predictiontester", //

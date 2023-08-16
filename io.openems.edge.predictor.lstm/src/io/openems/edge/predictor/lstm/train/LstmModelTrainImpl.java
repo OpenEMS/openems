@@ -1,7 +1,7 @@
-package io.openems.edge.predictor.lstmmodel;
+package io.openems.edge.predictor.lstm.train;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
@@ -21,23 +22,21 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.lstmmodel.LstmPredictor;
 import io.openems.edge.predictor.lstmmodel.predictor.DataQuarry;
-import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
-//import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Predictor.LstmModel", //
+		name = "Lstm.Model.validator", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class LstmPredictorImpl extends AbstractPredictor24Hours
-		implements Predictor24Hours, OpenemsComponent /* , org.osgi.service.event.EventHandler */{
+public class LstmModelTrainImpl extends AbstractPredictor24Hours
+		implements Predictor24Hours, OpenemsComponent /* , org.osgi.service.event.EventHandler */ {
 
-	//private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
+	// private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
 
 	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::convertListIntegerToListDouble;
 
@@ -49,7 +48,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 	@Reference
 	private ComponentManager componentManager;
 
-	public LstmPredictorImpl() throws OpenemsNamedException {
+	public LstmModelTrainImpl() throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -75,58 +74,47 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 	protected ClockProvider getClockProvider() {
 		return this.componentManager;
 	}
-	
-	
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
 
-		///var nowDate = ZonedDateTime.now(this.componentManager.getClock());
+		/// var nowDate = ZonedDateTime.now(this.componentManager.getClock());
 		// From now time to Last 4 weeks
-		//var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
-		
-		//ZonedDateTime nowDate = ZonedDateTime.now();
-		ZonedDateTime nowDate = ZonedDateTime.of(2023,6,14,0,0,0,0,ZonedDateTime.now().getZone());
-		ZonedDateTime till = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),//
-		nowDate.minusDays(1).getDayOfMonth(), 11, 45, 0, 0, nowDate.getZone());
+		// var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
+
+		// TODO change the logic for date range
+
+		// ZonedDateTime nowDate = ZonedDateTime.now();
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 6, 24, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+		ZonedDateTime till = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), //
+				nowDate.minusDays(1).getDayOfMonth(), 11, 45, 0, 0, nowDate.getZone());
 		ZonedDateTime temp = till.minusDays(6);
-		ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(), 0, 0, 0, 0,//
-		temp.getZone());
-		
-		System.out.println("From : "+fromDate);
-				
-		System.out.println("Till : "+till);
-		
-		//TEMP
-		
-		
-	
-		
-	
+		ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(), 0, 0, 0,
+				0, //
+				temp.getZone());
+
+		System.out.println("From : " + fromDate);
+
+		System.out.println("Till : " + till);
+
+		// TEMP
 
 		// Extract data
-		
-		DataQuarry predictionData = new  DataQuarry(fromDate, till,15,timedata);
-		
-		//get date
 
-		
+		DataQuarry predictionData = new DataQuarry(fromDate, nowDate, 15, timedata);
+
+		// get date
+
 		System.out.println(predictionData.date.size());
-		
-		
-	
-		
-		//data conversion
-		//make 96datepoint prediction
-		double minOfTrainingData=Collections.max((ArrayList<Double>) predictionData.data);
-		double maxOfTrainingData =Collections.min((ArrayList<Double>) predictionData.data);
-		
-		Prediction obj =new Prediction((ArrayList<Double>) predictionData.data,predictionData.date,minOfTrainingData,maxOfTrainingData);
-		
-		System.out.println("Predicted "+obj.predictedAndScaledBack);
-		System.out.println("Target "+new  DataQuarry(ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,14,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
-		System.out.println("ODB:  "+ new DataQuarry(ZonedDateTime.of(2023, 6,12,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
-		//Prediction.makePlot(obj.predictedAndScaledBack, new  DataQuarry(ZonedDateTime.of(2023, 6,7,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,8,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data, 0);	
+
+		// data conversion
+		// make 96datepoint prediction
+		int minOfTrainingData = 33246;
+		int maxOfTrainingData = 73953495;
+
+		MakeModel obj = new MakeModel((ArrayList<Double>) predictionData.data, predictionData.date, minOfTrainingData,
+				maxOfTrainingData);
+
 		return null;
 
 	}
@@ -140,6 +128,5 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 //       
 //        }
 //    }
-	
 
 }

@@ -20,8 +20,8 @@ public class Suffle {
 			}
 		
 		}
+	
 		suffelIt();
-		
 		
 	}
 	public void suffelIt() {

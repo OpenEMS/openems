@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Predictor Lstm-Model
+Bundle-Name: OpenEMS Edge Predictor Lstm
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -10,8 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.predictor.api,\
 	io.openems.edge.timedata.api,\
-	org.apache.commons.math3,\
-	org.apache.felix.http.jetty
+	org.apache.commons.math3
 
 -testpath: \
 	${testpath}

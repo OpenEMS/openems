@@ -1,8 +1,10 @@
-package io.openems.edge.predictor.lstmmodel;
-import java.time.ZonedDateTime;
+package io.openems.edge.predictor.lstm.predictor;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import java.time.ZonedDateTime;
 import java.util.function.Function;
 
 import org.osgi.service.component.ComponentContext;
@@ -22,19 +24,20 @@ import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 import io.openems.edge.predictor.lstmmodel.predictor.DataQuarry;
-import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
+
+
 import io.openems.edge.timedata.api.Timedata;
 
-//import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Predictor.LstmModel", //
+		name = "Lstm.Model.predictor", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class LstmPredictorImpl extends AbstractPredictor24Hours
+public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		implements Predictor24Hours, OpenemsComponent /* , org.osgi.service.event.EventHandler */{
 
 	//private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
@@ -49,11 +52,11 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 	@Reference
 	private ComponentManager componentManager;
 
-	public LstmPredictorImpl() throws OpenemsNamedException {
+	public LstmModelPredictorImpl() throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
-				LstmPredictor.ChannelId.values() //
+				LstmModelPredictor.ChannelId.values() //
 
 		);
 	}
@@ -86,7 +89,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 		//var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
 		
 		//ZonedDateTime nowDate = ZonedDateTime.now();
-		ZonedDateTime nowDate = ZonedDateTime.of(2023,6,14,0,0,0,0,ZonedDateTime.now().getZone());
+		ZonedDateTime nowDate = ZonedDateTime.of(2023,6,24,0,0,0,0,ZonedDateTime.now().getZone());
 		ZonedDateTime till = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),//
 		nowDate.minusDays(1).getDayOfMonth(), 11, 45, 0, 0, nowDate.getZone());
 		ZonedDateTime temp = till.minusDays(6);
@@ -106,7 +109,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 
 		// Extract data
 		
-		DataQuarry predictionData = new  DataQuarry(fromDate, till,15,timedata);
+		DataQuarry predictionData = new  DataQuarry(fromDate, nowDate,15,timedata);
 		
 		//get date
 
@@ -120,13 +123,17 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 		//make 96datepoint prediction
 		double minOfTrainingData=Collections.max((ArrayList<Double>) predictionData.data);
 		double maxOfTrainingData =Collections.min((ArrayList<Double>) predictionData.data);
+		System.out.println("min of train data "+minOfTrainingData);
 		
 		Prediction obj =new Prediction((ArrayList<Double>) predictionData.data,predictionData.date,minOfTrainingData,maxOfTrainingData);
 		
 		System.out.println("Predicted "+obj.predictedAndScaledBack);
-		System.out.println("Target "+new  DataQuarry(ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,14,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
-		System.out.println("ODB:  "+ new DataQuarry(ZonedDateTime.of(2023, 6,12,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
-		//Prediction.makePlot(obj.predictedAndScaledBack, new  DataQuarry(ZonedDateTime.of(2023, 6,7,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,8,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data, 0);	
+		System.out.println("Target "+new  DataQuarry(ZonedDateTime.of(2023, 6,25,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,26,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
+		
+		Prediction.makePlot(obj.predictedAndScaledBack, new  DataQuarry(ZonedDateTime.of(2023, 6,7,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,8,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data, 0);
+		
+		
+		
 		return null;
 
 	}
