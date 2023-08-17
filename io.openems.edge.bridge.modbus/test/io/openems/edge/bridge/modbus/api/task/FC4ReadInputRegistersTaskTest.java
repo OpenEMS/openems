@@ -73,10 +73,11 @@ public class FC4ReadInputRegistersTaskTest {
 				"FC4ReadInputRegisters [device0;unitid=1;priority=LOW;ref=20/0x14;length=4;response=03db 028e 0141 0000]",
 				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
 
+		var registers = task.parseResponse(response);
 		assertNull(value.get());
-		task.handleResponse(element20, 0, response.getRegisters());
+		task.handleResponse(element20, 0, registers);
 		assertEquals(Long.valueOf(64684686), value.get());
-		task.handleResponse(element22, 2, response.getRegisters());
+		task.handleResponse(element22, 2, registers);
 		assertEquals(Long.valueOf(21037056), value.get());
 	}
 }

@@ -40,10 +40,11 @@ public class FC3ReadRegistersTaskTest {
 				"FC3ReadHoldingRegisters [device0;unitid=1;priority=LOW;ref=20/0x14;length=4;response=0064 00c8 012c 0190]",
 				task.toLogMessage(LogVerbosity.READS_AND_WRITES_VERBOSE, request, response));
 
+		var registers = task.parseResponse(response);
 		assertNull(value.get());
-		task.handleResponse(element20, 0, response.getRegisters());
+		task.handleResponse(element20, 0, registers);
 		assertEquals(Long.valueOf(6553800), value.get());
-		task.handleResponse(element22, 2, response.getRegisters());
+		task.handleResponse(element22, 2, registers);
 		assertEquals(Long.valueOf(19661200), value.get());
 	}
 }
