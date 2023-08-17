@@ -7,8 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
+import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
@@ -17,6 +18,40 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 public class FC4ReadInputRegistersTaskTest {
+
+	/**
+	 * Custom implementation that only implements {@link InputRegister} and not
+	 * {@link Register}. This is the difference to {@link SimpleInputRegister}.
+	 */
+	public static class MyInputRegister implements InputRegister {
+
+		private final SimpleInputRegister delegate;
+
+		public MyInputRegister(int value) {
+			this.delegate = new SimpleInputRegister(value);
+		}
+
+		@Override
+		public int getValue() {
+			return this.delegate.getValue();
+		}
+
+		@Override
+		public int toUnsignedShort() {
+			return this.delegate.toUnsignedShort();
+		}
+
+		@Override
+		public short toShort() {
+			return this.delegate.toShort();
+		}
+
+		@Override
+		public byte[] toBytes() {
+			return this.delegate.toBytes();
+		}
+
+	}
 
 	@Test
 	public void test() throws OpenemsException {
@@ -30,9 +65,9 @@ public class FC4ReadInputRegistersTaskTest {
 		task.setParent(component);
 		var request = task.createModbusRequest();
 		var response = request.getResponse();
-		response.setRegisters(new Register[] { //
-				new SimpleRegister(987), new SimpleRegister(654), //
-				new SimpleRegister(321), new SimpleRegister(0) });
+		response.setRegisters(new InputRegister[] { //
+				new MyInputRegister(987), new MyInputRegister(654), //
+				new MyInputRegister(321), new MyInputRegister(0) });
 
 		assertEquals(
 				"FC4ReadInputRegisters [device0;unitid=1;priority=LOW;ref=20/0x14;length=4;response=03db 028e 0141 0000]",
