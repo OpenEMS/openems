@@ -348,11 +348,6 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 						influxEdgeId, AllowedChannels.isChannelDefined(channel.toString()) ? "" : "un",
 						channel.toString());
 			}
-			// TODO remove
-			// available since is in milliseconds
-			if (availableSince > 999_999_999_999L) {
-				availableSince /= 1_000;
-			}
 			if (seconds < availableSince) {
 				return "AvailableSince %5d for channel %s too early got: %d, needed %d".formatted(//
 						influxEdgeId, channel.toString(), availableSince, seconds);
