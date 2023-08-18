@@ -38,7 +38,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
 
-        // Future Work: Remove when all fems are at least at this version
+        // Future Work: Remove when all ems are at least at this version
         this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);

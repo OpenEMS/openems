@@ -27,12 +27,12 @@ export class FlatComponent extends AbstractFlatWidget {
         let channels: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActiveEnergy')];
 
         this.evcsComponents.forEach((component) => {
-            channels.push(new ChannelAddress(component.id, 'ActiveConsumptionEnergy'))
-        })
+            channels.push(new ChannelAddress(component.id, 'ActiveConsumptionEnergy'));
+        });
 
         this.consumptionMeterComponents.forEach((component) => {
-            channels.push(new ChannelAddress(component.id, 'ActiveProductionEnergy'))
-        })
+            channels.push(new ChannelAddress(component.id, 'ActiveProductionEnergy'));
+        });
 
 
         return channels;

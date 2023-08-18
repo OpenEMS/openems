@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
