@@ -1,5 +1,3 @@
-import { NgModule } from '@angular/core';
-
 import { SharedModule } from '../../shared/shared.module';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
@@ -22,8 +20,6 @@ import { Controller } from './Controller/Controller';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
-import { EnergyComponent } from './energy/energy.component';
-import { EnergyModalComponent } from './energy/modal/modal.component';
 import { GridChartComponent } from './grid/chart.component';
 import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
 import { GridComponent } from './grid/widget.component';
@@ -61,6 +57,7 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { NgModule } from '@angular/core';
 
 @NgModule({
   imports: [
@@ -91,8 +88,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
-    EnergyComponent,
-    EnergyModalComponent,
     GridChartComponent,
     GridChartOverviewComponent,
     GridComponent,

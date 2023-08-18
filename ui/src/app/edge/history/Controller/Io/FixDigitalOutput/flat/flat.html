@@ -1,5 +1,6 @@
 <ng-container *ngIf="isInitialized && outputChannel">
-    <oe-flat-widget (click)="presentModal()" [title]="component.alias" [icon]="{name: 'power-outline', size: 'large'}">
+    <oe-flat-widget routerLink="/device/{{edge.id}}/history/{{componentId}}/fixdigitaloutputchart"
+        [title]="component.alias" [icon]="{name: 'power-outline', size: 'large'}">
         <oe-flat-widget-line [name]="'Edge.History.activeDuration' | translate"
             [channelAddress]="outputChannel"></oe-flat-widget-line>
     </oe-flat-widget>

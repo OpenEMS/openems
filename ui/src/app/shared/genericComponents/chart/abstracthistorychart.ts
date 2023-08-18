@@ -68,6 +68,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         // store important variables publically
         this.edge = edge;
         this.config = config;
+        this.component = config.getComponent(this.route.snapshot.params.componentId);
 
       }).then(() => {
         this.chartObject = this.getChartData();
@@ -445,22 +446,24 @@ export abstract class AbstractHistoryChart implements OnInit {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
           let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
-          if (channelAddresses.length > 0) {
-            edge.sendRequest(this.service.websocket, request).then(response => {
-              let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
-              if (Object.keys(result).length != 0) {
-                resolve(response as QueryHistoricTimeseriesEnergyResponse);
-              } else {
-                this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
-                resolve(new QueryHistoricTimeseriesEnergyResponse(response.id, {
-                  data: { null: null }
-                }));
-              }
-            }).catch((response) => {
-              this.errorResponse = response;
-              this.initializeChart();
-            });
+
+          if (channelAddresses.length === 0) {
+            resolve(null);
           }
+          edge.sendRequest(this.service.websocket, request).then(response => {
+            let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
+            if (Object.keys(result).length != 0) {
+              resolve(response as QueryHistoricTimeseriesEnergyResponse);
+            } else {
+              this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
+              resolve(new QueryHistoricTimeseriesEnergyResponse(response.id, {
+                data: { null: null }
+              }));
+            }
+          }).catch((response) => {
+            this.errorResponse = response;
+            this.initializeChart();
+          });
         });
       });
     });

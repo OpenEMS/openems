@@ -2,8 +2,8 @@
   *ngIf="isInitialized" [period]="service.historyPeriod.value">
   <!-- Total Chart -->
   <ng-container *ngIf="showTotal, else singleChart">
-    <totalChart [showPhases]="showPhases" [showTotal]="showTotal">
-    </totalChart>
+    <singleChart [showPhases]="showPhases" [showTotal]="showTotal" [component]="component">
+    </singleChart>
   </ng-container>
 
   <ng-template #singleChart>
