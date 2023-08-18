@@ -35,7 +35,7 @@ export namespace DeleteAppInstance {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 instanceId: string
             }
         ) {

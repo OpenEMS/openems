@@ -6,10 +6,10 @@ import io.openems.common.test.AbstractComponentConfig;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
-		private String id = null;
+		private String id;
 		private boolean enabled;
-		public String ipaddress;
-		public int interval;
+		private String ipaddress;
+		private int interval;
 
 		private Builder() {
 		}

@@ -29,7 +29,6 @@ export class UpdateAppComponent implements OnInit {
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
   protected instances: MyInstance[] = [];
-  protected forms: FormGroup[] = [];
 
   private edge: Edge | null = null;
 
@@ -41,7 +40,7 @@ export class UpdateAppComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private router: Router,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 
@@ -55,32 +54,30 @@ export class UpdateAppComponent implements OnInit {
         new ComponentJsonApiRequest({
           componentId: '_appManager',
           payload: new GetAppInstances.Request({ appId: appId })
-        })).then(response => {
-          let recInstances = (response as GetAppInstances.Response).result.instances;
+        })).then(getInstancesResponse => {
+          let recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
 
           edge.sendRequest(this.websocket,
             new ComponentJsonApiRequest({
               componentId: '_appManager',
               payload: new GetAppAssistant.Request({ appId: appId })
-            })).then(response2 => {
-              let appAssistant = GetAppAssistant.postprocess((response2 as GetAppAssistant.Response).result);
+            })).then(getAppAssistantResponse => {
+              let appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
               this.appName = appAssistant.name;
               this.instances = [];
               for (let instance of recInstances) {
-                let form = new FormGroup({});
-                this.forms.push(form);
-                const clonedFields = [];
-                appAssistant.fields.forEach(val => clonedFields.push(Object.assign({}, val)));
+                const form = new FormGroup({});
+                const model = {
+                  'ALIAS': instance.alias,
+                  ...instance.properties
+                };
                 this.instances.push({
                   instanceId: instance.instanceId,
                   form: form,
                   isDeleting: false,
                   isUpdating: false,
-                  fields: clonedFields,
-                  properties: {
-                    'ALIAS': instance.alias,
-                    ...instance.properties
-                  },
+                  fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
+                  properties: model
                 });
               }
 

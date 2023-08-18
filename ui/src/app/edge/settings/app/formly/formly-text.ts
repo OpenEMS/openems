@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { FieldType, FieldTypeConfig, FieldWrapper } from "@ngx-formly/core";
+import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
 
 @Component({
     selector: 'formly-text',
@@ -9,7 +9,7 @@ import { FieldType, FieldTypeConfig, FieldWrapper } from "@ngx-formly/core";
         <ion-text [innerHTML]="props.description"></ion-text>
     </ion-item>
     `,
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: ViewEncapsulation.None
 })
 export class FormlyTextComponent extends FieldType<FieldTypeConfig>  {
 

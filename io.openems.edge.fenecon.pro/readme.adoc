@@ -1,11 +1,10 @@
 = FENECON Pro 9-12
 
-Implemented Natures::
+Implemented Natures:
 - SymmetricEss
 - ManagedSymmetricEss
 - AsymmetricEss
 - ManagedAsymmetricEss
-- AsymmetricMeter (for PV)
-- SymmetricMeter (for PV)
+- ElectricityMeter (for PV)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fenecon.pro[Source Code icon:github[]]

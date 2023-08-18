@@ -2,8 +2,7 @@
 
 Reads data of a Discovergy Smart-Meter via online REST-Api. See https://api.discovergy.com for details.
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.discovergy[Source Code icon:github[]]

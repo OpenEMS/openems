@@ -1,8 +1,7 @@
 = PQ-Plus Meters UMD96 | UMD97
 
-Implemented Natures::
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 Details of the meter is present in 
 

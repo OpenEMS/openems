@@ -1,5 +1,10 @@
 package io.openems.edge.goodwe.gridmeter;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,9 +41,8 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -54,11 +58,16 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, AsymmetricMeter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, ElectricityMeter,
+		ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Reference
-	protected ConfigurationAdmin cm;
+	private ConfigurationAdmin cm;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -69,24 +78,22 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-
 	public GoodWeGridMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				GoodWeGridMeter.ChannelId.values() //
 		);
-		AsymmetricMeter.initializePowerSumChannels(this);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -124,44 +131,29 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 								}))), //
 
 				new FC3ReadRegistersTask(35123, Priority.LOW, //
-						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // //
+						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123), SCALE_FACTOR_MINUS_2), // //
 						new DummyRegisterElement(35124, 35127), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128), SCALE_FACTOR_MINUS_2),
 						new DummyRegisterElement(35129, 35132),
-						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133), SCALE_FACTOR_MINUS_2), //
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+								SCALE_FACTOR_MINUS_2)), //
 
-				// Active and reactive power, Power factor and frequency
-				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
-								ElementToChannelConverter.INVERT), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
-								ElementToChannelConverter.INVERT), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005), INVERT), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006), INVERT), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007), INVERT), //
 						new DummyRegisterElement(36008, 36012), //
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_MINUS_2), //
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014), SCALE_FACTOR_1),
 						new DummyRegisterElement(36015, 36051),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(36053),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057),
-								ElementToChannelConverter.SCALE_FACTOR_2))); //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(36053), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056), SCALE_FACTOR_2), //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057), SCALE_FACTOR_2))); //
 	}
 
 	@Override
@@ -303,8 +295,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(GoodWeGridMeter.class, accessMode, 100).build() //
 		);
 	}

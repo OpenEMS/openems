@@ -45,9 +45,9 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SYSTEM_STATE(Doc.of(SystemState.values())), //
 		ORIGINAL_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		ORIGINAL_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.<FeneconDessEss>onChannelChange((self, value) -> {
 					// on each change set Grid-Mode channel

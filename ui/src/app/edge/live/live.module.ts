@@ -15,10 +15,7 @@ import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal
 import { Controller_Ess_FixActivePower } from './Controller/Ess/FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_GridOptimizedCharge } from './Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge';
 import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess/TimeOfUseTariffDischarge/Ess_TimeOfUseTariff_Discharge';
-import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
-import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
-import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
-import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover/popover.page';
+import { AdministrationComponent } from './Controller/Evcs/administration/administration.component';
 import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io/ChannelSingleThreshold/modal/modal.component';
 import { Controller_Io_FixDigitalOutputComponent } from './Controller/Io/FixDigitalOutput/Io_FixDigitalOutput';
@@ -43,6 +40,7 @@ import { Evcs_Api_ClusterComponent } from './Multiple/Evcs_Api_Cluster/Evcs_Api_
 import { EvcsChartComponent } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
 import { OfflineComponent } from './offline/offline.component';
+import { Controller_Evcs } from './Controller/Evcs/Evcs';
 
 @NgModule({
   imports: [
@@ -61,14 +59,13 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_Io_HeatingElement,
     EnergymonitorModule,
     SharedModule,
+    Controller_Evcs
   ],
   entryComponents: [
     AdministrationComponent,
     Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_EvcsModalComponent,
-    Controller_EvcsPopoverComponent,
     Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
     Controller_Io_FixDigitalOutputComponent,
@@ -80,7 +77,7 @@ import { OfflineComponent } from './offline/offline.component';
     Evcs_Api_ClusterModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
-    StorageModalComponent,
+    StorageModalComponent
   ],
   declarations: [
     AdministrationComponent,
@@ -90,9 +87,6 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_ChpSocComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_EvcsComponent,
-    Controller_EvcsModalComponent,
-    Controller_EvcsPopoverComponent,
     Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
     Controller_Io_FixDigitalOutputComponent,
@@ -114,7 +108,7 @@ import { OfflineComponent } from './offline/offline.component';
     LiveComponent,
     OfflineComponent,
     StorageComponent,
-    StorageModalComponent,
+    StorageModalComponent
   ]
 })
 export class LiveModule { }

@@ -24,7 +24,7 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
     protected translate: TranslateService,
     public formBuilder: FormBuilder,
     public modalCtrl: ModalController,
-    public service: Service,
+    public service: Service
   ) { }
 
   ngOnInit() {
@@ -40,7 +40,7 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticLockSoc: new FormControl(this.component.properties.automaticLockSoc),
       automaticRecommendationCtrlEnabled: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
-      minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
+      minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime)
     });
   };
 

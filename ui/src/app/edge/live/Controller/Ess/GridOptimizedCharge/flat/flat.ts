@@ -1,6 +1,7 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({
@@ -9,7 +10,7 @@ import { ModalComponent } from '../modal/modal';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public component: EdgeConfig.Component = null;
+    public override component: EdgeConfig.Component = null;
     public mode: string = '-';
     public state: string = '-';
     public isSellToGridLimitAvoided: boolean = false;
@@ -28,19 +29,19 @@ export class FlatComponent extends AbstractFlatWidget {
         ];
     }
     protected override onCurrentData(currentData: CurrentData) {
-        this.mode = currentData.thisComponent['_PropertyMode'];
+        this.mode = currentData.allComponents[this.component.id + '/_PropertyMode'];
 
         // Check if Grid feed in limitation is avoided
-        if (currentData.thisComponent['SellToGridLimitState'] == 0 ||
-            (currentData.thisComponent['SellToGridLimitState'] == 3
-                && currentData.thisComponent['DelayChargeState'] != 0
-                && currentData.thisComponent['SellToGridLimitMinimumChargeLimit'] > 0)) {
+        if (currentData.allComponents[this.component.id + '/SellToGridLimitState'] == 0 ||
+            (currentData.allComponents[this.component.id + '/SellToGridLimitState'] == 3
+                && currentData.allComponents[this.component.id + '/DelayChargeState'] != 0
+                && currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.isSellToGridLimitAvoided = true;
         }
 
-        this.sellToGridLimitMinimumChargeLimit = currentData.thisComponent['SellToGridLimitMinimumChargeLimit'];
+        this.sellToGridLimitMinimumChargeLimit = currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'];
 
-        switch (currentData.thisComponent['DelayChargeState']) {
+        switch (currentData.allComponents[this.component.id + '/DelayChargeState']) {
             case -1:
                 this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
                 break;
@@ -67,14 +68,14 @@ export class FlatComponent extends AbstractFlatWidget {
                 break;
         }
 
-        this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit'];
+        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'];
     }
 
     async presentModal() {
         const modal = await this.modalController.create({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
+                component: this.component
             }
         });
         return await modal.present();

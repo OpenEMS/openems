@@ -1,8 +1,6 @@
 = Siemens Meters PAC2200 / 3200 / 4200
 
-Implemented Natures
-
-- SymmetricMeter
-- AsymmetricMeter
+Implemented Natures:
+- ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.siemens[Source Code icon:github[]]

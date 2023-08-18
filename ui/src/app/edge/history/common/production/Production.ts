@@ -8,7 +8,7 @@ import { TotalAcChartComponent } from './chart/totalAcChart';
 import { TotalChartComponent } from './chart/totalChart';
 import { TotalDcChartComponent } from './chart/totalDcChart';
 import { FlatComponent } from './flat/flat';
-import { ProductionChartOverviewComponent } from './overview/overview';
+import { OverviewComponent } from './overview/overview';
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ import { ProductionChartOverviewComponent } from './overview/overview';
   ],
   entryComponents: [
     FlatComponent,
-    ProductionChartOverviewComponent,
+    OverviewComponent,
     ProductionMeterChartComponent,
     TotalDcChartComponent,
     TotalAcChartComponent,
@@ -26,7 +26,7 @@ import { ProductionChartOverviewComponent } from './overview/overview';
   ],
   declarations: [
     FlatComponent,
-    ProductionChartOverviewComponent,
+    OverviewComponent,
     ProductionMeterChartComponent,
     TotalDcChartComponent,
     TotalAcChartComponent,
@@ -35,12 +35,12 @@ import { ProductionChartOverviewComponent } from './overview/overview';
   ],
   exports: [
     FlatComponent,
-    ProductionChartOverviewComponent,
+    OverviewComponent,
     ProductionMeterChartComponent,
     TotalDcChartComponent,
     TotalAcChartComponent,
     TotalChartComponent,
     ChargerChartComponent
-  ],
+  ]
 })
 export class Common_Production { }

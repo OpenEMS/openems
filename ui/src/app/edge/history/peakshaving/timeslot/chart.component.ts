@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
 import { Data, TooltipItem } from './../../shared';
@@ -21,9 +22,9 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     }
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("timeslotpeakshaving-chart", service, translate);
     }
@@ -109,7 +110,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                 }
                 if (peakshavingPower in result.data) {
@@ -130,7 +131,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(200,0,0,1)',
+                        borderColor: 'rgba(200,0,0,1)'
                     });
                 }
                 if ('_sum/EssActivePower' in result.data) {
@@ -161,7 +162,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                     /*
                      * Storage Discharge
@@ -182,7 +183,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(200,0,0,0.05)',
-                        borderColor: 'rgba(200,0,0,1)',
+                        borderColor: 'rgba(200,0,0,1)'
                     });
                 }
                 this.datasets = datasets;

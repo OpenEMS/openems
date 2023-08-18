@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -22,8 +23,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     public totalOtherEnergy: number | null = null;
 
     constructor(
-        public service: Service,
-        private route: ActivatedRoute,
+        public override service: Service,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -78,15 +79,15 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy')
                 );
             }
 
-            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveProductionEnergy'),
+                    new ChannelAddress(component.id, 'ActiveProductionEnergy')
                 );
             }
             resolve(channels);

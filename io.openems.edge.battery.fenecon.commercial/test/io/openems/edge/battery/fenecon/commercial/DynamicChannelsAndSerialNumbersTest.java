@@ -36,7 +36,7 @@ public class DynamicChannelsAndSerialNumbersTest {
 
 	@Test
 	public void testSerialNum() throws Exception {
-		var battery = new FeneconCommercialBatteryImpl();
+		var battery = new BatteryFeneconCommercialImpl();
 
 		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -59,7 +59,7 @@ public class DynamicChannelsAndSerialNumbersTest {
 				.input(SUB_MASTER_HARDWARE_VERSION, "109101BM60"));
 		checkDynamicChannels(battery, TOWERS, MODULES, CELLS / MODULES);
 
-		assertEquals("011910MB06", FeneconCommercialBatteryImpl.SERIAL_NUMBER_CONVERTER.elementToChannel("109101BM60"));
+		assertEquals("011910MB06", BatteryFeneconCommercialImpl.SERIAL_NUMBER_CONVERTER.elementToChannel("109101BM60"));
 
 		componentTest.next(new TestCase());
 		componentTest.next(new TestCase());
@@ -72,7 +72,7 @@ public class DynamicChannelsAndSerialNumbersTest {
 				.input(NUMBER_OF_CELLS_PER_MODULE, CELLS) //
 				.input(MASTER_MCU_HARDWARE_VERSION, "100201MS50"));
 
-		assertEquals("012010SM05", FeneconCommercialBatteryImpl.SERIAL_NUMBER_CONVERTER.elementToChannel("100201MS50"));
+		assertEquals("012010SM05", BatteryFeneconCommercialImpl.SERIAL_NUMBER_CONVERTER.elementToChannel("100201MS50"));
 	}
 
 	/**

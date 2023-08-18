@@ -8,7 +8,7 @@ import { Role } from 'src/app/shared/type/role';
 
 @Component({
     selector: 'storage-modal',
-    templateUrl: './modal.component.html',
+    templateUrl: './modal.component.html'
 })
 export class StorageModalComponent implements OnInit, OnDestroy {
 
@@ -33,7 +33,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public websocket: Websocket,
-        public formBuilder: FormBuilder,
+        public formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {
@@ -42,7 +42,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
         this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast('2023.2.5');
 
         this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
-        let emergencyReserveCtrl = this.config.getComponentsImplementingNature('io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve');
+        let emergencyReserveCtrl = this.config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve');
         let prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         let components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl].filter(component => component.isEnabled).reduce((result, component) => {
             let essId = component.properties['ess.id'];
@@ -85,7 +85,7 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 this.formBuilder.group({
                                     controllerId: new FormControl(controller['id']),
                                     isReserveSocEnabled: new FormControl(isReserveSocEnabled),
-                                    reserveSoc: new FormControl(reserveSoc),
+                                    reserveSoc: new FormControl(reserveSoc)
                                 })
                             );
                         } else if (controller.factoryId == 'Controller.Ess.PrepareBatteryExtension') {

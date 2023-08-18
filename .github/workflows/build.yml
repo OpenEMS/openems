@@ -1,5 +1,8 @@
 name: Build OpenEMS
-on: [push]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  
 jobs:
   build-java:
     runs-on: ubuntu-latest
@@ -11,29 +14,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          java-package: jdk
+          cache: gradle
 
-      - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/native
-            ~/.gradle/notifications
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Setup Cache for Java/Maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      # Uploads Checkstyle errors & warnings as GitHub Annotations
       - uses: kiancross/checkstyle-annotations-action@v1
-      
+
       - name: Build all Java packages
         run: ./gradlew build
 
@@ -45,6 +29,42 @@ jobs:
 
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+
+      #
+      # Generate Code-coverage-report
+      #
+      - name: Generate JaCoCo Code-coverage-report
+        run: ./gradlew jacocoTestReport
+        
+      - name: Summarize JaCoCo Report
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: 'io.openems.*/generated/reports/jacoco/**/*.csv'
+          generate-coverage-badge: false
+
+      - name: Create JaCoCo Badge
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          coverage=$(echo "scale=2; ${{ steps.jacoco.outputs.coverage }} * 100" | bc | cut -c1-4);
+
+          color=red;
+          if (( $(echo "$coverage > 90" | bc -l) )); then
+            color=success;
+          elif (( $(echo "$coverage > 80" | bc -l) )); then
+            color=green;
+          elif (( $(echo "$coverage > 60" | bc -l) )); then
+            color=yellow;
+          fi;
+
+          mkdir -p ./jacoco
+          echo $PR_NUMBER > ./jacoco/jacoco_report_number
+          echo '![Code Coverage]'"(https://img.shields.io/badge/Code%20Coverage-${coverage}%25-${color}?style=flat)" > ./jacoco/jacoco_report_badge
+      - uses: actions/upload-artifact@v3
+        with:
+          name: jacoco_report
+          path: jacoco/
 
       #
       # Is this a Tag? Prepare release assets
@@ -89,7 +109,9 @@ jobs:
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
-          
+          export CHROME_BIN=/usr/bin/google-chrome-stable
+          npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+
       #
       # Is this a Tag? Prepare release assets
       #
@@ -99,7 +121,7 @@ jobs:
           mkdir build
           cd ui/target
           zip -r ../../build/openems-ui.zip ./*
-          
+
       - name: Save build-artifacts
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v3
@@ -114,18 +136,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-java, build-ui]
     if: startsWith(github.ref, 'refs/tags/')
-    steps:    
-    - name: Load build-artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: build-artifacts
-        path: build
-    
-    - name: Create draft Release
-      uses: softprops/action-gh-release@v1
-      with:
-        draft: true
-        files: |
-          build/openems-edge.jar
-          build/openems-backend.jar
-          build/openems-ui.zip
+    steps:
+      - name: Load build-artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: build
+
+      - name: Create draft Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            build/openems-edge.jar
+            build/openems-backend.jar
+            build/openems-ui.zip

@@ -1,5 +1,6 @@
 import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
@@ -38,7 +39,7 @@ export namespace GetAppAssistant {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 appId: string
             }
         ) {
@@ -49,8 +50,8 @@ export namespace GetAppAssistant {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: AppAssistant
+            public override readonly id: string,
+            public override readonly result: AppAssistant
         ) {
             super(id, result);
         }
@@ -79,6 +80,22 @@ export namespace GetAppAssistant {
         return appAssistant;
     }
 
+    export function setInitialModel(fields: FormlyFieldConfig[], model: {}): FormlyFieldConfig[] {
+        return fields.map(f => {
+            function recursivIterate(field: FormlyFieldConfig) {
+                field['initialModel'] = structuredClone(model);
+                if (!field.fieldGroup) {
+                    return;
+                }
+                for (let f of field.fieldGroup) {
+                    recursivIterate(f);
+                }
+            }
+            recursivIterate(f);
+            return f;
+        });
+    }
+
     /**
      * Iterates over the given field an all child fields.
      * 
@@ -99,16 +116,20 @@ export namespace GetAppAssistant {
 
         if (field.validators) {
             for (const [key, value] of Object.entries(field.validators)) {
-                let expressionString: String = value["expressionString"];
+                let expressionString: string = value["expressionString"];
                 if (expressionString) {
-                    expressionString = GetAppAssistant.convertStringExpression(rootFields, field, expressionString);
-
-                    const func = Function('model', 'formState', 'field', 'control', `return ${expressionString};`);
-                    field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfig) => {
-                        const model = f.model;
-                        const formState = f.options.formState;
-                        const result = func(model, formState, f, control);
-                        return result;
+                    expressionString = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
+                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${expressionString};`);
+                    field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfigWithInitialModel) => {
+                        return func(f.model, f.options.formState, f, control, f.initialModel);
+                    };
+                }
+                let messageExpressionString: string = value['messageString'];
+                if (messageExpressionString) {
+                    messageExpressionString = GetAppAssistant.convertStringExpressions(rootFields, field, messageExpressionString);
+                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${messageExpressionString};`);
+                    field.validators[key]["message"] = (error: any, f: FormlyFieldConfigWithInitialModel) => {
+                        return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
                     };
                 }
             }
@@ -128,6 +149,11 @@ export namespace GetAppAssistant {
         return childHasAlias;
     }
 
+
+    export function convertStringExpressions(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig, expression: string): string {
+        return ['model.', 'initialModel.', 'control.value.'].reduce((p, c) => convertStringExpression(rootFields, field, p, c), expression);
+    }
+
     /**
      * Converts a string expression e. g.
      * 
@@ -139,37 +165,52 @@ export namespace GetAppAssistant {
      * @param expression    the expression to convert
      * @returns the converted expression
      */
-    export function convertStringExpression(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig, expression: String): String {
-        const parts = expression.split('model.');
-        let finalExpression: string = "";
-        for (let part of parts) {
-            if (part.length === 0) {
-                continue;
+    export function convertStringExpression(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig, expression: string, prefix: string): string {
+        const parts = expression.split(prefix);
+        return parts.reduce((finalExpression, part, i) => {
+            if (i === 0) {
+                return part;
             }
-            const indexOfSpace = part.indexOf(' ');
+            if (!part || part.length === 0) {
+                return finalExpression;
+            }
+
+            const smallestIndex = [' ', ')'].reduce((previous, current) => {
+                let index = part.indexOf(current);
+                if (index === -1) {
+                    return previous;
+                }
+                if (previous === -1) {
+                    return index;
+                }
+                if (previous < index) {
+                    return previous;
+                }
+                return index;
+            }, -1);
+
             let propertyName: string;
-            if (indexOfSpace !== -1) {
-                propertyName = part.substring(0, indexOfSpace);
+            if (smallestIndex !== -1) {
+                propertyName = part.substring(0, smallestIndex);
             } else {
                 propertyName = part;
             }
 
-            const propertyPathNames = propertyName.split('.');
-
+            const propertyPathNames = propertyName.split('.')
+                .map(i => ['(', ')'].reduce((p, c) => p.replace(c, ''), i));
             const f = GetAppAssistant.findField(rootFields, propertyPathNames);
-            const isNumericInput = f.templateOptions?.type === 'number' || f.props?.type === 'number';
+            const isNumericInput = !!f && (f.templateOptions?.type === 'number' || f.props?.type === 'number');
 
             if (isNumericInput) {
                 // parses the value to a number
-                finalExpression += "+";
+                finalExpression = finalExpression.concat('+');
             }
-            finalExpression += "model.";
-            finalExpression += propertyName;
-            if (indexOfSpace != -1) {
-                finalExpression += part.substring(indexOfSpace);
+            finalExpression = finalExpression.concat(prefix, propertyName);
+            if (smallestIndex != -1) {
+                finalExpression = finalExpression.concat(part.substring(smallestIndex));
             }
-        }
-        return finalExpression;
+            return finalExpression;
+        }, "");
     }
 
     export function findField(fields: FormlyFieldConfig[], path: string[]): FormlyFieldConfig {
@@ -205,3 +246,5 @@ export namespace GetAppAssistant {
     }
 
 }
+
+type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} }

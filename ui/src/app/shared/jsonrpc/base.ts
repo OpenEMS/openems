@@ -35,8 +35,8 @@ export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 
 export class JsonrpcRequest extends AbstractJsonrpcRequest {
     public constructor(
-        public readonly method: string,
-        public readonly params: {},
+        public override readonly method: string,
+        public override readonly params: {},
         public readonly id: string = uuidv4()
     ) {
         super(method, params);
@@ -45,8 +45,8 @@ export class JsonrpcRequest extends AbstractJsonrpcRequest {
 
 export class JsonrpcNotification extends AbstractJsonrpcRequest {
     public constructor(
-        public readonly method: string,
-        public readonly params: {}
+        public override readonly method: string,
+        public override readonly params: {}
     ) {
         super(method, params);
     }
@@ -54,7 +54,7 @@ export class JsonrpcNotification extends AbstractJsonrpcRequest {
 
 export abstract class JsonrpcResponse extends JsonrpcMessage {
     public constructor(
-        public readonly id: string,
+        public readonly id: string
     ) {
         super();
     }
@@ -62,7 +62,7 @@ export abstract class JsonrpcResponse extends JsonrpcMessage {
 
 export class JsonrpcResponseSuccess extends JsonrpcResponse {
     public constructor(
-        public readonly id: string,
+        public override readonly id: string,
         public readonly result: {}
     ) {
         super(id);
@@ -71,7 +71,7 @@ export class JsonrpcResponseSuccess extends JsonrpcResponse {
 
 export class JsonrpcResponseError extends JsonrpcResponse {
     public constructor(
-        public readonly id: string,
+        public override readonly id: string,
         public readonly error: {
             code: number,
             message: string,

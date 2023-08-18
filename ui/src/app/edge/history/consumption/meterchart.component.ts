@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
@@ -22,9 +23,9 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
-        private route: ActivatedRoute,
+        protected override service: Service,
+        protected override translate: TranslateService,
+        private route: ActivatedRoute
     ) {
         super("consumption-meter-chart", service, translate);
     }
@@ -73,7 +74,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)',
+                        borderColor: 'rgba(253,197,7,1)'
                     });
                 }
             });
@@ -91,9 +92,9 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
-            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let meter of consumptionMeters) {
                 result.push(new ChannelAddress(meter.id, 'ActivePower'));

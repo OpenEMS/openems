@@ -1,5 +1,5 @@
-<oe-flat-widget [img]="storageItem" [title]="'General.storageSystem'| translate" (click)="presentModal()"
-    *ngIf="isInitialized">
+<oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
+    [title]="'General.storageSystem'| translate" (click)="presentModal()" *ngIf="isInitialized">
     <ng-container *ngFor="let component of essComponents, let i = index">
 
         <!-- Show Alias if there are more than one ESS -->

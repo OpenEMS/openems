@@ -8,7 +8,7 @@ import { PredictionChartComponent } from './modal/predictionChart';
 @NgModule({
     imports: [
         BrowserModule,
-        SharedModule,
+        SharedModule
     ],
     entryComponents: [
         FlatComponent,

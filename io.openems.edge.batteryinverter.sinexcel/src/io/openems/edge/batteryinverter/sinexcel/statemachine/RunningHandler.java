@@ -1,7 +1,7 @@
 package io.openems.edge.batteryinverter.sinexcel.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.sinexcel.Sinexcel;
+import io.openems.edge.batteryinverter.sinexcel.BatteryInverterSinexcel;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.startstop.StartStop;
@@ -35,10 +35,10 @@ public class RunningHandler extends StateHandler<State, Context> {
 	private void applyPower(Context context) throws OpenemsNamedException {
 		final var inverter = context.getParent();
 
-		IntegerWriteChannel setActivePower = inverter.channel(Sinexcel.ChannelId.SET_ACTIVE_POWER);
+		IntegerWriteChannel setActivePower = inverter.channel(BatteryInverterSinexcel.ChannelId.SET_ACTIVE_POWER);
 		setActivePower.setNextWriteValue(context.setActivePower);
 
-		IntegerWriteChannel setReactivePower = inverter.channel(Sinexcel.ChannelId.SET_REACTIVE_POWER);
+		IntegerWriteChannel setReactivePower = inverter.channel(BatteryInverterSinexcel.ChannelId.SET_REACTIVE_POWER);
 		setReactivePower.setNextWriteValue(context.setReactivePower);
 	}
 }

@@ -24,7 +24,7 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
         private websocket: Websocket,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-        public service: Service,
+        public service: Service
     ) { }
 
     ngOnInit() {

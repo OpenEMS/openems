@@ -1,9 +1,10 @@
 import { Component, Input } from "@angular/core";
 import { AbstractModalLine } from "../abstract-modal-line";
+import { ButtonLabel } from "../modal-button/modal-button";
 
 @Component({
     selector: 'oe-modal-line',
-    templateUrl: './modal-line.html',
+    templateUrl: './modal-line.html'
 })
 export class ModalLineComponent extends AbstractModalLine {
 
@@ -12,8 +13,8 @@ export class ModalLineComponent extends AbstractModalLine {
     protected leftColumnWidth: number;
 
     /** ControlName for Form Field */
-    @Input() public controlName: string;
-
+    @Input() public override controlName: string;
+    @Input() protected button: ButtonLabel | null = null;
     /** ControlName for Toggle Button */
     @Input() protected control:
         { type: 'TOGGLE' } |
@@ -21,7 +22,7 @@ export class ModalLineComponent extends AbstractModalLine {
         /* the available select options*/
         { type: 'SELECT', options: { value: string, name: string }[] } |
         /* the properties for range slider*/
-        { type: 'RANGE', properties: { min: number, max: number, unit: 'H' } };
+        { type: 'RANGE', properties: { min: number, max: number, unit: 'H' }, displayValue?: number | string };
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
@@ -29,6 +30,6 @@ export class ModalLineComponent extends AbstractModalLine {
 
 export enum TextIndentation {
     NONE = '0%',
-    SIMPLE = '5%',
+    SINGLE = '5%',
     DOUBLE = '10%'
 }

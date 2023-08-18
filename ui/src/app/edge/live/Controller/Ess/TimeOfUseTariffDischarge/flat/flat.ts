@@ -19,7 +19,7 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
         const modal = await this.modalController.create({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
+                component: this.component
             }
         });
         return await modal.present();

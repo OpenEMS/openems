@@ -1,6 +1,7 @@
 import { formatNumber } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+
 import { AbstractModalLine } from "../abstract-modal-line";
 import { TextIndentation } from "../modal-line/modal-line";
 
@@ -20,18 +21,18 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
   protected readonly TextIndentation = TextIndentation;
 
-  protected getChannelAddresses(): ChannelAddress[] {
+  protected override getChannelAddresses(): ChannelAddress[] {
     let channelAddresses: ChannelAddress[] = [];
 
     for (let phase of this.phases) {
       channelAddresses.push(
-        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
+        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key)
       );
     }
     return channelAddresses;
   }
 
-  protected onCurrentData(currentData: CurrentData): void {
+  protected override onCurrentData(currentData: CurrentData): void {
     for (let phase of this.phases) {
       let powerPerPhase = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
       phase.name = this.translate.instant('General.phase') + " " + phase.key + this.setTranslatedName(powerPerPhase);

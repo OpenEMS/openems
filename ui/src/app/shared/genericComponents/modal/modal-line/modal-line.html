@@ -3,13 +3,20 @@
 
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">
-            <ng-container *ngIf="name">{{ name }}</ng-container>
+            <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
         </td>
 
         <!-- Value of Parameter on the right side -->
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="displayValue">
             <!-- 'Normal' line, name and value  -->
             <ng-container>{{ displayValue }}</ng-container>
+        </td>
+
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="button">
+            <!-- 'Normal' line, name and value  -->
+            <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
+                [size]="button.icon?.size ??'medium'">
+            </ion-icon>
         </td>
 
         <ng-container *ngIf="formGroup && control">

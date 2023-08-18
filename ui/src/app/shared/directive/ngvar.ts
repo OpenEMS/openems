@@ -1,7 +1,7 @@
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 
 @Directive({
-    selector: '[ngVar]',
+    selector: '[ngVar]'
 })
 export class VarDirective {
     @Input()
@@ -19,7 +19,7 @@ export class VarDirective {
         ngVar: unknown;
     } = {
             $implicit: null,
-            ngVar: null,
+            ngVar: null
         };
 
     private hasView: boolean = false;

@@ -15,13 +15,13 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
 	private final Logger log = LoggerFactory.getLogger(SetPvLimitHandler.class);
-	private final BpPvInverterImpl parent;
+	private final KacoBlueplanetHybrid10PvInverterImpl parent;
 	private final ChannelId channelId;
 
 	private Float lastEpLimit = null;
 	private LocalDateTime lastWMaxLimPctTime = LocalDateTime.MIN;
 
-	public SetPvLimitHandler(BpPvInverterImpl parent, ChannelId channelId) {
+	public SetPvLimitHandler(KacoBlueplanetHybrid10PvInverterImpl parent, ChannelId channelId) {
 		this.parent = parent;
 		this.channelId = channelId;
 	}
@@ -35,7 +35,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 		int power;
 		if (powerOpt.isPresent()) {
 			power = powerOpt.get();
-			ePLimit = (int) ((double) power / BpPvInverter.MAX_APPARENT_POWER * 100.0);
+			ePLimit = (int) ((double) power / KacoBlueplanetHybrid10PvInverter.MAX_APPARENT_POWER * 100.0);
 
 			// keep percentage in range [0, 100]
 			if (ePLimit > 100) {
@@ -46,7 +46,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			}
 		} else {
 			// Reset limit
-			power = BpPvInverter.MAX_APPARENT_POWER;
+			power = KacoBlueplanetHybrid10PvInverter.MAX_APPARENT_POWER;
 			ePLimit = 100;
 		}
 

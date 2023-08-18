@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
@@ -25,9 +26,9 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   }
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
-    private route: ActivatedRoute,
+    protected override service: Service,
+    protected override translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     super("gridOptimizedCharge-chart", service, translate);
   }
@@ -78,11 +79,11 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.gridSell'),
             data: sellToGridData,
-            hidden: false,
+            hidden: false
           });
           this.colors.push({
             backgroundColor: 'rgba(0,0,200,0.05)',
-            borderColor: 'rgba(0,0,200,1)',
+            borderColor: 'rgba(0,0,200,1)'
           });
         }
 
@@ -132,7 +133,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)',
+            borderColor: 'rgba(200,0,0,1)'
           });
         }
 
@@ -151,7 +152,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
           datasets.push({
             label: this.translate.instant('General.production'),
             data: productionData,
-            hidden: false,
+            hidden: false
           });
           this.colors.push({
             backgroundColor: 'rgba(45,143,171,0.05)',
