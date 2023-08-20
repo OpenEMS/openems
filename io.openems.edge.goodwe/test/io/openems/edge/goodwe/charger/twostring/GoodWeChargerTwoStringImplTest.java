@@ -1,12 +1,13 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.charger.twostring;
 
 import org.junit.Test;
 
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.goodwe.ess.GoodWeEssImpl;
 
-public class GoodWeChargerPv2Test {
+public class GoodWeChargerTwoStringImplTest {
 
 	private static final String MODBUS_ID = "modbus0";
 	private static final String ESS_ID = "ess0";
@@ -14,13 +15,15 @@ public class GoodWeChargerPv2Test {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new GoodWeChargerPv2()) //
+		new ComponentTest(new GoodWeChargerTwoStringImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("essOrBatteryInverter", new GoodWeEssImpl()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CHARGER_ID) //
 						.setBatteryInverterId(ESS_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setPvPort(PvPort.PV_1) //
 						.build());
 	}
 }

@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.charger.singlestring;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,20 +20,22 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
+import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
+import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
-@Designate(ocd = ConfigPV1.class, factory = true)
+@Designate(ocd = ConfigPV2.class, factory = true)
 @Component(//
-		name = "GoodWe.Charger-PV1", //
+		name = "GoodWe.Charger-PV2", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger
+public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 		implements GoodWeCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
@@ -51,17 +53,16 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger
 		super.setModbus(modbus);
 	}
 
-	public GoodWeChargerPv1() {
+	public GoodWeChargerPv2() {
 	}
 
 	@Activate
-	private void activate(ComponentContext context, ConfigPV1 config) throws OpenemsException {
+	private void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
 
-		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "essOrBatteryInverter",
 				config.essOrBatteryInverter_id())) {
 			return;
@@ -83,7 +84,7 @@ public class GoodWeChargerPv1 extends AbstractGoodWeEtCharger
 
 	@Override
 	protected int getStartAddress() {
-		return 35103;
+		return 35107;
 	}
 
 	@Override

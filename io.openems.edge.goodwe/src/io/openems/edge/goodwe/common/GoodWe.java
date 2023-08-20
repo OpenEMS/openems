@@ -8,14 +8,13 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.goodwe.charger.AbstractGoodWeEtCharger;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv2;
+import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
@@ -31,8 +30,9 @@ import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.ExternalEmsFlag;
 import io.openems.edge.goodwe.common.enums.EzloggerProCommStatus;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
-import io.openems.edge.goodwe.common.enums.GoodweGridMeterType;
-import io.openems.edge.goodwe.common.enums.GoodweType;
+import io.openems.edge.goodwe.common.enums.GoodWeGridMeterType;
+import io.openems.edge.goodwe.common.enums.GoodWeHardwareType;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
 import io.openems.edge.goodwe.common.enums.GridWaveCheckLevel;
 import io.openems.edge.goodwe.common.enums.LedState;
@@ -55,16 +55,16 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Registers a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 * @param charger {@link GoodWeCharger} charger
 	 */
-	public void addCharger(AbstractGoodWeEtCharger charger);
+	public void addCharger(GoodWeCharger charger);
 
 	/**
 	 * Unregisters a GoodWe Charger.
 	 *
-	 * @param charger either {@link GoodWeChargerPv1} or {@link GoodWeChargerPv2}
+	 * @param charger {@link GoodWeCharger} charger
 	 */
-	public void removeCharger(AbstractGoodWeEtCharger charger);
+	public void removeCharger(GoodWeCharger charger);
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AC_OUTPUT_TYPE(Doc.of(OutputTypeAC.values())), //
@@ -269,7 +269,7 @@ public interface GoodWe extends OpenemsComponent {
 		METER_TOTAL_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE)), //
 
-		METER_TYPE(Doc.of(GoodweGridMeterType.values())), //
+		METER_TYPE(Doc.of(GoodWeGridMeterType.values())), //
 		METER_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER)), //
 
 		METER_CT2_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -484,7 +484,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		GOODWE_TYPE(Doc.of(GoodweType.values())), //
+		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		FACTORY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
 		CLEAR_DATA(Doc.of(OpenemsType.INTEGER) //
@@ -1138,7 +1138,7 @@ public interface GoodWe extends OpenemsComponent {
 
 		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_PROTOCOL_ARM(Doc.of(OpenemsType.INTEGER) //
+		BATTERY_PROTOCOL_ARM(Doc.of(BatteryProtocol.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Work Week 1 Enabled")), //
@@ -1380,10 +1380,67 @@ public interface GoodWe extends OpenemsComponent {
 		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.DEGREE_CELSIUS) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * Warning Codes (table 8-8).
+		 *
+		 * <ul>
+		 * <li>Bit 12-31 Reserved
+		 * <li>Bit 11: System High Temperature
+		 * <li>Bit 10: System Low Temperature 2
+		 * <li>Bit 09: System Low Temperature 1
+		 * <li>Bit 08: Cell Imbalance
+		 * <li>Bit 07: System Reboot
+		 * <li>Bit 06: Communication Failure
+		 * <li>Bit 05: Discharge Over-Current
+		 * <li>Bit 04: Charge Over-Current
+		 * <li>Bit 03: Cell Low Temperature
+		 * <li>Bit 02: Cell High Temperature
+		 * <li>Bit 01: Discharge Under-Voltage
+		 * <li>Bit 00: Charge Over-Voltage
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * Alarm Codes (table 8-7).
+		 *
+		 * <ul>
+		 * <li>Bit 16-31 Reserved
+		 * <li>Bit 15: Charge Over-Voltage Fault
+		 * <li>Bit 14: Discharge Under-Voltage Fault
+		 * <li>Bit 13: Cell High Temperature
+		 * <li>Bit 12: Communication Fault
+		 * <li>Bit 11: Charge Circuit Fault
+		 * <li>Bit 10: Discharge Circuit Fault
+		 * <li>Bit 09: Battery Lock
+		 * <li>Bit 08: Battery Break
+		 * <li>Bit 07: DC Bus Fault
+		 * <li>Bit 06: Precharge Fault
+		 * <li>Bit 05: Discharge Over-Current
+		 * <li>Bit 04: Charge Over-Current
+		 * <li>Bit 03: Cell Low Temperature
+		 * <li>Bit 02: Cell High Temperature
+		 * <li>Bit 01: Discharge Under-Voltage
+		 * <li>Bit 00: Charge Over-Voltage
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_ALARM_CODE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		/**
+		 * BMS Status.
+		 *
+		 * <ul>
+		 * <li>Bit 2: Stop Discharge
+		 * <li>Bit 1: Stop Charge
+		 * <li>Bit 0: Force Charge
+		 * </ul>
+		 */
+		// TODO: Into enum
 		WBMS_STATUS(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER) //
@@ -1396,7 +1453,9 @@ public interface GoodWe extends OpenemsComponent {
 		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
 				.text("SMART mode does not work correctly with active PID filter")),
 		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
-				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly"));
+				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
+		GOODWE_HARDWARE_TYPE(Doc.of(GoodWeHardwareType.values())) //
+		;
 
 		private final Doc doc;
 
@@ -1415,7 +1474,7 @@ public interface GoodWe extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<GoodweType> getGoodweTypeChannel() {
+	public default Channel<GoodWeType> getGoodweTypeChannel() {
 		return this.channel(GoodWe.ChannelId.GOODWE_TYPE);
 	}
 
@@ -1424,8 +1483,36 @@ public interface GoodWe extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default GoodweType getGoodweType() {
+	public default GoodWeType getGoodweType() {
 		return this.getGoodweTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GOODWE_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<GoodWeHardwareType> getGoodweHardwareTypeChannel() {
+		return this.channel(GoodWe.ChannelId.GOODWE_HARDWARE_TYPE);
+	}
+
+	/**
+	 * Gets the Hardware Device Type. See {@link ChannelId#GOODWE_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default GoodWeHardwareType getGoodweHardwareType() {
+		return this.getGoodweHardwareTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GOODWE_HARDWARE_TYPE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setGoodweHardwareType(GoodWeHardwareType value) {
+		this.getGoodweHardwareTypeChannel().setNextValue(value);
 	}
 
 	// TODO drop these methods
@@ -1703,4 +1790,60 @@ public interface GoodWe extends OpenemsComponent {
 		this.getMaxAcImportChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#BATTERY_PROTOCOL_ARM}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getBatteryProtocolArmChannel() {
+		return this.channel(ChannelId.BATTERY_PROTOCOL_ARM);
+	}
+
+	/**
+	 * Gets the battery protocol arm as enum. See
+	 * {@link ChannelId#BATTERY_PROTOCOL_ARM}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default BatteryProtocol getBatteryProtocolArm() {
+		return this.getBatteryProtocolArmChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOC_START_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSocStartToForceChargeChannel() {
+		return this.channel(ChannelId.SOC_START_TO_FORCE_CHARGE);
+	}
+
+	/**
+	 * Gets the SoC to start the force charge [%]. See
+	 * {@link ChannelId#SOC_START_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSocStartToForceCharge() {
+		return this.getSocStartToForceChargeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOC_STOP_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSocStopToForceChargeChannel() {
+		return this.channel(ChannelId.SOC_STOP_TO_FORCE_CHARGE);
+	}
+
+	/**
+	 * Gets the SoC to stop the force charge [%]. See
+	 * {@link ChannelId#SOC_STOP_TO_FORCE_CHARGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getSocStopToForceCharge() {
+		return this.getSocStopToForceChargeChannel().value();
+	}
 }

@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.charger.singlestring;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
