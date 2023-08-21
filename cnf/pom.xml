@@ -406,7 +406,7 @@
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.8.2</version>
+			<version>3.9</version>
 		</dependency>
 	</dependencies>
 </project>
