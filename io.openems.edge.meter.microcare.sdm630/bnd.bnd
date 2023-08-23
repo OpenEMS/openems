@@ -5,11 +5,11 @@ Bundle-License: Proprietary (for now)
 
 -buildpath: \
 	${buildpath},\
+	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.meter.api
 
 -testpath: \
-	${testpath},\
-	com.ghgande.j2mod
+	${testpath}

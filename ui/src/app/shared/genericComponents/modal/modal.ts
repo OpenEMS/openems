@@ -2,10 +2,15 @@ import { Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
+
+export enum Status {
+    SUCCESS,
+    ERROR,
+    PENDING
+}
 
 @Component({
     selector: 'oe-modal',
@@ -25,10 +30,12 @@ export class ModalComponent {
     /** Title in Header */
     @Input() public title: string;
 
-    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
+    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
+        callback: () =>
+            {}, icon: Icon
+    } | null = null;
 
     @Input() protected helpKey: string | null = null;
-
     public readonly Role = Role;
 
     private edge: Edge = null;
@@ -45,8 +52,10 @@ export class ModalComponent {
     // Changes applied together
     public applyChanges() {
         let updateComponentArray: { name: string, value: any }[] = [];
+        this.service.startSpinner('spinner');
         for (let key in this.formGroup.controls) {
             let control = this.formGroup.controls[key];
+            this.formGroup.controls[key];
 
             // Check if formControl-value didn't change
             if (control.pristine) {
@@ -65,9 +74,8 @@ export class ModalComponent {
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                }).finally(() => {
-                    this.formGroup.markAsPristine();
-                });
+                }).finally(() => this.service.stopSpinner('spinner'));
         }
+        this.formGroup.markAsPristine();
     }
 }
