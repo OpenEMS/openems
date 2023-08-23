@@ -1,15 +1,14 @@
-import { FormGroup } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
-import { FormlyFieldConfig } from "@ngx-formly/core";
-import { TranslateService } from "@ngx-translate/core";
-import { filter } from "rxjs/operators";
-
 import { ChannelAddress, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
+import { FormGroup } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { filter } from "rxjs/operators";
 
 export abstract class AbstractFormlyComponent {
 
@@ -122,6 +121,7 @@ export namespace OeFormlyField {
     buttons: ButtonLabel[],
     /** Controlname needs to be the same as controller property to be updated*/
     controlName: string,
+    valueChanges?: (formGroup: FormGroup, controlValue: string | number | boolean | null) => FormGroup
     converter?: (value: number | null) => string
   }
 

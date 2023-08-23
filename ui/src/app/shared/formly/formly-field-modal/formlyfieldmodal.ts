@@ -32,13 +32,13 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
             let channels: ChannelAddress[] = [];
-            let formControls: Map<string, { channel: string, converter?: Function }> = new Map();
+            let formControls: Map<string, { channel: string, converter?: Function, valueChanges?: (formGroup: FormGroup, controlValue: number | string | null) => FormGroup }> = new Map();
 
             this.props.lines
                 .forEach(line => {
                     if (line.controlName) {
                         channels.push(ChannelAddress.fromString(line.channel));
-                        formControls.set(line.controlName, { channel: line.channel, ...(line.converter && { converter: line.converter }) });
+                        formControls.set(line.controlName, { channel: line.channel, ...(line.converter && { converter: line.converter }), ...(line.valueChanges && { valueChanges: line.valueChanges }) });
                     }
                 });
 
@@ -48,8 +48,14 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
             }
 
             // Prefill formGroup
-            formControls.forEach((channel, key) => {
+            formControls.forEach((config, key) => {
                 this.formGroup.registerControl(key, new FormControl(null));
+
+                if (config.valueChanges) {
+                    this.formGroup.controls[key].valueChanges.subscribe((value) => {
+                        this.formGroup = config.valueChanges(this.formGroup, value);
+                    })
+                }
             });
 
             this.dataService.getValues(channels, edge, this.props.component.id);
@@ -67,7 +73,7 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
                     }
 
                     let value: number | string | null;
-                    if (control.converter != null && currentData) {
+                    if (control.converter != null) {
                         let channel = currentData.allComponents[control.channel];
                         value = control.converter(channel);
                     } else {

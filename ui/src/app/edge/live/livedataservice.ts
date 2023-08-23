@@ -38,7 +38,6 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [] }));
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }

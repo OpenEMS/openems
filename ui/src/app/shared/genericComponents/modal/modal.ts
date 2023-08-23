@@ -2,6 +2,7 @@ import { Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
@@ -64,8 +65,9 @@ export class ModalComponent {
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+                }).finally(() => {
+                    this.formGroup.markAsPristine();
                 });
         }
-        this.formGroup.markAsPristine();
     }
 }
