@@ -1,7 +1,8 @@
-import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { Icon } from 'src/app/shared/type/widget';
+
+import { ChannelAddress, CurrentData } from '../../../../shared/shared';
 
 @Component({
   selector: 'Controller_Channelthreshold',
@@ -17,11 +18,11 @@ export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
   };
   public state: string = '?';
 
-  protected getChannelAddresses() {
+  protected override getChannelAddresses() {
     this.outputChannel = ChannelAddress.fromString(this.component.properties['outputChannelAddress']);
     return [this.outputChannel];
   }
-  protected onCurrentData(currentData: CurrentData) {
+  protected override onCurrentData(currentData: CurrentData) {
     let channel = currentData.allComponents[this.outputChannel.toString()];
     if (channel != null) {
       if (channel == 1) {

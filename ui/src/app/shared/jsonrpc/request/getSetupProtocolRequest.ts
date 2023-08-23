@@ -16,7 +16,7 @@ export class GetSetupProtocolRequest extends JsonrpcRequest {
     private static METHOD: string = "getSetupProtocol";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             setupProtocolId: string
         }
     ) {

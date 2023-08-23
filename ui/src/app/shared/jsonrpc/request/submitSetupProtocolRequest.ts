@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Category } from "src/app/edge/installation/shared/category";
+
 import { Utils } from "../../shared";
 import { JsonrpcRequest } from "../base";
 
@@ -138,7 +139,7 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
     }
 
     private constructor(
-        public readonly params: {
+        public override readonly params: {
             protocol: any
         }
     ) {

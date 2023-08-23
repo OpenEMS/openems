@@ -10,7 +10,7 @@ import { ModalComponent } from '../modal/modal';
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public component: EdgeConfig.Component = null;
+    public override component: EdgeConfig.Component = null;
     public mode: string = '-';
     public state: string = '-';
     public isSellToGridLimitAvoided: boolean = false;

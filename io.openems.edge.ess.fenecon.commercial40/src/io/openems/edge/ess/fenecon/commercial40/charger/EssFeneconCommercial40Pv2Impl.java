@@ -55,7 +55,7 @@ public class EssFeneconCommercial40Pv2Impl extends AbstractEssFeneconCommercial4
 	}
 
 	@Activate
-	private void activate(ComponentContext context, ConfigPv1 config) throws OpenemsException {
+	private void activate(ComponentContext context, ConfigPv2 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
 			return;

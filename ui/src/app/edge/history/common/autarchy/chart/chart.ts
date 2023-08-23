@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
 @Component({
@@ -11,7 +10,7 @@ import { ChannelAddress, Utils } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): DefaultTypes.History.ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     this.spinnerId = 'autarchy-chart';
     return {
       input:
@@ -26,7 +25,7 @@ export class ChartComponent extends AbstractHistoryChart {
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
           converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE
         }],
-      output: (data: DefaultTypes.History.ChannelData) => {
+      output: (data: HistoryUtils.ChannelData) => {
         return [{
           name: this.translate.instant('General.autarchy'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -44,7 +43,11 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-0'
       },
-      unit: DefaultTypes.History.YAxisTitle.PERCENTAGE
+      yAxes: [{
+        unit: YAxisTitle.PERCENTAGE,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT
+      }]
     };
   }
 }

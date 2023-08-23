@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
@@ -26,7 +27,7 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
     public edge: Edge = null;
 
     constructor(
-        public service: Service,
+        public override service: Service,
         private route: ActivatedRoute,
         public modalCtrl: ModalController
     ) {

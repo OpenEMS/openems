@@ -23,8 +23,8 @@ export interface Cumulated {
 export class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 
     public constructor(
-        public readonly id: string,
-        public readonly result: {
+        public override readonly id: string,
+        public override readonly result: {
             stdout: string[],
             stderr: string[]
         }

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
@@ -11,7 +11,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 })
 export class TotalDcChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): DefaultTypes.History.ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     return {
       input:
         [
@@ -22,7 +22,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
             converter: (data) => data != null ? data : null
           }
         ],
-      output: (data: DefaultTypes.History.ChannelData) => {
+      output: (data: HistoryUtils.ChannelData) => {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -38,7 +38,11 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: DefaultTypes.History.YAxisTitle.ENERGY
+      yAxes: [{
+        unit: YAxisTitle.ENERGY,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT
+      }]
     };
   }
 }

@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Utils } from '../../../../../shared/service/utils';
+import { ChartAxis, HistoryUtils, Utils, YAxisTitle } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
@@ -12,11 +11,12 @@ import { ChannelAddress } from '../../../../../shared/shared';
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): DefaultTypes.History.ChartData {
-    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
+  protected override getChartData(): HistoryUtils.ChartData {
+    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
-    let channels: DefaultTypes.History.InputChannel[] = [{
+    let channels: HistoryUtils.InputChannel[] = [{
       name: 'ProductionDcActualPower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy')
@@ -55,10 +55,10 @@ export class TotalChartComponent extends AbstractHistoryChart {
       });
     }
 
-    let chartObject: DefaultTypes.History.ChartData = {
+    let chartObject: HistoryUtils.ChartData = {
       input: channels,
-      output: (data: DefaultTypes.History.ChannelData) => {
-        let datasets: DefaultTypes.History.DisplayValues[] = [];
+      output: (data: HistoryUtils.ChannelData) => {
+        let datasets: HistoryUtils.DisplayValues[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.TOTAL'),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -94,7 +94,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 data['ProductionDcActualPower'].forEach((value, index) => {
                   effectiveProduction[index] = Utils.addSafely(data['ProductionAcActivePowerL' + i][index], value / 3);
                 });
-              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
+              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").length > 0) {
                 effectiveProduction = data['ProductionAcActivePowerL' + i];
               }
               return effectiveProduction;
@@ -143,10 +143,15 @@ export class TotalChartComponent extends AbstractHistoryChart {
         formatNumber: '1.1-2',
         afterTitle: this.translate.instant('General.TOTAL')
       },
-      unit: DefaultTypes.History.YAxisTitle.ENERGY
+      yAxes: [{
+        unit: YAxisTitle.ENERGY,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT
+      }]
     };
 
     return chartObject;
+
   }
 
   public override getChartHeight(): number {

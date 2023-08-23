@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
 
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
@@ -11,7 +11,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 })
 export class TotalAcChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): DefaultTypes.History.ChartData {
+  protected override getChartData(): HistoryUtils.ChartData {
     return {
       input:
         [
@@ -33,8 +33,8 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
           }
         ],
-      output: (data: DefaultTypes.History.ChannelData) => {
-        let datasets: DefaultTypes.History.DisplayValues[] = [];
+      output: (data: HistoryUtils.ChannelData) => {
+        let datasets: HistoryUtils.DisplayValues[] = [];
 
         datasets.push({
           name: this.translate.instant("General.TOTAL"),
@@ -66,7 +66,11 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.1-2'
       },
-      unit: DefaultTypes.History.YAxisTitle.ENERGY
+      yAxes: [{
+        unit: YAxisTitle.ENERGY,
+        position: 'left',
+        yAxisId: ChartAxis.LEFT
+      }]
     };
   }
 }

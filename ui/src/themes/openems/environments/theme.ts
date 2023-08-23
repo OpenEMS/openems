@@ -22,7 +22,6 @@ export const theme = {
         CONTROLLER_IO_HEAT_PUMP_SG_READY: "io.openems.edge.controller.io.heatpump.sgready/readme.adoc",
 
         SETTINGS_ALERTING: null,
-        SETTINGS_NETWORK_CONFIGURATION: null,
-        EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc"
+        SETTINGS_NETWORK_CONFIGURATION: null
     }
 };
