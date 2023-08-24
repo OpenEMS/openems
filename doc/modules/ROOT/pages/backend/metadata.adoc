@@ -24,21 +24,19 @@ and accompanying processes.
 The Metadata nature provides access to the https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edge] object - the digital twin representation of the OpenEMS edge instance.
 
 Identification of OpenEMS Edges is done with a unique API key.
-The API key is expected to include a lot of randomness. Because it is also
-used to authorize the edge.
+The API key is expected to include a lot of randomness, because it is implicitly used to authorize the edge.
 
 == Users
 
 The https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[User]
 object includes meta information about a user. Furthermore it is
 used for identification/authorization of the user.
-The metadata nature can be used to change various attributes,
- which are associated with a user (e.g. the users default languange).
+The metadata nature can be used to change various attributes which are associated with a user (e.g. the users default language).
 
 == Processes
 
 The metadata nature provides methods to
 
-* add user to an edge.
-* set and change alerting/notification settings.
+* add users to an edge,
+* set and change alerting/notification settings,
 * set up new edge devices.

@@ -9,7 +9,7 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-The following bundles are available in OpenEMS Backend 
+The following bundles are available in OpenEMS Backend.
 
 include::service.adoc.d/_include.adoc[leveloffset=+0]
 

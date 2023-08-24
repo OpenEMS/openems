@@ -3,8 +3,7 @@
 Metadata OpenEMS Backend implementation for https://www.odoo.com/[Odoo]. 
 
 This bundle works together with Odoo 15. For a seamless integration of Odoo 
-and OpenEMS the OpenSource 
-https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS] module is needed.
+and OpenEMS the open-source https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS] module is needed.
 
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.metadata.odoo[Source Code icon:github[]]
