@@ -14,6 +14,6 @@ import { CommonModule } from '@angular/common';
   ],
   exports: [
     Io_FixDigitalOutput
-  ],
+  ]
 })
 export class Controller { }

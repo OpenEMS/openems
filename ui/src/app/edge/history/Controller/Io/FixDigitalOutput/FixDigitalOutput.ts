@@ -27,6 +27,6 @@ import { CommonModule } from '@angular/common';
     FlatComponent,
     ChartComponent,
     OverviewComponent
-  ],
+  ]
 })
 export class Io_FixDigitalOutput { }
