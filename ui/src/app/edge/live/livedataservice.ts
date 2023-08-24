@@ -1,6 +1,5 @@
 import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
-import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";

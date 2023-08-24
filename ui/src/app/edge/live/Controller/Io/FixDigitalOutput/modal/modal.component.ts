@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';

@@ -54,7 +54,7 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
                 if (config.valueChanges) {
                     this.formGroup.controls[key].valueChanges.subscribe((value) => {
                         this.formGroup = config.valueChanges(this.formGroup, value);
-                    })
+                    });
                 }
             });
 
