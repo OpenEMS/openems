@@ -34,7 +34,6 @@ export class UserComponent implements OnInit {
   public isEditModeDisabled: boolean = true;
   public form: { formGroup: FormGroup, fields: FormlyFieldConfig[], model: UserInformation };
   public showInformation: boolean = false;
-  public initialFields;
 
   constructor(
     public translate: TranslateService,
@@ -47,11 +46,10 @@ export class UserComponent implements OnInit {
     // Set currentLanguage to 
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
-    this.initialFields = this.getFields(); // needed for Skeleton
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        fields: this.initialFields,
+        fields: this.getFields(),
         model: userInformation
       };
       this.showInformation = true;
@@ -104,80 +102,80 @@ export class UserComponent implements OnInit {
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
+  /** Needs to be predefined to make wrapper work with ion-skeleton */
+  protected userInformationFields = [{
+    key: "firstname",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.firstname"),
+      disabled: true
+    }
+  },
+  {
+    key: "lastname",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.lastname"),
+      disabled: true
+    }
+  },
+  {
+    key: "street",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.street"),
+      disabled: true
+    }
+  },
+  {
+    key: "zip",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.zip"),
+      disabled: true
+    }
+  },
+  {
+    key: "city",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.city"),
+      disabled: true
+    }
+  },
+  {
+    key: "country",
+    type: "select",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.country"),
+      options: COUNTRY_OPTIONS(this.translate),
+      disabled: true
+    }
+  },
+  {
+    key: "email",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.email"),
+      disabled: true
+    },
+    validators: {
+      validation: [Validators.email]
+    }
+  },
+  {
+    key: "phone",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.phone"),
+      disabled: true
+    }
+  }];
+
 
   public getFields(): FormlyFieldConfig[] {
-
     return [{
-      fieldGroup: [
-        {
-          key: "firstname",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.firstname"),
-            disabled: true
-          }
-        },
-        {
-          key: "lastname",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.lastname"),
-            disabled: true
-          }
-        },
-        {
-          key: "street",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.street"),
-            disabled: true
-          }
-        },
-        {
-          key: "zip",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.zip"),
-            disabled: true
-          }
-        },
-        {
-          key: "city",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.city"),
-            disabled: true
-          }
-        },
-        {
-          key: "country",
-          type: "select",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.country"),
-            options: COUNTRY_OPTIONS(this.translate),
-            disabled: true
-          }
-        },
-        {
-          key: "email",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.email"),
-            disabled: true
-          },
-          validators: {
-            validation: [Validators.email]
-          }
-        },
-        {
-          key: "phone",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.phone"),
-            disabled: true
-          }
-        }
-      ]
+      fieldGroup: this.userInformationFields
     }];
   }
 
