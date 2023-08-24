@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -31,7 +31,6 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -56,7 +55,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private Meta meta;
 
 	private Config config = null;
-	private Currency currency;
 	private ZonedDateTime updateTimeStamp = null;
 
 	public TouEntsoeImpl() {
@@ -66,9 +64,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		);
 	}
 
-	private final Consumer<Value<Integer>> updateCurrency = currency -> {
-		this.currency = currency.asEnum();
-		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
+	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
+		this.scheduleTask(0);
 	};
 
 	@Activate
@@ -79,37 +76,30 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 
-		if (config.securityToken() == null) {
-			this.logError(this.log, "Please enter Security token to access ENTSO-E");
+		if (config.securityToken() == null || config.securityToken().isBlank()) {
+			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
 			return;
 		}
 		this.config = config;
 
-		// Trigger to activate when the currency from Meta is updated.
-		this.setMeta();
-
-		this.updateCurrency.accept(this.meta.getCurrencyChannel().getNextValue());
+		// React on updates to Currency.
+		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.unsetMeta();
+		this.meta.getCurrencyChannel().removeOnChangeCallback(this.onCurrencyChange);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
 
 	/**
-	 * Initializes the Currency channel listener. Adds the callback to the channel.
+	 * Schedules execution the the update Task.
+	 * 
+	 * @param seconds execute task in seconds
 	 */
-	private void setMeta() {
-		this.meta.getCurrencyChannel().onSetNextValue(this.updateCurrency);
-	}
-
-	/**
-	 * Removes the Callback from Currency Channel.
-	 */
-	private void unsetMeta() {
-		this.meta.getCurrencyChannel().removeOnSetNextValueCallback(this.updateCurrency);
+	private void scheduleTask(long seconds) {
+		this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
 	}
 
 	private final Runnable task = () -> {
@@ -122,18 +112,19 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		try {
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
 			final var entsoeCurrency = Utils.parseCurrency(result);
-
-			final var exchangeRate = this.currency.toString() == entsoeCurrency //
+			final var globalCurrency = this.meta.getCurrency();
+			final var exchangeRate = globalCurrency.name() == entsoeCurrency //
 					? 1 // No need to fetch exchange rate from API.
-					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), this.currency);
+					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), globalCurrency);
 
 			// Parse the response for the prices
 			this.prices.set(Utils.parsePrices(result, "PT60M", exchangeRate));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();
+
 		} catch (IOException | ParserConfigurationException | SAXException | OpenemsNamedException e) {
-			this.logWarn(this.log, e.getMessage());
+			this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());
 			e.printStackTrace();
 			unableToUpdatePrices = true;
 		}
@@ -154,8 +145,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		}
 
 		var delay = Duration.between(now, nextRun).getSeconds();
-
-		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
+		this.scheduleTask(delay);
 	};
 
 	@Override

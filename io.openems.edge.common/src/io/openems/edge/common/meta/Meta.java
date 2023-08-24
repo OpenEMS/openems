@@ -5,6 +5,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -71,6 +72,15 @@ public interface Meta extends ModbusSlave {
 	 */
 	public default EnumReadChannel getCurrencyChannel() {
 		return this.channel(ChannelId.CURRENCY);
+	}
+
+	/**
+	 * Gets the Capacity in [Wh]. See {@link ChannelId#CURRENCY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Currency getCurrency() {
+		return this.getCurrencyChannel().value().asEnum();
 	}
 
 	/**

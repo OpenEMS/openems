@@ -73,7 +73,7 @@ public class EntsoeApi {
 
 		try (var response = client.newCall(request).execute()) {
 			if (!response.isSuccessful()) {
-				throw new IOException("Unable to get response from ENTSO-E API " + response);
+				throw new IOException("Unable to get response from ENTSO-E API: " + response);
 			}
 
 			return response.body().string();

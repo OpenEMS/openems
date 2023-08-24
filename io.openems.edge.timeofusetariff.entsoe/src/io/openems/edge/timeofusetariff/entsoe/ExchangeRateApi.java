@@ -9,7 +9,7 @@ import okhttp3.Request;
  * A utility class for fetching exchange rates from a web API.
  * 
  * <p>
- * Day ahead prices retrieved from ENTSO-E are always in Euros and required to
+ * Day ahead prices retrieved from ENTSO-E are usually in EUR and might have to
  * be converted to the user's currency using the exchange rates provided by
  * Exchange Rate API. For more information on the ExchangeRate API, visit:
  * <a href=
