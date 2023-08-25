@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/meter/simulated/Config.java=UTF-8
+encoding//src/io/openems/edge/meter/simulated/MeterSimulated.java=UTF-8
+encoding//src/io/openems/edge/meter/simulated/MeterSimulatedImpl.java=UTF-8
+encoding//test/io/openems/edge/meter/simulated/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/meter/simulated/MyModbusDeviceTest.java=UTF-8
+encoding/<project>=windows-1252
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8

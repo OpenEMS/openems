@@ -1,11 +1,12 @@
-package $basePackageName$;
+package io.openems.edge.meter.simulated;
 
 import org.junit.Test;
 
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.meter.api.MeterType;
 
 public class MyModbusDeviceTest {
 
@@ -14,12 +15,13 @@ public class MyModbusDeviceTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MyModbusDeviceImpl()) //
+		new ComponentTest(new MeterSimulatedImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setType(MeterType.GRID) //
 						.build())
 				.next(new TestCase());
 	}

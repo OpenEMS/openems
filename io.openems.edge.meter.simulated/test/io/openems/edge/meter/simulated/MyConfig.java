@@ -1,7 +1,8 @@
-package $basePackageName$;
+package io.openems.edge.meter.simulated;
 
-import io.openems.common.utils.ConfigUtils;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -10,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId = null;
 		private int modbusUnitId;
+		private MeterType type;
 
 		private Builder() {
 		}
@@ -26,6 +28,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+		
+		public Builder setType(MeterType type) {
+			this.type = type;
 			return this;
 		}
 
@@ -63,6 +70,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public MeterType type() {
+		return this.builder.type;
 	}
 
 }
