@@ -728,11 +728,7 @@ public class JsonUtils {
 	 * @return the {@link String} value or the alternative value
 	 */
 	public static String getAsStringOrElse(JsonElement jElement, String memberName, String alternative) {
-		try {
-			return getAsString(jElement, memberName);
-		} catch (OpenemsNamedException e) {
-			return alternative;
-		}
+		return getAsOptionalString(jElement, memberName).orElse(alternative);
 	}
 
 	/**
