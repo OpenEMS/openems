@@ -88,7 +88,7 @@ NOTE: Instead of navigating through the projects tree, you can simply use the ke
 The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings unter the btn:[Source] tab:
 +
 - `org.osgi.service.http.port=8080`: start the Apache Felix Web Console on port `8080`
-- `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart.
+- `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart
 - `openems.data.dir=c:/openems/data`: this is where bundles are allowed to persist data. It is used e.g. by the RRD4j timedata storage
 
 .. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs in the **Console** tab inside Eclipse IDE.
@@ -237,7 +237,7 @@ image::openems-ui-login.png[OpenEMS UI Login screen]
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 
-_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatble with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to find the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
+_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatble with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to produce the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
 
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview2.png[OpenEMS UI Energymonitor screen]
