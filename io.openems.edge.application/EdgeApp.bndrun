@@ -177,6 +177,7 @@
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 
 -runbundles: \
@@ -342,6 +343,7 @@
 	io.openems.edge.timeofusetariff.api;version=snapshot,\
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
+	io.openems.edge.timeofusetariff.entsoe;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.eu.chargetime.ocpp;version=snapshot,\
