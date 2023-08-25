@@ -30,6 +30,11 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
     }
 
     ngOnInit() {
+
+        if (!this.props.component) {
+            return;
+        }
+
         this.service.getCurrentEdge().then(edge => {
             let channels: ChannelAddress[] = [];
             let formControls: Map<string, { channel: string, converter?: Function, value?: any, valueChanges?: (formGroup: FormGroup, controlValue: number | string | null) => FormGroup }> = new Map();
@@ -41,7 +46,6 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
                     }
                     formControls.set(line.controlName, { channel: line.channel, ...(line.converter && { converter: line.converter }), ...(line.valueChanges && { valueChanges: line.valueChanges }), ...(line.value && { value: line.value }) });
                 });
-
 
             // Prefill formGroup
             formControls.forEach((config, key) => {

@@ -16,6 +16,7 @@
 <ng-template #contentTpl>
     <ng-container *ngFor="let line of props?.lines">
         <ng-container [ngSwitch]="line.type">
+
             <!-- OeFormlyField.ChannelLine -->
             <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
                 [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
