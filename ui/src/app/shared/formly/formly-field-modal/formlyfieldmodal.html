@@ -16,12 +16,12 @@
 <ng-template #contentTpl>
     <ng-container *ngFor="let line of props?.lines">
         <ng-container [ngSwitch]="line.type">
-
             <!-- OeFormlyField.ChannelLine -->
             <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
                 [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
             </oe-modal-line>
 
+            <!-- OeFormlyField.NameLine -->
             <oe-modal-line *ngSwitchCase="'name-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
                 [name]="line.name">
             </oe-modal-line>
@@ -30,6 +30,7 @@
             <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
                 [textIndent]="line.indentation ?? '0%'" [name]="line.name">
                 <ng-container *ngFor="let lineItem of line.children">
+
                     <!-- OeFormlyField.Item -->
                     <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
                         [converter]="lineItem.converter">
@@ -48,6 +49,13 @@
             <ng-container *ngSwitchCase="'buttons-from-channel-line'">
                 <oe-modal-buttons *ngIf="formGroup" [formGroup]="formGroup" [controlName]="line.controlName"
                     [component]="props.component" [buttons]="line.buttons" [channelAddress]="line.channel">
+                </oe-modal-buttons>
+            </ng-container>
+
+            <!-- OeFormlyField.ButtonsFromValueLine -->
+            <ng-container *ngSwitchCase="'buttons-from-value-line'">
+                <oe-modal-buttons *ngIf="formGroup" [formGroup]="formGroup" [controlName]="line.controlName"
+                    [component]="props.component" [buttons]="line.buttons" [value]="line.value">
                 </oe-modal-buttons>
             </ng-container>
         </ng-container>

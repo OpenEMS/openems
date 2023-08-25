@@ -32,20 +32,16 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
             let channels: ChannelAddress[] = [];
-            let formControls: Map<string, { channel: string, converter?: Function, valueChanges?: (formGroup: FormGroup, controlValue: number | string | null) => FormGroup }> = new Map();
+            let formControls: Map<string, { channel: string, converter?: Function, value?: any, valueChanges?: (formGroup: FormGroup, controlValue: number | string | null) => FormGroup }> = new Map();
 
             this.props.lines
                 .forEach(line => {
-                    if (line.controlName) {
+                    if (line.channel) {
                         channels.push(ChannelAddress.fromString(line.channel));
-                        formControls.set(line.controlName, { channel: line.channel, ...(line.converter && { converter: line.converter }), ...(line.valueChanges && { valueChanges: line.valueChanges }) });
                     }
+                    formControls.set(line.controlName, { channel: line.channel, ...(line.converter && { converter: line.converter }), ...(line.valueChanges && { valueChanges: line.valueChanges }), ...(line.value && { value: line.value }) });
                 });
 
-
-            if (channels.length === 0) {
-                return;
-            }
 
             // Prefill formGroup
             formControls.forEach((config, key) => {
@@ -56,34 +52,45 @@ export class FormlyFieldModalComponent extends FieldWrapper implements OnInit, O
                         this.formGroup = config.valueChanges(this.formGroup, value);
                     });
                 }
+
+                // If value provided
+                if (config.value) {
+                    this.formGroup.controls[key].setValue(config.value);
+                }
             });
+
+            if (channels.length === 0) {
+                return;
+            }
 
             this.dataService.getValues(channels, edge, this.props.component.id);
-            this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy), filter(currentData => !!currentData)).subscribe(currentData => {
-                formControls.forEach((control, key) => {
+            this.dataService.currentValue //
+                .pipe(takeUntil(this.stopOnDestroy), filter(currentData => !!currentData)) //
+                .subscribe(currentData => {
+                    formControls.forEach((control, key) => {
 
-                    // If value for channel equals null or undefined, skip wrong value
-                    if (currentData.allComponents[control.channel] === null || currentData.allComponents[control.channel] === undefined) {
-                        return;
-                    }
+                        // If value for channel equals null or undefined, skip wrong value
+                        if (currentData.allComponents[control.channel] === null || currentData.allComponents[control.channel] === undefined) {
+                            return;
+                        }
 
-                    // If formGroup is dirty, stop overwriting
-                    if (this.formGroup.controls[key]?.dirty) {
-                        return;
-                    }
+                        // If formGroup is dirty, stop overwriting
+                        if (this.formGroup.controls[key]?.dirty) {
+                            return;
+                        }
 
-                    let value: number | string | null;
-                    if (control.converter != null) {
-                        let channel = currentData.allComponents[control.channel];
-                        value = control.converter(channel);
-                    } else {
-                        value = currentData.allComponents[control.channel];
-                    }
+                        let value: number | string | null;
+                        if (control.converter != null) {
+                            let channel = currentData.allComponents[control.channel];
+                            value = control.converter(channel);
+                        } else {
+                            value = currentData.allComponents[control.channel];
+                        }
 
-                    this.formGroup.controls[key].setValue(value);
-                    this.formGroup.controls[key].markAsPristine();
+                        this.formGroup.controls[key].setValue(value);
+                        this.formGroup.controls[key].markAsPristine();
+                    });
                 });
-            });
         });
     }
 
