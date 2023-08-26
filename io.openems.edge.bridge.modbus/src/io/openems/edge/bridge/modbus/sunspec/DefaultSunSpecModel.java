@@ -93,7 +93,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_120(//
 			"Nameplate", //
 			"Inverter Controls Nameplate Ratings", //
-			"Ref 3: 8.14.3.2, Ref 4: 17", //
+			"", //
 			26, //
 			DefaultSunSpecModel.S120.values(), //
 			SunSpecModelType.INVERTER //
@@ -101,7 +101,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_121(//
 			"Basic Settings", //
 			"Inverter Controls Basic Settings", //
-			"Ref 3: 8.4.2.1, Ref 4: 17", //
+			"", //
 			30, //
 			DefaultSunSpecModel.S121.values(), //
 			SunSpecModelType.INVERTER //
@@ -109,7 +109,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_122(//
 			"Measurements_Status", //
 			"Inverter Controls Extended Measurements and Status", //
-			"Ref 3: 8.14.3.2, Ref 4: 17", //
+			"", //
 			44, //
 			DefaultSunSpecModel.S122.values(), //
 			SunSpecModelType.INVERTER //
@@ -117,7 +117,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_123(//
 			"Immediate Controls", //
 			"Immediate Inverter Controls", //
-			"Ref 3: 8.7.1.2, 8.7.2.2, 8.7.3.2", //
+			"", //
 			24, //
 			DefaultSunSpecModel.S123.values(), //
 			SunSpecModelType.INVERTER //
@@ -125,7 +125,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_124(//
 			"Storage", //
 			"Basic Storage Controls", //
-			"Ref 3: 8.7.4.2", //
+			"", //
 			24, //
 			DefaultSunSpecModel.S124.values(), //
 			SunSpecModelType.INVERTER //
@@ -133,7 +133,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_125(//
 			"Pricing", //
 			"Pricing Signal", //
-			"Ref 3: 8.7.5.1; Ref 4: 6", //
+			"", //
 			8, //
 			DefaultSunSpecModel.S125.values(), //
 			SunSpecModelType.INVERTER //
@@ -141,7 +141,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_127(//
 			"Freq-Watt Param", //
 			"Parameterized Frequency-Watt", //
-			"Ref 3: 8.9.1.2, 8.9.4.2", //
+			"", //
 			10, //
 			DefaultSunSpecModel.S127.values(), //
 			SunSpecModelType.INVERTER //
@@ -149,7 +149,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	S_128(//
 			"Dynamic Reactive Current", //
 			"Dynamic Reactive Current", //
-			"Ref 3: 8.10.1.2; Ref 4: 12", //
+			"", //
 			14, //
 			DefaultSunSpecModel.S128.values(), //
 			SunSpecModelType.INVERTER //
@@ -194,30 +194,6 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 			DefaultSunSpecModel.S204.values(), //
 			SunSpecModelType.METER //
 	), //
-	S_302(//
-			"Irradiance Model", //
-			"Include to support various irradiance measurements", //
-			"", //
-			5, //
-			DefaultSunSpecModel.S302.values(), //
-			SunSpecModelType.ENVIRONMENTAL //
-	), //
-	S_303(//
-			"Back of Module Temperature Model", //
-			"Include to support variable number of  back of module temperature measurements", //
-			"", //
-			2, //
-			DefaultSunSpecModel.S303.values(), //
-			SunSpecModelType.ENVIRONMENTAL //
-	), //
-	S_304(//
-			"Inclinometer Model", //
-			"Include to support orientation measurements", //
-			"", //
-			6, //
-			DefaultSunSpecModel.S304.values(), //
-			SunSpecModelType.ENVIRONMENTAL //
-	), //
 	S_305(//
 			"GPS", //
 			"Include to support location measurements", //
@@ -236,8 +212,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	), //
 	S_307(//
 			"Base Met", //
-			"Base Meteorolgical Model", //
-			"This model supersedes model 301", //
+			"Base Meteorological Model", //
+			"", //
 			11, //
 			DefaultSunSpecModel.S307.values(), //
 			SunSpecModelType.ENVIRONMENTAL //
@@ -249,6 +225,126 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 			4, //
 			DefaultSunSpecModel.S308.values(), //
 			SunSpecModelType.ENVIRONMENTAL //
+	), //
+	S_701(//
+			"DER AC Measurement", //
+			"DER AC measurement model.", //
+			"", //
+			153, //
+			DefaultSunSpecModel.S701.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_702(//
+			"DER Capacity", //
+			"DER capacity model.", //
+			"", //
+			50, //
+			DefaultSunSpecModel.S702.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_703(//
+			"Enter Service", //
+			"Enter service model.", //
+			"", //
+			17, //
+			DefaultSunSpecModel.S703.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_704(//
+			"DER AC Controls", //
+			"DER AC controls model.", //
+			"", //
+			57, //
+			DefaultSunSpecModel.S704.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_705(//
+			"DER Volt-Var", //
+			"DER Volt-Var model.", //
+			"", //
+			13, //
+			DefaultSunSpecModel.S705.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_706(//
+			"DER Volt-Watt", //
+			"DER Volt-Watt model.", //
+			"", //
+			13, //
+			DefaultSunSpecModel.S706.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_707(//
+			"DER Trip LV", //
+			"DER low voltage trip model.", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S707.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_708(//
+			"DER Trip HV", //
+			"DER high voltage trip model.", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S708.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_709(//
+			"DER Trip LF", //
+			"DER low frequency trip model.", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S709.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_710(//
+			"DER Trip HF", //
+			"DER high frequency trip model.", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S710.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_711(//
+			"DER Frequency Droop", //
+			"DER Frequency Droop model.", //
+			"", //
+			12, //
+			DefaultSunSpecModel.S711.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_712(//
+			"DER Watt-Var", //
+			"DER Watt-Var model.", //
+			"", //
+			12, //
+			DefaultSunSpecModel.S712.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_713(//
+			"DER Storage Capacity", //
+			"DER storage capacity.", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S713.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_714(//
+			"DER DC Measurement", //
+			"DER DC measurement.", //
+			"", //
+			18, //
+			DefaultSunSpecModel.S714.values(), //
+			SunSpecModelType.RESERVED_1 //
+	), //
+	S_715(//
+			"DERCtl", //
+			"DER Control", //
+			"", //
+			7, //
+			DefaultSunSpecModel.S715.values(), //
+			SunSpecModelType.RESERVED_1 //
 	), //
 	S_801(//
 			"Energy Storage Base Model (DEPRECATED)", //
@@ -377,7 +473,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		PAD(new PointImpl(//
 				"S1_PAD", //
 				"", //
-				"", //
+				"Force even alignment", //
 				"", //
 				PointType.PAD, //
 				false, //
@@ -875,7 +971,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S101_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -917,8 +1013,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S101_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -928,8 +1024,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S101_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -939,8 +1035,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S101_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -1429,7 +1525,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S102_A", //
 				"Amps", //
 				"AC Current", //
-				"Sum of active phases", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -1440,7 +1536,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S102_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -1451,7 +1547,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S102_APH_B", //
 				"Amps PhaseB", //
 				"Phase B Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -1482,8 +1578,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S102_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -1493,8 +1589,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S102_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -1504,8 +1600,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S102_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -1994,7 +2090,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S103_A", //
 				"Amps", //
 				"AC Current", //
-				"Sum of active phases", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -2005,7 +2101,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S103_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -2016,7 +2112,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S103_APH_B", //
 				"Amps PhaseB", //
 				"Phase B Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -2027,7 +2123,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S103_APH_C", //
 				"Amps PhaseC", //
 				"Phase C Current", //
-				"Connected Phase", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -2047,8 +2143,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S103_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -2058,8 +2154,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S103_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -2069,8 +2165,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S103_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -2570,7 +2666,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S111_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -2601,8 +2697,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S111_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -2612,8 +2708,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S111_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -2623,8 +2719,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S111_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3003,7 +3099,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S112_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3014,7 +3110,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S112_APH_B", //
 				"Amps PhaseB", //
 				"Phase B Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3034,8 +3130,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S112_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3045,8 +3141,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S112_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3056,8 +3152,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S112_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3425,7 +3521,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S113_A", //
 				"Amps", //
 				"AC Current", //
-				"Sum of active phases", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3436,7 +3532,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S113_APH_A", //
 				"Amps PhaseA", //
 				"Phase A Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3447,7 +3543,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S113_APH_B", //
 				"Amps PhaseB", //
 				"Phase B Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3458,7 +3554,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S113_APH_C", //
 				"Amps PhaseC", //
 				"Phase C Current", //
-				"Connected Phase", //
+				"", //
 				PointType.FLOAT32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3467,8 +3563,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S113_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3478,8 +3574,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S113_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3489,8 +3585,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S113_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.FLOAT32, //
 				false, //
@@ -3968,7 +4064,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S120_A_RTG", //
 				"ARtg", //
 				"Maximum RMS AC current level capability of the inverter.", //
-				"Sum of all connected phases.  Current rating under nominal voltage under nominal power factor.", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -3990,7 +4086,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S120_P_F_RTG_Q1", //
 				"PFRtgQ1", //
 				"Minimum power factor capability of the inverter in quadrant 1.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -4001,7 +4097,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S120_P_F_RTG_Q2", //
 				"PFRtgQ2", //
 				"Minimum power factor capability of the inverter in quadrant 2.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -4012,7 +4108,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S120_P_F_RTG_Q3", //
 				"PFRtgQ3", //
 				"Minimum power factor capability of the inverter in quadrant 3.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -4023,7 +4119,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S120_P_F_RTG_Q4", //
 				"PFRtgQ4", //
 				"Minimum power factor capability of the inverter in quadrant 4.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -4131,8 +4227,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PAD(new PointImpl(//
 				"S120_PAD", //
-				"", //
-				"", //
+				"Pad", //
+				"Pad register.", //
 				"", //
 				PointType.PAD, //
 				false, //
@@ -4308,7 +4404,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S121_P_F_MIN_Q1", //
 				"PFMinQ1", //
 				"Setpoint for minimum power factor value in quadrant 1. Default to PFRtgQ1.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
@@ -4319,7 +4415,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S121_P_F_MIN_Q2", //
 				"PFMinQ2", //
 				"Setpoint for minimum power factor value in quadrant 2. Default to PFRtgQ2.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
@@ -4330,7 +4426,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S121_P_F_MIN_Q3", //
 				"PFMinQ3", //
 				"Setpoint for minimum power factor value in quadrant 3. Default to PFRtgQ3.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
@@ -4341,7 +4437,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S121_P_F_MIN_Q4", //
 				"PFMinQ4", //
 				"Setpoint for minimum power factor value in quadrant 4. Default to PFRtgQ4.", //
-				"EEI sign convention.", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_WRITE, //
@@ -4762,7 +4858,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S122_ST_SET_LIM_MSK", //
 				"StSetLimMsk", //
 				"Bit Mask indicating setpoint limit(s) reached.", //
-				"Bits shall be automatically cleared on read.", //
+				"", //
 				PointType.BITFIELD32, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -5847,7 +5943,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		MOD_ENA(new PointImpl(//
 				"S125_MOD_ENA", //
 				"ModEna", //
-				"Is price-based charge/dischage mode active?", //
+				"Is price-based charge/discharge mode active?", //
 				"", //
 				PointType.BITFIELD16, //
 				true, //
@@ -6042,7 +6138,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		HYS_ENA(new PointImpl(//
 				"S127_HYS_ENA", //
 				"HysEna", //
-				"Enable hysterisis", //
+				"Enable hysteresis", //
 				"", //
 				PointType.BITFIELD16, //
 				true, //
@@ -6572,7 +6668,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S201_PH_V", //
 				"Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
-				"Conditional AN connection", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -6583,7 +6679,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S201_PH_VPH_A", //
 				"Phase Voltage AN", //
 				"Phase Voltage AN", //
-				"Conditional AN connection", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -6625,8 +6721,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_A_B(new PointImpl(//
 				"S201_P_P_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.INT16, //
 				false, //
@@ -6636,8 +6732,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_B_C(new PointImpl(//
 				"S201_P_P_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.INT16, //
 				false, //
@@ -6647,8 +6743,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		P_P_VPH_C_A(new PointImpl(//
 				"S201_P_P_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.INT16, //
 				false, //
@@ -7142,7 +7238,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
 				"S201_TOT_V_ARH_IMP_Q1_PH_C", //
-				"Total VAr-hourse Imported Q1 phase C", //
+				"Total VAr-hours Imported Q1 phase C", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -7263,7 +7359,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
 				"S201_TOT_V_ARH_EXP_Q4_PH_B", //
-				"", //
+				"Total VAr-hours Exported Q4 Imported phase B", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -7479,8 +7575,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
 				"S202_PH_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -7490,8 +7586,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
 				"S202_PH_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.INT16, //
 				false, //
@@ -7501,8 +7597,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
 				"S202_PH_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.INT16, //
 				false, //
@@ -7996,7 +8092,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
 				"S202_TOT_V_ARH_IMP_Q1_PH_C", //
-				"Total VAr-hourse Imported Q1 phase C", //
+				"Total VAr-hours Imported Q1 phase C", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -8341,8 +8437,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
 				"S203_PH_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -8352,8 +8448,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
 				"S203_PH_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -8363,8 +8459,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
 				"S203_PH_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -8858,7 +8954,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
 				"S203_TOT_V_ARH_IMP_Q1_PH_C", //
-				"Total VAr-hourse Imported Q1 phase C", //
+				"Total VAr-hours Imported Q1 phase C", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -8979,7 +9075,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
 				"S203_TOT_V_ARH_EXP_Q4_PH_B", //
-				"", //
+				"Total VAr-hours Exported Q4 Imported phase B", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -9203,8 +9299,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_A_B(new PointImpl(//
 				"S204_PH_VPH_A_B", //
-				"", //
-				"", //
+				"Phase Voltage AB", //
+				"Phase Voltage AB", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -9214,8 +9310,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_B_C(new PointImpl(//
 				"S204_PH_VPH_B_C", //
-				"", //
-				"", //
+				"Phase Voltage BC", //
+				"Phase Voltage BC", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -9225,8 +9321,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		PH_VPH_C_A(new PointImpl(//
 				"S204_PH_VPH_C_A", //
-				"", //
-				"", //
+				"Phase Voltage CA", //
+				"Phase Voltage CA", //
 				"", //
 				PointType.INT16, //
 				true, //
@@ -9720,7 +9816,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_IMP_Q1_PH_C(new PointImpl(//
 				"S204_TOT_V_ARH_IMP_Q1_PH_C", //
-				"Total VAr-hourse Imported Q1 phase C", //
+				"Total VAr-hours Imported Q1 phase C", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -9841,7 +9937,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TOT_V_ARH_EXP_Q4_PH_B(new PointImpl(//
 				"S204_TOT_V_ARH_EXP_Q4_PH_B", //
-				"", //
+				"Total VAr-hours Exported Q4 Imported phase B", //
 				"", //
 				"", //
 				PointType.ACC32, //
@@ -9952,147 +10048,6 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		}
 	}
 
-	public static enum S302 implements SunSpecPoint {
-		GHI(new PointImpl(//
-				"S302_GHI", //
-				"GHI", //
-				"Global Horizontal Irradiance", //
-				"", //
-				PointType.UINT16, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		POAI(new PointImpl(//
-				"S302_POAI", //
-				"POAI", //
-				"Plane-of-Array Irradiance", //
-				"", //
-				PointType.UINT16, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		DFI(new PointImpl(//
-				"S302_DFI", //
-				"DFI", //
-				"Diffuse Irradiance", //
-				"", //
-				PointType.UINT16, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		DNI(new PointImpl(//
-				"S302_DNI", //
-				"DNI", //
-				"Direct Normal Irradiance", //
-				"", //
-				PointType.UINT16, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])), //
-		OTI(new PointImpl(//
-				"S302_OTI", //
-				"OTI", //
-				"Other Irradiance", //
-				"", //
-				PointType.UINT16, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				null, //
-				new OptionsEnum[0])); //
-
-		protected final PointImpl impl;
-
-		private S302(PointImpl impl) {
-			this.impl = impl;
-		}
-
-		@Override
-		public PointImpl get() {
-			return this.impl;
-		}
-	}
-
-	public static enum S303 implements SunSpecPoint {
-		TMP_B_O_M(new PointImpl(//
-				"S303_TMP_B_O_M", //
-				"Temp", //
-				"Back of module temperature measurement", //
-				"", //
-				PointType.INT16, //
-				true, //
-				AccessMode.READ_ONLY, //
-				Unit.DEGREE_CELSIUS, //
-				"-1", //
-				new OptionsEnum[0])); //
-
-		protected final PointImpl impl;
-
-		private S303(PointImpl impl) {
-			this.impl = impl;
-		}
-
-		@Override
-		public PointImpl get() {
-			return this.impl;
-		}
-	}
-
-	public static enum S304 implements SunSpecPoint {
-		INCLX(new PointImpl(//
-				"S304_INCLX", //
-				"X", //
-				"X-Axis inclination", //
-				"", //
-				PointType.INT32, //
-				true, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				"-2", //
-				new OptionsEnum[0])), //
-		INCLY(new PointImpl(//
-				"S304_INCLY", //
-				"Y", //
-				"Y-Axis inclination", //
-				"", //
-				PointType.INT32, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				"-2", //
-				new OptionsEnum[0])), //
-		INCLZ(new PointImpl(//
-				"S304_INCLZ", //
-				"Z", //
-				"Z-Axis inclination", //
-				"", //
-				PointType.INT32, //
-				false, //
-				AccessMode.READ_ONLY, //
-				Unit.NONE, //
-				"-2", //
-				new OptionsEnum[0])); //
-
-		protected final PointImpl impl;
-
-		private S304(PointImpl impl) {
-			this.impl = impl;
-		}
-
-		@Override
-		public PointImpl get() {
-			return this.impl;
-		}
-	}
-
 	public static enum S305 implements SunSpecPoint {
 		TM(new PointImpl(//
 				"S305_TM", //
@@ -10177,7 +10132,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		GHI(new PointImpl(//
 				"S306_GHI", //
 				"GHI", //
-				"Global Horizontal Irrandiance", //
+				"Global Horizontal Irradiance", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -10424,6 +10379,4573 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		}
 	}
 
+	public static enum S701 implements SunSpecPoint {
+		A_C_TYPE(new PointImpl(//
+				"S701_A_C_TYPE", //
+				"AC Wiring Type", //
+				"AC wiring type.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_ACType.values())), //
+		ST(new PointImpl(//
+				"S701_ST", //
+				"Operating State", //
+				"Operating state of the DER.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_St.values())), //
+		INV_ST(new PointImpl(//
+				"S701_INV_ST", //
+				"Inverter State", //
+				"Enumerated value.  Inverter state.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_InvSt.values())), //
+		CONN_ST(new PointImpl(//
+				"S701_CONN_ST", //
+				"Grid Connection State", //
+				"Grid connection state of the DER.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_ConnSt.values())), //
+		ALRM(new PointImpl(//
+				"S701_ALRM", //
+				"Alarm Bitfield", //
+				"Active alarms for the DER.", //
+				"", //
+				PointType.BITFIELD32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_Alrm.values())), //
+		D_E_R_MODE(new PointImpl(//
+				"S701_D_E_R_MODE", //
+				"DER Operational Characteristics", //
+				"Current operational characteristics of the DER.", //
+				"", //
+				PointType.BITFIELD32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_DERMode.values())), //
+		W(new PointImpl(//
+				"S701_W", //
+				"Active Power", //
+				"Total active power. Active power is positive for DER generation and negative for absorption.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		VA(new PointImpl(//
+				"S701_VA", //
+				"Apparent Power", //
+				"Total apparent power.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR(new PointImpl(//
+				"S701_VAR", //
+				"Reactive Power", //
+				"Total reactive power.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		PF(new PointImpl(//
+				"S701_PF", //
+				"Power Factor", //
+				"Power factor. The sign of power factor should be the sign of active power.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		A(new PointImpl(//
+				"S701_A", //
+				"Total AC Current", //
+				"Total AC current.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		LLV(new PointImpl(//
+				"S701_LLV", //
+				"Voltage LL", //
+				"Line to line AC voltage as an average of active phases.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		LNV(new PointImpl(//
+				"S701_LNV", //
+				"Voltage LN", //
+				"Line to neutral AC voltage as an average of active phases.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		HZ(new PointImpl(//
+				"S701_HZ", //
+				"Frequency", //
+				"AC frequency.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.HERTZ, //
+				"Hz_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_INJ(new PointImpl(//
+				"S701_TOT_WH_INJ", //
+				"Total Energy Injected", //
+				"Total active energy injected (Quadrants 1 & 4).", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_ABS(new PointImpl(//
+				"S701_TOT_WH_ABS", //
+				"Total Energy Absorbed", //
+				"Total active energy absorbed (Quadrants 2 & 3).", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_INJ(new PointImpl(//
+				"S701_TOT_VARH_INJ", //
+				"Total Reactive Energy Inj", //
+				"Total reactive energy injected (Quadrants 1 & 2).", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_ABS(new PointImpl(//
+				"S701_TOT_VARH_ABS", //
+				"Total Reactive Energy Abs", //
+				"Total reactive energy absorbed (Quadrants 3 & 4).", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		TMP_AMB(new PointImpl(//
+				"S701_TMP_AMB", //
+				"Ambient Temperature", //
+				"Ambient temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		TMP_CAB(new PointImpl(//
+				"S701_TMP_CAB", //
+				"Cabinet Temperature", //
+				"Cabinet temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		TMP_SNK(new PointImpl(//
+				"S701_TMP_SNK", //
+				"Heat Sink Temperature", //
+				"Heat sink temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		TMP_TRNS(new PointImpl(//
+				"S701_TMP_TRNS", //
+				"Transformer Temperature", //
+				"Transformer temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		TMP_SW(new PointImpl(//
+				"S701_TMP_SW", //
+				"IGBT/MOSFET Temperature", //
+				"IGBT/MOSFET temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		TMP_OT(new PointImpl(//
+				"S701_TMP_OT", //
+				"Other Temperature", //
+				"Other temperature.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.DEGREE_CELSIUS, //
+				"Tmp_SF", //
+				new OptionsEnum[0])), //
+		WL1(new PointImpl(//
+				"S701_WL1", //
+				"Watts L1", //
+				"Active power L1.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		VAL1(new PointImpl(//
+				"S701_VAL1", //
+				"VA L1", //
+				"Apparent power L1.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR_L1(new PointImpl(//
+				"S701_VAR_L1", //
+				"Var L1", //
+				"Reactive power L1.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		PFL1(new PointImpl(//
+				"S701_PFL1", //
+				"PF L1", //
+				"Power factor phase L1.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		AL1(new PointImpl(//
+				"S701_AL1", //
+				"Amps L1", //
+				"Current phase L1.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		VL1L2(new PointImpl(//
+				"S701_VL1L2", //
+				"Phase Voltage L1-L2", //
+				"Phase voltage L1-L2.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		VL1(new PointImpl(//
+				"S701_VL1", //
+				"Phase Voltage L1-N", //
+				"Phase voltage L1-N.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_INJ_L1(new PointImpl(//
+				"S701_TOT_WH_INJ_L1", //
+				"Total Watt-Hours Inj L1", //
+				"Total active energy injected L1.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_ABS_L1(new PointImpl(//
+				"S701_TOT_WH_ABS_L1", //
+				"Total Watt-Hours Abs L1", //
+				"Total active energy absorbed L1.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_INJ_L1(new PointImpl(//
+				"S701_TOT_VARH_INJ_L1", //
+				"Total Var-Hours Inj L1", //
+				"Total reactive energy injected L1.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_ABS_L1(new PointImpl(//
+				"S701_TOT_VARH_ABS_L1", //
+				"Total Var-Hours Abs L1", //
+				"Total reactive energy absorbed L1.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		WL2(new PointImpl(//
+				"S701_WL2", //
+				"Watts L2", //
+				"Active power L2.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		VAL2(new PointImpl(//
+				"S701_VAL2", //
+				"VA L2", //
+				"Apparent power L2.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR_L2(new PointImpl(//
+				"S701_VAR_L2", //
+				"Var L2", //
+				"Reactive power L2.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		PFL2(new PointImpl(//
+				"S701_PFL2", //
+				"PF L2", //
+				"Power factor L2.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		AL2(new PointImpl(//
+				"S701_AL2", //
+				"Amps L2", //
+				"Current L2.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		VL2L3(new PointImpl(//
+				"S701_VL2L3", //
+				"Phase Voltage L2-L3", //
+				"Phase voltage L2-L3.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		VL2(new PointImpl(//
+				"S701_VL2", //
+				"Phase Voltage L2-N", //
+				"Phase voltage L2-N.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_INJ_L2(new PointImpl(//
+				"S701_TOT_WH_INJ_L2", //
+				"Total Watt-Hours Inj L2", //
+				"Total active energy injected L2.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_ABS_L2(new PointImpl(//
+				"S701_TOT_WH_ABS_L2", //
+				"Total Watt-Hours Abs L2", //
+				"Total active energy absorbed L2.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_INJ_L2(new PointImpl(//
+				"S701_TOT_VARH_INJ_L2", //
+				"Total Var-Hours Inj L2", //
+				"Total reactive energy injected L2.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_ABS_L2(new PointImpl(//
+				"S701_TOT_VARH_ABS_L2", //
+				"Total Var-Hours Abs L2", //
+				"Total reactive energy absorbed L2.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		WL3(new PointImpl(//
+				"S701_WL3", //
+				"Watts L3", //
+				"Active power L3.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		VAL3(new PointImpl(//
+				"S701_VAL3", //
+				"VA L3", //
+				"Apparent power L3.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR_L3(new PointImpl(//
+				"S701_VAR_L3", //
+				"Var L3", //
+				"Reactive power L3.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		PFL3(new PointImpl(//
+				"S701_PFL3", //
+				"PF L3", //
+				"Power factor L3.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		AL3(new PointImpl(//
+				"S701_AL3", //
+				"Amps L3", //
+				"Current L3.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		VL3L1(new PointImpl(//
+				"S701_VL3L1", //
+				"Phase Voltage L3-L1", //
+				"Phase voltage L3-L1.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		VL3(new PointImpl(//
+				"S701_VL3", //
+				"Phase Voltage L3-N", //
+				"Phase voltage L3-N.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_INJ_L3(new PointImpl(//
+				"S701_TOT_WH_INJ_L3", //
+				"Total Watt-Hours Inj L3", //
+				"Total active energy injected L3.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_WH_ABS_L3(new PointImpl(//
+				"S701_TOT_WH_ABS_L3", //
+				"Total Watt-Hours Abs L3", //
+				"Total active energy absorbed L3.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"TotWh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_INJ_L3(new PointImpl(//
+				"S701_TOT_VARH_INJ_L3", //
+				"Total Var-Hours Inj L3", //
+				"Total reactive energy injected L3.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		TOT_VARH_ABS_L3(new PointImpl(//
+				"S701_TOT_VARH_ABS_L3", //
+				"Total Var-Hours Abs L3", //
+				"Total reactive energy absorbed L3.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE_HOURS, //
+				"TotVarh_SF", //
+				new OptionsEnum[0])), //
+		THROT_PCT(new PointImpl(//
+				"S701_THROT_PCT", //
+				"Throttling In Pct", //
+				"Throttling in pct of maximum active power.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		THROT_SRC(new PointImpl(//
+				"S701_THROT_SRC", //
+				"Throttle Source Information", //
+				"Active throttling source.", //
+				"", //
+				PointType.BITFIELD32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S701_ThrotSrc.values())), //
+		A_SF(new PointImpl(//
+				"S701_A_SF", //
+				"Current Scale Factor", //
+				"Current scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S701_V_SF", //
+				"Voltage Scale Factor", //
+				"Voltage scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		HZ_S_F(new PointImpl(//
+				"S701_HZ_S_F", //
+				"Frequency Scale Factor", //
+				"Frequency scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SF(new PointImpl(//
+				"S701_W_SF", //
+				"Active Power Scale Factor", //
+				"Active power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		PF_SF(new PointImpl(//
+				"S701_PF_SF", //
+				"Power Factor Scale Factor", //
+				"Power factor scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VA_SF(new PointImpl(//
+				"S701_VA_SF", //
+				"Apparent Power Scale Factor", //
+				"Apparent power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_S_F(new PointImpl(//
+				"S701_VAR_S_F", //
+				"Reactive Power Scale Factor", //
+				"Reactive power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TOT_WH_S_F(new PointImpl(//
+				"S701_TOT_WH_S_F", //
+				"Active Energy Scale Factor", //
+				"Active energy scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TOT_VARH_S_F(new PointImpl(//
+				"S701_TOT_VARH_S_F", //
+				"Reactive Energy Scale Factor", //
+				"Reactive energy scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMP_S_F(new PointImpl(//
+				"S701_TMP_S_F", //
+				"Temperature Scale Factor", //
+				"Temperature scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		MN_ALRM_INFO(new PointImpl(//
+				"S701_MN_ALRM_INFO", //
+				"Manufacturer Alarm Info", //
+				"Manufacturer alarm information. Valid if MANUFACTURER_ALRM indication is active.", //
+				"", //
+				PointType.STRING32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S701(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S701_ACType implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		SINGLE_PHASE(0, "SINGLE_PHASE"), //
+		SPLIT_PHASE(1, "SPLIT_PHASE"), //
+		THREE_PHASE(2, "THREE_PHASE"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_ACType(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_St implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		OFF(0, "OFF"), //
+		ON(1, "ON"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_St(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_InvSt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		OFF(0, "OFF"), //
+		SLEEPING(1, "SLEEPING"), //
+		STARTING(2, "STARTING"), //
+		RUNNING(3, "RUNNING"), //
+		THROTTLED(4, "THROTTLED"), //
+		SHUTTING_DOWN(5, "SHUTTING_DOWN"), //
+		FAULT(6, "FAULT"), //
+		STANDBY(7, "STANDBY"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_InvSt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_ConnSt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISCONNECTED(0, "DISCONNECTED"), //
+		CONNECTED(1, "CONNECTED"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_ConnSt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_Alrm implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		GROUND_FAULT(0, "GROUND_FAULT"), //
+		DC_OVER_VOLT(1, "DC_OVER_VOLT"), //
+		AC_DISCONNECT(2, "AC_DISCONNECT"), //
+		DC_DISCONNECT(3, "DC_DISCONNECT"), //
+		GRID_DISCONNECT(4, "GRID_DISCONNECT"), //
+		CABINET_OPEN(5, "CABINET_OPEN"), //
+		MANUAL_SHUTDOWN(6, "MANUAL_SHUTDOWN"), //
+		OVER_TEMP(7, "OVER_TEMP"), //
+		OVER_FREQUENCY(8, "OVER_FREQUENCY"), //
+		UNDER_FREQUENCY(9, "UNDER_FREQUENCY"), //
+		AC_OVER_VOLT(10, "AC_OVER_VOLT"), //
+		AC_UNDER_VOLT(11, "AC_UNDER_VOLT"), //
+		BLOWN_STRING_FUSE(12, "BLOWN_STRING_FUSE"), //
+		UNDER_TEMP(13, "UNDER_TEMP"), //
+		MEMORY_LOSS(14, "MEMORY_LOSS"), //
+		HW_TEST_FAILURE(15, "HW_TEST_FAILURE"), //
+		MANUFACTURER_ALRM(16, "MANUFACTURER_ALRM"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_Alrm(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_DERMode implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		GRID_FOLLOWING(0, "GRID_FOLLOWING"), //
+		GRID_FORMING(1, "GRID_FORMING"), //
+		PV_CLIPPED(2, "PV_CLIPPED"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_DERMode(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S701_ThrotSrc implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		MAX_W(0, "MAX_W"), //
+		FIXED_W(1, "FIXED_W"), //
+		FIXED_VAR(2, "FIXED_VAR"), //
+		FIXED_PF(3, "FIXED_PF"), //
+		VOLT_VAR(4, "VOLT_VAR"), //
+		FREQ_WATT(5, "FREQ_WATT"), //
+		DYN_REACT_CURR(6, "DYN_REACT_CURR"), //
+		LVRT(7, "LVRT"), //
+		HVRT(8, "HVRT"), //
+		WATT_VAR(9, "WATT_VAR"), //
+		VOLT_WATT(10, "VOLT_WATT"), //
+		SCHEDULED(11, "SCHEDULED"), //
+		LFRT(12, "LFRT"), //
+		HFRT(13, "HFRT"), //
+		DERATED(14, "DERATED"); //
+
+		private final int value;
+		private final String name;
+
+		private S701_ThrotSrc(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S702 implements SunSpecPoint {
+		W_MAX_RTG(new PointImpl(//
+				"S702_W_MAX_RTG", //
+				"Active Power Max Rating", //
+				"Maximum active power rating at unity power factor in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_OVR_EXT_RTG(new PointImpl(//
+				"S702_W_OVR_EXT_RTG", //
+				"Active Power (Over-Excited) Rating", //
+				"Active power rating at specified over-excited power factor in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_OVR_EXT_RTG_P_F(new PointImpl(//
+				"S702_W_OVR_EXT_RTG_P_F", //
+				"Specified Over-Excited PF", //
+				"Specified over-excited power factor.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		W_UND_EXT_RTG(new PointImpl(//
+				"S702_W_UND_EXT_RTG", //
+				"Active Power (Under-Excited) Rating", //
+				"Active power rating at specified under-excited power factor in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_UND_EXT_RTG_P_F(new PointImpl(//
+				"S702_W_UND_EXT_RTG_P_F", //
+				"Specified Under-Excited PF", //
+				"Specified under-excited power factor.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		V_A_MAX_RTG(new PointImpl(//
+				"S702_V_A_MAX_RTG", //
+				"Apparent Power Max Rating", //
+				"Maximum apparent power rating in voltamperes.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR_MAX_INJ_RTG(new PointImpl(//
+				"S702_VAR_MAX_INJ_RTG", //
+				"Reactive Power Injected Rating", //
+				"Maximum injected reactive power rating in vars.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		VAR_MAX_ABS_RTG(new PointImpl(//
+				"S702_VAR_MAX_ABS_RTG", //
+				"Reactive Power Absorbed Rating", //
+				"Maximum absorbed reactive power rating in vars.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		W_CHA_RTE_MAX_RTG(new PointImpl(//
+				"S702_W_CHA_RTE_MAX_RTG", //
+				"Charge Rate Max Rating", //
+				"Maximum active power charge rate in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_DIS_CHA_RTE_MAX_RTG(new PointImpl(//
+				"S702_W_DIS_CHA_RTE_MAX_RTG", //
+				"Discharge Rate Max Rating", //
+				"Maximum active power discharge rate in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		V_A_CHA_RTE_MAX_RTG(new PointImpl(//
+				"S702_V_A_CHA_RTE_MAX_RTG", //
+				"Charge Rate Max VA Rating", //
+				"Maximum apparent power charge rate in voltamperes.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		V_A_DIS_CHA_RTE_MAX_RTG(new PointImpl(//
+				"S702_V_A_DIS_CHA_RTE_MAX_RTG", //
+				"Discharge Rate Max VA Rating", //
+				"Maximum apparent power discharge rate in voltamperes.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		V_NOM_RTG(new PointImpl(//
+				"S702_V_NOM_RTG", //
+				"AC Voltage Nominal Rating", //
+				"AC voltage nominal rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		V_MAX_RTG(new PointImpl(//
+				"S702_V_MAX_RTG", //
+				"AC Voltage Max Rating", //
+				"AC voltage maximum rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		V_MIN_RTG(new PointImpl(//
+				"S702_V_MIN_RTG", //
+				"AC Voltage Min Rating", //
+				"AC voltage minimum rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		A_MAX_RTG(new PointImpl(//
+				"S702_A_MAX_RTG", //
+				"AC Current Max Rating", //
+				"AC current maximum rating in amps.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		P_F_OVR_EXT_RTG(new PointImpl(//
+				"S702_P_F_OVR_EXT_RTG", //
+				"PF Over-Excited Rating", //
+				"Power factor over-excited rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		P_F_UND_EXT_RTG(new PointImpl(//
+				"S702_P_F_UND_EXT_RTG", //
+				"PF Under-Excited Rating", //
+				"Power factor under-excited rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		REACT_SUSCEPT_RTG(new PointImpl(//
+				"S702_REACT_SUSCEPT_RTG", //
+				"Reactive Susceptance", //
+				"Reactive susceptance that remains connected to the Area EPS in the cease to energize and trip state.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"S_SF", //
+				new OptionsEnum[0])), //
+		NOR_OP_CAT_RTG(new PointImpl(//
+				"S702_NOR_OP_CAT_RTG", //
+				"Normal Operating Category", //
+				"Normal operating performance category as specified in IEEE 1547-2018.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S702_NorOpCatRtg.values())), //
+		ABN_OP_CAT_RTG(new PointImpl(//
+				"S702_ABN_OP_CAT_RTG", //
+				"Abnormal Operating Category", //
+				"Abnormal operating performance category as specified in IEEE 1547-2018.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S702_AbnOpCatRtg.values())), //
+		CTRL_MODES(new PointImpl(//
+				"S702_CTRL_MODES", //
+				"Supported Control Modes", //
+				"Supported control mode functions.", //
+				"", //
+				PointType.BITFIELD32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S702_CtrlModes.values())), //
+		INT_ISLAND_CAT_RTG(new PointImpl(//
+				"S702_INT_ISLAND_CAT_RTG", //
+				"Intentional Island Categories", //
+				"Intentional island categories.", //
+				"", //
+				PointType.BITFIELD16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S702_IntIslandCatRtg.values())), //
+		W_MAX(new PointImpl(//
+				"S702_W_MAX", //
+				"Active Power Max Setting", //
+				"Maximum active power setting used to adjust maximum active power setting.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_MAX_OVR_EXT(new PointImpl(//
+				"S702_W_MAX_OVR_EXT", //
+				"Active Power (Over-Excited) Setting", //
+				"Active power setting at specified over-excited power factor in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_OVR_EXT_P_F(new PointImpl(//
+				"S702_W_OVR_EXT_P_F", //
+				"Specified Over-Excited PF", //
+				"Specified over-excited power factor.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		W_MAX_UND_EXT(new PointImpl(//
+				"S702_W_MAX_UND_EXT", //
+				"Active Power (Under-Excited) Setting", //
+				"Active power setting at specified under-excited power factor in watts.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_UND_EXT_P_F(new PointImpl(//
+				"S702_W_UND_EXT_P_F", //
+				"Specified Under-Excited PF", //
+				"Specified under-excited power factor.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		V_A_MAX(new PointImpl(//
+				"S702_V_A_MAX", //
+				"Apparent Power Max Setting", //
+				"Maximum apparent power setting used to adjust maximum apparent power rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		VAR_MAX_INJ(new PointImpl(//
+				"S702_VAR_MAX_INJ", //
+				"Reactive Power Injected Setting", //
+				"Maximum injected reactive power setting used to adjust maximum injected reactive power rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		VAR_MAX_ABS(new PointImpl(//
+				"S702_VAR_MAX_ABS", //
+				"Reactive Power Absorbed Setting", //
+				"Maximum absorbed reactive power setting used to adjust maximum absorbed reactive power rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"Var_SF", //
+				new OptionsEnum[0])), //
+		W_CHA_RTE_MAX(new PointImpl(//
+				"S702_W_CHA_RTE_MAX", //
+				"Charge Rate Max Setting", //
+				"Maximum active power charge rate setting used to adjust maximum active power charge rate rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		W_DIS_CHA_RTE_MAX(new PointImpl(//
+				"S702_W_DIS_CHA_RTE_MAX", //
+				"Discharge Rate Max Setting", //
+				"Maximum active power discharge rate setting used to adjust maximum active power discharge rate rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"W_SF", //
+				new OptionsEnum[0])), //
+		V_A_CHA_RTE_MAX(new PointImpl(//
+				"S702_V_A_CHA_RTE_MAX", //
+				"Charge Rate Max VA Setting", //
+				"Maximum apparent power charge rate setting used to adjust maximum apparent power charge rate rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		V_A_DIS_CHA_RTE_MAX(new PointImpl(//
+				"S702_V_A_DIS_CHA_RTE_MAX", //
+				"Discharge Rate Max VA Setting", //
+				"Maximum apparent power discharge rate setting used to adjust maximum apparent power discharge rate rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE, //
+				"VA_SF", //
+				new OptionsEnum[0])), //
+		V_NOM(new PointImpl(//
+				"S702_V_NOM", //
+				"Nominal AC Voltage Setting", //
+				"Nominal AC voltage setting.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		V_MAX(new PointImpl(//
+				"S702_V_MAX", //
+				"AC Voltage Max Setting", //
+				"AC voltage maximum setting used to adjust AC voltage maximum rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		V_MIN(new PointImpl(//
+				"S702_V_MIN", //
+				"AC Voltage Min Setting", //
+				"AC voltage minimum setting used to adjust AC voltage minimum rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		A_MAX(new PointImpl(//
+				"S702_A_MAX", //
+				"AC Current Max Setting", //
+				"Maximum AC current setting used to adjust maximum AC current rating.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.AMPERE, //
+				"A_SF", //
+				new OptionsEnum[0])), //
+		P_F_OVR_EXT(new PointImpl(//
+				"S702_P_F_OVR_EXT", //
+				"PF Over-Excited Setting", //
+				"Power factor over-excited setting.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		P_F_UND_EXT(new PointImpl(//
+				"S702_P_F_UND_EXT", //
+				"PF Under-Excited Setting", //
+				"Power factor under-excited setting.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"PF_SF", //
+				new OptionsEnum[0])), //
+		INT_ISLAND_CAT(new PointImpl(//
+				"S702_INT_ISLAND_CAT", //
+				"Intentional Island Categories", //
+				"Intentional island categories.", //
+				"", //
+				PointType.BITFIELD16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S702_IntIslandCat.values())), //
+		W_SF(new PointImpl(//
+				"S702_W_SF", //
+				"Active Power Scale Factor", //
+				"Active power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		PF_SF(new PointImpl(//
+				"S702_PF_SF", //
+				"Power Factor Scale Factor", //
+				"Power factor scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VA_SF(new PointImpl(//
+				"S702_VA_SF", //
+				"Apparent Power Scale Factor", //
+				"Apparent power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_S_F(new PointImpl(//
+				"S702_VAR_S_F", //
+				"Reactive Power Scale Factor", //
+				"Reactive power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S702_V_SF", //
+				"Voltage Scale Factor", //
+				"Voltage scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		A_SF(new PointImpl(//
+				"S702_A_SF", //
+				"Current Scale Factor", //
+				"Current scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		S_SF(new PointImpl(//
+				"S702_S_SF", //
+				"Susceptance Scale Factor", //
+				"Susceptance scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S702(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S702_NorOpCatRtg implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		CAT_A(0, "CAT_A"), //
+		CAT_B(1, "CAT_B"); //
+
+		private final int value;
+		private final String name;
+
+		private S702_NorOpCatRtg(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S702_AbnOpCatRtg implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		CAT_1(0, "CAT_1"), //
+		CAT_2(1, "CAT_2"), //
+		CAT_3(2, "CAT_3"); //
+
+		private final int value;
+		private final String name;
+
+		private S702_AbnOpCatRtg(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S702_CtrlModes implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		MAX_W(0, "MAX_W"), //
+		FIXED_W(1, "FIXED_W"), //
+		FIXED_VAR(2, "FIXED_VAR"), //
+		FIXED_PF(3, "FIXED_PF"), //
+		VOLT_VAR(4, "VOLT_VAR"), //
+		FREQ_WATT(5, "FREQ_WATT"), //
+		DYN_REACT_CURR(6, "DYN_REACT_CURR"), //
+		LV_TRIP(7, "LV_TRIP"), //
+		HV_TRIP(8, "HV_TRIP"), //
+		WATT_VAR(9, "WATT_VAR"), //
+		VOLT_WATT(10, "VOLT_WATT"), //
+		SCHEDULED(11, "SCHEDULED"), //
+		LF_TRIP(12, "LF_TRIP"), //
+		HF_TRIP(13, "HF_TRIP"); //
+
+		private final int value;
+		private final String name;
+
+		private S702_CtrlModes(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S702_IntIslandCatRtg implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		UNCATEGORIZED(0, "UNCATEGORIZED"), //
+		INT_ISL_CAPABLE(1, "INT_ISL_CAPABLE"), //
+		BLACK_START_CAPABLE(2, "BLACK_START_CAPABLE"), //
+		ISOCH_CAPABLE(3, "ISOCH_CAPABLE"); //
+
+		private final int value;
+		private final String name;
+
+		private S702_IntIslandCatRtg(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S702_IntIslandCat implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		UNCATEGORIZED(0, "UNCATEGORIZED"), //
+		INT_ISL_CAPABLE(1, "INT_ISL_CAPABLE"), //
+		BLACK_START_CAPABLE(2, "BLACK_START_CAPABLE"), //
+		ISOCH_CAPABLE(3, "ISOCH_CAPABLE"); //
+
+		private final int value;
+		private final String name;
+
+		private S702_IntIslandCat(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S703 implements SunSpecPoint {
+		ES(new PointImpl(//
+				"S703_ES", //
+				"Permit Enter Service", //
+				"Permit enter service.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S703_ES.values())), //
+		E_S_V_HI(new PointImpl(//
+				"S703_E_S_V_HI", //
+				"Enter Service Voltage High", //
+				"Enter service voltage high threshold as percent of normal voltage.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		E_S_V_LO(new PointImpl(//
+				"S703_E_S_V_LO", //
+				"Enter Service Voltage Low", //
+				"Enter service voltage low threshold as percent of normal voltage.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"V_SF", //
+				new OptionsEnum[0])), //
+		E_S_HZ_HI(new PointImpl(//
+				"S703_E_S_HZ_HI", //
+				"Enter Service Frequency High", //
+				"Enter service frequency high threshold.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
+				"Hz_SF", //
+				new OptionsEnum[0])), //
+		E_S_HZ_LO(new PointImpl(//
+				"S703_E_S_HZ_LO", //
+				"Enter Service Frequency Low", //
+				"Enter service frequency low threshold.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.HERTZ, //
+				"Hz_SF", //
+				new OptionsEnum[0])), //
+		E_S_DLY_TMS(new PointImpl(//
+				"S703_E_S_DLY_TMS", //
+				"Enter Service Delay Time", //
+				"Enter service delay time in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		E_S_RND_TMS(new PointImpl(//
+				"S703_E_S_RND_TMS", //
+				"Enter Service Random Delay", //
+				"Enter service random delay in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		E_S_RMP_TMS(new PointImpl(//
+				"S703_E_S_RMP_TMS", //
+				"Enter Service Ramp Time", //
+				"Enter service ramp time in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		E_S_DLY_REM_TMS(new PointImpl(//
+				"S703_E_S_DLY_REM_TMS", //
+				"Enter Service Delay Remaining", //
+				"Enter service delay time remaining in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S703_V_SF", //
+				"Voltage Scale Factor", //
+				"Voltage percentage scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		HZ_S_F(new PointImpl(//
+				"S703_HZ_S_F", //
+				"Frequency Scale Factor", //
+				"Frequency scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S703(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S703_ES implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S703_ES(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704 implements SunSpecPoint {
+		P_F_W_INJ_ENA(new PointImpl(//
+				"S704_P_F_W_INJ_ENA", //
+				"Power Factor Enable (W Inj) Enable", //
+				"Power factor enable when injecting active power.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_PFWInjEna.values())), //
+		P_F_W_INJ_ENA_RVRT(new PointImpl(//
+				"S704_P_F_W_INJ_ENA_RVRT", //
+				"Power Factor Reversion Enable (W Inj)", //
+				"Power factor reversion timer when injecting active power enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_PFWInjEnaRvrt.values())), //
+		P_F_W_INJ_RVRT_TMS(new PointImpl(//
+				"S704_P_F_W_INJ_RVRT_TMS", //
+				"PF Reversion Time (W Inj)", //
+				"Power factor reversion timer when injecting active power.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		P_F_W_INJ_RVRT_REM(new PointImpl(//
+				"S704_P_F_W_INJ_RVRT_REM", //
+				"PF Reversion Time Rem (W Inj)", //
+				"Power factor reversion time remaining when injecting active power.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		P_F_W_ABS_ENA(new PointImpl(//
+				"S704_P_F_W_ABS_ENA", //
+				"Power Factor Enable (W Abs) Enable", //
+				"Power factor enable when absorbing active power.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_PFWAbsEna.values())), //
+		P_F_W_ABS_ENA_RVRT(new PointImpl(//
+				"S704_P_F_W_ABS_ENA_RVRT", //
+				"Power Factor Reversion Enable (W Abs)", //
+				"Power factor reversion timer when absorbing active power enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_PFWAbsEnaRvrt.values())), //
+		P_F_W_ABS_RVRT_TMS(new PointImpl(//
+				"S704_P_F_W_ABS_RVRT_TMS", //
+				"PF Reversion Time (W Abs)", //
+				"Power factor reversion timer when absorbing active power.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		P_F_W_ABS_RVRT_REM(new PointImpl(//
+				"S704_P_F_W_ABS_RVRT_REM", //
+				"PF Reversion Time Rem (W Abs)", //
+				"Power factor reversion time remaining when absorbing active power.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		W_MAX_LIM_PCT_ENA(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_ENA", //
+				"Limit Max Power Pct Enable", //
+				"Limit maximum active power percent enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WMaxLimPctEna.values())), //
+		W_MAX_LIM_PCT(new PointImpl(//
+				"S704_W_MAX_LIM_PCT", //
+				"Limit Max Power Pct Setpoint", //
+				"Limit maximum active power percent value.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"WMaxLimPct_SF", //
+				new OptionsEnum[0])), //
+		W_MAX_LIM_PCT_RVRT(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_RVRT", //
+				"Reversion Limit Max Power Pct", //
+				"Reversion limit maximum active power percent value.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"WMaxLimPct_SF", //
+				new OptionsEnum[0])), //
+		W_MAX_LIM_PCT_ENA_RVRT(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_ENA_RVRT", //
+				"Reversion Limit Max Power Pct Enable", //
+				"Reversion limit maximum active power percent value enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WMaxLimPctEnaRvrt.values())), //
+		W_MAX_LIM_PCT_RVRT_TMS(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_RVRT_TMS", //
+				"Limit Max Power Pct Reversion Time", //
+				"Limit maximum active power percent reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		W_MAX_LIM_PCT_RVRT_REM(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_RVRT_REM", //
+				"Limit Max Power Pct Rev Time Rem", //
+				"Limit maximum active power percent reversion time remaining.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SET_ENA(new PointImpl(//
+				"S704_W_SET_ENA", //
+				"Set Active Power Enable", //
+				"Set active power enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WSetEna.values())), //
+		W_SET_MOD(new PointImpl(//
+				"S704_W_SET_MOD", //
+				"Set Active Power Mode", //
+				"Set active power mode.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WSetMod.values())), //
+		W_SET(new PointImpl(//
+				"S704_W_SET", //
+				"Active Power Setpoint (W)", //
+				"Active power setting value in watts.", //
+				"", //
+				PointType.INT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"WSet_SF", //
+				new OptionsEnum[0])), //
+		W_SET_RVRT(new PointImpl(//
+				"S704_W_SET_RVRT", //
+				"Reversion Active Power (W)", //
+				"Reversion active power setting value in watts.", //
+				"", //
+				PointType.INT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.WATT, //
+				"WSet_SF", //
+				new OptionsEnum[0])), //
+		W_SET_PCT(new PointImpl(//
+				"S704_W_SET_PCT", //
+				"Active Power Setpoint (Pct)", //
+				"Active power setting value as percent.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"WSetPct_SF", //
+				new OptionsEnum[0])), //
+		W_SET_PCT_RVRT(new PointImpl(//
+				"S704_W_SET_PCT_RVRT", //
+				"Reversion Active Power (Pct)", //
+				"Reversion active power setting value as percent.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"WSetPct_SF", //
+				new OptionsEnum[0])), //
+		W_SET_ENA_RVRT(new PointImpl(//
+				"S704_W_SET_ENA_RVRT", //
+				"Reversion Active Power Enable", //
+				"Reversion active power function enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WSetEnaRvrt.values())), //
+		W_SET_RVRT_TMS(new PointImpl(//
+				"S704_W_SET_RVRT_TMS", //
+				"Active Power Reversion Time", //
+				"Set active power reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SET_RVRT_REM(new PointImpl(//
+				"S704_W_SET_RVRT_REM", //
+				"Active Power Rev Time Rem", //
+				"Set active power reversion time remaining.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_SET_ENA(new PointImpl(//
+				"S704_VAR_SET_ENA", //
+				"Set Reactive Power Enable", //
+				"Set reactive power enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_VarSetEna.values())), //
+		VAR_SET_MOD(new PointImpl(//
+				"S704_VAR_SET_MOD", //
+				"Set Reactive Power Mode", //
+				"Set reactive power mode.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_VarSetMod.values())), //
+		VAR_SET_PRI(new PointImpl(//
+				"S704_VAR_SET_PRI", //
+				"Reactive Power Priority", //
+				"Reactive power priority.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_VarSetPri.values())), //
+		VAR_SET(new PointImpl(//
+				"S704_VAR_SET", //
+				"Reactive Power Setpoint (Vars)", //
+				"Reactive power setting value in vars.", //
+				"", //
+				PointType.INT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"VarSet_SF", //
+				new OptionsEnum[0])), //
+		VAR_SET_RVRT(new PointImpl(//
+				"S704_VAR_SET_RVRT", //
+				"Reversion Reactive Power (Vars)", //
+				"Reversion reactive power setting value in vars.", //
+				"", //
+				PointType.INT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.VOLT_AMPERE_REACTIVE, //
+				"VarSet_SF", //
+				new OptionsEnum[0])), //
+		VAR_SET_PCT(new PointImpl(//
+				"S704_VAR_SET_PCT", //
+				"Reactive Power Setpoint (Pct)", //
+				"Reactive power setting value as percent.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"VarSetPct_SF", //
+				new OptionsEnum[0])), //
+		VAR_SET_PCT_RVRT(new PointImpl(//
+				"S704_VAR_SET_PCT_RVRT", //
+				"Reversion Reactive Power (Pct)", //
+				"Reversion reactive power setting value as percent.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				"VarSetPct_SF", //
+				new OptionsEnum[0])), //
+		VAR_SET_ENA_RVRT(new PointImpl(//
+				"S704_VAR_SET_ENA_RVRT", //
+				"Reversion Reactive Power Enable", //
+				"Reversion reactive power function enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_VarSetEnaRvrt.values())), //
+		VAR_SET_RVRT_TMS(new PointImpl(//
+				"S704_VAR_SET_RVRT_TMS", //
+				"Reactive Power Reversion Time", //
+				"Set reactive power reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_SET_RVRT_REM(new PointImpl(//
+				"S704_VAR_SET_RVRT_REM", //
+				"Reactive Power Rev Time Rem", //
+				"Set reactive power reversion time remaining.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		W_RMP(new PointImpl(//
+				"S704_W_RMP", //
+				"Normal Ramp Rate", //
+				"Ramp rate for increases in active power during normal generation.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_RMP_REF(new PointImpl(//
+				"S704_W_RMP_REF", //
+				"Normal Ramp Rate Reference", //
+				"Ramp rate reference unit for increases in active power or current during normal generation.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_WRmpRef.values())), //
+		VAR_RMP(new PointImpl(//
+				"S704_VAR_RMP", //
+				"Reactive Power Ramp Rate", //
+				"Ramp rate based on max reactive power per second.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ANTI_ISL_ENA(new PointImpl(//
+				"S704_ANTI_ISL_ENA", //
+				"Anti-Islanding Enable", //
+				"Anti-islanding enable.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S704_AntiIslEna.values())), //
+		PF_SF(new PointImpl(//
+				"S704_PF_SF", //
+				"Power Factor Scale Factor", //
+				"Power factor scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_MAX_LIM_PCT_S_F(new PointImpl(//
+				"S704_W_MAX_LIM_PCT_S_F", //
+				"Limit Max Power Scale Factor", //
+				"Limit maximum power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SET_S_F(new PointImpl(//
+				"S704_W_SET_S_F", //
+				"Active Power Scale Factor", //
+				"Active power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SET_PCT_S_F(new PointImpl(//
+				"S704_W_SET_PCT_S_F", //
+				"Active Power Pct Scale Factor", //
+				"Active power pct scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_SET_S_F(new PointImpl(//
+				"S704_VAR_SET_S_F", //
+				"Reactive Power Scale Factor", //
+				"Reactive power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		VAR_SET_PCT_S_F(new PointImpl(//
+				"S704_VAR_SET_PCT_S_F", //
+				"Reactive Power Pct Scale Factor", //
+				"Reactive power pct scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S704(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S704_PFWInjEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_PFWInjEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_PFWInjEnaRvrt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_PFWInjEnaRvrt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_PFWAbsEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_PFWAbsEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_PFWAbsEnaRvrt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_PFWAbsEnaRvrt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WMaxLimPctEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WMaxLimPctEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WMaxLimPctEnaRvrt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WMaxLimPctEnaRvrt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WSetEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WSetEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WSetMod implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		W_MAX_PCT(0, "W_MAX_PCT"), //
+		WATTS(1, "WATTS"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WSetMod(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WSetEnaRvrt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WSetEnaRvrt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_VarSetEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_VarSetEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_VarSetMod implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		W_MAX_PCT(0, "W_MAX_PCT"), //
+		VAR_MAX_PCT(1, "VAR_MAX_PCT"), //
+		VAR_AVAIL_PCT(2, "VAR_AVAIL_PCT"), //
+		VA_MAX_PCT(3, "VA_MAX_PCT"), //
+		VARS(4, "VARS"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_VarSetMod(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_VarSetPri implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		ACTIVE(0, "ACTIVE"), //
+		REACTIVE(1, "REACTIVE"), //
+		VENDOR(2, "VENDOR"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_VarSetPri(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_VarSetEnaRvrt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_VarSetEnaRvrt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_WRmpRef implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		A_MAX(0, "A_MAX"), //
+		W_MAX(1, "W_MAX"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_WRmpRef(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S704_AntiIslEna implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S704_AntiIslEna(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S705 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S705_ENA", //
+				"DER Volt-Var Module Enable", //
+				"Volt-Var control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S705_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S705_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S705_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S705_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S705_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV(new PointImpl(//
+				"S705_N_CRV", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_TMS(new PointImpl(//
+				"S705_RVRT_TMS", //
+				"Reversion Timeout", //
+				"Reversion time in seconds.  0 = No reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_REM(new PointImpl(//
+				"S705_RVRT_REM", //
+				"Reversion Time Remaining", //
+				"Reversion time remaining in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_CRV(new PointImpl(//
+				"S705_RVRT_CRV", //
+				"Reversion Curve", //
+				"Default curve after reversion timeout.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S705_V_SF", //
+				"Voltage Scale Factor", //
+				"Scale factor for curve voltage points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DEPT_REF_S_F(new PointImpl(//
+				"S705_DEPT_REF_S_F", //
+				"Var Scale Factor", //
+				"Scale factor for curve var points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RSP_TMS_S_F(new PointImpl(//
+				"S705_RSP_TMS_S_F", //
+				"Open-Loop Scale Factor", //
+				"Open loop response time scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S705(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S705_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S705_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S705_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S705_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S706 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S706_ENA", //
+				"DER Volt-Watt Module Enable", //
+				"Volt-Watt control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S706_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S706_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S706_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S706_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S706_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV(new PointImpl(//
+				"S706_N_CRV", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_TMS(new PointImpl(//
+				"S706_RVRT_TMS", //
+				"Reversion Timeout", //
+				"Reversion time in seconds.  0 = No reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_REM(new PointImpl(//
+				"S706_RVRT_REM", //
+				"Reversion Time Remaining", //
+				"Reversion time remaining in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_CRV(new PointImpl(//
+				"S706_RVRT_CRV", //
+				"Reversion Curve", //
+				"Default curve after reversion timeout.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S706_V_SF", //
+				"Voltage Scale Factor", //
+				"Scale factor for curve voltage points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DEPT_REF_S_F(new PointImpl(//
+				"S706_DEPT_REF_S_F", //
+				"Watt Scale Factor", //
+				"Scale factor for curve watt points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RSP_TMS_S_F(new PointImpl(//
+				"S706_RSP_TMS_S_F", //
+				"Open-Loop Scale Factor", //
+				"Open loop response time scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S706(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S706_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S706_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S706_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S706_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S707 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S707_ENA", //
+				"DER Trip LV Module Enable", //
+				"DER low voltage trip control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S707_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S707_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S707_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S707_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S707_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV_SET(new PointImpl(//
+				"S707_N_CRV_SET", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S707_V_SF", //
+				"Voltage Scale Factor", //
+				"Scale factor for curve voltage points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMS_S_F(new PointImpl(//
+				"S707_TMS_S_F", //
+				"Time Point Scale Factor", //
+				"Scale factor for curve time points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S707(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S707_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S707_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S707_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S707_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S708 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S708_ENA", //
+				"DER Trip HV Module Enable", //
+				"DER high voltage trip control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S708_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S708_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S708_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S708_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S708_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV_SET(new PointImpl(//
+				"S708_N_CRV_SET", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		V_SF(new PointImpl(//
+				"S708_V_SF", //
+				"Voltage Scale Factor", //
+				"Scale factor for curve voltage points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMS_S_F(new PointImpl(//
+				"S708_TMS_S_F", //
+				"Time Point Scale Factor", //
+				"Scale factor for curve time points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S708(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S708_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S708_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S708_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S708_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S709 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S709_ENA", //
+				"DER Trip LF Module Enable", //
+				"DER low frequency trip control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S709_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S709_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S709_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S709_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S709_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV_SET(new PointImpl(//
+				"S709_N_CRV_SET", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		HZ_S_F(new PointImpl(//
+				"S709_HZ_S_F", //
+				"Frequency Scale Factor", //
+				"Scale factor for curve frequency points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMS_S_F(new PointImpl(//
+				"S709_TMS_S_F", //
+				"Time Point Scale Factor", //
+				"Scale factor for curve time points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S709(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S709_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S709_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S709_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S709_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S710 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S710_ENA", //
+				"DER Trip HF Module Enable", //
+				"DER high frequency trip control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S710_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S710_ADPT_CRV_REQ", //
+				"Adopt Curve Request", //
+				"Index of curve points to adopt. First curve index is 1.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S710_ADPT_CRV_RSLT", //
+				"Adopt Curve Result", //
+				"Result of last adopt curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S710_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S710_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV_SET(new PointImpl(//
+				"S710_N_CRV_SET", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		HZ_S_F(new PointImpl(//
+				"S710_HZ_S_F", //
+				"Frequency Scale Factor", //
+				"Scale factor for curve frequency points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMS_S_F(new PointImpl(//
+				"S710_TMS_S_F", //
+				"Time Point Scale Factor", //
+				"Scale factor for curve time points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S710(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S710_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S710_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S710_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S710_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S711 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S711_ENA", //
+				"DER Frequency Droop Module Enable", //
+				"DER Frequency-Watt (Frequency-Droop) control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S711_Ena.values())), //
+		ADPT_CTL_REQ(new PointImpl(//
+				"S711_ADPT_CTL_REQ", //
+				"Set Active Control Request", //
+				"Set active control. 0 = No active control.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CTL_RSLT(new PointImpl(//
+				"S711_ADPT_CTL_RSLT", //
+				"Set Active Control Result", //
+				"Result of last set active control operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S711_AdptCtlRslt.values())), //
+		N_CTL(new PointImpl(//
+				"S711_N_CTL", //
+				"Stored Control Count", //
+				"Number of stored controls supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_TMS(new PointImpl(//
+				"S711_RVRT_TMS", //
+				"Reversion Timeout", //
+				"Reversion time in seconds.  0 = No reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_REM(new PointImpl(//
+				"S711_RVRT_REM", //
+				"Reversion Time Left", //
+				"Reversion time remaining in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_CTL(new PointImpl(//
+				"S711_RVRT_CTL", //
+				"Reversion Control", //
+				"Default control after reversion timeout.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DB_S_F(new PointImpl(//
+				"S711_DB_S_F", //
+				"Deadband Scale Factor", //
+				"Deadband scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		K_SF(new PointImpl(//
+				"S711_K_SF", //
+				"Frequency Change Scale Factor", //
+				"Frequency change scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RSP_TMS_S_F(new PointImpl(//
+				"S711_RSP_TMS_S_F", //
+				"Open-Loop Scale Factor", //
+				"Open loop response time scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S711(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S711_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S711_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S711_AdptCtlRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S711_AdptCtlRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S712 implements SunSpecPoint {
+		ENA(new PointImpl(//
+				"S712_ENA", //
+				"DER Watt-Var Module Enable", //
+				"DER Watt-Var control enable.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S712_Ena.values())), //
+		ADPT_CRV_REQ(new PointImpl(//
+				"S712_ADPT_CRV_REQ", //
+				"Set Active Curve Request", //
+				"Set active curve. 0 = No active curve.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ADPT_CRV_RSLT(new PointImpl(//
+				"S712_ADPT_CRV_RSLT", //
+				"Set Active Curve Result", //
+				"Result of last set active curve operation.", //
+				"", //
+				PointType.ENUM16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S712_AdptCrvRslt.values())), //
+		N_PT(new PointImpl(//
+				"S712_N_PT", //
+				"Number Of Points", //
+				"Number of curve points supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_CRV(new PointImpl(//
+				"S712_N_CRV", //
+				"Stored Curve Count", //
+				"Number of stored curves supported.", //
+				"", //
+				PointType.UINT16, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_TMS(new PointImpl(//
+				"S712_RVRT_TMS", //
+				"Reversion Timeout", //
+				"Reversion time in seconds.  0 = No reversion time.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_REM(new PointImpl(//
+				"S712_RVRT_REM", //
+				"Reversion Time Left", //
+				"Reversion time remaining in seconds.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.SECONDS, //
+				null, //
+				new OptionsEnum[0])), //
+		RVRT_CRV(new PointImpl(//
+				"S712_RVRT_CRV", //
+				"Reversion Curve", //
+				"Default curve after reversion timeout.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		W_SF(new PointImpl(//
+				"S712_W_SF", //
+				"Active Power Scale Factor", //
+				"Scale factor for curve active power points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DEPT_REF_S_F(new PointImpl(//
+				"S712_DEPT_REF_S_F", //
+				"Var Scale Factor", //
+				"Scale factor for curve var points.", //
+				"", //
+				PointType.SUNSSF, //
+				true, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S712(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S712_Ena implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		DISABLED(0, "DISABLED"), //
+		ENABLED(1, "ENABLED"); //
+
+		private final int value;
+		private final String name;
+
+		private S712_Ena(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S712_AdptCrvRslt implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		IN_PROGRESS(0, "IN_PROGRESS"), //
+		COMPLETED(1, "COMPLETED"), //
+		FAILED(2, "FAILED"); //
+
+		private final int value;
+		private final String name;
+
+		private S712_AdptCrvRslt(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S713 implements SunSpecPoint {
+		W_H_RTG(new PointImpl(//
+				"S713_W_H_RTG", //
+				"Energy Rating", //
+				"Energy rating of the DER storage.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"WH_SF", //
+				new OptionsEnum[0])), //
+		W_H_AVAIL(new PointImpl(//
+				"S713_W_H_AVAIL", //
+				"Energy Available", //
+				"Energy available of the DER storage (WHAvail = WHRtg * SoC * SoH)", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"WH_SF", //
+				new OptionsEnum[0])), //
+		SO_C(new PointImpl(//
+				"S713_SO_C", //
+				"State of Charge", //
+				"State of charge of the DER storage.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"Pct_SF", //
+				new OptionsEnum[0])), //
+		SO_H(new PointImpl(//
+				"S713_SO_H", //
+				"State of Health", //
+				"State of health of the DER storage.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				"Pct_SF", //
+				new OptionsEnum[0])), //
+		STA(new PointImpl(//
+				"S713_STA", //
+				"Status", //
+				"Storage status.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S713_Sta.values())), //
+		WH_SF(new PointImpl(//
+				"S713_WH_SF", //
+				"Energy Scale Factor", //
+				"Scale factor for energy capacity.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		PCT_S_F(new PointImpl(//
+				"S713_PCT_S_F", //
+				"Percent Scale Factor", //
+				"Scale factor for percentage.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S713(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S713_Sta implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		OK(0, "OK"), //
+		WARNING(1, "WARNING"), //
+		ERROR(2, "ERROR"); //
+
+		private final int value;
+		private final String name;
+
+		private S713_Sta(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S714 implements SunSpecPoint {
+		PRT_ALRMS(new PointImpl(//
+				"S714_PRT_ALRMS", //
+				"Port Alarms", //
+				"Bitfield of ports with active alarms. Bit is 1 if port has an active alarm. Bit 0 is first port.", //
+				"", //
+				PointType.BITFIELD32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		N_PRT(new PointImpl(//
+				"S714_N_PRT", //
+				"Number Of Ports", //
+				"Number of DC ports.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DCA(new PointImpl(//
+				"S714_DCA", //
+				"DC Current", //
+				"Total DC current for all ports.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.AMPERE, //
+				"DCA_SF", //
+				new OptionsEnum[0])), //
+		DCW(new PointImpl(//
+				"S714_DCW", //
+				"DC Power", //
+				"Total DC power for all ports.", //
+				"", //
+				PointType.INT16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.WATT, //
+				"DCW_SF", //
+				new OptionsEnum[0])), //
+		D_C_WH_INJ(new PointImpl(//
+				"S714_D_C_WH_INJ", //
+				"DC Energy Injected", //
+				"Total cumulative DC energy injected for all ports.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"DCWH_SF", //
+				new OptionsEnum[0])), //
+		D_C_WH_ABS(new PointImpl(//
+				"S714_D_C_WH_ABS", //
+				"DC Energy Absorbed", //
+				"Total cumulative DC energy absorbed for all ports.", //
+				"", //
+				PointType.UINT64, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.CUMULATED_WATT_HOURS, //
+				"DCWH_SF", //
+				new OptionsEnum[0])), //
+		DCA_SF(new PointImpl(//
+				"S714_DCA_SF", //
+				"DC Current Scale Factor", //
+				"DC current scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DCV_SF(new PointImpl(//
+				"S714_DCV_SF", //
+				"DC Voltage Scale Factor", //
+				"DC voltage scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DCW_SF(new PointImpl(//
+				"S714_DCW_SF", //
+				"DC Power Scale Factor", //
+				"DC power scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		DCWH_SF(new PointImpl(//
+				"S714_DCWH_SF", //
+				"DC Energy Scale Factor", //
+				"DC energy scale factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		TMP_S_F(new PointImpl(//
+				"S714_TMP_S_F", //
+				"Temperature Scale Factor", //
+				"Temperature Scale Factor.", //
+				"", //
+				PointType.SUNSSF, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])); //
+
+		protected final PointImpl impl;
+
+		private S714(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S715 implements SunSpecPoint {
+		LOC_REM_CTL(new PointImpl(//
+				"S715_LOC_REM_CTL", //
+				"Control Mode", //
+				"DER control mode. Enumeration.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				S715_LocRemCtl.values())), //
+		D_E_R_HB(new PointImpl(//
+				"S715_D_E_R_HB", //
+				"DER Heartbeat", //
+				"Value is incremented every second by the DER with periodic resets to zero.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_ONLY, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		CONTROLLER_HB(new PointImpl(//
+				"S715_CONTROLLER_HB", //
+				"Controller Heartbeat", //
+				"Value is incremented every second by the controller with periodic resets to zero.", //
+				"", //
+				PointType.UINT32, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		ALARM_RESET(new PointImpl(//
+				"S715_ALARM_RESET", //
+				"Alarm Reset", //
+				"Used to reset any latched alarms. 1 = Reset.", //
+				"", //
+				PointType.UINT16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				new OptionsEnum[0])), //
+		OP_CTL(new PointImpl(//
+				"S715_OP_CTL", //
+				"Set Operation", //
+				"Commands to PCS. Enumerated value.", //
+				"", //
+				PointType.ENUM16, //
+				false, //
+				AccessMode.READ_WRITE, //
+				Unit.NONE, //
+				null, //
+				S715_OpCtl.values())); //
+
+		protected final PointImpl impl;
+
+		private S715(PointImpl impl) {
+			this.impl = impl;
+		}
+
+		@Override
+		public PointImpl get() {
+			return this.impl;
+		}
+	}
+
+	public static enum S715_LocRemCtl implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		REMOTE(0, "REMOTE"), //
+		LOCAL(1, "LOCAL"); //
+
+		private final int value;
+		private final String name;
+
+		private S715_LocRemCtl(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
+	public static enum S715_OpCtl implements OptionsEnum {
+		UNDEFINED(-1, "Undefined"), //
+		STOP(0, "STOP"), //
+		START(1, "START"), //
+		ENTER_STANDBY(2, "ENTER_STANDBY"), //
+		EXIT_STANDBY(3, "EXIT_STANDBY"); //
+
+		private final int value;
+		private final String name;
+
+		private S715_OpCtl(int value, String name) {
+			this.value = value;
+			this.name = name;
+		}
+
+		@Override
+		public int getValue() {
+			return this.value;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public OptionsEnum getUndefined() {
+			return UNDEFINED;
+		}
+	}
+
 	public static enum S801 implements SunSpecPoint {
 		DEPRECATED(new PointImpl(//
 				"S801_DEPRECATED", //
@@ -10469,7 +14991,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
-				Unit.WATT_HOURS, //
+				Unit.CUMULATED_WATT_HOURS, //
 				"WHRtg_SF", //
 				new OptionsEnum[0])), //
 		W_CHA_RTE_MAX(new PointImpl(//
@@ -10485,7 +15007,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		W_DIS_CHA_RTE_MAX(new PointImpl(//
 				"S802_W_DIS_CHA_RTE_MAX", //
-				"Namplate Max Discharge Rate", //
+				"Nameplate Max Discharge Rate", //
 				"Maximum rate of energy transfer out of the storage device in DC watts.", //
 				"", //
 				PointType.UINT16, //
@@ -10541,7 +15063,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		SO_C_RSV_MIN(new PointImpl(//
 				"S802_SO_C_RSV_MIN", //
 				"Min Reserve Percent", //
-				"Setpoint for maximum reserve for storage as a percentage of the nominal maximum storage.", //
+				"Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.", //
 				"", //
 				PointType.UINT16, //
 				false, //
@@ -10553,7 +15075,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_SO_C", //
 				"State of Charge", //
 				"State of charge, expressed as a percentage.", //
-				"Measurement.", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10564,7 +15086,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_DO_D", //
 				"Depth of Discharge", //
 				"Depth of discharge, expressed as a percentage.", //
-				"Measurement.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10608,7 +15130,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_LOC_REM_CTL", //
 				"Control Mode", //
 				"Battery control mode. Enumeration.", //
-				"Maps to DRCC.LocRemCtl in IEC 61850.", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10641,7 +15163,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_ALM_RST", //
 				"Alarm Reset", //
 				"Used to reset any latched alarms.  1 = Reset.", //
-				"Battery should reset to 0 when reset is complete.", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_WRITE, //
@@ -10652,7 +15174,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_TYP", //
 				"Battery Type", //
 				"Type of battery. Enumeration.", //
-				"Maps to DBAT.BatTyp in 61850.", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10663,7 +15185,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_STATE", //
 				"State of the Battery Bank", //
 				"State of the battery bank.  Enumeration.", //
-				"Must be reconciled with State in IEC 61850.", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10685,7 +15207,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_WARR_DT", //
 				"Warranty Date", //
 				"Date the device warranty expires.", //
-				"Number of days since 1/1/2000.", //
+				"", //
 				PointType.UINT32, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10707,7 +15229,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_EVT2", //
 				"Battery Event 2 Bitfield", //
 				"Alarms and warnings.  Bit flags.", //
-				"Reserved for future use.", //
+				"", //
 				PointType.BITFIELD32, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10740,7 +15262,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_V", //
 				"External Battery Voltage", //
 				"DC Bus Voltage.", //
-				"Maps to ZBAT.V in IEC 61850.", //
+				"", //
 				PointType.UINT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10751,7 +15273,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_V_MAX", //
 				"Max Battery Voltage", //
 				"Instantaneous maximum battery voltage.", //
-				"If not implemented, must implement AChaMax and ADisChaMax.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10762,7 +15284,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_V_MIN", //
 				"Min Battery Voltage", //
 				"Instantaneous minimum battery voltage.", //
-				"If not implemented, must implement AChaMax and ADisChaMax.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10773,7 +15295,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_CELL_V_MAX", //
 				"Max Cell Voltage", //
 				"Maximum voltage for all cells in the bank.", //
-				"Measurement.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10806,7 +15328,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_CELL_V_MIN", //
 				"Min Cell Voltage", //
 				"Minimum voltage for all cells in the bank.", //
-				"Measurement.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10839,7 +15361,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_CELL_V_AVG", //
 				"Average Cell Voltage", //
 				"Average cell voltage for all cells in the bank.", //
-				"Calculation based on measurements.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10850,7 +15372,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_A", //
 				"Total DC Current", //
 				"Total DC current flowing to/from the battery bank.", //
-				"Measurement.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10861,7 +15383,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_A_CHA_MAX", //
 				"Max Charge Current", //
 				"Instantaneous maximum DC charge current.", //
-				"Calculation which is always unsigned (i.e. magnitude only). If not implemented, must implement VMax and VMin.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10872,7 +15394,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_A_DIS_CHA_MAX", //
 				"Max Discharge Current", //
 				"Instantaneous maximum DC discharge current.", //
-				"Calculation which is always unsigned (i.e. magnitude only). If not implemented, must implement VMax and VMin.", //
+				"", //
 				PointType.UINT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10883,7 +15405,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_W", //
 				"Total Power", //
 				"Total power flowing to/from the battery bank.", //
-				"Measurement.", //
+				"", //
 				PointType.INT16, //
 				true, //
 				AccessMode.READ_ONLY, //
@@ -10894,7 +15416,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_REQ_INV_STATE", //
 				"Inverter State Request", //
 				"Request from battery to start or stop the inverter.  Enumeration.", //
-				"Used in special states such as manual battery charging.", //
+				"", //
 				PointType.ENUM16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10905,7 +15427,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_REQ_W", //
 				"Battery Power Request", //
 				"AC Power requested by battery.", //
-				"Used in special states such as string balancing.", //
+				"", //
 				PointType.INT16, //
 				false, //
 				AccessMode.READ_ONLY, //
@@ -10927,7 +15449,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"S802_SET_INV_STATE", //
 				"Set Inverter State", //
 				"Set the current state of the inverter.", //
-				"Information needed by battery for some operations.", //
+				"", //
 				PointType.ENUM16, //
 				true, //
 				AccessMode.READ_WRITE, //
@@ -11047,7 +15569,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		A_MAX_S_F(new PointImpl(//
 				"S802_A_MAX_S_F", //
 				"", //
-				"Scale factor for instantationous DC charge/discharge current.", //
+				"Scale factor for instantaneous DC charge/discharge current.", //
 				"", //
 				PointType.SUNSSF, //
 				true, //
@@ -12634,7 +17156,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TODAY_MIN_BAT_V(new PointImpl(//
 				"S64111_TODAY_MIN_BAT_V", //
-				"Todays Minimum Battery Voltage", //
+				"Today's Minimum Battery Voltage", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -12645,7 +17167,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TODAY_MAX_BAT_V(new PointImpl(//
 				"S64111_TODAY_MAX_BAT_V", //
-				"Todays Maximum Battery Voltage", //
+				"Today's Maximum Battery Voltage", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -12667,7 +17189,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TODAY_MAX_V_O_C(new PointImpl(//
 				"S64111_TODAY_MAX_V_O_C", //
-				"Todays Maximum VOC", //
+				"Today's Maximum VOC", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -12678,7 +17200,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TODAYK_WH_OUTPUT(new PointImpl(//
 				"S64111_TODAYK_WH_OUTPUT", //
-				"Todays kWh", //
+				"Today's kWh", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -12689,7 +17211,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		TODAY_A_H_OUTPUT(new PointImpl(//
 				"S64111_TODAY_A_H_OUTPUT", //
-				"Todays AH", //
+				"Today's AH", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13252,7 +17774,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_ON_HIST(new PointImpl(//
 				"S64112_C_C_CONFIG_A_U_X_NLITE_ON_HIST", //
-				"AUX Night Light On Hysterisis", //
+				"AUX Night Light On Hysteresis", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13263,7 +17785,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_NLITE_OFF_HIST(new PointImpl(//
 				"S64112_C_C_CONFIG_A_U_X_NLITE_OFF_HIST", //
-				"AUX Night Light Off Hysterisis", //
+				"AUX Night Light Off Hysteresis", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13318,7 +17840,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_A_U_X_DIVERT_HYST_V(new PointImpl(//
 				"S64112_C_C_CONFIG_A_U_X_DIVERT_HYST_V", //
-				"AUX Divert Hysterisis", //
+				"AUX Divert Hysteresis", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13384,7 +17906,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_DAILY_A_H(new PointImpl(//
 				"S64112_C_C_CONFIG_DATA_LOG_DAILY_A_H", //
-				"Data Log Daily", //
+				"Data Log Daily (Ah)", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13395,7 +17917,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_DAILY_K_W_H(new PointImpl(//
 				"S64112_C_C_CONFIG_DATA_LOG_DAILY_K_W_H", //
-				"Data Log Daily", //
+				"Data Log Daily (kWh)", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13406,7 +17928,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_A(new PointImpl(//
 				"S64112_C_C_CONFIG_DATA_LOG_MAX_OUT_A", //
-				"Data Log Daily Maximum Output", //
+				"Data Log Daily Maximum Output (A)", //
 				"", //
 				"", //
 				PointType.UINT16, //
@@ -13417,7 +17939,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				new OptionsEnum[0])), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_W(new PointImpl(//
 				"S64112_C_C_CONFIG_DATA_LOG_MAX_OUT_W", //
-				"Data Log Daily Maximum Output", //
+				"Data Log Daily Maximum Output (W)", //
 				"", //
 				"", //
 				PointType.UINT16, //
