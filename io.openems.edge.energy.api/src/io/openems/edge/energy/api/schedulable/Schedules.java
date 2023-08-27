@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
 
+/**
+ * Holds Schedules for multiple Components.
+ */
 public class Schedules {
 
 	private final ImmutableMap<String, Schedule<?>> map;
@@ -66,8 +69,8 @@ public class Schedules {
 	public String debugLog() {
 		return this.map.entrySet().stream() //
 				.map(e -> {
-					var mode = e.getValue().getCurrentMode();
-					return e.getKey() + ":" + (mode == null ? "-" : mode.name());
+					var preset = e.getValue().getCurrentPreset();
+					return e.getKey() + ":" + (preset == null ? "-" : preset.name());
 				}) //
 				.collect(Collectors.joining("|"));
 	}

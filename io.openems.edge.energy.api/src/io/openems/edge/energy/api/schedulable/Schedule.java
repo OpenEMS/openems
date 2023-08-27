@@ -1,15 +1,21 @@
 package io.openems.edge.energy.api.schedulable;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.energy.api.Utils;
 
-public class Schedule<MODE extends Schedule.Mode> {
+public class Schedule<CONFIG> {
 
-	public static interface Mode {
+	/**
+	 * Holds a predefined Config.
+	 * 
+	 * @param <CONFIG> the type of Config
+	 */
+	public static interface Preset<CONFIG> {
 
 		/**
 		 * Gets this {@link Mode}s String representation.
@@ -17,21 +23,16 @@ public class Schedule<MODE extends Schedule.Mode> {
 		 * @return the String representation
 		 */
 		public String name();
-	}
-
-	// CHECKSTYLE:OFF
-	public static interface ModeConfig<MODE extends Schedule.Mode, CONFIG> extends Mode {
-		// CHECKSTYLE:ON
 
 		/**
 		 * The actual Config.
 		 * 
 		 * @return config
 		 */
-		public CONFIG getModeConfig();
+		public CONFIG getConfig();
 	}
 
-	private final ImmutableSortedMap<ZonedDateTime, MODE> schedule;
+	private final ImmutableSortedMap<ZonedDateTime, ? extends Preset<CONFIG>> schedule;
 
 	/**
 	 * Build empty {@link Schedule}.
@@ -39,7 +40,7 @@ public class Schedule<MODE extends Schedule.Mode> {
 	 * @param <MODE> the {@link Mode} type
 	 * @return new {@link Schedule}
 	 */
-	public static <MODE extends Schedule.Mode> Schedule<MODE> empty() {
+	public static <CONFIG> Schedule<CONFIG> empty() {
 		return new Schedule<>(ImmutableSortedMap.of());
 	}
 
@@ -51,30 +52,30 @@ public class Schedule<MODE extends Schedule.Mode> {
 	 * @param modes  array of {@link Mode}s
 	 * @return new {@link Schedule}
 	 */
-	public static <MODE extends Schedule.Mode> Schedule<MODE> of(ZonedDateTime now, MODE[] modes) {
-		var b = ImmutableSortedMap.<ZonedDateTime, MODE>naturalOrder();
-		IntStream.range(0, modes.length) //
+	public static <CONFIG> Schedule<CONFIG> of(ZonedDateTime now, List<? extends Preset<CONFIG>> presets) {
+		var b = ImmutableSortedMap.<ZonedDateTime, Preset<CONFIG>>naturalOrder();
+		IntStream.range(0, presets.size()) //
 				.forEach(period -> {
-					b.put(Utils.toZonedDateTime(now, period), modes[period]);
+					b.put(Utils.toZonedDateTime(now, period), presets.get(period));
 				});
 		return new Schedule<>(b.build());
 	}
 
-	public Schedule(ImmutableSortedMap<ZonedDateTime, MODE> schedule) {
+	public Schedule(ImmutableSortedMap<ZonedDateTime, ? extends Preset<CONFIG>> schedule) {
 		this.schedule = schedule;
 	}
 
 	/**
-	 * Gets the {@link ScheduleMode} for `ZonedDateTime.now()`.
+	 * Gets the {@link Preset} for `ZonedDateTime.now()`.
 	 * 
-	 * @return the Mode, possibly null
+	 * @return the Preset, possibly null
 	 */
-	public MODE getCurrentMode() {
-		var mode = this.schedule.floorEntry(ZonedDateTime.now());
-		if (mode == null) {
+	public Preset<CONFIG> getCurrentPreset() {
+		var entry = this.schedule.floorEntry(ZonedDateTime.now());
+		if (entry == null) {
 			return null;
 		}
-		return mode.getValue();
+		return entry.getValue();
 	}
 
 	@Override

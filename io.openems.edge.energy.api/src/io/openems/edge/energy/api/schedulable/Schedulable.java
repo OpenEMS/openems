@@ -3,24 +3,22 @@ package io.openems.edge.energy.api.schedulable;
 import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.schedulable.Schedule.Mode;
+import io.openems.edge.energy.api.schedulable.Schedule.Preset;
 
-// CHECKSTYLE:OFF
-public interface Schedulable<MODE extends Schedule.Mode> extends Controller {
-	// CHECKSTYLE:ON
+public interface Schedulable<CONFIG> extends Controller {
 
 	/**
 	 * Get the available {@link Mode}s.
 	 * 
 	 * @return set of {@link Mode}s
 	 */
-	public ImmutableSet<MODE> getAvailableModes();
+	public ImmutableSet<? extends Preset<CONFIG>> getAvailablePresets();
 
 	/**
-	 * Apply a {@link Schedule} of {@link Mode}s.
+	 * Apply a {@link Schedule} of {@link Preset}s.
 	 * 
 	 * @param schedule the {@link Schedule}
 	 */
-	public void applySchedule(Schedule<MODE> schedule);
+	public void applySchedule(Schedule<CONFIG> schedule);
 
 }

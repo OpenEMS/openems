@@ -12,7 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private int power;
-		private Mode mode;
+		private Mode.Config mode;
 		private HybridEssMode hybridEssMode;
 		private Phase phase;
 		private Relationship relationship;
@@ -35,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMode(Mode mode) {
+		public Builder setMode(Mode.Config mode) {
 			this.mode = mode;
 			return this;
 		}
@@ -92,7 +92,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Mode mode() {
+	public Mode.Config mode() {
 		return this.builder.mode;
 	}
 

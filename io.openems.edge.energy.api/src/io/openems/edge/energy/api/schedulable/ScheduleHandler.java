@@ -3,18 +3,17 @@ package io.openems.edge.energy.api.schedulable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
-import io.openems.edge.energy.api.schedulable.Schedule.Mode;
+import io.openems.edge.energy.api.schedulable.Schedule.Preset;
 
-public class ScheduleHandler<MODE extends Schedule.Mode, CONFIG> {
+public class ScheduleHandler<CONFIG> {
 
 	private final Logger log = LoggerFactory.getLogger(ScheduleHandler.class);
 
-	public static class Builder<MODE extends Schedule.Mode, CONFIG> {
+	public static class Builder<CONFIG> {
 
-		private final ImmutableMap.Builder<MODE, CONFIG> configs = ImmutableMap.builder();
+		private final ImmutableList.Builder<Preset<CONFIG>> presets = ImmutableList.builder();
 
 		private Builder() {
 		}
@@ -26,25 +25,13 @@ public class ScheduleHandler<MODE extends Schedule.Mode, CONFIG> {
 		 * @param config the config
 		 * @return builder
 		 */
-		public Builder<MODE, CONFIG> add(MODE mode, CONFIG config) {
-			this.configs.put(mode, config);
+		public Builder<CONFIG> add(Preset<CONFIG> preset) {
+			this.presets.add(preset);
 			return this;
 		}
 
-		public ScheduleHandler<MODE, CONFIG> build() {
-			var configs = this.configs.build();
-			// Check that all MODEs are properly defined
-			// for (var mode : configs.keySet()) {
-			// var notDefinedModes = Stream.of(mode.values()) //
-			// .filter(m -> !configs.keySet().contains(m)) //
-			// .map(m -> m.name()) //
-			// .collect(Collectors.joining(", "));
-			// if (!notDefinedModes.isEmpty()) {
-			// throw new IllegalArgumentException("Modes are not defined: " +
-			// notDefinedModes);
-			// }
-			// }
-			return new ScheduleHandler<MODE, CONFIG>(configs);
+		public ScheduleHandler<CONFIG> build() {
+			return new ScheduleHandler<CONFIG>(this.presets.build());
 		}
 
 	}
@@ -56,8 +43,8 @@ public class ScheduleHandler<MODE extends Schedule.Mode, CONFIG> {
 	 * @param <CONFIG> the type of Config
 	 * @return a {@link Builder}
 	 */
-	public static <MODE extends Schedule.Mode, CONFIG> Builder<MODE, CONFIG> create() {
-		return new Builder<MODE, CONFIG>();
+	public static <CONFIG> Builder<CONFIG> create() {
+		return new Builder<CONFIG>();
 	}
 
 	/**
@@ -68,22 +55,43 @@ public class ScheduleHandler<MODE extends Schedule.Mode, CONFIG> {
 	 * @param scheduleModes the array of Schedule-Modes
 	 * @return new {@link ScheduleHandler}
 	 */
-	@SuppressWarnings("unchecked")
-	public static <MODE extends Schedule.Mode, CONFIG> ScheduleHandler<MODE, CONFIG> of(
-			Schedule.ModeConfig<MODE, CONFIG>[] scheduleModes) {
-		ImmutableMap.Builder<MODE, CONFIG> configs = ImmutableMap.builder();
-		for (var mode : scheduleModes) {
-			configs.put((MODE) mode, mode.getModeConfig());
-		}
-		return new ScheduleHandler<MODE, CONFIG>(configs.build());
+	public static <CONFIG> ScheduleHandler<CONFIG> of(ImmutableList<? extends Preset<CONFIG>> presets) {
+		return new ScheduleHandler<CONFIG>(presets);
 	}
 
-	private final ImmutableMap<MODE, CONFIG> modeConfigs;
+	/**
+	 * Creates a {@link ScheduleHandler}.
+	 * 
+	 * @param <MODE>        the type of {@link Mode}
+	 * @param <CONFIG>      the type of Config
+	 * @param scheduleModes the array of Schedule-Modes
+	 * @return new {@link ScheduleHandler}
+	 */
+	public static <CONFIG> ScheduleHandler<CONFIG> of(Preset<CONFIG>[] presets) {
+		return new ScheduleHandler<CONFIG>(ImmutableList.copyOf(presets));
+	}
 
-	private Schedule<? extends MODE> schedule;
+	private final ImmutableList<? extends Preset<CONFIG>> presets;
 
-	private ScheduleHandler(ImmutableMap<MODE, CONFIG> modeConfigs) {
-		this.modeConfigs = modeConfigs;
+	private Schedule<CONFIG> schedule = null;
+	private CONFIG staticConfig = null;
+
+	private ScheduleHandler(ImmutableList<? extends Preset<CONFIG>> presets) {
+		this.presets = presets;
+	}
+
+	/**
+	 * Apply a statically configured Config.
+	 * 
+	 * <p>
+	 * This method is typically called at Component Activated or Modified. If
+	 * `config` is defined (i.e. != null), this `getCurrentConfig()` will always
+	 * return this.
+	 * 
+	 * @param config the static configuration; or null
+	 */
+	public void applyConfig(CONFIG staticConfig) {
+		this.staticConfig = staticConfig;
 	}
 
 	/**
@@ -91,30 +99,38 @@ public class ScheduleHandler<MODE extends Schedule.Mode, CONFIG> {
 	 * 
 	 * @param schedule the {@link Schedule}
 	 */
-	public synchronized void applySchedule(Schedule<? extends MODE> schedule) {
+	public synchronized void applySchedule(Schedule<CONFIG> schedule) {
 		this.log.info("Apply new Schedule: ");
 		this.log.info(schedule.toString());
 		this.schedule = schedule;
 	}
 
 	/**
-	 * Gets the current Mode Config.
+	 * Gets the current Config.
 	 * 
-	 * @return Config
+	 * <p>
+	 * If a static non-null config was provided via `applyConfig()`, this method
+	 * always returns the static config. Otherwise gets the Config from the
+	 * Schedule. If none exist, returns null.
+	 * 
+	 * @return the Config or null
 	 */
-	public synchronized CONFIG getCurrentModeConfig() {
+	public synchronized CONFIG getCurrentConfig() {
+		if (this.staticConfig != null) {
+			return this.staticConfig;
+		}
 		if (this.schedule == null) {
 			return null;
 		}
-		var mode = this.schedule.getCurrentMode();
-		if (mode == null) {
+		var preset = this.schedule.getCurrentPreset();
+		if (preset == null) {
 			return null;
 		}
-		return this.modeConfigs.get(mode);
+		return preset.getConfig();
 	}
 
-	public ImmutableSet<MODE> getAvailableModes() {
-		return this.modeConfigs.keySet();
+	public ImmutableList<? extends Preset<CONFIG>> getPresets() {
+		return this.presets;
 	}
 
 }

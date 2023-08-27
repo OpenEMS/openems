@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
+import static io.openems.edge.controller.ess.fixactivepower.Mode.Config.MANUAL_OFF;
+import static io.openems.edge.controller.ess.fixactivepower.Mode.Config.MANUAL_ON;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -26,7 +28,7 @@ public class ControllerEssFixActivePowerImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
-						.setMode(Mode.MANUAL_ON) //
+						.setMode(MANUAL_ON) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
 						.setPhase(Phase.ALL) //
@@ -42,7 +44,7 @@ public class ControllerEssFixActivePowerImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
-						.setMode(Mode.MANUAL_OFF) //
+						.setMode(MANUAL_OFF) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
 						.setPhase(Phase.ALL) //
