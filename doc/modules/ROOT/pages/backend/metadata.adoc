@@ -22,9 +22,12 @@ and accompanying processes.
 == Edges
 
 The Metadata nature provides access to the https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edge] object - the digital twin representation of the OpenEMS edge instance.
-
+[NOTE]
+====
 Identification of OpenEMS Edges is done with a unique API key.
-The API key is expected to include a lot of randomness, because it is implicitly used to authorize the edge.
+Please take care, that the API key includes a lot of randomness, because it is implicitly used to authorize the edge.
+====
+
 
 == Users
 

@@ -1,12 +1,12 @@
 = Timedata Aggregated InfluxDB
 
+OpenEMS Backend implementation for aggregated InfluxDB access.
+
 [NOTE]
 ====
 Bundle is needed for highly optimized environments with
 thousands of connected edges only. If you do not need that functionality you can skip this chapter.
 ====
-
-OpenEMS Backend implementation for aggregated InfluxDB access.
 
 A large number of OpenEMS edges connected to a single backend leads to a performance bottleneck.
 The bottleneck is largely due to the access to the database. This `Aggregated InfluxDB` bundle in
@@ -35,7 +35,7 @@ And only in a very few cases it gets the data from `DB 1`
 [CAUTION]
 ====
 The `Timedata.AggregatedInfluxDB` includes a class `AllowedChannels.java`.
-This implementation includes a hardcoded list of channels:
+This implementation includes a *hardcoded* list of channels:
 
 * `ALLOWED_AVERAGE_CHANNELS` are used to calculate the 5min average values (e.g. average power values).
 * `ALLOWED_CUMULATED_CHANNELS` are used to calculate daily values (e.g. energy values).
@@ -54,6 +54,28 @@ it may have to do with an incorrect hardcoded list.
 
 If you expect your backend to handle thousands of connected edges,
 the following configuration may provide a good start setup:
+
+*Create database and set retention policy:*
+
+Before starting the OpenEMS backend and after intially setting up the influx servers,
+you need to create the databases `influx0` and `aggregated0`
+and some retention policies:
+
+[source,shell]
+----
+
+##### Influx Server 1 #####
+curl -i -XPOST http://127.0.0.1:8082/query --data-urlencode "q=CREATE DATABASE influx0"
+
+##### Influx Server 2 #####
+curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE DATABASE aggregated0"
+
+curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE RETENTION POLICY rp_max ON aggregated0 DURATION 90d REPLICATION 1"
+curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE RETENTION POLICY rp_avg ON aggregated0 DURATION 90d REPLICATION 1"
+
+----
+
+*OpenEMS backend configuration:*
 
 * bundle `Timedata.AggregatedInfluxDB`
   ** ComponentID: `timedata0`
@@ -78,8 +100,11 @@ the following configuration may provide a good start setup:
 * bundle `Core Timedata-Manager`
  ** Timedata-IDs:  `[timedata0, timedata1]`
 
-*Important:*
 
+
+
+[NOTE]
+====
 * Note the different Bucket namings, one with retention policy `autogen` and one without.
 * Make sure that your influx databases are located on two different servers
 or that you can easily move one database to another server later.
@@ -88,29 +113,10 @@ configured correctly - the component-ID of the `Timedata.AggregatedInfluxDB`
 comes first.
 * Influx Database must have at least Version 1.8.10.
 * Take care of your edge to backend connections on the edge side. Be sure to understand and select the right PersistencePriority for the different datatypes.
+* Remember the hardcoded list in _AllowedChannels.java_
 * Note that you can shift the load of your databases by choosing different retention policies.
-
-
-
-*Create database and set retention policy:*
-
-Before starting the OpenEMS backend and after intially setting up the influx servers,
-you need to create the databases `influx0` and `aggregated0`
-and some retention policies:
-
-[source,shell]
-----
-
-##### Influx Server 1 #####
-curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE DATABASE influx0"
-
-##### Influx Server 2 #####
-curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE DATABASE aggregated0"
-
-curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE RETENTION POLICY rp_max ON aggregated0 DURATION 90d REPLICATION 1"
-curl -i -XPOST http://127.0.0.1:8081/query --data-urlencode "q=CREATE RETENTION POLICY rp_avg ON aggregated0 DURATION 90d REPLICATION 1"
-
-----
+* Be sure you know exactly how Influx handles *reading* and *writing* data when using different retention policies on one database.
+====
 
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.timedata.influx.aggregatedinflux[Source Code icon:github[]]

@@ -10,6 +10,11 @@
 :imagesdir: ../../assets/images
 
 The following bundles are available in OpenEMS Backend.
+[NOTE]
+====
+This list is not complete.
+====
+
 
 include::service.adoc.d/_include.adoc[leveloffset=+0]
 
