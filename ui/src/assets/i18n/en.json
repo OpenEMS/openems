@@ -119,6 +119,11 @@
 "functionDescription": "",
 "storageDescription": "",
 "pvCurtail": ""
+},
+"LOW": {
+"functionDescription": "",
+"storageDescription": "",
+"pvCurtail": ""
 }
 },
 "riskPropensity": "Risk propensity",
@@ -551,7 +556,8 @@
 "yes": "Yes",
 "no": "No",
 "value": "value",
-"dateFormatShort": ""
+"dateFormatShort": "",
+"energyLimit": ""
 },
 "Index": {
 "allConnected": "All connections established.",
