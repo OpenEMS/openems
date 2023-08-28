@@ -73,9 +73,6 @@ public class StringWordElementTest {
 		var sut = new ModbusTest.FC16WriteRegisters<>(new StringWordElement(0, 6), STRING);
 		sut.channel.setNextWriteValueFromObject("OpenEMS");
 		var registers = sut.element.getNextWriteValueAndReset();
-		for (var reg : registers) {
-			System.out.println(Integer.toHexString(reg.toBytes()[0]) + " " + Integer.toHexString(reg.toBytes()[1]));
-		}
 		assertEquals(6, registers.length);
 		assertArrayEquals(new byte[] { (byte) 0x4F, (byte) 0x70 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x65, (byte) 0x6E }, registers[1].toBytes());

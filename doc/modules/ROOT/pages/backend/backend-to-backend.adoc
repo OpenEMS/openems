@@ -121,7 +121,7 @@ https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.b2bwebsocket/
 
 === SubscribeToChannels
 
-Registers a subscription for regular updates of channel values. Request is acknowledged by an empty success Response and followed by regular JSON-RPC Notifications. Du stop the subscription, an empty 'subscribeEdgesChannels' Request needs to be sent. 
+Registers a subscription for regular updates of channel values. Request is acknowledged by an empty success Response and followed by regular JSON-RPC Notifications. To stop the subscription, an empty 'subscribeEdgesChannels' Request needs to be sent. 
 
 The parameter "count" must be increased with each new Request. Only the Request with the highest "count" value is active.
 
