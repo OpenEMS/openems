@@ -29,9 +29,6 @@ jobs:
       - name: Validate BackendApp.bndrun and EdgeApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun  io.openems.edge.application/EdgeApp.bndrun
 
-      #
-      # Is this a Tag? Prepare release assets
-      #
       - name: Prepare Edge+Backend assets
         run: ./gradlew assembleEdge assembleBackend
 
@@ -70,9 +67,6 @@ jobs:
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
 
-      #
-      # Is this a Tag? Prepare release assets
-      #
       - name: Prepare UI asset
         run: |
           mkdir build
@@ -85,9 +79,6 @@ jobs:
           name: build-artifacts
           path: build/openems-ui.zip
 
-  #
-  # Is this a Tag? Create a draft release
-  #
   release:
     runs-on: ubuntu-latest
     needs: [build-java, build-ui]
