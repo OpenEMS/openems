@@ -14,5 +14,9 @@
         ".angular",
         "target"
     ],
-    "formatFiles.excludePattern": "**/{*.svg,*.png,*.ico,package-lock.json}"
+    "formatFiles.excludePattern": "**/{*.svg,*.png,*.ico,package-lock.json}",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true
+    }
 }
