@@ -1,7 +1,9 @@
-name: Release OpenEMS
+name: Prepare OpenEMS Release
+
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "*.*.*"
   
 jobs:
   build-java:
