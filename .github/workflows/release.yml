@@ -21,7 +21,10 @@ jobs:
       - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Build all Java packages
-        run: ./gradlew assemble resolve
+        run: ./gradlew assemble
+  
+      - name: Resolve OpenEMS bundles
+        run: ./gradlew resolve
 
       - name: Validate BackendApp.bndrun and EdgeApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun  io.openems.edge.application/EdgeApp.bndrun
