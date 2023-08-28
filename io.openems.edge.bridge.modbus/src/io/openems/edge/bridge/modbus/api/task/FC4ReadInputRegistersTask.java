@@ -1,8 +1,11 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.stream.Stream;
+
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -14,7 +17,7 @@ import io.openems.edge.common.taskmanager.Priority;
  * (http://www.simplymodbus.ca/FC04.htm).
  */
 public class FC4ReadInputRegistersTask
-		extends AbstractReadInputRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> {
+		extends AbstractReadRegistersTask<ReadInputRegistersRequest, ReadInputRegistersResponse> {
 
 	public FC4ReadInputRegistersTask(int startAddress, Priority priority, ModbusElement... elements) {
 		super("FC4ReadInputRegisters", ReadInputRegistersResponse.class, startAddress, priority, elements);
@@ -26,8 +29,13 @@ public class FC4ReadInputRegistersTask
 	}
 
 	@Override
-	protected InputRegister[] parseResponse(ReadInputRegistersResponse response) throws OpenemsException {
-		return response.getRegisters();
+	protected Register[] parseResponse(ReadInputRegistersResponse response) throws OpenemsException {
+		return Stream.of(response.getRegisters()) //
+				.map(r -> {
+					var bs = r.toBytes();
+					return new SimpleRegister(bs[0], bs[1]);
+				}) //
+				.toArray(Register[]::new);
 	}
 
 	@Override
