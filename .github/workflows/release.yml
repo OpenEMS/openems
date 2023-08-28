@@ -1,0 +1,103 @@
+name: Release OpenEMS
+on:
+  release:
+    types: [published]
+  
+jobs:
+  build-java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+
+      - uses: kiancross/checkstyle-annotations-action@v1
+
+      - name: Build all Java packages
+        run: ./gradlew assemble resolve
+
+      - name: Validate BackendApp.bndrun and EdgeApp.bndrun
+        run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun  io.openems.edge.application/EdgeApp.bndrun
+
+      #
+      # Is this a Tag? Prepare release assets
+      #
+      - name: Prepare Edge+Backend assets
+        run: ./gradlew assembleEdge assembleBackend
+
+      - name: Save build-artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            build/openems-edge.jar
+            build/openems-backend.jar
+
+  build-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Setup Cache for Node.js
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            ~/.ng
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Build OpenEMS UI
+        run: |
+          cd ui
+          npm install 
+          npm ci --prefer-offline --cache ~/.npm
+          node_modules/.bin/ng config cli.cache.path "~/.ng"
+          node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+
+      #
+      # Is this a Tag? Prepare release assets
+      #
+      - name: Prepare UI asset
+        run: |
+          mkdir build
+          cd ui/target
+          zip -r ../../build/openems-ui.zip ./*
+
+      - name: Save build-artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/openems-ui.zip
+
+  #
+  # Is this a Tag? Create a draft release
+  #
+  release:
+    runs-on: ubuntu-latest
+    needs: [build-java, build-ui]
+    steps:
+      - name: Load build-artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: build
+
+      - name: Create draft Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            build/openems-edge.jar
+            build/openems-backend.jar
+            build/openems-ui.zip
