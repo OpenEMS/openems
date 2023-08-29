@@ -1,13 +1,12 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
-
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.junit.Test;
 
+import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
 import io.openems.edge.predictor.lstmmodel.validation.Validation;
 
 public class StandAloneValidationTest {

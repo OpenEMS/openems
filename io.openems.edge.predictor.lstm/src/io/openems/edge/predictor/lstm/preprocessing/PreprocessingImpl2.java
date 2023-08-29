@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstmmodel.preprocessing;
+package io.openems.edge.predictor.lstm.preprocessing;
 //package io.openems.edge.predictor.lstmmodel.preprocessing;
 //
 //import java.util.ArrayList;

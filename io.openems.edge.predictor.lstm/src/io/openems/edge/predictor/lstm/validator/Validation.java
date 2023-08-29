@@ -1,13 +1,13 @@
 package io.openems.edge.predictor.lstm.validator;
 
-import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
-import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
-import io.openems.edge.predictor.lstmmodel.preprocessing.Normalize;
-import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessingImpl;
-import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
-import io.openems.edge.predictor.lstmmodel.preprocessing.Suffle;
-import io.openems.edge.predictor.lstmmodel.utilities.MathUtils;
+import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
+import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
+import io.openems.edge.predictor.lstm.preprocessing.Normalize;
+import io.openems.edge.predictor.lstm.preprocessing.PreProcessingImpl;
+import io.openems.edge.predictor.lstm.preprocessing.ReadCsv;
+import io.openems.edge.predictor.lstm.preprocessing.Suffle;
+import io.openems.edge.predictor.lstm.utilities.MathUtils;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;

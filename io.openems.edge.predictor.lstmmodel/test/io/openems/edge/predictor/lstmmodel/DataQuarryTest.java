@@ -1,7 +1,7 @@
 package io.openems.edge.predictor.lstmmodel;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.predictor.lstmmodel.predictor.DataQuarry;
+import io.openems.edge.predictor.lstmmodel.predictor.DataQuerry;
 
 import static org.junit.Assert.*;
 

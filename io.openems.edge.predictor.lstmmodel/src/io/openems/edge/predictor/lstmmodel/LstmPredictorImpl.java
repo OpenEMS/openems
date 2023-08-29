@@ -21,7 +21,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.lstmmodel.predictor.DataQuarry;
+import io.openems.edge.predictor.lstmmodel.predictor.DataQuerry;
 import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
@@ -106,7 +106,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 
 		// Extract data
 		
-		DataQuarry predictionData = new  DataQuarry(fromDate, till,15,timedata);
+		DataQuerry predictionData = new  DataQuerry(fromDate, till,15,timedata);
 		
 		//get date
 
@@ -124,8 +124,8 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours
 		Prediction obj =new Prediction((ArrayList<Double>) predictionData.data,predictionData.date,minOfTrainingData,maxOfTrainingData);
 		
 		System.out.println("Predicted "+obj.predictedAndScaledBack);
-		System.out.println("Target "+new  DataQuarry(ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,14,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
-		System.out.println("ODB:  "+ new DataQuarry(ZonedDateTime.of(2023, 6,12,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
+		System.out.println("Target "+new  DataQuerry(ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,14,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
+		System.out.println("ODB:  "+ new DataQuerry(ZonedDateTime.of(2023, 6,12,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,13,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data);
 		//Prediction.makePlot(obj.predictedAndScaledBack, new  DataQuarry(ZonedDateTime.of(2023, 6,7,0,0,0,0,ZonedDateTime.now().getZone()),ZonedDateTime.of(2023, 6,8,0,0,0,0,ZonedDateTime.now().getZone()),15,timedata).data, 0);	
 		return null;
 

@@ -1,25 +1,17 @@
-package io.openems.edge.predictor.lstm.train;
+package io.openems.edge.predictor.lstm.util;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-//import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-//import io.openems.edge.predictor.lstmmodel.model.SaveModel;
-//import io.openems.edge.predictor.lstmmodel.preprocessing.PreProcessingImpl;
-//import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
-//import io.openems.edge.predictor.lstmmodel.preprocessing.Normalize;
-//import io.openems.edge.predictor.lstmmodel.preprocessing.Suffle;
-//import io.openems.edge.predictor.lstmmodel.util.Engine;
-//import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
-import java.util.Collections;
 
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.model.SaveModel;
 import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
 import io.openems.edge.predictor.lstm.preprocessing.Normalize;
 import io.openems.edge.predictor.lstm.preprocessing.PreProcessingImpl;
+
 import io.openems.edge.predictor.lstm.preprocessing.Suffle;
-import io.openems.edge.predictor.lstm.util.Engine;
 import io.openems.edge.predictor.lstm.util.Engine.EngineBuilder;
+
 
 /**
  * 
@@ -47,18 +39,21 @@ public class MakeModel {
 	ArrayList<ArrayList<Double>> modle = new ArrayList<ArrayList<Double>>();
 
 	public MakeModel(ArrayList<Double>data,ArrayList<OffsetDateTime>date,double min,double max) {
+
+
 		
 		values = data;
 		dates = date;
+	    minOfTrainingData=min;
+		maxOfTrainingData=max;
+
 		
 		
 		/**
 		 * compute interpolation
 		 */
 		InterpolationManager inter = new InterpolationManager(values); // The result of interpolation is in
-																		// inter.interpolated		
-		minOfTrainingData = Collections.min(inter.interpolated);// 33246;			
-		maxOfTrainingData = Collections.max(inter.interpolated); // 73953495;
+																		// inter.interpolated
 
 		/**
 		 * Grouping the interpolated data by hour

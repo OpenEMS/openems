@@ -4,14 +4,13 @@ import java.awt.Color;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import io.openems.edge.predictor.lstmmodel.preprocessing.GroupBy;
+
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
-import io.openems.edge.predictor.lstmmodel.interpolation.InterpolationManager;
-import io.openems.edge.predictor.lstmmodel.predictor.Predictor;
-import io.openems.edge.predictor.lstmmodel.predictor.Preprocessing;
+import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
+import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
 import io.openems.edge.predictor.lstmmodel.predictor.ReadModels;
-import io.openems.edge.predictor.lstmmodel.predictor.ScaleBack;
+
 
 public class Prediction {
 	public ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();

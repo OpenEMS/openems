@@ -1,4 +1,5 @@
 package io.openems.edge.predictor.lstmmodel;
+import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
 import io.openems.edge.predictor.lstmmodel.predictor.Data;
 
 
@@ -9,7 +10,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 import io.openems.edge.predictor.lstmmodel.predictor.Prediction;
-import io.openems.edge.predictor.lstmmodel.preprocessing.ReadCsv;
 public class StandAlonePredictionTest {
 
 	@Test
