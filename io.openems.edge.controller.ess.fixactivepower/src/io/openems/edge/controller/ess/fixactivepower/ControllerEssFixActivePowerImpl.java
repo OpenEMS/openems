@@ -12,8 +12,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -36,7 +34,6 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		implements ControllerEssFixActivePower, Controller, OpenemsComponent, TimedataProvider {
 
-	private final Logger log = LoggerFactory.getLogger(ControllerEssFixActivePowerImpl.class);
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
 	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
@@ -89,10 +86,6 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		var config = this.scheduleHandler.getCurrentConfig();
 		// TODO Update _Property-Channels
-		if (config == null) {
-			this.logWarn(this.log, "No current config existing!");
-			return;
-		}
 
 		var isActive = false;
 		try {
