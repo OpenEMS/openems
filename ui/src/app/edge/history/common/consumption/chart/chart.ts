@@ -73,7 +73,7 @@ export class ChartComponent extends AbstractHistoryChart {
           ...inputChannel
         ],
       output: (data: HistoryUtils.ChannelData) => {
-        let datasets: HistoryUtils.DisplayValues[] = [];
+        const datasets: HistoryUtils.DisplayValues[] = [];
         datasets.push({
           name: translate.instant('General.TOTAL'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -104,7 +104,7 @@ export class ChartComponent extends AbstractHistoryChart {
             });
           });
         }
-        let evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
+        const evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
         evcsComponents.forEach((component, index) => {
           datasets.push({
             name: component.alias,
@@ -119,7 +119,7 @@ export class ChartComponent extends AbstractHistoryChart {
           });
         });
 
-        let consumptionMeterColors: string[] = ['rgb(220,20,60)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)'];
+        const consumptionMeterColors: string[] = ['rgb(220,20,60)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)'];
         consumptionMeters.forEach((meter, index) => {
           datasets.push({
             name: meter.alias,

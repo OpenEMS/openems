@@ -61,8 +61,8 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
   imports: [
     SharedModule,
     Common_Autarchy,
-    Common_Production,
     Common_Consumption,
+    Common_Production,
     Common_Selfconsumption,
     CommonEnergyMonitor
   ],
