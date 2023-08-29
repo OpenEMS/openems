@@ -1,30 +1,20 @@
 plugins {
 	id 'base'
 	id 'java'
-	id 'java-library'
 	id 'com.github.node-gradle.node'
-	id 'jacoco-report-aggregation' 
 }
 
 repositories {
 	mavenCentral()
-	maven {
-		url = uri('https://repo.maven.apache.org/maven2/')
-	}
+	gradlePluginPortal()
 }
 
 dependencies {
 	// Use JUnit test framework.
 	testImplementation 'junit:junit:4.13.2'
 	
-	// This dependency is used by the application.	
+	// This dependency is used by the application. 
 	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
-	
-	subprojects.findAll { project -> 
-		project.name.startsWith('io.openems')
-	}.each { project ->
-		jacocoAggregation project
-	}
 }
 
 java {
@@ -33,25 +23,15 @@ java {
 	}
 }
 
-reporting {
-	reports {
-		testCodeCoverageReport(JacocoCoverageReport) { 
-			testType = TestSuiteType.UNIT_TEST
-		}
-	}
-}
-
-tasks.named('check') {
-	dependsOn tasks.named('testCodeCoverageReport', JacocoReport) 
-}
-
 /*
- * disable report generation
+ * Setup multi-projects: 
+ * - setup bnd tasks
+ * - disable report generation
+ * - setup parrallel execution
  */
-allprojects {
+subprojects {
 	repositories {
 		mavenCentral()
-		gradlePluginPortal()
 	}
 	
 	tasks.withType(JavaCompile) {
@@ -62,35 +42,12 @@ allprojects {
 	
 	tasks.withType(Test) {
 		maxParallelForks = 2
-		forkEvery = 100
 		reports {
 			html.required = false
 			junitXml.required = false
 		}
 	}
-}
-
-task cleanEdge() {
-	group 'OpenEMS-Build'
-	description 'Clean all Edge-Bundles'
-}
-task cleanBackend() {
-	group 'OpenEMS-Build'
-	description 'Clean all Backend-Bundles'
-}
-task assembleEdge() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Edge-Bundles'
-}
-task assembleBackend() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Backend-Bundles'
-}
-
-/*
- * setup bnd tasks
- */
-subprojects {
+	
 	if (plugins.hasPlugin("biz.aQute.bnd")) {
 		apply plugin: 'checkstyle'
 		apply plugin: 'jacoco'
@@ -101,13 +58,19 @@ subprojects {
 				csv.required = true
 				html.required = false
 			}
+			// Exclude com.dalsemi.onewire
+			afterEvaluate {
+				classDirectories.setFrom(files(classDirectories.files.collect {
+					fileTree(dir: it, excludes: ['**/com/dalsemi/onewire/**'])
+				}))
+			}
 		}
 	
 		checkstyle {
 			toolVersion = '10.11.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
-			ignoreFailures false
+			ignoreFailures = false
 		}
 	
 		tasks.withType(Checkstyle) {
@@ -115,34 +78,68 @@ subprojects {
 				xml.required = false
 				html.required = false
 			}
-		}
-	
-		tasks.withType(aQute.bnd.gradle.Export) {
-			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
-		}
-	}
-	
-	if ( it.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
-		def clean = tasks.findByName('clean')
-		def assemble = tasks.findByName('assemble')
-		if( clean && assemble ) {
-			rootProject.tasks.findByPath(':cleanEdge').dependsOn(clean)
-			rootProject.tasks.findByPath(':assembleEdge').dependsOn(assemble)
-		}
-	}
-	
-	if ( it.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
-		def clean = tasks.findByName('clean')
-		def assemble = tasks.findByName('assemble')
-		if( clean && assemble ) {
-			rootProject.tasks.findByPath(':cleanBackend').dependsOn(clean)
-			rootProject.tasks.findByPath(':assembleBackend').dependsOn(assemble)
+			minHeapSize = "256m"
+			maxHeapSize = "1g"
+			// Exclude com.dalsemi.onewire
+			exclude '**/com/dalsemi/onewire/*'
 		}
 	}
 }
 
 tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
+}
+
+task cleanEdge() {
+	group 'OpenEMS-Build'
+	description 'Clean all Edge-Bundles'
+	
+	subprojects.each { proj ->
+		if( proj.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
+			if (proj.tasks.findAll { it.name == 'clean' }) {
+				dependsOn(proj.clean)
+			}
+		}
+	}
+}
+
+task cleanBackend() {
+	group 'OpenEMS-Build'
+	description 'Clean all Backend-Bundles'
+	
+	subprojects.each { proj ->
+		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+			if (proj.tasks.findAll { it.name == 'clean' }) {
+				dependsOn(proj.clean)
+			}
+		}
+	}
+}
+
+task assembleEdge() {
+	group 'OpenEMS-Build'
+	description 'Assemble all Edge-Bundles'
+	
+	subprojects.each { proj ->
+		if( proj.name ==~ /io.openems.(common|edge|shared|wrapper).*/ ) {
+			if (proj.tasks.findAll { it.name == 'assemble' }) {
+				dependsOn(proj.assemble)
+			}
+		}
+	}
+}
+
+task assembleBackend() {
+	group 'OpenEMS-Build'
+	description 'Assemble all Backend-Bundles'
+	
+	subprojects.each { proj ->
+		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+			if (proj.tasks.findAll { it.name == 'assemble' }) {
+				dependsOn(proj.assemble)
+			}
+		}
+	}
 }
 
 /*
@@ -165,9 +162,9 @@ task buildEdge() {
 	group 'OpenEMS-Build'
 	description 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
 	
-	def assemble = tasks.findByPath(':assembleEdge')
-	def export = tasks.findByPath(':io.openems.edge.application:export.EdgeApp')
-	def resolve = tasks.findByPath(':io.openems.edge.application:resolve.EdgeApp')
+	def assemble = tasks.getByPath(':assembleEdge')
+	def export = tasks.getByPath(':io.openems.edge.application:export.EdgeApp')
+	def resolve = tasks.getByPath(':io.openems.edge.application:resolve.EdgeApp')
 	
 	dependsOn assemble
 	dependsOn export
@@ -194,9 +191,9 @@ task buildBackend() {
 	group 'OpenEMS-Build'
 	description 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
 	
-	def assemble = tasks.findByPath(':assembleBackend')
-	def export = tasks.findByPath(':io.openems.backend.application:export.BackendApp')
-	def resolve = tasks.findByPath(':io.openems.backend.application:resolve.BackendApp')
+	def assemble = tasks.getByPath(':assembleBackend')
+	def export = tasks.getByPath(':io.openems.backend.application:export.BackendApp')
+	def resolve = tasks.getByPath(':io.openems.backend.application:resolve.BackendApp')
 	
 	dependsOn assemble
 	dependsOn export

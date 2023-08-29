@@ -8,13 +8,26 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyConfigurationAdmin.DummyConfiguration;
 
-public abstract class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
+public class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
+
+	public static final String DEFAULT_COMPONENT_ID = "device0";
+	public static final String DEFAULT_BRIDGE_ID = "modbus0";
+	public static final int DEFAULT_UNIT_ID = 1;
+
+	public DummyModbusComponent() throws OpenemsException {
+		this(DEFAULT_COMPONENT_ID, DEFAULT_BRIDGE_ID);
+	}
+
+	public DummyModbusComponent(String id, String bridgeId) throws OpenemsException {
+		this(id, new DummyModbusBridge(bridgeId), DEFAULT_UNIT_ID, new io.openems.edge.common.channel.ChannelId[0]);
+	}
 
 	public DummyModbusComponent(String id, AbstractModbusBridge bridge, int unitId,
 			io.openems.edge.common.channel.ChannelId[] additionalChannelIds) throws OpenemsException {
@@ -37,7 +50,18 @@ public abstract class DummyModbusComponent extends AbstractOpenemsModbusComponen
 		super.activate(context, id, "", true, unitId, cm, "Modbus", bridge.id());
 	}
 
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		return new ModbusProtocol(this);
+	}
+
 	@Override
-	protected abstract ModbusProtocol defineModbusProtocol() throws OpenemsException;
+	public ModbusProtocol getModbusProtocol() throws OpenemsException {
+		return super.getModbusProtocol();
+	}
+
+	@Override
+	public Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
+		return super.addChannel(channelId);
+	}
 
 }

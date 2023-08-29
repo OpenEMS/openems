@@ -7,17 +7,16 @@ import { EdgeConfig } from "./edgeconfig";
 export namespace DummyConfig {
 
     const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date());
-
     export function from(...components: Component[]): EdgeConfig {
 
-        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
+        return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{
             components: <unknown>components?.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
-            factories: <unknown>components.map(c => c.factory)
+            factories: <unknown>components?.map(c => c.factory)
         });
-    }
+    };
 
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
-        let components = Object.values(edgeConfig.components);
+        let components = Object.values(edgeConfig?.components) ?? null;
 
         let factories = {};
         components.forEach(obj => {
@@ -86,6 +85,28 @@ namespace Factory {
             "io.openems.edge.evcs.api.Evcs"
         ]
     };
+
+export const ESS_GENERIC_MANAGEDSYMMETRIC = {
+        id: "Ess.Generic.ManagedSymmetric",
+        natureIds: [
+            "io.openems.edge.goodwe.common.GoodWe",
+            "io.openems.edge.bridge.modbus.api.ModbusComponent",
+            "io.openems.edge.common.modbusslave.ModbusSlave",
+            "io.openems.edge.ess.api.SymmetricEss",
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.ess.api.HybridEss",
+            "io.openems.edge.goodwe.ess.GoodWeEss",
+            "io.openems.edge.ess.api.ManagedSymmetricEss",
+            "io.openems.edge.timedata.api.TimedataProvider"
+        ]
+    };
+
+    export const SOLAR_EDGE_PV_INVERTER = {
+        id: "SolarEdge.PV-Inverter",
+        natureIds: [
+            "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter", "io.openems.edge.meter.api.AsymmetricMeter", "io.openems.edge.meter.api.SymmetricMeter", "io.openems.edge.bridge.modbus.api.ModbusComponent", "io.openems.edge.common.modbusslave.ModbusSlave", "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", "io.openems.edge.common.component.OpenemsComponent"
+        ]
+    };
 }
 
 /**
@@ -103,6 +124,7 @@ type Component = {
 export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
     alias: alias ?? id,
+    factoryId: 'Meter.Socomec.Threephase',
     factory: Factory.METER_SOCOMEC_THREEPHASE,
     properties: {
         invert: false,
@@ -124,15 +146,39 @@ export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component
     },
     channels: {}
 });
-
 export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
     id: id,
-    alias: alias ?? id,
+    alias: alias,
     factory: Factory.METER_GOODWE_GRID,
     properties: {
         invert: false,
         modbusUnitId: 5,
-        type: "GRID"
+        type: "PRODUCTION"
+    },
+    channels: {}
+});
+
+export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias,
+    factoryId: 'SolarEdge.PV-Inverter',
+    factory: Factory.SOLAR_EDGE_PV_INVERTER,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: "PRODUCTION"
+    },
+    channels: {}
+});
+
+export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factoryId: 'Ess.Generic.ManagedSymmetric',
+    factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
+    properties: {
+        invert: false,
+        modbusUnitId: 5
     },
     channels: {}
 });

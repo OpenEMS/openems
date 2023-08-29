@@ -1,7 +1,6 @@
 <ng-container *ngIf="disableArrow !== null">
     <ion-button (click)="goBackward()">
-        <ion-icon class="ion-padding-start" name="arrow-back-outline" slot="start"
-            ngClass="secondary-color-contrast">
+        <ion-icon class="ion-padding-start" name="arrow-back-outline" slot="start" ngClass="secondary-color-contrast">
         </ion-icon>
     </ion-button>
     <ion-button *ngIf="translate" (click)="presentPopover($event)" ngClass="secondary-color-contrast">
@@ -16,8 +15,8 @@
     </ng-container>
     <ng-container *ngIf="disableArrow === true">
         <ion-button disabled (click)="goForward()">
-          <ion-icon class="ion-padding-end" slot="end" ngClass="secondary-color-contrast">
-          </ion-icon>
+            <ion-icon class="ion-padding-end" slot="end" ngClass="secondary-color-contrast">
+            </ion-icon>
         </ion-button>
     </ng-container>
 </ng-container>

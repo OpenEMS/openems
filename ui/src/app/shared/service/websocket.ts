@@ -106,7 +106,10 @@ export class Websocket implements WebsocketInterface {
 
     this.socket.pipe(
       // Websocket Auto-Reconnect
-      retryWhen(errors => errors.pipe(delay(1000)))
+      retryWhen((errors) => {
+        console.warn(errors);
+        return errors.pipe(delay(1000));
+      })
 
     ).subscribe(originalMessage => {
       // Receive message from server
@@ -144,7 +147,6 @@ export class Websocket implements WebsocketInterface {
     }, () => {
       this.status = 'failed';
       this.onClose();
-
     });
   }
 

@@ -7,8 +7,10 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+
 import { Role } from "../../type/role";
 import { TextIndentation } from "./modal-line/modal-line";
+import { Converter } from "../shared/converter";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
@@ -28,6 +30,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public readonly TextIndentation = TextIndentation;
 
     public readonly Utils = Utils;
+    public readonly Converter = Converter;
 
     private selector: string = uuidv4();
 
@@ -38,7 +41,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        private ref: ChangeDetectorRef
+        public ref: ChangeDetectorRef
     ) {
         ref.detach();
         setInterval(() => {

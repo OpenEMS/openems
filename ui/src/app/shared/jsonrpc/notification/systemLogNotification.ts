@@ -24,7 +24,7 @@ export class SystemLogNotification extends JsonrpcNotification {
     public static readonly METHOD: string = "systemLog";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             line: SystemLog
         }
     ) {
