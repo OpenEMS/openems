@@ -219,6 +219,10 @@ public class JsonUtilsTest {
 		// -> Optional Sub-Element
 		assertEquals("value", JsonUtils.getAsOptionalString(JSON_OBJECT, "String").get());
 		assertEquals(Optional.empty(), JsonUtils.getAsOptionalString(JSON_OBJECT, "foo"));
+
+		// -> As String or Else
+		assertEquals("value", JsonUtils.getAsStringOrElse(JSON_OBJECT, "String", "alternative"));
+		assertEquals("alternative", JsonUtils.getAsStringOrElse(JSON_OBJECT, "foo", "alternative"));
 	}
 
 	@Test
