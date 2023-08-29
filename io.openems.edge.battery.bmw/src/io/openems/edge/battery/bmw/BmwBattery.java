@@ -13,121 +13,95 @@ import io.openems.edge.battery.bmw.enums.State;
 import io.openems.edge.battery.bmw.enums.WarningBits1;
 import io.openems.edge.battery.bmw.enums.WarningBits2;
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface BmwBattery extends OpenemsComponent, EventHandler {
 
-	public static enum BmwChannelId implements io.openems.edge.common.channel.ChannelId {
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		HEART_BEAT_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		HEART_BEAT(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.HEART_BEAT_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.HEART_BEAT_DEBUG)),
 
 		BMS_STATE_COMMAND(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
 
 		BMS_STATE_COMMAND_RESET_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_RESET(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(BmwChannelId.BMS_STATE_COMMAND_RESET_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_RESET_DEBUG)),
 
 		BMS_STATE_COMMAND_CLEAR_ERROR_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_CLEAR_ERROR(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(BmwChannelId.BMS_STATE_COMMAND_CLEAR_ERROR_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_CLEAR_ERROR_DEBUG)),
 
 		BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_CLOSE_PRECHARGE(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_CLOSE_PRECHARGE_DEBUG)),
 
 		BMS_STATE_COMMAND_ERROR_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_ERROR(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(BmwChannelId.BMS_STATE_COMMAND_ERROR_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_ERROR_DEBUG)),
 
 		BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_CLOSE_CONTACTOR(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_CLOSE_CONTACTOR_DEBUG)),
 
 		BMS_STATE_COMMAND_WAKE_UP_FROM_STOP_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_WAKE_UP_FROM_STOP(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.BMS_STATE_COMMAND_WAKE_UP_FROM_STOP_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_WAKE_UP_FROM_STOP_DEBUG)),
 
 		BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		BMS_STATE_COMMAND_ENABLE_BATTERY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.BMS_STATE_COMMAND_ENABLE_BATTERY_DEBUG)),
 
 		OPERATING_STATE_INVERTER_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		OPERATING_STATE_INVERTER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.OPERATING_STATE_INVERTER_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.OPERATING_STATE_INVERTER_DEBUG)),
 
 		DC_LINK_VOLTAGE_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		DC_LINK_VOLTAGE(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.unit(Unit.VOLT)
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.DC_LINK_VOLTAGE_DEBUG)) //
-		),
+				.unit(Unit.VOLT).onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DC_LINK_VOLTAGE_DEBUG)),
 
 		DC_LINK_CURRENT_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		DC_LINK_CURRENT(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.DC_LINK_VOLTAGE_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DC_LINK_VOLTAGE_DEBUG)),
 
 		OPERATION_MODE_REQUEST_GRANTED_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		OPERATION_MODE_REQUEST_GRANTED(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.OPERATION_MODE_REQUEST_GRANTED_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.OPERATION_MODE_REQUEST_GRANTED_DEBUG)),
 
 		OPERATION_MODE_REQUEST_CANCELED_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		OPERATION_MODE_REQUEST_CANCELED(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.OPERATION_MODE_REQUEST_CANCELED_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.OPERATION_MODE_REQUEST_CANCELED_DEBUG)),
 
 		CONNECTION_STRATEGY_HIGH_SOC_FIRST_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		CONNECTION_STRATEGY_HIGH_SOC_FIRST(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.CONNECTION_STRATEGY_HIGH_SOC_FIRST_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.CONNECTION_STRATEGY_HIGH_SOC_FIRST_DEBUG)),
 
 		CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG(Doc.of(OpenemsType.BOOLEAN)), //
 		CONNECTION_STRATEGY_LOW_SOC_FIRST(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(
-						BmwChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST_DEBUG)),
 
 		SYSTEM_TIME_DEBUG(Doc.of(OpenemsType.INTEGER)), //
 		SYSTEM_TIME(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
-				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(BmwChannelId.SYSTEM_TIME_DEBUG)) //
-		),
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.SYSTEM_TIME_DEBUG)),
 
 		// Read only channels
 		LIFE_SIGN(Doc.of(OpenemsType.INTEGER) //
@@ -299,7 +273,7 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 
 		private final Doc doc;
 
-		private BmwChannelId(Doc doc) {
+		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 

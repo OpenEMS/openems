@@ -1,9 +1,11 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,12 +13,10 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.battery.soltaro.common.ChannelIdImpl;
 import io.openems.edge.battery.soltaro.common.enums.ChargeIndication;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -24,6 +24,7 @@ import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.taskmanager.Priority;
@@ -107,11 +108,12 @@ public class SingleRack {
 	private final int rackNumber;
 	private final int numberOfSlaves;
 	private final int addressOffset;
-	private final ClusterVersionB parent;
+	private final BatterySoltaroClusterVersionBImpl parent;
 	private final Map<String, ChannelId> channelIds;
 	private final Map<String, Channel<?>> channelMap;
 
-	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset, ClusterVersionB parent) {
+	protected SingleRack(int racknumber, int numberOfSlaves, int addressOffset,
+			BatterySoltaroClusterVersionBImpl parent) {
 		this.rackNumber = racknumber;
 		this.numberOfSlaves = numberOfSlaves;
 		this.addressOffset = addressOffset;
@@ -153,10 +155,8 @@ public class SingleRack {
 
 		// State values
 		tasks.add(new FC3ReadRegistersTask(this.addressOffset + 0x100, Priority.HIGH, //
-				this.parent.map(this.channelIds.get(KEY_VOLTAGE), this.getUnsignedWordElement(0x100),
-						ElementToChannelConverter.SCALE_FACTOR_2), //
-				this.parent.map(this.channelIds.get(KEY_CURRENT), this.getSignedWordElement(0x101),
-						ElementToChannelConverter.SCALE_FACTOR_2), //
+				this.parent.map(this.channelIds.get(KEY_VOLTAGE), this.getUnsignedWordElement(0x100), SCALE_FACTOR_2), //
+				this.parent.map(this.channelIds.get(KEY_CURRENT), this.getSignedWordElement(0x101), SCALE_FACTOR_2), //
 				this.parent.map(this.channelIds.get(KEY_CHARGE_INDICATION), this.getUnsignedWordElement(0x102)), //
 				this.parent.map(this.channelIds.get(KEY_SOC), this.getUnsignedWordElement(0x103)). //
 						onUpdateCallback(val -> {
@@ -175,13 +175,13 @@ public class SingleRack {
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x109)), //
 				this.parent.map(this.channelIds.get(KEY_MAX_CELL_TEMPERATURE), this.getSignedWordElement(0x10A),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMaxCellTemperature();
 						}), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE_ID), this.getUnsignedWordElement(0x10B)), //
 				this.parent.map(this.channelIds.get(KEY_MIN_CELL_TEMPERATURE), this.getSignedWordElement(0x10C),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1). //
+						SCALE_FACTOR_MINUS_1). //
 						onUpdateCallback(val -> {
 							this.parent.recalculateMinCellTemperature();
 						}) //
@@ -252,11 +252,11 @@ public class SingleRack {
 
 		// Cell voltages
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?>> elements = new ArrayList<>();
+			var elements = new ArrayList<ModbusElement>();
 			for (var j = i * VOLTAGE_SENSORS_PER_MODULE; j < (i + 1) * VOLTAGE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + VOLTAGE;
 				var uwe = this.getUnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?> ame = this.parent.map(this.channelIds.get(key), uwe);
+				var ame = this.parent.map(this.channelIds.get(key), uwe);
 				elements.add(ame);
 			}
 
@@ -264,22 +264,23 @@ public class SingleRack {
 			var taskCount = elements.size() / maxElementsPerTask + 1;
 
 			for (var x = 0; x < taskCount; x++) {
-				var subElements = elements.subList(x * maxElementsPerTask,
-						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
-				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
+				var taskElements = elements
+						.subList(x * maxElementsPerTask, Math.min((x + 1) * maxElementsPerTask, elements.size())) //
+						.stream() //
+						.toArray(ModbusElement[]::new);
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].startAddress, Priority.LOW, taskElements));
 			}
 
 		}
 
 		// Cell temperatures
 		for (var i = 0; i < this.numberOfSlaves; i++) {
-			List<AbstractModbusElement<?>> elements = new ArrayList<>();
+			var elements = new ArrayList<ModbusElement>();
 			for (var j = i * TEMPERATURE_SENSORS_PER_MODULE; j < (i + 1) * TEMPERATURE_SENSORS_PER_MODULE; j++) {
 				var key = this.getSingleCellPrefix(j) + "_" + TEMPERATURE;
 
 				var swe = this.getSignedWordElement(TEMPERATURE_ADDRESS_OFFSET + j);
-				AbstractModbusElement<?> ame = this.parent.map(this.channelIds.get(key), swe);
+				var ame = this.parent.map(this.channelIds.get(key), swe);
 				elements.add(ame);
 			}
 
@@ -287,10 +288,11 @@ public class SingleRack {
 			var taskCount = elements.size() / maxElementsPerTask + 1;
 
 			for (var x = 0; x < taskCount; x++) {
-				var subElements = elements.subList(x * maxElementsPerTask,
-						Math.min((x + 1) * maxElementsPerTask, elements.size()));
-				var taskElements = subElements.toArray(new AbstractModbusElement<?>[0]);
-				tasks.add(new FC3ReadRegistersTask(taskElements[0].getStartAddress(), Priority.LOW, taskElements));
+				var taskElements = elements
+						.subList(x * maxElementsPerTask, Math.min((x + 1) * maxElementsPerTask, elements.size())) //
+						.stream() //
+						.toArray(ModbusElement[]::new);
+				tasks.add(new FC3ReadRegistersTask(taskElements[0].startAddress, Priority.LOW, taskElements));
 			}
 		}
 

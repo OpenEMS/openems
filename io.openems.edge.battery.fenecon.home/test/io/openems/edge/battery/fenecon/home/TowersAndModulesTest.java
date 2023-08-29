@@ -34,7 +34,7 @@ public class TowersAndModulesTest {
 
 	@Test
 	public void testChannelsCreatedDynamically() throws Exception {
-		var battery = new FeneconHomeBatteryImpl();
+		var battery = new BatteryFeneconHomeImpl();
 		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -69,18 +69,18 @@ public class TowersAndModulesTest {
 	@Test
 	public void testSerialNumberFormatterForBms() {
 		assertEquals("519100001009210104000035", //
-				FeneconHomeBatteryImpl.buildSerialNumber("519100001009", 707002403));
+				BatteryFeneconHomeImpl.buildSerialNumber("519100001009", 707002403));
 	}
 
 	@Test
 	public void testSerialNumberFormatterForOldBms() {
-		assertNull(FeneconHomeBatteryImpl.buildSerialNumber("519100001009", 0));
+		assertNull(BatteryFeneconHomeImpl.buildSerialNumber("519100001009", 0));
 	}
 
 	@Test
 	public void testSerialNumberFormatterForBattery() {
 		assertEquals("519110001210201219000039", //
-				FeneconHomeBatteryImpl.buildSerialNumber("519110001210", 697499687));
+				BatteryFeneconHomeImpl.buildSerialNumber("519110001210", 697499687));
 	}
 
 	/**
