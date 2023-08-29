@@ -17,14 +17,14 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(component =>
-                !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
-                !(component.factoryId == 'Evcs.Cluster.PeakShaving') &&
-                !component.isEnabled == false);
+                !(component.factoryId === 'Evcs.Cluster.SelfConsumption') &&
+                !(component.factoryId === 'Evcs.Cluster.PeakShaving') &&
+                !component.isEnabled === false);
 
         this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
-        let channels: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActiveEnergy')];
+        const channels: ChannelAddress[] = [new ChannelAddress('_sum', 'ConsumptionActiveEnergy')];
 
         this.evcsComponents.forEach((component) => {
             channels.push(new ChannelAddress(component.id, 'ActiveConsumptionEnergy'));
@@ -45,7 +45,7 @@ export class FlatComponent extends AbstractFlatWidget {
     /**
      * Gets the totalOtherEnergy
      * 
-     * @param currentData the currentData
+     * @param currentData the current data
      * @returns the total other Energy
      */
     private getTotalOtherEnergy(currentData: CurrentData): number {

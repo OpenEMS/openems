@@ -18,7 +18,7 @@ export class ChartComponent extends AbstractHistoryChart {
   public static getChartData(spinnerId: string, config: EdgeConfig, translate: TranslateService, showPhases: boolean, phaseColors: string[]): HistoryUtils.ChartData {
     spinnerId = "consumption";
 
-    let inputChannel: HistoryUtils.InputChannel[] = [{
+    const inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
       energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
@@ -33,13 +33,13 @@ export class ChartComponent extends AbstractHistoryChart {
       });
     });
 
-    let evcsComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+    const evcsComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(
         component.factoryId == 'Evcs.Cluster' ||
         component.factoryId == 'Evcs.Cluster.PeakShaving' ||
         component.factoryId == 'Evcs.Cluster.SelfConsumption'));
 
-    let consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+    const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
 
     evcsComponents.forEach(component => {

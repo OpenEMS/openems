@@ -21,7 +21,7 @@ export class ChartComponent implements OnInit, AfterViewChecked {
   @Input() public isPopoverNeeded: boolean = false;
 
   // Manually trigger ChangeDetection through Inputchange
-  @Input() private period: DefaultTypes.PeriodString;
+  @Input() public period: DefaultTypes.PeriodString;
   protected showPopover: boolean = false;
 
   constructor(
@@ -73,6 +73,5 @@ export class ChartComponent implements OnInit, AfterViewChecked {
       this.showPhasesChange.emit(this.showPhases);
       this.showTotalChange.emit(this.showTotal);
     });
-    await popover.present();
   }
 }
