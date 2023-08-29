@@ -11,10 +11,10 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Schedules {
 
-	private final ImmutableMap<String, Schedule<?>> map;
+	private final ImmutableMap<String, Schedule<?, ?>> map;
 
 	public static class Builder {
-		private final Map<String, Schedule<?>> map = new HashMap<>();
+		private final Map<String, Schedule<?, ?>> map = new HashMap<>();
 
 		private Builder() {
 		}
@@ -26,7 +26,7 @@ public class Schedules {
 		 * @param schedule    the {@link Schedule}
 		 * @return builder
 		 */
-		public Builder add(String componentId, Schedule<?> schedule) {
+		public Builder add(String componentId, Schedule<?, ?> schedule) {
 			this.map.put(componentId, schedule);
 			return this;
 		}
@@ -45,7 +45,7 @@ public class Schedules {
 		return new Builder();
 	}
 
-	private Schedules(ImmutableMap<String, Schedule<?>> elements) {
+	private Schedules(ImmutableMap<String, Schedule<?, ?>> elements) {
 		this.map = elements;
 	}
 

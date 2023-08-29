@@ -19,7 +19,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.schedulable.ScheduleHandler;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.PowerConstraint;
@@ -40,7 +39,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(ControllerEssFixActivePowerImpl.class);
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
-	private final ScheduleHandler<Schedule.Config> scheduleHandler = ScheduleHandler.of(Schedule.Preset.values());
+	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -76,7 +75,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	}
 
 	private boolean applyConfig(ComponentContext context, Config config) {
-		this.scheduleHandler.applyConfig(Schedule.Config.from(config));
+		this.scheduleHandler.applyStaticConfig(config);
 		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
@@ -89,9 +88,9 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		var config = this.scheduleHandler.getCurrentConfig();
+		// TODO Update _Property-Channels
 		if (config == null) {
 			this.logWarn(this.log, "No current config existing!");
-			// TODO Update _Property-Channels
 			return;
 		}
 
