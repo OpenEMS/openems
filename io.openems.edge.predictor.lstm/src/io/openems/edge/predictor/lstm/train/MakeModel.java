@@ -46,7 +46,7 @@ public class MakeModel {
 	 */
 	ArrayList<ArrayList<Double>> modle = new ArrayList<ArrayList<Double>>();
 
-	public MakeModel(ArrayList<Double>data,ArrayList<OffsetDateTime>date,double min,double max) {
+	public MakeModel(ArrayList<Double>data,ArrayList<OffsetDateTime>date) {
 		
 		values = data;
 		dates = date;
