@@ -1,6 +1,8 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
@@ -36,6 +39,8 @@ import io.openems.edge.common.taskmanager.Priority;
  * This class provides a generic implementation of SunSpec ModBus protocols.
  */
 public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsModbusComponent {
+	
+	private static final int MAXIMUM_TASK_LENGTH = 126; 
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
@@ -283,13 +288,13 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		var elements = new ModbusElement[model.points().length];
+		Deque<ModbusElement> elements = new ArrayDeque<>();
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
 			var element = point.get().generateModbusElement(startAddress);
 			startAddress += element.length;
-			elements[i] = element;
+			elements.add(element);
 
 			var channelId = point.getChannelId();
 			this.addChannel(channelId);
@@ -348,8 +353,37 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 		}
 
-		final Task readTask = new FC3ReadRegistersTask(elements[0].startAddress, priority, elements);
-		this.modbusProtocol.addTask(readTask);
+		this.addReadTasks(elements, priority);
+	}
+
+	/**
+	 * Splits the task if it is too long and adds the read tasks.
+	 * 
+	 * @param elements	the Deque of {@link AbstractModbusElement}s for one block.
+	 * @param priority	the reading priority
+	 * @throws OpenemsException on error
+	 */
+	private void addReadTasks(Deque<ModbusElement> elements, Priority priority) throws OpenemsException {
+		var length = 0;
+		var taskElements = new ArrayDeque<ModbusElement>();
+		var element = elements.pollFirst();
+		while (element != null) {
+			if (length + element.length > MAXIMUM_TASK_LENGTH) {
+				this.modbusProtocol.addTask(//
+						new FC3ReadRegistersTask(//
+								taskElements.peekFirst().startAddress, priority, //
+								taskElements.toArray(new AbstractModbusElement[taskElements.size()])));
+				length = 0;
+				taskElements.clear();
+			}
+			taskElements.add(element);
+			length += element.length;
+			element = elements.pollFirst();
+		}
+		this.modbusProtocol.addTask(//
+				new FC3ReadRegistersTask(//
+						taskElements.peekFirst().startAddress, priority, //
+						taskElements.toArray(new AbstractModbusElement[taskElements.size()])));
 	}
 
 	/**
