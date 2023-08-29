@@ -196,7 +196,8 @@
             "maxChargingDetails": "Falls das Auto den eingegebenen Maximalwert nicht laden kann, wird die Leistung automatisch begrenzt.",
             "name": "Erzwungene Beladung",
             "shortName": "Manuell"
-          }
+          },
+          "Uncontrollable": "Diese Ladesäule kann nicht gesteuert werden."
         },
         "Heatingelement": {
           "activeForced": "Aktiv (Mindestlaufzeit)",

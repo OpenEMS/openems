@@ -1,0 +1,158 @@
+<oe-modal [title]="this.component.alias" [component]="controller" [formGroup]="formGroup"
+  *ngIf="isInitialized && formGroup" [helpKey]="helpKey">
+
+  <ion-button button (click)="presentModal()">
+    <ion-icon name="car"></ion-icon>
+  </ion-button>
+
+  <ngx-spinner [name]="'spinner'"></ngx-spinner>
+
+  <ng-container *ngIf="isConnectionSuccessful">
+    <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.status' | translate" [value]="status">
+    </oe-modal-line>
+
+    <oe-modal-line *ngIf="chargePowerLimit >= maxChargePower; else chargePowerLimitValid"
+      [name]="'Edge.Index.Widgets.EVCS.chargeTarget' | translate" [value]="maxChargePower">
+    </oe-modal-line>
+    <ng-template #chargePowerLimitValid>
+      <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.chargeTarget' | translate" [value]="chargePowerLimit">
+      </oe-modal-line>
+    </ng-template>
+
+    <oe-modal-line *ngIf=" chargePower?.value> 0;else empty"
+      [name]="'Edge.Index.Widgets.EVCS.chargingPower' | translate" [value]="chargePower.value"
+      [converter]="Utils.CONVERT_TO_WATT">
+    </oe-modal-line>
+    <ng-template #empty>
+      <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.chargingPower' | translate" [value]="emptyValue">
+      </oe-modal-line>
+    </ng-template>
+
+    <oe-modal-line *ngIf="chargePower?.value > 0 || state === 2 || state === 7"
+      [name]="'Edge.Index.Widgets.EVCS.energySinceBeginning' | translate" [value]="energySession">
+    </oe-modal-line>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+    <table class="full_width">
+      <tr>
+        <td translate>
+          General.mode
+        </td>
+        <td class="align_right" *ngIf="formGroup.value.chargeMode !== 'OFF'">
+          <ion-icon (click)="isPrioritization = false; presentPopover()" class="ion-no-padding"
+            style="text-align: right; font-size: 20px" style="cursor: pointer" name="information-circle-outline">
+          </ion-icon>
+        </td>
+      </tr>
+    </table>
+
+
+    <oe-modal-buttons *ngIf="formGroup.controls['chargeMode'].value" [formGroup]="formGroup" controlName="chargeMode"
+      [component]="component" [buttons]="[
+    { name: ('General.on' | translate), value: 'FORCE_CHARGE', icon: {color:'success', name: 'power-outline'}},
+    { name: ('General.automatic' | translate), value: 'EXCESS_POWER', icon: {color:'primary', name: 'power-outline'}},
+    { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}}]">
+    </oe-modal-buttons>
+
+    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    <ng-container *ngIf="controller">
+
+      <!--Force Charge settings-->
+      <ng-container *ngIf="formGroup.value.chargeMode === 'FORCE_CHARGE'">
+        <ng-container>
+          <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging'| translate"
+            [value]="formGroup.value['forceChargeMinPower'] * numberOfPhases" [component]="component"
+            [converter]="Utils.CONVERT_TO_WATT">
+          </oe-modal-line>
+
+
+          <!-- this section has to be change later -->
+          <table class="full_width" *ngIf="numberOfPhases && formGroup.value.forceChargeMinPower">
+            <tr>
+              <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
+                min="{{ formatNumber(minChargePower) }}" max="{{ formatNumber(maxChargePower) }}" color="dark"
+                pin="true" style="padding-top: 8px;" step="100" debounce="500"
+                value="{{controller.properties['forceChargeMinPower'] * numberOfPhases}}">
+                <ion-label slot="start">
+                  {{ formatNumber(minChargePower) |
+                  unitvalue:'W'}}
+                </ion-label>
+                <ion-label slot="end">
+                  {{ formatNumber(maxChargePower) |
+                  unitvalue:'W'}}
+                </ion-label>
+              </ion-range>
+            </tr>
+          </table>
+        </ng-container>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+      </ng-container>
+
+      <!--Excess Power settings-->
+      <ng-container *ngIf="formGroup.value.chargeMode === 'EXCESS_POWER'">
+        <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.OptimizedChargeMode.minCharging'| translate"
+          [formGroup]="formGroup" controlName="minGuarantee" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100">
+        </oe-modal-line>
+
+        <ng-container *ngIf="formGroup.controls['minGuarantee'].value === true">
+          <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.OptimizedChargeMode.minChargePower'| translate"
+            [formGroup]="formGroup" [component]="controller" [value]="formGroup.value['defaultChargeMinPower']"
+            [converter]="Utils.CONVERT_TO_WATT">
+          </oe-modal-line>
+          <oe-modal-line [formGroup]="formGroup" controlName="defaultChargeMinPower"
+            [control]="{type: 'RANGE', properties: {min: minChargePower, max: maxChargePower, unit: 'W'}}">
+          </oe-modal-line>
+        </ng-container>
+
+        <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.prioritization'| translate">
+        </oe-modal-line>
+
+        <oe-modal-buttons *ngIf="formGroup.controls['priority'].value" [formGroup]="formGroup" controlName="priority"
+          [component]="component"
+          [buttons]="[
+    { name: ('Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.car' | translate), value: 'CAR', icon: {color:'success', name: 'oe-evcs'}},
+    { name: ('Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.storage' | translate), value: 'STORAGE', icon: {color:'success', name: 'oe-storage'}}]">
+        </oe-modal-buttons>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      </ng-container>
+
+      <ng-container *ngIf="controller && formGroup.value.chargeMode !== 'OFF'">
+
+
+        <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.maxEnergyRestriction'| translate" [formGroup]="formGroup"
+          [component]="controller" controlName="energyLimit" [control]="{ type: 'TOGGLE' }" class="align_right"
+          leftColumnWidth="100">
+        </oe-modal-line>
+        <ng-container *ngIf="formGroup.controls['energyLimit'].value === true">
+          <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.energyLimit'| translate" [formGroup]="formGroup"
+            [component]="controller" [value]="formGroup.value['energySessionLimit']"
+            [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
+          </oe-modal-line>
+
+          <oe-modal-line [formGroup]="formGroup" controlName="energySessionLimit"
+            [control]="{type: 'RANGE', properties: {min: 1000, max: 100000, unit: 'kWh'}}">
+          </oe-modal-line>
+        </ng-container>
+      </ng-container>
+
+
+    </ng-container>
+    <!--Uncontrollable Evcs-->
+    <ng-container *ngIf="!controller">
+
+      <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.Uncontrollable' | translate)">
+      </oe-modal-info-line>
+
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="!isConnectionSuccessful">
+
+    <oe-modal-info-line [info]="('Edge.Index.Widgets.EVCS.NoConnection.description' | translate)">
+    </oe-modal-info-line>
+  </ng-container>
+
+</oe-modal>

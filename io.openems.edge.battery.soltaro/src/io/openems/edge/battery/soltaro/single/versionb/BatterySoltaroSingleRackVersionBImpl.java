@@ -45,9 +45,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -966,8 +966,8 @@ public class BatterySoltaroSingleRackVersionBImpl extends AbstractOpenemsModbusC
 	private void createDynamicChannels(int numberOfModules) {
 		try {
 			for (var i = 0; i < numberOfModules; i++) {
-				var ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
-				var ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+				var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
+				var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
 				for (var j = 0; j < SENSORS_PER_MODULE; j++) {
 					var sensor = i * SENSORS_PER_MODULE + j;
 					{

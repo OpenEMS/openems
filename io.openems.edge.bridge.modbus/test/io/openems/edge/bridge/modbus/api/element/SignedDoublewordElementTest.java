@@ -21,7 +21,7 @@ public class SignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new SignedDoublewordElement(0), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -33,11 +33,10 @@ public class SignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new SignedDoublewordElement(0).wordOrder(LSWMSW), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
-		System.out.println(sut.channel.getNextValue().get());
 		assertEquals(0x1234_ABCDL, sut.channel.getNextValue().get());
 	}
 
@@ -46,7 +45,7 @@ public class SignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new SignedDoublewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -58,7 +57,7 @@ public class SignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new SignedDoublewordElement(0).byteOrder(LITTLE_ENDIAN).wordOrder(LSWMSW), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -71,7 +70,7 @@ public class SignedDoublewordElementTest {
 				new SignedDoublewordElement(0), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0x1234_ABCDL);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0xAB, (byte) 0xCD }, registers[1].toBytes());
 	}
