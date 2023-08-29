@@ -1,3 +1,4 @@
+import { Name } from "../genericComponents/shared/name";
 import { OeChartTester } from "../genericComponents/shared/tester";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
@@ -95,6 +96,16 @@ namespace Factory {
             "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter", "io.openems.edge.meter.api.AsymmetricMeter", "io.openems.edge.meter.api.SymmetricMeter", "io.openems.edge.bridge.modbus.api.ModbusComponent", "io.openems.edge.common.modbusslave.ModbusSlave", "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", "io.openems.edge.common.component.OpenemsComponent"
         ]
     };
+
+    export const EVCS_HARDY_BARTH = {
+        id: "Evcs.HardyBarth",
+        natureIds: [
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
+            "io.openems.edge.evcs.api.ManagedEvcs",
+            "io.openems.edge.evcs.api.Evcs"
+        ]
+    };
 }
 
 /**
@@ -122,6 +133,31 @@ export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
     channels: {}
 });
 
+export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factoryId: 'Meter.Socomec.Threephase',
+    factory: Factory.METER_SOCOMEC_THREEPHASE,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: "CONSUMPTION_METERED"
+    },
+    channels: {}
+});
+
+
+
+
+// export const GOODWE_CHARGER_PV1 = (id: string, alias?: string): Component => ({
+//     id: id,
+//     alias: alias ?? id,
+//     factoryId: "GoodWe.Charger-PV1",
+//     factory: Factory.GOODWE_CHARGER,
+//     properties: {},
+//     channels: {},
+// })
+
 export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
     id: id,
     alias: alias,
@@ -143,6 +179,17 @@ export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Compon
     properties: {
         invert: false,
         modbusUnitId: 5
+    },
+    channels: {}
+});
+
+export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factoryId: 'Evcs.HardyBarth',
+    factory: Factory.EVCS_HARDY_BARTH,
+    properties: {
+        enabled: "true",
     },
     channels: {}
 });

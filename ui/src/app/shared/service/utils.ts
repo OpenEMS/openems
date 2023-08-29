@@ -487,7 +487,7 @@ export class Utils {
    * @param value the value to convert
    */
   public static roundSlightlyNegativeValues(value: number) {
-    if (value === null) {
+    if (value == null) {
       return null;
     }
     return (value > -0.49 && value < 0) ? 0 : value;
@@ -594,13 +594,15 @@ export class Utils {
     });
 
     return channelData['ConsumptionActivePower'].map((value, index) => {
-      if (value != null) {
-        return Utils.roundSlightlyNegativeValues(
-          Utils.subtractSafely(
-            Utils.subtractSafely(
-              value, totalEvcsConsumption[index]),
-            totalMeteredConsumption[index]));
+
+      if (value == null) {
+        return null;
       }
+      return Utils.roundSlightlyNegativeValues(
+        Utils.subtractSafely(
+          Utils.subtractSafely(
+            value, totalEvcsConsumption[index]),
+          totalMeteredConsumption[index]));
     });
   }
 }
