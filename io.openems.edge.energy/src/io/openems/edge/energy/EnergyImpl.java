@@ -23,6 +23,8 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePower;
+import io.openems.edge.controller.evcs.ControllerEvcs;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.scheduler.api.Scheduler;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -42,11 +44,11 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Reference
 	protected ComponentManager componentManager;
 
-	// @Reference(target = "(id=ctrlFixActivePower0)")
-	// protected EssFixActivePower ctrlFixActivePower0;
+	@Reference(target = "(id=ctrlFixActivePower0)")
+	protected ControllerEssFixActivePower ctrlFixActivePower0;
 
-	// @Reference(target = "(id=ctrlEvcs0)")
-	// protected EvcsController ctrlEvcs0;
+	@Reference(target = "(id=ctrlEvcs0)")
+	protected ControllerEvcs ctrlEvcs0;
 
 	@Reference
 	protected PredictorManager predictor;
@@ -57,7 +59,7 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Reference
 	protected Scheduler scheduler;
 
-	// private Config config;
+	protected Config config;
 
 	public EnergyImpl() throws OpenemsNamedException {
 		super(//
@@ -69,7 +71,7 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// this.config = config;
+		this.config = config;
 		if (!this.isEnabled()) {
 			return;
 		}

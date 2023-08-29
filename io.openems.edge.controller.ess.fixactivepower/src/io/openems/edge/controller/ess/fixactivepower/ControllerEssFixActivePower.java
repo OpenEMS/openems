@@ -7,8 +7,9 @@ import static io.openems.common.types.OpenemsType.LONG;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.schedulable.Schedulable;
 
-public interface ControllerEssFixActivePower extends Controller, OpenemsComponent {
+public interface ControllerEssFixActivePower extends Controller, OpenemsComponent, Schedulable {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//

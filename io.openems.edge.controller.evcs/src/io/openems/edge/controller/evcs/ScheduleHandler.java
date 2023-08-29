@@ -14,7 +14,7 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 	public static enum Preset implements Schedule.Preset {
 		OFF, //
 		EXCESS_POWER, //
-		FORCE_CHARGE;
+		FORCE_FAST_CHARGE;
 	}
 
 	protected ScheduleHandler() {
@@ -38,7 +38,7 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 			case OFF -> new DynamicConfig(false, ChargeMode.EXCESS_POWER, 0, 0, Priority.CAR, 0);
 			case EXCESS_POWER ->
 				new DynamicConfig(false, ChargeMode.EXCESS_POWER, 0, config.defaultChargeMinPower(), Priority.CAR, 0);
-			case FORCE_CHARGE -> new DynamicConfig(false, ChargeMode.EXCESS_POWER, config.forceChargeMinPower(),
+			case FORCE_FAST_CHARGE -> new DynamicConfig(false, ChargeMode.EXCESS_POWER, config.forceChargeMinPower(),
 					config.defaultChargeMinPower(), Priority.STORAGE, 0);
 			};
 		};
