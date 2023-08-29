@@ -277,7 +277,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
-    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh';
+    return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
   /**
