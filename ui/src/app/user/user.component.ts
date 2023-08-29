@@ -32,7 +32,7 @@ export class UserComponent implements OnInit {
   public readonly languages: Language[] = Language.ALL;
   public currentLanguage: Language;
   public isEditModeDisabled: boolean = true;
-  public form: { formGroup: FormGroup, fields: FormlyFieldConfig[], model: UserInformation };
+  public form: { formGroup: FormGroup, model: UserInformation };
   public showInformation: boolean = false;
 
   constructor(
@@ -49,7 +49,6 @@ export class UserComponent implements OnInit {
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        fields: this.getFields(),
         model: userInformation
       };
       this.showInformation = true;
@@ -85,7 +84,6 @@ export class UserComponent implements OnInit {
       this.getUserInformation().then((userInformation) => {
         this.form = {
           formGroup: new FormGroup({}),
-          fields: this.getFields(),
           model: userInformation
         };
       });
@@ -96,7 +94,7 @@ export class UserComponent implements OnInit {
 
   public enableAndDisableFormFields(): boolean {
     // Update Fields
-    this.form?.fields[0].fieldGroup.forEach(element => {
+    this.userInformationFields.forEach(element => {
       element.templateOptions.disabled = !element.templateOptions.disabled;
     });
     return this.isEditModeDisabled = !this.isEditModeDisabled;
