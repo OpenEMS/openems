@@ -18,12 +18,6 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 			int power) {
 	}
 
-	protected ScheduleHandler() {
-		super(Preset.values());
-	}
-
-//	private final ScheduleHandler<Config.Record> scheduleHandler = ScheduleHandler.of(Schedule.Preset.values());
-
 	public static enum Preset implements Schedule.Preset {
 		OFF, //
 		FORCE_ZERO, //
@@ -36,6 +30,16 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 		// FORCE_CHARGE_100(new ModeConfig(MANUAL_ON, TARGET_DC, -100,
 		// Unit.PERCENTAGE)); //
 		;
+	}
+
+	protected ScheduleHandler() {
+		super(Preset.values());
+	}
+
+	@Override
+	protected DynamicConfig toConfig(Config config) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

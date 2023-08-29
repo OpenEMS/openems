@@ -25,6 +25,9 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.evcs.ScheduleHandler.DynamicConfig;
+import io.openems.edge.energy.api.schedulable.Schedulable;
+import io.openems.edge.energy.api.schedulable.Schedule.Handler;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -33,13 +36,15 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent, ModbusSlave {
+public class ControllerEvcsImpl extends AbstractOpenemsComponent
+		implements Controller, OpenemsComponent, ModbusSlave, Schedulable {
 
 	private static final int CHARGE_POWER_BUFFER = 200;
 	private static final double DEFAULT_UPPER_TARGET_DIFFERENCE_PERCENT = 0.10; // 10%
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvcsImpl.class);
 	private final ChargingLowerThanTargetHandler chargingLowerThanTargetHandler;
+	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -49,8 +54,6 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private ManagedEvcs evcs;
-
-	private Config config;
 
 	public ControllerEvcsImpl() {
 		this(Clock.systemDefaultZone());
@@ -78,8 +81,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 					"Default-Charge Min-Power [" + config.defaultChargeMinPower() + "] must be >= 0");
 		}
 
-		this.config = config;
-		this.evcs._setChargeMode(config.chargeMode());
+		this.scheduleHandler.applyStaticConfig(config);
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
@@ -99,13 +101,15 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	 */
 	@Override
 	public void run() throws OpenemsNamedException {
+		var config = this.scheduleHandler.getCurrentConfig();
+		this.evcs._setChargeMode(config.chargeMode());
 
 		final var isClustered = this.evcs.getIsClustered().orElse(false);
 
 		/*
 		 * Stop early if charging is disabled
 		 */
-		if (!this.config.enabledCharging()) {
+		if (!config.enabledCharging()) {
 			this.evcs.setChargePowerLimit(0);
 			if (isClustered) {
 				this.evcs.setChargePowerRequest(0);
@@ -114,9 +118,9 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 			return;
 		}
 
-		this.adaptConfigToHardwareLimits();
+		this.adaptConfigToHardwareLimits(config);
 
-		this.evcs.setEnergyLimit(this.config.energySessionLimit());
+		this.evcs.setEnergyLimit(config.energySessionLimit());
 
 		/*
 		 * Sets a fixed request of 0 if the Charger is not ready
@@ -142,9 +146,9 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 		 * Calculates the next charging power depending on the charge mode and priority
 		 */
 		var nextChargePower = //
-				switch (this.config.chargeMode()) {
+				switch (config.chargeMode()) {
 				case EXCESS_POWER -> //
-					switch (this.config.priority()) {
+					switch (config.priority()) {
 					case CAR -> calculateChargePowerFromExcessPower(this.sum, this.evcs);
 					case STORAGE -> {
 						// SoC > 97 % or always, when there is no ESS is available
@@ -155,12 +159,12 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 						}
 					}
 					};
-				case FORCE_CHARGE -> this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+				case FORCE_CHARGE -> config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
 				};
 
 		var nextMinPower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> this.config.defaultChargeMinPower();
+				switch (config.chargeMode()) {
+				case EXCESS_POWER -> config.defaultChargeMinPower();
 				case FORCE_CHARGE -> 0;
 				};
 		this.evcs._setMinimumPower(nextMinPower);
@@ -223,15 +227,17 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 
 	/**
 	 * Adapt the charge limits to the given hardware limits of the EVCS.
+	 * 
+	 * @param config the config
 	 */
-	private void adaptConfigToHardwareLimits() {
+	private void adaptConfigToHardwareLimits(DynamicConfig config) {
 
 		var maxHardwareOpt = this.evcs.getMaximumHardwarePower().asOptional();
 		if (maxHardwareOpt.isPresent()) {
 			int maxHW = maxHardwareOpt.get();
 			if (maxHW != 0) {
 				maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
-				if (this.config.defaultChargeMinPower() > maxHW) {
+				if (config.defaultChargeMinPower() > maxHW) {
 					this.configUpdate("defaultChargeMinPower", maxHW);
 				}
 			}
@@ -311,6 +317,11 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 	}
 
 	@Override
+	public Handler<?, ?, ?> getScheduleHandler() {
+		return this.scheduleHandler;
+	}
+
+	@Override
 	public void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
@@ -322,7 +333,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent implements Cont
 
 	@Override
 	protected void logDebug(Logger log, String message) {
-		if (this.config.debugMode()) {
+		if (this.scheduleHandler.getStaticConfig().debugMode()) {
 			this.logInfo(this.log, message);
 		}
 	}

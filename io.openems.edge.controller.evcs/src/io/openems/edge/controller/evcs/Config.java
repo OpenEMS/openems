@@ -3,8 +3,6 @@ package io.openems.edge.controller.evcs;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evcs.api.ChargeMode;
-
 @ObjectClassDefinition(//
 		name = "Controller Electric Vehicle Charging Station", //
 		description = "Limits the maximum charging power of an electric vehicle charging station.")
@@ -29,7 +27,7 @@ import io.openems.edge.evcs.api.ChargeMode;
 	boolean enabledCharging() default true;
 
 	@AttributeDefinition(name = "Charge-Mode", description = "Set the charge-mode.")
-	ChargeMode chargeMode() default ChargeMode.FORCE_CHARGE;
+	Mode.Config chargeMode() default Mode.Config.FORCE_CHARGE;
 
 	@AttributeDefinition(name = "Force-charge minimum power [W] per Phase", description = "Set the minimum power for the force charge mode in Watt per Phase.")
 	int forceChargeMinPower() default 7360;

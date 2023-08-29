@@ -1,24 +1,15 @@
 package io.openems.edge.energy.api.schedulable;
 
-import com.google.common.collect.ImmutableSet;
-
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.schedulable.Schedule.Preset;
+import io.openems.edge.energy.api.schedulable.Schedule.Handler;
 
-public interface Schedulable<PRESET extends Preset, CONFIG> extends Controller {
-
-	/**
-	 * Get the available {@link Mode}s.
-	 * 
-	 * @return set of {@link Mode}s
-	 */
-	public ImmutableSet<PRESET> getAvailablePresets();
+public interface Schedulable extends Controller {
 
 	/**
-	 * Apply a {@link Schedule} of {@link Preset}s.
+	 * Gets the {@link Handler} for a {@link Schedulable} {@link Controller}.
 	 * 
-	 * @param schedule the {@link Schedule}
+	 * @return the ScheduleHandler
 	 */
-	public void applySchedule(Schedule<PRESET, CONFIG> schedule);
+	public Schedule.Handler<?, ?, ?> getScheduleHandler();
 
 }

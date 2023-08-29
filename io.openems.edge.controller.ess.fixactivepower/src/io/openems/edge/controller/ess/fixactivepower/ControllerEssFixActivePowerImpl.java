@@ -17,6 +17,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.schedulable.Schedulable;
+import io.openems.edge.energy.api.schedulable.Schedule.Handler;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.PowerConstraint;
@@ -32,7 +34,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
-		implements ControllerEssFixActivePower, Controller, OpenemsComponent, TimedataProvider {
+		implements ControllerEssFixActivePower, Controller, OpenemsComponent, TimedataProvider, Schedulable {
 
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
@@ -139,4 +141,10 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
+
+	@Override
+	public Handler<?, ?, ?> getScheduleHandler() {
+		return this.scheduleHandler;
+	}
+
 }

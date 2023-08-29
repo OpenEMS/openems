@@ -14,7 +14,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
@@ -26,7 +25,7 @@ public class ControllerEvcsImplTest {
 
 	private static final String EVCS_ID = EVCS.id();
 	private static final boolean DEFAULT_ENABLE_CHARGING = true;
-	private static final ChargeMode DEFAULT_CHARGE_MODE = ChargeMode.EXCESS_POWER;
+	private static final Mode.Config DEFAULT_CHARGE_MODE = Mode.Config.EXCESS_POWER;
 	private static final int DEFAULT_FORCE_CHARGE_MIN_POWER = 7360;
 	private static final int DEFAULT_CHARGE_MIN_POWER = 0;
 	private static final Priority DEFAULT_PRIORITY = Priority.CAR;
@@ -108,7 +107,7 @@ public class ControllerEvcsImplTest {
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
 						.setEnableCharging(DEFAULT_ENABLE_CHARGING) //
-						.setChargeMode(ChargeMode.FORCE_CHARGE) //
+						.setChargeMode(Mode.Config.FORCE_CHARGE) //
 						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(DEFAULT_PRIORITY) //

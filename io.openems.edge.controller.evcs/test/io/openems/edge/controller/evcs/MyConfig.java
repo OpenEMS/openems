@@ -1,7 +1,6 @@
 package io.openems.edge.controller.evcs;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evcs.api.ChargeMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,7 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode = false;
 		private String evcsId = "evcs0";
 		private boolean enabledCharging = true;
-		private ChargeMode chargeMode = ChargeMode.FORCE_CHARGE;
+		private Mode.Config chargeMode = Mode.Config.FORCE_CHARGE;
 		private int forceChargeMinPower = 7560;
 		private int defaultChargeMinPower = 0;
 		private Priority priority = Priority.CAR;
@@ -46,7 +45,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setChargeMode(ChargeMode chargeMode) {
+		public Builder setChargeMode(Mode.Config chargeMode) {
 			this.chargeMode = chargeMode;
 			return this;
 		}
@@ -108,7 +107,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public ChargeMode chargeMode() {
+	public Mode.Config chargeMode() {
 		return this.builder.chargeMode;
 	}
 

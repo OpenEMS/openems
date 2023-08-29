@@ -73,6 +73,16 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		}
 
 		/**
+		 * Gets the static component configuration (provided via
+		 * {@link #applyStaticConfig(Annotation)}.
+		 * 
+		 * @return the static component configuration
+		 */
+		public STATIC_CONFIG getStaticConfig() {
+			return staticConfig;
+		}
+
+		/**
 		 * Apply a {@link Schedule}.
 		 * 
 		 * @param schedule the {@link Schedule}
@@ -99,18 +109,30 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 			} else {
 				preset = this.schedule.getCurrentPreset();
 			}
-			return toConfig(this.staticConfig, preset);
+			if (preset == null) {
+				return this.toConfig(this.staticConfig);
+			} else {
+				return toConfig(this.staticConfig, preset);
+			}
 		}
 
 		/**
-		 * Creates a Dynamic Config from a Schedule Preset (possibly null) and a static
-		 * component configuration.
+		 * Creates a Dynamic Config from a a static component configuration.
 		 * 
-		 * @param staticConfig the static component configuration
-		 * @param preset       the Schedule Preset, possibly null
+		 * @param config the static component configuration
 		 * @return a Dynamic Config; never null
 		 */
-		protected abstract DYNAMIC_CONFIG toConfig(STATIC_CONFIG staticConfig, PRESET preset);
+		protected abstract DYNAMIC_CONFIG toConfig(STATIC_CONFIG config);
+
+		/**
+		 * Creates a Dynamic Config from a Schedule Preset and a static component
+		 * configuration.
+		 * 
+		 * @param config the static component configuration
+		 * @param preset the Schedule Preset
+		 * @return a Dynamic Config; never null
+		 */
+		protected abstract DYNAMIC_CONFIG toConfig(STATIC_CONFIG config, PRESET preset);
 	}
 
 	private final ImmutableSortedMap<ZonedDateTime, PRESET> schedule;
