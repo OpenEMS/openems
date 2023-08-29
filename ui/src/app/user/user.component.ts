@@ -170,13 +170,6 @@ export class UserComponent implements OnInit {
     }
   }];
 
-
-  public getFields(): FormlyFieldConfig[] {
-    return [{
-      fieldGroup: this.userInformationFields
-    }];
-  }
-
   public getUserInformation(): Promise<UserInformation> {
 
     return new Promise(resolve => {

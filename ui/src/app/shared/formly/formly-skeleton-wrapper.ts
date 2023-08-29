@@ -2,8 +2,13 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
+/**  This wrapper is used to display a loading animation for a line until the async call is finished, the @input show is true, respectively.
 
-/// to use the skeleton, simply pass the form data to this component selectoro with a boolean indicator to show information.
+* @input show: is used to determine when the async call has finished
+* @input fields the formlyfields
+* @input form the formGroup
+* @input model the model
+*/
 @Component({
   selector: 'formly-skeleton-wrapper',
   template: `
@@ -17,7 +22,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 </div>
   `
 })
-export class FormlyFieldWithLoadingAnimation {
+export class FormlyFieldWithLoadingAnimationComponent {
   @Input() public show: boolean = false;
   @Input() public fields: FormlyFieldConfig[];
   @Input() public form: FormGroup;
