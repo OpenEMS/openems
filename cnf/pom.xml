@@ -208,7 +208,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.0.6</version>
+			<version>5.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
