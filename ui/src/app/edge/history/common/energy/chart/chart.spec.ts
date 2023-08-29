@@ -1,8 +1,8 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
-import { DummyConfig, ESS_GENERIC_MANAGEDSYMMETRIC, SOCOMEC_GRID_METER, SOLAR_EDGE_PV_INVERTER } from "src/app/shared/edge/edgeconfig.spec";
+import { DATA, DummyConfig, ESS_GENERIC_MANAGEDSYMMETRIC, LABELS, SOCOMEC_GRID_METER, SOLAR_EDGE_PV_INVERTER } from "src/app/shared/edge/edgeconfig.spec";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
-import { DATA, expectView, LABELS } from "./chart.constants.spec";
+import { expectView } from "./chart.constants.spec";
 
 describe('History EnergyMonitor', () => {
   const defaultEMS = DummyConfig.from(

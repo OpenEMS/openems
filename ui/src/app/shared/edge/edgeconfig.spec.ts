@@ -1,3 +1,4 @@
+import { OeChartTester } from "../genericComponents/shared/tester";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";
@@ -145,3 +146,22 @@ export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Compon
     },
     channels: {}
 });
+
+export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.Dataset.LegendLabel, options: OeChartTester.Dataset.Option) => ({
+    data: data,
+    labels: labels,
+    options: options
+});
+
+export const DATA = (name: string, value: number[]): OeChartTester.Dataset.Data => ({
+    type: "data",
+    label: name,
+    value: value
+});
+
+export const LABELS = (timestamps: string[]): OeChartTester.Dataset.LegendLabel => ({
+    type: "label",
+    timestamps: timestamps.map(element => new Date(element))
+});
+
+export const OPTIONS = (options: OeChartTester.Dataset.Option): OeChartTester.Dataset.Option => options;
