@@ -22,7 +22,7 @@ export namespace DummyConfig {
         components.forEach(obj => {
             const component = obj as unknown;
             if (factories[component['factoryId']]) {
-                factories[component['factoryId']].componentIds = [...factories[component['factoryId']].componentIds, ...component['factory'].componentIds];//.push(...component['factory'].componentIds)
+                factories[component['factoryId']].componentIds = [...factories[component['factoryId']].componentIds, ...component['factory'].componentIds];
             } else {
                 factories[component['factoryId']] = {
                     componentIds: component['factory'].componentIds,
@@ -86,7 +86,7 @@ namespace Factory {
         ]
     };
 
-export const ESS_GENERIC_MANAGEDSYMMETRIC = {
+    export const ESS_GENERIC_MANAGEDSYMMETRIC = {
         id: "Ess.Generic.ManagedSymmetric",
         natureIds: [
             "io.openems.edge.goodwe.common.GoodWe",
