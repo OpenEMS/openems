@@ -1,3 +1,4 @@
+import { ChartConfig, DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeChartTester } from "src/app/shared/genericComponents/shared/tester";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
@@ -184,23 +185,13 @@ export namespace History {
       "responsive": true
     }
   });
-  export type OeChannels = {
-
-    /** Always one value for each channel from a {@link QueryHistoricTimeseriesEnergyResponse} */
-    energyChannelWithValues: QueryHistoricTimeseriesEnergyResponse,
-
-    /** data from a {@link QueryHistoricTimeseriesEnergyPerPeriodResponse} */
-    energyPerPeriodChannelWithValues?: QueryHistoricTimeseriesEnergyPerPeriodResponse,
-    /** data from a {@link QueryHistoricTimeseriesDataResponse} */
-    dataChannelWithValues?: QueryHistoricTimeseriesDataResponse
-  }
 
   /** 
    * up to 288 datapoints (5 min aggregated values) from a
    * 
    * {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
-  export const DAY: History.OeChannels = ({
+  export const DAY: DummyConfig.OeChannels = ({
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/GridBuyActiveEnergy': 938,
@@ -1952,7 +1943,7 @@ export namespace History {
   /** 
    * up to 164 datapoints(1 hour values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
-  export const WEEK: OeChannels = {
+  export const WEEK: DummyConfig.OeChannels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/GridBuyActiveEnergy': 2368,
@@ -3150,7 +3141,7 @@ export namespace History {
 
   /** 
   * up to 31 datapoints(1 day values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const MONTH: OeChannels = {
+  export const MONTH: DummyConfig.OeChannels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/GridBuyActiveEnergy': 773000,
@@ -3392,7 +3383,7 @@ export namespace History {
 
   /** 
   * up to 12 datapoints(1 month values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const YEAR: OeChannels = {
+  export const YEAR: DummyConfig.OeChannels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/GridBuyActiveEnergy': 23209000,

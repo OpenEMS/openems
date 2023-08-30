@@ -6,8 +6,8 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChannelAddress, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -593,7 +593,7 @@ export class Utils {
       });
     });
 
-    return channelData['ConsumptionActivePower'].map((value, index) => {
+    return channelData['ConsumptionActivePower']?.map((value, index) => {
 
       if (value == null) {
         return null;

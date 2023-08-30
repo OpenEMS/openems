@@ -1,14 +1,14 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
-import { DATA, DummyConfig, ESS_GENERIC_MANAGEDSYMMETRIC, LABELS, SOCOMEC_GRID_METER, SOLAR_EDGE_PV_INVERTER } from "src/app/shared/edge/edgeconfig.spec";
+import { ChartConfig, DATA, DummyConfig, LABELS } from "src/app/shared/edge/edgeconfig.spec";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
 import { expectView } from "./chart.constants.spec";
 
 describe('History EnergyMonitor', () => {
   const defaultEMS = DummyConfig.from(
-    SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-    ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
-    SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter")
+    DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+    DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
+    DummyConfig.Component.SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter")
   );
 
   let TEST_CONTEXT: TestContext;
@@ -76,7 +76,7 @@ describe('History EnergyMonitor', () => {
               DATA('Verbrauch: 9.976,1 kWh', [320.342, 346.615, 341.433, 333.054, 358.458, 347.872, 289.283, null, 556.51, 311.366, 314.722, 355.556, 381.671, 384.558, 366.19, 349.336, 303.696, 288.727, 357.434, 388.659, 402.625, null, 713.771, 320.238, 332.099, null, 756.429, 384.136, 371.322, null])
             ],
             labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('day')
+            options: ChartConfig.BAR_CHART_OPTIONS('day')
           }
         });
     }
@@ -118,8 +118,8 @@ describe('History EnergyMonitor', () => {
     {
       // Bar-Chart: no productionMeter
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-        ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -142,7 +142,7 @@ describe('History EnergyMonitor', () => {
       // Bar-Chart: only gridMeter
 
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter0", "Netzzähler")
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler")
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -162,7 +162,7 @@ describe('History EnergyMonitor', () => {
       // Bar-Chart: only ess
 
       const EMS = DummyConfig.from(
-        ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
+        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,

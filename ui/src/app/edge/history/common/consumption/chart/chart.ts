@@ -12,18 +12,17 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 export class ChartComponent extends AbstractHistoryChart {
 
   protected override getChartData() {
-    return ChartComponent.getChartData(this.spinnerId, this.config, this.translate, this.showPhases, this.phaseColors);
+    return ChartComponent.getChartData(this.config, this.translate, this.showPhases, AbstractHistoryChart.phaseColors);
   }
 
-  public static getChartData(spinnerId: string, config: EdgeConfig, translate: TranslateService, showPhases: boolean, phaseColors: string[]): HistoryUtils.ChartData {
-    spinnerId = "consumption";
+  public static getChartData(config: EdgeConfig, translate: TranslateService, showPhases: boolean, phaseColors: string[]): HistoryUtils.ChartData {
 
+    // const inputChannel: HistoryUtils.InputChannel[] = [];
     const inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
       energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
-    }
-    ];
+    }];
 
     ['L1', 'L2', 'L3'].forEach(phase => {
       inputChannel.push({
@@ -49,6 +48,7 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(component.id + '/ActiveConsumptionEnergy')
       });
     });
+
     consumptionMeters.forEach(meter => {
       inputChannel.push({
         name: meter.id + '/ActivePower',
@@ -56,7 +56,7 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy')
       });
 
-      if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.AsymmetricMeter")) {
+      if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.ElectricityMeter")) {
         ['L1', 'L2', 'L3'].forEach(phase => {
           inputChannel.push({
             name: meter.id + '/ActivePower' + phase,
@@ -80,7 +80,7 @@ export class ChartComponent extends AbstractHistoryChart {
             return energyValues?.result.data['_sum/ConsumptionActiveEnergy'];
           },
           converter: () => {
-            return data['ConsumptionActivePower'];
+            return data['ConsumptionActivePower'] ?? null;
           },
           color: 'rgb(253,197,7)',
           stack: 0,
@@ -112,6 +112,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[component.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
+              sessionStorage.setItem(component.id + '/ChargePower', JSON.stringify(data[component.id + '/ChargePower']))
               return data[component.id + '/ChargePower'] ?? null;
             },
             color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
@@ -127,6 +128,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
+              sessionStorage.setItem(meter.id + '/ActivePower', JSON.stringify(data[meter.id + '/ActivePower']))
               return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
@@ -158,6 +160,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
             converter: () => {
+              sessionStorage.setItem("calculatOtherConsumption", JSON.stringify(Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters)))
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
             color: 'rgb(0,223,0)',

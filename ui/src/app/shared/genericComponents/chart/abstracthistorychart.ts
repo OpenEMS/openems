@@ -44,7 +44,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
-  protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
+  public static readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
@@ -157,7 +157,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         let label = AbstractHistoryChart.getTooltipsLabelName(element.name, yAxis?.unit, nameSuffix);
         let data: number[] | null = element.converter();
 
-        if (data === null) {
+        if (data == null) {
           return;
         }
 
