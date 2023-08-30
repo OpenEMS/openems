@@ -1,0 +1,22 @@
+Bundle-Name: OpenEMS Edge Controller Ess Fast Frequency Reserve
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.battery.api,\
+	io.openems.edge.batteryinverter.api,\
+	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=latest,\
+	io.openems.edge.batteryinverter.sunspec,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.timedata.api,\
+
+-testpath: \
+	${testpath},\
+	io.openems.edge.batteryinverter.kaco.blueplanetgridsave
