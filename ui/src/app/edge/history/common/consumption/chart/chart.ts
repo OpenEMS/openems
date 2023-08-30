@@ -12,12 +12,11 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 export class ChartComponent extends AbstractHistoryChart {
 
   protected override getChartData() {
-    return ChartComponent.getChartData(this.config, this.translate, this.showPhases, AbstractHistoryChart.phaseColors);
+    return ChartComponent.getChartData(this.config, this.translate);
   }
 
-  public static getChartData(config: EdgeConfig, translate: TranslateService, showPhases: boolean, phaseColors: string[]): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig, translate: TranslateService): HistoryUtils.ChartData {
 
-    // const inputChannel: HistoryUtils.InputChannel[] = [];
     const inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
@@ -70,22 +69,6 @@ export class ChartComponent extends AbstractHistoryChart {
           noStrokeThroughLegendIfHidden: false
         });
 
-        if (showPhases) {
-          ['L1', 'L2', 'L3'].forEach((phase, index) => {
-            datasets.push({
-              name: translate.instant('General.phase') + " " + phase,
-              nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-                return energyValues?.result.data['_sum/ConsumptionActiveEnergy' + phase];
-              },
-              converter: () => {
-                console.log("data", data);
-                return data['ConsumptionActivePower' + phase];
-              },
-              color: phaseColors[Math.min(index, phaseColors.length - 1)],
-              stack: 1
-            });
-          });
-        }
         const evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
         evcsComponents.forEach((component, index) => {
           datasets.push({
@@ -116,22 +99,6 @@ export class ChartComponent extends AbstractHistoryChart {
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
             stack: 2
           });
-
-          if (showPhases) {
-            ['L1', 'L2', 'L3'].forEach((phase, index) => {
-              datasets.push({
-                name: meter.alias + " " + translate.instant('General.phase') + " " + phase,
-                nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-                  return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy' + phase];
-                },
-                converter: () => {
-                  return data[meter.id + '/ActivePower' + phase];
-                },
-                color: phaseColors[index],
-                stack: 2
-              });
-            });
-          }
         });
 
         // other consumption
