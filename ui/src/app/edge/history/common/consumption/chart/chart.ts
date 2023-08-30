@@ -24,14 +24,6 @@ export class ChartComponent extends AbstractHistoryChart {
       energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
     }];
 
-    ['L1', 'L2', 'L3'].forEach(phase => {
-      inputChannel.push({
-        name: 'ConsumptionActivePower' + phase,
-        powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower' + phase),
-        energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy' + phase)
-      });
-    });
-
     const evcsComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(
         component.factoryId == 'Evcs.Cluster' ||
@@ -55,16 +47,6 @@ export class ChartComponent extends AbstractHistoryChart {
         powerChannel: ChannelAddress.fromString(meter.id + '/ActivePower'),
         energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy')
       });
-
-      if (config.getNatureIdsByFactoryId(meter.factoryId).includes("io.openems.edge.meter.api.ElectricityMeter")) {
-        ['L1', 'L2', 'L3'].forEach(phase => {
-          inputChannel.push({
-            name: meter.id + '/ActivePower' + phase,
-            powerChannel: ChannelAddress.fromString(meter.id + '/ActivePower' + phase),
-            energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy' + phase)
-          });
-        });
-      }
     });
 
     return {
