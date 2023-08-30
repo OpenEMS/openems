@@ -8,9 +8,9 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40Impl;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
-public class EssFeneconCommercial40Pv1ImplTest {
+public class EssFeneconCommercial40Pv2ImplTest {
 
-	private static final String CHARGER_ID = "charger0";
+	private static final String CHARGER_ID = "charger1";
 	private static final String ESS_ID = "ess0";
 	private static final String MODBUS_ID = "modbus0";
 
@@ -31,11 +31,11 @@ public class EssFeneconCommercial40Pv1ImplTest {
 						.setSurplusFeedInOffTime("17:00:00") //
 						.build());
 
-		new ComponentTest(new EssFeneconCommercial40Pv1Impl()) //
+		new ComponentTest(new EssFeneconCommercial40Pv2Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfigPv1.create() //
+				.activate(MyConfigPv2.create() //
 						.setId(CHARGER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setEssId(ESS_ID) //
