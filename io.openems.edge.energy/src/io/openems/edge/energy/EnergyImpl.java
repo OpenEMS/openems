@@ -23,8 +23,6 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePower;
-import io.openems.edge.controller.evcs.ControllerEvcs;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.scheduler.api.Scheduler;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -39,16 +37,9 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 
 	private final ScheduledExecutorService taskExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService triggerExecutor = Executors.newSingleThreadScheduledExecutor();
-	private final Task task = new Task(this);
 
 	@Reference
 	protected ComponentManager componentManager;
-
-	@Reference(target = "(id=ctrlFixActivePower0)")
-	protected ControllerEssFixActivePower ctrlFixActivePower0;
-
-	@Reference(target = "(id=ctrlEvcs0)")
-	protected ControllerEvcs ctrlEvcs0;
 
 	@Reference
 	protected PredictorManager predictor;
@@ -59,7 +50,7 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Reference
 	protected Scheduler scheduler;
 
-	protected Config config;
+	private ManualTask task;
 
 	public EnergyImpl() throws OpenemsNamedException {
 		super(//
@@ -71,14 +62,21 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		/*
-		 * Run Worker once now and afterwards every 15 minutes
-		 */
+		this.task = switch (config.mode()) {
+		case OFF -> null;
+		case MANUAL -> new ManualTask(this.componentManager, config.manualSchedule());
+		case SMART -> null; // TODO
+		};
+
+		if (this.task == null) {
+			return;
+		}
+
+		// Run Worker once now and afterwards every 15 minutes
 		final AtomicReference<Future<?>> future = new AtomicReference<>();
 		future.set(this.taskExecutor.submit(this.task));
 

@@ -47,7 +47,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	 */
 	public static abstract class Handler<STATIC_CONFIG extends Annotation, PRESET extends Schedule.Preset, DYNAMIC_CONFIG> {
 
-		public final Preset[] presets;
+		public final PRESET[] presets;
 
 		private final Logger log = LoggerFactory.getLogger(Handler.class);
 
@@ -87,10 +87,11 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		 * 
 		 * @param schedule the {@link Schedule}
 		 */
-		public final synchronized void applySchedule(Schedule<PRESET, DYNAMIC_CONFIG> schedule) {
+		@SuppressWarnings("unchecked")
+		public final synchronized void applySchedule(Schedule<?, ?> schedule) {
 			this.log.info("Apply new Schedule: ");
 			this.log.info(schedule.toString());
-			this.schedule = schedule;
+			this.schedule = (Schedule<PRESET, DYNAMIC_CONFIG>) schedule;
 		}
 
 		/**
