@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.TreeBasedTable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
@@ -62,6 +63,7 @@ public class SendChannelValuesWorker {
 	 * If true: next 'send' sends all channel values.
 	 */
 	private final AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
+	private final AtomicBoolean sendValuesOfAllChannelsAggregated = new AtomicBoolean(true);
 
 	/**
 	 * Keeps the last timestamp when all channel values were sent.
@@ -84,6 +86,7 @@ public class SendChannelValuesWorker {
 	 */
 	public synchronized void sendValuesOfAllChannelsOnce() {
 		this.sendValuesOfAllChannels.set(true);
+		this.sendValuesOfAllChannelsAggregated.set(true);
 	}
 
 	/**
@@ -165,6 +168,8 @@ public class SendChannelValuesWorker {
 		this.lastSendAggregatedDataTimestamp = timestamp;
 		final var timestampMillis = timestamp.toEpochMilli();
 
+		final var sendAllChannels = this.sendValuesOfAllChannelsAggregated.getAndSet(false);
+
 		final var table = TreeBasedTable.<Long, String, JsonElement>create();
 		enabledComponents.stream() //
 				.flatMap(component -> component.channels().stream()) //
@@ -190,7 +195,7 @@ public class SendChannelValuesWorker {
 								.collect(aggregateCollector(channel.channelDoc().getUnit().isCumulated(), //
 										channel.getType()));
 
-						if (value == null) {
+						if (!sendAllChannels && value.isJsonNull()) {
 							return;
 						}
 						table.put(timestampMillis, channel.address().toString(), value);
@@ -219,8 +224,7 @@ public class SendChannelValuesWorker {
 	protected static JsonElement aggregate(boolean isCumulated, OpenemsType type, Collection<Object> values)
 			throws IllegalArgumentException {
 		switch (type) {
-		case DOUBLE:
-		case FLOAT: {
+		case DOUBLE, FLOAT -> {
 			final var stream = values.stream() //
 					.mapToDouble(item -> TypeUtils.getAsType(OpenemsType.DOUBLE, item));
 			if (isCumulated) {
@@ -234,13 +238,9 @@ public class SendChannelValuesWorker {
 					return new JsonPrimitive(avgOpt.getAsDouble());
 				}
 			}
-			break;
 		}
 		// round averages to their type
-		case BOOLEAN:
-		case LONG:
-		case INTEGER:
-		case SHORT:
+		case BOOLEAN, LONG, INTEGER, SHORT -> {
 			final var stream = values.stream() //
 					.mapToLong(item -> TypeUtils.getAsType(OpenemsType.LONG, item));
 			if (isCumulated) {
@@ -254,14 +254,15 @@ public class SendChannelValuesWorker {
 					return new JsonPrimitive(Math.round(avgOpt.getAsDouble()));
 				}
 			}
-			break;
-		case STRING:
+		}
+		case STRING -> {
 			// return first string for now
 			for (var item : values) {
 				return new JsonPrimitive(TypeUtils.<String>getAsType(type, item));
 			}
 		}
-		return null;
+		}
+		return JsonNull.INSTANCE;
 	}
 
 	/*
