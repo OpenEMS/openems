@@ -5,6 +5,7 @@ import { ChartOptions } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { HistoryUtils } from "../../service/utils";
+import { CurrentData } from "../../shared";
 import { TestContext } from "../../test/utils.spec";
 import { AbstractHistoryChart } from "../chart/abstracthistorychart";
 import { TextIndentation } from "../modal/modal-line/modal-line";
@@ -56,32 +57,32 @@ export class OeFormlyViewTester {
           return null; // filter did not pass
         }
 
-          // Read or generate name
-          let name: string;
-          if (typeof (field.name) === 'function') {
-            name = field.name(tmp.rawValue);
-          } else {
-            name = field.name;
-          }
-
-          // Prepare result
-          let result: OeFormlyViewTester.Field.ChannelLine = {
-            type: field.type,
-            name: name
-          };
-
-          // Apply properties if available
-          if (tmp.value !== null) {
-            result.value = tmp.value;
-          }
-          if (field.indentation) {
-            result.indentation = field.indentation;
-          }
-
-          // Recursive call for children
-
-          return result;
+        // Read or generate name
+        let name: string;
+        if (typeof (field.name) === 'function') {
+          name = field.name(tmp.rawValue);
+        } else {
+          name = field.name;
         }
+
+        // Prepare result
+        let result: OeFormlyViewTester.Field.ChannelLine = {
+          type: field.type,
+          name: name
+        };
+
+        // Apply properties if available
+        if (tmp.value !== null) {
+          result.value = tmp.value;
+        }
+        if (field.indentation) {
+          result.indentation = field.indentation;
+        }
+
+        // Recursive call for children
+
+        return result;
+      }
 
 
       /**
