@@ -1,4 +1,3 @@
-import { Name } from "../genericComponents/shared/name";
 import { OeChartTester } from "../genericComponents/shared/tester";
 import { QueryHistoricTimeseriesDataResponse } from "../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
@@ -161,7 +160,7 @@ export namespace DummyConfig {
             factoryId: 'Evcs.HardyBarth',
             factory: Factory.EVCS_HARDY_BARTH,
             properties: {
-                enabled: "true",
+                enabled: "true"
             },
             channels: {}
         });

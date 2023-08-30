@@ -1,6 +1,6 @@
 import { OeChartTester } from "../../../../../shared/genericComponents/shared/tester";
 import { ChartComponent } from "./chart";
-import { ChartConfig, DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { EdgeConfig } from "src/app/shared/shared";
 import { removeFunctions, TestContext } from "src/app/shared/test/utils.spec";
 

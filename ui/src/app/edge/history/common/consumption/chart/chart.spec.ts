@@ -8,7 +8,7 @@ import { expectView } from "./chart.constants.spec";
 describe('History Consumption', () => {
   const defaultEMS = DummyConfig.from(
     DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Whirlpool"),
-    DummyConfig.Component.EVCS_HARDY_BARTH("evcs0", "Charging Station"),
+    DummyConfig.Component.EVCS_HARDY_BARTH("evcs0", "Charging Station")
   );
 
   let TEST_CONTEXT: TestContext;
