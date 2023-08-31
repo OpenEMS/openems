@@ -23,7 +23,7 @@ import io.openems.common.utils.JsonUtils;
  *     "edgeId": string,
  *      "userSettings": [
  *          {
- *           userId: string,
+ *           userLogin: string,
  *           offlineEdgeDelay: number,
  *           faultEdgeDelay: number,
  *           warningEdgeDelay: number
