@@ -26,21 +26,20 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "ApiKey", description = "The ApiKey; 'username:password' for InfluxDB v1")
 	String apiKey();
 
-	@AttributeDefinition(name = "Bucket", description = "The bucket name; 'database/retentionPolicy' for InfluxDB v1")
+	@AttributeDefinition(name = "Bucket", description = "The bucket name; 'database' for InfluxDB v1")
 	String bucket();
 
-	@AttributeDefinition(name = "Retention policy name for daily values", description = "The retention policy name for InfluxDB v1 for daily values")
+	@AttributeDefinition(name = "Retention policy name for average values", description = "The retention policy name for InfluxDB v1 for daily values")
 	String retentionPolicyAvg() default "rp_avg";
 
-	@AttributeDefinition(name = "Retention policy name for monthly values", description = "The retention policy name for InfluxDB v1 for monthly values")
+	@AttributeDefinition(name = "Retention policy name for max values", description = "The retention policy name for InfluxDB v1 for monthly values")
 	String retentionPolicyMax() default "rp_max";
 
 	@AttributeDefinition(name = "Measurement avg", description = "The InfluxDB measurement for average values")
 	String measurementAvg() default "avg";
 
-	// TODO table for every timezone. prefix?
-	@AttributeDefinition(name = "Measurement max", description = "The InfluxDB measurement for max values")
-	String measurementMax() default "max";
+	@AttributeDefinition(name = "Measurements for max values", description = "Measurements for max values for each timezone. Format: \"(timezone)=(measurement)\"")
+	String[] measurementsMax() default { "Europe/Berlin=max" };
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;

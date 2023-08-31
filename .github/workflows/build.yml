@@ -66,22 +66,6 @@ jobs:
           name: jacoco_report
           path: jacoco/
 
-      #
-      # Is this a Tag? Prepare release assets
-      #
-      - name: Prepare Edge+Backend assets
-        if: startsWith(github.ref, 'refs/tags/')
-        run: ./gradlew buildEdge buildBackend
-
-      - name: Save build-artifacts
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: |
-            build/openems-edge.jar
-            build/openems-backend.jar
-
   build-ui:
     runs-on: ubuntu-latest
     steps:
@@ -111,43 +95,3 @@ jobs:
           node_modules/.bin/ng lint
           export CHROME_BIN=/usr/bin/google-chrome-stable
           npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-
-      #
-      # Is this a Tag? Prepare release assets
-      #
-      - name: Prepare UI asset
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          mkdir build
-          cd ui/target
-          zip -r ../../build/openems-ui.zip ./*
-
-      - name: Save build-artifacts
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/openems-ui.zip
-
-  #
-  # Is this a Tag? Create a draft release
-  #
-  release:
-    runs-on: ubuntu-latest
-    needs: [build-java, build-ui]
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Load build-artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-          path: build
-
-      - name: Create draft Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          files: |
-            build/openems-edge.jar
-            build/openems-backend.jar
-            build/openems-ui.zip

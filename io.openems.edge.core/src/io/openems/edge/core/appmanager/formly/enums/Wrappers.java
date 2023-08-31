@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager.formly.enums;
 
+import io.openems.edge.core.appmanager.formly.Case;
+
 public enum Wrappers {
 	/**
 	 * Wrapper for setting the default value dynamically based on the different

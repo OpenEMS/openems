@@ -82,6 +82,31 @@ public abstract class QueryProxy {
 	) throws OpenemsNamedException;
 
 	/**
+	 * Queries the historic energy values with a measurement which only has one
+	 * value saved per day.
+	 * 
+	 * @param influxConnection a Influx-Connection
+	 * @param bucket           the bucket name; 'database/retentionPolicy' for
+	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
+	 * @param influxEdgeId     the Edge-ID
+	 * @param fromDate         the From-Date
+	 * @param toDate           the To-Date
+	 * @param channels         the {@link ChannelAddress ChannelAddresses}
+	 * @return the query result
+	 * @throws OpenemsNamedException on error
+	 */
+	public abstract SortedMap<ChannelAddress, JsonElement> queryHistoricEnergySingleValueInDay(//
+			InfluxConnection influxConnection, //
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels //
+	) throws OpenemsNamedException;
+
+	/**
 	 * {@link CommonTimedataService#queryHistoricData(String, io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest)}.
 	 * 
 	 * @param influxConnection a Influx-Connection
@@ -134,6 +159,34 @@ public abstract class QueryProxy {
 	) throws OpenemsNamedException;
 
 	/**
+	 * Queries the raw historic values without calculating the difference between
+	 * two values also includes the first value before the time range to help
+	 * calculating the differences.
+	 * 
+	 * @param influxConnection a Influx-Connection
+	 * @param bucket           the bucket name; 'database/retentionPolicy' for
+	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
+	 * @param influxEdgeId     the Edge-ID
+	 * @param fromDate         the From-Date
+	 * @param toDate           the To-Date
+	 * @param channels         the {@link ChannelAddress}es
+	 * @param resolution       the {@link Resolution}
+	 * @return the query result
+	 * @throws OpenemsNamedException on error
+	 */
+	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryRawHistoricEnergyPerPeriodSingleValueInDay(//
+			InfluxConnection influxConnection, //
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsNamedException;
+
+	/**
 	 * Queries the available since fields from the database.
 	 * 
 	 * @param influxConnection a Influx-Connection
@@ -145,6 +198,27 @@ public abstract class QueryProxy {
 	public abstract Map<Integer, Map<String, Long>> queryAvailableSince(//
 			InfluxConnection influxConnection, //
 			String bucket //
+	) throws OpenemsNamedException;
+
+	/**
+	 * Queries the first values before the given date.
+	 * 
+	 * @param bucket           the bucket name; 'database/retentionPolicy' for
+	 *                         InfluxDB v1
+	 * @param influxConnection a Influx-Connection
+	 * @param measurement      the influx measurement
+	 * @param influxEdgeId     the Edge-ID
+	 * @param date             the bounding date exclusive
+	 * @param channels         the {@link ChannelAddress ChannelAddresses}
+	 * @return the values
+	 */
+	public abstract SortedMap<ChannelAddress, JsonElement> queryFirstValueBefore(//
+			String bucket, //
+			InfluxConnection influxConnection, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime date, //
+			Set<ChannelAddress> channels //
 	) throws OpenemsNamedException;
 
 	public static class RandomLimit {
@@ -217,7 +291,26 @@ public abstract class QueryProxy {
 			Set<ChannelAddress> channels //
 	) throws OpenemsException;
 
+	protected abstract String buildHistoricEnergyQuerySingleValueInDay(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels //
+	) throws OpenemsException;
+
 	protected abstract String buildHistoricEnergyPerPeriodQuery(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution //
+	) throws OpenemsException;
+
+	protected abstract String buildHistoricEnergyPerPeriodQuerySingleValueInDay(//
 			String bucket, //
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
@@ -229,6 +322,14 @@ public abstract class QueryProxy {
 
 	protected abstract String buildFetchAvailableSinceQuery(//
 			String bucket //
+	);
+
+	protected abstract String buildFetchFirstValueBefore(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime date, //
+			Set<ChannelAddress> channels //
 	);
 
 }

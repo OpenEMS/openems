@@ -85,8 +85,8 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
+		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
+				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
 				(e) -> {
 					// ignore
 				});

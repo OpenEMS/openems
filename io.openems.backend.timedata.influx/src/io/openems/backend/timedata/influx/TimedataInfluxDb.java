@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -39,6 +37,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -88,8 +87,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
+		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
+				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(),
+				config.maxQueueSize(), //
 				(e) -> {
 					this.fieldTypeConflictHandler.handleException(e);
 				});
@@ -124,6 +124,10 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 
 	@Override
 	public void write(String edgeId, TimestampedDataNotification notification) {
+		if (this.config.isReadOnly()) {
+			return;
+		}
+
 		// parse the numeric EdgeId
 		try {
 			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
@@ -144,6 +148,10 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 
 	@Override
 	public void write(String edgeId, AggregatedDataNotification notification) {
+		if (this.config.isReadOnly()) {
+			return;
+		}
+
 		try {
 			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
 
@@ -155,6 +163,11 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 		} catch (OpenemsException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void write(String edgeId, ResendDataNotification data) {
+		// TODO Auto-generated method stub
 	}
 
 	private boolean isTimestampedChannel(int edgeId, String channel) {
@@ -210,9 +223,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 						channelEntry.getKey(), //
 						channelEntry.getValue());
 			}
-			if (point.hasFields()) {
-				this.influxConnector.write(point);
-			}
 		}
 	}
 
@@ -260,32 +270,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				this.config.measurement());
 	}
 
-	private static final Set<String> WHITELIST_PROPERTIES = Set.of("_PropertyLowThreshold", "_PropertyHighThreshold",
-			"_PropertySellToGridPowerLimit", "_PropertyContinuousSellToGridPower", "_PropertyMaximumSellToGridPower",
-			"_PropertyPeakShavingPower", "_PropertyRechargePower", "_PropertyReserveSoc",
-			"_PropertyIsReserveSocEnabled", "_PropertyMode", "_PropertyPower", "_PropertyWorkMode", "_PropertyEnabled");
-
-	private static final Predicate<String> SUNSPEC_PATTERN = Pattern.compile("^S[0-9]+.*$").asPredicate();
-
-	private boolean isBlacklisted(String channelAddress) {
-		var c = channelAddress.split("/");
-		var channelId = c[1];
-
-		// _Property
-		if (channelId.startsWith("_") && !WHITELIST_PROPERTIES.contains(channelId)) {
-			return true;
-		}
-		// State
-		if (channelId.equals("State") && !c[0].equals("_sum")) {
-			return true;
-		}
-		// SunSpec Channels
-		if (SUNSPEC_PATTERN.test(channelId)) {
-			return true;
-		}
-		return false;
-	}
-
 	/**
 	 * Adds the value in the correct data format for InfluxDB.
 	 *
@@ -294,10 +278,8 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	 * @param element the value
 	 */
 	private void addValue(Point builder, String field, JsonElement element) {
-		if (element == null || element.isJsonNull() //
-				|| this.isBlacklisted(field) // Channel-Address is blacklisted
-				// already handled by special case handling
-				|| this.specialCaseFieldHandling(builder, field, element)) {
+		if (element == null || element.isJsonNull() || this.specialCaseFieldHandling(builder, field, element)) {
+			// already handled by special case handling
 			return;
 		}
 

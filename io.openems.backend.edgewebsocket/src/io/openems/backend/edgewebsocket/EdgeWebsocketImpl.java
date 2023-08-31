@@ -1,8 +1,9 @@
 package io.openems.backend.edgewebsocket;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,7 +53,6 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
-import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -105,6 +105,10 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
 			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
+
+		if (this.metadata.isInitialized()) {
+			this.startServer();
+		}
 	}
 
 	@Deactivate
@@ -115,14 +119,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	/**
 	 * Create and start new server.
-	 *
-	 * @param port      the port
-	 * @param poolSize  number of threads dedicated to handle the tasks
-	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
-		this.server.start();
+	private synchronized void startServer() {
+		if (this.server == null) {
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
+					this.config.debugMode());
+			this.server.start();
+		}
 	}
 
 	/**
@@ -274,15 +277,16 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			this.startServer();
 			break;
 		}
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		Map<ChannelAddress, JsonElement> result = channelAddresses.stream() //
-				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
+	public SortedMap<ChannelAddress, JsonElement> getChannelValues(String edgeId,
+			Set<ChannelAddress> channelAddresses) {
+		SortedMap<ChannelAddress, JsonElement> result = channelAddresses.stream() //
+				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE, (t, u) -> u, TreeMap::new));
 		var ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws == null) {
 			return result;

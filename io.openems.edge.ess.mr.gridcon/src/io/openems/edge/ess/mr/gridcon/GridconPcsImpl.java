@@ -1149,7 +1149,7 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public boolean isCommunicationBroken() {
-		return this.getModbusCommunicationFailed().get() == Boolean.TRUE;
+		return this.getModbusCommunicationFailed();
 	}
 
 	@Override

@@ -52,6 +52,14 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	@Override
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergySingleValueInDay(InfluxConnection influxConnection,
+			String bucket, String measurement, Optional<Integer> influxEdgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(//
 			InfluxConnection influxConnection, //
 			String bucket, //
@@ -85,11 +93,28 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryRawHistoricEnergyPerPeriodSingleValueInDay(
+			InfluxConnection influxConnection, String bucket, String measurement, Optional<Integer> influxEdgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
+			throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public Map<Integer, Map<String, Long>> queryAvailableSince(InfluxConnection influxConnection, String bucket)
 			throws OpenemsNamedException {
 		final var query = this.buildFetchAvailableSinceQuery(bucket);
 		final var queryResult = this.executeQuery(influxConnection, query);
 		return convertAvailableSinceQueryResult(queryResult);
+	}
+
+	@Override
+	public SortedMap<ChannelAddress, JsonElement> queryFirstValueBefore(String bucket,
+			InfluxConnection influxConnection, String measurement, Optional<Integer> influxEdgeId, ZonedDateTime date,
+			Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -154,6 +179,14 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	@Override
+	protected String buildHistoricEnergyQuerySingleValueInDay(String bucket, String measurement,
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels)
+			throws OpenemsException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	protected String buildHistoricEnergyPerPeriodQuery(//
 			String bucket, //
 			String measurement, //
@@ -187,6 +220,14 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	@Override
+	protected String buildHistoricEnergyPerPeriodQuerySingleValueInDay(String bucket, String measurement,
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			Resolution resolution) throws OpenemsException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	protected String buildFetchAvailableSinceQuery(//
 			String bucket //
 	) {
@@ -194,6 +235,13 @@ public class FluxProxy extends QueryProxy {
 				.range(0L, 1L) //
 				.filter(Restrictions.measurement().equal(QueryProxy.AVAILABLE_SINCE_MEASUREMENT)) //
 				.toString();
+	}
+
+	@Override
+	protected String buildFetchFirstValueBefore(String bucket, String measurement, Optional<Integer> influxEdgeId,
+			ZonedDateTime date, Set<ChannelAddress> channels) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

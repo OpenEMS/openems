@@ -26,7 +26,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
-import io.openems.edge.bridge.modbus.api.element.DummyCoilElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
@@ -125,30 +124,28 @@ public class SystemFeneconIndustrialLImpl extends AbstractOpenemsModbusComponent
 		return new ModbusProtocol(this, //
 				new FC2ReadInputsTask(4, Priority.LOW, //
 						m(SystemFeneconIndustrialL.ChannelId.MONITOR_SWITCH, new CoilElement(4)), //
-						new DummyCoilElement(5), //
+						new CoilElement(5), //
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_1_GENERAL_ALARM, new CoilElement(6)), //
-						new DummyCoilElement(7), //
+						new CoilElement(7), //
 						m(SystemFeneconIndustrialL.ChannelId.PUMP_RUNNING_STATE, new CoilElement(8)), //
-						new DummyCoilElement(9), new DummyCoilElement(10), new DummyCoilElement(11),
-						new DummyCoilElement(12), new DummyCoilElement(13),
+						new CoilElement(9), new CoilElement(10), new CoilElement(11), new CoilElement(12),
+						new CoilElement(13),
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_1_RUNNING_STATE, new CoilElement(14)), //
-						new DummyCoilElement(15), new DummyCoilElement(16), new DummyCoilElement(17),
-						new DummyCoilElement(18), new DummyCoilElement(19), //
+						new CoilElement(15), new CoilElement(16), new CoilElement(17), new CoilElement(18),
+						new CoilElement(19), //
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_2_RUNNING_STATE, new CoilElement(20))), //
 				new FC2ReadInputsTask(55, Priority.LOW, //
 						m(SystemFeneconIndustrialL.ChannelId.SYSTEM_WATER_SHORTAGE_ALARM, new CoilElement(55)), //
-						new DummyCoilElement(56), new DummyCoilElement(57), new DummyCoilElement(58),
-						new DummyCoilElement(59), new DummyCoilElement(60), new DummyCoilElement(61),
-						new DummyCoilElement(62), new DummyCoilElement(63), new DummyCoilElement(64),
-						new DummyCoilElement(65), new DummyCoilElement(66), new DummyCoilElement(67),
-						new DummyCoilElement(68), new DummyCoilElement(69), new DummyCoilElement(70), //
+						new CoilElement(56), new CoilElement(57), new CoilElement(58), new CoilElement(59),
+						new CoilElement(60), new CoilElement(61), new CoilElement(62), new CoilElement(63),
+						new CoilElement(64), new CoilElement(65), new CoilElement(66), new CoilElement(67),
+						new CoilElement(68), new CoilElement(69), new CoilElement(70), //
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_1_CONDENSING_PRESSURE_TOO_HIGH_ALARM,
 								new CoilElement(71)), //
-						new DummyCoilElement(72), new DummyCoilElement(73), new DummyCoilElement(74),
-						new DummyCoilElement(75), new DummyCoilElement(76), new DummyCoilElement(77),
-						new DummyCoilElement(78), new DummyCoilElement(79), new DummyCoilElement(80),
-						new DummyCoilElement(81), new DummyCoilElement(82), new DummyCoilElement(83),
-						new DummyCoilElement(84), new DummyCoilElement(85), //
+						new CoilElement(72), new CoilElement(73), new CoilElement(74), new CoilElement(75),
+						new CoilElement(76), new CoilElement(77), new CoilElement(78), new CoilElement(79),
+						new CoilElement(80), new CoilElement(81), new CoilElement(82), new CoilElement(83),
+						new CoilElement(84), new CoilElement(85), //
 						m(SystemFeneconIndustrialL.ChannelId.ELECTRIC_HEATING_WORKING, new CoilElement(86))), //
 				new FC2ReadInputsTask(141, Priority.LOW, //
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_2_CONDENSING_PRESSURE_TOO_HIGH_ALARM,
@@ -158,7 +155,7 @@ public class SystemFeneconIndustrialLImpl extends AbstractOpenemsModbusComponent
 						m(SystemFeneconIndustrialL.ChannelId.WATER_INLET_PRESSURE_WARNING, new CoilElement(179))), //
 				new FC2ReadInputsTask(223, Priority.LOW, //
 						m(SystemFeneconIndustrialL.ChannelId.HEATER_RUNNING_STATE, new CoilElement(223)), //
-						new DummyCoilElement(224), //
+						new CoilElement(224), //
 						m(SystemFeneconIndustrialL.ChannelId.POWER_FAILURE_WARNING, new CoilElement(225))), //
 				new FC2ReadInputsTask(391, Priority.LOW, //
 						m(SystemFeneconIndustrialL.ChannelId.COMPRESSOR_2_GENERAL_ALARM, new CoilElement(391))), //

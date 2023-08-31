@@ -144,8 +144,6 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
 								SCALE_FACTOR_MINUS_2)), //
 
-				// Active and reactive power, Power factor and frequency
-				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005), INVERT), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006), INVERT), //
