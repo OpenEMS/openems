@@ -15,7 +15,7 @@ common_initialize_environment() {
     VERSION_MAJOR=$(echo $tmp_version | cut -d'.' -f1)
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
     VERSION_PATCH=$(echo $tmp_version | cut -d'.' -f3)
-    VERSION_STRING=$(echo $1 | cut -s -d'-' -f2)
+    VERSION_STRING=$(echo $VERSION | cut -s -d'-' -f2)
 }
 
 # Inserts the version number into the Code
