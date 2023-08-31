@@ -313,8 +313,8 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						break;
 					}
 				}
-				var elSfConverter = this.getScaleFactor(point, scaleFactorName, scaleFactorPoint);
-				element = this.m(channelId, element, elSfConverter);
+				var converter = this.getScaleFactor(point, scaleFactorName, scaleFactorPoint);
+				element = this.m(channelId, element, converter);
 
 			} else {
 				// Add a direct mapping between Element and Channel
@@ -361,14 +361,13 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param scaleFactorPoint the point for the scale factor if present
 	 * @return The {@link ElementToChannelConverter} for the point
 	 */
-	private ElementToChannelScaleFactorConverter getScaleFactor(SunSpecPoint point, String scaleFactorName,
+	private ElementToChannelConverter getScaleFactor(SunSpecPoint point, String scaleFactorName,
 			SunSpecPoint scaleFactorPoint) {
-		ElementToChannelScaleFactorConverter elSfConverter = null;
+		ElementToChannelConverter converter = null;
 		if (scaleFactorPoint == null) {
 			try {
 				// a few sunspec models have a constant scale factor, check for it.
-				elSfConverter = new ElementToChannelScaleFactorConverter(
-						Integer.parseInt(point.get().scaleFactor.get()));
+				converter = new ElementToChannelScaleFactorConverter(Integer.parseInt(point.get().scaleFactor.get()));
 			} catch (NumberFormatException e) {
 				// Unable to find ScaleFactor-Point
 				this.logError(this.log,
@@ -376,10 +375,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 
 		}
-		if (elSfConverter == null) {
-			elSfConverter = new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId());
+		if (converter == null) {
+			converter = new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId());
 		}
-		return elSfConverter;
+		return converter;
 	}
 
 	/**
