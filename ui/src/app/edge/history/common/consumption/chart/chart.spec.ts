@@ -1,5 +1,4 @@
 import { ChartConfig, DATA, DummyConfig, LABELS } from "src/app/shared/edge/edgeconfig.spec";
-import { AbstractHistoryChart } from "src/app/shared/genericComponents/chart/abstracthistorychart";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
 import { History } from "./channels.spec";
