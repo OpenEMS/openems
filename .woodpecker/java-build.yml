@@ -17,36 +17,38 @@ variables:
     mount:
       - cache
 
+  - &when
+    when:
+      - branch: [main, develop]
+      - path: 
+          include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/java-build.yml' ]
+
 clone:
   git:
-    when:
-      branch: [main, develop]
+    <<: *when
     image: woodpeckerci/plugin-git
 
 steps:
   restore-cache:
-    when:
-      branch: [main, develop]
+    <<: *when
     image: appleboy/drone-sftp-cache
     settings:
       restore: true
       <<: *sftp-settings
 
   build-java:
-    when:
-      branch: [main, develop]
+    <<: *when
     image: openems-build:latest
     commands:
       - export CACHE=$CI_WORKSPACE/cache
       - mkdir -p $CACHE
       - export GRADLE_USER_HOME=$CACHE/gradle
       - export MAVEN_OPTS=-Dmaven.repo.local=$CACHE/maven
-      - ./gradlew --build-cache build buildEdge buildBackend resolve.EdgeApp resolve.BackendApp
+      - ./gradlew --build-cache build buildEdge buildBackend resolve.EdgeApp resolve.BackendApp --parallel --max-workers=4 
       - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
 
   rebuild-cache:
-    when:
-      branch: [main, develop]
+    <<: *when
     image: appleboy/drone-sftp-cache
     settings:
       rebuild: true
