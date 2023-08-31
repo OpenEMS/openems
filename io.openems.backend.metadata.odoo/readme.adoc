@@ -1,6 +1,6 @@
 = Metadata Odoo
 
-Metadata OpenEMS Backend implementation for https://www.odoo.com/[Odoo]. 
+Metadata OpenEMS Backend implementation for https://github.com/odoo/odoo[Odoo]. 
 
 Enables you to manage multiple edges with one backend.	 
 

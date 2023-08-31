@@ -23,7 +23,7 @@ from the **first** Timedata providers which can deliver it.
 [NOTE]
 ====
 
-Beginning with OpenEMS versions after V2023.08, data handling has changed within OpenEMS Edge, OpenEMS Backend and OpenEMS UI.  
+Beginning with OpenEMS version V2023.08, data handling has changed within OpenEMS Edge, OpenEMS Backend and OpenEMS UI.  
 OpenEMS Edges will send different types of data to the OpenEMS Backend:
 
 * `TimestampedDataNotification` 

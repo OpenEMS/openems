@@ -17,7 +17,7 @@ Beside that the Metadata bundle is responsible for the
 state of
 https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/User.java[users] and
 https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/metadata/Edge.java[edges]
-and accompanying processes.
+and related processes.
 
 == Edges
 
