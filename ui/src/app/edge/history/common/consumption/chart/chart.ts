@@ -77,7 +77,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[component.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
-              sessionStorage.setItem(component.id + '/ChargePower', JSON.stringify(data[component.id + '/ChargePower']));
               return data[component.id + '/ChargePower'] ?? null;
             },
             color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
@@ -93,7 +92,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
-              sessionStorage.setItem(meter.id + '/ActivePower', JSON.stringify(data[meter.id + '/ActivePower']));
               return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
@@ -109,7 +107,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
             converter: () => {
-              sessionStorage.setItem("calculatOtherConsumption", JSON.stringify(Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters)));
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
             color: 'rgb(0,223,0)',
