@@ -620,7 +620,8 @@
         "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
       },
-      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais"
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
+      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden."
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",

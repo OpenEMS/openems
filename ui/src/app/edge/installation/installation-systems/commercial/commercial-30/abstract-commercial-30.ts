@@ -12,6 +12,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
     public override readonly defaultNumberOfModules = 9;
 
+    public abstract readonly emergencyPower: 'ENABLE' | 'DISABLE';
     public override readonly type: string = 'Fenecon-Commercial-30';
 
     public fillForms(
@@ -257,7 +258,8 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
                 { name: 'countryCode', value: 'GERMANY' },
-                { name: 'startStop', value: 'AUTO' }
+                { name: 'startStop', value: 'AUTO' },
+                { name: 'emergencyPower', value: this.emergencyPower }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

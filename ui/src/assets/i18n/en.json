@@ -619,7 +619,8 @@
         "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
         "WAGO_BRIDGE": "WAGO (Gray component)"
       },
-      "COMMUNICATION_WITH_RELAY": "Communication with Relay"
+      "COMMUNICATION_WITH_RELAY": "Communication with Relay",
+      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration."
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
