@@ -20,13 +20,13 @@ public class SignedDoublewordElement extends AbstractDoubleWordElement<SignedDou
 	}
 
 	@Override
-	protected Long fromByteBuffer(ByteBuffer buff) {
+	protected Long byteBufferToValue(ByteBuffer buff) {
 		return Long.valueOf(buff.getInt());
 	}
 
 	@Override
-	protected ByteBuffer toByteBuffer(ByteBuffer buff, Long value) {
-		return buff.putInt(value.intValue());
+	protected void valueToByteBuffer(ByteBuffer buff, Long value) {
+		buff.putInt(value.intValue());
 	}
 
 }

@@ -39,23 +39,22 @@ public class JsonUtils {
 	/**
 	 * Provide a easy way to generate a JsonArray from a list using the given
 	 * convert function to add each element.
-	 * 
+	 *
 	 * @param list    to convert
 	 * @param convert function to convert elements
 	 * @param <T>     type of an element from list
-	 * 
+	 *
 	 * @return list as JsonArray
 	 */
 	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
-		} else {
-			var jab = new JsonArrayBuilder();
-			list.forEach(element -> {
-				jab.add(convert.apply(element));
-			});
-			return jab.build();
 		}
+		var jab = new JsonArrayBuilder();
+		list.forEach(element -> {
+			jab.add(convert.apply(element));
+		});
+		return jab.build();
 	}
 
 	/**
@@ -262,10 +261,10 @@ public class JsonUtils {
 
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject}.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -364,10 +363,10 @@ public class JsonUtils {
 		/**
 		 * Add a {@link ZonedDateTime} value to the {@link JsonObject} if it is not
 		 * null.
-		 * 
+		 *
 		 * <p>
 		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
-		 * 
+		 *
 		 * @param property the key
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
@@ -506,6 +505,19 @@ public class JsonUtils {
 			return value;
 		}
 		throw OpenemsError.JSON_NO_PRIMITIVE_MEMBER.exception(memberName, jElement.toString().replace("%", "%%"));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
 	}
 
 	/**
@@ -704,6 +716,19 @@ public class JsonUtils {
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toString(toPrimitive(toSubElement(jElement, memberName))));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link String} if it exists,
+	 * and the alternative value otherwise.
+	 *
+	 * @param jElement    the {@link JsonElement}
+	 * @param memberName  the name of the member
+	 * @param alternative the alternative value
+	 * @return the {@link String} value or the alternative value
+	 */
+	public static String getAsStringOrElse(JsonElement jElement, String memberName, String alternative) {
+		return getAsOptionalString(jElement, memberName).orElse(alternative);
 	}
 
 	/**
@@ -1360,17 +1385,20 @@ public class JsonUtils {
 			 * String
 			 */
 			return new JsonPrimitive((String) value);
-		} else if (value instanceof Boolean) {
+		}
+		if (value instanceof Boolean) {
 			/*
 			 * Boolean
 			 */
 			return new JsonPrimitive((Boolean) value);
-		} else if (value instanceof Inet4Address) {
+		}
+		if (value instanceof Inet4Address) {
 			/*
 			 * Inet4Address
 			 */
 			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
-		} else if (value instanceof JsonElement) {
+		}
+		if (value instanceof JsonElement) {
 			/*
 			 * JsonElement
 			 */
@@ -1484,17 +1512,20 @@ public class JsonUtils {
 				 * Asking for an Long
 				 */
 				return j.getAsLong();
-			} else if (Boolean.class.isAssignableFrom(type)) {
+			}
+			if (Boolean.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Boolean
 				 */
 				return j.getAsBoolean();
-			} else if (Double.class.isAssignableFrom(type)) {
+			}
+			if (Double.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Double
 				 */
 				return j.getAsDouble();
-			} else if (String.class.isAssignableFrom(type)) {
+			}
+			if (String.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for a String
 				 */
@@ -1717,9 +1748,19 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Check if the given {@link JsonElement} is a {@link Number}.
+	 *
+	 * @param j the {@link JsonElement} to check
+	 * @return true if the element is a {@link Number}, otherwise false
+	 */
+	public static boolean isNumber(JsonElement j) {
+		return j.isJsonPrimitive() && j.getAsJsonPrimitive().isNumber();
+	}
+
+	/**
 	 * Returns a sequential stream of the {@link JsonElement JsonElements} in the
 	 * {@link JsonArray}.
-	 * 
+	 *
 	 * @param jsonArray The {@link JsonArray}, assumed to be unmodified during use
 	 * @return a Stream of the elements
 	 */
@@ -1741,7 +1782,7 @@ public class JsonUtils {
 	/**
 	 * Returns a {@link Collector} that accumulates the input elements into a new
 	 * {@link JsonObject}.
-	 * 
+	 *
 	 * @param <T>         the type of the input
 	 * @param keyMapper   the key mapper
 	 * @param valueMapper the value mapper
@@ -1762,7 +1803,7 @@ public class JsonUtils {
 
 	/**
 	 * Returns a Collector that accumulates the input elements into a new JsonArray.
-	 * 
+	 *
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
 	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
