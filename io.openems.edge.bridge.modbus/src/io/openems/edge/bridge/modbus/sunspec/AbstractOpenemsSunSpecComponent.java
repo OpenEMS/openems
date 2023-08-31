@@ -39,8 +39,11 @@ import io.openems.edge.common.taskmanager.Priority;
  * This class provides a generic implementation of SunSpec ModBus protocols.
  */
 public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsModbusComponent {
-	
-	private static final int MAXIMUM_TASK_LENGTH = 126; 
+
+	/**
+	 * Limit of a task length in j2mod.
+	 */
+	private static final int MAXIMUM_TASK_LENGTH = 126;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
