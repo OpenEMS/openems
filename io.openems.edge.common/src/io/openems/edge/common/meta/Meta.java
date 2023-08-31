@@ -4,6 +4,9 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -22,7 +25,17 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING));
+		VERSION(Doc.of(OpenemsType.STRING)),
+
+		/**
+		 * Edge currency.
+		 * 
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Currency
+		 * </ul>
+		 */
+		CURRENCY(Doc.of(Currency.values()));
 
 		private final Doc doc;
 
@@ -52,4 +65,30 @@ public interface Meta extends ModbusSlave {
 						.build());
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENCY}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getCurrencyChannel() {
+		return this.channel(ChannelId.CURRENCY);
+	}
+
+	/**
+	 * Gets the Capacity in [Wh]. See {@link ChannelId#CURRENCY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Currency getCurrency() {
+		return this.getCurrencyChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENCY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrency(Currency value) {
+		this.getCurrencyChannel().setNextValue(value);
+	}
 }

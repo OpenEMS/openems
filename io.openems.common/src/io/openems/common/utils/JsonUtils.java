@@ -49,11 +49,10 @@ public class JsonUtils {
 	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
-		} else {
-			var jab = new JsonArrayBuilder(list.size());
-			list.forEach(e -> jab.add(convert.apply(e)));
-			return jab.build();
 		}
+		var jab = new JsonArrayBuilder(list.size());
+		list.forEach(e -> jab.add(convert.apply(e)));
+		return jab.build();
 	}
 
 	/**
@@ -522,6 +521,19 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
+	}
+
+	/**
 	 * Gets the member of the {@link JsonElement} as {@link JsonElement}.
 	 *
 	 * @param jElement   the {@link JsonElement}
@@ -717,6 +729,19 @@ public class JsonUtils {
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
 		return Optional.ofNullable(toString(toPrimitive(toSubElement(jElement, memberName))));
+	}
+
+	/**
+	 * Gets the member of the {@link JsonElement} as {@link String} if it exists,
+	 * and the alternative value otherwise.
+	 *
+	 * @param jElement    the {@link JsonElement}
+	 * @param memberName  the name of the member
+	 * @param alternative the alternative value
+	 * @return the {@link String} value or the alternative value
+	 */
+	public static String getAsStringOrElse(JsonElement jElement, String memberName, String alternative) {
+		return getAsOptionalString(jElement, memberName).orElse(alternative);
 	}
 
 	/**
@@ -1373,17 +1398,20 @@ public class JsonUtils {
 			 * String
 			 */
 			return new JsonPrimitive((String) value);
-		} else if (value instanceof Boolean) {
+		}
+		if (value instanceof Boolean) {
 			/*
 			 * Boolean
 			 */
 			return new JsonPrimitive((Boolean) value);
-		} else if (value instanceof Inet4Address) {
+		}
+		if (value instanceof Inet4Address) {
 			/*
 			 * Inet4Address
 			 */
 			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
-		} else if (value instanceof JsonElement) {
+		}
+		if (value instanceof JsonElement) {
 			/*
 			 * JsonElement
 			 */
@@ -1497,17 +1525,20 @@ public class JsonUtils {
 				 * Asking for an Long
 				 */
 				return j.getAsLong();
-			} else if (Boolean.class.isAssignableFrom(type)) {
+			}
+			if (Boolean.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Boolean
 				 */
 				return j.getAsBoolean();
-			} else if (Double.class.isAssignableFrom(type)) {
+			}
+			if (Double.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Double
 				 */
 				return j.getAsDouble();
-			} else if (String.class.isAssignableFrom(type)) {
+			}
+			if (String.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for a String
 				 */
@@ -1723,6 +1754,16 @@ public class JsonUtils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if the given {@link JsonElement} is a {@link Number}.
+	 *
+	 * @param j the {@link JsonElement} to check
+	 * @return true if the element is a {@link Number}, otherwise false
+	 */
+	public static boolean isNumber(JsonElement j) {
+		return j.isJsonPrimitive() && j.getAsJsonPrimitive().isNumber();
 	}
 
 	/**

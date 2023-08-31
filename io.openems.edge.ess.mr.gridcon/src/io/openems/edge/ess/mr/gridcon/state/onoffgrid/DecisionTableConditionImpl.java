@@ -97,12 +97,10 @@ public class DecisionTableConditionImpl implements DecisionTableCondition {
 
 		try {
 			ModbusComponent meter = this.manager.getComponent(this.meterId);
-			if (meter.getModbusCommunicationFailed().get() == Boolean.TRUE) {
+			if (meter.getModbusCommunicationFailed()) {
 				return MeterCommunicationFailed.TRUE;
-			} else if (meter.getModbusCommunicationFailed().get() == Boolean.FALSE) {
-				return MeterCommunicationFailed.FALSE;
 			} else {
-				return MeterCommunicationFailed.UNSET;
+				return MeterCommunicationFailed.FALSE;
 			}
 		} catch (Exception e) {
 			return MeterCommunicationFailed.UNSET;

@@ -142,7 +142,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       let nameSuffix = null;
 
       // Check if energyResponse is available
-      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse)) {
+      if (energyResponse && element.nameSuffix && element.nameSuffix(energyResponse) != null) {
         nameSuffix = element.nameSuffix(energyResponse);
       }
 
@@ -508,7 +508,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 10
             },
             gridLines: {
@@ -529,7 +529,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             position: element.position,
             scaleLabel: {
               display: true,
-              labelString: AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 5,
               fontSize: 11
             },

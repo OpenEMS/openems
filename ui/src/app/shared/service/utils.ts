@@ -277,7 +277,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
-    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh';
+    return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
   /**
@@ -312,6 +312,7 @@ export class Utils {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
   };
+
 
   /**
    * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
@@ -627,6 +628,7 @@ export namespace HistoryUtils {
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
+    customTitle?: string,
     position: 'left' | 'right' | 'bottom' | 'top',
     yAxisId: ChartAxis,
     /** Default: true */
