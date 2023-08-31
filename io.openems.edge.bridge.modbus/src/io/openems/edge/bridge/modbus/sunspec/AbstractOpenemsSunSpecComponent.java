@@ -362,7 +362,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Splits the task if it is too long and adds the read tasks.
 	 * 
-	 * @param elements	the Deque of {@link AbstractModbusElement}s for one block.
+	 * @param elements	the Deque of {@link ModbusElement}s for one block.
 	 * @param priority	the reading priority
 	 * @throws OpenemsException on error
 	 */
