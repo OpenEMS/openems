@@ -46,6 +46,24 @@ public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStop
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#BATTERY_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<BatteryFeneconHomeHardwareType> getBatteryHardwareTypeChannel() {
+		return this.channel(BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE);
+	}
+
+	/**
+	 * Gets the Hardware Device Type. See {@link ChannelId#BATTERY_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default BatteryFeneconHomeHardwareType getBatteryHardwareType() {
+		return this.getBatteryHardwareTypeChannel().value().asEnum();
+	}
+
+	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
 	 *
 	 * @return {@link StartStop}
@@ -610,6 +628,9 @@ public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),
+
+		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
+				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
 				.text("BMS CONTROL(1: Shutdown, 0: no action)")),

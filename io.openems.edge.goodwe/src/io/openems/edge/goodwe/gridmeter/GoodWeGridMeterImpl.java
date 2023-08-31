@@ -34,6 +34,7 @@ import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -161,8 +162,32 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						if (dspVersion >= 4) {
 							this.handleDspVersion4(protocol);
 						}
+
+						// Handle beta versions
+						if (dspVersion == 0) {
+
+							// Handle GoodWe Types
+							ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
+									.thenAccept(serialNr -> {
+										try {
+											Integer version = TypeUtils.getAsType(OpenemsType.INTEGER,
+													serialNr.substring(2, 4));
+
+											// Handle GoodWe 20-30
+											if (version != null && version > 20) {
+												this.handleDspVersion4(protocol);
+											}
+
+										} catch (OpenemsException e) {
+											this.logError(this.log, "Unable to add task for modbus protocol");
+											e.printStackTrace();
+										}
+									});
+						}
+
 					} catch (OpenemsException e) {
 						this.logError(this.log, "Unable to add task for modbus protocol");
+						e.printStackTrace();
 					}
 				});
 

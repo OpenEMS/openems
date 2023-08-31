@@ -1,0 +1,94 @@
+# Woodpecker-CI
+# 
+# Um den Docker Container fuer build ('openems-build') zu aktualisieren:
+# - ssh auf gitvm
+# - cd /root/fems/tools
+# - git pull
+# - bash drone-docker.sh
+
+variables:
+  - &sftp-settings
+    server: 10.0.0.40
+    username: user
+    password: pass
+    ignore_branch: true
+    port: 2222
+    path: /cache
+    mount:
+      - cache
+
+  - &when
+    when:
+      - branch: [main, develop]
+      - path: 
+          include: [ 'ui/**', '.woodpecker/ui-build.yml' ]
+
+clone:
+  git:
+    <<: *when
+    image: woodpeckerci/plugin-git
+
+steps:
+  restore-cache:
+    <<: *when
+    image: appleboy/drone-sftp-cache
+    settings:
+      restore: true
+      <<: *sftp-settings
+    group: restore
+
+  build-ui:
+    <<: *when
+    image: openems-build:latest
+    commands:
+      - export OEM=$(case ${CI_COMMIT_BRANCH^^} in *HECKERT*) echo "heckert";; *) echo "fenecon";; esac)
+      - export CACHE=$CI_WORKSPACE/cache
+      - export npm_config_cache=$CACHE/npm
+      - export NG_CLI_CACHE_PATH=$CACHE/angular-cli
+      - export NODE_MODULES_CACHE=$CACHE/node_modules # TODO
+      - export CHROME_BIN=/usr/bin/google-chrome-stable
+      ### start ###
+      - echo "Build for $OEM"
+      - mkdir -p $CACHE
+      - cd ui
+      - npm ci --prefer-offline --cache $npm_config_cache --force
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
+      - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
+      - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
+      - node_modules/.bin/ng lint
+      - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+    group: build
+
+  rebuild-cache:
+    <<: *when
+    image: appleboy/drone-sftp-cache
+    settings:
+      rebuild: true
+      <<: *sftp-settings
+    group: refresh
+
+  refresh-dev:
+    <<: *when
+    image: appleboy/drone-scp:latest
+    settings:
+      host: 10.0.0.40
+      user: fenecon-docs
+      key:
+        from_secret: ssh_key_intranet
+      source: ./ui/target
+      strip_components: 3
+      target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    group: refresh
+
+  refresh-location:
+    <<: *when
+    image: appleboy/drone-ssh:latest
+    settings:
+      host: 10.0.0.40
+      username: fenecon-docs
+      timeout: 10s
+      key: 
+        from_secret: ssh_key_intranet 
+      script:
+        - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+    group: refresh

@@ -66,7 +66,6 @@
             [converter]="Utils.CONVERT_TO_WATT">
           </oe-modal-line>
 
-
           <!-- this section has to be change later -->
           <table class="full_width" *ngIf="numberOfPhases && formGroup.value.forceChargeMinPower">
             <tr>
@@ -114,7 +113,7 @@
           [component]="component"
           [buttons]="[
     { name: ('Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.car' | translate), value: 'CAR', icon: {color:'success', name: 'oe-evcs'}},
-    { name: ('Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.storage' | translate), value: 'STORAGE', icon: {color:'primary', name: 'oe-storage'}}]">
+    { name: ('Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority.storage' | translate), value: 'STORAGE', icon: {color:'success', name: 'oe-storage'}}]">
         </oe-modal-buttons>
 
         <oe-modal-horizontal-line></oe-modal-horizontal-line>

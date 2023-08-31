@@ -37,17 +37,34 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.8.2',
+        changes: [
+          Changelog.openems('2023.8.0'),
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + Changelog.GENERAL_OPTIMIZATION,
+          "App Center: Verbesserte Auswahl von Relaisausgängen",
+          Changelog.UI + "Optimierung der historischen Darstellung für mobile Endgeräte",
+          Changelog.app(App.EVCS_AC) + "Technische Überarbeitung des Widgets",
+          Changelog.product(Product.COMMERCIAL_30) + "Fehlerbehebung bei der Ansteuerung der Netztrennstelle",
+          "Daten Nachsenden: verbesserte Erkennung von Übertragungsfehlern",
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial 40 DC (CESS): Fehlerbehebung bei Konfiguration des Chargers" },
+          { roleIsAtLeast: Role.ADMIN, change: "Virtuelle Zähler: Fix für Berechnungsfehler bei Teilausfall" },
+          { roleIsAtLeast: Role.ADMIN, change: "Core.Meta: Globale Konfiguration einer Währung" },
+          { roleIsAtLeast: Role.ADMIN, change: "Industrial L: erste Version einer 'Industrial L Komponente'" },
+          Changelog.library(Library.GUAVA, Library.INFLUXDB)
+        ]
+      },
+      {
         version: '2023.8.1',
         changes: [
           Changelog.openems('2023.7.0'),
           Changelog.UI + "Darstellungsfehler auf iOS, Tipp- und Übersetzungsfehler, Entfernen non-funktionale 'Alerting'-Funktion aus lokalem Monitoring",
           "Daten Nachsenden: nach Übertragungsfehlern (z. B. Ausfall der Internetverbindung oder Wartungsarbeiten am Backend) werden fehlende Daten später nachgesendet",
           "Lokales Monitoring: Daten im lokalen Monitoring sind nun bis zu 15 Monate lang verfügbar",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.EVCS_AC) + "Technische Überarbeitung des Widgets, Speichern-Button",
           Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + "Verbesserte Verarbeitung der Phasen- und Status-Informationen",
           "App Center: Allgemeine Verbesserungen",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "UI: Verbesserungen an 'Channels' in den Einstellungen" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: Übersicht wird immer angezeigt, wenn der Nutzer Zugriff auf mehr als ein FEMS hat (oder mindestens Installateur ist)" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: Umfangreiches Refactoring/Code-Bereinigung in der Historie" },
@@ -71,8 +88,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2023.6.0'),
           Changelog.UI,
           "App Center: Allgemeine Verbesserungen",
-          Changelog.product(Product.HOME) + "Anpassung des Regelverhaltens bei Überschusseinspeisung. In Ausnahmefällen wurde im SMART-Mode die Überschussleistung bei voller Batterie falsch berechnet.",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + "Anpassung des Regelverhaltens bei Überschusseinspeisung. In Ausnahmefällen wurde im SMART-Mode die Überschussleistung bei voller Batterie falsch berechnet.",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.UI + "Fehlerbehebung bei der Formatierung von Zahlen in einigen Sprachen",
           Changelog.app(App.PV_INVERTER, App.KACO, App.SMA, App.KOSTAL, App.FRONIUS, App.SOLAREDGE) + "Dreiphasige Darstellung der Erzeugungsleistung",
           { roleIsAtLeast: Role.ADMIN, change: "FEMS App Manuelle Relaissteuerung, Blockheizkraftwerk (BHKW), Manuelle Relaissteuerung: Verbesserung der Berechnung der kumulierten Betriebszeit" },
@@ -108,7 +125,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI,
           "App Center: Allgemeine Verbesserungen",
           Changelog.app(App.EVCS_DC, App.ALPITRONIC) + "Release",
-          Changelog.product(Product.HOME, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.TIME_OF_USE) + "Anzeige der richtigen Währung in Schweden",
           Changelog.library(Library.OKHTTP, Library.DATE_FNS),
           { roleIsAtLeast: Role.ADMIN, change: "Solar-Log: Fehlerbehebung bei Energiewerten" }
@@ -181,7 +198,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.UI,
           "Verbesserung am Changelog: Anzeige im Bereich \"Systemupdate\" und verbessertes Layout",
-          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Vorbereitung einer Batterie-Erweiterung (Be-/Entladen auf 30 % SoC) über das Speicher-Widget im Online-Monitoring" },
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME_10) + "Vorbereitung einer Batterie-Erweiterung (Be-/Entladen auf 30 % SoC) über das Speicher-Widget im Online-Monitoring" },
           Changelog.app(App.POWER_TO_HEAT, App.WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Next Ladestation" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Optimierung Validierung kostenloser Apps, Verbesserung bei Default-Werten, Hardy-Barth mit zwei Ladepunkten" },
@@ -306,8 +323,8 @@ export class ChangelogComponent implements OnInit {
         version: '2023.1.1',
         changes: [
           Changelog.openems('2023.1.0'),
-          Changelog.product(Product.HOME) + "Verbesserungen Inbetriebnahmeassistent für KDK-Zähler (Modbus/RTU Parität)",
-          Changelog.product(Product.HOME) + "Verbesserung SMART-Mode bei Vorgabe einer maximalen Be-/Entladeleistung",
+          Changelog.product(Product.HOME_10) + "Verbesserungen Inbetriebnahmeassistent für KDK-Zähler (Modbus/RTU Parität)",
+          Changelog.product(Product.HOME_10) + "Verbesserung SMART-Mode bei Vorgabe einer maximalen Be-/Entladeleistung",
           Changelog.app(App.TIME_OF_USE) + "Historie-Chart: Skalierung der Preis-Achse",
           Changelog.library(Library.NGX_FORMLY, Library.IONIC, Library.JNA, Library.D3),
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" }
@@ -363,7 +380,7 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Vorbereitungen für Key-Modell" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: Verhindere mehrfaches Klicken des Login-Button; unterscheide Authentifizierungs-Fehler vs. Odoo-Timeout" },
           { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: Unterstützung für Start-Stop von mehreren ESS" },
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME) + "Korrektur bei Frequenzmessung des Netzzählers" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_10) + "Korrektur bei Frequenzmessung des Netzzählers" },
           { roleIsAtLeast: Role.ADMIN, change: "Backend Alerting: Verhinderung von negativen Seiteneffekten beim Abarbeiten von Meldungen" },
           { roleIsAtLeast: Role.ADMIN, change: "Aktualisierung/Bereinigung der Werbewidgets" }
         ]
@@ -393,7 +410,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.app(App.MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung des Netzzählers" },
-          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME_10) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
           { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" }
         ]
       },
@@ -563,7 +580,7 @@ export class ChangelogComponent implements OnInit {
         version: '2022.7.3',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME) + "Automatisches Update durch den Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + "Automatisches Update durch den Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "GoodWe/Home Charger: Channel CURRENT/VOLTAGE" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: App-Icons überarbeitet" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: generische Überarbeitung Live-Ansicht Verbrauch/Netz" }
@@ -573,7 +590,7 @@ export class ChangelogComponent implements OnInit {
         version: '2022.7.2',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an SMA ESS" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: fenecon.de/heizstab" },
@@ -595,7 +612,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.6.6',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Übernahme der FEMS-Nummer und Anpassung UI" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Installation/Deinstallation von Read-Write-/Read-Only-Apps" },
           { roleIsAtLeast: Role.ADMIN, change: "User-Registrierung: OEM-fähigkeit" },
@@ -605,7 +622,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.6.4',
         changes: [
-          Changelog.product(Product.HOME) + "Inbetriebnahmeassistent unterstützt die Einbindung eines Rundsteuerempfängers",
+          Changelog.product(Product.HOME_10) + "Inbetriebnahmeassistent unterstützt die Einbindung eines Rundsteuerempfängers",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Anpassungen für die neueste Batteriegeneration (Gen2)",
           { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Darstellung SoC zwischen 0 und 100 %; Anpassung der Parameter für die Batterie-Protection" },
           { roleIsAtLeast: Role.ADMIN, change: "'App-Assistent' aus dem UI entfernt. Dieser wird vollständig ersetzt vom neuen App Center" },
@@ -637,7 +654,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.MODBUS_TCP_API) + "Auslesen der FEMS-Nummer über das Register 'Manufacturer EMS Serial Number' (Modbus-Addresse 85)",
           Changelog.app(App.EVCS_AC, App.KEBA) + "Auslesen der über die DIP-Switches gesetzten Leistungslimitierung",
           Changelog.app(App.PV_INVERTER, App.SMA) + "Unterstützung für einphasige SMA-Wechselrichter via SunSpec",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Setze 'Vorname Nachname, Ort' als Beschreibung in der Übersicht",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Setze 'Vorname Nachname, Ort' als Beschreibung in der Übersicht",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Cluster C')",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Senden von Daten an das Backend, wenn Component-IDs doppelt vorkommen" },
           { roleIsAtLeast: Role.ADMIN, change: "Anpassungen am IBN-Assistent: Vorbereitung für IBN-Assistent für Commercial-Serie" },
@@ -725,7 +742,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.3.3',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Responsive Größe des Eingabefensters, besser lesbare PV-Ausrichtung im IBN-Protokoll",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Responsive Größe des Eingabefensters, besser lesbare PV-Ausrichtung im IBN-Protokoll",
           Changelog.app(App.POWER_TO_HEAT, App.HEIZSTAB) + "Kontinuierliche Aufsummierung der Betriebsstunden je Level",
           Changelog.UI + "Fehlerbehebungen in der Darstellung der historischen Daten",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Anpassungen für die neueste Batteriegeneration (Gen2)",
@@ -763,7 +780,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.2.2',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Dynamische Begrenzung der Netzeinspeiseleistung in Österreich",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Dynamische Begrenzung der Netzeinspeiseleistung in Österreich",
           Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Änderungen an der maximalen Netzeinspeiseleistung müssen durch erneutes Ausführen des Inbetriebnahmeassistenten gesetzt werden"
         ]
       },
@@ -779,9 +796,9 @@ export class ChangelogComponent implements OnInit {
         version: '2022.1.3',
         changes: [
           Changelog.app(App.HOCHLASTZEITFENSTER) + "Kompatibilität des Hochlastzeitfensters mit Blindleistungsregelung",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Eingabe der Installateursdaten, externer Optimierer (Schattenmanagement)",
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Möglichkeit zur Deaktivierung des MPP-Trackers bei externen Optimierern",
-          Changelog.product(Product.HOME) + "Verbesserung des 'SMART'-Mode",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Eingabe der Installateursdaten, externer Optimierer (Schattenmanagement)",
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Möglichkeit zur Deaktivierung des MPP-Trackers bei externen Optimierern",
+          Changelog.product(Product.HOME_10) + "Verbesserung des 'SMART'-Mode",
           { roleIsAtLeast: Role.ADMIN, change: "Verbesserung an FEMS System-Update Funktion" },
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix OCPP-Server mit Java 11" }
         ]
@@ -796,7 +813,7 @@ export class ChangelogComponent implements OnInit {
         version: '2022.1.1',
         changes: [
           Changelog.openems('2022.1.0'),
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Verbesserung des 'SMART'-Mode",
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Verbesserung des 'SMART'-Mode",
           Changelog.library(Library.RRD4J, Library.PAX_LOGGING, Library.GRADLE, Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.DATE_FNS, Library.FASTEXCEL, Library.HIKARI_CP),
           "Ab dem Jahr 2022 steht die zweite Zahl in der Versionsnummer für den Monat des Releases; 2022.1.1 wurde also im Januar 2022 veröffentlicht",
           { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + " Start Beta-Test App-Manager für FENECON Home" },
@@ -807,7 +824,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.22.1',
         changes: [
           Changelog.openems('2021.22.0'),
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent für FEMS-App SG-Ready Wärmepumpe",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent für FEMS-App SG-Ready Wärmepumpe",
           Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung beim Erfassen der Seriennummer",
           "Implementierung Siemens PAC2200/3200/4200 Zähler",
           Changelog.library(Library.APACHE_FELIX_WEBCONSOLE, Library.PAX_LOGGING),
@@ -818,7 +835,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.21.5',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.APACHE_FELIX_FRAMEWORK, Library.D3, Library.DATE_FNS),
           { roleIsAtLeast: Role.ADMIN, change: "SimulatedESS: Modbus-Protokoll ist jetzt gleich wie GenericManagedSymmetricEss" }
         ]
@@ -833,7 +850,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.21.3',
         changes: [
           Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME) + "Fehlerbehebung 'Q von U' Kurve",
+          Changelog.product(Product.HOME_10) + "Fehlerbehebung 'Q von U' Kurve",
           { roleIsAtLeast: Role.ADMIN, change: "Werbungswidgets im Monitoring werden nur noch für FENECON angezeigt, nicht für OEM (z. B. Heckert)" }
         ]
       },
@@ -848,7 +865,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.openems('2021.21.0'),
           Changelog.UI + "Entferne Leerzeichen bei Login mit Benutzername und Passwort.",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.library(Library.JNA, Library.IONIC, Library.NGX_FORMLY, Library.DATE_FNS, Library.GRADLE),
           "Aktualisierung auf Java 11",
           { roleIsAtLeast: Role.ADMIN, change: "InfluxDB: erhöhe Timeout für Abfragen" }
@@ -867,7 +884,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.19.6',
         changes: [
-          Changelog.product(Product.HOME) + "Erkennung für FENECON Batteriewechselrichter"
+          Changelog.product(Product.HOME_10) + "Erkennung für FENECON Batteriewechselrichter"
         ]
       },
       {
@@ -880,7 +897,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.19.3',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.EVCS_AC, App.KEBA) + "Kein Fehler, wenn IP-Adresse Leerzeichen am Anfang oder Ende enthält"
         ]
       },
@@ -896,7 +913,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2021.19.0'),
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Varianten 'Cluster B', 'Single C' und 'Cluster C')",
           Changelog.UI + " (Detail-Widgets)",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (OEM)",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (OEM)",
           Changelog.product(Product.COMMERCIAL_30) + " Überarbeitung der Implementierung für den Sinexcel Batteriewechselrichter",
           Changelog.library(Library.GSON, Library.POSTGRESQL, Library.OSGI_SERVICE_JDBC, Library.DATE_FNS, Library.D3, Library.INFLUXDB),
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Test für neue FEMS System-Update Funktion" }
@@ -907,7 +924,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.openems('2021.18.0'),
           Changelog.app(App.EVCS_AC) + "Verbesserung der Kompatibilität mit nicht aktiv gesteuerten Stromspeichersytemen",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.openemsComponent(OpenemsComponent.PQ_PLUS_ZAEHLER, "Kompatibilität mit PQ Plus UMD96"),
           "Fehlerbehebung in der Datenaufzeichnung phasengenauer Blindleistung",
@@ -923,7 +940,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.TIME_OF_USE) + "Darstellung im Online-Monitoring",
           Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Konfiguration des minimalen Ladezustands im Off-Grid-Fall; "
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Konfiguration des minimalen Ladezustands im Off-Grid-Fall; "
           + "Aufzeichnung des notstromversorgten Energieverbrauchs",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Single C')"
         ]
@@ -933,7 +950,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.UI,
           Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.EDGE + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: "Implementierung ESS Cycle-Controller für Zyklus- und Kapazitätstests" }
         ]
@@ -957,7 +974,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.PRO_HYBRID_10) + "Verbesserung der Fehleranalyse für die interne Eigenverbrauchsoptimierung",
           Changelog.app(App.SCHWELLWERTSTEUERUNG) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion"
+          Changelog.product(Product.HOME_10) + "Verbesserungen an der Notstromfunktion"
         ]
       },
       {
@@ -971,11 +988,11 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.openems('2021.16.0'),
           Changelog.UI,
-          Changelog.product(Product.HOME) + "Verbesserungen an der Notstromfunktion: Algorithmus zur Vorhaltung einer Notstromreserve; einstellbar via IBN-Assistent oder über das Widget 'Speichersystem' im Online-Monitoring",
+          Changelog.product(Product.HOME_10) + "Verbesserungen an der Notstromfunktion: Algorithmus zur Vorhaltung einer Notstromreserve; einstellbar via IBN-Assistent oder über das Widget 'Speichersystem' im Online-Monitoring",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Verbesserung der Fehlermeldung bei Kommunikationsabbruch (Cluster Version B)",
           Changelog.library(Library.GRADLE),
           Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME) + "Fehlerbehebung bei der Start-Prozedur",
+          Changelog.product(Product.HOME_10) + "Fehlerbehebung bei der Start-Prozedur",
           { roleIsAtLeast: Role.ADMIN, change: "Die 'openems.jar'-Datei für jeden Branch wird jetzt automatisch bei jedem 'push' gebaut. Download unter 'https://dev.intranet.fenecon.de/{branch}/openems.jar'" },
           { roleIsAtLeast: Role.ADMIN, change: "Mit einer Konfigurationseinstellungen in der 'Sum'-Komponente können jetzt Warnungen und Fehler des Gesamtsystems ignoriert/ausgeblendet werden" },
           { roleIsAtLeast: Role.ADMIN, change: "Der Debug-Log-Controller kann so konfiguriert werden, dass er auch den Alias mit ausgibt" }
@@ -984,10 +1001,10 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.15.12',
         changes: [
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Verbrauchszähler für notstromversorgte Lasten ('GoodWe.EmergencyPowerMeter'); Bei aktiviertem Notstrom aktiviere auch Schwarzstart-Funktion",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
-          Changelog.product(Product.HOME) + "Optimierung der Start-Prozedur und des Fehlerhandlings der Batterie",
-          Changelog.product(Product.HOME, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Verbrauchszähler für notstromversorgte Lasten ('GoodWe.EmergencyPowerMeter'); Bei aktiviertem Notstrom aktiviere auch Schwarzstart-Funktion",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + "Optimierung der Start-Prozedur und des Fehlerhandlings der Batterie",
+          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
           Changelog.EDGE + "Fehlerbehebung am lokalen Monitoring",
           Changelog.library(Library.APACHE_FELIX_SCR, Library.FASTEXCEL)
         ]
@@ -1002,7 +1019,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.15.10',
         changes: [
           Changelog.openems('2021.15.0'),
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
         ]
       },
       {
@@ -1014,14 +1031,14 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.15.8',
         changes: [
-          Changelog.product(Product.HOME) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
+          Changelog.product(Product.HOME_10) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
         ]
       },
       {
         version: '2021.15.7',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.REST_JSON_API) + "Optimierung bei Verwendung regulärer Ausdrücke",
           Changelog.product(Product.INDUSTRIAL_M) + "Release ESS Standby-Controller",
           Changelog.EDGE + "Fehlerbehebung nach Update der Apache Felix Webconsole",
@@ -1036,7 +1053,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Verbesserung der Aufzeichnung von Zellspannungen",
           Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + "Verwende werkseitige Standard-IP 192.168.25.30",
-          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.library(Library.APACHE_FELIX_WEBCONSOLE)
         ]
       },
@@ -1057,7 +1074,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.15.3',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (Konfiguration AC-PV-Zähler)"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (Konfiguration AC-PV-Zähler)"
         ]
       },
       {
@@ -1078,9 +1095,9 @@ export class ChangelogComponent implements OnInit {
         version: '2021.14.1',
         changes: [
           Changelog.openems('2021.14.0'),
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.UI + "Neustrukturierung des Anlagenprofils",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.library(Library.CHARGETIME_OCPP, Library.GSON, Library.JNA, Library.PAX_LOGGING, Library.APACHE_FELIX_WEBCONSOLE),
           { roleIsAtLeast: Role.ADMIN, change: "OEM-Version des Online-Monitorings für Heckert: " + Changelog.link("Link", 'https://symphon-e.heckert-solar.com/') }
         ]
@@ -1088,7 +1105,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.13.10',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.EDGE + "Fehlerbehebung nach Update des OSGi-Frameworks",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei Prüfung auf fehlerhaftes, doppeltes Mapping von Modbus-Register zu Channel" },
           { roleIsAtLeast: Role.ADMIN, change: "UI-Entwicklungen werden per Continuous Integration immer sofort unter https://dev.intranet.fenecon.de/feature/ui- ... zur Verfügung gestellt" }
@@ -1097,7 +1114,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.13.9',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.library(Library.D3, Library.NGX_COOKIE_SERVICE, Library.MYDATEPICKER),
           "Similar-Day Predictor. Übernahme aus dem Forschungsprojekt " + Changelog.link("EMSIG", 'https://openems.io/research/emsig/'),
           Changelog.EDGE + "Fehlerbehebung am lokalen Monitoring",
@@ -1109,7 +1126,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.13.8',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
         ]
       },
       {
@@ -1125,7 +1142,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.app(App.EVCS_AC) + "Fehlerbehebung bei Limitierung der maximalen Energie eines Ladevorgangs",
           Changelog.UI + Changelog.GENERAL_OPTIMIZATION + "Jahresansicht in der Historie",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
         ]
       },
       {
@@ -1144,7 +1161,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.13.3',
         changes: [
           Changelog.EDGE + "Datenkonvertierung von Array-Werten",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: "Refactoring von ESS Cluster: sofortige Übernahme von Channel-Werten, Berechnung gewichteter SoC anhand der Kapazität" },
           { roleIsAtLeast: Role.ADMIN, change: "Switch zu Apache Felix Framework" }
@@ -1173,7 +1190,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.12.6',
         changes: [
           Changelog.BACKEND + "Spracheinstellungen für Benutzer",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.EVCS_AC) + Changelog.GENERAL_OPTIMIZATION,
           "Beta-Version für go-e Charger Home"
         ]
@@ -1181,7 +1198,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.12.5',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
         ]
       },
       {
@@ -1200,7 +1217,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.12.2',
         changes: [
           Changelog.UI + "Portal zur Registrierung als Benutzer",
-          Changelog.product(Product.HOME) + "Release Inbetriebnahmeassistent über das Online-Monitoring",
+          Changelog.product(Product.HOME_10) + "Release Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION
         ]
       },
@@ -1298,7 +1315,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI,
           Changelog.EDGE,
           Changelog.library(Library.IONIC, Library.NGX_FORMLY, Library.MYDATEPICKER, Library.D3, Library.DATE_FNS, Library.NGX_SPINNER, Library.RXJS, Library.GRADLE),
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Release"
         ]
       },
@@ -1336,7 +1353,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.8.8',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION
         ]
       },
       {
@@ -1364,7 +1381,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.8.4',
         changes: [
           "Beta-Version für Anbindung an MQTT-Broker",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION
         ]
       },
       {
@@ -1410,7 +1427,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.7.5',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter-Implementierung (adaptive Berechnung maximalen AC-Leistung)"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter-Implementierung (adaptive Berechnung maximalen AC-Leistung)"
         ]
       },
       {
@@ -1431,7 +1448,7 @@ export class ChangelogComponent implements OnInit {
         version: '2021.7.2',
         changes: [
           Changelog.BACKEND,
-          Changelog.product(Product.HOME) + Changelog.BATTERY_PROTECTION
+          Changelog.product(Product.HOME_10) + Changelog.BATTERY_PROTECTION
         ]
       },
       {
@@ -1440,7 +1457,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2021.7.0'),
           Changelog.UI,
           Changelog.product(Product.PRO_HYBRID_10) + "Verarbeitung von Authentifizierungsfehlern, Seriennummern und adaptive Berechnung der Maximalleistung",
-          Changelog.product(Product.HOME, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Adaptive Berechnung der Kapazität (für Variante 'Single B')",
           "Refactoring des ESS Linear Power Band Controller ('Controller.Ess.LinearPowerBand')",
           Changelog.BACKEND,
@@ -1465,7 +1482,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.UI,
           Changelog.library(Library.FASTEXCEL),
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " an Batterie-Implementierung (adaptive Berechnung der Kapazität)"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batterie-Implementierung (adaptive Berechnung der Kapazität)"
         ]
       },
       {
@@ -1493,14 +1510,14 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.4.14',
         changes: [
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung"
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung"
         ]
       },
       {
         version: '2021.4.13',
         changes: [
           "Implementierung des FEMS-Relais 4-Kanal",
-          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung",
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung",
           Changelog.GENERAL_OPTIMIZATION + " bei Konfigurationsänderungen über das Online-Monitoring"
         ]
       },
@@ -1621,7 +1638,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2021.1.13',
         changes: [
-          Changelog.product(Product.HOME, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
+          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
         ]
       },
       {
