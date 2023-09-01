@@ -12,6 +12,7 @@ import { FormlySafeInputModalComponent } from './formly/safe-input/formly-safe-i
 import { FormlySafeInputWrapperComponent } from './formly/safe-input/formly-safe-input.extended';
 import { FormlyTextComponent } from './formly/formly-text';
 import { FormlyInputWithUnitComponent } from './formly/input-with-unit';
+import { FormlyOptionGroupPickerComponent } from './formly/option-group-picker/formly-option-group-picker.component';
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { 'key': true };
@@ -39,7 +40,8 @@ export function registerTranslateExtension(translate: TranslateService) {
         { name: "input-with-unit", component: FormlyInputWithUnitComponent }
       ],
       types: [
-        { name: "text", component: FormlyTextComponent }
+        { name: "text", component: FormlyTextComponent },
+        { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent }
       ],
       validators: [
         { name: 'key', validation: KeyValidator }
@@ -58,7 +60,8 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
     FormlyTextComponent,
-    FormlyInputWithUnitComponent
+    FormlyInputWithUnitComponent,
+    FormlyOptionGroupPickerComponent
   ],
   exports: [
     IndexComponent,

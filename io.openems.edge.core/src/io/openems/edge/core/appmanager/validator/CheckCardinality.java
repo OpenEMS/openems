@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -99,21 +98,19 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	private OpenemsAppCategory getMatchingCategorie(AppManagerUtil appManagerUtil,
 			List<OpenemsAppInstance> instantiatedApps) {
 		for (var openemsAppInstance : instantiatedApps) {
-			try {
-				var app = appManagerUtil.getAppById(openemsAppInstance.appId);
-				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
-					continue;
-				}
-				for (var cat : app.getCategories()) {
-					for (var catOther : this.openemsApp.getCategories()) {
-						if (cat == catOther) {
-							return cat;
-						}
+			var app = appManagerUtil.findAppById(openemsAppInstance.appId).orElse(null);
+			if (app == null) {
+				continue;
+			}
+			if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
+				continue;
+			}
+			for (var cat : app.getCategories()) {
+				for (var catOther : this.openemsApp.getCategories()) {
+					if (cat == catOther) {
+						return cat;
 					}
 				}
-			} catch (NoSuchElementException e) {
-				// if app instance is reworked there may be no app for the instance
-				continue;
 			}
 		}
 		return null;

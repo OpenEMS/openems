@@ -134,12 +134,7 @@ public class ReadHandler implements Consumer<String> {
 						int limit = this.parent.getSetEnergyLimit().orElse(0);
 						int energy = this.parent.getEnergySession().orElse(0);
 						if (energy >= limit && limit != 0) {
-							try {
-								this.parent.setDisplayText(limit + "Wh erreicht");
-								status = Status.ENERGY_LIMIT_REACHED;
-							} catch (OpenemsNamedException e) {
-								e.printStackTrace();
-							}
+							status = Status.ENERGY_LIMIT_REACHED;
 						}
 					} else {
 						// Plug not fully connected
