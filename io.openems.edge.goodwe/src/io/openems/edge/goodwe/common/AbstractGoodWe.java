@@ -6,7 +6,10 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,14 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		implements GoodWe, OpenemsComponent, TimedataProvider {
+
+	private static final Map<Integer, GoodWe.ChannelId> DIAG_STATUS_H_STATES = Map.of(//
+			0x00000001, GoodWe.ChannelId.DIAG_STATUS_BATTERY_PRECHARGE_RELAY_OFF, //
+			0x00000002, GoodWe.ChannelId.DIAG_STATUS_BYPASS_RELAY_STICK, //
+			0x10000000, GoodWe.ChannelId.DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT, //
+			0x20000000, GoodWe.ChannelId.DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE, //
+			0x40000000, GoodWe.ChannelId.DIAG_STATUS_BATTERY_OFFGRID_DOD, //
+			0x80000000, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SOC_ADJUST_ENABLE);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractGoodWe.class);
 
@@ -284,8 +295,42 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.BATTERY_STRINGS, new UnsignedWordElement(35212)), //
 						m(GoodWe.ChannelId.CPLD_WARNING_CODE, new UnsignedWordElement(35213)), //
 						new DummyRegisterElement(35214, 35217), //
-						m(GoodWe.ChannelId.DIAG_STATUS_H, new UnsignedDoublewordElement(35218)), //
-						m(GoodWe.ChannelId.DIAG_STATUS_L, new UnsignedDoublewordElement(35220)), //
+						new UnsignedDoublewordElement(35218).onUpdateCallback(code -> {
+							detectDiagStatesH(code) //
+									.forEach((channel, value) -> this.channel(channel).setNextValue(value));
+						}),
+
+						m(new BitsWordElement(35220, this) //
+								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BATTERY_VOLT_LOW)//
+								.bit(1, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SOC_LOW)//
+								.bit(2, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SOC_IN_BACK)//
+								.bit(3, GoodWe.ChannelId.DIAG_STATUS_BMS_DISCHARGE_DISABLE)//
+								.bit(4, GoodWe.ChannelId.DIAG_STATUS_DISCHARGE_TIME_ON)//
+								.bit(5, GoodWe.ChannelId.DIAG_STATUS_CHARGE_TIME_ON)//
+								.bit(6, GoodWe.ChannelId.DIAG_STATUS_DISCHARGE_DRIVE_ON)//
+								.bit(7, GoodWe.ChannelId.DIAG_STATUS_BMS_DISCHG_CURRENT_LOW)//
+								.bit(8, GoodWe.ChannelId.DIAG_STATUS_DISCHARGE_CURRENT_LOW)//
+								.bit(9, GoodWe.ChannelId.DIAG_STATUS_METER_COMM_LOSS)//
+								.bit(10, GoodWe.ChannelId.DIAG_STATUS_METER_CONNECT_REVERSE)//
+								.bit(11, GoodWe.ChannelId.DIAG_STATUS_SELF_USE_LOAD_LIGHT)//
+								.bit(12, GoodWe.ChannelId.DIAG_STATUS_EMS_DISCHARGE_IZERO)//
+								.bit(13, GoodWe.ChannelId.DIAG_STATUS_DISCHARGE_BUS_HIGH)//
+								.bit(14, GoodWe.ChannelId.DIAG_STATUS_BATTERY_DISCONNECT)//
+								.bit(15, GoodWe.ChannelId.DIAG_STATUS_BATTERY_OVERCHARGE)), //
+
+						m(new BitsWordElement(35221, this) //
+								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BMS_OVER_TEMPERATURE)//
+								.bit(1, GoodWe.ChannelId.DIAG_STATUS_BMS_OVERCHARGE)//
+								.bit(2, GoodWe.ChannelId.DIAG_STATUS_BMS_CHARGE_DISABLE)//
+								.bit(3, GoodWe.ChannelId.DIAG_STATUS_SELF_USE_OFF)//
+								.bit(4, GoodWe.ChannelId.DIAG_STATUS_SOC_DELTA_OVER_RANGE)//
+								.bit(5, GoodWe.ChannelId.DIAG_STATUS_BATTERY_SELF_DISCHARGE)//
+								.bit(6, GoodWe.ChannelId.DIAG_STATUS_OFFGRID_SOC_LOW)//
+								.bit(7, GoodWe.ChannelId.DIAG_STATUS_GRID_WAVE_UNSTABLE)//
+								.bit(8, GoodWe.ChannelId.DIAG_STATUS_FEED_POWER_LIMIT)//
+								.bit(9, GoodWe.ChannelId.DIAG_STATUS_PF_VALUE_SET)//
+								.bit(10, GoodWe.ChannelId.DIAG_STATUS_REAL_POWER_LIMIT)//
+								.bit(12, GoodWe.ChannelId.DIAG_STATUS_SOC_PROTECT_OFF)), //
 						new DummyRegisterElement(35222, 35224), //
 						m(GoodWe.ChannelId.EH_BATTERY_FUNCTION_ACTIVE, new UnsignedWordElement(35225)), //
 						m(GoodWe.ChannelId.ARC_SELF_CHECK_STATUS, new UnsignedWordElement(35226)) //
@@ -1819,6 +1864,17 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		// Set Channels
 		this._setMaxAcImport(TypeUtils.multiply(maxAcImport, /* negate */ -1));
 		this._setMaxAcExport(maxAcExport);
+	}
+
+	/**
+	 * Detect the current diagnostic high states.
+	 * 
+	 * @param value register value
+	 * @return DiagnosticStates with the information if it is active or not
+	 */
+	protected static Map<GoodWe.ChannelId, Boolean> detectDiagStatesH(Long value) {
+		return DIAG_STATUS_H_STATES.entrySet().stream().collect(
+				Collectors.toMap(Map.Entry::getValue, e -> !(Objects.isNull(value) || (value & e.getKey()) == 0)));
 	}
 
 	/**
