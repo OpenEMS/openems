@@ -25,7 +25,8 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING)),
+		VERSION(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
 		 * Edge currency.
@@ -35,7 +36,8 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Currency
 		 * </ul>
 		 */
-		CURRENCY(Doc.of(Currency.values()));
+		CURRENCY(Doc.of(Currency.values()) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 
