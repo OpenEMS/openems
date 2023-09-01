@@ -693,6 +693,45 @@ public class InfluxQlProxy extends QueryProxy {
 				.collect(Collectors.toMap(Pair::first, Pair::second, (t, u) -> u, TreeMap::new));
 	}
 
+	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> normalizeTable(//
+			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table, //
+			Set<ChannelAddress> channels, //
+			Resolution resolution, //
+			ZonedDateTime fromDate, //
+			Resolution resolution, //
+			Set<ChannelAddress> channels, //
+			BiFunction<JsonElement, JsonElement, JsonElement> aggregateFunction //
+	) throws OpenemsNamedException {
+		if (queryResult == null) {
+			return null;
+		}
+
+		return queryResult.getResults().stream() //
+				.flatMap(r -> r.getSeries().stream()) //
+				.flatMap(s -> s.getValues().stream()) //
+				.<Pair<ChannelAddress, com.influxdb.query.InfluxQLQueryResult.Series.Record>>mapMulti((r,
+						f) -> channels.forEach(c -> f.accept(
+								new Pair<ChannelAddress, com.influxdb.query.InfluxQLQueryResult.Series.Record>(c, r))))
+				.collect(Collectors.groupingBy(t -> {
+					var timestampInstant = Instant
+							.ofEpochMilli(Long.parseLong((String) t.second().getValueByKey("time")));
+					var zonedDateTime = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+					if (resolution.getUnit() == ChronoUnit.MONTHS) {
+						zonedDateTime = zonedDateTime.withDayOfMonth(1);
+					}
+					return zonedDateTime.truncatedTo(DurationUnit.ofDays(1));
+				}, TreeMap::new, Collectors.toMap(Pair::first, r -> {
+					final var channel = r.first();
+					final var value = convertToJsonElement(r.second().getValueByKey(channel.toString()));
+
+					if (!JsonUtils.isNumber(value)) {
+						return JsonNull.INSTANCE;
+					}
+
+					return value;
+				}, (t, u) -> aggregateFunction.apply(t, u), TreeMap::new)));
+	}
+
 	/**
 	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
 	 *

@@ -41,7 +41,6 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -779,7 +778,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					 * Dynamically generate Channels and Modbus mappings for Cell-Voltages.
 					 * Channel-IDs are like "TOWER_0_MODULE_2_CELL_001_VOLTAGE".
 					 */
-					var ameVolt = new ModbusElement<?>[cellsPerModule];
+					var ameVolt = new ModbusElement[cellsPerModule];
 					for (var cell = 0; cell < cellsPerModule; cell++) {
 
 						// Create Voltage Channel
@@ -797,7 +796,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					 * Dynamically generate Channels and Modbus mappings for temperature sensors.
 					 * Channel-IDs are like "TOWER_0_MODULE_2_TEMPERATURE_SENSOR_1".
 					 */
-					var ameTemp = new AbstractModbusElement<?>[tempSensorsPerModule];
+					var ameTemp = new ModbusElement[tempSensorsPerModule];
 					for (var sensor = 0; sensor < tempSensorsPerModule; sensor++) {
 
 						// Create Temperature Channel
@@ -818,7 +817,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					 * Temperature balancing sensors
 					 */
 					final var defaultBalancingTemperatures = 2;
-					var ameTempBalancing = new AbstractModbusElement<?>[defaultBalancingTemperatures];
+					var ameTempBalancing = new ModbusElement[defaultBalancingTemperatures];
 					for (var j = 0; j < defaultBalancingTemperatures; j++) {
 
 						// Create Temperature Channel
