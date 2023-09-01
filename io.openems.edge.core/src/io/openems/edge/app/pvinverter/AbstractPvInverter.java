@@ -54,7 +54,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 	protected static <PROPERTY extends Enum<PROPERTY>> InputBuilder buildIp(Language language, PROPERTY property) {
 		final var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return JsonFormlyUtil.buildInput(property) //
-				.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
+				.setLabel(TranslationUtil.getTranslation(bundle, "communication.ipAddress")) //
 				.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.ip.description")) //
 				.setDefaultValue("192.168.178.85") //
 				.isRequired(true) //
@@ -64,7 +64,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 	protected static <PROPERTY extends Enum<PROPERTY>> InputBuilder buildPort(Language language, PROPERTY property) {
 		final var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return JsonFormlyUtil.buildInput(Property.PORT) //
-				.setLabel(TranslationUtil.getTranslation(bundle, "port")) //
+				.setLabel(TranslationUtil.getTranslation(bundle, "communication.port")) //
 				.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
 				.setInputType(Type.NUMBER) //
 				.setDefaultValue(502) //
@@ -76,7 +76,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 			PROPERTY property) {
 		final var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-				.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
+				.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusUnitId")) //
 				.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.modbusUnitId.description")) //
 				.setInputType(Type.NUMBER) //
 				.setMin(0) //

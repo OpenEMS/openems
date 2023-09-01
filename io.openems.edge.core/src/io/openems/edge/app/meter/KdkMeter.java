@@ -1,6 +1,9 @@
 package io.openems.edge.app.meter;
 
-import java.util.EnumMap;
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -17,6 +20,10 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.common.props.ComponentProps;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.KdkMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -60,10 +67,20 @@ public class KdkMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 		// Component-IDs
 		METER_ID, //
 		// Properties
-		ALIAS, //
-		TYPE, //
-		MODBUS_ID, //
-		MODBUS_UNIT_ID, //
+		ALIAS(alias()), //
+		TYPE(MeterProps.type(MeterType.GRID)), //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
+				def -> def.wrapField((app, property, l, parameter, field) -> {
+					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+						field.readonly(true);
+					}
+					field.isRequired(true);
+				})).setAutoGenerateField(false)), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def.setDefaultValue(7) //
+				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))) //
+				.setAutoGenerateField(false)), //
+		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
+				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;
 	}
 

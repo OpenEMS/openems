@@ -9,64 +9,49 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
+import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 
 public final class CommonPvInverterConfiguration {
 
 	private CommonPvInverterConfiguration() {
 	}
 
-	private static final AppDef<OpenemsApp, Nameable, BundleParameter> defaultDef() {
-		return AppDef.<OpenemsApp, Nameable, BundleParameter>of() //
-				.setTranslationBundleSupplier(BundleParameter::getBundle);
-	}
-
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter ip-address.
 	 * 
+	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleParameter> ip() {
-		return defaultDef() //
-				.setTranslatedLabel("ipAddress") //
-				.setTranslatedDescription("App.PvInverter.ip.description") //
-				.setDefaultValue("192.168.178.85") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.isRequired(true) //
-						.setValidation(JsonFormlyUtil.InputBuilder.Validation.IP));
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> ip() {
+		return AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
+				.setTranslatedDescription("App.PvInverter.ip.description"));
 	}
 
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter port.
 	 * 
+	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleParameter> port() {
-		return defaultDef() //
-				.setTranslatedLabel("port") //
-				.setTranslatedDescription("App.PvInverter.port.description") //
-				.setDefaultValue(502) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-						.setMin(0));
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> port() {
+		return AppDef.copyOfGeneric(CommunicationProps.port(), def -> def //
+				.setTranslatedDescription("App.PvInverter.port.description"));
 	}
 
 	/**
 	 * Creates a {@link AppDef} for a PV-Inverter modbusUnitId.
 	 * 
+	 * @param <P>	the type of the parameter
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleParameter> modbusUnitId() {
-		return defaultDef() //
-				.setTranslatedLabel("modbusUnitId") //
-				.setTranslatedDescription("App.PvInverter.modbusUnitId.description") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> //
-				f.setInputType(JsonFormlyUtil.InputBuilder.Type.NUMBER) //
-						.setMin(0));
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> modbusUnitId() {
+		return AppDef.copyOfGeneric(CommunicationProps.modbusUnitId(), def -> def //
+				.setTranslatedDescription("App.PvInverter.modbusUnitId.description"));
 	}
 
 	/**

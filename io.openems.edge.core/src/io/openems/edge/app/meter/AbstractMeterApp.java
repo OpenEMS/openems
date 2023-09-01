@@ -36,10 +36,6 @@ public abstract class AbstractMeterApp<PROPERTY extends Enum<PROPERTY> & Nameabl
 						.addProperty("value", "PRODUCTION") //
 						.build())
 				.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", TranslationUtil.getTranslation(bundle, "App.Meter.gridMeter")) //
-						.addProperty("value", "GRID") //
-						.build())
-				.add(JsonUtils.buildJsonObject() //
 						.addProperty("label", TranslationUtil.getTranslation(bundle, "App.Meter.consumtionMeter")) //
 						.addProperty("value", "CONSUMPTION_METERED") //
 						.build())

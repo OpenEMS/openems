@@ -17,6 +17,11 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.common.props.ComponentProps;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.SocomecMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -60,11 +65,42 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 		// Component-IDs
 		METER_ID, //
 		// Properties
-		ALIAS, //
-		TYPE, //
-		MODBUS_ID, //
-		MODBUS_UNIT_ID, //
-		;
+		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
+				def -> def.wrapField((app, property, l, parameter, field) -> {
+					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+						field.readonly(true);
+					}
+					field.isRequired(true);
+				}).setAutoGenerateField(false))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), //
+				def -> def.setAutoGenerateField(false) //
+						.setDefaultValue(7) //
+						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
+				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())));
+
+		private final AppDef<? super SocomecMeter, ? super Property, ? super BundleParameter> def;
+
+		private Property(AppDef<? super SocomecMeter, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, SocomecMeter, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super SocomecMeter, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<SocomecMeter>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
 	@Activate
