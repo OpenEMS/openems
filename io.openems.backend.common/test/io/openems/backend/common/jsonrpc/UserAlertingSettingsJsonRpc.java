@@ -19,16 +19,16 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
-public class UserAlertingSettingsJsonRPC {
+public class UserAlertingSettingsJsonRpc {
 
 	@Test
 	public void testGetUserAlertingConfigsRequest() {
 		assertEquals("getUserAlertingConfigs", GetUserAlertingConfigsRequest.METHOD);
-		
+
 		var id = UUID.randomUUID();
 		var edgeId = "edge4";
 		var params = JsonUtils.buildJsonObject().addProperty("edgeId", edgeId).build();
-		
+
 		var json = new JsonrpcRequest(id, GetUserAlertingConfigsRequest.METHOD, 0) {
 			@Override
 			public JsonObject getParams() {
@@ -37,7 +37,7 @@ public class UserAlertingSettingsJsonRPC {
 		};
 		try {
 			var request = GetUserAlertingConfigsRequest.from(json);
-			
+
 			assertEquals(id, request.id);
 			assertEquals(edgeId, request.getEdgeId());
 			assertEquals(params, request.getParams());
@@ -46,12 +46,11 @@ public class UserAlertingSettingsJsonRPC {
 			fail(e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testSetUserAlertingConfigsRequest() {
 		assertEquals("setUserAlertingConfigs", SetUserAlertingConfigsRequest.METHOD);
-		
-		
+
 		var userSettingJson = JsonUtils.buildJsonObject() //
 				.addProperty("userLogin", "user1") //
 				.addProperty("offlineEdgeDelay", 15) //
@@ -61,19 +60,18 @@ public class UserAlertingSettingsJsonRPC {
 		var illegalSettingJson = JsonUtils.buildJsonObject() //
 				.addProperty("err", "wrong") //
 				.build();
-		
+
 		var id = UUID.randomUUID();
 		var edgeId = "edge4";
 		var params = JsonUtils.buildJsonObject() //
 				.addProperty("edgeId", edgeId) //
-				.add("userSettings", JsonUtils.buildJsonArray()
-						.add(userSettingJson) //
+				.add("userSettings", JsonUtils.buildJsonArray().add(userSettingJson) //
 						.add(illegalSettingJson) //
 						.build()) //
 				.build();
-		
+
 		var userSetting = new UserAlertingSettings("user1", 15, 30, 60);
-		
+
 		var json = new JsonrpcRequest(id, SetUserAlertingConfigsRequest.METHOD, 0) {
 			@Override
 			public JsonObject getParams() {
@@ -82,16 +80,16 @@ public class UserAlertingSettingsJsonRPC {
 		};
 		try {
 			var request = SetUserAlertingConfigsRequest.from(json);
-			
+
 			assertEquals(id, request.id);
 			assertEquals(edgeId, request.getEdgeId());
-			
+
 			var expected = JsonUtils.buildJsonObject() //
 					.addProperty("edgeId", edgeId) //
 					.add("userSettings", JsonUtils.buildJsonArray().add(userSettingJson).build()) //
 					.build();
 			assertEquals(expected, request.getParams());
-			
+
 			var settings = request.getUserSettings();
 			assertEquals(1, settings.size());
 			assertEquals(userSetting, settings.get(0));
@@ -103,12 +101,12 @@ public class UserAlertingSettingsJsonRPC {
 
 	@Test
 	public void testGetUserAlertingConfigsResponse() {
-		var sett1 = new UserAlertingSettings(1, 2, "user1", Role.GUEST , 0, 15, 30, null, null);
+		var sett1 = new UserAlertingSettings(1, 2, "user1", Role.GUEST, 0, 15, 30, null, null);
 		var sett2 = new UserAlertingSettings(2, 2, "user2", Role.ADMIN, 10, 10, 10, null, null);
-		
+
 		var settings = List.of(sett1, sett2);
 		var id = UUID.randomUUID();
-		
+
 		var response = new GetUserAlertingConfigsResponse(id, settings);
 
 		var sett1Json = JsonUtils.buildJsonObject() //
@@ -128,9 +126,9 @@ public class UserAlertingSettingsJsonRPC {
 		var settArrJson = JsonUtils.buildJsonObject().add("userSettings", //
 				JsonUtils.buildJsonArray().add(sett1Json).add(sett2Json).build()) //
 				.build();
-		
+
 		var jsonObj = response.getResult();
-		
+
 		assertEquals(settArrJson, jsonObj);
 	}
 }

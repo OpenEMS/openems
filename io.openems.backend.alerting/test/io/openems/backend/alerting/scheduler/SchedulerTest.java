@@ -57,7 +57,7 @@ public class SchedulerTest {
 
 	private void prepare() {
 		this.clock = new TimeLeapClock();
-		this.timer = new MinuteTimer(clock);
+		this.timer = new MinuteTimer(this.clock);
 		
 		this.scheduler = new Scheduler(this.timer);
 	
@@ -134,7 +134,7 @@ public class SchedulerTest {
 		assertFalse("Message 3 is still scheduled", this.scheduler.isScheduled(this.msgs.get(3)));
 	}
 
-	/*************************************************/
+	/* *********************************************** */
 	private static class DummyMessage extends Message {
 		private ZonedDateTime timeStamp;
 

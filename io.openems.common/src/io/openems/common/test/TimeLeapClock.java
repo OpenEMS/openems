@@ -21,7 +21,7 @@ public class TimeLeapClock extends Clock {
 	public TimeLeapClock(ZoneId zone) {
 		this(Instant.now(), zone);
 	}
-	
+
 	public TimeLeapClock(Instant start) {
 		this(start, ZoneOffset.UTC);
 	}
@@ -65,10 +65,10 @@ public class TimeLeapClock extends Clock {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || //
-				obj instanceof Clock other && //
-				this.instant.equals(other.instant()) && //
-				this.zone.equals(other.getZone());
+		return obj == this //
+				|| obj instanceof Clock other //
+						&& this.instant.equals(other.instant()) //
+						&& this.zone.equals(other.getZone());
 	}
 
 	@Override
@@ -80,7 +80,12 @@ public class TimeLeapClock extends Clock {
 	public String toString() {
 		return "TimeLeapClock[" + this.instant + ", " + this.zone + "]";
 	}
-	
+
+	/** 
+	 * Get current DateTime as {@link ZonedDateTime}.
+	 * 
+	 * @return current date and time.
+	 */
 	public ZonedDateTime now() {
 		return ZonedDateTime.ofInstant(this.instant, this.zone);
 	}

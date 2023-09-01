@@ -90,6 +90,8 @@ public class MessageScheduler<T extends Message> {
 
 	/**
 	 * Transfer the messages due to their handler.
+	 * 
+	 * @param now TimeStamp on call
 	 */
 	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();

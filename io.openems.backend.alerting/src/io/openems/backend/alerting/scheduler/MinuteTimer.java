@@ -24,10 +24,10 @@ public class MinuteTimer {
 	}
 	
 	/**
-	 * Create a custom MinuteTimer 
+	 * Create a custom MinuteTimer with given clock.
 	 * 
-	 * @param clock
-	 * @return
+	 * @param clock to use for timing
+	 * @return a minute accurate timer
 	 */
 	public MinuteTimer custom(Clock clock) {
 		return new MinuteTimer(clock);
