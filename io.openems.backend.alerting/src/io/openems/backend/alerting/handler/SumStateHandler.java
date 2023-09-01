@@ -30,11 +30,13 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private MessageSchedulerService mss;
 	private MessageScheduler<SumStateMessage> msgScheduler;
 
-	private Runnable initMetadata;
+	private Consumer<ZonedDateTime> initMetadata;
+	private MinuteTimer timeService;
 
-	public SumStateHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, int initialDelay) {
+	public SumStateHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, MinuteTimer timer, int initialDelay) {
 		this.mailer = mailer;
 		this.metadata = metadata;
+		this.timeService = timer;
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
@@ -43,7 +45,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	@Override
 	public void stop() {
 		if (this.initMetadata != null) {
-			MinuteTimer.getInstance().unsubscribe(this.initMetadata);
+			this.timeService.unsubscribe(this.initMetadata);
 		}
 		this.initMetadata = null;
 		this.mss.unregister(this);

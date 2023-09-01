@@ -38,12 +38,14 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private MessageSchedulerService mss;
 	private MessageScheduler<OfflineEdgeMessage> msgScheduler;
 
-	private Runnable initMetadata;
+	private Consumer<ZonedDateTime> initMetadata;
+	private MinuteTimer timeService;
 
-	public OfflineEdgeHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, int initialDelay) {
+	public OfflineEdgeHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, MinuteTimer timeService, int initialDelay) {
 		this.mailer = mailer;
 		this.metadata = metadata;
 		this.initialDelay = initialDelay;
+		this.timeService = timeService;
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
@@ -54,7 +56,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	@Override
 	public void stop() {
-		MinuteTimer.getInstance().unsubscribe(this.initMetadata);
+		this.timeService.unsubscribe(this.initMetadata);
 		this.initMetadata = null;
 		this.mss.unregister(this);
 		this.msgScheduler = null;
@@ -205,19 +207,19 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (this.initialDelay <= 0) {
 			this.checkMetadata();
 		} else {
-			this.initMetadata = new Runnable() {
+			this.initMetadata = new Consumer<ZonedDateTime>() {
 				final ZonedDateTime checkAt = ZonedDateTime.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
 
 				@Override
-				public void run() {
-					if (ZonedDateTime.now().isAfter(this.checkAt)) {
+				public void accept(ZonedDateTime now) {
+					if (now.isAfter(this.checkAt)) {
 						OfflineEdgeHandler.this.checkMetadata();
-						MinuteTimer.getInstance().unsubscribe(this);
+						OfflineEdgeHandler.this.timeService.unsubscribe(this);
 						OfflineEdgeHandler.this.initMetadata = null;
 					}
 				}
 			};
-			MinuteTimer.getInstance().subscribe(this.initMetadata);
+			this.timeService.unsubscribe(this.initMetadata);
 		}
 	}
 

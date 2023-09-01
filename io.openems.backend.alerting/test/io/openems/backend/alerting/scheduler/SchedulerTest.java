@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -18,6 +19,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 import io.openems.common.event.EventReader;
+import io.openems.common.test.TimeLeapClock;
 
 public class SchedulerTest {
 
@@ -37,6 +39,9 @@ public class SchedulerTest {
 	}
 
 	private Scheduler scheduler;
+	private MinuteTimer timer;
+	private TimeLeapClock clock;
+	
 	private final List<DummyHandler> handler = new ArrayList<>();
 	private final List<DummyMessage> msgs = new ArrayList<>();
 	private final List<MessageScheduler<DummyMessage>> msgScheduler = new ArrayList<>();
@@ -51,7 +56,11 @@ public class SchedulerTest {
 	}
 
 	private void prepare() {
-		this.scheduler = new Scheduler();
+		this.clock = new TimeLeapClock();
+		this.timer = new MinuteTimer(clock);
+		
+		this.scheduler = new Scheduler(this.timer);
+	
 		// Handler
 		this.handler.add(new DummyHandler());
 		this.handler.add(new DummyHandler());
@@ -69,6 +78,8 @@ public class SchedulerTest {
 		assertTrue(this.msgScheduler.get(1).isFor(this.handler.get(0)));
 		assertTrue(this.msgScheduler.get(2).isFor(this.handler.get(1)));
 		assertFalse(this.msgScheduler.get(0).isFor(this.handler.get(1)));
+		
+		this.scheduler.start();
 	}
 
 	private void testSchedule() {
@@ -111,13 +122,19 @@ public class SchedulerTest {
 		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
 		assertTrue(this.scheduler.isScheduled(this.msgs.get(3)));
 
-		this.msgScheduler.get(2).handle();
+		this.timer.cycle();
 
 		assertFalse(this.scheduler.isScheduled(this.msgs.get(2)));
 		assertTrue(this.scheduler.isScheduled(this.msgs.get(3)));
+		
+		this.clock.leap(2, ChronoUnit.MINUTES);
+		this.timer.cycle();
+		
+		assertFalse("Message 2 is still scheduled", this.scheduler.isScheduled(this.msgs.get(2)));
+		assertFalse("Message 3 is still scheduled", this.scheduler.isScheduled(this.msgs.get(3)));
 	}
 
-	/* *********************************************** */
+	/*************************************************/
 	private static class DummyMessage extends Message {
 		private ZonedDateTime timeStamp;
 

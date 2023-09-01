@@ -1,7 +1,9 @@
 package io.openems.backend.alerting.scheduler;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,15 +14,15 @@ import io.openems.backend.alerting.Message;
 /**
  * Scheduler for Messages.
  */
-public class Scheduler implements Runnable, MessageSchedulerService {
+public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerService {
 
 	private final MinuteTimer minuteTimer;
 	private final List<MessageScheduler<? extends Message>> msgScheduler;
 
 	private final Logger log = LoggerFactory.getLogger(Scheduler.class);
 
-	public Scheduler() {
-		this.minuteTimer = MinuteTimer.getInstance();
+	public Scheduler(MinuteTimer timer) {
+		this.minuteTimer = timer;
 		this.msgScheduler = new ArrayList<>();
 	}
 
@@ -63,7 +65,7 @@ public class Scheduler implements Runnable, MessageSchedulerService {
 	}
 
 	@Override
-	public void run() {
-		this.msgScheduler.forEach(MessageScheduler::handle);
+	public void accept(ZonedDateTime now) {
+		this.msgScheduler.forEach(ms -> ms.handle(now));
 	}
 }

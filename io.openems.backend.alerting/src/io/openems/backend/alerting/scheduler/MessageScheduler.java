@@ -91,8 +91,7 @@ public class MessageScheduler<T extends Message> {
 	/**
 	 * Transfer the messages due to their handler.
 	 */
-	public void handle() {
-		var now = ZonedDateTime.now();
+	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();
 		while (!this.queue.isEmpty() && now.isAfter(this.queue.peek().getNotifyStamp())) {
 			var msg = this.poll();

@@ -23,6 +23,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.handler.SumStateHandler;
+import io.openems.backend.alerting.scheduler.MinuteTimer;
+import io.openems.backend.alerting.scheduler.MinuteTimerAsync;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -52,6 +54,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	private final Logger log = LoggerFactory.getLogger(Alerting.class);
 	private final ThreadPoolExecutor executor;
+	private final MinuteTimer timer;
 
 	@Reference
 	protected Metadata metadata;
@@ -61,16 +64,17 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	protected final List<Handler<?>> handler = new ArrayList<>(2);
 
-	protected Alerting(Scheduler scheduler) {
+	protected Alerting(MinuteTimer timer) {
 		super("Alerting");
 
-		this.scheduler = scheduler;
+		this.timer = timer;
+		this.scheduler = new Scheduler(timer);
 		this.executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>(), //
 				new ThreadFactoryBuilder().setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build());
 	}
 
 	public Alerting() {
-		this(new Scheduler());
+		this(MinuteTimerAsync.getInstance());
 	}
 
 	@Activate
@@ -79,11 +83,11 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.scheduler.start();
 
 		if (config.notifyOnOffline()) {
-			this.handler.add(new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()));
+			this.handler.add(new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, this.timer, config.initialDelay()));
 		}
 
 		if (config.notifyOnSumStateChange()) {
-			this.handler.add(new SumStateHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()));
+			this.handler.add(new SumStateHandler(this.scheduler, this.mailer, this.metadata,  this.timer, config.initialDelay()));
 		}
 	}
 
