@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
@@ -48,6 +50,7 @@ public class SendChannelValuesWorker {
 	 * If true: next 'send' sends all channel values.
 	 */
 	private final AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
+	private final AtomicBoolean sendValuesOfAllChannelsAggregated = new AtomicBoolean(true);
 
 	/**
 	 * Keeps the last timestamp when all channel values were sent.
@@ -68,6 +71,7 @@ public class SendChannelValuesWorker {
 	 */
 	public synchronized void sendValuesOfAllChannelsOnce() {
 		this.sendValuesOfAllChannels.set(true);
+		this.sendValuesOfAllChannelsAggregated.set(true);
 	}
 
 	/**
@@ -124,6 +128,120 @@ public class SendChannelValuesWorker {
 			this.parent.logWarn(this.log, "Unable to collect date: " + e.getMessage());
 			return ImmutableMap.of();
 		}
+	}
+
+	private TreeBasedTable<Long, String, JsonElement> collectAggregatedData(List<OpenemsComponent> enabledComponents) {
+		final var now = LocalDateTime.now(this.parent.componentManager.getClock());
+		final var endTime = now.truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES));
+		final var startTime = endTime.minusMinutes(AGGREGATION_MINUTES);
+
+		final var timestamp = Instant.now().truncatedTo(DurationUnit.ofMinutes(AGGREGATION_MINUTES)) //
+				.minus(AGGREGATION_MINUTES, ChronoUnit.MINUTES);
+		if (this.lastSendAggregatedDataTimestamp == null) {
+			this.lastSendAggregatedDataTimestamp = timestamp;
+			return null;
+		}
+		if (timestamp.equals(this.lastSendAggregatedDataTimestamp)) {
+			return null;
+		}
+		this.lastSendAggregatedDataTimestamp = timestamp;
+		final var timestampMillis = timestamp.toEpochMilli();
+
+		final var sendAllChannels = this.sendValuesOfAllChannelsAggregated.getAndSet(false);
+
+		final var table = TreeBasedTable.<Long, String, JsonElement>create();
+		enabledComponents.stream() //
+				.flatMap(component -> component.channels().stream()) //
+				.filter(channel -> // Ignore WRITE_ONLY Channels
+				channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
+						// Ignore Low-Priority Channels
+						&& channel.channelDoc().getPersistencePriority()
+								.isAtLeast(this.parent.config.aggregationPriority()))
+				.forEach(channel -> {
+					try {
+						// This is the highest timestamp before `startTime`. If existing it is used for
+						// the tailMap to make sure we get a Value even for Channels where the value has
+						// not changed within the last 5 minutes.
+						var channelStartTime = Optional.ofNullable(channel.getPastValues().floorKey(startTime))
+								.orElse(startTime);
+
+						var value = channel.getPastValues() //
+								.tailMap(channelStartTime, true) //
+								.entrySet() //
+								.stream() //
+								.filter(e -> e.getKey().isBefore(endTime)) //
+								.filter(e -> e.getValue().isDefined()).map(e -> e.getValue().get()) //
+								.collect(aggregateCollector(channel.channelDoc().getUnit().isCumulated(), //
+										channel.getType()));
+
+						if (!sendAllChannels && value.isJsonNull()) {
+							return;
+						}
+						table.put(timestampMillis, channel.address().toString(), value);
+					} catch (IllegalArgumentException e) {
+						// unable to collect data because types are not matching the expected one
+						e.printStackTrace();
+					}
+				});
+		return table;
+	}
+
+	protected static Collector<Object, ?, JsonElement> aggregateCollector(//
+			final boolean isCumulated, //
+			final OpenemsType type //
+	) {
+		return Collector.of(ArrayList::new, //
+				(a, b) -> a.add(b), //
+				(a, b) -> {
+					b.addAll(a);
+					return b;
+				}, //
+				t -> aggregate(isCumulated, type, t) //
+		);
+	}
+
+	protected static JsonElement aggregate(boolean isCumulated, OpenemsType type, Collection<Object> values)
+			throws IllegalArgumentException {
+		switch (type) {
+		case DOUBLE, FLOAT -> {
+			final var stream = values.stream() //
+					.mapToDouble(item -> TypeUtils.getAsType(OpenemsType.DOUBLE, item));
+			if (isCumulated) {
+				final var maxOpt = stream.max();
+				if (maxOpt.isPresent()) {
+					return new JsonPrimitive(maxOpt.getAsDouble());
+				}
+			} else {
+				final var avgOpt = stream.average();
+				if (avgOpt.isPresent()) {
+					return new JsonPrimitive(avgOpt.getAsDouble());
+				}
+			}
+		}
+		// round averages to their type
+		case BOOLEAN, LONG, INTEGER, SHORT -> {
+			final var stream = values.stream() //
+					.mapToLong(item -> TypeUtils.getAsType(OpenemsType.LONG, item));
+			if (isCumulated) {
+				final var maxOpt = stream.max();
+				if (maxOpt.isPresent()) {
+					return new JsonPrimitive(maxOpt.getAsLong());
+				}
+			} else {
+				final var avgOpt = stream.average();
+				if (avgOpt.isPresent()) {
+					return new JsonPrimitive(Math.round(avgOpt.getAsDouble()));
+				}
+			}
+		}
+		case STRING -> {
+			// return first string for now
+			for (var item : values) {
+				return new JsonPrimitive(TypeUtils.<String>getAsType(type, item));
+			}
+		}
+		}
+		return JsonNull.INSTANCE;
 	}
 
 	/*
