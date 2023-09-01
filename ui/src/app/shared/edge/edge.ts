@@ -268,12 +268,15 @@ export class Edge {
   }
 
   /**
-   * Determines if the verion of the edge is a snapshot.
+   * Determines if the version of the edge is a SNAPSHOT.
    * 
-   * @returns true if the verion of the edge is a snapshot
+   * <p>
+   * Version strings are built like `major.minor.patch-branch.date.hash`. So any version string that contains a hyphen is a SNAPSHOT.
+   * 
+   * @returns true if the version of the edge is a SNAPSHOT
    */
   public isSnapshot(): boolean {
-    return this.version.includes("SNAPSHOT");
+    return this.version.includes("-");
   }
 
   /**

@@ -1,0 +1,112 @@
+#!/bin/bash
+# postinst script for fems
+# Copyright (C) 2014-2021 Stefan Feilmeier <stefan.feilmeier@fenecon.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -o errexit
+
+function start_service {
+	/bin/systemctl daemon-reload
+
+	# Check if service is enabled and running
+	/bin/systemctl --quiet is-enabled $1 > /dev/null && {
+		# Enabled - restart
+		echo "Starting $1"
+		/bin/systemctl start --no-block $1.service
+	} || {
+		# Not enabled - enable and start
+		echo "Enabling and starting $1"
+		/bin/systemctl stop $1.service
+		/bin/systemctl enable $1.service
+		/bin/systemctl start --no-block $1.service
+	}
+}
+
+case "$1" in
+	configure)
+		# Enable systemd hardware watchdog
+		if grep -q '^#RuntimeWatchdogSec=' /etc/systemd/system.conf; then
+			echo "Enable systemd hardware watchdog"
+			# '15' is the minimum value for RPi
+			# (source: https://iflorian.com/watchdog-cannot-set-timeout-16-errno-22-invalid-argument/)
+			sed --in-place "s/^#RuntimeWatchdogSec=.*$/RuntimeWatchdogSec=15/" /etc/systemd/system.conf
+		fi
+
+		# Setup user, group and permissions
+		if [ $(grep "^fems:" /etc/passwd | wc -l) -eq 0 ]; then
+			useradd fems --system --user-group
+		fi
+		chown -R fems:fems /usr/lib/openems
+		chown -R fems:fems /etc/openems.d
+		
+		# Disable source packages
+		sed --in-place "s/^deb-src /#deb-src /" /etc/apt/sources.list
+
+		# Disable default NGINX config
+		if [ -e /etc/nginx/sites-enabled/default ]; then
+			rm /etc/nginx/sites-enabled/default
+		fi
+		
+		# Make sure systemd resolved is properly activated
+		ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf || true
+		start_service systemd-resolved
+		
+		# Always restart openems
+		/bin/systemctl stop openems
+		
+		# Enable and start services
+		start_service openems
+		start_service fems-pagekite
+		start_service cron
+		start_service nginx
+		
+		# Setup firewall
+		/usr/sbin/ufw status \
+			| tr '\n' ' ' \
+			| tr -s ' ' ' ' \
+			| grep 'Status: active' \
+			| grep 'Anywhere ALLOW 10.0.0.0/8' \
+			| grep 'Anywhere ALLOW 172.16.0.0/12' \
+			| grep 'Anywhere ALLOW 192.168.0.0/16' \
+			| grep 'Anywhere ALLOW 169.254.0.0/16' > /dev/null || {
+				echo "Setup firewall"
+				/usr/sbin/ufw default allow outgoing || true
+				/usr/sbin/ufw default deny incoming || true
+				/usr/sbin/ufw allow from 10.0.0.0/8 || true
+				/usr/sbin/ufw allow from 172.16.0.0/12 || true
+				/usr/sbin/ufw allow from 192.168.0.0/16 || true
+				/usr/sbin/ufw allow from 169.254.0.0/16 || true
+				/usr/bin/yes | /usr/sbin/ufw enable || true
+				/bin/systemctl enable ufw.service || true
+				/bin/systemctl restart --no-block ufw.service || true
+		}
+		
+		# Enable automatic fsck repair on boot failure
+		if [ -f /boot/uboot/uEnv.txt ]; then
+			sed --in-place 's/^\(optargs=\).*$/\1console=tty0 capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN fsck.mode=force fsck.repair=yes/' /boot/uboot/uEnv.txt
+		fi
+		if [ -f /boot/uEnv.txt ]; then
+			sed --in-place 's/^\(optargs=\).*$/\1console=tty0 capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN fsck.mode=force fsck.repair=yes/' /boot/uEnv.txt
+		fi
+		;;
+		
+	abort-upgrade|abort-remove|abort-deconfigure)
+		;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		;;
+esac
+

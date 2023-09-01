@@ -1,6 +1,16 @@
 import { Role } from "src/app/shared/type/role";
+import { environment } from "src/environments";
 
 export class Changelog {
+
+    public static readonly UI_VERSION = "2023.8.0-SNAPSHOT";
+
+    public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
+    public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
+    public static readonly UI = Changelog.GENERAL_OPTIMIZATION + " am Online-Monitoring. ";
+    public static readonly BACKEND = Changelog.GENERAL_OPTIMIZATION + " am Backend für das Online-Monitoring.";
+
+    public static readonly BATTERY_PROTECTION = "Verbesserung des Batterie Lade- und Entladeverhaltens im oberen und unteren Ladezustandsbereich";
 
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
@@ -46,8 +56,8 @@ export class App {
 }
 
 export class OpenemsComponent {
-    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Z�hler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
-    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Z�hler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
