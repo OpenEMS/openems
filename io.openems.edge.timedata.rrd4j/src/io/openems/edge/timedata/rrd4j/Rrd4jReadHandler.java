@@ -547,7 +547,18 @@ public class Rrd4jReadHandler {
 				if (database == null) {
 					return Optional.empty();
 				}
-				return Optional.of(database.getLastDatasourceValues()[0]);
+
+				// search for last value in robin
+				final var robin = database.getArchive(0).getRobin(0);
+				for (int i = robin.getSize() - 1; i >= 0; i--) {
+					final var value = robin.getValue(i);
+					if (Double.isNaN(value)) {
+						continue;
+					}
+					return Optional.of(value);
+				}
+
+				return Optional.empty();
 			} catch (Exception e) {
 				return Optional.empty();
 			}
