@@ -54,10 +54,9 @@ public class TimeLeapClockTest {
 	public void testLeap() {
 		var dateTime = ZonedDateTime.now();
 
-		var instant = dateTime.toInstant();
-		var zone = dateTime.getZone();
-
-		var timeLeap = new TimeLeapClock(instant, zone);
+		final var instant = dateTime.toInstant();
+		final var zone = dateTime.getZone();
+		final var timeLeap = new TimeLeapClock(instant, zone);
 
 		assertEquals(dateTime, timeLeap.now());
 
@@ -79,15 +78,15 @@ public class TimeLeapClockTest {
 
 	@Test
 	public void testEquals() {
-		var instant = Instant.ofEpochMilli(512);
-		var zone = ZoneOffset.UTC;
+		final var instant = Instant.ofEpochMilli(512);
+		final var zone = ZoneOffset.UTC;
 
-		var timeLeap = new TimeLeapClock(instant, zone);
-		var timeLeapNow = new TimeLeapClock(zone);
-		var timeLeapLater = new TimeLeapClock(instant.plusSeconds(20));
+		final var timeLeap = new TimeLeapClock(instant, zone);
+		final var timeLeapNow = new TimeLeapClock(zone);
+		final var timeLeapLater = new TimeLeapClock(instant.plusSeconds(20));
 
-		var timeLeapZone = timeLeap.withZone(ZoneId.of("US/Hawaii"));
-		var clock = Clock.fixed(instant, zone);
+		final var timeLeapZone = timeLeap.withZone(ZoneId.of("US/Hawaii"));
+		final var clock = Clock.fixed(instant, zone);
 
 		assertEquals(timeLeap, timeLeap);
 		assertEquals(timeLeap, clock);
