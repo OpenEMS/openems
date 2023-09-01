@@ -194,9 +194,6 @@ public class SendChannelValuesWorker {
 			// Try to send
 			var wasSent = this.parent.parent.websocket.sendMessage(message);
 
-			// Set the UNABLE_TO_SEND channel
-			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
-
 			if (wasSent) {
 				// Successfully sent: update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -206,6 +203,33 @@ public class SendChannelValuesWorker {
 				}
 			}
 
+		}
+
+	}
+
+	private static final class SendAggregatedDataTask implements Runnable {
+
+		private final SendChannelValuesWorker parent;
+		private final Instant timestamp;
+		private final Map<String, JsonElement> allValues;
+
+		public SendAggregatedDataTask(SendChannelValuesWorker parent, Instant timestamp,
+				Map<String, JsonElement> allValues) {
+			super();
+			this.parent = parent;
+			this.timestamp = timestamp;
+			this.allValues = allValues;
+		}
+
+		@Override
+		public void run() {
+			final var message = new AggregatedDataNotification();
+			message.add(this.timestamp.toEpochMilli(), this.allValues);
+
+			final var wasSent = this.parent.parent.websocket.sendMessage(message);
+
+			// Set the UNABLE_TO_SEND channel
+			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
 		}
 
 	}
