@@ -9,7 +9,6 @@ set -e
 main() {
     initialize_environment
     common_update_version_in_code
-    common_build_ui
     echo "# Ready for commit: "Push version to $VERSION""
 }
 
