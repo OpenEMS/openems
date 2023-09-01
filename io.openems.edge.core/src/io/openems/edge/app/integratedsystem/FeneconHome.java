@@ -503,6 +503,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(0) //
 								.setMin(0) //
+								.onlyPositiveNumbers() //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("feedPowerPara").get());
