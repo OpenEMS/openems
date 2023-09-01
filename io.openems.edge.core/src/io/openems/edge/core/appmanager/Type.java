@@ -9,19 +9,69 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 public interface Type<P extends Nameable, //
 		A extends OpenemsApp, //
-		M extends io.openems.edge.core.appmanager.Type.Parameter> //
-		extends Self<Type<P, A, M>> {
+		M> //
+		extends Self<Type<P, A, M>>, Nameable {
+
+	public static class AbstractType<P extends Nameable, //
+			A extends OpenemsApp, //
+			M> implements Type<P, A, M> {
+
+		private final String name;
+		private final AppDef<? super A, ? super P, ? super M> def;
+		private final Function<GetParameterValues<A>, M> getParameterFunction;
+
+		public AbstractType(String name, AppDef<? super A, ? super P, ? super M> def,
+				Function<GetParameterValues<A>, M> getParameterFunction) {
+			super();
+			this.name = name;
+			this.def = def;
+			this.getParameterFunction = getParameterFunction;
+		}
+
+		@Override
+		public Type<P, A, M> self() {
+			return this;
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
+		@Override
+		public AppDef<? super A, ? super P, ? super M> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<A>, M> getParamter() {
+			return this.getParameterFunction;
+		}
+
+	}
 
 	public class Parameter {
 
-		public static class BundleParameter extends Parameter {
+		public static interface BundleProvider {
+
+			/**
+			 * Gets the {@link ResourceBundle} to get the translations from.
+			 * 
+			 * @return the {@link ResourceBundle}
+			 */
+			public ResourceBundle bundle();
+
+		}
+
+		public static class BundleParameter extends Parameter implements BundleProvider {
 			public final ResourceBundle bundle;
 
 			public BundleParameter(ResourceBundle bundle) {
 				this.bundle = bundle;
 			}
 
-			public final ResourceBundle getBundle() {
+			@Override
+			public ResourceBundle bundle() {
 				return this.bundle;
 			}
 

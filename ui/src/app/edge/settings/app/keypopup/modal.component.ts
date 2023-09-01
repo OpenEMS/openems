@@ -193,7 +193,7 @@ export class KeyModalComponent implements OnInit {
                 options: []
             },
             expressions: {
-                hide: () => this.registeredKeys.length === 0,
+                'hide': () => this.registeredKeys.length === 0,
                 'props.disabled': field => !field.model.useRegisteredKeys || field.model.useMasterKey
             },
             wrappers: ['formly-select-extended-wrapper']
@@ -329,7 +329,7 @@ export class KeyModalComponent implements OnInit {
         switch (this.behaviour) {
             case KeyValidationBehaviour.NAVIGATE:
                 this.service.startSpinner(this.spinnerId);
-                this.modalCtrl.dismiss({ 'key': this.getSelectedKey(), useMasterKey: this.model.useMasterKey });
+                this.modalCtrl.dismiss({ key: this.getSelectedKey(), useMasterKey: this.model.useMasterKey });
                 // navigate to App install view and pass valid key
                 this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
                     , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey(), useMasterKey: this.model.useMasterKey } });

@@ -68,19 +68,19 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		// Properties
 		ALIAS(AppDef.of(SmaPvInverter.class) //
 				.setDefaultValueToAppName()), //
-		IP(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.ip()) //
+		IP(AppDef.copyOfGeneric(CommonPvInverterConfiguration.ip(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
-		PORT(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.port()) //
+				}))), //
+		PORT(AppDef.copyOfGeneric(CommonPvInverterConfiguration.port(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
-		MODBUS_UNIT_ID(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.modbusUnitId()) //
+				}))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommonPvInverterConfiguration.modbusUnitId(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
+				}))), //
 		PHASE(AppDef.of(SmaPvInverter.class) //
 				.setTranslatedLabelWithAppPrefix(".phase.label") // )
 				.setTranslatedDescriptionWithAppPrefix(".phase.description") //

@@ -147,11 +147,8 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
 			roles.put(edgeId, role);
 		}
-		var jUser = JsonUtils.getAsJsonObject(result, "user");
-		var odooUserId = JsonUtils.getAsInt(jUser, "id");
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles,
-				hasMultipleEdges);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {

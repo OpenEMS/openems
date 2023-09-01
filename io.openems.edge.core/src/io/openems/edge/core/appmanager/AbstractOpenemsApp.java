@@ -577,6 +577,21 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
 	}
 
+	/**
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
+	 * 
+	 * <p>
+	 * Used in {@link OpenemsApps} to create their {@link Type#getParamter()}.
+	 * 
+	 * @param l the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
+	 * @implNote just a name alias to
+	 *           {@link AbstractOpenemsApp#getTranslationBundle(Language)}
+	 */
+	public static ResourceBundle createResourceBundle(Language l) {
+		return getTranslationBundle(l);
+	}
+
 	protected static final String base64OfImage(URL url) {
 		if (url == null) {
 			return null;

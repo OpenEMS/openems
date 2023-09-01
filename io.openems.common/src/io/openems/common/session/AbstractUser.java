@@ -3,6 +3,7 @@ package io.openems.common.session;
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Represents a User; shared by OpenEMS Backend
@@ -42,7 +43,6 @@ public abstract class AbstractUser {
 		this.name = name;
 		this.language = language;
 		this.globalRole = globalRole;
-		this.roles = roles;
 	}
 
 	public String getId() {

@@ -27,6 +27,7 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -115,6 +116,26 @@ public class HardyBarthEvcs extends
 							.onlyShowIfValueEquals(NUMBER_OF_CHARGING_STATIONS, "2") //
 							.hideKey();
 				})), //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+				.setAllowedToSave(false)), //
+		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY),
+				def -> def //
+						.setDefaultValue(0) //
+						.wrapField((app, property, l, parameter, field) -> {
+							final var existingEvcs = EvcsProps.getEvcsComponents(app.componentUtil);
+
+							if (existingEvcs.isEmpty()) {
+								field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+										.equal(Exp.staticValue(2)));
+								return;
+							}
+							field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+									.equal(Exp.staticValue(2)) //
+									.or(existingEvcs.stream().map(OpenemsComponent::id) //
+											.map(Exp::staticValue) //
+											.collect(Exp.toArrayExpression()) //
+											.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
+						}))), //
 		;
 
 		private final AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def;
@@ -144,14 +165,14 @@ public class HardyBarthEvcs extends
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setAutoGenerateField(false) //
 				.setDefaultValue((app, property, l, parameter) -> //
-				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle, "App.Evcs.HardyBarth.alias.value", //
-						TranslationUtil.getTranslation(parameter.bundle, "right")))) //
+				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
+						TranslationUtil.getTranslation(parameter.bundle(), "right")))) //
 				.wrapField((app, property, l, parameter, field) -> field.isRequired(true) //
 						.setDefaultValueCases(new DefaultValueOptions(Property.NUMBER_OF_CHARGING_STATIONS, //
 								new Case(1, app.getName(l)), //
-								new Case(2, TranslationUtil.getTranslation(parameter.bundle, //
+								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
 										"App.Evcs.HardyBarth.alias.value", //
-										TranslationUtil.getTranslation(parameter.bundle, "right"))))))), //
+										TranslationUtil.getTranslation(parameter.bundle(), "right"))))))), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
 				.setDefaultValue("192.168.25.30") //
 				.setAutoGenerateField(false) //
@@ -204,8 +225,8 @@ public class HardyBarthEvcs extends
 		ALIAS_CP_2(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setAutoGenerateField(false) //
 				.setDefaultValue((app, property, l, parameter) -> //
-				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle, "App.Evcs.HardyBarth.alias.value", //
-						TranslationUtil.getTranslation(parameter.bundle, "left")))) //
+				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
+						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
 				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
 		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.ip()) //
 				.setDefaultValue("192.168.25.31") //

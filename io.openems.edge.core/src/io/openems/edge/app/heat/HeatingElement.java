@@ -1,12 +1,21 @@
 package io.openems.edge.app.heat;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.heat.HeatProps.createPhaseInformation;
+import static io.openems.edge.app.heat.HeatProps.phaseGroup;
+import static io.openems.edge.app.heat.HeatProps.relayContactDef;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
+
 import java.util.EnumMap;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -18,16 +27,20 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.heat.HeatProps.RelayContactInformation;
+import io.openems.edge.app.heat.HeatProps.RelayContactInformationProvider;
+import io.openems.edge.app.heat.HeatingElement.HeatingElementParameter;
 import io.openems.edge.app.heat.HeatingElement.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
@@ -35,9 +48,10 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type.GetParameterValues;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -68,29 +82,77 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Heat.HeatingElement")
-public class HeatingElement extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.Heat.HeatingElement")
+public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, Property, HeatingElementParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum, Nameable {
+	public record HeatingElementParameter(//
+			ResourceBundle bundle, //
+			RelayContactInformation relayContactInformation //
+	) implements BundleProvider, RelayContactInformationProvider {
+
+	}
+
+	public static enum Property implements Type<Property, HeatingElement, HeatingElementParameter>, Nameable {
 		// Component-IDs
 		CTRL_IO_HEATING_ELEMENT_ID("ctrlIoHeatingElement0"), //
 		// Properties
-		ALIAS("Heating Element App"), //
-		OUTPUT_CHANNEL_PHASE_L1("io0/Relay1"), //
-		OUTPUT_CHANNEL_PHASE_L2("io0/Relay2"), //
-		OUTPUT_CHANNEL_PHASE_L3("io0/Relay3"), //
-		POWER_PER_PHASE("2000") //
+		ALIAS(alias()), //
+		OUTPUT_CHANNEL_PHASE_L1(heatingElementRelayContactDef(1)), //
+		OUTPUT_CHANNEL_PHASE_L2(heatingElementRelayContactDef(2)), //
+		OUTPUT_CHANNEL_PHASE_L3(heatingElementRelayContactDef(3)), //
+		OUTPUT_CHANNEL_PHASE_GROUP(phaseGroup(OUTPUT_CHANNEL_PHASE_L1, //
+				OUTPUT_CHANNEL_PHASE_L2, OUTPUT_CHANNEL_PHASE_L3)), //
+		POWER_PER_PHASE(AppDef.of(HeatingElement.class) //
+				.setTranslatedLabelWithAppPrefix(".powerPerPhase.label") //
+				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
+				.setDefaultValue(2000) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER) //
+							.setUnit(WATT, l) //
+							.isRequired(true) //
+							.setMin(0);
+				})), //
+		HYSTERESIS(AppDef.of(HeatingElement.class) //
+				.setTranslatedLabelWithAppPrefix(".hysteresis.label") //
+				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
+				.setDefaultValue(60) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER) //
+							.setUnit(SECONDS, l) //
+							.isRequired(true) //
+							.setMin(0);
+				}) //
+				.bidirectional(CTRL_IO_HEATING_ELEMENT_ID, "minimumSwitchingTime", //
+						ComponentManagerSupplier::getComponentManager)), //
 		;
 
-		private final String defaultValue;
+		private final AppDef<? super HeatingElement, ? super Property, ? super HeatingElementParameter> def;
 
-		private Property(String defaultValue) {
-			this.defaultValue = defaultValue;
+		private Property(AppDef<? super HeatingElement, ? super Property, ? super HeatingElementParameter> def) {
+			this.def = def;
 		}
 
 		@Override
-		public String getDefaultValue() {
-			return this.defaultValue;
+		public Type<Property, HeatingElement, HeatingElementParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super HeatingElement, ? super Property, ? super HeatingElementParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<HeatingElement>, HeatingElementParameter> getParamter() {
+			return t -> {
+				return new HeatingElementParameter(//
+						createResourceBundle(t.language), //
+						createPhaseInformation(t.app.componentUtil, 3, //
+								new PreferredRelay(4, new int[] { 1, 2, 3 }), //
+								new PreferredRelay(8, new int[] { 4, 5, 6 })) //
+				);
+			};
 		}
 
 	}
@@ -210,11 +272,7 @@ public class HeatingElement extends AbstractEnumOpenemsApp<Property> implements 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("count", 3) //
-										.build())));
+				.setInstallableCheckableConfigs(checkRelayCount(3));
 	}
 
 	@Override
@@ -225,6 +283,27 @@ public class HeatingElement extends AbstractEnumOpenemsApp<Property> implements 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
+	}
+
+	@Override
+	protected HeatingElement getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	private static <P extends BundleProvider & RelayContactInformationProvider> //
+	AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
+		return AppDef.copyOfGeneric(relayContactDef(contactPosition, Nameable.of("OUTPUT_CHANNEL_PHASE_L1"), //
+				Nameable.of("OUTPUT_CHANNEL_PHASE_L2"), Nameable.of("OUTPUT_CHANNEL_PHASE_L3")),
+				b -> b //
+						.setTranslatedLabelWithAppPrefix(".outputChannelPhaseL" + contactPosition + ".label") //
+						.setTranslatedDescription("App.Heat.outputChannel.description") //
+						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
+						.setAutoGenerateField(false));
 	}
 
 }

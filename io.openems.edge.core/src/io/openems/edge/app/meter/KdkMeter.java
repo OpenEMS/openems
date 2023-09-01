@@ -2,8 +2,7 @@ package io.openems.edge.app.meter;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
-import java.util.Map;
-import java.util.function.Function;
+import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -23,12 +22,12 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.common.props.PropsUtil;
-import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.KdkMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -38,6 +37,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.meter.api.MeterType;
 
 /**
  * Describes a App for a Kdk meter.

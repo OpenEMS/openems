@@ -15,6 +15,7 @@ import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
+import { InstallAppComponent } from './install.component';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,
@@ -162,10 +163,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         })).then(response => {
           let descriptor = (response as GetAppDescriptor.Response).result;
           this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast('Error while receiving AppDescriptor for App[' + appId + ']: ' + reason.error.message, 'danger');
-        }).finally(() => {
+        })
+        .catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving AppDescriptor for App[' + appId + ']: ' + error))
+        .finally(() => {
           this.increaseReceivedResponse();
         });
     });

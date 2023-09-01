@@ -1,12 +1,19 @@
 package io.openems.edge.app.heat;
 
-import java.util.EnumMap;
+import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.heat.HeatProps.createPhaseInformation;
+import static io.openems.edge.app.heat.HeatProps.relayContactDef;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
+
 import java.util.List;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -17,29 +24,30 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.heat.CombinedHeatAndPower.CombinedHeatAndPowerParameter;
 import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
+import io.openems.edge.app.heat.HeatProps.RelayContactInformation;
+import io.openems.edge.app.heat.HeatProps.RelayContactInformationProvider;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.DefaultEnum;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes a App for a Heating Element.
+ * Describes a App.
  *
  * <pre>
   {
@@ -63,26 +71,53 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Heat.CHP")
-public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.Heat.CHP")
+public class CombinedHeatAndPower
+		extends AbstractOpenemsAppWithProps<CombinedHeatAndPower, Property, CombinedHeatAndPowerParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum, Nameable {
+	public record CombinedHeatAndPowerParameter(//
+			ResourceBundle bundle, //
+			RelayContactInformation relayContactInformation //
+	) implements BundleProvider, RelayContactInformationProvider {
+
+	}
+
+	public static enum Property implements Type<Property, CombinedHeatAndPower, CombinedHeatAndPowerParameter> {
 		// Component-IDs
-		CTRL_CHP_SOC_ID("ctrlChpSoc0"), //
+		CTRL_CHP_SOC_ID(AppDef.componentId("ctrlChpSoc0")), //
 		// Properties
-		ALIAS("Blockheizkraftwerk"), //
-		OUTPUT_CHANNEL("io0/Relay1"), //
+		ALIAS(alias()), //
+		OUTPUT_CHANNEL(chpRelayContactDef(1)), //
 		;
 
-		private final String defaultValue;
+		private final AppDef<? super CombinedHeatAndPower, ? super Property, ? super CombinedHeatAndPowerParameter> def;
 
-		private Property(String defaultValue) {
-			this.defaultValue = defaultValue;
+		private Property(
+				AppDef<? super CombinedHeatAndPower, ? super Property, ? super CombinedHeatAndPowerParameter> def) {
+			this.def = def;
 		}
 
 		@Override
-		public String getDefaultValue() {
-			return this.defaultValue;
+		public Type<Property, CombinedHeatAndPower, CombinedHeatAndPowerParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super CombinedHeatAndPower, ? super Property, ? super CombinedHeatAndPowerParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<CombinedHeatAndPower>, CombinedHeatAndPowerParameter> getParamter() {
+			return t -> {
+				return new CombinedHeatAndPowerParameter(//
+						createResourceBundle(t.language), //
+						createPhaseInformation(t.app.componentUtil, 1, //
+								new PreferredRelay(4, new int[] { 1 }), //
+								new PreferredRelay(8, new int[] { 1 })) //
+				);
+			};
 		}
 
 	}
@@ -94,14 +129,14 @@ public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> imple
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var chpId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
 
-			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var outputChannelAddress = this.getString(p, Property.OUTPUT_CHANNEL);
 
-			var components = Lists.newArrayList(//
+			final var components = List.of(//
 					new EdgeConfig.Component(chpId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
 							.addProperty("inputChannelAddress", "_sum/EssSoc")
 							.addProperty("outputChannelAddress", outputChannelAddress) //
@@ -135,32 +170,6 @@ public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> imple
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL) //
-								.setOptions(this.componentUtil.getAllRelays() //
-										.stream().map(r -> r.relays).flatMap(List::stream) //
-										.toList()) //
-								.setDefaultValueWithStringSupplier(() -> {
-									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
-											new int[] { 1 }, new int[] { 1 });
-									if (relays == null) {
-										return Property.OUTPUT_CHANNEL.getDefaultValue();
-									}
-									return relays[0];
-								}) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, //
-										"App.Heat.outputChannel.description")) //
-								.build())
-						.build())
-				.build();
-	}
-
-	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.build();
@@ -174,21 +183,29 @@ public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> imple
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("count", 1) //
-										.build())));
-	}
-
-	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+				.setInstallableCheckableConfigs(checkRelayCount(1));
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
+	}
+
+	@Override
+	protected CombinedHeatAndPower getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	private static <P extends BundleProvider & RelayContactInformationProvider> //
+	AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
+		return AppDef.copyOfGeneric(relayContactDef(contactPosition), def -> //
+		def.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
+				.setTranslatedDescription("App.Heat.outputChannel.description"));
 	}
 
 }

@@ -27,7 +27,7 @@ import io.openems.edge.core.appmanager.dependency.Dependency;
 public abstract class AbstractOpenemsAppWithProps<//
 		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
 		PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
-		PARAMETER extends Type.Parameter //
+		PARAMETER  //
 > extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
 
 	protected AbstractOpenemsAppWithProps(ComponentManager componentManager, ComponentContext componentContext,

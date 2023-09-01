@@ -17,6 +17,7 @@ import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.comp
 import { canEnterKey } from './permissions';
 import { Flags } from './jsonrpc/flag/flags';
 import { App } from './keypopup/app';
+import { InstallAppComponent } from './install.component';
 
 @Component({
   selector: IndexComponent.SELECTOR,
@@ -119,10 +120,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
           this.updateSelection();
 
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast('Error while receiving available apps: ' + reason.error.message, 'danger');
-        });
+        }).catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving available apps: ' + error));
 
       const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
       systemUpdate.systemUpdateStateChange = (updateState) => {

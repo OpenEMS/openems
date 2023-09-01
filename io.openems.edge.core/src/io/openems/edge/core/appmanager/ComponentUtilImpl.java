@@ -4,16 +4,24 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
@@ -30,6 +38,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
@@ -41,19 +50,6 @@ import io.openems.edge.io.api.DigitalOutput;
 
 @org.osgi.service.component.annotations.Component()
 public class ComponentUtilImpl implements ComponentUtil {
-
-	public static class Relay {
-		public final String id;
-		public final List<String> relays;
-		public final int channels;
-
-		public Relay(String id, List<String> relays, int channels) {
-			this.id = id;
-			this.relays = relays;
-			this.channels = channels;
-		}
-
-	}
 
 	private final ComponentManager componentManager;
 	private final ConfigurationAdmin cm;
@@ -362,80 +358,65 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return copy;
 	}
 
+	private List<OpenemsComponent> getComponentUseing(String value, List<String> ignoreIds) {
+		return this.componentManager.getAllComponents().stream() //
+				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
+				.filter(c -> { //
+					var t = c.getComponentContext().getProperties();
+					return enumerationAsStream(t.keys()).anyMatch(key -> {
+						var element = t.get(key).toString();
+						return element.contains(value);
+					});
+				}).toList();
+	}
+
 	@Override
 	public boolean anyComponentUses(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
-				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))).anyMatch(c -> { //
+				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
+				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
-					var iterator = t.keys().asIterator();
-					while (iterator.hasNext()) {
-						var key = iterator.next();
+					return enumerationAsStream(t.keys()).anyMatch(key -> {
 						var element = t.get(key).toString();
-						if (element.contains(value)) {
-							return true;
-						}
-					}
-					return false;
+						return element.contains(value);
+					});
 				});
 	}
 
 	@Override
-	public List<Relay> getAllRelays() {
-		List<DigitalOutput> allDigitalOutputs = this.getEnabledComponentsOfType(DigitalOutput.class);
-		List<Relay> relays = new LinkedList<>();
-		for (DigitalOutput digitalOutput : allDigitalOutputs) {
-			List<String> availableIos = new LinkedList<>();
-			for (var i = 0; i < digitalOutput.digitalOutputChannels().length; i++) {
-				var ioName = digitalOutput.id() + "/Relay" + (i + 1);
-				availableIos.add(ioName);
-			}
-			relays.add(new Relay(digitalOutput.id(), availableIos, digitalOutput.digitalOutputChannels().length));
-		}
-		return relays;
+	public List<RelayInfo> getAllRelayInfos(List<String> ignoreIds) {
+		return this.getEnabledComponentsOfType(DigitalOutput.class).stream() //
+				.map(digitalOutput -> {
+					return new RelayInfo(digitalOutput.id(), digitalOutput.alias(),
+							Arrays.stream(digitalOutput.digitalOutputChannels()) //
+									.map(t -> new RelayContactInfo(t.address().toString(), relayAliasMapper(t),
+											this.getComponentUseing(t.address().toString(), ignoreIds)))
+									.toList());
+				}) //
+				.sorted((o1, o2) -> o1.id().compareTo(o2.id())) //
+				.toList();
 	}
 
-	@Override
-	public List<Relay> getAvailableRelays() {
-		return this.getAvailableRelays(new ArrayList<>());
-	}
-
-	@Override
-	public List<Relay> getAvailableRelays(List<String> ignoreIds) {
-		List<DigitalOutput> allDigitalOutputs = this.getEnabledComponentsOfType(DigitalOutput.class);
-		List<Relay> relays = new LinkedList<>();
-		for (DigitalOutput digitalOutput : allDigitalOutputs) {
-			List<String> availableIos = new LinkedList<>();
-			for (var i = 0; i < digitalOutput.digitalOutputChannels().length; i++) {
-				var ioName = digitalOutput.id() + "/Relay" + (i + 1);
-				if (!this.anyComponentUses(ioName, ignoreIds)) {
-					availableIos.add(ioName);
-				}
-			}
-			relays.add(new Relay(digitalOutput.id(), availableIos, digitalOutput.digitalOutputChannels().length));
-		}
-		return relays;
-	}
-
-	@Override
-	public List<String> getAvailableRelays(String ioId) throws OpenemsNamedException {
-		return this.getAvailableRelays(ioId, new ArrayList<>());
-	}
-
-	@Override
-	public List<String> getAvailableRelays(String ioId, List<String> ignoreIds) throws OpenemsNamedException {
-		var digitalOutput = this.componentManager.getComponent(ioId);
-		if (!(digitalOutput instanceof DigitalOutput)) {
-			return Collections.emptyList();
-		}
-		List<String> availableIos = new LinkedList<>();
-		for (var i = 0; i < ((DigitalOutput) digitalOutput).digitalOutputChannels().length; i++) {
-			var ioName = digitalOutput.id() + "/Relay" + (i + 1);
-			if (!this.anyComponentUses(ioName, ignoreIds)) {
-				availableIos.add(ioName);
+	// TODO remove when channels have their own alias
+	private static String relayAliasMapper(BooleanWriteChannel booleanWriteChannel) {
+		// TODO add translation
+		for (final var iface : booleanWriteChannel.getComponent().getClass().getInterfaces()) {
+			var alias = switch (iface.getCanonicalName()) {
+			case "io.openems.edge.io.kmtronic.four.IoKmtronicRelay4Port" ->
+				switch (booleanWriteChannel.address().getChannelId()) {
+				case "Relay1" -> "Relais 1 (Pin 11/12)";
+				case "Relay2" -> "Relais 2 (Pin 13/14)";
+				case "Relay3" -> "Relais 3 (Pin 15/16)";
+				case "Relay4" -> "Relais 4";
+				default -> null;
+				};
+			default -> null;
+			};
+			if (alias != null) {
+				return alias;
 			}
 		}
-
-		return availableIos;
+		return booleanWriteChannel.address().toString();
 	}
 
 	@Override
@@ -487,31 +468,55 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public String[] getPreferredRelays(List<String> ignoreIds, int[] relays4Channel, int[] relays8Channel) {
-		if (relays8Channel == null) {
-			return null;
-		}
+	public String[] getPreferredRelays(//
+			List<String> ignoreIds, //
+			int cnt, //
+			PreferredRelay first, //
+			PreferredRelay... inputPreferredRelays //
+	) {
+		final var combinedArray = new PreferredRelay[inputPreferredRelays.length + 1];
+		combinedArray[0] = first;
+		System.arraycopy(inputPreferredRelays, 0, combinedArray, 1, inputPreferredRelays.length);
+		return this.getPreferredRelays(ignoreIds, cnt, combinedArray);
+	}
+
+	private String[] getPreferredRelays(List<String> ignoreIds, int cnt, PreferredRelay... inputPreferredRelays) {
 		String[] fallBackInARowRelays = null;
-		var fallBackFirstAvailableRelays = new String[relays8Channel.length];
+		var fallBackFirstAvailableRelays = new String[cnt];
 		var firstAvailableNextIndex = 0;
-		for (var relayBoard : this.getAvailableRelays(ignoreIds)) {
-			var relays = relayBoard.channels == 4 ? relays4Channel : relays8Channel;
-			if (relays == null) {
-				continue;
-			}
-			var containsAllPreferredRelays = true;
-			var preferredRelays = new String[relays.length];
+		for (var relayInfo : this.getAllRelayInfos(ignoreIds)) {
+			var relays = Arrays.stream(inputPreferredRelays) //
+					.filter(t -> t.numberOfRelays() == relayInfo.channels().size()) //
+					.findAny().map(t -> t.preferredRelays()).orElse(null);
+			var containsAllPreferredRelays = true && relays != null;
+			var preferredRelays = new String[cnt];
 			var count = 0;
-			for (var number : relays) {
-				var relay = relayBoard.id + "/Relay" + number;
-				preferredRelays[count++] = relay;
-				if (!relayBoard.relays.contains(relay)) {
-					containsAllPreferredRelays = false;
-					break;
+			if (relays != null) {
+				for (var number : relays) {
+					if (number < 0) {
+						containsAllPreferredRelays = false;
+						break;
+					}
+					if (number >= relayInfo.channels().size()) {
+						containsAllPreferredRelays = false;
+						break;
+					}
+					final var channel = relayInfo.channels().get(number - 1);
+					if (!channel.usingComponents().isEmpty()) {
+						containsAllPreferredRelays = false;
+						break;
+					}
+					preferredRelays[count++] = channel.channel();
 				}
 			}
-			for (var i = 0; i < relayBoard.relays.size() && firstAvailableNextIndex < relays.length; i++) {
-				fallBackFirstAvailableRelays[firstAvailableNextIndex++] = relayBoard.relays.get(i);
+			final var availableChannels = relayInfo.channels().stream() //
+					.filter(t -> t.usingComponents().isEmpty()) //
+					.toList();
+			for (var availableChannel : availableChannels) {
+				if (firstAvailableNextIndex >= cnt) {
+					break;
+				}
+				fallBackFirstAvailableRelays[firstAvailableNextIndex++] = availableChannel.channel();
 			}
 			if (containsAllPreferredRelays) {
 				return preferredRelays;
@@ -519,26 +524,23 @@ public class ComponentUtilImpl implements ComponentUtil {
 			if (fallBackInARowRelays == null) {
 				count = 0;
 				var startIndex = 1;
-				for (String string : relayBoard.relays) {
-					if (!string.equals(relayBoard.id + "/Relay" + (startIndex + count++))) {
+				for (var channelInfo : relayInfo.channels()) {
+					if (!channelInfo.usingComponents().isEmpty()) {
 						startIndex += count;
 						count = 1;
 					}
-					if (count >= relays.length) {
+					if (count >= cnt) {
 						break;
 					}
 				}
-				if (count >= relays.length) {
-					fallBackInARowRelays = new String[relays.length];
+				if (count >= cnt) {
+					fallBackInARowRelays = new String[cnt];
 					for (var i = 0; i < fallBackInARowRelays.length; i++) {
-						fallBackInARowRelays[i] = relayBoard.id + "/Relay" + (startIndex + i);
+						fallBackInARowRelays[i] = relayInfo.channels().get(startIndex + i).channel();
 					}
 				}
 
 			}
-		}
-		if (firstAvailableNextIndex < relays8Channel.length) {
-			return null;
 		}
 		return fallBackInARowRelays != null ? fallBackInARowRelays : fallBackFirstAvailableRelays;
 	}
@@ -770,6 +772,74 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return Optional.empty();
 		}
 		return comp;
+	}
+
+	// TODO
+	public int[] getUsedModbusUnitIds(//
+			final String modbusComponent //
+	) {
+		final var components = this.componentManager.getAllComponents();
+
+		final var usedModbusUnitIds = new ArrayList<Integer>();
+		for (var component : components) {
+			final var props = component.getComponentContext().getProperties();
+
+			if (find(props, t -> "modbus.id".equals(t), //
+					t -> modbusComponent.equals(t)) == null) {
+				continue;
+			}
+
+			final var modbusUnitIdObj = find(props, t -> "modbusUnitId".equals(t), t -> true);
+			if (modbusUnitIdObj == null) {
+				continue;
+			}
+			if (modbusUnitIdObj instanceof Integer modbusUnitId) {
+				usedModbusUnitIds.add(modbusUnitId);
+			}
+		}
+
+		return usedModbusUnitIds.stream() //
+				.mapToInt(value -> value) //
+				.toArray();
+	}
+
+	private static Object find(//
+			Dictionary<String, Object> dict, //
+			Predicate<String> keyPredicate, //
+			Predicate<Object> objPredicate //
+	) {
+		return enumerationAsStream(dict.keys()) //
+				.filter(key -> {
+					if (!keyPredicate.test(key)) {
+						return false;
+					}
+					var element = dict.get(key);
+					if (!objPredicate.test(element)) {
+						return false;
+					}
+					return true;
+				}) //
+				.findFirst() //
+				.orElse(null);
+	}
+
+	// TODO move to utility class
+	private static <T> Stream<T> enumerationAsStream(Enumeration<T> e) {
+		return StreamSupport.stream(new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
+			public boolean tryAdvance(Consumer<? super T> action) {
+				if (e.hasMoreElements()) {
+					action.accept(e.nextElement());
+					return true;
+				}
+				return false;
+			}
+
+			public void forEachRemaining(Consumer<? super T> action) {
+				while (e.hasMoreElements()) {
+					action.accept(e.nextElement());
+				}
+			}
+		}, false);
 	}
 
 }

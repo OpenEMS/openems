@@ -8,7 +8,18 @@
         <ion-checkbox [checked]="model[pathToDisplayValue]" disabled="true"></ion-checkbox>
     </div>
     <ng-template #noBoolean>
-        <ion-text>{{model[pathToDisplayValue]}}</ion-text>
+        <ion-text>{{getValue()}}</ion-text>
         <ion-icon name="caret-down-outline"></ion-icon>
     </ng-template>
+</ion-item>
+
+<!-- TODO same as in form-field wrapper; maybe extract error message into separate wrapper -->
+<ion-item lines="none" *ngIf="showError">
+    <ion-label>
+        <ion-text color="danger">
+            <p>
+                <formly-validation-message [field]="field"></formly-validation-message>
+            </p>
+        </ion-text>
+    </ion-label>
 </ion-item>
