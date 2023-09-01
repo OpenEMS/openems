@@ -4,8 +4,10 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
@@ -28,8 +30,9 @@ import io.openems.edge.core.appmanager.formly.expression.Variable;
 public final class HeatProps {
 
 	public static record RelayContactInformation(//
-			String[] preferrredRelays, //
-			List<RelayInfo> allRelays //
+			String[] preferredRelays, //
+			List<RelayInfo> allRelays, //
+			List<PreferredRelay> defaultRelays //
 	) {
 
 	}
@@ -64,9 +67,12 @@ public final class HeatProps {
 			final PreferredRelay first, //
 			final PreferredRelay... preferredRelays //
 	) {
+		final var preferredRelayList = Lists.newArrayList(preferredRelays);
+		preferredRelayList.add(first);
 		return new RelayContactInformation(//
 				util.getPreferredRelays(cnt, first, preferredRelays), //
-				util.getAllRelayInfos() //
+				util.getAllRelayInfos(), //
+				preferredRelayList //
 		);
 	}
 
@@ -86,7 +92,7 @@ public final class HeatProps {
 	AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
 			def.setDefaultValue((app, property, l, parameter) -> {
-				final var preferredRelay = parameter.relayContactInformation().preferrredRelays[contactPosition - 1];
+				final var preferredRelay = parameter.relayContactInformation().preferredRelays[contactPosition - 1];
 				return preferredRelay == null ? JsonNull.INSTANCE : new JsonPrimitive(preferredRelay);
 			});
 			def.setField(JsonFormlyUtil::buildSelectGroupFromNameable, (app, property, l, parameter, field) -> {
@@ -110,12 +116,17 @@ public final class HeatProps {
 					return exp;
 				};
 
-				final Function<RelayContactInfo, StringExpression> titleExpressionFunction = channelInfo -> {
+				final BiFunction<RelayInfo, RelayContactInfo, StringExpression> titleExpressionFunction = (relayInfo,
+						channelInfo) -> {
+					final var isDefault = information.defaultRelays().stream()
+							.filter(pr -> pr.numberOfRelays() == relayInfo.channels().size()) //
+							.findFirst() //
+							.map(t -> relayInfo.channels().get(t.preferredRelays()[contactPosition - 1] - 1)
+									.equals(channelInfo))
+							.orElse(false);
+					final var channelDisplayName = channelInfo.getDisplayName() + (isDefault ? defaultString : "");
 					if (channelInfo.usingComponents().isEmpty()) {
-						return StringExpression.of(channelInfo.getDisplayName()
-								+ (channelInfo.channel().equals(information.preferrredRelays[contactPosition - 1])
-										? defaultString
-										: ""));
+						return StringExpression.of(channelDisplayName);
 					}
 
 					final var componentsString = channelInfo.usingComponents().stream() //
@@ -131,20 +142,17 @@ public final class HeatProps {
 						exp = exp.or(Exp.initialModelValue(nameable).equal(Exp.staticValue(channelInfo.channel())));
 					}
 
-					return Exp.ifElse(Exp.initialModelValue(property).equal(Exp.staticValue(channelInfo.channel())), //
-							StringExpression.of(channelInfo.getDisplayName() + defaultString), //
-							Exp.ifElse(exp, //
-									StringExpression.of(channelInfo.getDisplayName() + (channelInfo.channel().equals(
-											information.preferrredRelays[contactPosition - 1]) ? defaultString : "")), //
-									StringExpression.of(channelInfo.getDisplayName() + " - "
-											+ TranslationUtil.getTranslation(parameter.bundle(),
-													"App.Heat.relayContactAlreadyUsed", componentsString)) //
-					));
+					return Exp.ifElse(exp, //
+							StringExpression.of(channelDisplayName), //
+							StringExpression.of(channelDisplayName //
+									+ " - " + TranslationUtil.getTranslation(parameter.bundle(),
+											"App.Heat.relayContactAlreadyUsed", componentsString)) //
+					);
 				};
 				information.allRelays().forEach(relayInfo -> {
 					field.addOption(buildOptionGroup(relayInfo.id(), relayInfo.getDisplayName()) //
 							.addOptions(relayInfo.channels(), (channelInfo) -> buildOption(channelInfo.channel()) //
-									.setTitleExpression(titleExpressionFunction.apply(channelInfo))
+									.setTitleExpression(titleExpressionFunction.apply(relayInfo, channelInfo))
 									.onlyIf(!channelInfo.usingComponents().isEmpty(),
 											b -> b.setDisabledExpression(disabledExpressionFunction.apply(channelInfo))) //
 									.build())
