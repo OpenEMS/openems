@@ -52,7 +52,6 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -154,8 +153,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			roles.put(edgeId, role);
 		}
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles,
-				hasMultipleEdges);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
@@ -458,24 +456,6 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public JsonObject sendGetInstalledApps(String edgeId) throws OpenemsNamedException {
 		return this.odooHandler.getInstalledApps(edgeId);
-	}
-
-	@Override
-	public void supplyKeyIfNeeded(//
-			final User user, //
-			final String edgeId, //
-			final JsonrpcRequest request //
-	) throws OpenemsNamedException {
-		if (request.getParams().has("key")) {
-			return;
-		}
-		var appId = JsonUtils.getAsString(request.getParams(), "appId");
-		final var key = this.getSuppliableKey(user, edgeId, appId);
-		if (key == null) {
-			return;
-		}
-		// TODO may be dynamically set
-		request.getParams().addProperty("key", key);
 	}
 
 	@Override

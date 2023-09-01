@@ -153,7 +153,7 @@ public class BatteryFeneconHomeImplTest {
 	}
 
 	/**
-	 * Battery start up when the relay is off and battery has already started, FEMS
+	 * Battery start up when the relay is off and battery has already started, OpenEMS Edge
 	 * restarted.
 	 *
 	 * @throws Exception on error

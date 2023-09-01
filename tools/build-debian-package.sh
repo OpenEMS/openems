@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Creates a Debian package for FEMS (OpenEMS Edge + UI)
+# Creates a Debian package for OpenEMS Edge + UI
 
 set -e
 

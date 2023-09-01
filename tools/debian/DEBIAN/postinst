@@ -1,6 +1,7 @@
 #!/bin/bash
-# postinst script for fems
-# Copyright (C) 2014-2021 Stefan Feilmeier <stefan.feilmeier@fenecon.de>
+# postinst script for openems-edge
+#
+# Copyright (C) 2014-2023 Stefan Feilmeier <stefan.feilmeier@fenecon.de>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
