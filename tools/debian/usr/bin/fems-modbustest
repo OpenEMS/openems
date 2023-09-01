@@ -1,3 +1,0 @@
-#!/bin/bash
-systemctl stop openems && java -jar /usr/share/openems-fems/modbustest.jar
-systemctl restart openems --no-block

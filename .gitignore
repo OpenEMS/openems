@@ -229,3 +229,6 @@ gradle-app.setting
 # OpenEMS temp files
 io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
+
+### Debian ###
+!tools/debian/**
