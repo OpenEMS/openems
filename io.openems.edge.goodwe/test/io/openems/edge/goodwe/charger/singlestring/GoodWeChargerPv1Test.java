@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.charger.singlestring;
 
 import org.junit.Test;
 

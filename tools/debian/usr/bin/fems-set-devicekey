@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+import socket, locale, json, subprocess
+
+config_file = '/etc/openems/fems-remote-service'
+hostname = socket.gethostname()
+
+p = subprocess.Popen([
+	'whiptail',
+	'--title', "Set devicekey for " + hostname,
+	'inputbox', "Devicekey for " + hostname + "?", "10", "50"
+], stderr=subprocess.PIPE)
+out, devicekey = p.communicate(None)
+
+if p.returncode == 0 and devicekey != '':
+	print "Set new devicekey [" + devicekey + "] for hostname [" + hostname + "]"
+	config = {
+		"service": {
+			"fenecon": {
+				"type": "pagekite",
+				"devicekey": devicekey
+			}
+		}
+	}
+	with open(config_file, 'w') as f:
+		f.write(json.dumps(config, indent=4))
+
+else:
+	print "Error!"

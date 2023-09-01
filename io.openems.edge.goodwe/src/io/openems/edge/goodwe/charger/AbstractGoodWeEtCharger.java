@@ -41,6 +41,11 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		);
 	}
 
+	protected AbstractGoodWeEtCharger(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
+		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final var startAddress = this.getStartAddress();

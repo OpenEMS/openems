@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.charger;
+package io.openems.edge.goodwe.charger.singlestring;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;

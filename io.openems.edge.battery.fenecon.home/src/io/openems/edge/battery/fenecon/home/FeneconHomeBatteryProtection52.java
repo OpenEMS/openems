@@ -5,7 +5,7 @@ import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class FeneconHomeBatteryProtection implements BatteryProtectionDefinition {
+public class FeneconHomeBatteryProtection52 implements BatteryProtectionDefinition {
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {

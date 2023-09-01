@@ -2,7 +2,7 @@ package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum GoodweType implements OptionsEnum {
+public enum GoodWeType implements OptionsEnum {
 	UNDEFINED(-1, "Undefined", Series.UNDEFINED), //
 	GOODWE_10K_BT(10, "GoodWe GW10K-BT", Series.BT), //
 	GOODWE_8K_BT(11, "GoodWe GW8K-BT", Series.BT), //
@@ -20,7 +20,7 @@ public enum GoodweType implements OptionsEnum {
 	private final String option;
 	private final Series series;
 
-	private GoodweType(int value, String option, Series series) {
+	private GoodWeType(int value, String option, Series series) {
 		this.value = value;
 		this.option = option;
 		this.series = series;

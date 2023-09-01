@@ -45,6 +45,7 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
+import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
@@ -59,8 +60,6 @@ import io.openems.edge.timedata.api.Timedata;
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
-
-	private static final int MAX_DC_CURRENT = 25; // [A]
 
 	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
@@ -156,6 +155,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void applyConfig(Config config) throws OpenemsNamedException {
 		this.config = config;
 
+		// TODO: Set later. SELECT_WORK_MODE mapped after reading the dsp version
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
 		// 'Backup Mode' or (0x03) 'Economic Mode'.
 		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, AppModeIndex.SELF_USE);
@@ -280,8 +280,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-		Integer setChargeMaxCurrent = MAX_DC_CURRENT;
-		Integer setDischargeMaxCurrent = MAX_DC_CURRENT;
+		var setChargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
+		var setDischargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
 		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
@@ -304,8 +304,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 					+ " [On-Grid " + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
 					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
 
-			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
-
 			// Registers 45352
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
 			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, setChargeMaxCurrent); // [0-100]
@@ -324,10 +322,10 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// TODO is writing WBMS_STRINGS still required with latest firmware?
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
-				TypeUtils.orElse(preprocessAmpereValue47900(battery.getChargeMaxCurrent()), 0));
+				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
-				TypeUtils.orElse(preprocessAmpereValue47900(battery.getDischargeMaxCurrent()), 0));
+				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
 
@@ -348,8 +346,32 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, 0);
 	}
 
-	private static Integer preprocessAmpereValue47900(Value<Integer> v) {
-		return TypeUtils.fitWithin(0, MAX_DC_CURRENT, v.orElse(0));
+	/**
+	 * Set general values.
+	 * 
+	 * @throws IllegalArgumentException on error
+	 * @throws OpenemsNamedException    on error
+	 */
+	private void setGeneralValues() throws IllegalArgumentException, OpenemsNamedException {
+
+		// Set BatteryProtocols only once, as the WBMS Channels are reset afterwards
+		if (!this.getBatteryProtocolArm().equals(BatteryProtocol.EMS_USE)) {
+			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, BatteryProtocol.EMS_USE); // EMS-Mode 287/11F
+		}
+
+		/*
+		 * Set goodwe force charge and end SoC if not already set
+		 */
+		if (!Objects.equals(this.getSocStartToForceCharge().get(), 0)) {
+			this.writeToChannel(GoodWe.ChannelId.SOC_START_TO_FORCE_CHARGE, 0);
+		}
+		if (!Objects.equals(this.getSocStopToForceCharge().get(), 0)) {
+			this.writeToChannel(GoodWe.ChannelId.SOC_STOP_TO_FORCE_CHARGE, 0);
+		}
+	}
+
+	protected static int preprocessAmpereValue47900(Value<Integer> v, int maxDcCurrent) {
+		return TypeUtils.fitWithin(0, maxDcCurrent, v.orElse(0));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
@@ -394,9 +416,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public Integer getSurplusPower() {
+		var productionPower = this.calculatePvProduction();
+		return calculateSurplusPower(this.latestBatteryData, productionPower,
+				this.getGoodweHardwareType().maxDcCurrent);
+
+	}
+
+	protected static Integer calculateSurplusPower(BatteryData battery, Integer productionPower, int maxDcCurrent) {
 		// Is DC Charge Current available?
-		if (this.lastChargeMaxCurrent == null || !this.lastChargeMaxCurrent.isDefined()
-				|| this.lastChargeMaxCurrent.get() >= MAX_DC_CURRENT) {
+		if (battery.chargeMaxCurrent == null || battery.chargeMaxCurrent >= maxDcCurrent) {
 			return null;
 		}
 
@@ -440,6 +468,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
+
+		// Set General Values
+		this.setGeneralValues();
 	}
 
 	@Override
