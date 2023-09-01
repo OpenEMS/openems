@@ -5,8 +5,10 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -22,10 +24,12 @@ public interface ControllerApiBackend extends Controller, JsonApi, OpenemsCompon
 				// Make sure this is always persisted, as it is required for resending
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		LAST_SUCCESSFUL_RESEND(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_SECONDS)
 				// Make sure this is always persisted, as it is required for resending
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("Latest timestamp of successfully resent data")) //
-		// TODO: resend algorithm still needs to be implemented
+				.text("Latest timestamp of successfully resent data")), //
+		WRONG_APIKEY_CONFIGURATION(Doc.of(Level.WARNING) //
+				.text("FEMS Apikey-Configurations do not match")), //
 		;
 
 		private final Doc doc;
@@ -59,9 +63,19 @@ public interface ControllerApiBackend extends Controller, JsonApi, OpenemsCompon
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#LAST_SUCCESSFUL_RESEND}.
+	 * 
+	 * @return the Channel
+	 */
+	public default LongReadChannel getLastSuccessFulResendChannel() {
+		return this.channel(ChannelId.LAST_SUCCESSFUL_RESEND);
+	}
+
+	/**
 	 * Gets if the edge is currently connected to the backend.
 	 * 
 	 * @return true if it is connected
 	 */
 	public boolean isConnected();
+
 }

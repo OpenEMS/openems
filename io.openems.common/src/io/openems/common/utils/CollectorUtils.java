@@ -1,9 +1,12 @@
 package io.openems.common.utils;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.TreeBasedTable;
 
 public final class CollectorUtils {
 
@@ -30,6 +33,27 @@ public final class CollectorUtils {
 			Function<INPUT, VALUE> valueMapper //
 	) {
 		return Collectors.groupingBy(firstKeyMapper, Collectors.toMap(secondKeyMapper, valueMapper));
+	}
+
+	/**
+	 * Creates a {@link Collector} which collects the given input to a
+	 * {@link TreeBasedTable}.
+	 * 
+	 * @param <KEY>   the type of the first map key
+	 * @param <KEY2> the type of the second map key
+	 * @param <VALUE> the type of the value
+	 * @return the {@link Collector}
+	 */
+	public static final <KEY extends Comparable<KEY>, KEY2 extends Comparable<KEY2>, VALUE> //
+	Collector<Entry<KEY, Map<KEY2, VALUE>>, ?, TreeBasedTable<KEY, KEY2, VALUE>> toTreeBasedTable() {
+		return Collector.of(TreeBasedTable::create, (t, u) -> {
+			for (var entry : u.getValue().entrySet()) {
+				t.put(u.getKey(), entry.getKey(), entry.getValue());
+			}
+		}, (t, u) -> {
+			t.putAll(u);
+			return t;
+		});
 	}
 
 }

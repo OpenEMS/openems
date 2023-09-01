@@ -14,7 +14,9 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
  *   "jsonrpc": "2.0",
  *   "method": "resendData",
  *   "params": {
- *     [channelAddress]: string | number
+ *     [timestamp: epoch in milliseconds]: {
+ *       [channelAddress]: {@link JsonElement}
+ *     }
  *   }
  * }
  * </pre>
