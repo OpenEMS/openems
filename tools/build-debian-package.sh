@@ -29,8 +29,8 @@ initialize_environment() {
     SRC_CHANGELOG_COMPONENT="ui/src/app/changelog/view/component/changelog.constants.ts"
 
     # Set environment variables
-    THEME="fenecon"
-    PACKAGE_NAME="fems"
+    THEME="openems"
+    PACKAGE_NAME="openems-edge"
     VERSION_STRING=""
     VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
 
@@ -129,7 +129,7 @@ prepare_deb_template() {
 
 build_deb() {
     cd tools
-    dpkg --build "debian" "../${DEB_FILE}"
+    dpkg-deb -Zxz --build "debian" "../${DEB_FILE}"
     echo "## Built ${DEB_FILE}"
     cd ..
 }

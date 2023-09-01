@@ -1,10 +1,9 @@
-Package: fems
+Package: openems
 Version: 
-Conflicts: openems-fems, openems-core-fems
 Section: misc
 Priority: extra
 Architecture: all
-Depends: systemd, java17-runtime-headless, vim, unzip, openssh-server, ntpdate, aptitude, ufw, screen, python-socksipychain | python3-socksipychain, git, python-urllib3 | python3-urllib3, python-pymodbus | python3-pymodbus, nginx-light, lsof, at, ncdu
-Maintainer: FENECON <fems@fenecon.de>
-Homepage: https://www.fenecon.de/fems
-Description: FEMS - FENECON Energy Management System
+Depends: systemd, java17-runtime-headless
+Maintainer: OpenEMS Association e.V. <office@openems.io>
+Homepage: https://openems.io
+Description: OpenEMS Edge
