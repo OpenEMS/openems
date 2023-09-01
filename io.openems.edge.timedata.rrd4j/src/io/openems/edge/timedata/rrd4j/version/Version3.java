@@ -9,7 +9,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.rrd4j.ConsolFun;
 import org.rrd4j.core.DsDef;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
@@ -119,13 +118,14 @@ public final class Version3 extends AbstractVersion implements Version {
 		}
 
 		// ...otherwise only store hourly values
-		final var dataRequest = oldDb.createFetchRequest(ConsolFun.MAX, oldDb.getArchive(1).getStartTime(),
-				oldDb.getArchive(0).getEndTime(), 3600);
+		final var hourlyArchive = oldDb.getArchive(1);
+		final var dataRequest = oldDb.createFetchRequest(hourlyArchive.getConsolFun(), hourlyArchive.getStartTime(),
+				hourlyArchive.getEndTime(), 3600);
 		final var fetchedData = dataRequest.fetchData();
 
 		RrdDb newDb = null;
 		try {
-			newDb = this.createNewDb(config.withStartTime(oldDb.getLastUpdateTime()));
+			newDb = this.createNewDb(config.withStartTime(fetchedData.getLastTimestamp()));
 			final var robin = newDb.getArchive(0).getRobin(0);
 			final var values = fetchedData.getValues()[0];
 
@@ -133,8 +133,16 @@ public final class Version3 extends AbstractVersion implements Version {
 			final var numberOfValues = this.constants.numberOfRowsCumulatedValues();
 			final var copiedValues = new double[numberOfValues];
 			Arrays.fill(copiedValues, Double.NaN);
-			final var length = Math.min(numberOfValues, values.length - 1);
-			System.arraycopy(values, 1, copiedValues, Math.max(numberOfValues - length - 1, 0), length);
+
+			// shift existing data by minus one hour
+			final var length = Math.min(numberOfValues, values.length);
+			final var startIndex = Math.max(numberOfValues - length - 1, 0);
+			System.arraycopy(values, 0, copiedValues, startIndex, length);
+
+			// set last value
+			final var indexOfLastValue = Math.min(startIndex + length, copiedValues.length - 1);
+			copiedValues[indexOfLastValue] = oldDb.getDatasource(0).getLastValue();
+
 			robin.setValues(copiedValues);
 
 			// copy state especially needed for last value
