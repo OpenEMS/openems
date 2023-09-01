@@ -23,6 +23,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.ModbusType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.TranslatableEnum;
@@ -38,7 +39,6 @@ import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.formly.Exp;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for a Janitza meter.

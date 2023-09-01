@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes a App.
+ * Describes a App for a Heating Element.
  *
  * <pre>
   {

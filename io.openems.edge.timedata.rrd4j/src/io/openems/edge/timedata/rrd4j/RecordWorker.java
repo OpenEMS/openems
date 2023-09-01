@@ -107,9 +107,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 		final var now = LocalDateTime.now(this.componentManager.getClock());
 
-		// Increase CycleCount
-		this.cycleCount += 1;
-
 		// Same second as last run? -> RRD4j can only handle one sample per second per
 		// database. Timestamps are all stored "truncated to seconds".
 		if (timestamp.equals(this.lastTimestamp)) {

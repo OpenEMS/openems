@@ -12,6 +12,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 public class DependencyUtil {
 
@@ -64,8 +65,21 @@ public class DependencyUtil {
 	}
 
 	/**
-	 * Gets the instanceId of the first found app that has the given componentId in
-	 * its {@link AppConfiguration}.
+	 * Gets the instance of the app which has the given Component.
+	 * 
+	 * @param componentManager the {@link ComponentManager}
+	 * @param componentId      the ComponentId
+	 * @return the {@link OpenemsAppInstance} or null if no instance has this
+	 *         component
+	 */
+	public static final OpenemsAppInstance getAppWhichHasComponent(ComponentManager componentManager,
+			String componentId) {
+		return using(t -> t.getAppWhichHasComponentInternal(componentManager, componentId));
+	}
+
+	/**
+	 * Gets the {@link OpenemsAppInstance} of the first found instance that has the
+	 * given componentId in its {@link AppConfiguration}.
 	 *
 	 * <p>
 	 * NOTE: when calling this inside an app configuration it can lead to an endless
@@ -75,8 +89,10 @@ public class DependencyUtil {
 	 * @param componentId      the component id that the app should have
 	 * @return the found instanceId or null if no app has this component
 	 */
-	public final UUID getInstanceIdOfAppWhichHasComponentInternal(ComponentManager componentManager,
-			String componentId) {
+	public final OpenemsAppInstance getAppWhichHasComponentInternal(//
+			ComponentManager componentManager, //
+			String componentId //
+	) {
 		synchronized (this.getInstanceIdLock) {
 			if (this.isCurrentlyRunning) {
 				return null;
@@ -96,10 +112,33 @@ public class DependencyUtil {
 		for (var entry : appManagerImpl.appConfigs(instances, null)) {
 			if (entry.getValue().components.stream().anyMatch(c -> c.getId().equals(componentId))) {
 				this.setCurrentlyRunning(false);
-				return entry.getKey().instanceId;
+				return entry.getKey();
 			}
 		}
 		this.setCurrentlyRunning(false);
+		return null;
+	}
+
+	/**
+	 * Gets the instanceId of the first found instance that has the given
+	 * componentId in its {@link AppConfiguration}.
+	 *
+	 * <p>
+	 * NOTE: when calling this inside an app configuration it can lead to an endless
+	 * loop
+	 *
+	 * @param componentManager a componentManager to get the appManager
+	 * @param componentId      the component id that the app should have
+	 * @return the found instanceId or null if no app has this component
+	 */
+	public UUID getInstanceIdOfAppWhichHasComponentInternal(//
+			ComponentManager componentManager, //
+			String componentId //
+	) {
+		final var foundApp = this.getAppWhichHasComponentInternal(componentManager, componentId);
+		if (foundApp != null) {
+			return foundApp.instanceId;
+		}
 		return null;
 	}
 

@@ -89,8 +89,8 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(45,143,171)',
             stack: 0,
-            hiddenOnInit: true,
-            noStrokeThroughLegendIfHidden: false
+            hiddenOnInit: chartType == 'line' ? false : true,
+            order: 1
           },
 
           // DirectConsumption, displayed in stack 1 & 2, only one legenItem

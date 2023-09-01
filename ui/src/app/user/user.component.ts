@@ -226,8 +226,7 @@ export class UserComponent implements OnInit {
   }
 
   public toggleDebugMode(event: CustomEvent) {
-
-    sessionStorage.setItem("DEBUGMODE", event.detail['checked']);
+    localStorage.setItem("DEBUGMODE", event.detail['checked']);
     this.environment.debugMode = event.detail['checked'];
   }
 

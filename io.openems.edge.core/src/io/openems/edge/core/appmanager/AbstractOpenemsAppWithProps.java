@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,11 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 
 public abstract class AbstractOpenemsAppWithProps<//
 		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
@@ -78,6 +82,13 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return this.getString(map, l, property, PROPERTY::def);
+	}
+
+	protected String getString(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getString(map, Language.DEFAULT, property);
 	}
 
 	protected JsonArray getJsonArray(//
@@ -150,15 +161,20 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
+	public AppAssistant getAppAssistant(User user) {
+		final var language = user.getLanguage();
 		final var parameter = this.singletonParameter(language);
 		final var alias = this.getAlias(language, parameter.get());
 		return AppAssistant.create(this.getName(language)) //
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
-						.filter(p -> p.def().isAutoGenerateField()) //
+						.filter(p -> p.def().getIsAllowedToSee() //
+								.test(this.getApp(), p, language, parameter.get(), user)) //
 						.filter(p -> p.def().getField() != null) //
-						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
+						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()) //
+								.readonly(!p.def().getIsAllowedToEdit() //
+										.test(this.getApp(), p, language, parameter.get(), user)) //
+								.build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}
@@ -182,7 +198,7 @@ public abstract class AbstractOpenemsAppWithProps<//
 	) throws OpenemsNamedException {
 		return super.getAppConfiguration(//
 				target, //
-				this.fillUpProperties(config), //
+				AbstractOpenemsApp.fillUpProperties(this, config), //
 				language //
 		);
 	}
@@ -193,42 +209,9 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final List<Dependency> dependecies //
 	) {
 		return super.getValidationErrors(//
-				this.fillUpProperties(jProperties), //
+				AbstractOpenemsApp.fillUpProperties(this, jProperties), //
 				dependecies //
 		);
-	}
-
-	/**
-	 * Creates a copy of the original configuration and fills up properties which
-	 * are binded bidirectional.
-	 * 
-	 * <p>
-	 * e. g. a property in a component is the same as one configured in the app so
-	 * it directly gets stored in the component configuration and not twice to avoid
-	 * miss matching errors.
-	 * 
-	 * @param original the original configuration
-	 * @return a copy of the original one with the filled up properties
-	 */
-	public JsonObject fillUpProperties(//
-			final JsonObject original //
-	) {
-		final var copy = original.deepCopy();
-		for (var prop : this.getProperties()) {
-			if (copy.has(prop.name)) {
-				continue;
-			}
-			if (prop.bidirectionalValue == null) {
-				continue;
-			}
-			var value = prop.bidirectionalValue.apply(copy);
-			if (value == null) {
-				continue;
-			}
-			// add value to configuration
-			copy.add(prop.name, value);
-		}
-		return copy;
 	}
 
 	private Function<Language, JsonElement> mapDefaultValue(//
@@ -300,5 +283,18 @@ public abstract class AbstractOpenemsAppWithProps<//
 	}
 
 	protected abstract APP getApp();
+
+	@Override
+	public Flag[] flags() {
+		final var flags = new ArrayList<>();
+		if (this.getStatus() == OpenemsAppStatus.BETA) {
+			flags.add(Flags.SHOW_AFTER_KEY_REDEEM);
+		}
+		return flags.toArray(Flag[]::new);
+	}
+
+	protected OpenemsAppStatus getStatus() {
+		return OpenemsAppStatus.STABLE;
+	}
 
 }

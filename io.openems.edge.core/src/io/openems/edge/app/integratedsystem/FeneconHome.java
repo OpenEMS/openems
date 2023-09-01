@@ -27,6 +27,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -47,14 +48,16 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 /**
  * Describes a FENECON Home energy storage system.
@@ -221,7 +224,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/home/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-home-10/") //
 				.build();
 	}
 
@@ -499,8 +502,8 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.setLabel(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".feedInLimit.label")) //
 								.isRequired(true) //
-								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
-								.setInputType(Type.NUMBER) //
+								.onlyShowIf(Exp.currentModelValue(Property.RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())
+								.setInputType(InputType.NUMBER) //
 								.setDefaultValue(0) //
 								.setMin(0) //
 								.onlyPositiveNumbers() //
@@ -530,7 +533,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.setLabel(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".acMeterType.label")) //
 								.setOptions(AcMeterType.getMeterTypeOptions(bundle)) //
-								.onlyShowIfChecked(Property.HAS_AC_METER) //
+								.onlyShowIf(Exp.currentModelValue(Property.HAS_AC_METER).notNull())
 								.setDefaultValue(AcMeterType.SOCOMEC.name()) //
 								.isRequired(true) //
 								.build()) //
@@ -543,7 +546,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV1_ALIAS) //
 								.setLabel("DC-PV 1 Alias") //
 								.setDefaultValue("DC-PV1") //
-								.onlyShowIfChecked(Property.HAS_DC_PV1) //
+								.onlyShowIf(Exp.currentModelValue(Property.HAS_DC_PV1).notNull())
 								.onlyIf(this.componentUtil.getComponent("charger0", "GoodWe.Charger-PV1").isPresent(),
 										j -> j.setDefaultValueWithStringSupplier(() -> {
 											var charger = this.componentUtil //
@@ -563,7 +566,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV2_ALIAS) //
 								.setLabel("DC-PV 2 Alias") //
 								.setDefaultValue("DC-PV2") //
-								.onlyShowIfChecked(Property.HAS_DC_PV2) //
+								.onlyShowIf(Exp.currentModelValue(Property.HAS_DC_PV2).notNull())
 								.onlyIf(this.componentUtil.getComponent("charger1", "GoodWe.Charger-PV2").isPresent(),
 										j -> j.setDefaultValueWithStringSupplier(() -> {
 											var charger = this.componentUtil //
@@ -584,15 +587,14 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".emergencyPowerEnergy.label")) //
 								.setDefaultValue(emergencyReserveEnabled) //
-								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
-								.build())
+								.onlyShowIf(Exp.currentModelValue(Property.HAS_EMERGENCY_RESERVE).notNull()).build())
 						.add(JsonFormlyUtil.buildRange(Property.EMERGENCY_RESERVE_SOC) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".reserveEnergy.label")) //
 								.setMin(5) //
 								.setMax(100) //
 								.setDefaultValue(5) //
-								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
+								.onlyShowIf(Exp.currentModelValue(Property.EMERGENCY_RESERVE_ENABLED).notNull())
 								.onlyIf(emergencyReserveEnabled, f -> { //
 									f.setDefaultValue(
 											emergencyController.get().getProperty("reserveSoc").get().getAsNumber());
@@ -635,6 +637,13 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create() //
+				.setCanSee(Role.INSTALLER) //
+				.build();
 	}
 
 	private List<String> getFeedInSettingsOptions() {

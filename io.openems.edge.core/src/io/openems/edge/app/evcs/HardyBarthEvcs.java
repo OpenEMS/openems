@@ -1,8 +1,13 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.formly.enums.Wrappers.PANEL;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,13 +41,6 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Case;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.DefaultValueOptions;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.ExpressionBuilder.Operator;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.Wrappers;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -51,6 +49,13 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.formly.Case;
+import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
+import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
+import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -92,28 +97,28 @@ public class HardyBarthEvcs extends
 		EVCS_ID_CP_2(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID_CP_2(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		NUMBER_OF_CHARGING_STATIONS(AppDef.of(HardyBarthEvcs.class) //
-				.setTranslatedLabelWithAppPrefix(".numberOfChargingStations.label") //
-				.setDefaultValue(1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
-				field.setOptions(Lists.newArrayList(1, 2), JsonPrimitive::new, JsonPrimitive::new))), //
+		// TODO maybe make this immutable after first installation?
+		NUMBER_OF_CHARGING_STATIONS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(2))), //
 		WRAPPER_FIRST_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 1)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(Wrappers.PANEL) //
+					field.addWrapper(PANEL) //
 							.setFieldGroup(SubPropertyFirstChargepoint.fields(app, l, parameter)) //
-							.setLabelExpression(
-									ExpressionBuilder.of(Property.NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "1"), //
-									"", TranslationUtil.getTranslation(parameter.bundle,
-											"App.Evcs.chargingStation.label", 1))
+							.setLabelExpression(Exp.ifElse(
+									Exp.currentModelValue(Property.NUMBER_OF_CHARGING_STATIONS)
+											.equal(Exp.staticValue(1)),
+									StringExpression.of(""), //
+									StringExpression.of(TranslationUtil.getTranslation(parameter.bundle,
+											"App.Evcs.chargingStation.label", 1))))
 							.hideKey(); //
 				})), //
 		WRAPPER_SECOND_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 2)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(Wrappers.PANEL) //
+					field.addWrapper(PANEL) //
 							.setFieldGroup(SubPropertySecondChargepoint.fields(app, l, parameter)) //
-							.onlyShowIfValueEquals(NUMBER_OF_CHARGING_STATIONS, "2") //
+							.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+									.equal(Exp.staticValue(2)))
 							.hideKey();
 				})), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
@@ -138,9 +143,9 @@ public class HardyBarthEvcs extends
 						}))), //
 		;
 
-		private final AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
-		private Property(AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def) {
+		private Property(AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -150,7 +155,7 @@ public class HardyBarthEvcs extends
 		}
 
 		@Override
-		public AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -298,6 +303,11 @@ public class HardyBarthEvcs extends
 				throw new OpenemsException("Number of charging stations can only be 0 < n <= 2.");
 			}
 
+			var maxHardwarePowerPerPhase = OptionalInt.empty();
+			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
+				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
+			}
+
 			final var schedulerIds = new ArrayList<String>();
 
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
@@ -315,7 +325,7 @@ public class HardyBarthEvcs extends
 							.addProperty("evcs.id", evcsId) //
 							.build())//
 			);
-
+			final List<DependencyDeclaration> clusterDependency;
 			if (numberOfChargingStations == 2) {
 				final var aliasCp2 = this.getString(p, l, SubPropertySecondChargepoint.ALIAS_CP_2);
 				final var ipCp2 = this.getString(p, l, SubPropertySecondChargepoint.IP_CP_2);
@@ -330,6 +340,15 @@ public class HardyBarthEvcs extends
 						JsonUtils.buildJsonObject() //
 								.addProperty("evcs.id", evcsIdCp2) //
 								.build()));
+				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+						maxHardwarePowerPerPhase, evcsId, evcsIdCp2);
+			} else {
+				var removeIds = Collections.<String>emptyList();
+				if (p.containsKey(Property.EVCS_ID_CP_2)) {
+					removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+				}
+				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+						maxHardwarePowerPerPhase, removeIds, evcsId);
 			}
 
 			final var ips = Lists.newArrayList(//
@@ -341,7 +360,8 @@ public class HardyBarthEvcs extends
 			return new AppConfiguration(//
 					components, //
 					schedulerIds, //
-					ip.startsWith("192.168.25.") ? ips : null //
+					ip.startsWith("192.168.25.") ? ips : null, //
+					clusterDependency //
 			);
 		};
 	}

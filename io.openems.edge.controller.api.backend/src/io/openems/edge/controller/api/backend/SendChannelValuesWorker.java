@@ -2,27 +2,39 @@ package io.openems.edge.controller.api.backend;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.TreeBasedTable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.timedata.DurationUnit;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Method {@link #collectData()} is called Synchronously with the Core.Cycle to
@@ -35,6 +47,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class SendChannelValuesWorker {
 
+	private static final int AGGREGATION_MINUTES = 5;
 	private static final int SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS = 300; /* 5 minutes */
 
 	private final Logger log = LoggerFactory.getLogger(SendChannelValuesWorker.class);
@@ -60,7 +73,9 @@ public class SendChannelValuesWorker {
 	/**
 	 * Keeps the values of last successful send.
 	 */
-	private ImmutableMap<String, JsonElement> lastAllValues = ImmutableMap.of();
+	private Map<String, JsonElement> lastAllValues = ImmutableMap.of();
+
+	private Instant lastSendAggregatedDataTimestamp;
 
 	protected SendChannelValuesWorker(ControllerApiBackendImpl parent) {
 		this.parent = parent;
@@ -92,9 +107,15 @@ public class SendChannelValuesWorker {
 		// Update the values of all channels
 		final var enabledComponents = this.parent.componentManager.getEnabledComponents();
 		final var allValues = this.collectData(enabledComponents);
+		final var aggregatedValues = this.collectAggregatedData(enabledComponents);
 
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues));
+		if (aggregatedValues != null && !aggregatedValues.isEmpty()) {
+			aggregatedValues.rowMap().forEach((timestamp, data) -> {
+				this.executor.execute(new SendAggregatedDataTask(this, Instant.ofEpochMilli(timestamp), data));
+			});
+		}
 	}
 
 	/**
@@ -247,15 +268,13 @@ public class SendChannelValuesWorker {
 	/*
 	 * From here things run asynchronously.
 	 */
-
 	private static class SendTask implements Runnable {
 
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
-		private final ImmutableMap<String, JsonElement> allValues;
+		private final Map<String, JsonElement> allValues;
 
-		public SendTask(SendChannelValuesWorker parent, Instant timestamp,
-				ImmutableMap<String, JsonElement> allValues) {
+		public SendTask(SendChannelValuesWorker parent, Instant timestamp, Map<String, JsonElement> allValues) {
 			this.parent = parent;
 			this.timestamp = timestamp;
 			this.allValues = allValues;
@@ -265,7 +284,7 @@ public class SendChannelValuesWorker {
 		public void run() {
 			// Holds the data of the last successful send. If the table is empty, it is also
 			// used as a marker to send all data.
-			final ImmutableMap<String, JsonElement> lastAllValues;
+			final Map<String, JsonElement> lastAllValues;
 
 			if (this.parent.sendValuesOfAllChannels.getAndSet(false)) {
 				// Send values of all Channels once in a while

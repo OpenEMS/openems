@@ -127,13 +127,6 @@ public interface Type<P extends Nameable, //
 	 */
 	public AppDef<? super A, ? super P, ? super M> def();
 
-	/**
-	 * Gets the name of the property.
-	 * 
-	 * @return the name
-	 */
-	public String name();
-
 	public static final class GetParameterValues<APP> {
 		public final APP app;
 		public final Language language;

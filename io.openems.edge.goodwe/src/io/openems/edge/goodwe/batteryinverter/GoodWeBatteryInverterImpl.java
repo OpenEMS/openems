@@ -29,7 +29,6 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -88,10 +87,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	}
 
 	/**
-	 * Holds the latest known Charge-Max-Current. Updated in
-	 * {@link #run(Battery, int, int)}.
+	 * We don't want to hold an actual Reference to the {@link Battery} Component,
+	 * so we keep the latest data here. Updated in {@link #run(Battery, int, int)}.
 	 */
-	private Value<Integer> lastChargeMaxCurrent = null;
+	private BatteryData latestBatteryData = new BatteryData(null, null);
+
+	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
+	}
 
 	private Config config;
 
@@ -429,16 +431,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		}
 
 		// Is DC PV Production available?
-		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower <= 0) {
 			return null;
 		}
 
 		// Reduce PV Production power by DC max charge power
-		IntegerReadChannel wbmsVoltageChannel = this.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
 		var surplusPower = productionPower //
-				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
-						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
+				- TypeUtils.orElse(TypeUtils.multiply(battery.chargeMaxCurrent, battery.voltage), 0);
 
 		if (surplusPower <= 0) {
 			// PV Production is less than the maximum charge power -> no surplus power
@@ -460,7 +459,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.updatePowerAndEnergyChannels();
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
-		this.lastChargeMaxCurrent = battery.getChargeMaxCurrent();
+		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(this, setActivePower, this.config.controlMode(), this.sum.getGridActivePower(),

@@ -19,6 +19,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -28,6 +30,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -62,6 +65,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, ElectricityMeter,
 		ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
+	private final Logger log = LoggerFactory.getLogger(GoodWeGridMeterImpl.class);
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
@@ -109,7 +113,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 
 				// States
 				new FC3ReadRegistersTask(36003, Priority.LOW,
@@ -202,7 +206,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054), SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055), SCALE_FACTOR_2), //
 						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056), SCALE_FACTOR_2), //
-						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057), SCALE_FACTOR_2))); //
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057), SCALE_FACTOR_2)));
 	}
 
 	@Override

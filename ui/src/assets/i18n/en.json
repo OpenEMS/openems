@@ -25,7 +25,7 @@
         "storageDischarge": "Storage-Discharge",
         "title": "Energy monitor",
         "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
-        "ERROR_TOO_LONG": "The display of the data is partly not possible due to reconstruction work on our servers. Your data for this period is not lost. Alternatively, it is still possible to view the historical data via <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>local monitoring</a>. We ask for your understanding."
+        "ERROR_TOO_LONG": ""
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -619,7 +619,8 @@
         "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
         "WAGO_BRIDGE": "WAGO (Gray component)"
       },
-      "COMMUNICATION_WITH_RELAY": "Communication with Relay"
+      "COMMUNICATION_WITH_RELAY": "Communication with Relay",
+      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration."
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",

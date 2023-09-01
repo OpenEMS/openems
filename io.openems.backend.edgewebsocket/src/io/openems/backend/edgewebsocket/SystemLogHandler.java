@@ -2,7 +2,6 @@ package io.openems.backend.edgewebsocket;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;

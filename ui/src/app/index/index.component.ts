@@ -78,7 +78,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           }
           resolve(
             this.websocket
-              .login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })));
+              .login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })));
         }
       }, 2000)).then(() => { this.service.setCurrentComponent('', this.route); });
     } else {

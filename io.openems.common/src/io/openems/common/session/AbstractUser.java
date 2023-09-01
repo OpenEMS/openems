@@ -43,6 +43,7 @@ public abstract class AbstractUser {
 		this.name = name;
 		this.language = language;
 		this.globalRole = globalRole;
+		this.roles.putAll(roles);
 	}
 
 	public String getId() {

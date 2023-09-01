@@ -1,6 +1,10 @@
 package io.openems.edge.app.heat;
 
+import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.formly.builder.selectgroup.Option.buildOption;
+import static io.openems.edge.core.appmanager.formly.builder.selectgroup.OptionGroup.buildOptionGroup;
+import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,13 +20,13 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayContactInfo;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayInfo;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 import io.openems.edge.core.appmanager.formly.expression.Variable;

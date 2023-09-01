@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Creates a Debian package for FEMS (OpenEMS Edge + UI)
+# Creates a Debian package for OpenEMS Edge + UI
 
 set -e
 
@@ -68,9 +68,9 @@ prepare_deb_template() {
     cp io.openems.edge.application/generated/distributions/executable/EdgeApp.jar tools/debian/usr/lib/openems/openems.jar
 
     echo "## Add OpenEMS UI"
-    rm -Rf tools/debian/usr/share/openems-fems/www/*
-    mkdir -p tools/debian/usr/share/openems-fems/www
-    cp -R ui/target/* tools/debian/usr/share/openems-fems/www
+    rm -Rf tools/debian/usr/share/openems/www/*
+    mkdir -p tools/debian/usr/share/openems/www
+    cp -R ui/target/* tools/debian/usr/share/openems/www
 }
 
 build_deb() {
