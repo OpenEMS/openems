@@ -1,7 +1,9 @@
 package io.openems.backend.edgewebsocket;
 
-import java.util.Map;
+import java.time.Instant;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +18,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
@@ -24,11 +28,14 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
+import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -40,12 +47,12 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
-import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -58,12 +65,18 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 })
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
 
+	private static final String EDGE_ID = "backend0";
+	private static final String COMPONENT_ID = "edgewebsocket";
+
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 	private final SystemLogHandler systemLogHandler;
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
 	protected volatile Metadata metadata;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AppCenterMetadata.EdgeData appCenterMetadata;
 
 	@Reference
 	protected volatile TimedataManager timedataManager;
@@ -86,11 +99,16 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private void activate(Config config) {
 		this.config = config;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			this.log.info(new StringBuilder("[monitor] ") //
-					.append("Edge-Connections: ")
-					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
-					.toString());
+			var data = TreeBasedTable.<Long, String, JsonElement>create();
+			var now = Instant.now().toEpochMilli();
+			data.put(now, COMPONENT_ID + "/Connections",
+					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
+			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
+
+		if (this.metadata.isInitialized()) {
+			this.startServer();
+		}
 	}
 
 	@Deactivate
@@ -101,14 +119,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	/**
 	 * Create and start new server.
-	 *
-	 * @param port      the port
-	 * @param poolSize  number of threads dedicated to handle the tasks
-	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
-		this.server.start();
+	private synchronized void startServer() {
+		if (this.server == null) {
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
+					this.config.debugMode());
+			this.server.start();
+		}
 	}
 
 	/**
@@ -260,15 +277,16 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			this.startServer();
 			break;
 		}
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		Map<ChannelAddress, JsonElement> result = channelAddresses.stream() //
-				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
+	public SortedMap<ChannelAddress, JsonElement> getChannelValues(String edgeId,
+			Set<ChannelAddress> channelAddresses) {
+		SortedMap<ChannelAddress, JsonElement> result = channelAddresses.stream() //
+				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE, (t, u) -> u, TreeMap::new));
 		var ws = this.getWebSocketForEdgeId(edgeId);
 		if (ws == null) {
 			return result;

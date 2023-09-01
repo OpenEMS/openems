@@ -139,9 +139,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 				AbstractWebsocketClient.this.reconnectorWorker.triggerNextRun();
 			}
 		};
-		// Disable lost connection detection
 		// https://github.com/TooTallNate/Java-WebSocket/wiki/Lost-connection-detection
-		this.ws.setConnectionLostTimeout(0);
+		this.ws.setConnectionLostTimeout(300);
 
 		// initialize WsData
 		var wsData = AbstractWebsocketClient.this.createWsData();

@@ -2,10 +2,12 @@ package io.openems.edge.battery.fenecon.home;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -14,7 +16,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
-public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStoppable {
+public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsComponent, StartStoppable {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
@@ -42,6 +44,24 @@ public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStop
 	 */
 	public default void _setBmsControl(Boolean value) {
 		this.getBmsControlChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#BATTERY_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<BatteryFeneconHomeHardwareType> getBatteryHardwareTypeChannel() {
+		return this.channel(BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE);
+	}
+
+	/**
+	 * Gets the Hardware Device Type. See {@link ChannelId#BATTERY_HARDWARE_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default BatteryFeneconHomeHardwareType getBatteryHardwareType() {
+		return this.getBatteryHardwareTypeChannel().value().asEnum();
 	}
 
 	/**
@@ -583,12 +603,14 @@ public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStop
 
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of towers of the built system")),
 
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
@@ -607,6 +629,9 @@ public interface BatteryFeneconHome extends Battery, OpenemsComponent, StartStop
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),
+
+		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
+				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
 		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
 				.text("BMS CONTROL(1: Shutdown, 0: no action)")),

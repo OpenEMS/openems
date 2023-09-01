@@ -16,6 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String org;
 		private String url;
 		private QueryLanguageConfig queryLanguage;
+		private String measurement;
 
 		private Builder() {
 		}
@@ -62,6 +63,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setQueryLanguage(QueryLanguageConfig queryLanguage) {
 			this.queryLanguage = queryLanguage;
+			return this;
+		}
+
+		public Builder setMeasurement(String measurement) {
+			this.measurement = measurement;
 			return this;
 		}
 
@@ -124,5 +130,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean isReadOnly() {
 		return this.builder.isReadOnly;
+	}
+
+	@Override
+	public String measurement() {
+		return this.builder.measurement;
 	}
 }

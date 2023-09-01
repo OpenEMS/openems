@@ -46,6 +46,7 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 		if (appManagerImpl == null) {
 			return false;
 		}
+
 		var instances = appManagerImpl.getInstantiatedApps();
 		for (String item : this.appIds) {
 			if (instances.stream().anyMatch(t -> t.appId.equals(item))) {
@@ -64,8 +65,19 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 
 	@Override
 	public String getErrorMessage(Language language) {
+		final var appManagerImpl = this.getAppManagerImpl();
+		var appNameStream = this.installedApps.stream();
+		if (appManagerImpl != null) {
+			appNameStream = appNameStream.map(id -> {
+				final var app = appManagerImpl.findAppById(id).orElse(null);
+				if (app != null) {
+					return app.getName(language);
+				}
+				return id;
+			});
+		}
 		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckAppsNotInstalled.Message",
-				this.installedApps.stream().collect(Collectors.joining(", ")));
+				appNameStream.collect(Collectors.joining(", ")));
 	}
 
 }

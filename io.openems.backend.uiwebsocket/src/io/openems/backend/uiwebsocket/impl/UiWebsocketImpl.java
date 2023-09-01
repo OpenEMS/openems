@@ -1,10 +1,12 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,6 +18,10 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeCache;
@@ -31,6 +37,7 @@ import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
@@ -44,6 +51,9 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
+
+	private static final String EDGE_ID = "backend0";
+	private static final String COMPONENT_ID = "uiwebsocket";
 
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -70,6 +80,13 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			var data = TreeBasedTable.<Long, String, JsonElement>create();
+			var now = Instant.now().toEpochMilli();
+			data.put(now, COMPONENT_ID + "/Connections",
+					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
+			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate

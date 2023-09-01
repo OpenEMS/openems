@@ -49,9 +49,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -314,10 +314,8 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 								),
 								// Level 1 Alarm: EMS Control to stop charge, discharge, charge&discharge
 								m(new BitsWordElement(r.offset + 0x141, this) //
-										.bit(0, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_HIGH)) //
 										.bit(1, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_HIGH)) //
 										.bit(2, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_CURRENT_HIGH)) //
-										.bit(3, this.createChannelId(r, RackChannel.LEVEL1_CELL_VOLTAGE_LOW)) //
 										.bit(4, this.createChannelId(r, RackChannel.LEVEL1_TOTAL_VOLTAGE_LOW)) //
 										.bit(5, this.createChannelId(r, RackChannel.LEVEL1_DISCHARGE_CURRENT_HIGH)) //
 										.bit(6, this.createChannelId(r, RackChannel.LEVEL1_CHARGE_TEMP_HIGH)) //
@@ -333,16 +331,11 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 								),
 								// Pre-Alarm: Temperature Alarm will active current limication
 								m(new BitsWordElement(r.offset + 0x142, this) //
-										.bit(0, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
-										.bit(1, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
 										.bit(2, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
-										.bit(3, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
 										.bit(4, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
 										.bit(5, this.createChannelId(r, RackChannel.PRE_ALARM_DISCHARGE_CURRENT_HIGH)) //
 										.bit(6, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_HIGH)) //
 										.bit(7, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_TEMP_LOW)) //
-										.bit(8, this.createChannelId(r, RackChannel.PRE_ALARM_SOC_LOW)) //
-										.bit(9, this.createChannelId(r, RackChannel.PRE_ALARM_TEMP_DIFF_TOO_BIG)) //
 										.bit(10, this.createChannelId(r, RackChannel.PRE_ALARM_POWER_POLE_HIGH))//
 										.bit(11, this.createChannelId(r,
 												RackChannel.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG)) //
@@ -386,7 +379,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 			} //
 			Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 				for (var i = 0; i < numberOfModules; i++) {
-					var elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+					var elements = new ModbusElement[type.getSensorsPerModule()];
 					for (var j = 0; j < type.getSensorsPerModule(); j++) {
 						var sensorIndex = i * type.getSensorsPerModule() + j;
 						var channelId = CellChannelFactory.create(r, type, sensorIndex);
@@ -411,7 +404,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
@@ -486,7 +479,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
@@ -561,7 +554,7 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
-				AbstractModbusElement<?>[] elements = {
+				ModbusElement[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
@@ -906,16 +899,12 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 						// Pre-Alarm Summary: Temperature Alarm can be used for current limitation,
 						// while all other alarms are just for alarm. Note: Alarm for all clusters
 						m(new BitsWordElement(0x1093, this) //
-								.bit(0, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								.bit(1, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
-								.bit(3, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
 								.bit(4, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
 								.bit(5, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
 								.bit(6, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
 								.bit(7, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
-								.bit(8, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
-								.bit(9, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
 								.bit(10, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
 								.bit(11, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
 								.bit(12, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //
@@ -924,7 +913,6 @@ public class BatterySoltaroClusterVersionCImpl extends AbstractOpenemsModbusComp
 								.bit(15, BatterySoltaroClusterVersionC.ChannelId.PRE_ALARM_DISCHARGE_TEMP_LOW)), //
 						// Level 1 Alarm Summary
 						m(new BitsWordElement(0x1094, this) //
-								.bit(0, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_HIGH) //
 								.bit(1, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CHARGE_CURRENT_HIGH) //
 								.bit(3, BatterySoltaroClusterVersionC.ChannelId.LEVEL1_CELL_VOLTAGE_LOW) //

@@ -50,11 +50,11 @@ public class ValidatorImpl implements Validator {
 					.filter(csoCheckable -> {
 						var sr = csoCheckable.getServiceReference();
 						var srName = (String) sr.getProperty(OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME);
-						return srName.equals(config.checkableComponentName);
+						return srName.equals(config.checkableComponentName());
 					}).findAny().orElse(null);
 
 			if (cso == null) {
-				LOG.info("Unable to get Checkable '" + config.checkableComponentName + "'!");
+				LOG.info("Unable to get Checkable '" + config.checkableComponentName() + "'!");
 				continue;
 			}
 
@@ -62,17 +62,17 @@ public class ValidatorImpl implements Validator {
 			final var checkable = cso.getService();
 
 			if (checkable == null) {
-				LOG.info("Unable to get Checkable '" + config.checkableComponentName + "'!");
+				LOG.info("Unable to get Checkable '" + config.checkableComponentName() + "'!");
 				continue;
 			}
 
 			try {
 				// validate checkable
-				checkable.setProperties(config.properties);
+				checkable.setProperties(config.properties());
 				var result = checkable.check();
-				if (result == config.invertResult) {
+				if (result == config.invertResult()) {
 					var errorMessage = checkable.getErrorMessage(language);
-					if (config.invertResult) {
+					if (config.invertResult()) {
 						errorMessage = "Invert[" + errorMessage + "]";
 					}
 					errorMessages.add(errorMessage);

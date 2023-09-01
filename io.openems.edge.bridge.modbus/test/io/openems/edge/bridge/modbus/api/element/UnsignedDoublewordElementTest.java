@@ -21,7 +21,7 @@ public class UnsignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedDoublewordElement(0), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -33,7 +33,7 @@ public class UnsignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedDoublewordElement(0).wordOrder(LSWMSW), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -45,7 +45,7 @@ public class UnsignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedDoublewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -57,7 +57,7 @@ public class UnsignedDoublewordElementTest {
 		var sut = new ModbusTest.FC3ReadRegisters<>(//
 				new UnsignedDoublewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				LONG);
-		sut.element.setInputRegisters(new Register[] { //
+		sut.element.setInputValue(new Register[] { //
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
@@ -70,7 +70,7 @@ public class UnsignedDoublewordElementTest {
 				new UnsignedDoublewordElement(0), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0xABCD1234L);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0xAB, (byte) 0xCD }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34 }, registers[1].toBytes());
 	}
@@ -81,7 +81,7 @@ public class UnsignedDoublewordElementTest {
 				new UnsignedDoublewordElement(0).wordOrder(LSWMSW), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0xABCD1234L);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0xAB, (byte) 0xCD }, registers[1].toBytes());
 	}
@@ -92,7 +92,7 @@ public class UnsignedDoublewordElementTest {
 				new UnsignedDoublewordElement(0).byteOrder(LITTLE_ENDIAN), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0xABCD1234L);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0x34, (byte) 0x12 }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0xCD, (byte) 0xAB }, registers[1].toBytes());
 	}
@@ -103,7 +103,7 @@ public class UnsignedDoublewordElementTest {
 				new UnsignedDoublewordElement(0).wordOrder(LSWMSW).byteOrder(LITTLE_ENDIAN), //
 				LONG);
 		sut.channel.setNextWriteValueFromObject(0xABCD1234L);
-		var registers = sut.element.getNextWriteValueAndReset().get();
+		var registers = sut.element.getNextWriteValueAndReset();
 		assertArrayEquals(new byte[] { (byte) 0xCD, (byte) 0xAB }, registers[0].toBytes());
 		assertArrayEquals(new byte[] { (byte) 0x34, (byte) 0x12 }, registers[1].toBytes());
 	}

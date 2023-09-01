@@ -3,10 +3,12 @@ package io.openems.backend.core.jsonrpcrequesthandler;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.backend.common.metadata.AppCenterHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AppCenterRequest;
 import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
@@ -48,8 +50,13 @@ public class EdgeRpcRequestHandler {
 		var request = edgeRpcRequest.getPayload();
 		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
 
-		CompletableFuture<JsonrpcResponseSuccess> resultFuture;
+		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
+		case AppCenterRequest.METHOD:
+			resultFuture = AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
+					t -> this.handleRequest(user, messageId, t), //
+					AppCenterRequest.from(request), user, edgeId);
+			break;
 
 		case QueryHistoricTimeseriesDataRequest.METHOD:
 			resultFuture = this.handleQueryHistoricDataRequest(edgeId, user,
@@ -167,7 +174,6 @@ public class EdgeRpcRequestHandler {
 		var data = this.parent.timedataManager.queryHistoricEnergyPerPeriod(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
-		// JSON-RPC response
 		return CompletableFuture
 				.completedFuture(new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data));
 	}

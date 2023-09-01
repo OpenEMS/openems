@@ -1,10 +1,12 @@
 package io.openems.edge.app.hardware;
 
-import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -15,23 +17,25 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.hardware.KMtronic8Channel.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a App for KMtronic 8-Channel Relay.
@@ -39,7 +43,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * <pre>
   {
     "appId":"App.Hardware.KMtronic8Channel",
-    "alias":"FEMS Relais 8-Kanal",
+    "alias":"",
     "instanceId": UUID,
     "image": base64,
     "properties":{
@@ -53,35 +57,67 @@ import io.openems.edge.core.appmanager.TranslationUtil;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Hardware.KMtronic8Channel")
-public class KMtronic8Channel extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.Hardware.KMtronic8Channel")
+public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Channel, Property, Parameter.BundleParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public static enum Property implements Type<Property, KMtronic8Channel, Parameter.BundleParameter> {
 		// Component-IDs
-		IO_ID, //
-		MODBUS_ID, //
+		IO_ID(AppDef.componentId("io1")), //
+		MODBUS_ID(AppDef.componentId("modbus10")), //
 		// Properties
-		ALIAS, //
-		IP;
+		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
+		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
+				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description") //
+						.setDefaultValue("192.168.1.199") //
+						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		CHECK(AppDef.copyOfGeneric(CommonProps.installationHint(//
+				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle, //
+						"App.Hardware.KMtronic8Channel.installationHint")))), //
+		;
+
+		private final AppDef<? super KMtronic8Channel, ? super Property, ? super BundleParameter> def;
+
+		private Property(AppDef<? super KMtronic8Channel, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, KMtronic8Channel, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super KMtronic8Channel, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<KMtronic8Channel>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
 	@Activate
-	public KMtronic8Channel(@Reference ComponentManager componentManager, ComponentContext context,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public KMtronic8Channel(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext context, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil //
+	) {
 		super(componentManager, context, cm, componentUtil);
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var ip = this.getString(p, Property.IP);
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			var ip = this.getValueOrDefault(p, Property.IP, "192.168.1.199");
+			final var modbusId = this.getId(t, p, Property.MODBUS_ID);
+			final var ioId = this.getId(t, p, Property.IO_ID);
 
-			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus10");
-			var ioId = this.getId(t, p, Property.IO_ID, "io1");
-
-			var comp = Lists.newArrayList(//
+			final var comp = Lists.newArrayList(//
 					new EdgeConfig.Component(ioId, alias, "IO.KMtronic", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
@@ -91,7 +127,7 @@ public class KMtronic8Channel extends AbstractEnumOpenemsApp<Property> implement
 							.build())//
 			);
 
-			var ips = Lists.newArrayList(//
+			final var ips = Lists.newArrayList(//
 					new InterfaceConfiguration("eth0") //
 							.addIp("Relay", "192.168.1.198/28") //
 			);
@@ -102,23 +138,6 @@ public class KMtronic8Channel extends AbstractEnumOpenemsApp<Property> implement
 					ip.startsWith("192.168.1.") ? ips : null //
 			);
 		};
-	}
-
-	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ip.description")) //
-								.setDefaultValue("192.168.1.199") //
-								.isRequired(true) //
-								.setValidation(Validation.IP) //
-								.build()) //
-						.build())
-				.build();
 	}
 
 	@Override
@@ -133,8 +152,13 @@ public class KMtronic8Channel extends AbstractEnumOpenemsApp<Property> implement
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	@Override
+	protected KMtronic8Channel getApp() {
+		return this;
 	}
 
 	@Override

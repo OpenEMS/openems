@@ -103,11 +103,14 @@
               </li>
             </ul>
             <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a routerLinkActive="active" routerLink="/changelog">2023.8.0 (2023-08-02)</a>
-              </li>
-            </ul>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.build</p>
+              <ul>
+                <li>
+                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                </li>
+              </ul>
+            </div>
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>

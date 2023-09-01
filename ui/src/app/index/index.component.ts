@@ -72,10 +72,17 @@ export class IndexComponent implements OnInit, OnDestroy {
       // Wait for Websocket
       await new Promise((resolve) => setTimeout(() => {
         if (this.websocket.status == 'waiting for credentials') {
-          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })));
+          let lang = this.route.snapshot.queryParamMap.get('lang') ?? null;
+          if (lang) {
+            localStorage.DEMO_LANGUAGE = lang;
+          }
+          resolve(
+            this.websocket
+              .login(new AuthenticateWithPasswordRequest({ username: 'admin', password: 'admin' })));
         }
       }, 2000)).then(() => { this.service.setCurrentComponent('', this.route); });
     } else {
+      localStorage.removeItem('DEMO_LANGUAGE');
       this.service.setCurrentComponent('', this.route);
     }
   }
@@ -132,7 +139,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           let edgeIds = Object.keys(metadata.edges);
           this.onlyOneEdgeAvailable = edgeIds.length <= 1;
           this.noEdges = edgeIds.length === 0;
-          this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+          this.loggedInUserCanInstall = environment.backend === 'OpenEMS Backend' && Role.isAtLeast(metadata.user.globalRole, "installer");
 
           // Forward directly to device page, if
           // - Direct local access to Edge

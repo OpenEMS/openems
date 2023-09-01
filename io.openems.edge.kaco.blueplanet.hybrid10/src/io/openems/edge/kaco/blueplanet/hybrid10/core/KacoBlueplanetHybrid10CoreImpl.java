@@ -76,7 +76,7 @@ public class KacoBlueplanetHybrid10CoreImpl extends AbstractOpenemsComponent
 		 */
 		this.config = config;
 
-		final InetAddress inverterAddress = InetAddressUtils.parseOrNull(config.ip().trim());
+		final InetAddress inverterAddress = InetAddressUtils.parseOrNull(config.ip());
 		Runnable initializeLibrary = () -> {
 			while (true) {
 				try {

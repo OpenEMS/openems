@@ -32,7 +32,8 @@ export class ChangelogComponent implements OnInit {
   }
 
   public readonly changelogs: {
-    version: string,
+    title?: string,
+    version?: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {

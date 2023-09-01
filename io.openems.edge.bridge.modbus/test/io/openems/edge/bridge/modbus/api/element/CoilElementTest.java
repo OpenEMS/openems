@@ -2,8 +2,7 @@ package io.openems.edge.bridge.modbus.api.element;
 
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static org.junit.Assert.assertEquals;
-
-import java.util.Optional;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -15,13 +14,13 @@ public class CoilElementTest {
 	@Test
 	public void testRead() throws OpenemsException {
 		var sut = new ModbusTest.FC1ReadCoils<>(new CoilElement(0), BOOLEAN);
-		sut.element.setInputCoil(true);
+		sut.element.setInputValue(true);
 		assertEquals(true, sut.channel.getNextValue().get());
 
-		sut.element.setInputCoil(false);
+		sut.element.setInputValue(false);
 		assertEquals(false, sut.channel.getNextValue().get());
 
-		sut.element.setInputCoil(null);
+		sut.element.setInputValue(null);
 		assertEquals(null, sut.channel.getNextValue().get());
 	}
 
@@ -29,10 +28,10 @@ public class CoilElementTest {
 	public void testWrite() throws IllegalArgumentException, OpenemsNamedException {
 		var sut = new ModbusTest.FC5WriteCoil<>(new CoilElement(0), BOOLEAN);
 		sut.channel.setNextWriteValueFromObject(true);
-		assertEquals(true, ((CoilElement) sut.element).getNextWriteValueAndReset().get());
+		assertEquals(true, sut.element.getNextWriteValueAndReset());
 
 		sut.channel.setNextWriteValueFromObject(null);
-		assertEquals(Optional.empty(), ((CoilElement) sut.element).getNextWriteValueAndReset());
+		assertNull(sut.element.getNextWriteValueAndReset());
 	}
 
 }
