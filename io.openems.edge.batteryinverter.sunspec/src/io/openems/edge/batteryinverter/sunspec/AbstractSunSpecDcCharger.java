@@ -2,13 +2,11 @@ package io.openems.edge.batteryinverter.sunspec;
 
 import java.util.Map;
 import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
@@ -28,8 +26,9 @@ public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecCom
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
-		//this._setGridMode(GridMode.ON_GRID);
+		// this._setGridMode(GridMode.ON_GRID);
 	}
+
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
 	 *
@@ -72,9 +71,9 @@ public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecCom
 	@Override
 	public String debugLog() {
 		return new StringBuilder() //
-				
+
 				.append("|Charger ActualPower:").append(this.getActualPower().asString()) //
-				
+
 				.toString();
 	}
 
