@@ -78,7 +78,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 	protected static final int HW_ALLOWED_CHARGE_POWER = -5000;
 	protected static final int HW_ALLOWED_DISCHARGE_POWER = 5000;
 
-	int CycleCounter = 60;
+	private int CycleCounter = 60;
 
 	private Config config;
 
@@ -110,7 +110,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				ManagedSymmetricEss.ChannelId.values(), //
 				SolarEdgeHybridEss.ChannelId.values());
 
-		addStaticModbusTasks(this.getModbusProtocol());
+		this.addStaticModbusTasks(this.getModbusProtocol());
 
 	}
 
@@ -145,15 +145,15 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 
 	@Override
 	public void applyPower(int activePowerWanted, int reactivePowerWanted) throws OpenemsNamedException {
-		CycleCounter++;
+		this.CycleCounter++;
 
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePowerWanted);
 
 		// Read-only mode -> switch to max. self consumption automatic
 		if (this.config.readOnlyMode()) {
-			if (CycleCounter >= 10) {
-				CycleCounter = 0;
+			if (this.CycleCounter >= 10) {
+				this.CycleCounter = 0;
 				// Switch to automatic mode
 				this._setControlMode(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
 			}
@@ -163,7 +163,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 			int maxDischargeContinuesPower = getMaxDischargeContinuesPower().orElse(0);
 			int maxChargeContinuesPower = getMaxChargeContinuesPower().orElse(0) * -1;
 
-			if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false) {
+			if (this.isControlModeRemote() == false || this.isStorageChargePolicyAlways() == false) {
 				this._setControlMode(ControlMode.SE_CTRL_MODE_REMOTE); // Now the device can be remote controlled
 				this._setAcChargePolicy(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);
 
@@ -182,8 +182,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				this._setMaxChargePower((activePowerWanted * -1));// Values for register must be positive
 
 			} else {
-				this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for
-																									// Discharging);
+				this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for Discharging
+																									
 				this._setMaxDischargePower(activePowerWanted);
 			}
 
@@ -304,11 +304,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 		protocol.addTask(//
 				new FC16WriteRegistersTask(0xE004,
 						m(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE, new SignedWordElement(0xE004)),
-						m(SolarEdgeHybridEss.ChannelId.SET_AC_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max.
-																												// charge
-																												// power.
-																												// Negative
-																												// values
+						m(SolarEdgeHybridEss.ChannelId.SET_AC_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max charge Power
 						m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_LIMIT,
 								new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)), // kWh or percent
 						m(SolarEdgeHybridEss.ChannelId.SET_STORAGE_BACKUP_LIMIT,
@@ -320,11 +316,9 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 						m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE,
 								new UnsignedWordElement(0xE00D)),
 						m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_POWER,
-								new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)), // Max. charge power.
-																									// Negative values
+								new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)), // Max. charge power - negative value range
 						m(SolarEdgeHybridEss.ChannelId.SET_MAX_DISCHARGE_POWER,
-								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power.
-																								// Positive values
+								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power - positive value range
 				));
 	}
 
