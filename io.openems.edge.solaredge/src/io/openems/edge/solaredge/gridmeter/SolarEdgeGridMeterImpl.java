@@ -40,7 +40,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "SolarEdge.Grid-Meter", //
@@ -54,8 +53,8 @@ import io.openems.edge.meter.api.MeterType;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 
-public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter implements SolarEdgeGridMeter, ElectricityMeter,
-		 ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
+public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter
+		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
@@ -119,21 +118,19 @@ public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter implement
 	}
 
 	public void _calculateAndSetActivePower() {
-		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-		// Batterie-Ladung/Entladung *-1
-		// Actual power from inverter comes from house consumption + battery inverter
-		// power (*-1)
+		/**
+		 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
+		 * Batterie-Ladung/Entladung *-1
+		 * 
+		 * Actual power from inverter comes from house consumption + battery inverter
+		 * +power (*-1)
+		 */
 
-		int power = this.getPower().orElse(0); //
-		// int powerL1 = this.getPowerL1().get();
-		// int powerL2 = this.getPowerL2().get();
-		// int powerL3 = this.getPowerL3().get();
+		int power = this.getPower().orElse(0);
+
 		int PowerScale = this.getPowerScale().orElse(0);
 
 		double PowerValue = power * Math.pow(10, PowerScale);
-		// double PowerValueL1 = powerL1 * Math.pow(10,PowerScale);
-		// double PowerValueL2 = powerL1 * Math.pow(10,PowerScale);
-		// double PowerValueL3 = powerL1 * Math.pow(10,PowerScale);
 
 		this._setActivePower((int) PowerValue);
 
@@ -168,4 +165,3 @@ public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter implement
 						.build());
 	}
 }
-
