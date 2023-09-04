@@ -221,7 +221,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.inventory</artifactId>
-			<version>1.1.0</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
