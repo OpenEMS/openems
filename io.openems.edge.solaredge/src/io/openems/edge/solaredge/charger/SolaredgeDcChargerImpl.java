@@ -73,7 +73,7 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 				SolaredgeDcCharger.ChannelId.values() //
 		);
 
-		addStaticModbusTasks(this.getModbusProtocol());
+		this.addStaticModbusTasks(this.getModbusProtocol());
 	}
 
 	@Override
@@ -192,10 +192,16 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 	}
 
 	public void _calculateAndSetActualPower() {
-		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-		// Batterie-Ladung/Entladung *-1
-		// Actual power from inverter comes from house consumption + battery inverter
-		// power (*-1)
+		/**
+		 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
+		 * Batterie-Ladung/Entladung *-1
+		 * 
+		 * Actual power from inverter comes from house consumption + battery inverter +
+		 * power (*-1)
+		 * 
+		 * 
+		 * 
+		 */
 		try {
 			int dcPower = this.getDcPower().get(); // Leistung Inverter
 			int dcPowerScale = this.getDcPowerScale().get(); // Leistung Inverter
@@ -204,8 +210,10 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 			int dcDischargePower = this.getDcDischargePower().get();
 			int pvDcProduction = (int) dcPowerValue + dcDischargePower;
 
-			if (pvDcProduction < 0)
+			if (pvDcProduction < 0) {
 				pvDcProduction = 0; // Negative Values are not allowed for PV production
+			}
+				
 
 			this._setActualPower(pvDcProduction);
 		} catch (Exception e) {
@@ -226,7 +234,7 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			_calculateAndSetActualPower();
+			this._calculateAndSetActualPower();
 			break;
 		}
 	}
