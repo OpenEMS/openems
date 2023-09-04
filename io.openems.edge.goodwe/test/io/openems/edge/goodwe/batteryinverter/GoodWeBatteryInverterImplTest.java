@@ -12,7 +12,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
-import io.openems.edge.goodwe.charger.GoodWeChargerPv1;
+import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
@@ -54,7 +54,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(io.openems.edge.goodwe.charger.MyConfig.create() //
+				.activate(io.openems.edge.goodwe.charger.singlestring.MyConfig.create() //
 						.setId(CHARGER_ID) //
 						.setBatteryInverterId(BATTERY_INVERTER_ID) //
 						.setModbusId(MODBUS_ID) //
@@ -195,7 +195,7 @@ public class GoodWeBatteryInverterImplTest {
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(io.openems.edge.goodwe.charger.MyConfig.create() //
+				.activate(io.openems.edge.goodwe.charger.singlestring.MyConfig.create() //
 						.setId(CHARGER_ID) //
 						.setBatteryInverterId(BATTERY_INVERTER_ID) //
 						.setModbusId(MODBUS_ID) //

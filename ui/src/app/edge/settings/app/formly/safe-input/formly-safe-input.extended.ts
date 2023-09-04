@@ -1,7 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
-import { FieldWrapper } from "@ngx-formly/core";
+import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
+import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
+import { OptionGroupConfig } from "../option-group-picker/optionGroupPickerConfiguration";
 
 @Component({
     selector: 'formly-safe-input-wrapper',
@@ -10,7 +12,7 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
     protected pathToDisplayValue: string;
-    protected displayType: 'string' | 'boolean' | 'number';
+    protected displayType: 'string' | 'boolean' | 'number' | 'optionGroup';
 
     constructor(
         private modalController: ModalController
@@ -24,6 +26,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     }
 
     protected onSelectItem() {
+        this.formControl.markAsTouched();
         this.openModal();
     }
 
@@ -35,7 +38,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             component: FormlySafeInputModalComponent,
             componentProps: {
                 title: this.props.label,
-                fields: this.field.fieldGroup,
+                fields: this.getFields(),
                 model: this.model
             },
             cssClass: ['auto-height']
@@ -45,13 +48,66 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 // nothing selected
                 return;
             }
-            for (const [key, value] of Object.entries(event.data)) {
+
+            const finalModel = { ...this.form.getRawValue(), ...event.data };
+            for (const [key, value] of Object.entries(finalModel)) {
                 this.model[key] = value;
             }
-            // update values in model so ui also gets updated
-            this.form.setValue(this.form.getRawValue());
+
+            // set values with current form value when the fields are set via fieldGroup 
+            // to make sure every value gets set accordingly to the object hierarchy
+            if (this.field.fieldGroup) {
+                this.form.setValue(this.form.getRawValue());
+            } else {
+                this.form.setValue(this.model);
+            }
+            this.formControl.markAsDirty();
         });
         return await modal.present();
+    }
+
+    public getValue() {
+        if (this.displayType === 'boolean'
+            || this.displayType === 'number'
+            || this.displayType === 'string') {
+            return this.model[this.pathToDisplayValue];
+        }
+
+        if (this.displayType === 'optionGroup') {
+            const value = this.getValueOfOptionGroup();
+            if (value) {
+                return value;
+            }
+        }
+
+        // not defined
+        return this.model[this.pathToDisplayValue];
+    }
+
+    private getValueOfOptionGroup(): string {
+        const field = GetAppAssistant.findField(this.getFields(), this.pathToDisplayValue.split('.'));
+        if (!field) {
+            return null;
+        }
+        const option = ((field.templateOptions ?? field.props).options as OptionGroupConfig[]).map(optionGroup => optionGroup.options)
+            .reduce((acc, val) => acc.concat(val), [])
+            .find(option => option.value === this.model[this.pathToDisplayValue]);
+        if (!option) {
+            return null;
+        }
+        return option.expressions?.title?.(this.field) ?? option.title ?? option.value;
+    }
+
+
+    private getFields(): FormlyFieldConfig[] {
+        // @Deprecated rather set this#props.fields
+        if (this.field.fieldGroup) {
+            return this.field.fieldGroup;
+        }
+        if (this.props.fields) {
+            return this.props.fields;
+        }
+        return [];
     }
 
 }

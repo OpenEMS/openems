@@ -113,11 +113,15 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public byte[] getValue(OpenemsComponent component) {
-		final Object value;
+		Object value;
 		if (component != null) {
 			Channel<?> channel = component.channel(this.channelId);
 			if (channel != null) {
-				value = channel.value().get();
+				try {
+					value = channel.value().get();
+				} catch (IllegalArgumentException e) {
+					value = null;
+				}
 			} else {
 				this.log.warn("Channel [" + component.id() + "/" + this.channelId.id() + "] is not available for "
 						+ this.toString());

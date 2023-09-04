@@ -185,6 +185,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @param edgeIds the edges to subscribe
 	 */
 	public void handleSubscribeEdgesRequest(Set<String> edgeIds) {
+		// TODO maybe only add and remove on explicit request
 		this.subscribedEdges = edgeIds;
 	}
 

@@ -23,13 +23,19 @@ public class User extends AbstractUser {
 	 */
 	private final String token;
 
-	public User(String id, String name, String token, Language language, Role globalRole) {
-		this(id, name, token, language, globalRole, new TreeMap<>());
+	/**
+	 * True, if the current User can see multiple edges.
+	 */
+	private final boolean hasMultipleEdges;
+
+	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges) {
+		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges);
 	}
 
 	public User(String id, String name, String token, Language language, Role globalRole,
-			NavigableMap<String, Role> roles) {
+			NavigableMap<String, Role> roles, boolean hasMultipleEdges) {
 		super(id, name, language, globalRole, roles);
+		this.hasMultipleEdges = hasMultipleEdges;
 		this.token = token;
 	}
 
@@ -91,6 +97,11 @@ public class User extends AbstractUser {
 			}
 		}
 		return metadatas;
+	}
+
+	@Override
+	public boolean hasMultipleEdges() {
+		return this.hasMultipleEdges;
 	}
 
 }

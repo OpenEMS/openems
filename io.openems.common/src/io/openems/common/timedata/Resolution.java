@@ -58,4 +58,8 @@ public class Resolution {
 		return Duration.of(this.value, this.unit).toSeconds();
 	}
 
+	@Override
+	public String toString() {
+		return this.value + " " + this.unit;
+	}
 }

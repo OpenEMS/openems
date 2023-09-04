@@ -29,11 +29,13 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.commercial.statemachine.Context;
 import io.openems.edge.battery.fenecon.commercial.statemachine.StateMachine;
@@ -52,6 +54,7 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -145,25 +148,34 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 			SCALE_FACTOR_MINUS_2);
 
 	/**
-	 * Generates serial number based on specific bitwise operation. Helps to build
-	 * Master, Sub-master and Modules Serial Numbers.
-	 *
-	 * @param value Read value from the Modbus register.
-	 * @return {@link String} buildSerialNumber.
+	 * Converts master and sub master versions. e.g.input: "012001SM05" -->
+	 * MASTER_MCU_HARDWARE_VERSION, "100201MS50"
+	 */
+	protected static final ElementToChannelConverter VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		if (v == null) {
+			return null;
+		}
+		String value = TypeUtils.getAsType(OpenemsType.STRING, v);
+		var result = new StringBuilder();
+		for (var i = 0; i <= value.length() - 2; i += 2) {
+			result.append(StringUtils.reverse(value.substring(i, i + 2)));
+		}
+		return result.toString();
+	});
+
+	/**
+	 * Generates serial number converter helper to read master and battery module
+	 * serial numbers. e.g. input: "17005740232238EMSD0W0000" -->
+	 * MASTER_SERIAL_NUMBER, "00000WSDEM38222340570017"
 	 */
 	protected static final ElementToChannelConverter SERIAL_NUMBER_CONVERTER = new ElementToChannelConverter(v -> {
 		if (v == null) {
 			return null;
 		}
-		String value = TypeUtils.getAsType(OpenemsType.STRING, v);
-		var readString = new StringBuilder(value);
+		String value = TypeUtils.getAsType(OpenemsType.STRING, Long.toHexString((long) v));
 		var result = new StringBuilder();
-		var reverse = new StringBuilder();
 		for (var i = 0; i <= value.length() - 2; i += 2) {
-			var subString = new StringBuilder(readString.substring(i, i + 2));
-			reverse = subString.reverse();
-			result = result.append(reverse);
-			reverse = null;
+			result.insert(0, value.substring(i, i + 2));
 		}
 		return result.toString();
 	});
@@ -174,14 +186,18 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 				// Versions
 				new FC3ReadRegistersTask(0, Priority.LOW, //
 						m(BatteryFeneconCommercial.ChannelId.MASTER_MCU_HARDWARE_VERSION, new StringWordElement(0, 5),
-								SERIAL_NUMBER_CONVERTER),
+								VERSION_CONVERTER),
 						m(BatteryFeneconCommercial.ChannelId.MASTER_MCU_FIRMWARE_VERSION, new StringWordElement(5, 2),
-								SERIAL_NUMBER_CONVERTER)), //
+								VERSION_CONVERTER)), //
 				new FC3ReadRegistersTask(2176, Priority.LOW, //
 						m(BatteryFeneconCommercial.ChannelId.SLAVE_MCU_HARDWARE_VERSION, new StringWordElement(2176, 5),
-								SERIAL_NUMBER_CONVERTER),
+								VERSION_CONVERTER),
 						m(BatteryFeneconCommercial.ChannelId.SLAVE_MCU_FIRMWARE_VERSION, new StringWordElement(2181, 2),
-								SERIAL_NUMBER_CONVERTER)),
+								VERSION_CONVERTER)),
+
+				new FC3ReadRegistersTask(2762, Priority.LOW, //
+						m(BatteryFeneconCommercial.ChannelId.MASTER_SERIAL_NUMBER, new StringWordElement(2762, 12),
+								VERSION_CONVERTER)),
 
 				new FC3ReadRegistersTask(17, Priority.LOW, //
 						m(new UnsignedWordElement(17)).build().onUpdateCallback(new ByteElement(this, //
@@ -255,9 +271,8 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 						m(BatteryFeneconCommercial.ChannelId.INSULATION_RESISTANCE_AT_POSITIVE_POLE,
 								new SignedDoublewordElement(2708).wordOrder(LSWMSW), SCALE_FACTOR_MINUS_1), //
 						m(BatteryFeneconCommercial.ChannelId.INSULATION_RESISTANCE_AT_NEGATIVE_POLE,
-								new SignedDoublewordElement(2710).wordOrder(LSWMSW), SCALE_FACTOR_MINUS_1)), //
-
-				new FC3ReadRegistersTask(2720, Priority.LOW, //
+								new SignedDoublewordElement(2710).wordOrder(LSWMSW), SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(2712, 2719), //
 						m(BatteryFeneconCommercial.ChannelId.TOTAL_CHARGE_CAPACITY_WATT_HOURS,
 								new SignedQuadruplewordElement(2720).wordOrder(LSWMSW), SCALE_FACTOR_MINUS_1), //
 						m(BatteryFeneconCommercial.ChannelId.TOTAL_DISCHARGE_CAPACITY_WATT_HOURS,
@@ -273,13 +288,15 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 									.setNextValue((value & 0x100) >> 8);
 							this.channel(BatteryFeneconCommercial.ChannelId.LOW_SELF_CONSUMPTION_STATUS)
 									.setNextValue((value & 0x200) >> 9);
-							this.channel(BatteryFeneconCommercial.ChannelId.FAULT).setNextValue((value & 0x400) >> 10);
+							this.channel(BatteryFeneconCommercial.ChannelId.FAULT)//
+									.setNextValue((value & 0x400) >> 10);
 							this.channel(BatteryFeneconCommercial.ChannelId.RUNNING)
 									.setNextValue((value & 0x1000) >> 12);
 							this.channel(BatteryFeneconCommercial.ChannelId.EXTERNAL_COMMUNICATION_ONLY_UNDER_STANDBY)
 									.setNextValue((value & 0x2000) >> 13);
-						}), //
+						})), //
 
+				new FC3ReadRegistersTask(2730, Priority.LOW, //
 						m(new BitsWordElement(2730, this) //
 								.bit(0, BatteryFeneconCommercial.ChannelId.MAIN_SWITCH_STATUS) //
 								.bit(1, BatteryFeneconCommercial.ChannelId.BATTERY_ONLINE) //
@@ -351,8 +368,10 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 								.bit(12, BatteryFeneconCommercial.ChannelId.STS_WARNING) //
 								.bit(13, BatteryFeneconCommercial.ChannelId.PCS_TEMPERATURE_WARNING) //
 								.bit(14, BatteryFeneconCommercial.ChannelId.PCS_OVER_TEMPERATURE) //
+								.bit(15, BatteryFeneconCommercial.ChannelId.COMMUNICATION_STOP_CHARGING) //
 						), //
 						m(new BitsWordElement(2735, this) //
+								.bit(0, BatteryFeneconCommercial.ChannelId.COMMUNICATION_STOP_DISCHARGING) //
 								.bit(1, BatteryFeneconCommercial.ChannelId.OVER_TEMPERATURE_STOP_PCS) //
 								.bit(2, BatteryFeneconCommercial.ChannelId.LOW_TEMPERATURE_STOP_PCS) //
 								.bit(3, BatteryFeneconCommercial.ChannelId.OVER_CURRENT_STOP_CHARGING) //
@@ -379,8 +398,9 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 						m(BatteryFeneconCommercial.ChannelId.BATTERY_NOMINAL_POWER,
 								new UnsignedDoublewordElement(2774).wordOrder(LSWMSW)), //
 						m(BatteryFeneconCommercial.ChannelId.BATTERY_AVAILABLE_POWER,
-								new UnsignedDoublewordElement(2776).wordOrder(LSWMSW)), //
-						new DummyRegisterElement(2778, 2784), //
+								new UnsignedDoublewordElement(2776).wordOrder(LSWMSW))), //
+
+				new FC3ReadRegistersTask(2785, Priority.HIGH, //
 						m(new UnsignedWordElement(2785)).build().onUpdateCallback(value -> {
 							if (value == null) {
 								return;
@@ -472,9 +492,9 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 					// Cold Data, 2s frequency ==> Master Machine Summary Low Map 1.3
 					new FC3ReadRegistersTask(towerOffset + 8, Priority.LOW, //
 							m(generateTowerChannel(this, towerNum, "SUB_MASTER_HARDWARE_VERSION", OpenemsType.STRING,
-									Unit.NONE), new StringWordElement(towerOffset + 8, 5), SERIAL_NUMBER_CONVERTER),
+									Unit.NONE), new StringWordElement(towerOffset + 8, 5), VERSION_CONVERTER),
 							m(generateTowerChannel(this, towerNum, "SUB_MASTER_FIRMWARE_VERSION", OpenemsType.STRING,
-									Unit.NONE), new StringWordElement(towerOffset + 13, 2), SERIAL_NUMBER_CONVERTER)),
+									Unit.NONE), new StringWordElement(towerOffset + 13, 2), VERSION_CONVERTER)),
 					// Sub-Master BMS RO, Hot Data, 250ms frequency ==> Master Machine Summary Fast
 					// Map 1.2
 					new FC3ReadRegistersTask(towerOffset, Priority.LOW, //
@@ -553,7 +573,7 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 									Unit.NONE), new UnsignedWordElement(towerOffset + 25)), //
 							new DummyRegisterElement(towerOffset + 26, towerOffset + 27), //
 							m(generateTowerChannel(this, towerNum, "PRODUCT_SERIAL_NUMBER", OpenemsType.STRING,
-									Unit.NONE), new StringWordElement(towerOffset + 28, 8), SERIAL_NUMBER_CONVERTER),
+									Unit.NONE), new StringWordElement(towerOffset + 28, 8), VERSION_CONVERTER),
 							m(generateTowerChannel(this, towerNum, "NOMINAL_CAPACITY", OpenemsType.LONG,
 									Unit.AMPERE_HOURS), new UnsignedWordElement(towerOffset + 36),
 									SCALE_FACTOR_MINUS_1), //
@@ -583,17 +603,17 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 					new FC3ReadRegistersTask(towerOffset + 48, Priority.LOW, //
 							m(new BitsWordElement(towerOffset + 48, this) //
 									.bit(0, generateTowerChannel(this, towerNum, "STATUS", BOOLEAN, Unit.NONE)) //
-									.bit(1, generateTowerChannel(this, towerNum, "24V_STATUS", BOOLEAN, Unit.NONE)) //
-									.bit(2, generateTowerChannel(this, towerNum, "BATTERY_CHARGING_18650_STATUS",
+									.bit(8, generateTowerChannel(this, towerNum, "24V_STATUS", BOOLEAN, Unit.NONE)) //
+									.bit(9, generateTowerChannel(this, towerNum, "BATTERY_CHARGING_18650_STATUS",
 											BOOLEAN, Unit.NONE)) //
-									.bit(3, generateTowerChannel(this, towerNum, "MAIN_SWITCH_STATUS", BOOLEAN,
-											Unit.NONE)) //
-									.bit(9, generateTowerChannel(this, towerNum, "NO_24V_POWER_SUPPLY", BOOLEAN,
-											Unit.NONE)) //
-									.bit(10, generateTowerChannel(this, towerNum, "MAIN_SWITCH_OFF", BOOLEAN,
+									.bit(10, generateTowerChannel(this, towerNum, "MAIN_SWITCH_STATUS", BOOLEAN,
 											Unit.NONE)) //
 							), //
-							new DummyRegisterElement(towerOffset + 49), //
+							m(new BitsWordElement(towerOffset + 49, this) //
+									.bit(0, generateTowerChannel(this, towerNum, "NO_24V_POWER_SUPPLY", BOOLEAN,
+											Unit.NONE)) //
+									.bit(1, generateTowerChannel(this, towerNum, "MAIN_SWITCH_OFF", BOOLEAN, Unit.NONE)) //
+							), //
 							m(new BitsWordElement(towerOffset + 50, this) //
 									.bit(0, generateTowerChannel(this, towerNum, "E2PROM_FAULT", Level.WARNING)) //
 									.bit(1, generateTowerChannel(this, towerNum, "BATTERY_18650_FAULT", Level.WARNING)) //
@@ -633,18 +653,20 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 									.bit(4, generateTowerChannel(this, towerNum, "OVER_SOC_LEVEL_2", BOOLEAN,
 											Unit.NONE)) //
 									.bit(5, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_2", BOOLEAN, Unit.NONE)) //
-									.bit(7, generateTowerChannel(this, towerNum, "CELL_OVER_VOLTAGE_LEVEL_3",
-											Level.WARNING)) //
+									.bit(7, generateTowerChannel(this, towerNum, "CELL_OVER_VOLTAGE_LEVEL_3", BOOLEAN,
+											Unit.NONE)) //
 									.bit(8, generateTowerChannel(this, towerNum, "CELL_LOW_VOLTAGE_LEVEL_3", BOOLEAN,
 											Unit.NONE)) //
 									.bit(9, generateTowerChannel(this, towerNum, "CELL_OVER_TEMPERATURE_LEVEL_3",
-											Level.WARNING)) //
+											BOOLEAN, Unit.NONE)) //
 									.bit(10, generateTowerChannel(this, towerNum, "CELL_LOW_TEMPERATURE_LEVEL_3",
-											Level.WARNING)) //
-									.bit(11, generateTowerChannel(this, towerNum, "OVER_CURRENT_LEVEL_3",
-											Level.WARNING)) //
-									.bit(12, generateTowerChannel(this, towerNum, "OVER_SOC_LEVEL_3", Level.WARNING)) //
-									.bit(13, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_3", Level.WARNING))), //
+											BOOLEAN, Unit.NONE)) //
+									.bit(11, generateTowerChannel(this, towerNum, "OVER_CURRENT_LEVEL_3", BOOLEAN,
+											Unit.NONE)) //
+									.bit(12, generateTowerChannel(this, towerNum, "OVER_SOC_LEVEL_3", BOOLEAN,
+											Unit.NONE)) //
+									.bit(13, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_3", BOOLEAN,
+											Unit.NONE))), //
 							m(generateTowerChannel(this, towerNum, "CURRENT_SCALE_5", OpenemsType.LONG,
 									Unit.MICROAMPERE), new UnsignedDoublewordElement(towerOffset + 52), SCALE_FACTOR_1)
 									.wordOrder(LSWMSW), //
@@ -889,16 +911,23 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 													+ "_CELL_007_TEMPERATURE")).setNextValue(cellTemperature7);
 										}), //
 								m(generateTowerChannel(this, towerNum,
-										getSingleModulePrefix(module) + "_BALANCING_FLAG", BOOLEAN, Unit.NONE),
-										new UnsignedWordElement(towerOffset + 128 + module * 20 + 16)), //
-								m(new UnsignedWordElement(towerOffset + 128 + module * 20
-										+ 17/*
-											 * Start Address is 3200 and the tower offset: 768 and the module offset: 12
-											 */)).build().onUpdateCallback(new ByteElement(this, //
-												ByteElement.Shifter.ONLY_FIRST_CHANNEL, //
-												generateTowerChannel(this, towerNum,
-														getSingleModulePrefix(module) + "_MODULE_STATUS",
-														OpenemsType.INTEGER, Unit.NONE)))));
+										getSingleModulePrefix(module) + "_BALANCING_FLAG", OpenemsType.BOOLEAN,
+										Unit.NONE), new UnsignedWordElement(towerOffset + 128 + module * 20 + 16)), //
+								m(new UnsignedWordElement(towerOffset + 128 + module * 20 + 17
+								/*
+								 * Start Address is 3200 and the tower offset: 768 and the module offset: 12
+								 */
+								)).build().onUpdateCallback(new ByteElement(this, //
+										ByteElement.Shifter.ONLY_FIRST_CHANNEL, //
+										generateTowerChannel(this, towerNum,
+												getSingleModulePrefix(module) + "_MODULE_STATUS", OpenemsType.INTEGER,
+												Unit.NONE))), //
+								m(generateTowerChannel(this, towerNum, getSingleModulePrefix(module) + "_SERIAL_NUMBER",
+										OpenemsType.INTEGER, Unit.NONE, PersistencePriority.HIGH),
+										new UnsignedDoublewordElement(towerOffset + 128 + module * 20 + 18)
+												.wordOrder(WordOrder.LSWMSW),
+										SERIAL_NUMBER_CONVERTER)//
+						));
 			}
 		}
 	}
@@ -1006,6 +1035,27 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
+	 * Generates a tower channel with a specific channelIdSuffix,openemsType and
+	 * channelUnit.
+	 *
+	 * @param parent          the parent component
+	 * @param tower           number of the Tower
+	 * @param channelIdSuffix e.g. "STATUS_ALARM"
+	 * @param openemsType     specified type e.g. "INTEGER"
+	 * @param channelUnit     specified type e.g. "NONE"
+	 * @param persistence     specified type e.g. "LOW"
+	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
+	 */
+	private static io.openems.edge.common.channel.ChannelId generateTowerChannel(BatteryFeneconCommercialImpl parent,
+			int tower, String channelIdSuffix, OpenemsType openemsType, Unit channelUnit,
+			PersistencePriority persistence) {
+		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix,
+				Doc.of(openemsType).unit(channelUnit).persistencePriority(persistence));
+		parent.addChannel(channelId);
+		return channelId;
+	}
+
+	/**
 	 * Generates a Channel-ID for channels that are specific to a tower.
 	 *
 	 * @param parent          the parent component
@@ -1084,7 +1134,7 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Updates the Channel if its current value is not equal to the new value.
 	 *
-	 * @param channelId Sinexcel Channel-Id
+	 * @param channelId FeneconCommercialBattery Channel-Id
 	 * @param newValue  Integer value.
 	 * @throws IllegalArgumentException on error
 	 */
@@ -1191,8 +1241,8 @@ public class BatteryFeneconCommercialImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * TODO, to be updated. Update the BATTERY_CHARGE_MAX_CURRENT accordingly, and
-	 * trigger updateSoc onChange.
+	 * Update the BATTERY_CHARGE_MAX_CURRENT accordingly, and trigger updateSoc
+	 * onChange.
 	 */
 	private void setBatteryCurrentLimits() {
 		var chargeMaxCurrent = this.getChargeMaxCurrent();

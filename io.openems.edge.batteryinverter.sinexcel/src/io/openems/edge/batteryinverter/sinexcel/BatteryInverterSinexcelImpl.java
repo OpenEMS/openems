@@ -522,7 +522,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L1, new SignedWordElement(113),
 								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L2, new SignedWordElement(114),
-								SCALE_FACTOR_1), // fems
+								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.REACTIVE_POWER_L3, new SignedWordElement(115),
 								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.APPERENT_POWER_L1, new SignedWordElement(116),
