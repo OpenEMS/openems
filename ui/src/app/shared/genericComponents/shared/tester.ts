@@ -89,13 +89,13 @@ export class OeFormlyViewTester {
        * {@link OeFormlyField.ValueLineFromMultipleChannels}
        */
       case "value-from-channels-line": {
-        let tmp = OeFormlyViewTester.applyValueLineFromChannels(field, context);
+        const tmp = OeFormlyViewTester.applyValueLineFromChannels(field, context);
         if (tmp == null) {
           return null; // filter did not pass
         }
 
         // Read or generate name
-        let name: string = field.name;
+        const name: string = field.name;
 
         // Prepare result
         let result: OeFormlyViewTester.Field.ValueLine = {
@@ -398,17 +398,17 @@ export namespace OeFormlyViewTester {
   export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
 
     // Read values from channels
-    let rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
+    const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
 
     // Apply filter
     if (field.filter && field.filter(rawValues) === false) {
       return null;
     }
 
-    let currentData: CurrentData = { allComponents: context };
+    const currentData: CurrentData = { allComponents: context };
 
     // Apply converter
-    let value: string = field.value
+    const value: string = field.value
       ? field.value(currentData)
       : rawValues === null ? null : "";
 

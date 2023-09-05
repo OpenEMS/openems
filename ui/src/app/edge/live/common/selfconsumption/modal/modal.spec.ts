@@ -14,7 +14,7 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
 };
 
 describe('SelfConsumption - Modal', () => {
-  let TEST_CONTEXT;
+  let TEST_CONTEXT:TestContext;
   beforeEach(() => TEST_CONTEXT = sharedSetup());
 
   it('generateView()', () => {
