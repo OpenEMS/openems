@@ -10,6 +10,7 @@ import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserIn
 import { Service, Websocket } from '../shared/shared';
 import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { Language } from '../shared/type/language';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 type UserInformation = {
   firstname: string,
@@ -94,13 +95,13 @@ export class UserComponent implements OnInit {
   public enableAndDisableFormFields(): boolean {
     // Update Fields
     this.userInformationFields.forEach(element => {
-      element.templateOptions.disabled = !element.templateOptions.disabled;
+      element.props.disabled = !element.props.disabled;
     });
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
   /** Needs to be predefined to make wrapper work with ion-skeleton */
-  protected userInformationFields = [{
+  protected userInformationFields: FormlyFieldConfig[] = [{
     key: "firstname",
     type: "input",
     templateOptions: {

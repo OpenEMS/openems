@@ -18,7 +18,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
       <ion-skeleton-text [animated]="true" style="width: 100%"></ion-skeleton-text>
     </ion-item>
   </ion-list>
-  <formly-form *ngIf="show" [form]="form" [fields]="fields" [model]="model" style="color: primary" color="primary"></formly-form>
+  <formly-form *ngIf="show" [form]="form" [fields]="fields" [model]="model"></formly-form>
 </div>
   `
 })
