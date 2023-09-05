@@ -376,7 +376,7 @@
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
 	org.apache.felix.http.jetty;version='[5.1.0,5.1.1)',\
 	org.apache.felix.http.servlet-api;version='[2.1.0,2.1.1)',\
-	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
+	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.6,2.2.7)',\
 	org.apache.felix.webconsole;version='[4.9.0,4.9.1)',\
