@@ -242,7 +242,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.7.2</version>
+			<version>4.9.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -261,12 +261,12 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.37.0</version>
+			<version>3.38.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.15.6</version>
+			<version>0.15.7</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -314,6 +314,12 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.16.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Apache Felix Web Management Console -->
+			<groupId>org.owasp.encoder</groupId>
+			<artifactId>encoder</artifactId>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
