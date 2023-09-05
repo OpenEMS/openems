@@ -37,6 +37,30 @@ public class DummyBattery extends AbstractOpenemsComponent implements Battery, O
 	}
 
 	/**
+	 * Sets and applies the {@link StartStop.ChannelId#START_STOP}.
+	 *
+	 * @param value the {@link StartStop} state
+	 * @return myself
+	 */
+	public DummyBattery withStartStop(StartStop value) {
+		this._setStartStop(value);
+		this.getStartStopChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * Sets and applies the {@link Battery.ChannelId#SOC}.
+	 *
+	 * @param value the Soc in [%]
+	 * @return myself
+	 */
+	public DummyBattery withSoc(int value) {
+		this._setSoc(value);
+		this.getSocChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
 	 * Sets and applies the {@link Battery.ChannelId#CAPACITY}.
 	 *
 	 * @param value the Capacity in [Wh]
