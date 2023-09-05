@@ -41,11 +41,11 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Reference
 	protected ComponentManager componentManager;
 
-	@Reference
-	protected PredictorManager predictor;
-
-	@Reference
-	protected TimeOfUseTariff timeOfUseTariff;
+//	@Reference
+//	protected PredictorManager predictor;
+//
+//	@Reference
+//	protected TimeOfUseTariff timeOfUseTariff;
 
 	@Reference
 	protected Scheduler scheduler;

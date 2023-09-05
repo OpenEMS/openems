@@ -23,9 +23,16 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 
 	@Override
 	protected DynamicConfig toConfig(Config config) {
-		return new DynamicConfig(config.enabledCharging(), config.chargeMode().toChargeMode(),
-				config.forceChargeMinPower(), config.defaultChargeMinPower(), config.priority(),
-				config.energySessionLimit());
+		var chargeMode = switch (config.chargeMode()) {
+		case FORCE_CHARGE -> ChargeMode.FORCE_CHARGE;
+		case EXCESS_POWER -> ChargeMode.EXCESS_POWER;
+		case SMART -> null; // Fallback
+		};
+		var enabledCharging = chargeMode == null ? false : config.enabledCharging();
+
+		return new DynamicConfig(enabledCharging, chargeMode, config.forceChargeMinPower(),
+				config.defaultChargeMinPower(), config.priority(), config.energySessionLimit());
+
 	}
 
 	@Override

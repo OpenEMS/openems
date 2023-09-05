@@ -38,15 +38,17 @@ public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicCon
 
 	@Override
 	protected DynamicConfig toConfig(Config config) {
-		// TODO Auto-generated method stub
-		return null;
+		var mode = switch (config.mode()) {
+		case MANUAL_ON -> MANUAL_ON;
+		case MANUAL_OFF, SMART -> MANUAL_OFF; // Fallback to MANUAL_OFF
+		};
+		return new DynamicConfig(mode, config.hybridEssMode(), config.relationship(), config.phase(), config.power());
 	}
 
 	@Override
 	protected DynamicConfig toConfig(Config config, Preset preset) {
 		return switch (config.mode()) {
-		case MANUAL_ON, MANUAL_OFF -> new DynamicConfig(config.mode().toMode(), config.hybridEssMode(),
-				config.relationship(), config.phase(), config.power());
+		case MANUAL_ON, MANUAL_OFF -> this.toConfig(config);
 
 		case SMART -> //
 			preset == null ? null : switch (preset) {

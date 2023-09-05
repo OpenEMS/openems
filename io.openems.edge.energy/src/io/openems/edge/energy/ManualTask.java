@@ -2,6 +2,7 @@ package io.openems.edge.energy;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -44,10 +44,11 @@ public class ManualTask implements Runnable {
 		var result = ImmutableMap.<String, String[]>builder();
 		var schedules = JsonUtils.parseToJsonObject(manualSchedule);
 		for (var componentId : schedules.keySet()) {
-			var presets = JsonUtils.stream(JsonUtils.getAsJsonArray(schedules, "presets")) //
-					.map(JsonElement::toString) //
-					.toArray(String[]::new);
-			result.put(componentId, presets);
+			var presets = new ArrayList<String>();
+			for (var preset : JsonUtils.getAsJsonArray(schedules.get(componentId), "presets")) {
+				presets.add(JsonUtils.getAsString(preset));
+			}
+			result.put(componentId, presets.toArray(String[]::new));
 		}
 		return result.build();
 	}
@@ -86,8 +87,10 @@ public class ManualTask implements Runnable {
 				schedules.add(componentId, schedule); // for debugLog
 				scheduleHandler.applySchedule((Schedule<?, ?>) schedule);
 
-			} else
+			} else {
+				this.log.warn("Component [" + componentId + "] is not Schedulabel");
 				continue; // Not Schedulable
+			}
 		}
 
 		this.schedules = schedules.build();
