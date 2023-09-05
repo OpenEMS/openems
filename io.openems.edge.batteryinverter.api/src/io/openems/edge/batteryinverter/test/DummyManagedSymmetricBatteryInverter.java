@@ -60,9 +60,10 @@ public class DummyManagedSymmetricBatteryInverter extends AbstractOpenemsCompone
 	}
 
 	/**
-	 * Sets and applies the {@link Battery.ChannelId#CAPACITY}.
+	 * Sets and applies the
+	 * {@link SymmetricBatteryInverter.ChannelId#MAX_APPARENT_POWER}.
 	 *
-	 * @param value the Capacity in [Wh]
+	 * @param value the MaxApparentPower in [VA]
 	 * @return myself
 	 */
 	public DummyManagedSymmetricBatteryInverter withMaxApparentPower(int value) {
