@@ -96,8 +96,8 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter implement
 		);
 		
 		
-			addStaticModbusTasksDcPower(this.getModbusProtocol());
-			addStaticModbusTasksGridPower(this.getModbusProtocol());
+			this.addStaticModbusTasksDcPower(this.getModbusProtocol());
+			this.addStaticModbusTasksGridPower(this.getModbusProtocol());
 		
 	}
 
@@ -145,31 +145,37 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter implement
 	    
 	}	
 	
-	
+	/**
+	 * Actual power from inverter comes from house consumption + battery inverter power (*-1).
+	 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
+	 */
 	public void _setMyActivePower() {
-		
-		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
-		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
+
 		try {
-		int production_power 	= this.getProductionPowerChannel().value().get(); // Leistung Inverter
-		//int consumption_power 	= this.getConsumptionPowerChannel().value().get(); // Leistung Haus <- Unsinn!
-		int battery_power 		= this.getDcDischargePowerChannel().value().get() * -1; // DC-Discharge 0xe172: negative while Charging, so we have to negate
-		double grid_power_scale	= this.getGridPowerScaleChannel().value().get();
-		int grid_power 			= this.getGridPowerChannel().value().get() * (int) Math.pow(10, grid_power_scale); // postive while buying from grid
-		grid_power				= grid_power * -1;
-		
-		// If Grid-Power is negative then the actual PV production is the Consumption Power (AC Power from inverter which is SunSpec 103W, Modbus 0x9c93)
-		// If Grid-Power is positive the PV production is the sum from consumption power + battery-power (positive while charging) + grid-power (negative while consuming)
-		
-		int value				= 0;
-		if (grid_power < 0 && battery_power  == 0)  value  = production_power ;
-		else  value				= production_power + battery_power - grid_power;
-		
-		if (value < 0) value =0; // Negative Values are not allowed for PV production
-		
-		this._setActivePower(value);
-		}
-		catch (Exception e){
+			int productionPower 		= this.getProductionPowerChannel().value().get(); // Leistung Inverter
+			//int consumption_power 	= this.getConsumptionPowerChannel().value().get(); // Leistung Haus <- Unsinn!
+			int batteryPower 			= this.getDcDischargePowerChannel().value().get() * -1; // DC-Discharge 0xe172: negative while Charging, so we have to negate
+			double gridPowerScale		= this.getGridPowerScaleChannel().value().get();
+			int gridPower 				= this.getGridPowerChannel().value().get() * (int) Math.pow(10, gridPowerScale); // postive while buying from grid
+			gridPower					= gridPower * -1;
+			
+			// If Grid-Power is negative then the actual PV production is the Consumption Power (AC Power from inverter which is SunSpec 103W, Modbus 0x9c93)
+			// If Grid-Power is positive the PV production is the sum from consumption power + battery-power (positive while charging) + grid-power (negative while consuming)
+			
+			int value = 0;
+			
+			if (gridPower < 0 && batteryPower == 0) {
+				value	= productionPower;	
+				} else {
+				value	= productionPower + batteryPower - gridPower;
+			}
+			
+			if (value < 0) {
+				value = 0; // Negative Values are not allowed for PV production
+			}
+			
+			this._setActivePower(value);
+		} catch (Exception e) {
 			return;
 		}
 	
@@ -190,16 +196,13 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter implement
 		// CONSUMPTION_POWER takes Power from Inverter
 		// We have to build ACTIVE_POWER for inverter afterwards
 
-
-		if (config.hybrid() == true ) // ACTIVE_POWER channel needs to be calculated
-		{
+		// ACTIVE_POWER channel needs to be calculated
+		if (this.config.hybrid() == true) {
 			this.mapFirstPointToChannel(//
 			SolarEdgePvinverterChannelId.ChannelId.PRODUCTION_POWER, //
 			ElementToChannelConverter.DIRECT_1_TO_1, //
 			DefaultSunSpecModel.S103.W);	
-		}
-		else 
-		{
+		} else {
 			this.mapFirstPointToChannel(//
 			ElectricityMeter.ChannelId.ACTIVE_POWER, //
 			ElementToChannelConverter.DIRECT_1_TO_1, //
@@ -275,8 +278,7 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter implement
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
 		
-		if (config.hybrid() == true ) 
-		{
+		if (this.config.hybrid() == true) {
 			switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 				this._setMyActivePower();

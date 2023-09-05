@@ -75,7 +75,7 @@ public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				SolarEdgeGridMeter.ChannelId.values());
-		addStaticModbusTasks(this.getModbusProtocol());
+		this.addStaticModbusTasks(this.getModbusProtocol());
 	}
 
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
@@ -112,27 +112,27 @@ public class SolarEdgeGridMeterImpl extends AbstractSolarEdgeGridmeter
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			_calculateAndSetActivePower();
+			this._calculateAndSetActivePower();
 			break;
 		}
 	}
 
+	/**
+	 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
+	 * Batterie-Ladung/Entladung * -1
+	 * 
+	 * <p>Actual power from inverter comes from house consumption + battery inverter +
+	 * power (*-1).
+	 */
 	public void _calculateAndSetActivePower() {
-		/**
-		 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-		 * Batterie-Ladung/Entladung *-1
-		 * 
-		 * Actual power from inverter comes from house consumption + battery inverter
-		 * +power (*-1)
-		 */
 
 		int power = this.getPower().orElse(0);
 
-		int PowerScale = this.getPowerScale().orElse(0);
+		int powerScale = this.getPowerScale().orElse(0);
 
-		double PowerValue = power * Math.pow(10, PowerScale);
+		double powerValue = power * Math.pow(10, powerScale);
 
-		this._setActivePower((int) PowerValue);
+		this._setActivePower((int) powerValue);
 
 	}
 

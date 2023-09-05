@@ -78,7 +78,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 	protected static final int HW_ALLOWED_CHARGE_POWER = -5000;
 	protected static final int HW_ALLOWED_DISCHARGE_POWER = 5000;
 
-	private int CycleCounter = 60;
+	private int cycleCounter = 60;
 
 	private Config config;
 
@@ -145,15 +145,15 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 
 	@Override
 	public void applyPower(int activePowerWanted, int reactivePowerWanted) throws OpenemsNamedException {
-		this.CycleCounter++;
+		this.cycleCounter++;
 
 		// Using separate channel for the demanded charge/discharge power
 		this._setChargePowerWanted(activePowerWanted);
 
 		// Read-only mode -> switch to max. self consumption automatic
 		if (this.config.readOnlyMode()) {
-			if (this.CycleCounter >= 10) {
-				this.CycleCounter = 0;
+			if (this.cycleCounter >= 10) {
+				this.cycleCounter = 0;
 				// Switch to automatic mode
 				this._setControlMode(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
 			}
@@ -322,12 +322,12 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				));
 	}
 
+	/**
+	 * Actual power from inverter comes from house consumption + battery inverter power (*-1).
+	 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
+	 * 
+	 */
 	public void _setMyActivePower() {
-
-		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-		// Batterie-Ladung/Entladung *-1
-		// Actual power from inverter comes from house consumption + battery inverter
-		// power (*-1)
 
 		int acPower = this.getAcPower().orElse(0);
 		int acPowerScale = this.getAcPowerScale().orElse(0);
@@ -375,7 +375,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 
 	@Override
 	public String debugLog() {
-		if (config.debugMode()) {
+		if (this.config.debugMode()) {
 			return "SoC:" + this.getSoc().asString() //
 					+ "|L:" + this.getActivePower().asString() //
 					+ "|Allowed Charge Power/Peak:"
@@ -405,9 +405,10 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 
 					+ "|" + this.getGridModeChannel().value().asOptionString() //
 					+ "|Feed-In:";
-		} else
-			return "SoC:" + this.getSoc().asString() //
-					+ "|L:" + this.getActivePower().asString();
+		} else {
+			return "SoC:" + this.getSoc().asString() + "|L:" + this.getActivePower().asString();			
+		}
+
 	}
 
 	@Override

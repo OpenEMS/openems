@@ -36,8 +36,9 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 * 
 		 **/
 		AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values()).accessMode(AccessMode.READ_ONLY)), // defined in external file
+
 		/**
-		 * Available Energy
+		 * Available Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -51,7 +52,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)), // defined in external file
 
 		/**
-		 * Actual Current to or from the battery
+		 * Actual Current to or from the battery.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -65,7 +66,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * actual battery voltage
+		 * actual battery voltage.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -79,7 +80,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * average battery temperature
+		 * average battery temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -93,7 +94,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Battery Lifetime Export Energy
+		 * Battery Lifetime Export Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -107,7 +108,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Battery Lifetime Import Energy
+		 * Battery Lifetime Import Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -121,7 +122,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * maximum battery temperature
+		 * maximum battery temperature.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -134,7 +135,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.LOW)),
 		/**
-		 * Internal battery status SE_BATT_STATUS_OFF(0, "Off"), //
+		 * Battery Status. Internal battery status SE_BATT_STATUS_OFF(0, "Off"), //
 		 * SE_BATT_STATUS_STBY(1, "Standby"), // SE_BATT_STATUS_INIT(2, "Init"), //
 		 * SE_BATT_STATUS_CHARGE(3, "Charge"), // SE_BATT_STATUS_DISCHARGE(4,
 		 * "Discharge"), // SE_BATT_STATUS_FAULT(5, "Fault"), // // 6 doesn´t exist
@@ -148,7 +149,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 */
 		BATTERY_STATUS(Doc.of(BatteryStatus.values()).accessMode(AccessMode.READ_ONLY)),
 
-		/*
+		/**
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
 		 * Charge/Discharge default Mode sets the default mode of operation when Remote
 		 * Control Command Timeout has expired. The supported Charge/Discharge Modes are
@@ -181,9 +182,10 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values()).accessMode(AccessMode.READ_ONLY)),
 
 		/**
-		 * Charge Power Wanted is the activePower wanted from controllers and internal
+		 * Charge Power Wanted is the activePower wanted from controllers and internal.
 		 * Channel for applyPower()-Method
 		 *
+		 * <p>
 		 * negative values for charging
 		 * <ul>
 		 * <li>Interface: Ess
@@ -195,19 +197,19 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		CHARGE_POWER_WANTED(Doc.of(OpenemsType.INTEGER) // Charge/Discharge-Power wanted from controllers
 				.unit(Unit.WATT)), // defined in external file
 		// StorEdge Control and Status Block
-		/*
-		 * Storage Control Mode is used to set the StorEdge system operating mode: 0 –
-		 * Disabled 1 – Maximize Self Consumption – requires a SolarEdge Electricity
-		 * meter on the grid or load connection point 2 – Time of Use (Profile
-		 * programming) – requires a SolarEdge Electricity meter on the grid or load
-		 * connection point 3 – Backup Only (applicable only for systems support backup
-		 * functionality) 4 – Remote Control – the battery charge/discharge state is
-		 * controlled by an external controller
+		/**
+		 * Charge Control Mode. Storage Control Mode is used to set the StorEdge system
+		 * operating mode: 0 – Disabled 1 – Maximize Self Consumption – requires a
+		 * SolarEdge Electricity meter on the grid or load connection point 2 – Time of
+		 * Use (Profile programming) – requires a SolarEdge Electricity meter on the
+		 * grid or load connection point 3 – Backup Only (applicable only for systems
+		 * support backup functionality) 4 – Remote Control – the battery
+		 * charge/discharge state is controlled by an external controller
 		 */
 		CONTROL_MODE(Doc.of(ControlMode.values()).accessMode(AccessMode.READ_ONLY)), // defined in external file
 
 		/**
-		 * Power from Grid. Used to calculate pv production
+		 * Power from Grid. Used to calculate pv production.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -221,7 +223,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * Scaling factor for grid power
+		 * Scaling factor for grid power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -235,7 +237,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), // defined in external file
 
 		/**
-		 * Charge continues power Varies with storage state of charge
+		 * Charge continues power Varies with storage state of charge.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -255,10 +257,9 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 */
 		MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH).accessMode(AccessMode.READ_ONLY)), // defined in external
-																									// file
+				.persistencePriority(PersistencePriority.HIGH).accessMode(AccessMode.READ_ONLY)),
 		/**
-		 * Charge continues power Varies with storage state of charge
+		 * Charge continues power Varies with storage state of charge.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -272,8 +273,9 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)), // defined in external file
 
 		/**
-		 * Charge Power READ Channel always positive
+		 * Charge Power READ Channel always positive.
 		 * 
+		 * <p>
 		 * Reads the charge power
 		 * <ul>
 		 * <li>Interface: Ess
@@ -286,7 +288,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
-		 * Discharge continues power Varies with storage state of charge
+		 * Discharge continues power Varies with storage state of charge.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -300,7 +302,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Discharge continues power Varies with storage state of charge
+		 * Discharge continues power Varies with storage state of charge.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -314,8 +316,9 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Dicharge Power READ Channel always positive
+		 * Dicharge Power READ Channel always positive.
 		 * 
+		 * <p>
 		 * Reads the charge power
 		 * <ul>
 		 * <li>Interface: Ess
@@ -328,7 +331,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
-		 * AC-Power produced by the ESS. Either for grid or consumption
+		 * AC-Power produced by the ESS. Either for grid or consumption.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -342,7 +345,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
-		 * Scale factor for AC-Power
+		 * Scale factor for AC-Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -356,7 +359,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
-		 * DC-Power of the inverter
+		 * DC-Power of the inverter.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -370,7 +373,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
-		 * Scale for the DC-Power value
+		 * Scale for the DC-Power value.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -383,7 +386,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
-		 * Rated Energy
+		 * Rated Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -396,19 +399,19 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.LOW)), //
 
-		/*
-		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
-		 * Charge/Discharge default Mode sets the default mode of operation when Remote
-		 * Control Command Timeout has expired. The supported Charge/Discharge Modes are
-		 * as follows: 0 – Off 1 – Charge excess PV power only. Only PV excess power not
-		 * going to AC is used for charging the battery. Inverter
-		 * NominalActivePowerLimit (or the inverter rated power whichever is lower) sets
-		 * how much power the inverter is producing to the AC. In this mode, the battery
-		 * cannot be discharged. If the PV power is lower than NominalActivePowerLimit
-		 * the AC production will be equal to the PV power. 2 – Charge from PV first,
-		 * before producing power to the AC. The Battery charge has higher priority than
-		 * AC production. First charge the battery then produce AC. If
-		 * StorageRemoteCtrl_ChargeLimit is lower than PV excess power goes to AC
+		/**
+		 * Remote Control Mode. Charge/Discharge default Mode / Remote Control Command
+		 * Mode Storage Charge/Discharge default Mode sets the default mode of operation
+		 * when Remote Control Command Timeout has expired. The supported
+		 * Charge/Discharge Modes are as follows: 0 – Off 1 – Charge excess PV power
+		 * only. Only PV excess power not going to AC is used for charging the battery.
+		 * Inverter NominalActivePowerLimit (or the inverter rated power whichever is
+		 * lower) sets how much power the inverter is producing to the AC. In this mode,
+		 * the battery cannot be discharged. If the PV power is lower than
+		 * NominalActivePowerLimit the AC production will be equal to the PV power. 2 –
+		 * Charge from PV first, before producing power to the AC. The Battery charge
+		 * has higher priority than AC production. First charge the battery then produce
+		 * AC. If StorageRemoteCtrl_ChargeLimit is lower than PV excess power goes to AC
 		 * according to NominalActivePowerLimit. If NominalActivePowerLimit is reached
 		 * and battery StorageRemoteCtrl_ChargeLimit is reached, PV power is curtailed.
 		 * 3 – Charge from PV+AC according to the max battery power. Charge from both PV
@@ -449,6 +452,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		/**
 		 * Charge Power WRITE Channel always positive
 		 * 
+		 * <p>
 		 * Tells the ESS the charge power. Control mode and charge policy have to be set
 		 * <ul>
 		 * <li>Interface: Ess
@@ -463,6 +467,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		/**
 		 * Discharge Power WRITE Channel always positive
 		 * 
+		 * <p>
 		 * Tells the ESS the charge power. Control mode and charge policy have to be set
 		 * <ul>
 		 * <li>Interface: Ess
@@ -476,25 +481,26 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 
 		SET_REMOTE_CONTROL_COMMAND_MODE(Doc.of(ChargeDischargeMode.values()).accessMode(AccessMode.WRITE_ONLY)),
 
-		/*
-		 * Remote Control Command Timeout sets the operating timeframe for the
-		 * charge/discharge command sets in Remote Control
+		/**
+		 * RC-Command Timeout. Remote Control Command Timeout sets the operating
+		 * timeframe for the charge/discharge command sets in Remote Control
 		 */
 		SET_REMOTE_CONTROL_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.WRITE_ONLY).unit(Unit.SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		/*
-		 * Storage Backup Reserved Setting sets the percentage of reserved battery SOE
-		 * to be used for backup purposes. Relevant only for inverters with backup
-		 * functionality.
+		/**
+		 * Storage Backup Limit. Storage Backup Reserved Setting sets the percentage of
+		 * reserved battery SOE to be used for backup purposes. Relevant only for
+		 * inverters with backup functionality.
 		 */
 		SET_STORAGE_BACKUP_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent. Only relevant for backup systems
 				.unit(Unit.PERCENT) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
-		 * State Of Health
+		 * State Of Health.
 		 *
+		 * <p>
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
@@ -532,8 +538,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
 	 * Channel.
 	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @param value the next value sets the next value for ChargePolicy
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setAcChargePolicy(AcChargePolicy value) throws OpenemsNamedException {
 		this.getSetAcChargePolicyChannel().setNextWriteValue(value);
@@ -544,8 +550,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE} Channel.
 	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @param value the next value sets the next value for default mode (if controlling via EMS is not active)
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setChargeDischargeDefaultMode(ChargeDischargeMode value) throws OpenemsNamedException {
 		this.getSetChargeDischargeDefaultModeChannel().setNextWriteValue(value);
@@ -565,8 +571,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
 	 * Channel.
 	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @param value the next value for ControlMode
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setControlMode(ControlMode value) throws OpenemsNamedException {
 
@@ -579,7 +585,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE} Channel.
 	 *
 	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setMaxChargePower(Integer value) throws OpenemsNamedException {
 		this.getSetMaxChargePowerChannel().setNextWriteValue(value);
@@ -589,8 +595,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE} Channel.
 	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @param value the next value for max. Discharge Power
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setMaxDischargePower(Integer value) throws OpenemsNamedException {
 		this.getSetMaxDischargePowerChannel().setNextWriteValue(value);
@@ -600,8 +606,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE} Channel.
 	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @param value the next value for RemoteControl
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setRemoteControlCommandMode(ChargeDischargeMode value) throws OpenemsNamedException {
 		this.getSetRemoteControlCommandModeChannel().setNextWriteValue(value);
@@ -612,12 +618,16 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE} Channel.
 	 *
 	 * @param value the next value
-	 * @throws OpenemsNamedException
+	 * @throws OpenemsNamedException throws named exception
 	 */
 	public default void _setRemoteControlTimeout(Integer value) throws OpenemsNamedException {
 		this.getSetRemoteControlTimeoutChannel().setNextWriteValue(value);
 	}
-
+	
+	/**
+	 * Not sure if necessary.
+	 * @param charger Adds charger component
+	 */
 	public void addCharger(SolaredgeDcCharger charger);
 
 	/**
@@ -723,7 +733,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default ControlMode getControlMode() {
 		return this.getControlModeChannel().value().asEnum();
 	}
-// ######################			
+	// 	######################			
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
@@ -910,7 +920,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		return this.getMaxDischargePowerChannel().value();
 	}
 
-// #############		
+	// 	#############		
 	/**
 	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
 	 *
@@ -930,6 +940,10 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		return this.channel(ChannelId.MAX_DISCHARGE_CONTINUES_POWER);
 	}
 
+	/**
+	 * Sets the Modbus-ID from Config.
+	 * @return Modbus-ID as String
+	 */
 	public String getModbusBridgeId();
 
 	/**
@@ -942,7 +956,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		return this.getRemoteControlCommandModeChannel().value().asEnum();
 	}
 
-//###########################	
+	//###########################	
 	/**
 	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
 	 *
@@ -1034,9 +1048,18 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default IntegerWriteChannel getSetRemoteControlTimeoutChannel() {
 		return this.channel(ChannelId.SET_REMOTE_CONTROL_TIMEOUT);
 	}
-
+	
+	/**
+	 * Gets the Unit-ID for ESS.
+	 * 
+	 * @return the Unit-ID for the ESS
+	 */
 	public Integer getUnitId();
 
+	/**
+	 * Removes Charger.
+	 * @param charger Removes given charger instance
+	 */
 	public void removeCharger(SolaredgeDcCharger charger);
 
 }

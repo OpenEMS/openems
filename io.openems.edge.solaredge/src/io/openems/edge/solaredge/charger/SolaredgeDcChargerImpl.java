@@ -175,9 +175,9 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
 		protocol.addTask(//
-				new FC3ReadRegistersTask(0xE174, Priority.HIGH, //
-						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, // Instantaneous Power from Solaregde - no
-																			// scaling
+				new FC3ReadRegistersTask(0xE174, Priority.HIGH,
+						// Instantaneous Power from Solaregde without scaling
+						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER,
 								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)) //
 				));
 
@@ -191,17 +191,16 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 
 	}
 
+	/**
+	 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
+	 * Batterie-Ladung/Entladung *-1.
+	 * 
+	 * <p> Actual power from inverter comes from house consumption + battery inverter +
+	 * power (*-1).
+	 *
+	 */
 	public void _calculateAndSetActualPower() {
-		/**
-		 * Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
-		 * Batterie-Ladung/Entladung *-1
-		 * 
-		 * Actual power from inverter comes from house consumption + battery inverter +
-		 * power (*-1)
-		 * 
-		 * 
-		 * 
-		 */
+
 		try {
 			int dcPower = this.getDcPower().get(); // Leistung Inverter
 			int dcPowerScale = this.getDcPowerScale().get(); // Leistung Inverter
@@ -213,7 +212,6 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements 
 			if (pvDcProduction < 0) {
 				pvDcProduction = 0; // Negative Values are not allowed for PV production
 			}
-				
 
 			this._setActualPower(pvDcProduction);
 		} catch (Exception e) {
