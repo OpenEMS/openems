@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +10,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -27,10 +25,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,7 +34,6 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -50,7 +44,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
-import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -71,12 +64,13 @@ import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, JsonApi {
 
-	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 	private static final int PERIODS_PER_HOUR = 4;
 	private static final int MINUTES_PER_PERIOD = 15;
 	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
+
+	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
 
 	/**
 	 * Delayed Time is aggregated also after restart of OpenEMS.
@@ -386,94 +380,27 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
 			GetScheduleRequest request) {
-
-		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(),
+		final var MINUTES_PER_PERIOD = 15;
+		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(componentManager.getClock(),
 				MINUTES_PER_PERIOD);
 		final var fromDate = now.minusHours(3);
-
 		final var channeladdressPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
 		final var channeladdressStateMachine = new ChannelAddress(this.id(), "StateMachine");
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult = new TreeMap<>();
 
-		// Query database for last three hours, with 15 minute resolution.
+		// Query database for the last three hours, with 15-minute resolution.
 		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now,
+			queryResult = timedata.queryHistoricData(null, fromDate, now,
 					Set.of(channeladdressPrices, channeladdressStateMachine), new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();
 		}
 
-		// Extract the price data
-		var priceValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channeladdressPrices)) //
-				// get as Array
-				.collect(JsonUtils.toJsonArray());
+		var response = ScheduleUtils.handleGetScheduleRequest(this.schedule, this.config, request, queryResult,
+				channeladdressPrices, channeladdressStateMachine);
 
-		// Extract the State Machine data
-		var stateMachineValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channeladdressStateMachine)) //
-				// Mapping to absolute state machine values since query result gives average
-				// values.
-				.map(t -> {
-					if (t.isJsonPrimitive() && t.getAsJsonPrimitive().isNumber()) {
-						// 'double' to 'int' for appropriate state machine values.
-						return new JsonPrimitive(t.getAsInt());
-					}
-
-					return JsonNull.INSTANCE;
-				})
-				// get as Array
-				.collect(JsonUtils.toJsonArray());
-
-		final var stateMachineValuesFuture = new JsonArray();
-		final var priceValuesFuture = new JsonArray();
-
-		// Create StateMachine for future values based on schedule created.
-		this.schedule.periods.forEach(period -> {
-			priceValuesFuture.add(period.price);
-			stateMachineValuesFuture.add(period.getStateMachine(this.config.controlMode()).getValue());
-		});
-
-		// Concatenate Price values.
-		final var prices = Stream.concat(//
-				JsonUtils.stream(priceValuesPast), // last three hours data
-				JsonUtils.stream(priceValuesFuture)) //
-				.limit(96) //
-				.collect(JsonUtils.toJsonArray());
-
-		// Concatenate State Machine values.
-		final var states = Stream.concat(//
-				JsonUtils.stream(stateMachineValuesPast), // last three hours data
-				JsonUtils.stream(stateMachineValuesFuture)) //
-				.limit(96) //
-				.collect(JsonUtils.toJsonArray());
-
-		var timestamp = queryResult.firstKey();
-		var schedule = JsonUtils.buildJsonArray();
-
-		// Creates the Json object with 'time stamp', 'price', 'state' and adds it to
-		// the Json array.
-		for (int index = 0; index < prices.size(); index++) {
-			var result = JsonUtils.buildJsonObject();
-			var price = prices.get(index);
-			var state = states.get(index);
-
-			if (price.isJsonNull() || state.isJsonNull()) {
-				continue;
-			}
-
-			result.add("timestamp",
-					new JsonPrimitive(timestamp.plusMinutes(15 * index).format(DateTimeFormatter.ISO_INSTANT)));
-			result.add("price", prices.get(index));
-			result.add("state", states.get(index));
-			schedule.add(result.build());
-		}
-
-		var response = new GetScheduleResponse(request.getId(), schedule.build());
 		return CompletableFuture.completedFuture(response);
 	}
 }
