@@ -1,5 +1,7 @@
 package io.openems.edge.timedata.influxdb;
 
+import static java.util.Collections.emptySortedMap;
+
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -34,6 +36,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 import io.openems.shared.influxdb.InfluxConnector;
 
 /**
@@ -207,9 +210,23 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO implement this method
+		return emptySortedMap();
+	}
+
+	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// TODO implement this method
 		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		// TODO implement this method
+		return new Timeranges();
 	}
 
 }

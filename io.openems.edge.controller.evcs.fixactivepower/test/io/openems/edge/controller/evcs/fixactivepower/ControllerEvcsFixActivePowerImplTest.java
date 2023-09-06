@@ -18,6 +18,7 @@ public class ControllerEvcsFixActivePowerImplTest {
 						.setId(CTRL_ID) //
 						.setEvcsId(EVCS_ID) //
 						.setPower(0) //
+						.setUpdateFrequency(1) //
 						.build()); //
 		;
 	}

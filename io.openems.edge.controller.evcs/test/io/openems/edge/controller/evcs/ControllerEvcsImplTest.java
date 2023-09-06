@@ -169,7 +169,6 @@ public class ControllerEvcsImplTest {
 
 	@Test
 	public void clusterTest() throws Exception {
-
 		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
 
