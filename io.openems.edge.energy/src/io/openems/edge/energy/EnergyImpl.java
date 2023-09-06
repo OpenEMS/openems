@@ -3,6 +3,7 @@ package io.openems.edge.energy;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,9 +24,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.scheduler.api.Scheduler;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -76,23 +75,29 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 			return;
 		}
 
-		// Run Worker once now and afterwards every 15 minutes
+		// Run Worker:
+		// - once now (in 5 seconds)
+		// - on next full 15 minutes
+		// - afterwards every 15 minutes
 		final AtomicReference<Future<?>> future = new AtomicReference<>();
-		future.set(this.taskExecutor.submit(this.task));
-
 		var now = ZonedDateTime.now();
 		var nowRoundedDown = DateUtils.roundZonedDateTimeDownToMinutes(now, 15);
 		var nextQuarter = nowRoundedDown.plusMinutes(15);
+		var durationTillNextQuarter = Duration.between(now, nextQuarter).toMillis();
+		Runnable taskSingleton = () -> {
+			// Cancel previous run
+			Optional.ofNullable(future.get()).ifPresent(f -> f.cancel(true));
+			future.set(this.taskExecutor.submit(this.task));
+		};
 
-		this.triggerExecutor.scheduleAtFixedRate(//
-				() -> {
-					// Cancel previous run
-					future.get().cancel(true);
-					future.set(this.taskExecutor.submit(this.task));
-				}, //
+		if (durationTillNextQuarter > 60_000 /* 1 minute */) {
+			// Wait for Controllers to become available
+			this.triggerExecutor.schedule(taskSingleton, 5, TimeUnit.SECONDS);
+		}
 
+		this.triggerExecutor.scheduleAtFixedRate(taskSingleton,
 				// Wait till next full 15 minutes
-				Duration.between(now, nextQuarter).toMillis(), //
+				durationTillNextQuarter, //
 				// then execute every 15 minutes
 				Duration.of(15, ChronoUnit.MINUTES).toMillis(), TimeUnit.MILLISECONDS);
 	}

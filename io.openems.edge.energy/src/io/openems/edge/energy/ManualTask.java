@@ -1,11 +1,9 @@
 package io.openems.edge.energy;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -58,7 +56,7 @@ public class ManualTask implements Runnable {
 		this.schedules = null;
 		var schedules = Schedules.create();
 
-		var thisDay = ZonedDateTime.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.DAYS);
+		var now = ZonedDateTime.now(this.componentManager.getClock());
 		for (var entry : this.componentsToPresetStrings.entrySet()) {
 			// Get Component
 			String componentId = entry.getKey();
@@ -74,25 +72,25 @@ public class ManualTask implements Runnable {
 			if (component instanceof Schedulable schedulable) {
 				// Read Component Presets
 				var scheduleHandler = schedulable.getScheduleHandler();
-				var componentPresets = Stream.of(scheduleHandler.presets) //
-						.collect(Collectors.toUnmodifiableMap(Preset::name, Function.identity(), (t, u) -> u));
-
+				var componentPresets = new HashMap<String, Preset>();
+				for (var preset : scheduleHandler.presets) {
+					componentPresets.put(preset.name(), preset);
+				}
 				// Map Presets in Schedule
 				var presets = Stream.of(entry.getValue()) //
 						.map(preset -> componentPresets.get(preset)) //
 						.toArray(Preset[]::new);
 
 				// Apply Schedule
-				var schedule = Schedule.of(thisDay, presets);
+				var schedule = Schedule.of(now, presets);
 				schedules.add(componentId, schedule); // for debugLog
 				scheduleHandler.applySchedule((Schedule<?, ?>) schedule);
 
 			} else {
-				this.log.warn("Component [" + componentId + "] is not Schedulabel");
+				this.log.warn("Component [" + componentId + "] is not Schedulable");
 				continue; // Not Schedulable
 			}
 		}
-
 		this.schedules = schedules.build();
 	}
 

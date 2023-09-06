@@ -89,8 +89,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		 */
 		@SuppressWarnings("unchecked")
 		public final synchronized void applySchedule(Schedule<?, ?> schedule) {
-			this.log.info("Apply new Schedule: ");
-			this.log.info(schedule.toString());
+			this.log.info("Apply new Schedule: \n" + schedule.toString());
 			this.schedule = (Schedule<PRESET, DYNAMIC_CONFIG>) schedule;
 		}
 
