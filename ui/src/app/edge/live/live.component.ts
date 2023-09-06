@@ -39,6 +39,7 @@ export class LiveComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
+    console.log("Live", this.edge)
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }

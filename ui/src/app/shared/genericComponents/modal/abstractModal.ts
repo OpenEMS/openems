@@ -72,6 +72,9 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 }
                 if (channelAddresses.length != 0) {
                     this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                    console.log("ModalSelector", this.selector)
+                    console.log('flatwidget', channelAddresses)
+                    console.log('selector', this.selector)
                 }
 
                 // call onCurrentData() with latest data
