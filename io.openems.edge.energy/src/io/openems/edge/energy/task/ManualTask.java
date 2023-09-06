@@ -1,9 +1,10 @@
-package io.openems.edge.energy;
+package io.openems.edge.energy.task;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -25,17 +26,25 @@ import okhttp3.internal.concurrent.Task;
  * This task is executed once in the beginning and afterwards every full 15
  * minutes.
  */
-public class ManualTask implements Runnable {
+public class ManualTask extends AbstractEnergyTask {
 
 	private final Logger log = LoggerFactory.getLogger(Task.class);
-	private final ComponentManager componentManager;
 	private final Map<String, String[]> componentsToPresetStrings;
 
-	private Schedules schedules;
+	public ManualTask(ComponentManager componentManager, String manualSchedule, Consumer<Boolean> scheduleError) {
+		super(componentManager, scheduleError);
+		Map<String, String[]> componentsToPresetStrings;
+		try {
+			componentsToPresetStrings = parseSchedules(manualSchedule);
+			scheduleError.accept(false);
 
-	public ManualTask(ComponentManager componentManager, String manualSchedule) throws OpenemsNamedException {
-		this.componentManager = componentManager;
-		this.componentsToPresetStrings = parseSchedules(manualSchedule);
+		} catch (OpenemsNamedException e) {
+			componentsToPresetStrings = ImmutableMap.of();
+			this.log.error("Unable to parse Schedule: " + e.getMessage());
+			e.printStackTrace();
+			scheduleError.accept(true);
+		}
+		this.componentsToPresetStrings = componentsToPresetStrings;
 	}
 
 	protected static Map<String, String[]> parseSchedules(String manualSchedule) throws OpenemsNamedException {
@@ -53,6 +62,7 @@ public class ManualTask implements Runnable {
 
 	@Override
 	public void run() {
+		var scheduleError = false;
 		this.schedules = null;
 		var schedules = Schedules.create();
 
@@ -65,6 +75,7 @@ public class ManualTask implements Runnable {
 				component = componentManager.getComponent(componentId);
 			} catch (OpenemsNamedException e) {
 				this.log.warn("Unable to get Component [" + componentId + "]: " + e.getMessage());
+				scheduleError = true;
 				continue;
 			}
 
@@ -88,24 +99,12 @@ public class ManualTask implements Runnable {
 
 			} else {
 				this.log.warn("Component [" + componentId + "] is not Schedulable");
+				scheduleError = true;
 				continue; // Not Schedulable
 			}
 		}
 		this.schedules = schedules.build();
-	}
-
-	/**
-	 * Gets a debug log message.
-	 * 
-	 * @return a message
-	 */
-	public String debugLog() {
-		var schedules = this.schedules;
-		if (schedules != null) {
-			return this.schedules.debugLog();
-		} else {
-			return "";
-		}
+		this.scheduleError.accept(scheduleError);
 	}
 
 }

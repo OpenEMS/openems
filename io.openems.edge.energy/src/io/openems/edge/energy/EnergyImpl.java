@@ -24,6 +24,9 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.energy.task.AbstractEnergyTask;
+import io.openems.edge.energy.task.ManualTask;
+import io.openems.edge.energy.task.SmartTask;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Designate(ocd = Config.class, factory = true)
@@ -32,7 +35,7 @@ import io.openems.edge.scheduler.api.Scheduler;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsComponent {
+public class EnergyImpl extends AbstractOpenemsComponent implements Energy, OpenemsComponent {
 
 	private final ScheduledExecutorService taskExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService triggerExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -49,7 +52,7 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 	@Reference
 	protected Scheduler scheduler;
 
-	private ManualTask task;
+	private AbstractEnergyTask task;
 
 	public EnergyImpl() throws OpenemsNamedException {
 		super(//
@@ -67,8 +70,8 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 
 		this.task = switch (config.mode()) {
 		case OFF -> null;
-		case MANUAL -> new ManualTask(this.componentManager, config.manualSchedule());
-		case SMART -> null; // TODO
+		case MANUAL -> new ManualTask(this.componentManager, config.manualSchedule(), this::_setScheduleError);
+		case SMART -> new SmartTask(this.componentManager, this::_setScheduleError);
 		};
 
 		if (this.task == null) {
@@ -111,6 +114,9 @@ public class EnergyImpl extends AbstractOpenemsComponent implements OpenemsCompo
 
 	@Override
 	public String debugLog() {
+		if (this.task == null) {
+			return null;
+		}
 		return this.task.debugLog();
 	}
 
