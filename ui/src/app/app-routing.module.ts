@@ -25,7 +25,6 @@ import { SinglethresholdChartOverviewComponent } from './edge/history/singlethre
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
-import { LiveDataService } from './edge/live/livedataservice';
 import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
@@ -58,11 +57,9 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
+
       {
-        path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
-          useClass: LiveDataService,
-          provide: DataService
-        }], component: EdgeLiveComponent
+        path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent
       },
       {
         path: 'history', providers: [{

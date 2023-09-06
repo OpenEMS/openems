@@ -5,7 +5,7 @@ import { HeaderComponent } from 'src/app/shared/header/header.component';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-
+import { Subject } from 'rxjs';
 @Component({
   selector: 'history',
   templateUrl: './history.component.html'
@@ -16,7 +16,7 @@ export class HistoryComponent implements OnInit {
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
-
+  private stopOnDestroy: Subject<void> = new Subject<void>();
   protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
@@ -63,6 +63,10 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  public ngOnDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+  }
   protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
     this.errorResponse = errorResponse;
   }

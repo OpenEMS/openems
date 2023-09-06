@@ -126,6 +126,10 @@ export class Edge {
     this.sendSubscribeChannels(websocket);
   }
 
+  public unsubscribeFromAllChannels(websocket: Websocket) {
+    this.subscribedChannels = {}
+    this.sendSubscribeChannels(websocket);
+  }
   /**
    * Subscribe to System-Log
    * 

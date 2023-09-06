@@ -3,7 +3,6 @@ import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";
-import { SubscribeEdgesRequest } from "../../shared/jsonrpc/request/subscribeEdgesRequest";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 
 @Injectable()
@@ -38,7 +37,7 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [] }));
+        this.edge.unsubscribeFromAllChannels(this.websocket);
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }
