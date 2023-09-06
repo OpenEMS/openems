@@ -6,6 +6,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -25,14 +31,25 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
-		implements ControllerEssPeakShaving, Controller, OpenemsComponent {
+		implements ControllerEssPeakShaving, Controller, OpenemsComponent, TimedataProvider {
 
 	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssPeakShavingImpl.class);
 
+	/*
+	 * Cumulated active time.
+	 */
+	private final CalculateActiveTime totalTimePeakShavingPower = new CalculateActiveTime(this,
+			ControllerEssPeakShaving.ChannelId.PEAK_SHAVING_POWER_CUMULATED_TIME);
+	private final CalculateActiveTime totalTimeRechargePower = new CalculateActiveTime(this,
+			ControllerEssPeakShaving.ChannelId.RECHARGE_POWER_CUMULATED_TIME);
+
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private Config config;
 
@@ -80,18 +97,22 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
+		var peakShavingPowerActiveTime = false;
+		var rechargePowerActiveTime = false;
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {
 			/*
 			 * Peak-Shaving
 			 */
 			calculatedPower = gridPower -= this.config.peakShavingPower();
+			peakShavingPowerActiveTime = true;
 
 		} else if (gridPower <= this.config.rechargePower()) {
 			/*
 			 * Recharge
 			 */
 			calculatedPower = gridPower -= this.config.rechargePower();
+			rechargePowerActiveTime = true;
 
 		} else {
 			/*
@@ -105,5 +126,16 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		 */
 		ess.setActivePowerEqualsWithPid(calculatedPower);
 		ess.setReactivePowerEquals(0);
+
+		/*
+		 * Update cumulated active time.
+		 */
+		this.totalTimePeakShavingPower.update(peakShavingPowerActiveTime);
+		this.totalTimeRechargePower.update(rechargePowerActiveTime);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
