@@ -127,7 +127,7 @@ export class Edge {
   }
 
   public unsubscribeFromAllChannels(websocket: Websocket) {
-    this.subscribedChannels = {}
+    this.subscribedChannels = {};
     this.sendSubscribeChannels(websocket);
   }
   /**

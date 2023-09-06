@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/shared/header/header.component';
@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit {
+export class HistoryComponent implements OnInit, OnDestroy {
 
   @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
 
