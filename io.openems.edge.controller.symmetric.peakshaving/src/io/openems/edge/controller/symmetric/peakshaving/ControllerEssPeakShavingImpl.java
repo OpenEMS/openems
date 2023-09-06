@@ -78,18 +78,21 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
+		var peakShavingIsActive = false;
+		var rechargeIsActive = false;
+
 		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
+		 * Check that we are On-Grid (and warn on undefined Grid-Mode).
 		 */
 		var gridMode = ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
 		switch (gridMode) {
 		case ON_GRID:
+			break;
 		case UNDEFINED:
+			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 			break;
 		case OFF_GRID:
+			this.updateCumulatedChannels(peakShavingIsActive, rechargeIsActive);
 			return;
 		}
 
@@ -97,22 +100,20 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
-		var peakShavingPowerActiveTime = false;
-		var rechargePowerActiveTime = false;
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {
 			/*
 			 * Peak-Shaving
 			 */
 			calculatedPower = gridPower -= this.config.peakShavingPower();
-			peakShavingPowerActiveTime = true;
+			peakShavingIsActive = true;
 
 		} else if (gridPower <= this.config.rechargePower()) {
 			/*
 			 * Recharge
 			 */
 			calculatedPower = gridPower -= this.config.rechargePower();
-			rechargePowerActiveTime = true;
+			rechargeIsActive = true;
 
 		} else {
 			/*
@@ -130,8 +131,19 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		/*
 		 * Update cumulated active time.
 		 */
-		this.totalTimePeakShavingPower.update(peakShavingPowerActiveTime);
-		this.totalTimeRechargePower.update(rechargePowerActiveTime);
+		this.updateCumulatedChannels(peakShavingIsActive, rechargeIsActive);
+	}
+
+	/**
+	 * Updates the total time calculation for 'Peak Shaving Power' and 'Recharge
+	 * Power'.
+	 * 
+	 * @param peakShavingIsActive Peak shaving power is active.
+	 * @param rechargeIsActive    Recharge power is active.
+	 */
+	private void updateCumulatedChannels(boolean peakShavingIsActive, boolean rechargeIsActive) {
+		this.totalTimePeakShavingPower.update(peakShavingIsActive);
+		this.totalTimeRechargePower.update(rechargeIsActive);
 	}
 
 	@Override
