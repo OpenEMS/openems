@@ -58,13 +58,11 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
-
       {
-        path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent,
-        providers: [{
+        path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
           useClass: LiveDataService,
           provide: DataService
-        }]
+        }], component: EdgeLiveComponent
       },
       {
         path: 'history', providers: [{

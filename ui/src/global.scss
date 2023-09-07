@@ -11,20 +11,23 @@
 
 /* Core CSS required for Ionic components to work properly */
 @import "~@ionic/angular/css/core.css";
-@import "~@ionic/angular/css/display.css";
-@import "~@ionic/angular/css/flex-utils.css";
-@import "~@ionic/angular/css/float-elements.css";
+
 /* Basic CSS for apps built with Ionic */
 @import "~@ionic/angular/css/normalize.css";
+@import "~@ionic/angular/css/structure.css";
+@import "~@ionic/angular/css/typography.css";
+@import "~@ionic/angular/css/display.css";
+
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
-@import "~@ionic/angular/css/structure.css";
+@import "~@ionic/angular/css/float-elements.css";
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
-@import "~@ionic/angular/css/typography.css";
+@import "~@ionic/angular/css/flex-utils.css";
+@import "variables";
+
 /* ngx-spinner */
 @import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
-@import "variables";
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
@@ -48,9 +51,8 @@ formly-field-ion-radio {
 }
 
 .line-break {
-
-    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
-    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
+    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
+    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
@@ -231,7 +233,6 @@ formly-input-section {
 }
 
 :root {
-
     // Used in IBN, dynamicFeedInLimitation
     formly-field-ion-select {
         ion-select::part(text) {
