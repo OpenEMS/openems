@@ -44,8 +44,8 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     // Calculate active time based on a time counter
     protected updateValues() {
-
         this.service.getConfig().then(config => {
+            this.component = config.getComponent(this.componentId);
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
@@ -60,18 +60,14 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
         });
     }
 
-    protected override getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         const result: ChannelAddress[] = [];
-        // Component was not initialized before, so had to initialize here.
-        this.service.getConfig().then(config => {
-            this.component = config.getComponent(this.componentId);
-        }).then(() => {
-            if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
-                result.push(new ChannelAddress(this.componentId, 'ChargedTime'));
-            } else {
-                result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
-            }
-        });
+
+        if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
+            result.push(new ChannelAddress(this.componentId, 'ChargedTime'));
+        } else {
+            result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
+        }
 
         return new Promise((resolve) => {
             resolve(result);
