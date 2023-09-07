@@ -122,6 +122,9 @@ export class Edge {
    * 
    * @param websocket the Websocket
    * @param id        the unique ID for this subscription
+   * @deprecated Use `unsubscribeFromChannels` instead.
+   * 
+   * @todo should be removed
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
@@ -133,6 +136,8 @@ export class Edge {
    * 
    * @param websocket the Websocket
    * @param channels the channels
+   * 
+   * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
    */
   public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
     this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
