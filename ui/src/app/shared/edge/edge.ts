@@ -1,5 +1,6 @@
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
@@ -12,6 +13,7 @@ import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRe
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
+import { ArrayUtils } from '../service/arrayUtils';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';
@@ -123,6 +125,20 @@ export class Edge {
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
     delete this.subscribedChannels[id];
+    this.sendSubscribeChannels(websocket);
+  }
+
+  public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
+    this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
+      if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
+        return arr;
+      }
+
+      arr[id] = subscribedChannels;
+
+      return arr;
+    }, {});
+
     this.sendSubscribeChannels(websocket);
   }
 

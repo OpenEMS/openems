@@ -1,14 +1,15 @@
-import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { Directive, Inject, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../../shared/genericComponents/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../shared/shared";
 
-@Injectable()
+@Directive()
 export class LiveDataService extends DataService implements OnDestroy {
 
     private subscribeId: string | null = null;
+    private subscribedChannelAddresses: ChannelAddress[] = [];
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -18,6 +19,11 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
+
+        for (let channelAddress of channelAddresses) {
+            this.subscribedChannelAddresses.push(channelAddress);
+        }
+
         this.subscribeId = uuidv4();
         this.edge = edge;
         if (channelAddresses.length != 0) {
@@ -37,8 +43,12 @@ export class LiveDataService extends DataService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.edge.unsubscribeFromAllChannels(this.websocket);
+        this.edge.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
+    }
+
+    public unsubscribeFromChannels(channels: ChannelAddress[]) {
+        this.edge.unsubscribeFromChannels(this.websocket, channels);
     }
 }

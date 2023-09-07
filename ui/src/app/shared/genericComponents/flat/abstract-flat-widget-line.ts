@@ -27,8 +27,11 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   /** Channel defines the channel, you need for this line */
   @Input()
   set channelAddress(channelAddress: string) {
+    this._channelAddress = ChannelAddress.fromString(channelAddress);
     this.subscribe(ChannelAddress.fromString(channelAddress));
   }
+
+  private _channelAddress: ChannelAddress | null = null;
 
   /** 
    * displayValue is the displayed @Input value in html
@@ -62,7 +65,6 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
 
-      console.log('line-selector', this.selector)
       this.dataService.getValues([channelAddress], this.edge);
       this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
         this.setValue(value.allComponents[channelAddress.toString()]);
@@ -72,8 +74,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   public ngOnDestroy() {
     // Unsubscribe from OpenEMS
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, this.selector);
+    if (this.edge != null && this._channelAddress) {
+      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress])
     }
 
     // Unsubscribe from CurrentData subject

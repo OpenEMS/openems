@@ -1,17 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
 import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/shared/shared';
-import { LiveDataService } from './livedataservice';
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html',
-  providers: [{
-    useClass: LiveDataService,
-    provide: DataService
-  }]
+  templateUrl: './live.component.html'
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -39,7 +33,6 @@ export class LiveComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-    console.log("Live", this.edge)
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
   }

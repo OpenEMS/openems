@@ -10,7 +10,7 @@ export class JsonRpcUtils {
         for (let channel of channels) {
             result.push(channel.toString());
         }
-        return result;
+        return Array.from(new Set(result));
     }
 
 }
