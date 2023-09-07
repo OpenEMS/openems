@@ -24,7 +24,6 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -32,6 +31,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a App for SMA PV-Inverter.
@@ -68,19 +68,19 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		// Properties
 		ALIAS(AppDef.of(SmaPvInverter.class) //
 				.setDefaultValueToAppName()), //
-		IP(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.ip()) //
+		IP(AppDef.copyOfGeneric(CommonPvInverterConfiguration.ip(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
-		PORT(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.port()) //
+				}))), //
+		PORT(AppDef.copyOfGeneric(CommonPvInverterConfiguration.port(), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
-		MODBUS_UNIT_ID(AppDef.copyOf(Property.class, CommonPvInverterConfiguration.modbusUnitId()) //
+				}))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommonPvInverterConfiguration.modbusUnitId(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
-				})), //
+				}))), //
 		PHASE(AppDef.of(SmaPvInverter.class) //
 				.setTranslatedLabelWithAppPrefix(".phase.label") // )
 				.setTranslatedDescriptionWithAppPrefix(".phase.description") //

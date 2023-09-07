@@ -34,6 +34,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.simulator.CsvUtils;
 import io.openems.edge.simulator.DataContainer;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -124,6 +125,12 @@ public class SimulatorTimedataImpl extends AbstractOpenemsComponent
 		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator");
 	}
 
+	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		throw new NotImplementedException("QueryResendData is not implemented for Simulator-App");
+	}
+
 	/**
 	 * Gets the value of the record for the given Channel-Address as Json.
 	 *
@@ -152,6 +159,12 @@ public class SimulatorTimedataImpl extends AbstractOpenemsComponent
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// TODO implement this method
 		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("GetResendTimeranges is not implemented for Simulator-App");
 	}
 
 }

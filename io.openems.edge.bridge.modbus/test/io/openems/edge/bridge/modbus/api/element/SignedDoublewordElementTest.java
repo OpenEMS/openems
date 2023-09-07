@@ -37,7 +37,6 @@ public class SignedDoublewordElementTest {
 				new SimpleRegister((byte) 0xAB, (byte) 0xCD), //
 				new SimpleRegister((byte) 0x12, (byte) 0x34) //
 		});
-		System.out.println(sut.channel.getNextValue().get());
 		assertEquals(0x1234_ABCDL, sut.channel.getNextValue().get());
 	}
 

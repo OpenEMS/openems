@@ -20,6 +20,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 
 /**
  * Provides a simple, simulated {@link Timedata} component that can be used
@@ -99,6 +100,13 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 	}
 
 	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		throw new NotImplementedException("DummyTimedata.queryResendData() is not implemented");
+	}
+
+	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		var result = this.data.entrySet() //
 				.stream() //
@@ -109,4 +117,12 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 				.findFirst();
 		return CompletableFuture.completedFuture(result);
 	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		// TODO Auto-generated method stub
+		throw new NotImplementedException("DummyTimedata.getTimeranges() is not implemented");
+	}
+
 }

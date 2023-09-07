@@ -38,18 +38,22 @@ public final class AllowedChannels {
 				.put("_sum/ConsumptionActivePowerL1", DataType.LONG) //
 				.put("_sum/ConsumptionActivePowerL2", DataType.LONG) //
 				.put("_sum/ConsumptionActivePowerL3", DataType.LONG) //
-				.put("_sum/EssDischargePower", DataType.LONG) // used for xlsx export
-				.putAll(multiChannels("io", 0, 9, "Relay", 1, 9, DataType.LONG)) //
 				.putAll(multiChannels("evcs", 0, 9, "ActualPower", DataType.LONG)) //
+				.putAll(multiChannels("io", 0, 9, "Relay", 1, 9, DataType.LONG)) //
 				.putAll(multiChannels("meter", 0, 9, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels("meter", 0, 9, "ActivePowerL", 1, 4, DataType.LONG)) //
-				.put("ess0/Soc", DataType.LONG) //
-				.put("ess0/ActivePower", DataType.LONG) //
-				.put("ctrlIoHeatPump0/Status", DataType.LONG) //
-				.put("ctrlIoHeatingElement0/Level", DataType.LONG) //
+				.put("ctrlGridOptimizedCharge0/_PropertyMaximumSellToGridPower", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/DelayChargeMaximumChargeLimit", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitMinimumChargeLimit", DataType.LONG) //
-				.put("ctrlGridOptimizedCharge0/_PropertyMaximumSellToGridPower", DataType.LONG) //
+				.put("ctrlIoHeatPump0/RegularStateTime", DataType.LONG) //
+				.put("ctrlIoHeatPump0/RecommendationStateTime", DataType.LONG) //
+				.put("ctrlIoHeatPump0/ForceOnStateTime", DataType.LONG) //
+				.put("ctrlIoHeatPump0/LockStateTime", DataType.LONG) //
+				.put("ctrlIoHeatPump0/Status", DataType.LONG) //
+				.put("ctrlIoHeatingElement0/Level", DataType.LONG) //
+				.put("ess0/Soc", DataType.LONG) //
+				.put("ess0/ActivePower", DataType.LONG) //
+				.put("_sum/EssDischargePower", DataType.LONG) // used for xlsx export
 				.build();
 
 		ALLOWED_CUMULATED_CHANNELS = ImmutableMap.<String, DataType>builder() //
@@ -57,16 +61,18 @@ public final class AllowedChannels {
 				.put("_sum/EssDcDischargeEnergy", DataType.LONG) //
 				.put("_sum/GridSellActiveEnergy", DataType.LONG) //
 				.put("_sum/ProductionActiveEnergy", DataType.LONG) //
+				.put("_sum/ProductionAcActiveEnergy", DataType.LONG) //
+				.put("_sum/ProductionDcActiveEnergy", DataType.LONG) //
 				.put("_sum/ConsumptionActiveEnergy", DataType.LONG) //
 				.put("_sum/GridBuyActiveEnergy", DataType.LONG) //
 				.put("_sum/EssActiveChargeEnergy", DataType.LONG) //
 				.put("_sum/EssActiveDischargeEnergy", DataType.LONG) //
-				.put("_sum/ProductionAcActiveEnergy", DataType.LONG) //
-				.put("_sum/ProductionDcActiveEnergy", DataType.LONG) //
+				.putAll(multiChannels("charger", 0, 5, "ActualEnergy", DataType.LONG)) //
 				.putAll(multiChannels("evcs", 0, 9, "ActiveConsumptionEnergy", DataType.LONG)) //
-				.putAll(multiChannels("meter", 0, 9, "ActiveProductionEnergy", DataType.LONG)) //
 				.putAll(multiChannels("io", 0, 9, "ActiveProductionEnergy", DataType.LONG)) //
+				.putAll(multiChannels("meter", 0, 9, "ActiveProductionEnergy", DataType.LONG)) //
 				.putAll(multiChannels("pvInverter", 0, 9, "ActiveProductionEnergy", DataType.LONG)) //
+				.put("ctrlEssTimeOfUseTariffDischarge0/DelayedTime", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/AvoidLowChargingTime", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/NoLimitationTime", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitTime", DataType.LONG) //

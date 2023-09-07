@@ -8,7 +8,6 @@ import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -32,6 +31,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
@@ -39,7 +39,7 @@ import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
-		implements OpenemsApp {
+		implements OpenemsApp, ComponentUtilSupplier, ComponentManagerSupplier {
 
 	protected final ComponentManager componentManager;
 	protected final ConfigurationAdmin cm;
@@ -69,7 +69,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			OpenemsNamedException> appPropertyConfigurationFactory();
 
 	protected final void assertCheckables(ConfigurationTarget t, Checkable... checkables) throws OpenemsNamedException {
-		if (t != ConfigurationTarget.ADD && t != ConfigurationTarget.UPDATE) {
+		if (!t.isAddOrUpdate()) {
 			return;
 		}
 		final List<String> errors = new ArrayList<>();
@@ -143,7 +143,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		var configuration = this.configuration(errors, target, language, enumMap);
 
 		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
+			throw new OpenemsException(this.getAppId() + ": " + errors.stream().collect(Collectors.joining("|")));
 		}
 		return configuration;
 	}
@@ -422,10 +422,18 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				var appConfigErrors = new LinkedList<String>();
 				if (appConfig.specificInstanceId != null) {
 					try {
-						var instance = appManager.findInstanceById(appConfig.specificInstanceId);
-						checkProperties(errors, instance.properties, appConfig, dependency.key);
-					} catch (NoSuchElementException e) {
-						appConfigErrors.add("Specific InstanceId[" + appConfig.specificInstanceId + "] not found!");
+						final var instance = appManager.findInstanceByIdOrError(appConfig.specificInstanceId);
+						final var app = appManager.findAppById(instance.appId);
+						final var props = app.map(a -> {
+							try {
+								return AbstractOpenemsApp.fillUpProperties(a, instance.properties);
+							} catch (UnsupportedOperationException e) {
+								return instance.properties;
+							}
+						}).orElse(instance.properties);
+						checkProperties(errors, props, appConfig, dependency.key);
+					} catch (OpenemsNamedException e) {
+						appConfigErrors.add(e.getMessage());
 					}
 				} else {
 
@@ -452,36 +460,82 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		}
 		// check if dependency apps are available
 		for (var dependency : configDependencies) {
+			final OpenemsAppInstance appInstance;
 			try {
-				var appInstance = appManager.findInstanceById(dependency.instanceId);
-				var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
-				if (dd.isEmpty()) {
-					errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
-					continue;
-				}
+				appInstance = appManager.findInstanceByIdOrError(dependency.instanceId);
+			} catch (OpenemsNamedException e) {
+				errors.add(e.getMessage());
+				continue;
+			}
+			var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
+			if (dd.isEmpty()) {
+				errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
+				continue;
+			}
 
-				// get app config
-				var appConfig = dd.get().appConfigs.stream() //
-						.filter(c -> c.specificInstanceId != null) //
-						.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
+			// get app config
+			var appConfig = dd.get().appConfigs.stream() //
+					.filter(c -> c.specificInstanceId != null) //
+					.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
+
+			if (appConfig.isEmpty()) {
+				appConfig = dd.get().appConfigs.stream() //
+						.filter(c -> c.appId != null) //
+						.filter(c -> c.appId.equals(appInstance.appId)).findAny();
 
 				if (appConfig.isEmpty()) {
-					appConfig = dd.get().appConfigs.stream() //
-							.filter(c -> c.appId != null) //
-							.filter(c -> c.appId.equals(appInstance.appId)).findAny();
-
-					if (appConfig.isEmpty()) {
-						errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
-						continue;
-					}
+					errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
+					continue;
 				}
-
-				// when available check properties
-				checkProperties(errors, appInstance.properties, appConfig.get(), dependency.key);
-			} catch (NoSuchElementException e) {
-				errors.add("App with instance[" + dependency.instanceId + "] not available!");
 			}
+
+			var copy = appInstance.properties.deepCopy();
+			try {
+				final var app = appManager.findAppByIdOrError(appInstance.appId);
+				copy = AbstractOpenemsApp.fillUpProperties(app, appInstance.properties);
+			} catch (OpenemsNamedException e) {
+				errors.add(e.getMessage());
+			} catch (UnsupportedOperationException e) {
+				// get props not supported
+			}
+			// when available check properties
+			checkProperties(errors, copy, appConfig.get(), dependency.key);
 		}
+	}
+
+	/**
+	 * Creates a copy of the original configuration and fills up properties which
+	 * are binded bidirectional.
+	 * 
+	 * <p>
+	 * e. g. a property in a component is the same as one configured in the app so
+	 * it directly gets stored in the component configuration and not twice to avoid
+	 * miss matching errors.
+	 * 
+	 * @param original the original configuration
+	 * @param app      the app to get the properties from
+	 * @return a copy of the original one with the filled up properties
+	 */
+	public static JsonObject fillUpProperties(//
+			final OpenemsApp app, //
+			final JsonObject original //
+	) {
+		final var copy = original.deepCopy();
+		for (var prop : app.getProperties()) {
+			if (copy.has(prop.name)) {
+				continue;
+			}
+			if (prop.bidirectionalValue == null) {
+				continue;
+			}
+			var value = prop.bidirectionalValue.apply(copy);
+			if (value == null) {
+				continue;
+			}
+			// add value to configuration
+			copy.add(prop.name, value);
+		}
+		return copy;
 	}
 
 	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,
@@ -517,6 +571,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	@Override
+	public String getShortName(Language language) {
+		return AbstractOpenemsApp.getNullableTranslation(language, this.getAppId() + ".Name.short");
+	}
+
+	@Override
 	public String getImage() {
 		var imageName = this.getClass().getSimpleName() + ".png";
 		var image = base64OfImage(this.getClass().getResource(imageName));
@@ -531,6 +590,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public AppAssistant getAppAssistant(User user) {
+		return this.getAppAssistant(user.getLanguage());
+	}
+
+	protected AppAssistant getAppAssistant(Language l) {
+		return AppAssistant.create(this.getName(l)) //
+				.build();
+	}
+
 	protected abstract PROPERTY[] propertyValues();
 
 	protected final PROPERTY getPropertyByName(String name) {
@@ -541,6 +610,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static String getTranslation(Language language, String key) {
 		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
+	}
+
+	protected static String getNullableTranslation(Language language, String key) {
+		return TranslationUtil.getNullableTranslation(getTranslationBundle(language), key);
 	}
 
 	/**
@@ -568,6 +641,21 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
 	}
 
+	/**
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
+	 * 
+	 * <p>
+	 * Used in {@link OpenemsApps} to create their {@link Type#getParamter()}.
+	 * 
+	 * @param l the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
+	 * @implNote just a name alias to
+	 *           {@link AbstractOpenemsApp#getTranslationBundle(Language)}
+	 */
+	public static ResourceBundle createResourceBundle(Language l) {
+		return getTranslationBundle(l);
+	}
+
 	protected static final String base64OfImage(URL url) {
 		if (url == null) {
 			return null;
@@ -584,6 +672,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
 		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
+	}
+
+	@Override
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
+	}
+
+	@Override
+	public ComponentUtil getComponentUtil() {
+		return this.componentUtil;
 	}
 
 }

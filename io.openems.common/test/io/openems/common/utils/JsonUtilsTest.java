@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -109,6 +111,24 @@ public class JsonUtilsTest {
 				.parallel() // make sure to trigger `combiner()`
 				.collect(JsonUtils.toJsonArray());
 		assertEquals(j, l);
+	}
+
+	@Test
+	public void testJsonObjectCollector() throws OpenemsNamedException {
+		final var map = ImmutableMap.<String, JsonElement>builder() //
+				.put("1", new JsonPrimitive("1")) //
+				.put("2", new JsonPrimitive(2)) //
+				.put("3", new JsonPrimitive(3.25)) //
+				.put("4", new JsonPrimitive(false)) //
+				.build();
+
+		final var jsonObject = map.entrySet().parallelStream() //
+				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
+
+		assertEquals("1", jsonObject.get("1").getAsString());
+		assertEquals(2, jsonObject.get("2").getAsInt());
+		assertEquals(3.25, jsonObject.get("3").getAsDouble(), 0.0);
+		assertEquals(false, jsonObject.get("4").getAsBoolean());
 	}
 
 	@Test
@@ -219,6 +239,10 @@ public class JsonUtilsTest {
 		// -> Optional Sub-Element
 		assertEquals("value", JsonUtils.getAsOptionalString(JSON_OBJECT, "String").get());
 		assertEquals(Optional.empty(), JsonUtils.getAsOptionalString(JSON_OBJECT, "foo"));
+
+		// -> As String or Else
+		assertEquals("value", JsonUtils.getAsStringOrElse(JSON_OBJECT, "String", "alternative"));
+		assertEquals("alternative", JsonUtils.getAsStringOrElse(JSON_OBJECT, "foo", "alternative"));
 	}
 
 	@Test

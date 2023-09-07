@@ -9,6 +9,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private PersistencePriority persistencePriority;
+		private boolean readOnly;
+		private boolean debugMode;
 
 		private Builder() {
 		}
@@ -20,6 +22,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPersistencePriority(PersistencePriority persistencePriority) {
 			this.persistencePriority = persistencePriority;
+			return this;
+		}
+
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return this;
+		}
+
+		public Builder setDebugMode(boolean debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -48,4 +60,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public PersistencePriority persistencePriority() {
 		return this.builder.persistencePriority;
 	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.builder.readOnly;
+	}
+
+	@Override
+	public boolean debugMode() {
+		return this.builder.debugMode;
+	}
+
 }
