@@ -13,7 +13,7 @@ import { SubscribeChannelsRequest } from '../jsonrpc/request/subscribeChannelsRe
 import { SubscribeSystemLogRequest } from '../jsonrpc/request/subscribeSystemLogRequest';
 import { UpdateComponentConfigRequest } from '../jsonrpc/request/updateComponentConfigRequest';
 import { GetEdgeConfigResponse } from '../jsonrpc/response/getEdgeConfigResponse';
-import { ArrayUtils } from '../service/arrayUtils';
+import { ArrayUtils } from '../service/arrayutils';
 import { Websocket } from '../service/websocket';
 import { ChannelAddress } from '../type/channeladdress';
 import { Role } from '../type/role';
@@ -136,6 +136,7 @@ export class Edge {
    */
   public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
     this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
+
       if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
         return arr;
       }
