@@ -35,6 +35,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 		this.onClose = (ws, code, reason, remote) -> {
 			this.log.error("Disconnected from OpenEMS Backend [" + serverUri.toString() //
 					+ (proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
+			this.parent.getUnableToSendChannel().setNextValue(true);
 		};
 	}
 

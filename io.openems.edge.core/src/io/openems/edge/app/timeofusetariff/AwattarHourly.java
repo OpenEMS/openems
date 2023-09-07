@@ -62,7 +62,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		CONTROL_MODE(AppDef.copyOf(Property.class, TimeOfUseProps.controlMode()) //
+		CONTROL_MODE(AppDef.copyOfGeneric(TimeOfUseProps.controlMode()) //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
 				}));

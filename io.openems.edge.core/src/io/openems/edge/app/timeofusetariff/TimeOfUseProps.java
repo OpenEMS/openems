@@ -12,10 +12,10 @@ import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 public final class TimeOfUseProps {
 
@@ -27,7 +27,7 @@ public final class TimeOfUseProps {
 	 * 
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleParameter> controlMode() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> controlMode() {
 		return CommonProps.defaultDef() //
 				.setTranslatedLabel("App.TimeOfUseTariff.controlMode.label")//
 				.setTranslatedDescriptionWithAppPrefix("App.TimeOfUseTariff.controlMode.description") //

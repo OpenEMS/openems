@@ -16,7 +16,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		 * Current state of the Time of use tariff controller.
 		 */
 		STATE_MACHINE(Doc.of(StateMachine.values()) //
-				.persistencePriority(PersistencePriority.VERY_HIGH) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the Controller")),
 
 		/**
@@ -42,6 +42,8 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		GRID_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Grid energy calculated for the period.")), //
 
+		QUARTERLY_PRICES_ARE_EMPTY(Doc.of(OpenemsType.BOOLEAN)//
+				.text("The list of quarterly prices retrieved are empty")),
 		AVAILABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
 				.text("Available capcity in the battery during evening")), //
 		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
@@ -55,7 +57,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		QUARTERLY_PRICES(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
 				.text("Price of the electricity for the current Hour")
-				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		TOTAL_QUARTERLY_PRICES(Doc.of(OpenemsType.INTEGER) //
 				.text("Total number of price retrieved")//
 				.persistencePriority(PersistencePriority.HIGH)), //

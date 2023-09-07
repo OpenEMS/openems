@@ -5,8 +5,9 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-public interface GoodWeCharger extends OpenemsComponent {
+public interface GoodWeCharger extends EssDcCharger, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 

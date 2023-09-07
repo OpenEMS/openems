@@ -222,8 +222,6 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 						channelEntry.getKey(), //
 						channelEntry.getValue());
 			}
-
-			this.influxConnector.write(point);
 		}
 	}
 

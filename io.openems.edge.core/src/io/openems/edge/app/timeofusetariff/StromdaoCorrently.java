@@ -24,13 +24,13 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 /**
  * Describes a App for StromdaoCorrently.
@@ -68,9 +68,9 @@ public class StromdaoCorrently extends
 				.setTranslatedLabelWithAppPrefix(".zipCode.label") //
 				.setTranslatedDescriptionWithAppPrefix(".zipCode.description") //
 				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
-				f.setInputType(InputBuilder.Type.NUMBER) //
+				f.setInputType(InputType.NUMBER) //
 						.isRequired(true))), //
-		CONTROL_MODE(AppDef.copyOf(Property.class, TimeOfUseProps.controlMode()) //
+		CONTROL_MODE(AppDef.copyOfGeneric(TimeOfUseProps.controlMode()) //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.isRequired(true);
 				}));

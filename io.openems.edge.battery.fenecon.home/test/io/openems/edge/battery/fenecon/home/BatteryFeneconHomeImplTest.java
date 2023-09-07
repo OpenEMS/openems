@@ -1,5 +1,8 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -150,7 +153,7 @@ public class BatteryFeneconHomeImplTest {
 	}
 
 	/**
-	 * Battery start up when the relay is off and battery has already started, FEMS
+	 * Battery start up when the relay is off and battery has already started, OpenEMS Edge
 	 * restarted.
 	 *
 	 * @throws Exception on error
@@ -324,4 +327,21 @@ public class BatteryFeneconHomeImplTest {
 						.output(STATE_MACHINE, StateMachine.State.RUNNING));
 	}
 
+	@Test
+	public void testGetHardwareTypeFromRegisterValue() {
+		assertNull(BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(0));
+
+		assertNull(BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(123));
+
+		assertNull(BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(52));
+
+		assertNull(BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(64));
+
+		assertEquals(BatteryFeneconHomeHardwareType.BATTERY_52,
+				BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(520));
+
+		assertEquals(BatteryFeneconHomeHardwareType.BATTERY_64,
+				BatteryFeneconHomeImpl.parseHardwareTypeFromRegisterValue(640));
+
+	}
 }

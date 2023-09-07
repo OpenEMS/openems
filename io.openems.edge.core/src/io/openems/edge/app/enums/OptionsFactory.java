@@ -32,7 +32,7 @@ public interface OptionsFactory {
 	 */
 	public static OptionsFactory of(TranslatableEnum[] values) {
 		return l -> Arrays.stream(values) //
-				.map(e -> Map.entry(e.getTranslation(l), e.name())) //
+				.map(e -> Map.entry(e.getTranslation(l), e.getValue())) //
 				.collect(Collectors.toSet());
 	}
 
@@ -41,10 +41,14 @@ public interface OptionsFactory {
 	 * 
 	 * @param <T>       the type of the enum {@link Class}
 	 * @param enumClass the {@link Class EnumClass} to get the values from.
+	 * @param exclude   the constants to exclude
 	 * @return the {@link OptionsFactory}
 	 */
-	public static <T extends Enum<T> & TranslatableEnum> OptionsFactory of(Class<T> enumClass) {
-		return of(enumClass.getEnumConstants());
+	@SafeVarargs
+	public static <T extends Enum<T> & TranslatableEnum> OptionsFactory of(Class<T> enumClass, T... exclude) {
+		return of(Arrays.stream(enumClass.getEnumConstants()) //
+				.filter(t -> !Arrays.stream(exclude).anyMatch(o -> t == o)) //
+				.toArray(TranslatableEnum[]::new));
 	}
 
 	/**

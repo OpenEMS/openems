@@ -183,6 +183,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		final var prices = this.timeOfUseTariff.getPrices();
 		this._setTotalQuarterlyPricesChannel(prices.getValues().length);
 
+		this.channel(TimeOfUseTariffController.ChannelId.QUARTERLY_PRICES_ARE_EMPTY).setNextValue(prices.isEmpty());
 		if (prices.isEmpty()) {
 			return;
 		}

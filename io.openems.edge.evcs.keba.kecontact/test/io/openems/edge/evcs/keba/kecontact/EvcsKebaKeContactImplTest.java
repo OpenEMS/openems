@@ -20,6 +20,7 @@ public class EvcsKebaKeContactImplTest {
 						.setDebugMode(false) //
 						.setIp("172.0.0.1") //
 						.setMinHwCurrent(6000) //
+						.setUseDisplay(false) //
 						.build()); //
 	}
 

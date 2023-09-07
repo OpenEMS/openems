@@ -38,6 +38,10 @@ public interface CommonTimedataService {
 		var energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(), request.getToDate(),
 				QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
 
+		if (powerData == null || energyData == null) {
+			return null;
+		}
+
 		try {
 			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
 					request.getToDate(), powerData, energyData, language);
@@ -86,7 +90,7 @@ public interface CommonTimedataService {
 	 *
 	 * @param edgeId  the Edge-ID
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public default SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
@@ -106,7 +110,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
@@ -119,7 +123,7 @@ public interface CommonTimedataService {
 	 * @param fromDate the From-Date
 	 * @param toDate   the To-Date
 	 * @param channels the Channels
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException;
@@ -138,7 +142,7 @@ public interface CommonTimedataService {
 	 * @param toDate     the To-Date
 	 * @param channels   the Channels
 	 * @param resolution the {@link Resolution}
-	 * @return the query result
+	 * @return the query result; possibly null
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
