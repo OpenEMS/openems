@@ -1,9 +1,9 @@
 <oe-flat-widget button routerLink="/device/{{edge.id}}/history/gridchart" [icon]="{name: 'oe-grid', color:'dark'}"
     [title]="'General.grid' | translate" *ngIf="isInitialized">
-    <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate" channelAddress="_sum/GridBuyActiveEnergy"
+    <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" channelAddress="_sum/GridSellActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" channelAddress="_sum/GridSellActiveEnergy"
+    <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate" channelAddress="_sum/GridBuyActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>
 </oe-flat-widget>

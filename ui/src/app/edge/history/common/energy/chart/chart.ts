@@ -143,7 +143,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Sell to grid
           {
-            name: translate.instant('General.gridSell'),
+            name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridSellActiveEnergy'];
             },
@@ -157,7 +157,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Buy from Grid
           {
-            name: translate.instant('General.gridBuy'),
+            name: translate.instant('General.gridBuyAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridBuyActiveEnergy'];
             },

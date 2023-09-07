@@ -29,34 +29,22 @@ export class ChartComponent extends AbstractHistoryChart {
       }
     ];
 
-    ['L1', 'L2', 'L3'].forEach(phase => {
-      input.push({
-        name: 'GridActivePower' + phase,
-        powerChannel: ChannelAddress.fromString('_sum/GridActivePower' + phase)
+    if (this.showPhases) {
+      ['L1', 'L2', 'L3'].forEach(phase => {
+        input.push({
+          name: 'GridActivePower' + phase,
+          powerChannel: ChannelAddress.fromString('_sum/GridActivePower' + phase)
+        });
       });
-    });
+    }
 
     return {
       input: input,
       output: (data: DefaultTypes.History.ChannelData) => {
 
-        let datasets: DefaultTypes.History.DisplayValues[] = [];
-        datasets.push(
+        let datasets: DefaultTypes.History.DisplayValues[] = [
           {
-            name: this.translate.instant('General.gridBuy'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null;
-            },
-            converter: () => {
-              return data['GridBuy'];
-            },
-            color: 'rgb(0,0,0)',
-            stack: 0
-          });
-
-        datasets.push(
-          {
-            name: this.translate.instant('General.gridSell'),
+            name: this.translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues?.result.data['_sum/GridSellActiveEnergy'] ?? null;
             },
@@ -66,7 +54,20 @@ export class ChartComponent extends AbstractHistoryChart {
             // TODO create Color class
             color: 'rgba(0,0,200)',
             stack: 1
-          });
+          },
+
+          {
+            name: this.translate.instant('General.gridBuyAdvanced'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null;
+            },
+            converter: () => {
+              return data['GridBuy'];
+            },
+            color: 'rgb(0,0,0)',
+            stack: 0
+          }];
+
 
         if (!this.showPhases) {
           return datasets;

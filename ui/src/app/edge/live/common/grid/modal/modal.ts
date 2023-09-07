@@ -32,17 +32,19 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     // Sum Channels (if more than one meter)
     if (gridMeters.length > 1) {
-      lines.push({
-        type: 'channel-line',
-        name: translate.instant("General.gridBuyAdvanced"),
-        channel: '_sum/GridActivePower',
-        converter: Converter.GRID_BUY_POWER_OR_ZERO
-      }, {
-        type: 'channel-line',
-        name: translate.instant("General.gridSellAdvanced"),
-        channel: '_sum/GridActivePower',
-        converter: Converter.GRID_SELL_POWER_OR_ZERO
-      }, {
+      lines.push(
+        {
+          type: 'channel-line',
+          name: translate.instant("General.gridSellAdvanced"),
+          channel: '_sum/GridActivePower',
+          converter: Converter.GRID_SELL_POWER_OR_ZERO
+        },
+        {
+          type: 'channel-line',
+          name: translate.instant("General.gridBuyAdvanced"),
+          channel: '_sum/GridActivePower',
+          converter: Converter.GRID_BUY_POWER_OR_ZERO
+        }, {
         type: 'horizontal-line'
       });
     }
@@ -51,17 +53,19 @@ export class ModalComponent extends AbstractFormlyComponent {
     for (var meter of gridMeters) {
       if (gridMeters.length == 1) {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
-        lines.push({
-          type: 'channel-line',
-          name: translate.instant("General.gridBuyAdvanced"),
-          channel: meter.id + '/ActivePower',
-          converter: Converter.GRID_BUY_POWER_OR_ZERO
-        }, {
-          type: 'channel-line',
-          name: translate.instant("General.gridSellAdvanced"),
-          channel: meter.id + '/ActivePower',
-          converter: Converter.GRID_SELL_POWER_OR_ZERO
-        });
+        lines.push(
+          {
+            type: 'channel-line',
+            name: translate.instant("General.gridSellAdvanced"),
+            channel: meter.id + '/ActivePower',
+            converter: Converter.GRID_SELL_POWER_OR_ZERO
+          },
+          {
+            type: 'channel-line',
+            name: translate.instant("General.gridBuyAdvanced"),
+            channel: meter.id + '/ActivePower',
+            converter: Converter.GRID_BUY_POWER_OR_ZERO
+          });
 
       } else {
         // More than one meter? Show only one line per meter.
