@@ -75,7 +75,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   public ngOnDestroy() {
     // Unsubscribe from OpenEMS
     if (this.edge != null && this._channelAddress) {
-      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress])
+      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress]);
     }
 
     // Unsubscribe from CurrentData subject
