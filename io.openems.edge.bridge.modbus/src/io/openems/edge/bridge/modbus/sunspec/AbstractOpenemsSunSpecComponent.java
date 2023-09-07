@@ -1,8 +1,6 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,18 +15,20 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
@@ -291,13 +291,13 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		Deque<ModbusElement> elements = new ArrayDeque<>();
+		var readElements = new ArrayList<ModbusElement>();
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
 			var element = point.get().generateModbusElement(startAddress);
 			startAddress += element.length;
-			elements.add(element);
+			readElements.add(element);
 
 			var channelId = point.getChannelId();
 			this.addChannel(channelId);
@@ -349,7 +349,48 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 		}
 
-		this.addReadTasks(elements, priority);
+		for (var elements : preprocessModbusElements(readElements)) {
+			this.modbusProtocol.addTask(//
+					new FC3ReadRegistersTask(//
+							elements.get(0).startAddress, priority, elements.toArray(ModbusElement[]::new)));
+		}
+	}
+
+	/**
+	 * Converts a list of {@link ModbusElement}s to sublists, prepared for Modbus
+	 * {@link AbstractTask}s.
+	 * 
+	 * <ul>
+	 * <li>Sublists are without holes (i.e. nextStartAddress = currentStartAddress +
+	 * Length + 1)
+	 * <li>Length of sublist <= MAXIMUM_TASK_LENGTH
+	 * </ul>
+	 * 
+	 * @param elements the source elements
+	 * @return list of {@link ModbusElement} lists
+	 */
+	protected static List<List<ModbusElement>> preprocessModbusElements(List<ModbusElement> elements) {
+		var result = Lists.<List<ModbusElement>>newArrayList(Lists.<ModbusElement>newArrayList());
+		for (var element : elements) {
+			// Get last sublist in result
+			var l = result.get(result.size() - 1);
+			// Get last element of sublist
+			var e = l.isEmpty() ? null : l.get(l.size() - 1);
+			if ((
+			// Is first element of the sublist?
+			e == null
+					// Is element direct successor?
+					|| e.startAddress + e.length == element.startAddress) //
+					&& // Does element fit in task?
+					l.stream().mapToInt(m -> m.length).sum() + element.length <= MAXIMUM_TASK_LENGTH //
+			) {
+				l.add(element); // Add to existing sublist
+
+			} else {
+				result.add(Lists.<ModbusElement>newArrayList(element)); // Create new sublist
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -379,36 +420,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			converter = new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId());
 		}
 		return converter;
-	}
-
-	/**
-	 * Splits the task if it is too long and adds the read tasks.
-	 * 
-	 * @param elements the Deque of {@link ModbusElement}s for one block.
-	 * @param priority the reading priority
-	 * @throws OpenemsException on error
-	 */
-	private void addReadTasks(Deque<ModbusElement> elements, Priority priority) throws OpenemsException {
-		var length = 0;
-		var taskElements = new ArrayDeque<ModbusElement>();
-		var element = elements.pollFirst();
-		while (element != null) {
-			if (length + element.length > MAXIMUM_TASK_LENGTH) {
-				this.modbusProtocol.addTask(//
-						new FC3ReadRegistersTask(//
-								taskElements.peekFirst().startAddress, priority, //
-								taskElements.toArray(new AbstractModbusElement[taskElements.size()])));
-				length = 0;
-				taskElements.clear();
-			}
-			taskElements.add(element);
-			length += element.length;
-			element = elements.pollFirst();
-		}
-		this.modbusProtocol.addTask(//
-				new FC3ReadRegistersTask(//
-						taskElements.peekFirst().startAddress, priority, //
-						taskElements.toArray(new AbstractModbusElement[taskElements.size()])));
 	}
 
 	/**
