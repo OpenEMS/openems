@@ -55,7 +55,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 for (let channelId of channelIds) {
                     channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
-
                 this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
                 this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
                     this.onCurrentData(value);
@@ -65,8 +64,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     };
 
     public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.dataService.unsubscribeFromChannels(this.getChannelAddresses());
 
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
@@ -78,8 +76,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * 
      * @param currentData new data for the subscribed Channel-Addresses
      */
-    protected onCurrentData(currentData: CurrentData) {
-    }
+    protected onCurrentData(currentData: CurrentData) { }
 
     /**
      * Gets the ChannelAddresses that should be subscribed.
