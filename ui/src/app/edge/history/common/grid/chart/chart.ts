@@ -74,7 +74,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
         ['L1', 'L2', 'L3'].forEach((phase, index) => {
           datasets.push({
-            name: "Phase " + phase,
+            name: 'Phase ' + phase,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues?.result.data['_sum/GridActivePower' + phase];
             },

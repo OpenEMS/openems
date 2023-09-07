@@ -298,8 +298,7 @@
       "oct": "Oxt",
       "nov": "Nov",
       "dec": "Dec",
-      "activeDuration": "active duration",
-      "noHistoricDataAvailableLocally": "Historical data is currently not available locally."
+      "activeDuration": "active duration"
     },
     "Config": {
       "Index": {

@@ -297,8 +297,7 @@
       "oct": "Okt",
       "nov": "Nov",
       "dec": "Dez",
-      "activeDuration": "Einschaltdauer",
-      "noHistoricDataAvailableLocally": "Historische Daten sind derzeit lokal nicht verfügbar."
+      "activeDuration": "Einschaltdauer"
     },
     "Config": {
       "Index": {
