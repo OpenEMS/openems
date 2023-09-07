@@ -134,7 +134,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
 		sb //
 				.append("|Allowed:") //
-				.append(TypeUtils.min(//
+				.append(TypeUtils.max(//
 						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
 				.append(";") //
 				.append(TypeUtils.min(//

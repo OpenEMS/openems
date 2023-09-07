@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwCurrent;
 		private String ip;
 		private boolean debugMode;
+		private boolean useDisplay;
 
 		private Builder() {
 		}
@@ -31,6 +32,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
+			return this;
+		}
+
+		public Builder setUseDisplay(boolean useDisplay) {
+			this.useDisplay = useDisplay;
 			return this;
 		}
 
@@ -68,5 +74,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int minHwCurrent() {
 		return this.builder.minHwCurrent;
+	}
+
+	@Override
+	public boolean useDisplay() {
+		return this.builder.useDisplay;
 	}
 }

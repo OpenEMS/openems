@@ -17,6 +17,7 @@ public interface ControllerEssTimeOfUseTariffDischarge extends Controller, Opene
 		 * Current state of the Time of use tariff discharge controller.
 		 */
 		STATE_MACHINE(Doc.of(StateMachine.values()) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the Controller")),
 
 		/**
@@ -38,6 +39,7 @@ public interface ControllerEssTimeOfUseTariffDischarge extends Controller, Opene
 				.text("Total consmption for the night")),
 		QUARTERLY_PRICES(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Price of the electricity for the current Hour")),
 		REMAINING_CONSUMPTION(Doc.of(OpenemsType.DOUBLE) //
 				.text("remaining consmption to charge from grid")),
