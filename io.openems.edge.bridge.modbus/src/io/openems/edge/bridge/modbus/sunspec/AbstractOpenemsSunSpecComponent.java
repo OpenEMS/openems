@@ -296,7 +296,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			var element = point.get().generateModbusElement(startAddress);
+			final var element = point.get().generateModbusElement(startAddress);
 
 			// Handle AccessMode
 			switch (point.get().accessMode) {
@@ -316,36 +316,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			startAddress += element.length;
 			var channelId = point.getChannelId();
 			this.addChannel(channelId);
-
-			if (point.get().scaleFactor.isPresent()) {
-				// This Point needs a ScaleFactor
-				// - find the ScaleFactor-Point
-				var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
-				SunSpecPoint scaleFactorPoint = null;
-				for (var sfPoint : model.points()) {
-					if (sfPoint.name().equals(scaleFactorName)) {
-						scaleFactorPoint = sfPoint;
-						break;
-					}
-				}
-				var converter = this.getScaleFactor(point, scaleFactorName, scaleFactorPoint);
-				element = this.m(channelId, element, converter);
-
-			} else {
-				// Add a direct mapping between Element and Channel
-				element = this.m(channelId, element, new ElementToChannelConverter(
-						// Element -> Channel
-						value -> {
-							if (!point.isDefined(value)) {
-								// This value is set to be 'UNDEFINED' for the given type by SunSpec
-								return null;
-							}
-							return value;
-						},
-						// Channel -> Element
-						value -> value));
-
-			}
+			this.m(channelId, element, this.generateElementToChannelConverter(model, point));
 		}
 
 		// Create Tasks and add them to the ModbusProtocol
@@ -404,32 +375,53 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	}
 
 	/**
-	 * Gets the scale factor for a SunSpec point.
-	 *
-	 * @param point            the {@link SunSpecPoint} whose scale factor we are
-	 *                         searching
-	 * @param scaleFactorName  the name of the scale factor
-	 * @param scaleFactorPoint the point for the scale factor if present
-	 * @return The {@link ElementToChannelConverter} for the point
+	 * Generates a {@link ElementToChannelConverter} for a Point.
+	 * 
+	 * <ul>
+	 * <li>Check for UNDEFINED value as defined in SunSpec per Type specification
+	 * <li>If a Scale-Factor is defined, try to add it - either as other point of
+	 * model (e.g. "W_SF") or as static value converter
+	 * </ul>
+	 * 
+	 * @param model the {@link SunSpecModel}
+	 * @param point the {@link SunSpecPoint}
+	 * @return an {@link ElementToChannelConverter}, never null
 	 */
-	private ElementToChannelConverter getScaleFactor(SunSpecPoint point, String scaleFactorName,
-			SunSpecPoint scaleFactorPoint) {
-		ElementToChannelConverter converter = null;
-		if (scaleFactorPoint == null) {
-			try {
-				// a few sunspec models have a constant scale factor, check for it.
-				converter = new ElementToChannelScaleFactorConverter(Integer.parseInt(point.get().scaleFactor.get()));
-			} catch (NumberFormatException e) {
-				// Unable to find ScaleFactor-Point
-				this.logError(this.log,
-						"Unable to find ScaleFactor [" + scaleFactorName + "] for Point [" + point.name() + "]");
-			}
+	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, SunSpecPoint point) {
+		// Create converter for 'defined' state
+		final var valueIsDefinedConverter = new ElementToChannelConverter(//
+				/* Element -> Channel */ value -> point.isDefined(value) ? value : null,
+				/* Channel -> Element */ value -> value);
 
+		// Generate Scale-Factor converter (possibly null)
+		ElementToChannelConverter scaleFactorConverter = null;
+		if (point.get().scaleFactor.isPresent()) {
+			final var scaleFactor = point.get().scaleFactor.get();
+			final var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(scaleFactor);
+			scaleFactorConverter = Stream.of(model.points()) //
+					.filter(p -> p.name().equals(scaleFactorName)) //
+					.map(sfp -> new ElementToChannelScaleFactorConverter(this, point, sfp.getChannelId())) //
+					// Found matching Scale-Factor Point in SunSpec Modal
+					.findFirst()
+
+					// Else: try to parse constant Scale-Factor
+					.orElseGet(() -> {
+						try {
+							return new ElementToChannelScaleFactorConverter(Integer.parseInt(scaleFactor));
+						} catch (NumberFormatException e) {
+							// Unable to parse Scale-Factor to static value
+							this.logError(this.log, "Unable to parse Scale-Factor [" + scaleFactor + "] for Point ["
+									+ point.name() + "]");
+							return null;
+						}
+					}); //
 		}
-		if (converter == null) {
-			converter = new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId());
+
+		if (scaleFactorConverter != null) {
+			return ElementToChannelConverter.chain(valueIsDefinedConverter, scaleFactorConverter);
+		} else {
+			return valueIsDefinedConverter;
 		}
-		return converter;
 	}
 
 	/**
