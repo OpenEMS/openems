@@ -128,6 +128,12 @@ export class Edge {
     this.sendSubscribeChannels(websocket);
   }
 
+  /**
+   * Unsubscribes from passed channels
+   * 
+   * @param websocket the Websocket
+   * @param channels the channels
+   */
   public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
     this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
       if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
@@ -142,10 +148,6 @@ export class Edge {
     this.sendSubscribeChannels(websocket);
   }
 
-  public unsubscribeFromAllChannels(websocket: Websocket) {
-    this.subscribedChannels = {};
-    this.sendSubscribeChannels(websocket);
-  }
   /**
    * Subscribe to System-Log
    * 
