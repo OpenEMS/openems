@@ -5,7 +5,7 @@ import { ChannelAddress, Currency, CurrentData, Utils } from 'src/app/shared/sha
 import { ModalComponent } from '../modal/modal';
 
 @Component({
-    selector: 'Controller_Ess_TimeOfUseTariff_Discharge',
+    selector: 'Controller_Ess_TimeOfUseTariff',
     templateUrl: './flat.html'
 })
 export class FlatComponent extends AbstractFlatWidget implements OnInit {

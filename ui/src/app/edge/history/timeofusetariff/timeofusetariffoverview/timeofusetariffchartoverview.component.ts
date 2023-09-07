@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
-    selector: TimeOfUseTariffDischargeChartOverviewComponent.SELECTOR,
-    templateUrl: './timeofusetariffdischargechartoverview.component.html'
+    selector: TimeOfUseTariffChartOverviewComponent.SELECTOR,
+    templateUrl: './timeofusetariffchartoverview.component.html'
 })
-export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
+export class TimeOfUseTariffChartOverviewComponent implements OnInit {
 
-    private static readonly SELECTOR = "timeofusetariffdischarge-chart-overview";
+    private static readonly SELECTOR = "timeofusetariff-chart-overview";
 
     public edge: Edge = null;
 

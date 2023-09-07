@@ -5,21 +5,27 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
+export enum Mode {
+    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
+    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
+}
+
 @Component({
-    selector: TimeOfUseTariffDischargeWidgetComponent.SELECTOR,
+    selector: TimeOfUseTariffWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
+export class TimeOfUseTariffWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    private static readonly SELECTOR = "timeOfUseTariffDischargeWidget";
+    private static readonly SELECTOR = "timeOfUseTariffWidget";
 
-    public delayedActiveTimeOverPeriod: number = null;
-    public chargedActiveTimeOverPeriod: number = null;
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    protected delayedActiveTimeOverPeriod: number = null;
+    protected chargedActiveTimeOverPeriod: number = null;
+    protected edge: Edge = null;
+    protected component: EdgeConfig.Component = null;
+    protected readonly MODE = Mode;
 
     constructor(
         public override service: Service,
@@ -28,7 +34,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
         super(service);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
             this.service.getConfig().then(config => {
@@ -37,11 +43,11 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
         });
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeWidgetRefresh();
     }
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateValues();
     };
 
