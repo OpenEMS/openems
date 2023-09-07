@@ -1,22 +1,21 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { HeaderComponent } from 'src/app/shared/header/header.component';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { Subject } from 'rxjs';
+
 @Component({
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit, OnDestroy {
+export class HistoryComponent implements OnInit {
 
   @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
-  private stopOnDestroy: Subject<void> = new Subject<void>();
   protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
@@ -63,10 +62,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-  }
   protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
     this.errorResponse = errorResponse;
   }
