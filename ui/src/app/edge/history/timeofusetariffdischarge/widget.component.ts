@@ -31,9 +31,6 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
-            this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.componentId);
-            });
         });
     }
 
@@ -63,12 +60,21 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
         });
     }
 
-    protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+    protected override getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        const result: ChannelAddress[] = [];
+        // Component was not initialized before, so had to initialize here.
+        this.service.getConfig().then(config => {
+            this.component = config.getComponent(this.componentId);
+        }).then(() => {
+            if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
+                result.push(new ChannelAddress(this.componentId, 'ChargedTime'));
+            } else {
+                result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
+            }
+        });
 
         return new Promise((resolve) => {
-            resolve([
-                new ChannelAddress(this.componentId, 'DelayedTime'),
-                new ChannelAddress(this.componentId, 'ChargedTime')]);
+            resolve(result);
         });
     }
 }
