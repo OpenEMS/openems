@@ -292,13 +292,28 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
 		var readElements = new ArrayList<ModbusElement>();
+		var writeElements = new ArrayList<ModbusElement>();
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
 			var element = point.get().generateModbusElement(startAddress);
-			startAddress += element.length;
-			readElements.add(element);
 
+			// Handle AccessMode
+			switch (point.get().accessMode) {
+			case READ_ONLY -> {
+				readElements.add(element);
+			}
+			case READ_WRITE -> {
+				readElements.add(element);
+				writeElements.add(element);
+			}
+			case WRITE_ONLY -> {
+				readElements.add(new DummyRegisterElement(element.startAddress, element.length));
+				writeElements.add(element);
+			}
+			}
+
+			startAddress += element.length;
 			var channelId = point.getChannelId();
 			this.addChannel(channelId);
 
@@ -331,28 +346,18 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						value -> value));
 
 			}
-
-			// Evaluate Access-Mode of the Channel
-			switch (point.get().accessMode) {
-			case READ_ONLY:
-				// Read-Only -> replace element with dummy
-				element = new DummyRegisterElement(element.startAddress,
-						element.startAddress + point.get().type.length - 1);
-				break;
-			case READ_WRITE:
-			case WRITE_ONLY:
-				// Add a Write-Task
-				// TODO create one FC16WriteRegistersTask for entire block
-				final Task writeTask = new FC16WriteRegistersTask(element.startAddress, element);
-				this.modbusProtocol.addTask(writeTask);
-				break;
-			}
 		}
 
+		// Create Tasks and add them to the ModbusProtocol
 		for (var elements : preprocessModbusElements(readElements)) {
 			this.modbusProtocol.addTask(//
 					new FC3ReadRegistersTask(//
 							elements.get(0).startAddress, priority, elements.toArray(ModbusElement[]::new)));
+		}
+		for (var elements : preprocessModbusElements(writeElements)) {
+			this.modbusProtocol.addTask(//
+					new FC16WriteRegistersTask(//
+							elements.get(0).startAddress, elements.toArray(ModbusElement[]::new)));
 		}
 	}
 
@@ -389,6 +394,11 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			} else {
 				result.add(Lists.<ModbusElement>newArrayList(element)); // Create new sublist
 			}
+		}
+
+		// Avoid length check for sublist
+		if (result.get(0).isEmpty()) {
+			return List.of();
 		}
 		return result;
 	}
