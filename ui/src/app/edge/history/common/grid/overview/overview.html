@@ -1,5 +1,5 @@
 <oe-chart [title]="'General.grid' | translate" [showPhases]="showPhases" (setShowPhases)="setShowPhases($event)"
-    *ngIf="isInitialized" [period]="service.historyPeriod" [isPopoverNeeded]="true">
+    *ngIf="isInitialized" [period]="service.historyPeriod">
     <gridchart [isOnlyChart]="true" [showPhases]="showPhases" [showTotal]="showTotal">
     </gridchart>
 </oe-chart>

@@ -9,7 +9,7 @@ import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common_Autarchy } from './common/autarchy/Autarchy';
 import { CommonEnergyMonitor } from './common/energy/energy';
-import { Common_Grid } from './common/grid/module';
+import { Common_Grid } from './common/grid/grid';
 import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
@@ -60,14 +60,12 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Common_Module } from './common/common';
 
 @NgModule({
   imports: [
     SharedModule,
-    Common_Autarchy,
-    Common_Grid,
-    Common_Selfconsumption,
-    CommonEnergyMonitor
+    Common_Module
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,

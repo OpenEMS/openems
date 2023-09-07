@@ -6,7 +6,8 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
-import { EdgeConfig } from '../shared';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChannelAddress, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -658,20 +659,20 @@ export namespace HistoryUtils {
         return 0;
       }
     };
-  
-export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
+
+    export const POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE = (value) => {
       if (value == null) {
         return null;
       } else {
         return Math.abs(Math.min(0, value));
       }
     };
-export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
       if (value < 0) {
         return Math.abs(value);
       } else {
         return 0;
       }
     };
-}
+  }
 }
