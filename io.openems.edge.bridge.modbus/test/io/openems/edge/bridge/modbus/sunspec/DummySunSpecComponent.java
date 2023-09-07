@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,7 +17,7 @@ public class DummySunSpecComponent extends AbstractOpenemsSunSpecComponent {
 	 * All models are active with low priority.
 	 */
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = Stream.of(DefaultSunSpecModel.values())
-			.collect(Collectors.toMap(model -> model, model -> Priority.LOW));
+			.collect(Collectors.toMap(model -> model, model -> Priority.LOW, (a, b) -> a, TreeMap::new));
 
 	public DummySunSpecComponent() throws OpenemsException {
 		super(ACTIVE_MODELS, //
