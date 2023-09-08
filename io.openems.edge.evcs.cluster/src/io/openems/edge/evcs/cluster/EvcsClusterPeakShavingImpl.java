@@ -22,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -41,6 +42,11 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.meter.api.ElectricityMeter;
 
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.Cluster.PeakShaving", //
@@ -51,7 +57,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 })
 public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, Evcs, EventHandler, EvcsClusterPeakShaving,
+		implements OpenemsComponent, Evcs, EventHandler, EvcsClusterPeakShaving, ModbusSlave,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -97,7 +103,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	@Reference
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private SymmetricEss ess;
 
 	@Reference
@@ -143,9 +149,13 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
+		
+		if (!config.ess_id().equals("NONE")) {
+			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+				return;
+			}
 		}
+		
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
@@ -473,9 +483,17 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return Maximum Power in Watt
 	 */
 	public int getMaximumPowerToDistribute() {
-		// Calculate maximum ess power
-		var essDischargePower = this.sum.getEssActivePower().orElse(0);
-		var essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+		int essDischargePower = 0;
+		int essActivePowerDC = 0;
+		
+			/**
+			 * If ESS is present (not "NONE") calculate maximum power.
+			 */
+ 		if (!this.config.ess_id().equals("NONE")) {
+			essDischargePower = this.sum.getEssActivePower().orElse(0);
+			essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+		}
+
 		var maxAvailableStoragePower = this.maxEssDischargePower - (essDischargePower - essActivePowerDC);
 		this.channel(EvcsClusterPeakShaving.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER)
 				.setNextValue(maxAvailableStoragePower);
@@ -580,15 +598,32 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		this.logInfoInDebugmode(this.log, string);
 	}
 
+	
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Read maximum ESS Discharge power at the current position in the Cycle
-		if (this.ess instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.ess;
-			this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+		
+		if (!this.config.ess_id().equals("NONE")) {
+			// Read maximum ESS Discharge power at the current position in the Cycle
+			if (this.ess instanceof ManagedSymmetricEss) {
+				var e = (ManagedSymmetricEss) this.ess;
+				this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
 
-		} else {
-			this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
+			} else {
+				this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
+			}
 		}
+		 
 	}
+	
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //				
+				ModbusSlaveNatureTable.of(EvcsClusterPeakShaving.class, accessMode, 100) //
+					.channel(0, EvcsClusterPeakShaving.ChannelId.EVCS_BLOCKED_CHARGE_POWER, ModbusType.FLOAT32)
+					.build()
+		);
+
+	}	
+	
 }
