@@ -150,11 +150,11 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live", { replaceUrl: true });
+            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigate(['../history'], { relativeTo: this.route });
+            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }

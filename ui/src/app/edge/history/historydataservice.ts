@@ -46,4 +46,8 @@ export class HistoryDataService extends DataService {
       }, 100);
     }
   }
+
+  public override unsubscribeFromChannels(channels: ChannelAddress[]) {
+    return;
+  }
 }
