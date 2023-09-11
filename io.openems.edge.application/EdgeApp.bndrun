@@ -40,6 +40,7 @@
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
+	bnd.identity;id='io.openems.edge.battery.enfasbms',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.commercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
@@ -191,6 +192,7 @@
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
+	io.openems.edge.battery.enfasbms;version=snapshot,\
 	io.openems.edge.battery.fenecon.commercial;version=snapshot,\
 	io.openems.edge.battery.fenecon.home;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
