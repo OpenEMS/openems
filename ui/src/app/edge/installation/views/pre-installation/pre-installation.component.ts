@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
+import { SumState } from 'src/app/index/shared/sumState';
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
 import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
@@ -68,7 +69,7 @@ export class PreInstallationComponent implements OnInit {
         // TODO either add lastmessage and role to response or call getEdgeRequest 
         this.edge = new Edge(
           edge.id,
-          edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null
+          edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null, SumState.OK, null
         );
 
         // Get metadata

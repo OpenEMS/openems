@@ -1,3 +1,5 @@
+import { TranslateService } from '@ngx-translate/core';
+import { Filter } from 'src/app/index/filter/filter.component';
 import { Theme } from 'src/environments';
 
 export const theme = {
@@ -54,5 +56,39 @@ export const theme = {
                 DE: "#"
             }
         }
-    }
+    },
+    PRODUCT_TYPES: (translate: TranslateService): Filter => (
+        {
+            placeholder: translate.instant("Index.type"),
+            category: "producttype",
+            options: [
+                {
+                    name: "Home",
+                    value: "home"
+                },
+                {
+                    name: "Commercial 30",
+                    value: "Commercial 30-Serie"
+                },
+                {
+                    name: "Commercial 50",
+                    value: "Commercial 50-Serie"
+                },
+                {
+                    name: "Industrial",
+                    value: "INDUSTRIAL"
+                },
+                {
+                    name: "Pro Hybrid GW",
+                    value: "Pro Hybrid GW"
+                },
+                {
+                    name: "Pro Hybrid 10",
+                    value: "Pro Hybrid 10-Serie"
+                },
+                {
+                    name: "Pro 9-12",
+                    value: "Pro 9-12"
+                }]
+        })
 };

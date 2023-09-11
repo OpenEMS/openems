@@ -443,6 +443,7 @@
   "General": {
     "active": "Active",
     "actualPower": "e-car Charge power",
+    "ALL": "All",
     "apply": "Apply",
     "autarchy": "Autarchy",
     "automatic": "Automatically",
@@ -502,7 +503,6 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
-    "systemState": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -541,7 +541,8 @@
     },
     "yes": "Yes",
     "no": "No",
-    "value": "value"
+    "value": "value",
+    "SUM_STATE": "System state"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -555,7 +556,8 @@
     "type": "Type",
     "OFFLINE_SINCE": "Offline since",
     "ADD_EDGE": "Add new {{ edgeShortName }}",
-    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet."
+    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
+    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",

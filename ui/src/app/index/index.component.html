@@ -2,16 +2,16 @@
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="6" size-lg="4">
 
-        <ng-container [ngSwitch]="websocket.status">
+      <ng-container [ngSwitch]="websocket.status">
 
-          <!-- Sent authentication request; waiting for response -->
-          <ion-card *ngSwitchCase="'authenticating'">
-          </ion-card>
+        <!-- Sent authentication request; waiting for response -->
+        <ion-card *ngSwitchCase="'authenticating'">
+        </ion-card>
 
-          <!-- Login is required. Waiting for credentials input -->
-          <ion-card *ngSwitchCase="'waiting for credentials'">
+        <!-- Login is required. Waiting for credentials input -->
+        <ion-col size="12" size-md="6" size-lg="4" *ngSwitchCase="'waiting for credentials'">
+          <ion-card>
             <ion-item color="primary" lines="full">
               <ion-icon slot="start" name="person-outline"></ion-icon>
               <ion-label translate>Login.title</ion-label>
@@ -77,9 +77,11 @@
               </form>
             </ion-card-content>
           </ion-card>
+        </ion-col>
 
-          <!-- Logged in + normal operation -->
-          <ng-container *ngSwitchCase="'online'">
+        <!-- Logged in + normal operation -->
+        <ng-container *ngSwitchCase="'online'">
+          <ion-col size="12" size-md="8" size-lg="6">
             <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
               <ng-container *ngIf="noEdges; else showEdges">
 
@@ -119,14 +121,16 @@
               </ng-container>
               <ng-template #showEdges>
                 <!-- Show searchbar and list of Edges -->
-                <ion-grid>
-                  <ion-row class="ion-justify-content-center">
-                    <ion-col>
-                      <ion-searchbar [(ngModel)]="query" [debounce]="500" (ionChange)="searchOnChange()"
-                        *ngIf="!onlyOneEdgeAvailable">
+                <ion-grid class="ion-no-padding">
+                  <ion-row class="ion-justify-content-center" style="margin-bottom: 0">
+                    <ion-col size="12">
+                      <ion-searchbar [(ngModel)]="query" [debounce]="500" (ionChange)="searchOnChange()">
                       </ion-searchbar>
                     </ion-col>
                   </ion-row>
+
+                  <!-- Filter -->
+                  <oe-filter (setSearchParams)="searchOnChange($event)" *ngIf="loggedInUserCanInstall"></oe-filter>
 
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
@@ -140,7 +144,7 @@
                               <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                               <p *ngIf="!edge.isOnline" class="ion-text-wrap">
                                 <ion-text translate>Index.deviceOffline</ion-text>
-                                <ion-label *ngIf="edge.lastmessage">
+                                <ion-label style="white-space: initial" *ngIf="edge.lastmessage">
                                   <ion-text translate>Index.OFFLINE_SINCE</ion-text>
                                   {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
                                 </ion-label>
@@ -157,7 +161,7 @@
                                 <ion-text translate>Index.loggedInAs</ion-text> {{ edge.getRoleString() }}.
                               </p>
                             </ion-label>
-                            <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
+                            <oe-sum-state [sumState]="edge.sumState" [isEdgeOnline]="edge.isOnline"></oe-sum-state>
                           </ion-item>
                         </ng-container>
                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)" [disabled]="limitReached">
@@ -171,34 +175,34 @@
                 </ion-grid>
               </ng-template>
             </ng-container>
+          </ion-col>
 
-            <!-- Add-Button for desktop devices -->
-            <ion-fab style="position: fixed;" vertical="bottom" horizontal="center"
-              *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
-              <ion-fab-button size="large">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-fab-button>
-              <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
-                  {{'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
-              </ion-fab-list>
-            </ion-fab>
+          <!-- Add-Button for desktop devices -->
+          <ion-fab style="position: fixed;" vertical="bottom" horizontal="center"
+            *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
+            <ion-fab-button size="large">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
+              <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
+                {{'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
+            </ion-fab-list>
+          </ion-fab>
 
-            <!-- Add-Button for mobile devices -->
-            <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
-              *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
-              <ion-fab-button size="small">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-fab-button>
-              <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
-                  {{ 'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
-              </ion-fab-list>
-            </ion-fab>
+          <!-- Add-Button for mobile devices -->
+          <ion-fab style="position: fixed;" horizontal="end" vertical="bottom"
+            *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
+            <ion-fab-button size="small">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
+              <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
+                {{ 'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
+            </ion-fab-list>
+          </ion-fab>
 
-          </ng-container>
         </ng-container>
-      </ion-col>
+      </ng-container>
 
     </ion-row>
   </ion-grid>

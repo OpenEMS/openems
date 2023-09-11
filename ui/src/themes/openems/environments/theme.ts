@@ -54,5 +54,6 @@ export const theme = {
                 DE: "#"
             }
         }
-    }
+    },
+    PRODUCT_TYPES: null
 };

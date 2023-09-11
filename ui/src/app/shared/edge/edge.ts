@@ -1,5 +1,7 @@
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { SumState } from 'src/app/index/shared/sumState';
+
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
@@ -28,7 +30,9 @@ export class Edge {
     public readonly version: string,
     public readonly role: Role,
     public isOnline: boolean,
-    public readonly lastmessage: Date
+    public readonly lastmessage: Date,
+    public readonly sumState: SumState,
+    public readonly firstSetupProtocol: Date
   ) { }
 
   // holds currently subscribed channels, identified by source id
