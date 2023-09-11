@@ -162,6 +162,7 @@ public class TimeOfUseTariffControllerTest {
 						.setEssId(ESS_ID) //
 						.setMode(Mode.AUTOMATIC) //
 						.setControlMode(ControlMode.CHARGE_CONSUMPTION) //
+						.setRiskLevel(RiskLevel.HIGH) //
 						.setMaxPower(4000) //
 						.build())
 				.next(new TestCase("Cycle - 1") //
@@ -201,6 +202,7 @@ public class TimeOfUseTariffControllerTest {
 						.setEssId(ESS_ID) //
 						.setMode(Mode.AUTOMATIC) //
 						.setControlMode(ControlMode.CHARGE_CONSUMPTION) //
+						.setRiskLevel(RiskLevel.HIGH) //
 						.setMaxPower(6000) //
 						.build())
 				.next(new TestCase("Cycle - 1") //
@@ -240,6 +242,7 @@ public class TimeOfUseTariffControllerTest {
 						.setEssId(ESS_ID) //
 						.setMode(Mode.AUTOMATIC) //
 						.setControlMode(ControlMode.DELAY_DISCHARGE) //
+						.setRiskLevel(RiskLevel.HIGH) //
 						.build())
 				.next(new TestCase("Cycle - 1") //
 						.input(MAX_APPARENT_POWER, 9000) //
@@ -277,6 +280,7 @@ public class TimeOfUseTariffControllerTest {
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
 						.setMode(Mode.AUTOMATIC) //
+						.setRiskLevel(RiskLevel.HIGH) //
 						.setControlMode(ControlMode.DELAY_DISCHARGE).build())
 				.next(new TestCase("Cycle - 1") //
 						.input(MAX_APPARENT_POWER, 9000) //
