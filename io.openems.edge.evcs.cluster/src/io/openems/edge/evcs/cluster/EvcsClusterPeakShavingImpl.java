@@ -144,13 +144,13 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-
+		
 		// update filter for 'evcs' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
 		
-		if (!config.ess_id().equals("NONE")) {
+		if (!this.config.ess_id().isEmpty()) {
 			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 				return;
 			}
@@ -486,10 +486,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		int essDischargePower = 0;
 		int essActivePowerDC = 0;
 		
-			/**
-			 * If ESS is present (not "NONE") calculate maximum power.
-			 */
- 		if (!this.config.ess_id().equals("NONE")) {
+		/**
+		 * If ESS is present calculate maximum power.
+		 */
+		if (!this.config.ess_id().isEmpty()) {
 			essDischargePower = this.sum.getEssActivePower().orElse(0);
 			essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		}
@@ -602,7 +602,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		
-		if (!this.config.ess_id().equals("NONE")) {
+			if (!this.config.ess_id().isEmpty()) {
 			// Read maximum ESS Discharge power at the current position in the Cycle
 			if (this.ess instanceof ManagedSymmetricEss) {
 				var e = (ManagedSymmetricEss) this.ess;
