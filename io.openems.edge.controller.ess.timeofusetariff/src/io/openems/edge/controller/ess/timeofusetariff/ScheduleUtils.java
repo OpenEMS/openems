@@ -17,11 +17,22 @@ import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRespons
 
 public class ScheduleUtils {
 
+	/**
+	 * Generates a 24-hour schedule as a {@link JsonArray} based on input data for
+	 * prices and states. The resulting schedule includes timestamped entries for
+	 * each 15-minute interval. and 'states' data.
+	 * 
+	 * @param prices    The quarterly prices for 24 hours (3-hour past, 21-hour
+	 *                  future).
+	 * @param states    The states for 24 hours (3-hour past, 21-hour future).
+	 * @param timeStamp The time stamp of the first entry in the schedule.
+	 * @return The schedule data as a {@link JsonArray}.
+	 */
 	public static JsonArray getSchedule(JsonArray prices, JsonArray states, ZonedDateTime timeStamp) {
 
 		var schedule = JsonUtils.buildJsonArray();
 
-		// Creates the Json object with 'time stamp', 'price', 'state' and adds it to
+		// Creates the Json object with 'time stamp', 'price', 'state' and add them to
 		// the Json array.
 		for (int index = 0; index < prices.size(); index++) {
 			var result = JsonUtils.buildJsonObject();
@@ -32,10 +43,15 @@ public class ScheduleUtils {
 				continue;
 			}
 
-			result.add("timestamp",
-					new JsonPrimitive(timeStamp.plusMinutes(15 * index).format(DateTimeFormatter.ISO_INSTANT)));
+			// Calculate the timestamp for the current entry, adding 15 minutes for each
+			// index.
+			var entryTimeStamp = timeStamp.plusMinutes(15 * index).format(DateTimeFormatter.ISO_INSTANT);
+
+			result.add("timestamp", new JsonPrimitive(entryTimeStamp));
 			result.add("price", price);
 			result.add("state", state);
+
+			// Add the JSON object to the schedule array.
 			schedule.add(result.build());
 		}
 
@@ -43,14 +59,19 @@ public class ScheduleUtils {
 	}
 
 	/**
+	 * Utilizes the previous three hours' data and computes the next 21 hours data
+	 * from the {@link Schedule} provided, then concatenates them to generate a
+	 * 24-hour {@link Schedule}.
 	 * 
-	 * @param schedule
-	 * @param config
-	 * @param request
-	 * @param queryResult
-	 * @param channeladdressPrices
-	 * @param channeladdressStateMachine
-	 * @return
+	 * @param schedule                   The {@link Schedule}.
+	 * @param config                     The {@link Config}.
+	 * @param request                    The {@link GetScheduleRequest}.
+	 * @param queryResult                The historic data.
+	 * @param channeladdressPrices       The {@link ChannelAddress} for Quarterly
+	 *                                   prices.
+	 * @param channeladdressStateMachine The {@link ChannelAddress} for the state
+	 *                                   machine.
+	 * @return The {@link GetScheduleResponse}.
 	 */
 	public static GetScheduleResponse handleGetScheduleRequest(Schedule schedule, Config config,
 			GetScheduleRequest request, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult,

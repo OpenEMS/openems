@@ -4,10 +4,12 @@ import io.openems.common.types.OptionsEnum;
 
 public enum StateMachine implements OptionsEnum {
 
-	DELAYED(0, "Delayed"), //
-	ALLOWS_DISCHARGE(1, "No active limitation, discharge is allowed"), //
-	STANDBY(2, "Excess PV available."), //
-	CHARGING(3, "Charging the battery from grid."); //
+	DELAY_DISCHARGE(0, "Delaying the discharge from the battery is scheduled"), //
+	ALLOWS_DISCHARGE(1,
+			"No active limitation, Discharge is permitted due to high-price hour or when ample self-generated energy is available"), //
+	CHARGE_FROM_PV(2,
+			"No active limitation set, Excess PV energy predicted and battery can charge from surplus PV or feed energy to the grid based on its state of charge (SoC)"), //
+	CHARGE_FROM_GRID(3, "Charging the battery from the grid scheduled"); //
 
 	private final int value;
 	private final String name;
@@ -29,7 +31,7 @@ public enum StateMachine implements OptionsEnum {
 
 	@Override
 	public OptionsEnum getUndefined() {
-		return STANDBY;
+		return CHARGE_FROM_PV;
 	}
 
 }

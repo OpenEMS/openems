@@ -181,7 +181,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Prices contains the price values and the time it is retrieved.
 		final var prices = this.timeOfUseTariff.getPrices();
-		this._setTotalQuarterlyPricesChannel(prices.getValues().length);
 
 		this.channel(TimeOfUseTariffController.ChannelId.QUARTERLY_PRICES_ARE_EMPTY).setNextValue(prices.isEmpty());
 		if (prices.isEmpty()) {
@@ -222,9 +221,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		var allowedChargeEnergyFromGrid = this.config.maxChargePowerFromGrid() / PERIODS_PER_HOUR;
 
 		// Initialize Schedule
-		this.schedule = new Schedule(this.config.controlMode(), netUsableEnergy, currentAvailableEnergy,
-				dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption, predictionProduction,
-				allowedChargeEnergyFromGrid);
+		this.schedule = new Schedule(this.config.controlMode(), this.config.riskLevel(), netUsableEnergy,
+				currentAvailableEnergy, dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption,
+				predictionProduction, allowedChargeEnergyFromGrid);
 
 		// Generate Final schedule.
 		this.schedule.createSchedule();
@@ -254,11 +253,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		var delayed = false;
 
 		var activePower = switch (stateMachine) {
-		case CHARGING -> {
+		case CHARGE_FROM_GRID -> {
 			charged = true;
 			yield period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 		}
-		case DELAYED -> {
+		case DELAY_DISCHARGE -> {
 			delayed = true;
 			var value = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
 
@@ -271,7 +270,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		}
 		// Do not set active power
 		case ALLOWS_DISCHARGE -> null;
-		case STANDBY -> null;
+		case CHARGE_FROM_PV -> null;
 		};
 
 		if (activePower != null) {
@@ -284,9 +283,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			}
 		}
 
-		this._setDelayed(delayed);
-		this._setCharged(charged);
 		this._setStateMachine(stateMachine);
+
+		// Update the timer.
+		this.calculateChargedTime.update(charged);
+		this.calculateDelayedTime.update(delayed);
 	}
 
 	/**
@@ -300,8 +301,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		var limitSoc = IntStream.concat(//
-				this.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().get()), //
-				this.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().get())) //
+				this.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
+				this.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
 				.max().orElse(0);
 		this.channel(TimeOfUseTariffController.ChannelId.MIN_SOC).setNextValue(limitSoc);
 
@@ -316,16 +317,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Sets the Default values to the channels, if the Periods are not yet
-	 * calculated or if the Mode is 'OFF'.
-	 */
-	private void setDefaultValues() {
-		this._setCharged(false);
-		this._setDelayed(false);
-		this._setStateMachine(StateMachine.STANDBY);
-	}
-
-	/**
 	 * This is only to visualize data for better debugging.
 	 */
 	private void updateVisualizationChannels() {
@@ -336,10 +327,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		// Update the timer.
-		this.calculateChargedTime.update(this.getChargedChannel().getNextValue().orElse(false));
-		this.calculateDelayedTime.update(this.getDelayedChannel().getNextValue().orElse(false));
-
 		// First period is always the current period.
 		final var period = this.schedule.periods.get(0);
 
@@ -349,6 +336,19 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this._setPredictedProduction(period.productionPrediction);
 		this._setGridEnergyChannel(period.gridEnergy);
 		this._setChargeDischargeEnergyChannel(period.chargeDischargeEnergy);
+	}
+
+	/**
+	 * Sets the Default values to the channels, if the Periods are not yet
+	 * calculated or if the Mode is 'OFF'.
+	 */
+	private void setDefaultValues() {
+		// Update the timer.
+		this.calculateChargedTime.update(false);
+		this.calculateDelayedTime.update(false);
+
+		// Default State Machine.
+		this._setStateMachine(StateMachine.ALLOWS_DISCHARGE);
 	}
 
 	@Override
@@ -381,9 +381,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
 			GetScheduleRequest request) {
-		final var MINUTES_PER_PERIOD = 15;
-		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(componentManager.getClock(),
-				MINUTES_PER_PERIOD);
+
+		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15);
 		final var fromDate = now.minusHours(3);
 		final var channeladdressPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
 		final var channeladdressStateMachine = new ChannelAddress(this.id(), "StateMachine");
@@ -392,7 +391,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Query database for the last three hours, with 15-minute resolution.
 		try {
-			queryResult = timedata.queryHistoricData(null, fromDate, now,
+			queryResult = this.timedata.queryHistoricData(null, fromDate, now,
 					Set.of(channeladdressPrices, channeladdressStateMachine), new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());

@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Mode mode;
 		private ControlMode controlMode;
 		private int maxPower;
+		private RiskLevel riskLevel;
 
 		private Builder() {
 		}
@@ -38,6 +39,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaxPower(int maxPower) {
 			this.maxPower = maxPower;
+			return this;
+		}
+
+		public Builder setRiskLevel(RiskLevel riskLevel) {
+			this.riskLevel = riskLevel;
 			return this;
 		}
 
@@ -80,6 +86,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxChargePowerFromGrid() {
 		return this.builder.maxPower;
+	}
+
+	@Override
+	public RiskLevel riskLevel() {
+		return this.builder.riskLevel;
 	}
 
 	@Override

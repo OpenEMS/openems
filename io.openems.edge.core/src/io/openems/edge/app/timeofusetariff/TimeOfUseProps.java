@@ -30,7 +30,7 @@ public final class TimeOfUseProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> controlMode() {
 		return CommonProps.defaultDef() //
 				.setTranslatedLabel("App.TimeOfUseTariff.controlMode.label")//
-				.setTranslatedDescriptionWithAppPrefix("App.TimeOfUseTariff.controlMode.description") //
+				.setTranslatedDescription("App.TimeOfUseTariff.controlMode.description") //
 				.setDefaultValue(ControlMode.DELAY_DISCHARGE.name()) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, prop, l, param, f) -> //
 				f.setOptions(OptionsFactory.of(ControlMode.class), l));
@@ -65,7 +65,7 @@ public final class TimeOfUseProps {
 		var providerProperties = JsonUtils.buildJsonObject().onlyIf(additionalProperties != null, additionalProperties);
 
 		return Lists.newArrayList(//
-				new EdgeConfig.Component("ctrlTimeOfUseTariff0", controllerAlias, "Controller.Ess.Time-Of-Use-Tariff",
+				new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, controllerAlias, "Controller.Ess.Time-Of-Use-Tariff",
 						controllerProperties.build()), //
 				new EdgeConfig.Component(timeOfUseTariffProviderId, providerAlias, providerFactoryId,
 						providerProperties.build())//

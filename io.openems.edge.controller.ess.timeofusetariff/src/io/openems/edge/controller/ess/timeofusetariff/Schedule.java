@@ -90,17 +90,17 @@ public class Schedule {
 			var stateMachine = StateMachine.ALLOWS_DISCHARGE;
 
 			if (this.isExcessPvAvailable() || this.essInitialEnergy == 0) {
-				stateMachine = StateMachine.STANDBY;
+				stateMachine = StateMachine.CHARGE_FROM_PV;
 			}
 			switch (controlMode) {
 			case CHARGE_CONSUMPTION:
 				if (this.isChargeFromGridScheduled()) {
-					stateMachine = StateMachine.CHARGING;
+					stateMachine = StateMachine.CHARGE_FROM_GRID;
 				}
 				break;
 			case DELAY_DISCHARGE:
 				if (this.isDelayDischargeScheduled()) {
-					stateMachine = StateMachine.DELAYED;
+					stateMachine = StateMachine.DELAY_DISCHARGE;
 				}
 				break;
 			}
@@ -109,7 +109,7 @@ public class Schedule {
 		}
 	}
 
-	public Schedule(ControlMode controlMode, int essUsableEnergy, int currentAvailableEnergy, //
+	public Schedule(ControlMode controlMode, RiskLevel riskLevel, int essUsableEnergy, int currentAvailableEnergy, //
 			int dischargeEnergy, int chargeEnergy, Float[] prices, Integer[] consumptionPrediciton, //
 			Integer[] productionPrediction, int maxAllowedChargeEnergyFromGrid) {
 
@@ -137,6 +137,9 @@ public class Schedule {
 			if (consumption == null) {
 				consumption = 0;
 			}
+
+			// TODO
+			// Adjust 'production', 'consumption' based on RIskLevel selected by customer.
 
 			// Creating the period.
 			// Initially the 'chargeDischarge','grid' and 'initialEnergy' will be 'null'.

@@ -295,6 +295,7 @@ public class TimeOfUseTariffControllerTest {
 		var allowedChargeEnergyFromGrid = 0;
 
 		var schedule = new Schedule(ControlMode.DELAY_DISCHARGE, //
+				RiskLevel.HIGH, //
 				essUsableEnergy, //
 				currentAvailableEnergy, //
 				dischargeEnergy, //
@@ -322,6 +323,7 @@ public class TimeOfUseTariffControllerTest {
 		allowedChargeEnergyFromGrid = 1500;
 
 		schedule = new Schedule(ControlMode.CHARGE_CONSUMPTION, //
+				RiskLevel.HIGH, //
 				essUsableEnergy, //
 				currentAvailableEnergy, //
 				dischargeEnergy, //

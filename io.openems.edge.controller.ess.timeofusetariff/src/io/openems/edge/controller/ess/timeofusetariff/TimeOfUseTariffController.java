@@ -19,14 +19,17 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the Controller")),
 
+		QUARTERLY_PRICES(Doc.of(OpenemsType.FLOAT) //
+				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
+				.text("Price of the electricity for the current Hour")//
+				.persistencePriority(PersistencePriority.HIGH)), //
+
 		/**
-		 * Aggregated seconds when storage is being force charged.
+		 * Aggregated seconds when storage is being force charged from the grid.
 		 */
 		CHARGED_TIME(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		CHARGED(Doc.of(OpenemsType.BOOLEAN)//
-				.text("The controller currently recharge the battery")),
 
 		/**
 		 * Aggregated seconds when storage is blocked for discharge.
@@ -34,14 +37,14 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		DELAYED_TIME(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		DELAYED(Doc.of(OpenemsType.BOOLEAN)//
-				.text("The controller currently blocks discharge")),
 
+		/**
+		 * Channels for debugging.
+		 */
 		CHARGE_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge/Discharge energy calculated for the period.")), //
 		GRID_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Grid energy calculated for the period.")), //
-
 		QUARTERLY_PRICES_ARE_EMPTY(Doc.of(OpenemsType.BOOLEAN)//
 				.text("The list of quarterly prices retrieved are empty")),
 		AVAILABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
@@ -54,13 +57,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 				.text("Predicted Consumption for the current quarterly hour")),
 		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
 				.text("Minimum SoC to avoid complete discharge")), //
-		QUARTERLY_PRICES(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.EUROS_PER_MEGAWATT_HOUR) //
-				.text("Price of the electricity for the current Hour")
-				.persistencePriority(PersistencePriority.HIGH)), //
-		TOTAL_QUARTERLY_PRICES(Doc.of(OpenemsType.INTEGER) //
-				.text("Total number of price retrieved")//
-				.persistencePriority(PersistencePriority.HIGH)), //
 		;
 
 		private final Doc doc;
@@ -123,24 +119,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#CHARGED}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getChargedChannel() {
-		return this.channel(ChannelId.CHARGED);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setCharged(boolean value) {
-		this.getChargedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#PREDICTED_PRODUCTION}.
 	 *
 	 * @return the Channel
@@ -179,24 +157,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#DELAYED}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getDelayedChannel() {
-		return this.channel(ChannelId.DELAYED);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#DELAYED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDelayed(boolean value) {
-		this.getDelayedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_ENERGY}.
 	 *
 	 * @return the Channel
@@ -231,25 +191,6 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	 * @param value the next value
 	 */
 	public default void _setGridEnergyChannel(Integer value) {
-		this.getGridEnergyChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#TOTAL_QUARTERLY_PRICES}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getTotalQuarterlyPricesChannel() {
-		return this.channel(ChannelId.TOTAL_QUARTERLY_PRICES);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#TOTAL_QUARTERLY_PRICES} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setTotalQuarterlyPricesChannel(Integer value) {
 		this.getGridEnergyChannel().setNextValue(value);
 	}
 
