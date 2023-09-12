@@ -239,7 +239,7 @@
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Management Console -->
-			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
 			<version>4.9.4</version>
