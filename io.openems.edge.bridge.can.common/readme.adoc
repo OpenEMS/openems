@@ -14,10 +14,10 @@ The "CAN OpenEMS bridge" provides a simple raw CAN communication mechanism, to
 
 == Dependencies
 
-The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/clehne/librevpi-dio-java for more information).
+The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/clehne/libsocket-can-java for more information).
 The library provides access to CAN hardware via generic linux CAN Socket API.   
 
-A binary version of this library (https://github.com/clehne/librevpi-dio-java, Branch: `V2023.02`, Date: `2023.03.10` ). 
+A binary version of this library (https://github.com/clehne/libsocket-can-java, Branch: `V2023.02`, Date: `2023.03.10` ). 
  is already included in this OpenEMS Bundle.
 
 
