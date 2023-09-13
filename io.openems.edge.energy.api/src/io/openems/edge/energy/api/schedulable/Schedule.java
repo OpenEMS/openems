@@ -2,6 +2,7 @@ package io.openems.edge.energy.api.schedulable;
 
 import java.lang.annotation.Annotation;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.energy.api.Utils;
 import io.openems.edge.energy.api.schedulable.Schedule.Preset;
 
 /**
@@ -149,19 +149,41 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	}
 
 	/**
-	 * Build {@link Schedule}.
+	 * Build a {@link Schedule} for hourly configuration PRESETs.
 	 * 
-	 * @param <MODE> the {@link Mode} type
-	 * @param now    {@link ZonedDateTime} of now
-	 * @param modes  array of {@link Mode}s
+	 * @param <MODE>   the {@link Mode} type
+	 * @param fromDate {@link ZonedDateTime} of the first preset
+	 * @param modes    array of {@link Mode}s, ideally 24 for one day
 	 * @return new {@link Schedule}
 	 */
-	public static <PRESET extends Preset, DYNAMIC_CONFIG> Schedule<PRESET, DYNAMIC_CONFIG> of(ZonedDateTime now,
-			PRESET[] presets) {
+	public static <PRESET extends Preset, DYNAMIC_CONFIG> Schedule<PRESET, DYNAMIC_CONFIG> ofHourly(
+			ZonedDateTime fromDate, PRESET[] presets) {
 		var b = ImmutableSortedMap.<ZonedDateTime, PRESET>naturalOrder();
 		IntStream.range(0, presets.length) //
 				.forEach(period -> {
-					b.put(Utils.toZonedDateTime(now, period), presets[period]);
+					var time = fromDate.truncatedTo(ChronoUnit.HOURS).plusHours(period);
+					b.put(time, presets[period]);
+				});
+		return new Schedule<>(b.build());
+	}
+
+	/**
+	 * Build a {@link Schedule} for quarterly (15-minutes) configuration PRESETs.
+	 * 
+	 * @param <MODE>   the {@link Mode} type
+	 * @param fromDate {@link ZonedDateTime} of the first preset
+	 * @param modes    array of {@link Mode}s, ideally 96 for one day
+	 * @return new {@link Schedule}
+	 */
+	public static <PRESET extends Preset, DYNAMIC_CONFIG> Schedule<PRESET, DYNAMIC_CONFIG> ofQuarterly(
+			ZonedDateTime fromDate, PRESET[] presets) {
+		var b = ImmutableSortedMap.<ZonedDateTime, PRESET>naturalOrder();
+		IntStream.range(0, presets.length) //
+				.forEach(period -> {
+					var time = fromDate //
+							.truncatedTo(ChronoUnit.HOURS).plusMinutes(15 * (fromDate.getMinute() / 15)) //
+							.plusMinutes(period * 15);
+					b.put(time, presets[period]);
 				});
 		return new Schedule<>(b.build());
 	}

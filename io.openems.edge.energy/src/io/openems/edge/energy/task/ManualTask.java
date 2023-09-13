@@ -2,17 +2,21 @@ package io.openems.edge.energy.task;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,6 +31,9 @@ import okhttp3.internal.concurrent.Task;
  * minutes.
  */
 public class ManualTask extends AbstractEnergyTask {
+
+	private static final int NUMBER_OF_HOURS = 24;
+	private static final int NUMBER_OF_QUARTERS = 96;
 
 	private final Logger log = LoggerFactory.getLogger(Task.class);
 	private final Map<String, String[]> componentsToPresetStrings;
@@ -45,19 +52,6 @@ public class ManualTask extends AbstractEnergyTask {
 			scheduleError.accept(true);
 		}
 		this.componentsToPresetStrings = componentsToPresetStrings;
-	}
-
-	protected static Map<String, String[]> parseSchedules(String manualSchedule) throws OpenemsNamedException {
-		var result = ImmutableMap.<String, String[]>builder();
-		var schedules = JsonUtils.parseToJsonObject(manualSchedule);
-		for (var componentId : schedules.keySet()) {
-			var presets = new ArrayList<String>();
-			for (var preset : JsonUtils.getAsJsonArray(schedules.get(componentId), "presets")) {
-				presets.add(JsonUtils.getAsString(preset));
-			}
-			result.put(componentId, presets.toArray(String[]::new));
-		}
-		return result.build();
 	}
 
 	@Override
@@ -83,17 +77,7 @@ public class ManualTask extends AbstractEnergyTask {
 			if (component instanceof Schedulable schedulable) {
 				// Read Component Presets
 				var scheduleHandler = schedulable.getScheduleHandler();
-				var componentPresets = new HashMap<String, Preset>();
-				for (var preset : scheduleHandler.presets) {
-					componentPresets.put(preset.name(), preset);
-				}
-				// Map Presets in Schedule
-				var presets = Stream.of(entry.getValue()) //
-						.map(preset -> componentPresets.get(preset)) //
-						.toArray(Preset[]::new);
-
-				// Apply Schedule
-				var schedule = Schedule.of(now, presets);
+				var schedule = toSchedule(now, entry.getValue(), scheduleHandler.presets);
 				schedules.add(componentId, schedule); // for debugLog
 				scheduleHandler.applySchedule((Schedule<?, ?>) schedule);
 
@@ -105,6 +89,78 @@ public class ManualTask extends AbstractEnergyTask {
 		}
 		this.schedules = schedules.build();
 		this.scheduleError.accept(scheduleError);
+	}
+
+	/**
+	 * Parses a String containing a JsonObject to a Map of Schedules.
+	 * 
+	 * @param json the {@link JsonObject}
+	 * @return a Map of Component-IDs to array of String-Presets
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static Map<String, String[]> parseSchedules(String json) throws OpenemsNamedException {
+		var result = ImmutableMap.<String, String[]>builder();
+		var schedules = JsonUtils.parseToJsonObject(json);
+		for (var componentId : schedules.keySet()) {
+			var subResult = new ArrayList<String>();
+			var presets = JsonUtils.getAsJsonArray(schedules.get(componentId), "presets");
+			if (presets.size() != NUMBER_OF_HOURS && presets.size() != NUMBER_OF_QUARTERS) {
+				throw new OpenemsException("[" + componentId + "] Got [" + presets.size() + "] presets. " //
+						+ "Count must be exactly " //
+						+ NUMBER_OF_HOURS + " (for hourly schedule) or " //
+						+ NUMBER_OF_QUARTERS + "(for quarterly schedule)");
+			}
+			for (var preset : presets) {
+				subResult.add(JsonUtils.getAsString(preset));
+			}
+			result.put(componentId, subResult.toArray(String[]::new));
+		}
+		return result.build();
+	}
+
+	/**
+	 * Creates a {@link Schedule} for a {@link Schedulable} Component from a String
+	 * array of Presets, starting from now.
+	 * 
+	 * <p>
+	 * Assumes hourly Schedule presets if 24 values are given; quarterly Schedule
+	 * otherwise.
+	 * 
+	 * @param now              the current {@link ZonedDateTime}
+	 * @param stringPresets    String array of Presets; length is either 24 or 96
+	 * @param componentPresets available {@link Preset}s for the {@link Schedulable}
+	 *                         Component
+	 * @return a {@link Schedule}
+	 */
+	protected static Schedule<?, ?> toSchedule(ZonedDateTime now, String[] stringPresets, Preset[] componentPresets) {
+		// Map Preset-String to Preset
+		var componentPresetsMap = Stream.of(componentPresets) //
+				.collect(Collectors.toMap(Preset::name, Function.identity()));
+
+		// Map Presets in Schedule
+		List<Preset> presets = Stream.of(stringPresets) //
+				.map(preset -> componentPresetsMap.get(preset)) //
+				.collect(Collectors.toCollection(ArrayList::new));
+
+		// Duplicate list to have sufficient entries for skip
+		presets.addAll(presets);
+
+		// Apply Schedule
+		final Schedule<?, ?> schedule;
+		if (presets.size() == NUMBER_OF_HOURS * 2) {
+			// Hourly schedule was given
+			schedule = Schedule.ofHourly(now, presets.stream() //
+					.skip(now.getHour()) //
+					.limit(NUMBER_OF_HOURS) //
+					.toArray(Preset[]::new));
+		} else {
+			// Quarterly schedule was given
+			schedule = Schedule.ofQuarterly(now, presets.stream() //
+					.skip(now.getHour() * 4 + now.getMinute() / 15) //
+					.limit(NUMBER_OF_QUARTERS) //
+					.toArray(Preset[]::new));
+		}
+		return schedule;
 	}
 
 }
