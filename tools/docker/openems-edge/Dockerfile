@@ -11,13 +11,13 @@ RUN apk add --no-cache \
     ${JAVA_VERSION}-jdk
 
 
-### Build backend binary
-FROM --platform=$BUILDPLATFORM jar_builder AS build_backend
+### Build edge binary
+FROM --platform=$BUILDPLATFORM jar_builder AS build_edge
 
 WORKDIR /src
 RUN --mount=type=bind,target=.,readwrite \
     --mount=type=cache,target=/root/.gradle \
-        ./gradlew --build-cache buildBackend && \
+        ./gradlew --build-cache buildEdge && \
         cp build/* /opt
 
 
@@ -32,15 +32,15 @@ RUN apk add --no-cache \
     ${JAVA_VERSION}-jre-headless
 
 
-### Build backend container
+### Build edge container
 FROM base_container
 
-COPY --from=build_backend /opt /app
-COPY tools/docker/openems-backend/root/ /
+COPY --from=build_edge /opt /app
+COPY tools/docker/openems-edge/root/ /
 
 RUN mkdir -p /config /data
 
 VOLUME /config
 VOLUME /data
 
-EXPOSE 8079
+EXPOSE 8080

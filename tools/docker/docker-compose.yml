@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  openems_edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - openemsedge-conf:/config
+      - openemsedge-data:/data
+    ports:
+      - 8080:8080
+
+  openems_backend:
+    image: openems/backend:latest
+    container_name: openems_backend
+    hostname: openems_backend
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - openemsbackend-conf:/config
+      - openemsbackend-data:/data
+    ports:
+      - 8079:8079
+
+  openems_ui:
+    image: openems/ui:edge-latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - openemsui-conf:/config
+      - openemsui-log:/log
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openemsedge-conf:
+  openemsedge-data:
+  openemsbackend-conf:
+  openemsbackend-data:
+  openemsui-conf:
+  openemsui-data:

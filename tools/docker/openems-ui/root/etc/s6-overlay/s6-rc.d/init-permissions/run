@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# permissions
+lsiown -R abc:abc \
+    /var/lib/nginx \
+    /var/tmp/nginx \
+    /config \
+    /log \
+    /etc/nginx \
+    /app
