@@ -33,7 +33,6 @@ services:
       - openemsui-log:/log:rw
     ports:
       - 80:80
-      - 443:443
 
 #  influxdb:
 #    image: influxdb:alpine
