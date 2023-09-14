@@ -9,6 +9,7 @@ import { DeleteAppInstance } from './jsonrpc/deleteAppInstance';
 import { GetAppAssistant } from './jsonrpc/getAppAssistant';
 import { GetAppInstances } from './jsonrpc/getAppInstances';
 import { UpdateAppInstance } from './jsonrpc/updateAppInstance';
+import { InstallAppComponent } from './install.component';
 
 interface MyInstance {
   instanceId: string, // uuid
@@ -82,16 +83,8 @@ export class UpdateAppComponent implements OnInit {
               }
 
               this.service.stopSpinner(this.spinnerId);
-
-            }).catch(reason => {
-              console.error(reason.error);
-              this.service.toast('Error while receiving App Assistant for [' + appId + ']: ' + reason.error.message, 'danger');
-            });
-
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast('Error while receiving App-Instances for [' + appId + ']: ' + reason.error.message, 'danger');
-        });
+            }).catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving App Assistant for [' + appId + ']: ' + error));
+        }).catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving App-Instances for [' + appId + ']: ' + error));
     });
   }
 
@@ -125,9 +118,9 @@ export class UpdateAppComponent implements OnInit {
         }
         instance.properties = result.instance.properties;
         instance.properties['ALIAS'] = result.instance.alias;
-      }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.App.failUpdate', { error: reason.error.message }), 'danger');
-      }).finally(() => {
+      })
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failUpdate', { error: error })))
+      .finally(() => {
         instance.isUpdating = false;
         this.service.stopSpinner(instance.instanceId);
       });
@@ -146,9 +139,9 @@ export class UpdateAppComponent implements OnInit {
         this.instances.splice(this.instances.indexOf(instance), 1);
         this.service.toast(this.translate.instant('Edge.Config.App.successDelete'), 'success');
         this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
-      }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.App.failDelete', { error: reason.error.message }), 'danger');
-      }).finally(() => {
+      })
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failDelete', { error: error })))
+      .finally(() => {
         instance.isDeleting = false;
         this.service.stopSpinner(instance.instanceId);
       });

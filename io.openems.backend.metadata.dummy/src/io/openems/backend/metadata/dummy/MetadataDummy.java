@@ -97,19 +97,37 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public User authenticate(String username, String password) throws OpenemsNamedException {
 		var name = "User #" + this.nextUserId.incrementAndGet();
 		var token = UUID.randomUUID().toString();
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN);
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
 		this.users.put(user.getId(), user);
 		return user;
 	}
 
 	@Override
 	public User authenticate(String token) throws OpenemsNamedException {
-		for (User user : this.users.values()) {
-			if (user.getToken().equals(token)) {
-				return user;
+		for (var user : this.users.values()) {
+			if (!user.getToken().equals(token)) {
+				continue;
 			}
+			final var hasMultipleEdges = this.hasMultipleEdges();
+			final User returnUser;
+			if (user.hasMultipleEdges() != hasMultipleEdges) {
+				returnUser = this.createUser(user.getId(), user.getName(), user.getToken(), hasMultipleEdges);
+				this.users.put(token, returnUser);
+			} else {
+				returnUser = user;
+			}
+
+			return returnUser;
 		}
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+	}
+
+	private User createUser(String username, String name, String token, boolean hasMultipleEdges) {
+		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
+	}
+
+	private boolean hasMultipleEdges() {
+		return this.edges.size() > 1;
 	}
 
 	@Override

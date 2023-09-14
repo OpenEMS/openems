@@ -67,6 +67,7 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -535,6 +536,18 @@ public class SimulatorAppImpl extends AbstractOpenemsComponent
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator-App");
+	}
+
+	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		throw new NotImplementedException("QueryResendData is not implemented for Simulator-App");
+	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		throw new NotImplementedException("GetResendTimeranges is not implemented for Simulator-App");
 	}
 
 	@Override

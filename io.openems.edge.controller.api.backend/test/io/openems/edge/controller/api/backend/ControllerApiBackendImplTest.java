@@ -38,6 +38,7 @@ public class ControllerApiBackendImplTest {
 			new ComponentTest(sut) //
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //
+					.addReference("resendHistoricDataWorker", new ResendHistoricDataWorker()) //
 					.addComponent(new DummySum()) //
 					.activate(MyConfig.create() //
 							.setId(CTRL_ID) //
@@ -45,7 +46,9 @@ public class ControllerApiBackendImplTest {
 							.setApikey("12345") //
 							.setProxyType(Type.DIRECT) //
 							.setProxyAddress("") //
-							.setPersistencePriority(PersistencePriority.VERY_LOW) //
+							.setPersistencePriority(PersistencePriority.HIGH) //
+							.setAggregationPriority(PersistencePriority.VERY_LOW) //
+							.setResendPriority(PersistencePriority.MEDIUM) //
 							.build());
 
 			// Stop connection

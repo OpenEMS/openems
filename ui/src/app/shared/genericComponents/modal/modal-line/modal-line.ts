@@ -22,7 +22,7 @@ export class ModalLineComponent extends AbstractModalLine {
         /* the available select options*/
         { type: 'SELECT', options: { value: string, name: string }[] } |
         /* the properties for range slider*/
-        { type: 'RANGE', properties: { min: number, max: number, unit: 'H' }, displayValue?: number | string };
+        { type: 'RANGE', properties: { min: number, max: number, unit: 'H', step?: number } };
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;

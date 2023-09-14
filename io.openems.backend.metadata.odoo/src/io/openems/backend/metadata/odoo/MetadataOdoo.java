@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -27,7 +28,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -35,6 +38,7 @@ import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Mailer;
@@ -68,7 +72,8 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Edge.Events.ALL_EVENTS //
 })
-public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, EventHandler {
+public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata, AppCenterMetadata.EdgeData,
+		AppCenterMetadata.UiData, Metadata, Mailer, EventHandler {
 
 	private static final int EXECUTOR_MIN_THREADS = 1;
 	private static final int EXECUTOR_MAX_THREADS = 50;
@@ -135,6 +140,13 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 		var result = this.odooHandler.authenticateSession(sessionId);
 
 		// Parse Result
+		var jUser = JsonUtils.getAsJsonObject(result, "user");
+		var odooUserId = JsonUtils.getAsInt(jUser, "id");
+		var login = JsonUtils.getAsString(jUser, "login");
+		var name = JsonUtils.getAsString(jUser, "name");
+		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
+		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
+		var hasMultipleEdges = JsonUtils.getAsBoolean(jUser, "has_multiple_edges");
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -142,24 +154,20 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
 			roles.put(edgeId, role);
 		}
-		var jUser = JsonUtils.getAsJsonObject(result, "user");
-		var odooUserId = JsonUtils.getAsInt(jUser, "id");
 
-		var user = new MyUser(//
-				odooUserId, //
-				JsonUtils.getAsString(jUser, "login"), //
-				JsonUtils.getAsString(jUser, "name"), //
-				sessionId, //
-				Language.from(JsonUtils.getAsString(jUser, "language")), //
-				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
-				roles);
-
-		this.users.put(user.getId(), user);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges);
+		var oldUser = this.users.put(login, user);
+		if (oldUser != null) {
+			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
+				user.setRole(edgeId, role);
+			});
+		}
 		return user;
 	}
 
 	@Override
 	public void logout(User user) {
+		this.users.remove(user.getId());
 		this.odooHandler.logout(user.getToken());
 	}
 
@@ -233,6 +241,7 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
 		this.odooHandler.assignEdgeToUser((MyUser) user, (MyEdge) edge, OdooUserRole.INSTALLER);
+		user.setRole(edge.getId(), Role.INSTALLER);
 	}
 
 	@Override
@@ -404,6 +413,79 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public JsonObject sendIsKeyApplicable(String key, String edgeId, String appId) throws OpenemsNamedException {
+		return this.odooHandler.getIsKeyApplicable(key, edgeId, appId);
+	}
+
+	@Override
+	public void sendAddInstallAppInstanceHistory(String key, String edgeId, String appId, UUID instanceId,
+			String userId) throws OpenemsNamedException {
+		this.odooHandler.getAddInstallAppInstanceHistory(key, edgeId, appId, instanceId, userId);
+	}
+
+	@Override
+	public void sendAddDeinstallAppInstanceHistory(String edgeId, String appId, UUID instanceId, String userId)
+			throws OpenemsNamedException {
+		this.odooHandler.getAddDeinstallAppInstanceHistory(edgeId, appId, instanceId, userId);
+	}
+
+	@Override
+	public void sendAddRegisterKeyHistory(String edgeId, String appId, String key, User user)
+			throws OpenemsNamedException {
+		this.odooHandler.getAddRegisterKeyHistory(edgeId, appId, key, (MyUser) user);
+	}
+
+	@Override
+	public void sendAddUnregisterKeyHistory(String edgeId, String appId, String key, User user)
+			throws OpenemsNamedException {
+		this.odooHandler.getAddUnregisterKeyHistory(edgeId, appId, key, (MyUser) user);
+	}
+
+	@Override
+	public JsonArray sendGetRegisteredKeys(String edgeId, String appId) throws OpenemsNamedException {
+		var response = this.odooHandler.getRegisteredKeys(edgeId, appId);
+		return JsonUtils.getAsOptionalJsonArray(response, "keys") //
+				.orElse(new JsonArray()) //
+		;
+	}
+
+	@Override
+	public JsonArray sendGetPossibleApps(String key, String edgeId) throws OpenemsNamedException {
+		var response = this.odooHandler.getPossibleApps(key, edgeId);
+		return JsonUtils.getAsJsonArray(response, "bundles");
+	}
+
+	@Override
+	public JsonObject sendGetInstalledApps(String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getInstalledApps(edgeId);
+	}
+
+	@Override
+	public String getSuppliableKey(//
+			final User user, //
+			final String edgeId, //
+			final String appId //
+	) throws OpenemsNamedException {
+		if (this.isAppFree(user, appId)) {
+			return "";
+		}
+		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
+			return null;
+		}
+		return "";
+	}
+
+	@Override
+	public boolean isAppFree(//
+			final User user, //
+			final String appId //
+	) throws OpenemsNamedException {
+		return Sets.newHashSet(//
+				"App.Hardware.KMtronic8Channel" //
+		).contains(appId);
 	}
 
 	@Override

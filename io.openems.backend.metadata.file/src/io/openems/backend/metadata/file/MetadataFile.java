@@ -95,12 +95,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	@Reference
 	private EventAdmin eventAdmin;
 
-	private User user;
+	private User user = this.generateUser();
 	private String path = "";
 
 	public MetadataFile() {
 		super("Metadata.File");
-		this.user = MetadataFile.generateUser();
 	}
 
 	@Activate
@@ -121,7 +120,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.user;
+		return this.user = this.generateUser();
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public void logout(User user) {
-		this.user = MetadataFile.generateUser();
+		this.user = this.generateUser();
 	}
 
 	@Override
@@ -221,13 +220,21 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			for (MyEdge edge : edges) {
 				this.edges.put(edge.getId(), edge);
 			}
+
+			final var previousUser = this.user;
+			final var hasMultipleEdges = edges.size() > 1;
+			if (previousUser.hasMultipleEdges() != hasMultipleEdges) {
+				this.user = new User(previousUser.getId(), previousUser.getName(), previousUser.getToken(),
+						previousUser.getLanguage(), previousUser.getGlobalRole(), previousUser.getEdgeRoles(),
+						hasMultipleEdges);
+			}
 		}
 		this.setInitialized();
 	}
 
-	private static User generateUser() {
+	private User generateUser() {
 		return new User(MetadataFile.USER_ID, MetadataFile.USER_NAME, UUID.randomUUID().toString(),
-				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE);
+				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE, this.edges.size() > 1);
 	}
 
 	@Override

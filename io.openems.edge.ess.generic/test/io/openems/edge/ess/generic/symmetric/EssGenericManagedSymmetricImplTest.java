@@ -1,7 +1,10 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import static org.junit.Assert.assertEquals;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
@@ -100,6 +103,34 @@ public class EssGenericManagedSymmetricImplTest {
 						.input(BATTERY_DISCHARGE_MAX_CURRENT, -5) //
 						.output(ESS_ALLOWED_DISCHARGE_POWER, (int) (-2500 * GenericManagedEss.EFFICIENCY_FACTOR))) //
 		;
+	}
+
+	@Test
+	public void testDebugLog() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		var sut = new EssGenericManagedSymmetricImpl();
+		new ManagedSymmetricEssTest(sut) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter(BATTERY_INVERTER_ID) //
+						.withStartStop(StartStop.START) //
+						.withMaxApparentPower(92_000)) //
+				.addReference("battery", new DummyBattery(BATTERY_ID) //
+						.withStartStop(StartStop.START) //
+						.withSoc(60) //
+						.withVoltage(700) //
+						.withChargeMaxCurrent(80) //
+						.withDischargeMaxCurrent(70)) //
+				.activate(MyConfig.create() //
+						.setId(ESS_ID) //
+						.setStartStopConfig(StartStopConfig.START) //
+						.setBatteryInverterId(BATTERY_INVERTER_ID) //
+						.setBatteryId(BATTERY_ID) //
+						.build()) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> clock.leap(10, ChronoUnit.SECONDS)), 10);
+		assertEquals("Started|SoC:60 %|L:0 W|Allowed:-56000;46550", sut.debugLog());
 	}
 
 }
