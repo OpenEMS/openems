@@ -51,7 +51,7 @@ public final class EventBuilder {
 	 * @see org.osgi.service.event.EventAdmin#postEvent(Event)
 	 */
 	public void post() throws SecurityException {
-		this.eventAdmin.postEvent(new Event(this.eventTopic, this.eventArgs));
+		this.eventAdmin.postEvent(this.build());
 	}
 
 	/**
@@ -77,7 +77,16 @@ public final class EventBuilder {
 	 * @see org.osgi.service.event.EventAdmin#sendEvent(Event)
 	 */
 	public void send() throws SecurityException {
-		this.eventAdmin.sendEvent(new Event(this.eventTopic, this.eventArgs));
+		this.eventAdmin.sendEvent(this.build());
+	}
+	
+	/**
+	 * Build event and return it.
+	 * 
+	 * @return built {@link Event}
+	 */
+	public Event build() {
+		return new Event(this.eventTopic, this.eventArgs);
 	}
 
 	/**

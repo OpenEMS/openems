@@ -1,6 +1,7 @@
 package io.openems.backend.alerting.handler;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -13,12 +14,15 @@ import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.message.SumStateMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
-import io.openems.backend.alerting.scheduler.MinuteTimer;
+import io.openems.backend.alerting.scheduler.TimedExecutor;
+import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
 public class SumStateHandler implements Handler<SumStateMessage> {
@@ -30,13 +34,14 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private MessageSchedulerService mss;
 	private MessageScheduler<SumStateMessage> msgScheduler;
 
-	private Consumer<ZonedDateTime> initMetadata;
-	private MinuteTimer timeService;
+	private TimedTask initMetadata;
+	private TimedExecutor timeService;
 
-	public SumStateHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, MinuteTimer timer, int initialDelay) {
+	public SumStateHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
+			int initialDelay) {
 		this.mailer = mailer;
 		this.metadata = metadata;
-		this.timeService = timer;
+		this.timeService = timeService;
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
@@ -44,9 +49,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 
 	@Override
 	public void stop() {
-		if (this.initMetadata != null) {
-			this.timeService.unsubscribe(this.initMetadata);
-		}
+		this.timeService.cancel(this.initMetadata);
 		this.initMetadata = null;
 		this.mss.unregister(this);
 		this.msgScheduler = null;
@@ -101,11 +104,33 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	 */
 	protected SumStateMessage getEdgeMessage(Edge edge, Level sumState) {
 		if (edge == null || edge.getId() == null) {
-			this.log.warn("Called method getEdgeMessage with " //
+			this.log.warn("Called method SumStateHandler.getEdgeMessage with " //
 					+ edge == null ? "Edge{null}" : "Edge{id=null}");
+			return null;
+		} else if (edge.isOffline()) {
+			this.log.warn("Called method SumStateHandler.getEdgeMessage with offline" //
+					+ "Edge{id=" + edge.getId() + '}');
+			return null;
 		}
-		var message = new SumStateMessage(edge.getId(), sumState, ZonedDateTime.now());
-		return message;
+		try {
+			var sumStateSettings = this.metadata.getSumStateAlertingSettings(edge.getId());
+			if (sumStateSettings == null || sumStateSettings.isEmpty()) {
+				return null;
+			}
+			var message = new SumStateMessage(edge.getId(), sumState, this.timeService.now());
+			for (var setting : sumStateSettings) {
+				var delay = setting.getDelay(sumState);
+				if (delay > 0 && this.shouldReceiveMail(edge, setting, sumState)) {
+					message.addRecipient(setting, sumState);
+				}
+			}
+			if (!message.isEmpty()) {
+				return message;
+			}
+		} catch (OpenemsException e) {
+			this.log.warn("Could not get alerting settings for " + edge.getId(), e);
+		}
+		return null;
 	}
 
 	private boolean containsEdge(String edgeId) {
@@ -121,83 +146,66 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	protected void tryAddEdge(Edge edge, Level sumState) {
 		var msg = this.getEdgeMessage(edge, sumState);
 		if (msg != null) {
-			this.log.debug("Schedule : " + msg);
 			this.msgScheduler.schedule(msg);
 		}
 	}
 
+	private boolean shouldReceiveMail(Edge edge, SumStateAlertingSetting setting, Level state) {
+		var lastMailRecievedAt = setting.lastNotification();
+		if (lastMailRecievedAt == null) {
+			return true;
+		}
+		var nextMailRecieveAt = edge.getLastmessage().plus(setting.getDelay(state), ChronoUnit.MINUTES);
+		return nextMailRecieveAt.isAfter(lastMailRecievedAt);
+	}
+
+	private void handleEdgeOnSetOnline(EventReader event) {
+		final var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+
+		// Exit if no message for edge exists
+		if (!this.containsEdge(edgeId)) {
+			return;
+		}
+
+		final var edgeOpt = this.metadata.getEdge(edgeId);
+		edgeOpt.ifPresent((edge) -> {
+			if (edge.isOffline()) {
+				// remove sumState message, as this condition triggers offline edge message.
+				this.tryRemoveEdge(edge);
+			}
+		});
+	}
+
+	private void handleEdgeOnSetSumState(EventReader event) {
+		final var edgeId = (String) event.getProperty(Edge.Events.OnSetSumState.EDGE_ID);
+		final var level = (Level) event.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
+
+		final var edgeOpt = this.metadata.getEdge(edgeId);
+		edgeOpt.ifPresent(edge -> {
+			if (level.isAtLeast(Level.WARNING)) {
+				this.tryAddEdge(edge, level);
+			} else {
+				this.tryRemoveEdge(edge);
+			}
+		});
+	}
+
 	@Override
 	public Consumer<EventReader> getEventHandler(String eventTopic) {
-		switch (eventTopic) {
-		case Edge.Events.ON_SET_SUM_STATE: {
-			return (event) -> {
-				final var edgeId = (String) event.getProperty(Edge.Events.OnSetSumState.EDGE_ID);
-				final var level = (Level) event.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
+		return switch (eventTopic) {
+		case Edge.Events.ON_SET_ONLINE:
+			yield this::handleEdgeOnSetOnline;
 
-				if (this.testFilter(edgeId, level)) {
-					return;
-				}
+		case Edge.Events.ON_SET_SUM_STATE:
+			yield this::handleEdgeOnSetSumState;
 
-				final var edgeOpt = this.metadata.getEdge(edgeId);
-				edgeOpt.ifPresent(edge -> {
-					// TODO remove Fault check with configuration.
-					if (level.isAtLeast(Level.FAULT)) {
-						this.tryAddEdge(edge, level);
-					} else {
-						this.tryRemoveEdge(edge);
-					}
-				});
-			};
-		}
-		case Edge.Events.ON_SET_ONLINE: {
-			return (event) -> {
-				final var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
-
-				// Exit if no message for edge exists
-				if (!this.containsEdge(edgeId)) {
-					return;
-				}
-
-				final var edgeOpt = this.metadata.getEdge(edgeId);
-				edgeOpt.ifPresent((edge) -> {
-					if (edge.isOffline()) {
-						// remove sumState message, as this condition triggers offline edge message.
-						this.tryRemoveEdge(edge);
-					}
-				});
-			};
-		}
 		default:
-			return null;
-		}
+			yield null;
+		};
 	}
 
 	@Override
 	public Class<SumStateMessage> getGeneric() {
 		return SumStateMessage.class;
-	}
-
-	// TODO remove this test filter; filter is for testing only
-	private boolean testFilter(String edgeId, Level level) {
-		switch (edgeId.toLowerCase()) {
-		case "edge1":
-		case "edge42":
-			break;
-		default:
-			return true;
-		}
-
-		var contains = this.containsEdge(edgeId);
-		if ((level.isAtLeast(Level.FAULT) == contains)) {
-			return true;
-		}
-
-		if (level.isAtLeast(Level.FAULT)) {
-			this.log.info(edgeId + " entered FAULT state!");
-		} else {
-			this.log.info(edgeId + " left FAULT state!");
-		}
-
-		return false;
 	}
 }

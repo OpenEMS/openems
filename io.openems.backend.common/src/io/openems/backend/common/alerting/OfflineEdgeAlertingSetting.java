@@ -2,6 +2,6 @@ package io.openems.backend.common.alerting;
 
 import java.time.ZonedDateTime;
 
-public record OfflineEdgeAlertingSetting(int edgeOdooId, int userOdooId, int delay, ZonedDateTime lastNotification) {
+public record OfflineEdgeAlertingSetting(String edgeId, String userLogin, int delay, ZonedDateTime lastNotification) {
 
 }

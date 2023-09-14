@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -16,10 +16,10 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
+import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 import io.openems.common.event.EventReader;
-import io.openems.common.test.TimeLeapClock;
 
 public class SchedulerTest {
 
@@ -28,7 +28,7 @@ public class SchedulerTest {
 	 */
 	@BeforeClass
 	public static void dummyClass() {
-		var dummyMsg = new DummyMessage("", 0);
+		var dummyMsg = new DummyMessage("", Instant.now(), 0);
 		var dummyHan = new DummyHandler();
 		Runnable[] methods = { () -> dummyHan.getEventHandler(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
 				() -> dummyMsg.getParams(), };
@@ -38,112 +38,208 @@ public class SchedulerTest {
 		}
 	}
 
-	private Scheduler scheduler;
-	private MinuteTimer timer;
-	private TimeLeapClock clock;
-	
-	private final List<DummyHandler> handler = new ArrayList<>();
-	private final List<DummyMessage> msgs = new ArrayList<>();
-	private final List<MessageScheduler<DummyMessage>> msgScheduler = new ArrayList<>();
+	@Test
+	public void testSchedule() {
+		/* Prepare */
+		final var now = Instant.now();
+		final var handler = new DummyHandler();
+		final var scheduler = new Scheduler(new TimeLeapMinuteTimer(now));
+
+		final var msgScheduler = scheduler.register(handler);
+
+		final var msg1 = new DummyMessage("0", now, -1);
+		final var msg2 = new DummyMessage("1", now, 1);
+		final var msg3 = new DummyMessage("2", now, -2);
+
+		/* TEST */
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+
+		msgScheduler.schedule(msg1);
+
+		assertTrue(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+
+		msgScheduler.schedule(msg2);
+		msgScheduler.schedule(msg3);
+
+		assertTrue(scheduler.isScheduled(msg1));
+		assertTrue(scheduler.isScheduled(msg2));
+		assertTrue(scheduler.isScheduled(msg3));
+	}
 
 	@Test
-	public void testFunctionaliy() {
-		this.prepare();
-		this.testSchedule();
-		this.testRemove();
-		this.testUnRegister();
-		this.testHandle();
+	public void testRemove() {
+		/* Prepare */
+		final var now = Instant.now();
+		final var handler = new DummyHandler();
+		final var scheduler = new Scheduler(new TimeLeapMinuteTimer(now));
+
+		final var msgScheduler = scheduler.register(handler);
+
+		final var msg1 = new DummyMessage("0", now, -1);
+		final var msg2 = new DummyMessage("1", now, 1);
+		final var msg3 = new DummyMessage("2", now, -2);
+
+		msgScheduler.schedule(msg1);
+		msgScheduler.schedule(msg2);
+		msgScheduler.schedule(msg3);
+
+		/* Test */
+		assertTrue(scheduler.isScheduled(msg1));
+		assertTrue(scheduler.isScheduled(msg2));
+		assertTrue(scheduler.isScheduled(msg3));
+
+		msgScheduler.remove(null);
+		msgScheduler.remove("");
+		msgScheduler.remove(msg2.getId());
+
+		assertTrue(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertTrue(scheduler.isScheduled(msg3));
+
+		msgScheduler.remove(msg1.getId());
+		msgScheduler.remove(msg2.getId());
+		msgScheduler.remove(msg3.getId());
+
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
 	}
 
-	private void prepare() {
-		this.clock = new TimeLeapClock();
-		this.timer = new MinuteTimer(this.clock);
-		
-		this.scheduler = new Scheduler(this.timer);
-	
-		// Handler
-		this.handler.add(new DummyHandler());
-		this.handler.add(new DummyHandler());
-		// Messages
-		this.msgs.add(new DummyMessage("1", -1));
-		this.msgs.add(new DummyMessage("2", 1));
-		this.msgs.add(new DummyMessage("3", -2));
-		this.msgs.add(new DummyMessage("4", 2));
-		// MsgScheduler
-		this.msgScheduler.add(this.scheduler.register(this.handler.get(0)));
-		this.msgScheduler.add(this.scheduler.register(this.handler.get(0)));
-		this.msgScheduler.add(this.scheduler.register(this.handler.get(1)));
-		// Check
-		assertTrue(this.msgScheduler.get(0).isFor(this.handler.get(0)));
-		assertTrue(this.msgScheduler.get(1).isFor(this.handler.get(0)));
-		assertTrue(this.msgScheduler.get(2).isFor(this.handler.get(1)));
-		assertFalse(this.msgScheduler.get(0).isFor(this.handler.get(1)));
-		
-		this.scheduler.start();
+	@Test
+	public void testUnRegister() {
+		/* Prepare */
+		final var now = Instant.now();
+		final var scheduler = new Scheduler(new TimeLeapMinuteTimer(now));
+
+		final var handler = new DummyHandler();
+		final var msgScheduler = scheduler.register(handler);
+
+		final var msg10 = new DummyMessage("10", now, -1);
+		final var msg11 = new DummyMessage("11", now, 1);
+
+		final var handler2 = new DummyHandler();
+		final var msgScheduler2 = scheduler.register(handler2);
+
+		final var msg20 = new DummyMessage("20", now, -2);
+		final var msg21 = new DummyMessage("21", now, -2);
+
+		msgScheduler.schedule(msg10);
+		msgScheduler2.schedule(msg20);
+
+		/* TEST */
+		scheduler.start();
+
+		assertTrue(scheduler.isScheduled(msg10));
+		assertFalse(scheduler.isScheduled(msg11));
+		assertTrue(scheduler.isScheduled(msg20));
+		assertFalse(scheduler.isScheduled(msg21));
+
+		scheduler.unregister(handler2);
+
+		assertTrue(scheduler.isScheduled(msg10));
+		assertFalse(scheduler.isScheduled(msg11));
+		assertFalse(scheduler.isScheduled(msg20));
+		assertFalse(scheduler.isScheduled(msg21));
+
+		scheduler.unregister(handler);
+
+		assertFalse(scheduler.isScheduled(msg10));
+		assertFalse(scheduler.isScheduled(msg11));
+		assertFalse(scheduler.isScheduled(msg20));
+		assertFalse(scheduler.isScheduled(msg21));
+
+		scheduler.stop();
 	}
 
-	private void testSchedule() {
-		this.msgScheduler.get(0).schedule(this.msgs.get(0));
+	@Test
+	public void testHandle() {
+		/* Prepare */
+		final var now = Instant.now();
+		final var timer = new TimeLeapMinuteTimer(now);
+		final var scheduler = new Scheduler(timer);
 
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(0)));
-		assertFalse(this.scheduler.isScheduled(this.msgs.get(1)));
-		assertFalse(this.scheduler.isScheduled(this.msgs.get(2)));
+		final var handler = new DummyHandler() {
+			@Override
+			public void send(ZonedDateTime sentAt, java.util.List<DummyMessage> messages) {
+				for (var msg : messages) {
+					if (msg.getId().equals("0ERR")) {
+						throw new RuntimeException("Test Exception");
+					}
+				}
+			}
+		};
+		final var msgScheduler = scheduler.register(handler);
 
-		this.msgScheduler.get(1).schedule(this.msgs.get(1));
-		this.msgScheduler.get(2).schedule(this.msgs.get(2));
+		final var msg1 = new DummyMessage("0ERR", now, -60 /*-1m*/);
+		final var msg2 = new DummyMessage("1", now, -1 /*-1s*/);
+		final var msg3 = new DummyMessage("2", now, 120 /* 2m */);
+		final var msg4 = new DummyMessage("3", now, 480 /* 8m */);
+		final var msg5 = new DummyMessage("4", now, 1200/* 20m */);
 
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(0)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(1)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
-	}
+		msgScheduler.schedule(msg1);
+		msgScheduler.schedule(msg2);
+		msgScheduler.schedule(msg3);
+		msgScheduler.schedule(msg4);
+		msgScheduler.schedule(msg5);
 
-	private void testRemove() {
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(0)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(1)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
+		/* Test */
+		scheduler.start();
 
-		this.msgScheduler.get(1).remove(null);
-		this.msgScheduler.get(1).remove(this.msgs.get(1).getId());
+		assertTrue(scheduler.isScheduled(msg1));
+		assertTrue(scheduler.isScheduled(msg2));
+		assertTrue(scheduler.isScheduled(msg3));
+		assertTrue(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
 
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(0)));
-		assertFalse(this.scheduler.isScheduled(this.msgs.get(1)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
-	}
+		timer.cycle();
 
-	private void testUnRegister() {
-		this.scheduler.unregister(this.handler.get(0));
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertTrue(scheduler.isScheduled(msg3));
+		assertTrue(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
 
-		assertFalse(this.scheduler.isScheduled(this.msgs.get(0)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
-	}
+		timer.leap(3);
 
-	private void testHandle() {
-		this.msgScheduler.get(2).schedule(this.msgs.get(3));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(2)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(3)));
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+		assertTrue(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
 
-		this.timer.cycle();
+		timer.leap(3);
 
-		assertFalse(this.scheduler.isScheduled(this.msgs.get(2)));
-		assertTrue(this.scheduler.isScheduled(this.msgs.get(3)));
-		
-		this.clock.leap(2, ChronoUnit.MINUTES);
-		this.timer.cycle();
-		
-		assertFalse("Message 2 is still scheduled", this.scheduler.isScheduled(this.msgs.get(2)));
-		assertFalse("Message 3 is still scheduled", this.scheduler.isScheduled(this.msgs.get(3)));
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+		assertTrue(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
+
+		timer.leap(3);
+
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+		assertFalse(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
+
+		scheduler.stop();
 	}
 
 	/* *********************************************** */
 	private static class DummyMessage extends Message {
 		private ZonedDateTime timeStamp;
 
-		public DummyMessage(String messageId, int timeShift) {
+		public DummyMessage(String messageId, Instant now, int timeShift) {
 			super(messageId);
 			if (timeShift >= 0) {
-				this.timeStamp = ZonedDateTime.now().plusSeconds(timeShift);
+				this.timeStamp = ZonedDateTime.ofInstant(now, ZoneOffset.UTC).plusSeconds(timeShift);
 			} else {
-				this.timeStamp = ZonedDateTime.now().minusSeconds(Math.abs(timeShift));
+				this.timeStamp = ZonedDateTime.ofInstant(now, ZoneOffset.UTC).minusSeconds(Math.abs(timeShift));
 			}
 		}
 

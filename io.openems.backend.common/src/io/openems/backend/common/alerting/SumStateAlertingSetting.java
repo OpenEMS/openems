@@ -2,6 +2,24 @@ package io.openems.backend.common.alerting;
 
 import java.time.ZonedDateTime;
 
-public record SumStateAlertingSetting(int edgeOdooId, int userOdooId, int faultDelay, int warningDelay, ZonedDateTime lastNotification) {
+import io.openems.common.channel.Level;
 
+public record SumStateAlertingSetting(String edgeId, String userLogin, int faultDelay, int warningDelay,
+		ZonedDateTime lastNotification) {
+	/**
+	 * Get the appropriate delay for the given SumState level .
+	 * 
+	 * @param state to get delay for
+	 * @return delay as int
+	 */
+	public int getDelay(Level state) {
+		return switch (state) {
+		case FAULT:
+			yield this.faultDelay;
+		case WARNING:
+			yield this.warningDelay;
+		default:
+			yield -1;
+		};
+	}
 }

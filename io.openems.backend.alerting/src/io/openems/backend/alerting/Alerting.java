@@ -2,6 +2,7 @@ package io.openems.backend.alerting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +24,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.handler.SumStateHandler;
-import io.openems.backend.alerting.scheduler.MinuteTimer;
-import io.openems.backend.alerting.scheduler.MinuteTimerAsync;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -50,11 +49,26 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	// Queue size from which warnings are issued
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
-	protected final Scheduler scheduler;
+	private static final Executor createDefaultExecutorService() {
+		final var threadFacotry = new ThreadFactoryBuilder() //
+				.setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d") //
+				.build();
+		final var blockingQueue = new LinkedBlockingQueue<Runnable>();
+		final var alertingLog = LoggerFactory.getLogger(Alerting.class.getCanonicalName() + "::ThreadPoolExecutor");
+		return new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, blockingQueue, threadFacotry) {
+			@Override
+			public void execute(Runnable command) {
+				super.execute(command);
+				int queueSize = this.getQueue().size();
+				if (queueSize > 0 && queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
+					alertingLog.warn(queueSize + " tasks in the EventHandlerQueue!");
+				}
+			}
+		};
+	}
 
 	private final Logger log = LoggerFactory.getLogger(Alerting.class);
-	private final ThreadPoolExecutor executor;
-	private final MinuteTimer timer;
+	private final Executor executor;
 
 	@Reference
 	protected Metadata metadata;
@@ -62,19 +76,18 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	@Reference
 	protected Mailer mailer;
 
+	private final Scheduler scheduler;
+
 	protected final List<Handler<?>> handler = new ArrayList<>(2);
 
-	protected Alerting(MinuteTimer timer) {
+	protected Alerting(Scheduler scheduler, Executor executor) {
 		super("Alerting");
-
-		this.timer = timer;
-		this.scheduler = new Scheduler(timer);
-		this.executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>(), //
-				new ThreadFactoryBuilder().setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build());
+		this.executor = executor;
+		this.scheduler = scheduler;
 	}
 
 	public Alerting() {
-		this(MinuteTimerAsync.getInstance());
+		this(new Scheduler(), Alerting.createDefaultExecutorService());
 	}
 
 	@Activate
@@ -83,11 +96,15 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.scheduler.start();
 
 		if (config.notifyOnOffline()) {
-			this.handler.add(new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, this.timer, config.initialDelay()));
+			var handler = new OfflineEdgeHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
+					config.initialDelay());
+			this.handler.add(handler);
 		}
 
 		if (config.notifyOnSumStateChange()) {
-			this.handler.add(new SumStateHandler(this.scheduler, this.mailer, this.metadata,  this.timer, config.initialDelay()));
+			var handler = new SumStateHandler(this.scheduler, this.scheduler, this.mailer, this.metadata, //
+					config.initialDelay());
+			this.handler.add(handler);
 		}
 	}
 
@@ -102,19 +119,16 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	@Override
 	public void handleEvent(Event event) {
 		var reader = new EventReader(event);
-		this.handler.forEach(handler -> {
-			var task = handler.getEventHandler(reader.getTopic());
+		for (var h : this.handler) {
+			var task = h.getEventHandler(reader.getTopic());
 			if (task != null) {
 				this.execute(task, reader);
 			}
-		});
-		int queueSize = this.executor.getQueue().size();
-		if (queueSize > 0 && queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
-			this.logWarn(this.log, queueSize + " tasks in the EventHandlerQueue!");
 		}
 	}
 
 	private void execute(Consumer<EventReader> consumer, EventReader reader) {
 		this.executor.execute(() -> consumer.accept(reader));
 	}
+
 }

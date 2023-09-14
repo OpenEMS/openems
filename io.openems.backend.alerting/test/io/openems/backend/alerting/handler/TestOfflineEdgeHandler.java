@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
+import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
 import io.openems.backend.alerting.Dummy.MessageSchedulerServiceImpl;
-import io.openems.backend.alerting.Dummy.OfflineEdgeMetadataImpl;
 import io.openems.backend.alerting.Dummy.SimpleMetadataImpl;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
@@ -33,7 +34,7 @@ public class TestOfflineEdgeHandler {
 		final var mss = new MessageSchedulerServiceImpl();
 		final var meta = new SimpleMetadataImpl();
 		final var timer = new MinuteTimer(null);
-		final var handler = new OfflineEdgeHandler(mss, null, meta, timer, 1);
+		final var handler = new OfflineEdgeHandler(mss, timer, null, meta, 1);
 		assertEquals(OfflineEdgeMessage.class, handler.getGeneric());
 	}
 
@@ -41,7 +42,7 @@ public class TestOfflineEdgeHandler {
 	public void testActivate() {
 		final var service = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(null);
-		var handler = new OfflineEdgeHandler(service, null, new SimpleMetadataImpl(), timer, 1);
+		var handler = new OfflineEdgeHandler(service, timer, null, new SimpleMetadataImpl(), 1);
 		assertEquals(1, service.msgScheduler.size());
 		assertTrue(service.msgScheduler.get(0).isFor(handler));
 		handler.stop();
@@ -52,15 +53,15 @@ public class TestOfflineEdgeHandler {
 	public void send() {
 		final var mailer = new MailerImpl();
 		final var msgsch = new MessageSchedulerServiceImpl();
-		final var timer = new MinuteTimer(null);
-		final var handler = new OfflineEdgeHandler(msgsch, mailer, Utility.getTestMetadata(), timer, 1);
+		final var timer = new MinuteTimer(Clock.systemUTC());
+		final var handler = new OfflineEdgeHandler(msgsch, timer, mailer, Utility.getTestMetadata(), 1);
 		final var msg_1 = new OfflineEdgeMessage("1", ZonedDateTime.now().minusSeconds(1));
-		msg_1.addRecipient(new OfflineEdgeAlertingSetting(1, 1, 1, null));
-		msg_1.addRecipient(new OfflineEdgeAlertingSetting(1, 2, 2, null));
+		msg_1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user1", 1, null));
+		msg_1.addRecipient(new OfflineEdgeAlertingSetting("edge1", "user2", 2, null));
 
 		final var msg_2 = new OfflineEdgeMessage("Fail", ZonedDateTime.now().minusSeconds(2));
-		msg_2.addRecipient(new OfflineEdgeAlertingSetting(2, 1, 1, null));
-		msg_2.addRecipient(new OfflineEdgeAlertingSetting(2, 2, 2, null));
+		msg_2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user1", 1, null));
+		msg_2.addRecipient(new OfflineEdgeAlertingSetting("edge2", "user2", 2, null));
 
 		assertEquals(mailer.sentMails.size(), 0);
 		var msgs = new ArrayList<>(List.of(msg_1, msg_2));
@@ -78,9 +79,9 @@ public class TestOfflineEdgeHandler {
 		final var metadata = Utility.getTestMetadata();
 		final var msgsch = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(null);
-		final var handler = new OfflineEdgeHandler(msgsch, null, metadata, timer, 0);
+		final var handler = new OfflineEdgeHandler(msgsch, timer, null, metadata, 0);
 
-		final var expected = (int) metadata.getSettings().values().stream() //
+		final var expected = (int) metadata.getOfflineSettings().values().stream() //
 				.filter(setting -> setting.stream() //
 						.filter(s -> s.delay() > 0) //
 						.filter(s -> s.lastNotification().isBefore(Utility.now)) //
@@ -116,7 +117,7 @@ public class TestOfflineEdgeHandler {
 		assertTrue(msgCount.get() + " are Not enought mails to trigger",
 				msgCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS);
 
-		final var handler = new OfflineEdgeHandler(msgMsgsch, null, msgMeta, timer, 0);
+		final var handler = new OfflineEdgeHandler(msgMsgsch, timer, null, msgMeta, 0);
 
 		assertEquals(0, msgMsgsch.find(handler).size());
 
@@ -132,7 +133,7 @@ public class TestOfflineEdgeHandler {
 
 		assertTrue("Not enought mails to trigger", edgeCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES);
 
-		final var edgeHandler = new OfflineEdgeHandler(edgeMsgsch, null, edgeMeta, timer, 0);
+		final var edgeHandler = new OfflineEdgeHandler(edgeMsgsch, timer, null, edgeMeta, 0);
 
 		assertEquals(0, edgeMsgsch.find(edgeHandler).size());
 	}
@@ -141,8 +142,8 @@ public class TestOfflineEdgeHandler {
 	public void getEdgeTest() {
 		final var metadata = Utility.getTestMetadata();
 		final var mss = new MessageSchedulerServiceImpl();
-		final var timer = new MinuteTimer(null);
-		final var handler = new OfflineEdgeHandler(mss, null, metadata, timer, 1);
+		final var timer = new MinuteTimer(Clock.systemUTC());
+		final var handler = new OfflineEdgeHandler(mss, timer, null, metadata, 1);
 		final var illegalEdge = new Edge(null, null, null, null, null, null);
 		assertNull("Message should be null if edge is null", handler.getEdgeMessage(null));
 		assertNull("Message should be null if edge.id is null", handler.getEdgeMessage(illegalEdge));
@@ -152,8 +153,8 @@ public class TestOfflineEdgeHandler {
 	public void getEventHandlerTest() {
 		final var metadata = Utility.getTestMetadata();
 		final var mss = new MessageSchedulerServiceImpl();
-		final var timer = new MinuteTimer(null);
-		final var handler = new OfflineEdgeHandler(mss, null, metadata, timer, 1);
+		final var timer = new MinuteTimer(Clock.systemUTC());
+		final var handler = new OfflineEdgeHandler(mss, timer, null, metadata, 1);
 		var offlineEdgeHandler = handler.getEventHandler(Edge.Events.ON_SET_ONLINE);
 		var metadataInializedHandler = handler.getEventHandler(Metadata.Events.AFTER_IS_INITIALIZED);
 		var noHandler = handler.getEventHandler("NO_EVENT");
@@ -167,8 +168,8 @@ public class TestOfflineEdgeHandler {
 
 		private static final ZonedDateTime now = ZonedDateTime.now();
 
-		private static OfflineEdgeMetadataImpl getTestMetadata() {
-			final var metadata = new OfflineEdgeMetadataImpl();
+		private static AlertingMetadataImpl getTestMetadata() {
+			final var metadata = new AlertingMetadataImpl();
 
 			final List<Edge> edges = List.of(//
 					Utility.getTestEdge(metadata, "1", Utility.now, false), //
@@ -180,17 +181,17 @@ public class TestOfflineEdgeHandler {
 
 			final Map<String, List<OfflineEdgeAlertingSetting>> settings = Map.of(//
 					"1", List.of(//
-							new OfflineEdgeAlertingSetting(1, 1, 1, Utility.now.minusDays(1))), //
+							new OfflineEdgeAlertingSetting("edge1", "user1", 1, Utility.now.minusDays(1))), //
 					"2", List.of(), //
 					"3", List.of(//
-							new OfflineEdgeAlertingSetting(3, 1, 1, Utility.now.plusDays(1)), //
-							new OfflineEdgeAlertingSetting(3, 2, 0, Utility.now)), //
+							new OfflineEdgeAlertingSetting("edge3", "user1", 1, Utility.now.plusDays(1)), //
+							new OfflineEdgeAlertingSetting("edge3", "user2", 0, Utility.now)), //
 					"4", List.of(//
-							new OfflineEdgeAlertingSetting(4, 2, 1, Utility.now.minusDays(1)), //
-							new OfflineEdgeAlertingSetting(4, 3, 2, Utility.now.minusDays(1))) //
+							new OfflineEdgeAlertingSetting("edge4", "edge2", 1, Utility.now.minusDays(1)), //
+							new OfflineEdgeAlertingSetting("edge4", "edge3", 2, Utility.now.minusDays(1))) //
 			);
 
-			metadata.initialize(edges, settings);
+			metadata.initializeOffline(edges, settings);
 			return metadata;
 		}
 
@@ -205,12 +206,12 @@ public class TestOfflineEdgeHandler {
 			private final ZonedDateTime yesterday = this.now.minusDays(1);
 
 			private List<OfflineEdgeAlertingSetting> userList = List.of(
-					new OfflineEdgeAlertingSetting(1, 0, 60, this.yesterday),
-					new OfflineEdgeAlertingSetting(1, 1, 15, this.yesterday),
-					new OfflineEdgeAlertingSetting(1, 2, 10, this.yesterday),
-					new OfflineEdgeAlertingSetting(1, 3, 30, this.yesterday),
-					new OfflineEdgeAlertingSetting(1, 4, 30, this.yesterday),
-					new OfflineEdgeAlertingSetting(1, 5, 1440, this.yesterday));
+					new OfflineEdgeAlertingSetting("edge1", "user0", 60, this.yesterday),
+					new OfflineEdgeAlertingSetting("edge1", "user1", 15, this.yesterday),
+					new OfflineEdgeAlertingSetting("edge1", "user2", 10, this.yesterday),
+					new OfflineEdgeAlertingSetting("edge1", "user3", 30, this.yesterday),
+					new OfflineEdgeAlertingSetting("edge1", "user4", 30, this.yesterday),
+					new OfflineEdgeAlertingSetting("edge1", "user5", 1440, this.yesterday));
 
 			@Override
 			public boolean isInitialized() {
@@ -255,9 +256,11 @@ public class TestOfflineEdgeHandler {
 
 			@Override
 			public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) {
-				return List.of(new OfflineEdgeAlertingSetting(0, 0, 60, this.yesterday),
-						new OfflineEdgeAlertingSetting(0, 1, 15, this.yesterday),
-						new OfflineEdgeAlertingSetting(0, 2, 0, this.yesterday));
+				return List.of(//
+						new OfflineEdgeAlertingSetting("edge0", "user0", 60, this.yesterday), //
+						new OfflineEdgeAlertingSetting("edge0", "user1", 15, this.yesterday), //
+						new OfflineEdgeAlertingSetting("edge0", "user2", 0, this.yesterday) //
+				);
 			}
 		}
 	}

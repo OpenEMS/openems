@@ -3,9 +3,11 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { Role } from "../../type/role";
 
 export interface UserSettingResponse {
-    userId: string,
+    userLogin: string,
     role: Role,
-    delayTime: number;
+    offlineEdgeDelay: number;
+    warningEdgeDelay: number;
+    faultEdgeDelay: number;
 }
 /**
  * JSON-RPC Response to "GetUserAlertingConfigsRequest" Request.
@@ -19,9 +21,11 @@ export interface UserSettingResponse {
  *   "result": {
  *      "userSettings?": [
  *          {
- *           "userId": "string",
+ *           "userLogin": "string",
  *           "role": "shared.Role"
- *           "timeToWait": "number"
+ *           "faultEdgeDelay": "number"
+ *           "offlineEdgeDelay": "number"
+ *           "warningEdgeDelay": "number"
  *          }
  *      ]
  *   }

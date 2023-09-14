@@ -427,8 +427,13 @@ public class MetadataOdoo extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) throws OpenemsException {
-		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, settings);
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
+			throws OpenemsException {
+		if (user instanceof MyUser odooUser) {
+			this.odooHandler.setUserAlertingSettings(odooUser, edgeId, settings);
+		} else {
+			throw new OpenemsException("User information is from foreign source!!");
+		}
 	}
 
 	@Override

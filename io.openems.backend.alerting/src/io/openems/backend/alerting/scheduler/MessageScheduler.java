@@ -10,9 +10,21 @@ import java.util.function.Predicate;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 
+/**
+ * Schedules one or more {@link Message} for type {@link T} to a specific time.
+ * <p>
+ * After the specified time is reached, the scheduler sends the Messages to
+ * their {@link Handler} and removes them from itself.
+ * </p>
+ * 
+ * @author kai.jeschek
+ *
+ * @param <T> type of Message
+ */
 public class MessageScheduler<T extends Message> {
 	private final Map<String, T> messageForId;
 	private final PriorityQueue<T> queue;
+
 	private final Handler<T> handler;
 
 	public MessageScheduler(Handler<T> handler) {
@@ -27,14 +39,13 @@ public class MessageScheduler<T extends Message> {
 	 * @param msg to add
 	 */
 	public void schedule(T msg) {
-		if (msg == null) {
-			return;
-		}
-		synchronized (this) {
-			this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
-				this.queue.add(msg);
-				return msg;
-			});
+		if (msg != null) {
+			synchronized (this) {
+				this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
+					this.queue.add(msg);
+					return msg;
+				});
+			}
 		}
 	}
 
@@ -44,13 +55,12 @@ public class MessageScheduler<T extends Message> {
 	 * @param msgId for message to remove
 	 */
 	public void remove(String msgId) {
-		if (msgId == null) {
-			return;
-		}
-		synchronized (this) {
-			var msg = this.messageForId.remove(msgId);
-			if (msg != null) {
-				this.queue.remove(msg);
+		if (msgId != null) {
+			synchronized (this) {
+				var msg = this.messageForId.remove(msgId);
+				if (msg != null) {
+					this.queue.remove(msg);
+				}
 			}
 		}
 	}
@@ -95,26 +105,26 @@ public class MessageScheduler<T extends Message> {
 	 */
 	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();
-		while (!this.queue.isEmpty() && now.isAfter(this.queue.peek().getNotifyStamp())) {
-			var msg = this.poll();
-			if (msg != null) {
-				msgs.add(msg);
-			}
+		while (this.hasTimeElapsed(now, this.queue.peek())) {
+			msgs.add(this.poll());
 		}
 		if (!msgs.isEmpty()) {
 			this.handler.send(now, msgs);
 		}
 	}
 
+	private boolean hasTimeElapsed(ZonedDateTime now, T msg) {
+		return msg != null && now.isAfter(msg.getNotifyStamp());
+	}
+
 	private T poll() {
-		T msg;
 		synchronized (this) {
-			msg = this.queue.poll();
+			var msg = this.queue.poll();
 			if (msg != null) {
 				this.messageForId.remove(msg.getId());
 			}
+			return msg;
 		}
-		return msg;
 	}
 
 	/**

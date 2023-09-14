@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
@@ -48,10 +49,18 @@ public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 				.build();
 	}
 
+	private JsonElement roleJson(Role role) {
+		if (role == null) {
+			return JsonNull.INSTANCE;
+		} else {
+			return role.asJson();
+		}
+	}
+
 	private JsonElement toJson(UserAlertingSettings setting) {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("userLogin", setting.userLogin()) //
-				.add("role", setting.userRole().asJson()) //
+				.add("role", this.roleJson(setting.userRole())) //
 				.addProperty("offlineEdgeDelay", setting.edgeOfflineDelay()) //
 				.addProperty("faultEdgeDelay", setting.edgeFaultDelay()) //
 				.addProperty("warningEdgeDelay", setting.edgeWarningDelay()) //

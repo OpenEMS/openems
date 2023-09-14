@@ -4,33 +4,39 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Executes subscriber every full Minute. Starts and stops itself, depending on
- * whether subscribers are present.
+ * Executes subscriber every full Minute or once after a specified time of
+ * Minutes. Starts and stops itself, depending on whether subscribers are
+ * present.
+ * 
+ * @author kai.jeschek
+ * 
  */
-public class MinuteTimer {
-	
+public class MinuteTimer implements TimedExecutor {
+
 	private final Logger log = LoggerFactory.getLogger(MinuteTimer.class);
-	private final List<Consumer<ZonedDateTime>> subscriber  = new ArrayList<>();
+
+	private final List<Consumer<ZonedDateTime>> subscriber = new ArrayList<>();
+	private final PriorityQueue<TimedTask> singleTasks = new PriorityQueue<>();
+
 	private final Clock clock;
-	
-	public MinuteTimer(Clock clock) {
-		this.clock = clock;
-	}
-	
+	private long cycleCount = 0;
+
+	private boolean isRunning = false;
+
 	/**
-	 * Create a custom MinuteTimer with given clock.
+	 * Create MinuteTimer with given clock.
 	 * 
 	 * @param clock to use for timing
-	 * @return a minute accurate timer
 	 */
-	public MinuteTimer custom(Clock clock) {
-		return new MinuteTimer(clock);
+	public MinuteTimer(Clock clock) {
+		this.clock = clock;
 	}
 
 	/**
@@ -40,6 +46,9 @@ public class MinuteTimer {
 	 */
 	public void subscribe(Consumer<ZonedDateTime> sub) {
 		this.subscriber.add(sub);
+		if (this.subscriber.size() > 0) {
+			this.start();
+		}
 	}
 
 	/**
@@ -48,36 +57,109 @@ public class MinuteTimer {
 	 * @param sub to remove
 	 */
 	public void unsubscribe(Consumer<ZonedDateTime> sub) {
-		if (sub == null) {
-			return;
+		if (sub != null) {
+			this.subscriber.remove(sub);
 		}
-		this.subscriber.remove(sub);
-		if (this.subscriber.isEmpty()) {
+		if (this.subscriber.size() == 0) {
 			this.stop();
 		}
 	}
 
-	protected void start() {
-		this.log.info("[Alerting-MinuteTimer] start");
+	/**
+	 * Execute the given task at the given dateTime to the minute.
+	 * 
+	 * @param at   time to execute at
+	 * @param task task to execute
+	 * 
+	 * @return reference to Task. Can be used to cancel the task.
+	 */
+	public TimedTask schedule(ZonedDateTime at, Consumer<ZonedDateTime> task) {
+		var singleTask = new TimedTask(at, task);
+		this.singleTasks.add(singleTask);
+		return singleTask;
 	}
 
-	protected void cycle() {
-		this.log.debug("[Alerting-MinuteTimer] cycle");
+	/**
+	 * Cancel task.
+	 *
+	 * @param task to remove
+	 */
+	public void cancel(TimedTask task) {
+		if (task != null) {
+			this.singleTasks.remove(task);
+		}
+	}
+
+	private synchronized boolean empty() {
+		return this.subscriber.isEmpty() && this.singleTasks.isEmpty();
+	}
+
+	protected synchronized void start() {
+		if (!this.isRunning) {
+			this.log.debug("START");
+			this.isRunning = true;
+		}
+	}
+
+	protected synchronized void cycle() {
+		if (!this.isRunning) {
+			return;
+		}
+
+		this.cycleCount++;
+		if (this.cycleCount % 60 == 0) {
+			this.log.debug("CYCLE:" + this.cycleCount);
+		}
+
 		var now = ZonedDateTime.now(this.clock);
-		this.subscriber.forEach((sub) -> {
+
+		this.callSubscriber(now);
+		this.callSingleTasks(now);
+
+		if (this.empty()) {
+			this.stop();
+		}
+	}
+
+	private void callSubscriber(ZonedDateTime now) {
+		for (var sub : this.subscriber) {
 			try {
 				sub.accept(now);
 			} catch (Throwable t) {
 				this.log.error(t.getMessage(), t);
 			}
-		});
+		}
 	}
 
-	protected void stop() {
-		this.log.info("[Alerting-MinuteTimer] stop");
+	private void callSingleTasks(ZonedDateTime now) {
+		while (!this.singleTasks.isEmpty() //
+				&& this.singleTasks.peek().executeAt.isBefore(now)) {
+			try {
+				this.singleTasks.poll().task.accept(now);
+			} catch (Throwable t) {
+				this.log.error(t.getMessage(), t);
+			}
+		}
 	}
-	
+
+	protected synchronized void stop() {
+		if (this.isRunning) {
+			this.log.debug("STOP");
+			this.isRunning = false;
+		}
+	}
+
 	public int getSubscriberCount() {
 		return this.subscriber.size();
+	}
+
+	/**
+	 * Get the current {@link ZonedDateTime} for the {@link Clock} this
+	 * {@link MinuteTimer} works with.
+	 * 
+	 * @return {@link ZonedDateTime} now
+	 */
+	public ZonedDateTime now() {
+		return ZonedDateTime.now(this.clock);
 	}
 }

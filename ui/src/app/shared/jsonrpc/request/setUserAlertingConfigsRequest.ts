@@ -1,10 +1,12 @@
-import { UserSetting } from "src/app/edge/settings/alerting/alerting.component";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 
 export interface UserSettingRequest {
-    userId: string,
-    timeToWait: number;
+    userLogin: string,
+    offlineEdgeDelay: number,
+    faultEdgeDelay: number,
+    warningEdgeDelay: number
 }
+
 /**
  * Represents a JSON-RPC Request to execute a change to alerting settings for edge with edgeId.
  *
@@ -17,8 +19,10 @@ export interface UserSettingRequest {
  *     "edgeId": "string",
  *      "userSettings": [
  *          {
- *           "userId": "string",
- *           "timeToWait": "number"
+ *           "userLogin": "string",
+ *           "offlineEdgeDelay": "number",
+ *           "faultEdgeDelay": "number",
+ *           "warningEdgeDelay": "number"
  *          }
  *      ]
  *   }
@@ -31,7 +35,7 @@ export class SetUserAlertingConfigsRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             edgeId: string,
-            userSettings: UserSetting[],
+            userSettings: UserSettingRequest[],
         }
     ) {
         super(SetUserAlertingConfigsRequest.METHOD, params);

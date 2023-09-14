@@ -101,8 +101,8 @@ public class UserAlertingSettingsJsonRpc {
 
 	@Test
 	public void testGetUserAlertingConfigsResponse() {
-		var sett1 = new UserAlertingSettings(1, 2, "user1", Role.GUEST, 0, 15, 30, null, null);
-		var sett2 = new UserAlertingSettings(2, 2, "user2", Role.ADMIN, 10, 10, 10, null, null);
+		var sett1 = new UserAlertingSettings("edge1", "user1", Role.GUEST, 0, 15, 30, null, null);
+		var sett2 = new UserAlertingSettings("edge2", "user2", Role.ADMIN, 10, 10, 10, null, null);
 
 		var settings = List.of(sett1, sett2);
 		var id = UUID.randomUUID();

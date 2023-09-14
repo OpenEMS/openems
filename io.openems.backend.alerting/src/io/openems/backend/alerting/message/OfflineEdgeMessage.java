@@ -15,15 +15,15 @@ import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeMessage extends Message {
 
-	public static final String TEMPLATE = "alerting_offline_email";
+	public static final String TEMPLATE = "alerting_offline";
 
 	private final ZonedDateTime offlineAt;
 	private final TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients;
 
-	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<OfflineEdgeAlertingSetting>> map) {
+	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients) {
 		super(edgeId);
 		this.offlineAt = offlineAt;
-		this.recipients = map;
+		this.recipients = recipients;
 	}
 
 	public OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt) {
@@ -77,7 +77,7 @@ public class OfflineEdgeMessage extends Message {
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
 				.add("recipients", JsonUtils.generateJsonArray(//
-						this.getCurrentRecipients(), s -> new JsonPrimitive(s.userOdooId())))//
+						this.getCurrentRecipients(), s -> new JsonPrimitive(s.userLogin())))//
 				.addProperty("edgeId", this.getEdgeId()) //
 				.build();
 	}
@@ -85,8 +85,8 @@ public class OfflineEdgeMessage extends Message {
 	@Override
 	public String toString() {
 		var rec = this.getCurrentRecipients().stream() //
-				.map(s -> String.valueOf(s.userOdooId())) //
+				.map(s -> String.valueOf(s.userLogin())) //
 				.collect(Collectors.joining(","));
-		return "OfflineEdgeMessage{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
+		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
 	}
 }

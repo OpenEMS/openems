@@ -12,9 +12,12 @@ import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 
 /**
- * Scheduler for Messages.
+ * A {@link MessageSchedulerService} implementation using {@link MinuteTimer}.
+ * 
+ * @author kai.jeschek
+ *
  */
-public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerService {
+public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerService, TimedExecutor {
 
 	private final MinuteTimer minuteTimer;
 	private final List<MessageScheduler<? extends Message>> msgScheduler;
@@ -24,6 +27,10 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 	public Scheduler(MinuteTimer timer) {
 		this.minuteTimer = timer;
 		this.msgScheduler = new ArrayList<>();
+	}
+
+	public Scheduler() {
+		this(MinuteTimerAsync.getInstance());
 	}
 
 	@Override
@@ -36,6 +43,21 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 	@Override
 	public <T extends Message> void unregister(Handler<T> handler) {
 		this.msgScheduler.removeIf(msgs -> msgs.isFor(handler));
+	}
+
+	@Override
+	public TimedTask schedule(ZonedDateTime at, Consumer<ZonedDateTime> task) {
+		return this.minuteTimer.schedule(at, task);
+	}
+
+	@Override
+	public void cancel(TimedTask task) {
+		this.minuteTimer.cancel(task);
+	}
+
+	@Override
+	public ZonedDateTime now() {
+		return this.minuteTimer.now();
 	}
 
 	/**
@@ -52,6 +74,15 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 	public void stop() {
 		this.log.info("[Alerting-Scheduler] stop");
 		this.minuteTimer.unsubscribe(this);
+	}
+
+	/**
+	 * Get the total count of Messages scheduled for dispatch.
+	 * 
+	 * @return total count
+	 */
+	public int getScheduledMsgsCount() {
+		return this.msgScheduler.stream().map(MessageScheduler::size).reduce(0, Integer::sum);
 	}
 
 	/**

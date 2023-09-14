@@ -614,7 +614,9 @@ public interface Field {
 
 	public enum AlertingSetting implements Field {
 		DEVICE_ODOO_ID("device_id", true), //
+		DEVICE_NAME("device_name", false), //
 		USER_ODOO_ID("user_id", true), //
+		USER_LOGIN("user_login", false), //
 		OFFLINE_DELAY("offline_delay", true), //
 		WARNING_DELAY("warning_delay", true), //
 		FAULT_DELAY("fault_delay", true), //

@@ -14,7 +14,8 @@ import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
-import io.openems.backend.alerting.scheduler.MinuteTimer;
+import io.openems.backend.alerting.scheduler.TimedExecutor;
+import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
@@ -38,10 +39,11 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private MessageSchedulerService mss;
 	private MessageScheduler<OfflineEdgeMessage> msgScheduler;
 
-	private Consumer<ZonedDateTime> initMetadata;
-	private MinuteTimer timeService;
+	private TimedTask initMetadata;
+	private TimedExecutor timeService;
 
-	public OfflineEdgeHandler(MessageSchedulerService mss, Mailer mailer, Metadata metadata, MinuteTimer timeService, int initialDelay) {
+	public OfflineEdgeHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
+			int initialDelay) {
 		this.mailer = mailer;
 		this.metadata = metadata;
 		this.initialDelay = initialDelay;
@@ -50,13 +52,13 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
 		if (this.metadata.isInitialized()) {
-			this.handleMetadataAfterInitialize();
+			this.handleMetadataAfterInitialize(null);
 		}
 	}
 
 	@Override
 	public void stop() {
-		this.timeService.unsubscribe(this.initMetadata);
+		this.timeService.cancel(this.initMetadata);
 		this.initMetadata = null;
 		this.mss.unregister(this);
 		this.msgScheduler = null;
@@ -202,56 +204,52 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	/**
 	 * Check Metadata for all OfflineEdges. Waits given in initialDelay, before
 	 * executing.
+	 * 
+	 * @param event Event data
 	 */
-	private void handleMetadataAfterInitialize() {
+	private void handleMetadataAfterInitialize(EventReader event) {
 		if (this.initialDelay <= 0) {
 			this.checkMetadata();
 		} else {
-			this.initMetadata = new Consumer<ZonedDateTime>() {
-				final ZonedDateTime checkAt = ZonedDateTime.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
+			var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
+			this.initMetadata = this.timeService.schedule(executeAt, (now) -> {
+				this.checkMetadata();
+			});
+		}
+	}
 
-				@Override
-				public void accept(ZonedDateTime now) {
-					if (now.isAfter(this.checkAt)) {
-						OfflineEdgeHandler.this.checkMetadata();
-						OfflineEdgeHandler.this.timeService.unsubscribe(this);
-						OfflineEdgeHandler.this.initMetadata = null;
-					}
+	private void handleOnSetOnline(EventReader event) {
+		var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+		var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+
+		var edgeOpt = this.metadata.getEdge(edgeId);
+		if (edgeOpt.isPresent()) {
+			var edge = edgeOpt.get();
+			/* Ensure that the online-state has not changed */
+			if (edge.isOnline() == isOnline) {
+				if (isOnline) {
+					this.tryRemoveEdge(edge);
+				} else {
+					this.tryAddEdge(edge);
 				}
-			};
-			this.timeService.unsubscribe(this.initMetadata);
+			}
+		} else {
+			this.log.warn("Edge with id: " + edgeId + " not found");
 		}
 	}
 
 	@Override
 	public Consumer<EventReader> getEventHandler(String eventTopic) {
-		switch (eventTopic) {
+		return switch (eventTopic) {
 		case Edge.Events.ON_SET_ONLINE:
-			return (event) -> {
-				var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
-				var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
-
-				var edgeOpt = this.metadata.getEdge(edgeId);
-				edgeOpt.ifPresentOrElse((edge) -> {
-					// Ensure that the online-state has not changed
-					if (edge.isOnline() == isOnline) {
-						if (isOnline) {
-							this.tryRemoveEdge(edge);
-						} else {
-							this.tryAddEdge(edge);
-						}
-					}
-				}, () -> {
-					this.log.warn("Edge with id: " + edgeId + " not found");
-				});
-			};
+			yield this::handleOnSetOnline;
 
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			return (event) -> this.handleMetadataAfterInitialize();
+			yield this::handleMetadataAfterInitialize;
 
 		default:
-			return null;
-		}
+			yield null;
+		};
 	}
 
 	@Override

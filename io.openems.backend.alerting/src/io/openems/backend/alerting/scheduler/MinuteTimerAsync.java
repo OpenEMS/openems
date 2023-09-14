@@ -10,6 +10,13 @@ import java.util.function.Consumer;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+/**
+ * Implementation of {@link MinuteTimer} using an {@link ScheduledExecutorService} and the 
+ * systems default {@link Clock} for asynchronous execution.
+ * 
+ * @author kai.jeschek
+ *
+ */
 public class MinuteTimerAsync extends MinuteTimer {
 	
 	private static MinuteTimer INSTANCE = new MinuteTimerAsync();
