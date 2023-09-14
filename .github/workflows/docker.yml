@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - docker-workflow
     tags:
       - "*.*.*"
     paths-ignore:
@@ -20,13 +19,13 @@ jobs:
         include:
           - image: edge
             dockerfile: tools/docker/openems-edge/Dockerfile
-            repo: smhrambo/edge
+            repo: openems/edge
           - image: backend
             dockerfile: tools/docker/openems-backend/Dockerfile
-            repo: smhrambo/backend
+            repo: openems/backend
           - image: ui
             dockerfile: tools/docker/openems-ui/Dockerfile
-            repo: smhrambo/ui
+            repo: openems/ui
 
     steps:
       - name: Checkout

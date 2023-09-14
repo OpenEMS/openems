@@ -7,9 +7,8 @@ services:
     hostname: openems_edge
     restart: unless-stopped
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - openemsedge-conf:/config
-      - openemsedge-data:/data
+      - openemsedge-conf:/config:rw
+      - openemsedge-data:/data:rw
     ports:
       - 8080:8080
 
@@ -19,24 +18,32 @@ services:
     hostname: openems_backend
     restart: unless-stopped
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - openemsbackend-conf:/config
-      - openemsbackend-data:/data
+      - openemsbackend-conf:/config:rw
+      - openemsbackend-data:/data:rw
     ports:
       - 8079:8079
 
   openems_ui:
-    image: openems/ui:edge-latest
+    image: openems/ui:latest
     container_name: openems_ui
     hostname: openems_ui
     restart: unless-stopped
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - openemsui-conf:/config
-      - openemsui-log:/log
+      - openemsui-conf:/config:rw
+      - openemsui-log:/log:rw
     ports:
       - 80:80
       - 443:443
+
+#  influxdb:
+#    image: influxdb:alpine
+#    container_name: influxdb
+#    hostname: influxdb
+#    restart: unless-stopped
+#    volumes:
+#      - influxdb:/var/lib/influxdb2:rw
+#    ports:
+#      - 8086:8086
 
 volumes:
   openemsedge-conf:
@@ -45,3 +52,4 @@ volumes:
   openemsbackend-data:
   openemsui-conf:
   openemsui-data:
+#  influxdb:
