@@ -4,13 +4,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.ess.cycle.Config;
 import io.openems.edge.controller.ess.cycle.ControllerEssCycleImpl;
@@ -18,6 +15,8 @@ import io.openems.edge.controller.ess.cycle.HybridEssMode;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Pwr;
 
 public class Context extends AbstractContext<ControllerEssCycleImpl> {
 
@@ -26,19 +25,21 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	protected final int allowedChargePower;
 	protected final int allowedDischargePower;
 	protected final Clock clock;
-	protected final LocalDateTime parsedStartTime;
+	protected final LocalDateTime startTime;
 
 	private final Logger log = LoggerFactory.getLogger(Context.class);
 
 	public Context(ControllerEssCycleImpl parent, Config config, Clock clock, ManagedSymmetricEss ess,
-			int allowedChargePower, int allowedDischargePower, LocalDateTime parsedStartTime) {
+			LocalDateTime startTime) {
 		super(parent);
 		this.config = config;
 		this.clock = clock;
 		this.ess = ess;
-		this.allowedChargePower = allowedChargePower;
-		this.allowedDischargePower = allowedDischargePower;
-		this.parsedStartTime = parsedStartTime;
+		this.startTime = startTime;
+
+		// get max charge/discharge power
+		this.allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		this.allowedChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 	}
 
 	/**
@@ -70,32 +71,12 @@ public class Context extends AbstractContext<ControllerEssCycleImpl> {
 	 */
 	public boolean isStartTimeInitialized() {
 		var now = LocalDateTime.now(this.clock);
-		var afterNow = now.isAfter(this.parsedStartTime.minusSeconds(1));
-		var beforeNow = now.isBefore(this.parsedStartTime.plusSeconds(59));
+		var afterNow = now.isAfter(this.startTime.minusSeconds(1));
+		var beforeNow = now.isBefore(this.startTime.plusSeconds(59));
 		if (afterNow && beforeNow) {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Gets if all channel values defined.
-	 *
-	 * <ul>
-	 * <li>true
-	 * <li>- if {@link ChannelId#SOC} is defined &&
-	 * <li>- if {@link ChannelId#ALLOWED_CHARGE_POWER} is defined &&
-	 * <li>- if {@link ChannelId#ALLOWED_DISCHARGE_POWER} is defined &&
-	 * </ul>
-	 * 
-	 * @return true if channels are defined.
-	 */
-	public boolean areChannelsDefined() {
-		return Stream.of(//
-				this.ess.getSoc(), //
-				this.ess.getAllowedChargePower(), //
-				this.ess.getAllowedDischargePower())//
-				.allMatch(Value::isDefined);
 	}
 
 	/**

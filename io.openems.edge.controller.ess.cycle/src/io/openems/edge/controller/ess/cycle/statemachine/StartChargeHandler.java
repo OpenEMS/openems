@@ -36,6 +36,7 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 		context.logInfo(this.log, "START CHARGE with [" + -power + " W]" //
 				+ " Current Cycle [ " + controller.getCompletedCycles() + "] " //
 				+ "out of " + config.totalCycleNumber() + "]");
+
 		return State.START_CHARGE;
 	}
 

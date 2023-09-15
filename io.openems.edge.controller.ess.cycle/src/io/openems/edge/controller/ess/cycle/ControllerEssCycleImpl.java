@@ -9,9 +9,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -27,9 +26,6 @@ import io.openems.edge.controller.ess.cycle.statemachine.Context;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -53,12 +49,9 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	private ConfigurationAdmin cm;
 
 	@Reference
-	private Power power;
-
-	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private ManagedSymmetricEss ess;
 
 	public ControllerEssCycleImpl() {
@@ -73,6 +66,14 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		if (this.applyConfig(context, config)) {
+			return;
+		}
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) {
+		super.modified(context, config.id(), config.alias(), config.enabled());
 		if (this.applyConfig(context, config)) {
 			return;
 		}
@@ -96,39 +97,26 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 			this.logError(this.log, "Start time could not be parsed");
 			return;
 		}
-		switch (this.config.mode()) {
-		case MANUAL_ON:
-			// get max charge/discharge power
-			var allowedDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-			var allowedChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
-			// Prepare Context
+		// store current state in StateMachine channel
+		this._setStateMachine(this.stateMachine.getCurrentState());
+
+		switch (this.config.mode()) {
+		case MANUAL_ON -> {
 			var context = new Context(this, //
 					this.config, //
 					this.componentManager.getClock(), //
 					this.ess, //
-					allowedChargePower, //
-					allowedDischargePower, //
 					this.parsedStartTime);
-
-			// store current state in StateMachine channel
-			var currentState = this.stateMachine.getCurrentState();
-			this._setStateMachine(currentState);
-
-			try {
-				if (!context.areChannelsDefined()) {
-					this.stateMachine.forceNextState(State.UNDEFINED);
-				}
-				this.stateMachine.run(context);
-				this._setRunFailed(false);
-			} catch (OpenemsNamedException e) {
-				this.logError(this.log, "StateMachine failed: " + e.getMessage());
-				this._setRunFailed(true);
+			if (!this.ess.getSoc().isDefined()) {
+				this.stateMachine.forceNextState(State.UNDEFINED);
 			}
-			break;
-		case MANUAL_OFF:
+			this.stateMachine.run(context);
+		}
+
+		case MANUAL_OFF -> {
 			// Do nothing
-			break;
+		}
 		}
 	}
 

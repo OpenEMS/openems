@@ -14,7 +14,7 @@ public class CompletedCycleHandler extends StateHandler<State, Context> {
 		var completedCycles = controller.getCompletedCycles().orElse(0) + 1;
 		controller._setCompletedCycles(completedCycles);
 
-		if (completedCycles == config.totalCycleNumber()) {
+		if (completedCycles >= config.totalCycleNumber()) {
 			return State.FINAL_SOC;
 		}
 
