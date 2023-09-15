@@ -27,7 +27,7 @@ public class SystemLogHandler {
 	/**
 	 * Edge-ID to Session-Token.
 	 */
-	private final ConcurrentHashMap<String, Set<String>> subscriptions = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, Set<UUID>> subscriptions = new ConcurrentHashMap<>();
 
 	public SystemLogHandler(EdgeWebsocketImpl parent) {
 		this.parent = parent;
@@ -36,27 +36,27 @@ public class SystemLogHandler {
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User}
-	 * @param token   the UI session token
-	 * @param request the {@link SubscribeSystemLogRequest}
+	 * @param edgeId      the Edge-ID
+	 * @param user        the {@link User}
+	 * @param websocketId the id of the UI websocket connection
+	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		if (request.isSubscribe()) {
 			// Add subscription
-			this.addToken(edgeId, token);
+			this.addSubscriptionId(edgeId, websocketId);
 
 			// Always forward subscribe to Edge
 			return this.parent.send(edgeId, user, request);
 
 		} else {
 			// Remove subscription
-			this.removeToken(edgeId, token);
+			this.removeSubscriptionId(edgeId, websocketId);
 
-			if (this.getTokens(edgeId) != null) {
+			if (this.getSubscribedWebsocketIds(edgeId) != null) {
 				// Remaining Tokens left for this Edge -> announce success
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 
@@ -75,9 +75,9 @@ public class SystemLogHandler {
 	 * @param notification the {@link SystemLogNotification}
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
-		var tokens = this.getTokens(edgeId);
+		final var ids = this.getSubscribedWebsocketIds(edgeId);
 
-		if (tokens == null) {
+		if (ids == null) {
 			// No Tokens exist, but we still receive Notification? -> send unsubscribe
 			try {
 				var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
@@ -93,10 +93,12 @@ public class SystemLogHandler {
 		}
 
 		// Forward Notification to each Session token
-		for (String token : tokens) {
+		for (var id : ids) {
 			try {
 				// TODO use events
-				this.parent.uiWebsocket.send(token, new EdgeRpcNotification(edgeId, notification));
+				if (this.parent.uiWebsocket != null) {
+					this.parent.uiWebsocket.send(id, new EdgeRpcNotification(edgeId, notification));
+				}
 
 			} catch (OpenemsNamedException | NullPointerException e) {
 				this.parent.logWarn(this.log, edgeId, "Unable to handle SystemLogNotification: " + e.getMessage());
@@ -104,7 +106,7 @@ public class SystemLogHandler {
 				try {
 					var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
 							UUID.randomUUID().toString(), Language.EN, Role.GUEST, false);
-					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, token,
+					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, id,
 							SubscribeSystemLogRequest.unsubscribe());
 
 				} catch (OpenemsNamedException e1) {
@@ -117,16 +119,16 @@ public class SystemLogHandler {
 	/**
 	 * Adds a subscription Token for the given Edge-ID.
 	 * 
-	 * @param edgeId the Edge-ID
-	 * @param token  the Token
+	 * @param edgeId      the Edge-ID
+	 * @param websocketId the id of the UI websocket connection
 	 */
-	protected void addToken(String edgeId, String token) {
+	protected void addSubscriptionId(String edgeId, UUID websocketId) {
 		this.subscriptions.compute(edgeId, (key, tokens) -> {
 			if (tokens == null) {
 				// Create new Set for this Edge-ID
 				tokens = new HashSet<>();
 			}
-			tokens.add(token);
+			tokens.add(websocketId);
 			return tokens;
 		});
 	}
@@ -134,16 +136,16 @@ public class SystemLogHandler {
 	/**
 	 * Removes a subscription Token from the given Edge-ID.
 	 * 
-	 * @param edgeId the Edge-ID
-	 * @param token  the Token
+	 * @param edgeId      the Edge-ID
+	 * @param websocketId the id of the UI websocket connection
 	 */
-	protected void removeToken(String edgeId, String token) {
+	protected void removeSubscriptionId(String edgeId, UUID websocketId) {
 		this.subscriptions.compute(edgeId, (key, tokens) -> {
 			if (tokens == null) {
 				// There was no entry for this Edge-ID
 				return null;
 			}
-			tokens.remove(token);
+			tokens.remove(websocketId);
 			if (tokens.isEmpty()) {
 				return null;
 			}
@@ -157,7 +159,7 @@ public class SystemLogHandler {
 	 * @param edgeId the Edge-ID
 	 * @return a Set of Tokens; or null
 	 */
-	protected Set<String> getTokens(String edgeId) {
+	protected Set<UUID> getSubscribedWebsocketIds(String edgeId) {
 		return this.subscriptions.get(edgeId);
 	}
 }
