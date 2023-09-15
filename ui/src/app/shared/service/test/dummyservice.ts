@@ -6,7 +6,6 @@ import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/qu
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
-import { AdvertWidgets } from "../../type/widget";
 import { AbstractService } from "../abstractservice";
 import { DefaultTypes } from "../defaulttypes";
 
