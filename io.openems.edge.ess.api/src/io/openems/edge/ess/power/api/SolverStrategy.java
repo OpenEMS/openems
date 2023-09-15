@@ -3,7 +3,7 @@ package io.openems.edge.ess.power.api;
 import io.openems.common.types.OptionsEnum;
 
 public enum SolverStrategy implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), //
+	UNDEFINED(-2, "Undefined"), //
 	NONE(-1, "None"), //
 	ALL_CONSTRAINTS(0, "All Constraints"), //
 	OPTIMIZE_BY_MOVING_TOWARDS_TARGET(1, "Optimize By Moving Towards Target"), //
