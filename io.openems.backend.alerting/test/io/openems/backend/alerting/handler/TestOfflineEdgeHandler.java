@@ -45,8 +45,8 @@ public class TestOfflineEdgeHandler {
 				));
 	}
 
-	private Edge getTestEdge(Metadata metadata, String id, ZonedDateTime LastMessage, boolean isOnline) {
-		final var edge = new Edge(metadata, id, "comment", "version", "producttype", LastMessage);
+	private Edge getTestEdge(Metadata metadata, String id, ZonedDateTime lastMessage, boolean isOnline) {
+		final var edge = new Edge(metadata, id, "comment", "version", "producttype", lastMessage);
 		edge.setOnline(isOnline);
 		return edge;
 	}

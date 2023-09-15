@@ -1,16 +1,19 @@
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
+import { SumState } from "src/app/index/shared/sumState";
+
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
+import { AdvertWidgets } from "../../type/widget";
 import { AbstractService } from "../abstractservice";
 import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
     private readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234.56.78", Role.ADMIN, true, new Date());
+        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
 
     private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
