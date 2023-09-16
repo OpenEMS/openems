@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
@@ -9,6 +10,7 @@ import { environment } from 'src/environments';
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
 import { Role } from '../shared/type/role';
+import { ChosenFilter } from './filter/filter.component';
 
 @Component({
   selector: 'index',
@@ -46,9 +48,11 @@ export class IndexComponent implements OnInit, OnDestroy {
   protected onlyOneEdgeAvailable: boolean = false;
   protected spinnerId: string = 'index';
   protected loading: boolean = false;
+  protected searchParams: Map<string, ChosenFilter['value']> = new Map();
 
   constructor(
     public service: Service,
+    private translate: TranslateService,
     public websocket: Websocket,
     public utils: Utils,
     private router: Router,
@@ -92,7 +96,12 @@ export class IndexComponent implements OnInit, OnDestroy {
    * 
    * @param event from template passed event
    */
-  protected searchOnChange() {
+  protected searchOnChange(searchParams?: Map<string, ChosenFilter['value']>) {
+
+    if (searchParams) {
+      this.searchParams = searchParams;
+    }
+
     this.filteredEdges = [];
     this.page = 0;
     this.limitReached = false;
@@ -129,6 +138,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   private init() {
     this.loadNextPage().then((edges) => {
+
       this.service.metadata
         .pipe(
           filter(metadata => !!metadata),
@@ -177,14 +187,21 @@ export class IndexComponent implements OnInit, OnDestroy {
   }
 
   loadNextPage(): Promise<Edge[]> {
-
     this.loading = true;
     return new Promise<Edge[]>((resolve, reject) => {
       if (this.limitReached) {
         resolve([]);
         return;
       }
-      this.service.getEdges(this.page, this.query, this.limit)
+
+      let searchParamsObj = {};
+      if (this.searchParams) {
+        for (const [key, value] of this.searchParams) {
+          searchParamsObj[key] = value;
+        }
+      }
+
+      this.service.getEdges(this.page, this.query, this.limit, searchParamsObj)
         .then((edges) => {
           this.limitReached = edges.length < this.limit;
           resolve(edges);

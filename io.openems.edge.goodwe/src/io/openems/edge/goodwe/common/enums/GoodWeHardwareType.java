@@ -14,7 +14,7 @@ import io.openems.common.types.OptionsEnum;
  * Register for {@link GoodWeType} is not supported for GoodWe 15, 20 & 29.9.
  */
 public enum GoodWeHardwareType implements OptionsEnum {
-	UNDEFINED(0, "Undefined", (t) -> false, 0), //
+	UNDEFINED(-1, "Undefined", (t) -> false, 0), //
 	OTHER(0, "Other", (t) -> false, 25), //
 	GOODWE_10(1, "GoodWe 10kW", Position2Filter.of("10"), 25), //
 	GOODWE_20(2, "GoodWe 20kW", Position2Filter.of("20"), 50), //

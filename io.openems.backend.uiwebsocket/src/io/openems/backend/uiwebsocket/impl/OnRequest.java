@@ -1,6 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -488,27 +487,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final User user, //
 			final GetEdgesRequest request //
 	) throws OpenemsNamedException {
-		var devices = this.parent.metadata.getPageDevice(user, request.getPaginationOptions());
-
-		List<EdgeMetadata> edgeMetadata = new ArrayList<>();
-		for (var device : devices.entrySet()) {
-			var edgeOpt = this.parent.metadata.getEdge(device.getKey());
-			if (edgeOpt.isPresent()) {
-				var cachedEdge = edgeOpt.get();
-				edgeMetadata.add(new EdgeMetadata(//
-						cachedEdge.getId(), // Edge-ID
-						cachedEdge.getComment(), // Comment
-						cachedEdge.getProducttype(), // Product-Type
-						cachedEdge.getVersion(), // Version
-						device.getValue(), // Role
-						cachedEdge.isOnline(), // Online-State
-						cachedEdge.getLastmessage() // Last-Message Timestamp
-				));
-			}
-		}
-
-		return CompletableFuture //
-				.completedFuture(new GetEdgesResponse(request.getId(), edgeMetadata));
+		final var edgeMetadata = this.parent.metadata.getPageDevice(user, request.getPaginationOptions());
+		return CompletableFuture.completedFuture(new GetEdgesResponse(request.getId(), edgeMetadata));
 	}
 
 	/**
@@ -523,23 +503,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final User user, //
 			final GetEdgeRequest request //
 	) throws OpenemsNamedException {
-		var edge = this.parent.metadata.getEdge(request.edgeId)
-				.orElseThrow(() -> new OpenemsException("Unable to find edge with id [" + request.edgeId + "]"));
-
-		var role = this.parent.metadata.getRoleForEdge(user, request.edgeId);
-
-		var edgeMetdata = new EdgeMetadata(//
-				edge.getId(), // Edge-ID
-				edge.getComment(), // Comment
-				edge.getProducttype(), // Product-Type
-				edge.getVersion(), // Version
-				role, // Role
-				edge.isOnline(), // Online-State
-				edge.getLastmessage() // Last-Message Timestamp
-		);
+		final var edgeMetadata = this.parent.metadata.getEdgeMetadataForUser(user, request.edgeId);
+		if (edgeMetadata == null) {
+			throw new OpenemsException("Unable to find edge with id [" + request.edgeId + "]");
+		}
 
 		return CompletableFuture //
-				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetdata));
+				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetadata));
 	}
 
 }
