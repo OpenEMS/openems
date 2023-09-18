@@ -41,4 +41,12 @@ public final class Utils {
 			return result.plusDays(1);
 		}
 	}
+
+	// TODO move to ArrayUtils
+	public static <T> T orElse(T[] array, int index, T orElse) {
+		if (index < array.length) {
+			return array[index];
+		}
+		return orElse;
+	}
 }

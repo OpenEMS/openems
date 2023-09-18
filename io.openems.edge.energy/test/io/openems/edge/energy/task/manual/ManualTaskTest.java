@@ -1,4 +1,4 @@
-package io.openems.edge.energy.task;
+package io.openems.edge.energy.task.manual;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

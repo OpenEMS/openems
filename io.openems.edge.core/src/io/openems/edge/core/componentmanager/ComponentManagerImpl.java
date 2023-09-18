@@ -152,13 +152,17 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-		var component = this.getComponentViaService(componentId, true);
+		var component = this.<T>getComponentOrNull(componentId);
 		if (component != null) {
-			return (T) component;
+			return component;
 		}
 		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
+	@Override
+	public <T extends OpenemsComponent> T getComponentOrNull(String componentId) {
+		return this.getComponentViaService(componentId, true);
 	}
 
 	@Override

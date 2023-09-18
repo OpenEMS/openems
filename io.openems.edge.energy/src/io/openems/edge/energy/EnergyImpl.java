@@ -25,9 +25,11 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.task.AbstractEnergyTask;
-import io.openems.edge.energy.task.ManualTask;
-import io.openems.edge.energy.task.SmartTask;
+import io.openems.edge.energy.task.manual.ManualTask;
+import io.openems.edge.energy.task.smart.SmartTask;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.scheduler.api.Scheduler;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -43,11 +45,11 @@ public class EnergyImpl extends AbstractOpenemsComponent implements Energy, Open
 	@Reference
 	protected ComponentManager componentManager;
 
-//	@Reference
-//	protected PredictorManager predictor;
-//
-//	@Reference
-//	protected TimeOfUseTariff timeOfUseTariff;
+	@Reference
+	protected PredictorManager predictor;
+
+	@Reference
+	protected TimeOfUseTariff timeOfUseTariff;
 
 	@Reference
 	protected Scheduler scheduler;
@@ -71,7 +73,8 @@ public class EnergyImpl extends AbstractOpenemsComponent implements Energy, Open
 		this.task = switch (config.mode()) {
 		case OFF -> null;
 		case MANUAL -> new ManualTask(this.componentManager, config.manualSchedule(), this::_setScheduleError);
-		case SMART -> new SmartTask(this.componentManager, this::_setScheduleError);
+		case SMART -> new SmartTask(this.componentManager, this.predictor, this.timeOfUseTariff, this.scheduler,
+				this::_setScheduleError);
 		};
 
 		if (this.task == null) {

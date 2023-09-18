@@ -473,6 +473,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely add Floats. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Long} values
+	 * @return the sum
+	 */
+	public static Float sum(Float... values) {
+		Float result = null;
+		for (var value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely subtract Integers.
 	 *
 	 * <ul>
@@ -858,4 +880,5 @@ public class TypeUtils {
 		}
 		return Math.abs(value);
 	}
+
 }

@@ -16,6 +16,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.timedata.api,\
 	io.openems.edge.timeofusetariff.api,\
 	io.openems.wrapper.okhttp,\
+	io.openems.wrapper.jenetics,\
 	
 -testpath: \
 	${testpath}

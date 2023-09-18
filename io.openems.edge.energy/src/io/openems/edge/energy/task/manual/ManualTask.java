@@ -1,4 +1,4 @@
-package io.openems.edge.energy.task;
+package io.openems.edge.energy.task.manual;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.api.schedulable.Schedule;
 import io.openems.edge.energy.api.schedulable.Schedule.Preset;
 import io.openems.edge.energy.api.schedulable.Schedules;
+import io.openems.edge.energy.task.AbstractEnergyTask;
 import okhttp3.internal.concurrent.Task;
 
 /**

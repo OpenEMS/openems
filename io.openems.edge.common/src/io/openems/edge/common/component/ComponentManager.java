@@ -231,6 +231,22 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException;
 
 	/**
+	 * Gets a OpenEMS-Component by its Component-ID. The Component is guaranteed to
+	 * be enabled.
+	 * 
+	 * <p>
+	 * Be aware that via this method usage of the Component service is not tracked
+	 * by the bundle's use count (See
+	 * {@link BundleContext#getService(org.osgi.framework.ServiceReference)}). Make
+	 * sure to use the references as shortly as possible.
+	 *
+	 * @param componentId the Component-ID (e.g. "_sum")
+	 * @param <T>         the typed Component
+	 * @return the OpenEMS-Component or null if it was not found
+	 */
+	public <T extends OpenemsComponent> T getComponentOrNull(String componentId);
+
+	/**
 	 * Gets a OpenEMS-Component by its Component-ID. Be careful, that the Component
 	 * might not be 'enabled'. If in doubt, use {@link #getComponent(String)}
 	 * instead.
