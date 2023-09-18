@@ -1,0 +1,13 @@
+= ESS Sync Active Power
+
+Controller gets a reference to two energy storage systems ESS 0 and ESS 1.
+It constantly reads ess0 and tries to reproduce the charge/discharge of ESS 0 with ESS 1. 
+ESS 1 follows the behavior of ESS 0.
+
+== UseCase
+
+Offgrid system where ESS 0 is in control of the offgrid net and ESS 1 is added to enhance the capacity of ESS 0
+
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.syncactivepower[Source Code icon:github[]]
