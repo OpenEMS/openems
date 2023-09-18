@@ -21,9 +21,7 @@ import io.openems.edge.energy.api.schedulable.Schedule.Preset;
  */
 public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 
-	/**
-	 * Identifies a configuration Preset.
-	 */
+	/** Identifies a configuration Preset. */
 	public static interface Preset {
 
 		/**

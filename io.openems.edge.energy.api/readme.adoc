@@ -1,0 +1,21 @@
+= Energy API
+
+The Energy API adds the dimension of time to the OpenEMS system. 
+
+Regular OpenEMS Controllers work in real-time, e.g. to apply immediate peak-shaving on high power demand, apply optimized electric vehicle charging from photovoltaics, charge a battery on low energy prices, etc.. The Energy API puts this behaviour in a Schedule and allows manual or AI-assisted automated optimization for a 24-hours period.
+
+The API provides:
+
+- `Schedulable`: Controllers that are 'Schedulable', are available for scheduling via the OpenEMS Energy API, i.e. they accept a 24-hours Schedule (instead of just one static configuration)
+
+- `Schedule`: A 'Schedule' holds a 24-hours schedule of a 'Schedulable' Controller. Internally it provides:
+
+  - `Schedule.Preset`: Represents one 'Preset' configuration for a 'Schedulable' Controller. Controllers have to provide an array of 'Preset's, where each represents a typical feasible configuration. Typically 'Preset's will be implemented with an enum.
+  
+  - `Schedule.Handler`: Combines all the logic a 'Schedulable' Controller needs.
+
+- `Schedules`: This class holds multiple `Schedule` and links them with the Component-ID they apply to.
+
+For the reference implementation that uses the Energy API, see the `io.openems.edge.energy` bundle.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.energy.api[Source Code icon:github[]]
