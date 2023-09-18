@@ -141,6 +141,7 @@ export namespace GetAppAssistant {
         }
 
         convertFormlyOptionGroupPicker(rootFields, field);
+        convertFormlyReorderArray(rootFields, field);
 
         let childHasAlias = false;
         [field.fieldGroup, field.templateOptions?.fields ?? field.props?.fields].forEach(fieldGroup => {
@@ -217,6 +218,31 @@ export namespace GetAppAssistant {
         });
     }
 
+    function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig) {
+        if (field.type !== 'reorder-array') {
+            return;
+        }
+        (field.templateOptions ?? field.props).selectOptions?.forEach((selectOption) => {
+            if (!selectOption) {
+                return;
+            }
+
+            for (const [key, value] of Object.entries(selectOption?.expressions ?? {})) {
+                if (!key.endsWith("String")) {
+                    continue;
+                }
+
+                const expressionString: string = value as string;
+                if (expressionString) {
+                    const convertedExpression = GetAppAssistant.convertStringExpressions(rootFields, field, expressionString);
+                    const func = Function('model', 'formState', 'field', 'control', 'initialModel', `return ${convertedExpression};`);
+                    selectOption['expressions'][key.substring(0, key.indexOf("String"))] = (f: FormlyFieldConfigWithInitialModel) => {
+                        return func(f.model, f.options.formState, f, f.formControl, f.initialModel);
+                    };
+                }
+            }
+        });
+    }
 
     export function convertStringExpressions(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig, expression: string): string {
         return ['model.', 'initialModel.', 'control.value.'].reduce((p, c) => convertStringExpression(rootFields, field, p, c), expression);
