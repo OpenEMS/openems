@@ -11,6 +11,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
@@ -62,6 +63,25 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 	 */
 	public default BatteryFeneconHomeHardwareType getBatteryHardwareType() {
 		return this.getBatteryHardwareTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NUMBER_OF_MODULES_PER_TOWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getNumberOfModulesPerTowerChannel() {
+		return this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
+	}
+
+	/**
+	 * Gets the number of modules per tower. See
+	 * {@link ChannelId#NUMBER_OF_MODULES_PER_TOWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getNumberOfModulesPerTower() {
+		return this.getNumberOfModulesPerTowerChannel().value();
 	}
 
 	/**
