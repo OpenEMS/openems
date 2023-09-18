@@ -319,6 +319,8 @@ Next we will configure OpenEMS Edge to connect to the OpenEMS Backend _**Edge.We
 
 . Switch back to the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration for OpenEMS Edge icon:external-link[]].
 
+. Disable the _**Api Controller: Controller Api Websocket**_ because Edge should not communicate directly with UI anymore.
+
 . Configure the _**Controller Api Backend**_ Component. The default values can be accepted without changes right now.
 +
 .Configuration of Controller Api Backend
@@ -329,7 +331,10 @@ Some configuration parameters are still noteworthy here:
 .. _Apikey_ is used to authenticate this Edge at the Backend Metadata service. It has to be unique for each Edge.
 .. _Uri_ is set to `ws://localhost:8081`. This defines an unencrypted websocket (`ws://`) connection to the local computer on port `8081` like we configured before for the _**Edge.Websocket**_. For a production setup you would want to use a TLS encrypted websocket with a `wss://` uri.
 +
+
+
 Once you press btn:[save] you should see logs in OpenEMS Edge
+
 +
 ```
 INFO  [onent.AbstractOpenemsComponent] [ctrlBackend0] Activate Controller.Api.Backend
