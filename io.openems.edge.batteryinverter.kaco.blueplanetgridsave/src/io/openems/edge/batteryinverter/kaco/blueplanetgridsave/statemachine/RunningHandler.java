@@ -67,7 +67,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Active Power Set-Point is set in % of maximum active power
 		FloatWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		var wSetPct = context.setActivePower * 100F / maxApparentPower;
-		wSetPct = TypeUtils.fitWithin(0F, 100F, wSetPct);
+		wSetPct = TypeUtils.fitWithin(-100F, 100F, wSetPct);
 		wSetPctChannel.setNextWriteValue(wSetPct);
 
 		// Reactive Power Set-Point is set in % of maximum active power
