@@ -1,4 +1,3 @@
-
 import { CurrentData, EdgeConfig, Utils } from "../../shared";
 import { Formatter } from "./formatter";
 
@@ -130,9 +129,9 @@ export namespace Converter {
    * @returns the otherPower
    */
   export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EdgeConfig.Component[], consumptionMeters: EdgeConfig.Component[], currentData: CurrentData): number => {
-    let activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
-    let evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
-    let consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    const activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
+    const evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    const consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
 
     return Utils.subtractSafely(activePowerTotal,
       Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
