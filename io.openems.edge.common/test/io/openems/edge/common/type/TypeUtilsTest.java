@@ -62,6 +62,15 @@ public class TypeUtilsTest {
 	}
 
 	@Test
+	public void testFitWithin() {
+		assertEquals(10, TypeUtils.fitWithin(5, 15, 10));
+		assertEquals(5.0, TypeUtils.fitWithin(2.5, 7.5, 5.0), 0.0);
+		assertEquals(0F, TypeUtils.fitWithin(0F, 100F, -99.005F), 0F);
+		assertEquals(100F, TypeUtils.fitWithin(0F, 100F, 100.005F), 0F);
+		assertEquals(50F, TypeUtils.fitWithin(0F, 100F, 50F), 0F);
+	}
+
+	@Test
 	public void testMin() {
 		assertEquals(25, (int) TypeUtils.min(null, 25, null, 40, null));
 		assertEquals(null, TypeUtils.min((Double) null, null, null));

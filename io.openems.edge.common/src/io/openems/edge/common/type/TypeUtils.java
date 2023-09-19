@@ -836,12 +836,38 @@ public class TypeUtils {
 	/**
 	 * Fits a value within a lower and upper boundary.
 	 *
-	 * @param lowLimit  the lower boundary
-	 * @param highLimit the upper boundary
-	 * @param value     the actual value
-	 * @return the adjusted value
+	 * @param lowLimit  the int lower boundary
+	 * @param highLimit the int upper boundary
+	 * @param value     the int actual value
+	 * @return the adjusted int value
 	 */
 	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the double lower boundary
+	 * @param highLimit the double upper boundary
+	 * @param value     the double actual value
+	 * @return the adjusted double value
+	 */
+	public static double fitWithin(double lowLimit, double highLimit, double value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the float lower boundary
+	 * @param highLimit the float upper boundary
+	 * @param value     the float actual value
+	 * @return the adjusted float value
+	 */
+	public static float fitWithin(float lowLimit, float highLimit, float value) {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}

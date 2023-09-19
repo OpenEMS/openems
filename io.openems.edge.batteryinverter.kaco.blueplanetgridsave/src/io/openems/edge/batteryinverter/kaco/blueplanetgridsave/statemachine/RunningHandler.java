@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.common.type.TypeUtils;
 
 public class RunningHandler extends StateHandler<State, Context> {
 
@@ -66,6 +67,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Active Power Set-Point is set in % of maximum active power
 		FloatWriteChannel wSetPctChannel = inverter.getSunSpecChannelOrError(KacoSunSpecModel.S64201.W_SET_PCT);
 		var wSetPct = context.setActivePower * 100F / maxApparentPower;
+		wSetPct = TypeUtils.fitWithin(0F, 100F, wSetPct);
 		wSetPctChannel.setNextWriteValue(wSetPct);
 
 		// Reactive Power Set-Point is set in % of maximum active power
