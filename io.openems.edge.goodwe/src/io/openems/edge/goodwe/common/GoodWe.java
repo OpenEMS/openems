@@ -206,38 +206,175 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.KILOWATT_HOURS)), //
 
 		// Error Message 35189
-		STATE_0(Doc.of(Level.FAULT).text("The GFCI detecting circuit is abnormal")), //
-		STATE_1(Doc.of(Level.FAULT).text("The output current sensor is abnormal")), //
-		STATE_2(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_3(Doc.of(Level.FAULT).text("DCI Consistency Failure")), //
-		STATE_4(Doc.of(Level.FAULT).text("GFCI Consistency Failure")), //
-		STATE_5(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_6(Doc.of(Level.FAULT).text("GFCI Device Failure")), //
-		STATE_7(Doc.of(Level.FAULT).text("Relay Device Failure")), //
-		STATE_8(Doc.of(Level.FAULT).text("AC HCT Failure")), //
-		STATE_9(Doc.of(Level.FAULT).text("Utility Loss")), //
-		STATE_10(Doc.of(Level.FAULT).text("Gournd I Failure")), //
-		STATE_11(Doc.of(Level.WARNING).text("DC Bus High")), //
-		STATE_12(Doc.of(Level.FAULT).text("Internal Fan Failure(Back-Up Over Load for ES)")), //
-		STATE_13(Doc.of(Level.WARNING).text("Over Temperature")), //
-		STATE_14(Doc.of(Level.FAULT).text("Auto Test Failure")), //
-		STATE_15(Doc.of(Level.WARNING).text("PV Over Voltage")), //
-		STATE_16(Doc.of(Level.FAULT).text("External Fan Failure")), //
-		STATE_17(Doc.of(Level.FAULT).text("Vac Failure")), //
-		STATE_18(Doc.of(Level.FAULT).text("Isolation resistance of PV-plant too low")), //
-		STATE_19(Doc.of(Level.WARNING).text("The DC injection to grid is too high")), //
-		STATE_20(Doc.of(Level.WARNING).text("Back-Up Over Load")), //
-		STATE_21(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_22(Doc.of(Level.FAULT).text("Different value between Master and\n" + "Slave for grid frequency")), //
-		STATE_23(Doc.of(Level.FAULT).text("Different value between Master and\n" + "Slave for grid voltage")), //
-		STATE_24(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_25(Doc.of(Level.WARNING).text("Relay Check Failure")), //
-		STATE_26(Doc.of(Level.WARNING).text("TBD")), //
-		STATE_27(Doc.of(Level.WARNING).text("Phase angle out of range (110~140)")), //
-		STATE_28(Doc.of(Level.WARNING).text("Communication between ARM and DSP\n" + "is failure")), //
-		STATE_29(Doc.of(Level.FAULT).text("The grid frequency is out of tolerable\n" + "range")), //
-		STATE_30(Doc.of(Level.FAULT).text("EEPROM cannot be read or written")), //
-		STATE_31(Doc.of(Level.FAULT).text("Communication between\n" + "microcontrollers is failure")), //
+		STATE_0(Doc.of(Level.FAULT) //
+				.text("The Ground Fault Circuit Interrupter (GFCI) detecting circuit is abnormal " //
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) wurde ausgelöst " //
+						+ "| Bitte überprüfen Sie den Netzanschluss sowie ggf. Backup-Lasten")), //
+
+		STATE_1(Doc.of(Level.FAULT) //
+				.text("The output current sensor is abnormal " //
+						+ "| Der Ausgangs-Stromsensor liefert unplausible Werte " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		// Bit 2 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_2(Doc.of(Level.WARNING) //
+				.text("Warning Code 1")), //
+
+		STATE_3(Doc.of(Level.FAULT) //
+				.text("DCI Consistency Failure " //
+						+ "| Werte der Impedanzmessung (DCI Einheit) sind widersprüchlich/unplausibel " //
+						+ "| Bitte überprüfen Sie den Netzanschluss")), //
+
+		STATE_4(Doc.of(Level.FAULT) //
+				.text("Ground Fault Circuit Interrupter (GFCI) Consistency Failure " //
+						+ "| Werte der internen Fehlerstrom-Schutzeinrichtung (RCD) sind widersprüchlich/unplausibel " //
+						+ "| Bitte überprüfen Sie den Netzanschluss")), //
+
+		// Bit 5 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_5(Doc.of(Level.WARNING) //
+				.text("Warning Code 2")), //
+
+		STATE_6(Doc.of(Level.FAULT) //
+				.text("Ground Fault Circuit Interrupter (GFCI) Device Failure " //
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) befindet sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_7(Doc.of(Level.FAULT) //
+				.text("Relay Device Failure " //
+						+ "| Interne Relais befinden sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_8(Doc.of(Level.FAULT) //
+				.text("AC HCT Failure " //
+						+ "| Die HCT Einheit befindet sich im Fehlerzustand " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_9(Doc.of(Level.FAULT) //
+				.text("Utility Loss " //
+						+ "| Netzausfall wurde erkannt " //
+						+ "| Bitte überprüfen Sie ob das Kommunikationsmodul richtig gesteckt ist")), //
+
+		// TODO: Use new-lines or html-lists when the UI and edge log are able to handle
+		// them
+		STATE_10(Doc.of(Level.FAULT) //
+				.text("Ground I Failure " //
+						+ "| Erdungsfehler " //
+						+ "| Ggf. N und PE Leiter sind nicht richtig mit dem Netzanschluss des Wechselrichters verbunden. " //
+						+ "Ggf. zu hoher Ableitstrom der PV-Module zur Erde (z.B. bei hoher Luftfeuchtigkeit). " //
+						+ "Ggf. Netzerdungsverlust bzw. Wechselrichter kann keine Verbindung zu einem geerdeten Potential feststellen. " //
+						+ "Installation (Netz und PV) überprüfen")), //
+
+		STATE_11(Doc.of(Level.WARNING) //
+				.text("DC Bus High " //
+						+ "| Interne Betriebsspannung hoch " //
+						+ "| Ggf. übersteigt die Leerlauf- oder Betriebsspannung der PV-Module den für diesen Wechselrichter zulässigen Bereich. " //
+						+ "Ggf. liegt ein PV-Kriechstrom zur Erde an")), //
+
+		STATE_12(Doc.of(Level.FAULT) //
+				.text("Internal Fan Failure " //
+						+ "| Der interne Lüfter meldet einen Defekt")), //
+
+		STATE_13(Doc.of(Level.WARNING) //
+				.text("Over Temperature " //
+						+ "| Übertemperatur " //
+						+ "| Ggf. Luft-Umgebungstemperatur ist über einen längeren Zeitraum zu hoch. "
+						+ "Ggf. Luftstrom durch den Kühlkörper für Normalbetrieb unzureichend (Aufstellbedingungen beachten!). "
+						+ "Ggf. Behinderung des Luftstroms, z.B. Kühlkörper wurde abgedeckt")), //
+
+		STATE_14(Doc.of(Level.FAULT) //
+				.text("Utility Phase Failure " //
+						+ "| Phasenfehler " //
+						+ "| Überprüfen Sie das Drehfeld am Wechselrichter. " //
+						+ "Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt")), //
+
+		STATE_15(Doc.of(Level.FAULT) //
+				.text("PV Over Voltage " //
+						+ "| Überspannung PV " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_16(Doc.of(Level.WARNING) //
+				.text("External Fan Failure " //
+						+ "| Externer Lüfter befindet sich im Fehlerzustand")), //
+
+		STATE_17(Doc.of(Level.FAULT) //
+				.text("Vac Failure " //
+						+ "| Spannungsfehler " //
+						+ "| Die anliegende Spannung am \"On-Grid\" Anschluss befindet sich außerhalb der gültigen Parameter (für DE siehe VDE AR N 4105). " //
+						+ "Ggf. Kommunikationsmodul nicht (richtig) gesteckt")), //
+
+		STATE_18(Doc.of(Level.FAULT) //
+				.text("Isolation resistance of PV-plant too low " //
+						+ "| Isolationsfehler auf PV-Strings " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_19(Doc.of(Level.WARNING) //
+				.text("The DC injection to grid is too high " //
+						+ "| DC-Strom Einspeisung auf \"On-Grid\" Seite ist zu hoch " //
+						+ "| Bitte überprüfen Sie die Installation und angeschlossene Verbraucher bzw. Erzeuger")), //
+
+		STATE_20(Doc.of(Level.FAULT) //
+				.text("Back-Up Over Load " //
+						+ "| Überlastung Backup-Anschluss " //
+						+ "| Bitte beachten Sie die im Datenblatt angegebenen Maximal-Lasten")), //
+
+		// Bit 21 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_21(Doc.of(Level.WARNING) //
+				.text("Warning Code 3")), //
+
+		STATE_22(Doc.of(Level.FAULT) //
+				.text("Difference between Master and Slave frequency too high " //
+						+ "| Frequenz zwischen Master und Slave weicht zu stark ab " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_23(Doc.of(Level.FAULT) //
+				.text("Difference between Master and Slave voltage too high " //
+						+ "| Spannung zwischen Master und Slave weicht zu stark ab " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		// Bit 24 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_24(Doc.of(Level.WARNING) //
+				.text("Warning Code 4")), //
+
+		STATE_25(Doc.of(Level.FAULT) //
+				.text("Relay Check Failure " //
+						+ "| Selbsttest der Relais ist Fehlgeschlagen " //
+						+ "| Ggf. sind N und PE-Leiter nicht richtig mit den Anschlussklemmen des Wechselrichters verbunden. " //
+						+ "Ggf. Netzerdungsverlust. " //
+						+ "Bitte überprüfen Sie die Installation")), //
+
+		// Bit 26 - TBD (Currently reserved) - warning should not appear unless there is
+		// a new description of GoodWe
+		STATE_26(Doc.of(Level.WARNING) //
+				.text("Warning Code 5")), //
+
+		STATE_27(Doc.of(Level.WARNING) //
+				.text("Phase angle out of range (110~140°) " //
+						+ "| Die Phasenverschiebung zwischen den Phasen ist außerhalb der zulässigen Parameter (110~140°) " //
+						+ "| Bitte überprüfen Sie die Installation")), //
+
+		STATE_28(Doc.of(Level.WARNING) //
+				.text("Communication failure between ARM and DSP " //
+						+ "| Kommunikation zwischen der ARM und DSP Einheit ist fehlgeschlagen " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_29(Doc.of(Level.FAULT) //
+				.text("The grid frequency is out of tolerable range " //
+						+ "| Die Netz-Frequenz befindet sich außerhalb der zulässigen Parameter " //
+						+ "| Bitte überprüfen Sie die Installation und führen anschließend einen Geräteneustart aus")), //
+
+		STATE_30(Doc.of(Level.FAULT) //
+				.text("EEPROM cannot be read or written " //
+						+ "| EEPROM kann nicht gelesen oder geschrieben werden " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
+
+		STATE_31(Doc.of(Level.FAULT) //
+				.text("Communication failure between microcontrollers " //
+						+ "| Die Kommunikation zwischen den einzelnen Microkontrollern ist fehlerhaft " //
+						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
 		// External Communication Data (ARM)
 		COM_MODE(Doc.of(ComMode.values())), //
