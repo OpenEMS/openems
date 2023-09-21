@@ -78,7 +78,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+	public <T extends OpenemsComponent> T getComponentOrNull(String componentId) {
 		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
 			return (T) this;
 		}
@@ -86,6 +86,15 @@ public class DummyComponentManager implements ComponentManager {
 			if (component.id().equals(componentId)) {
 				return (T) component;
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		var component = this.<T>getComponentOrNull(componentId);
+		if (component != null) {
+			return component;
 		}
 		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
 	}

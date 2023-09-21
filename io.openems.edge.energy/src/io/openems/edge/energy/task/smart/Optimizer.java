@@ -23,13 +23,11 @@ import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.engine.Limits;
 import io.jenetics.util.RandomRegistry;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.api.schedulable.Schedule;
 import io.openems.edge.energy.api.simulatable.Forecast;
-import io.openems.edge.energy.api.simulatable.PresetSimulator;
 import io.openems.edge.energy.api.simulatable.Simulatable;
 import io.openems.edge.energy.api.simulatable.Simulator;
 
@@ -55,9 +53,9 @@ public class Optimizer {
 		LOG.info("Schedulables: " + Stream.of(schedulables).map(Controller::id).collect(joining(", ")));
 		LOG.info("Simulatables: " + Stream.of(simulateables).map(OpenemsComponent::id).collect(joining(", ")));
 
-		if (schedulables.length == 0 && simulateables.length == 0) {
-			throw new OpenemsException("Unable to find any Simulateables or Schedulables");
-		}
+//		if (schedulables.length == 0 && simulateables.length == 0) {
+//			throw new OpenemsException("Unable to find any Simulateables or Schedulables");
+//		}
 
 		// Jenetics
 		var gtf = Genotype.of(//
@@ -66,10 +64,11 @@ public class Optimizer {
 						.collect(Collectors.toUnmodifiableList()));
 
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
-			var executionPlan = simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, gt);
-			var cost = executionPlan.getTotalGridCost();
+//			var executionPlan = simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, gt);
+//			var cost = executionPlan.getTotalGridCost();
 			// TODO consider further function costs, e.g. target SoC
-			return cost;
+//			return cost;
+			return Math.random();
 		};
 		var engine = Engine //
 				.builder(eval, gtf) //
@@ -86,7 +85,8 @@ public class Optimizer {
 		LOG.info(statistics.toString());
 
 		// Recalculate and print best plan
-		return simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, bestGt);
+//		return simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, bestGt);
+		return null;
 	}
 
 	private static ExecutionPlan simulateGenotype(Simulatable[] simulatables, Schedulable[] schedulables,
@@ -119,7 +119,7 @@ public class Optimizer {
 	 * @param gt            the current {@link Genotype}
 	 * @return the {@link ExecutionPlan}, ready for simulation
 	 */
-	private static ExecutionPlan buildExecutionPlan(Schedulable[] scheduleables, Forecast forecast,
+	protected static ExecutionPlan buildExecutionPlan(Schedulable[] scheduleables, Forecast forecast,
 			Genotype<IntegerGene> gt) {
 		var result = ExecutionPlan.create(forecast);
 		IntStream.range(0, scheduleables.length).forEach(i -> {
@@ -135,14 +135,14 @@ public class Optimizer {
 
 	private static void simulatePeriod(Map<String, Simulator> simulators, String simulatorId,
 			ExecutionPlan.Period period) {
-		var simulator = simulators.get(simulatorId);
-		if (simulator == null) {
-			return;
-		}
-		if (simulator instanceof PresetSimulator<?>) {
-			((PresetSimulator<?>) simulator).simulate(period, simulatorId);
-		} else {
-			simulator.simulate(period);
-		}
+//		var simulator = simulators.get(simulatorId);
+//		if (simulator == null) {
+//			return;
+//		}
+//		if (simulator instanceof PresetSimulator<?>) {
+//			((PresetSimulator<?>) simulator).simulate(period, simulatorId);
+//		} else {
+//			simulator.simulate(period);
+//		}
 	}
 }

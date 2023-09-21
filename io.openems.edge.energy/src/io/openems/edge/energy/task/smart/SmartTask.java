@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.energy.api.schedulable.Schedulable;
@@ -46,13 +45,8 @@ public class SmartTask extends AbstractEnergyTask {
 		var simulateables = this.componentManager.getEnabledComponentsOfType(Simulatable.class) //
 				.toArray(Simulatable[]::new);
 
-		try {
-			ExecutionPlan ep = Optimizer.getBestExecutionPlan(forecast, schedulables, simulateables);
-			ep.print();
-		} catch (OpenemsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		var ep = Optimizer.getBestExecutionPlan(forecast, schedulables, simulateables);
+		ep.print();
 
 		this.log.info("To be implemented...");
 	}

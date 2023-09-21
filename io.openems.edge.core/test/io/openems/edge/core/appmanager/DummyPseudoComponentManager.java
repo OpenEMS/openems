@@ -117,6 +117,15 @@ public class DummyPseudoComponentManager implements ComponentManager {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> T getComponentOrNull(String componentId) {
+		return (T) this.getEnabledComponents().stream() //
+				.filter(c -> c.id().equals(componentId)) //
+				.findAny() //
+				.orElse(null);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
 		return (T) this.getEnabledComponents().stream() //
 				.filter(c -> c.id().equals(componentId)) //
