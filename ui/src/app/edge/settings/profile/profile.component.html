@@ -32,6 +32,10 @@
                 <ion-label>Rolle</ion-label>
                 {{ edge.getRoleString() }}
               </ion-item>
+              <ion-item lines="none" *ngIf="edge.firstSetupProtocol">
+                <ion-label translate>Index.FIRST_SETUP_PROTOCOL</ion-label>
+                {{ edge.firstSetupProtocol | date:'dd.MM.YYYY hh:mm' }}
+              </ion-item>
             </ion-list>
           </ion-card-content>
         </ion-card>

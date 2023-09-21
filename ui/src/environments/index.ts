@@ -1,3 +1,5 @@
+import { TranslateService } from '@ngx-translate/core';
+import { Filter } from 'src/app/index/filter/filter.component';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 export { environment } from './dummy';
 
@@ -33,4 +35,5 @@ export interface Environment {
         readonly SETTINGS_ALERTING: string,
         readonly SETTINGS_NETWORK_CONFIGURATION: string,
     }
+    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
 }

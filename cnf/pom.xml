@@ -239,17 +239,17 @@
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Management Console -->
-			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/changelog.txt -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.9.0</version>
+			<version>4.9.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
-			<version>2.2.0</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>

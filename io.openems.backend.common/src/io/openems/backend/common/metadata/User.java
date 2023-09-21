@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
@@ -92,7 +93,9 @@ public class User extends AbstractUser {
 						edge.getVersion(), // Version
 						role, // Role
 						edge.isOnline(), // Online-State
-						edge.getLastmessage() // Last-Message Timestamp
+						edge.getLastmessage(), // Last-Message Timestamp
+						null, //
+						Level.OK //
 				));
 			}
 		}

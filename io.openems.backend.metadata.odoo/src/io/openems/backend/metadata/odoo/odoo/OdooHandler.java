@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
+import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
@@ -1243,7 +1244,9 @@ public class OdooHandler {
 				.add("params", JsonUtils.buildJsonObject() //
 						.addProperty("page", paginationOptions.getPage()) //
 						.addProperty("limit", paginationOptions.getLimit()) //
-						.addPropertyIfNotNull("query", paginationOptions.getQuery()) //
+						.add("query", JsonUtils.getAsJsonElement(paginationOptions.getQuery()))
+						.onlyIf(paginationOptions.getSearchParams() != null,
+								b -> b.add("searchParams", paginationOptions.getSearchParams().toJson()))//
 						.build()) //
 				.build();
 
@@ -1260,7 +1263,7 @@ public class OdooHandler {
 	 * @return the edge with the role of the user
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject getEdgeWithRole(MyUser user, String edgeId) throws OpenemsNamedException {
+	public JsonObject getEdgeWithRole(User user, String edgeId) throws OpenemsNamedException {
 		var request = JsonUtils.buildJsonObject() //
 				.add("params", JsonUtils.buildJsonObject() //
 						.addProperty("edge_id", edgeId) //
