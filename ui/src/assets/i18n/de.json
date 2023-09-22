@@ -557,6 +557,8 @@
     "OFFLINE_SINCE": "Offline seit",
     "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
+    "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
     "FIRST_SETUP_PROTOCOL": "Commissioning"
   },
   "INSTALLATION": {
