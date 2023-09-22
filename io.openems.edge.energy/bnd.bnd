@@ -8,8 +8,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.controller.ess.fixactivepower,\
-	io.openems.edge.controller.evcs,\
 	io.openems.edge.energy.api,\
 	io.openems.edge.predictor.api,\
 	io.openems.edge.scheduler.api,\

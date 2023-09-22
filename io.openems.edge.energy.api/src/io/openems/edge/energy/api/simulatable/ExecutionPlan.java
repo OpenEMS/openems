@@ -22,8 +22,8 @@ import io.openems.edge.energy.api.schedulable.Schedule;
  */
 public class ExecutionPlan {
 
-	public final static int NO_OF_PERIODS = 24;
-//	public final static int NO_OF_PERIODS = 96;
+	public static final int NO_OF_PERIODS = 24;
+	// public static final int NO_OF_PERIODS = 96;
 
 	private final Logger log = LoggerFactory.getLogger(ExecutionPlan.class);
 
@@ -36,6 +36,13 @@ public class ExecutionPlan {
 					.toArray(Period[]::new);
 		}
 
+		/**
+		 * Add a Component with Presets.
+		 * 
+		 * @param componentId the Component-ID
+		 * @param presets     the presets
+		 * @return builder
+		 */
 		public Builder add(String componentId, Schedule.Preset[] presets) {
 			IntStream.range(0, Math.min(NO_OF_PERIODS, presets.length)) //
 					.forEach(p -> this.periods[p].presets.put(componentId, presets[p]));
@@ -50,6 +57,7 @@ public class ExecutionPlan {
 	/**
 	 * Create a builder.
 	 *
+	 * @param forecast the {@link Forecast}
 	 * @return a {@link Builder}
 	 */
 	public static Builder create(Forecast forecast) {
@@ -72,15 +80,15 @@ public class ExecutionPlan {
 			this.forecast = forecast;
 		}
 
-		public void addLog(String log) {
+		protected void addLog(String log) {
 			this.logs.add(log);
 		}
 
-		public void setValue(String key, float value) {
+		protected void setValue(String key, float value) {
 			this.values.put(key, value);
 		}
 
-		public float getValue(String key) {
+		protected float getValue(String key) {
 			return this.values.get(key);
 		}
 
@@ -88,7 +96,7 @@ public class ExecutionPlan {
 			return this.storage;
 		}
 
-		public int getStorageOrZero() {
+		protected int getStorageOrZero() {
 			if (this.storage == null) {
 				return 0;
 			}
@@ -99,7 +107,7 @@ public class ExecutionPlan {
 			this.storage = value;
 		}
 
-		public Integer getGridEnergy() {
+		protected Integer getGridEnergy() {
 			var production = this.forecast.production;
 			var consumption = this.forecast.consumption;
 			if (production == null || consumption == null) {
@@ -120,7 +128,7 @@ public class ExecutionPlan {
 		}
 
 		@SuppressWarnings("unchecked")
-		public <PRESET extends Schedule.Preset> PRESET getPreset(String componentId) {
+		protected <PRESET extends Schedule.Preset> PRESET getPreset(String componentId) {
 			return (PRESET) this.presets.get(componentId);
 		}
 	}
@@ -131,23 +139,28 @@ public class ExecutionPlan {
 		this.periods = periods;
 	}
 
+	/**
+	 * Provides a {@link Stream} of {@link Period}s.
+	 * 
+	 * @return periods
+	 */
 	public Stream<Period> periods() {
 		return Stream.of(this.periods);
 	}
 
-	public Period getPeriod(int p) throws IllegalArgumentException {
+	protected Period getPeriod(int p) throws IllegalArgumentException {
 		if (p < NO_OF_PERIODS) {
 			return this.periods[p];
 		}
 		throw new IllegalArgumentException("Period index [" + p + "] must be smaller than [" + NO_OF_PERIODS + "]");
 	}
 
-//	public int getManagedConsumptionOrZero(int p) {
-//		if (this.managedConsumption.length > p) {
-//			return this.managedConsumption[p];
-//		}
-//		return 0;
-//	}
+	// public int getManagedConsumptionOrZero(int p) {
+	// if (this.managedConsumption.length > p) {
+	// return this.managedConsumption[p];
+	// }
+	// return 0;
+	// }
 
 	public Double getTotalGridCost() {
 		return this.periods() //
@@ -157,6 +170,9 @@ public class ExecutionPlan {
 				.sum();
 	}
 
+	/**
+	 * Nicely print the {@link ExecutionPlan}.
+	 */
 	public void print() {
 		this.log.info(String.format("   %10s %10s %10s %10s %10s %10s %-40s %s", "Product.", "Consumpt.", "Storage",
 				"Grid", "Grid-Price", "Grid-Cost", "Presets", "Logs"));
@@ -170,7 +186,7 @@ public class ExecutionPlan {
 		this.log.info("Total Cost: " + this.getTotalGridCost());
 	}
 
-	public void plot() {
+	protected void plot() {
 		Data production = Plot.data();
 		Data consumption = Plot.data();
 		Data storageCharge = Plot.data();
@@ -204,36 +220,37 @@ public class ExecutionPlan {
 		});
 	}
 
-//	public int calculateRevenue(Facts facts) {
-//	var forecast = facts.forecast;
-//
-//	// Calculate Revenue from Sell-To-Grid/Buy-From-Grid
-//	var revenueGrid = Math.round(IntStream.range(0, Facts.PLANNING_PERIODS) //
-//			.map(p -> {
-//				var storage = this.periods[p].storage.energyPerPeriod;
-//				var production = forecast.periods[p].production;
-//				var consumption = forecast.periods[p].consumption;
-//				var grid = consumption - storage - production;
-//				final int revenue;
-//				if (grid < 0) {
-//					revenue = -1 * grid * forecast.periods[0].sellToGridRevenue;
-//				} else {
-//					revenue = -1 * grid * forecast.periods[0].buyFromGridCost;
-//				}
-//				this.periods[p].revenue = revenue;
-//				return revenue;
-//			}) //
-//			.sum() //
-//			// Standardize to interval by factor
-//			/ facts.revenueStandardizationFactor);
-//
-//	// Calculate cost of too missing the target final energy in storage
-//	var finalEnergy = this.periods[this.periods.length - 1].storage.finalEnergy();
-//	var costTargetEnergy = Math.round(Math.abs(finalEnergy - facts.targetStorageEnergyInFinalPeriod));
-//
-//	// Cost should avoid delta in wrong direction
-//
-//	return revenueGrid - costTargetEnergy;
-//}
-//
+	// public int calculateRevenue(Facts facts) {
+	// var forecast = facts.forecast;
+	//
+	// // Calculate Revenue from Sell-To-Grid/Buy-From-Grid
+	// var revenueGrid = Math.round(IntStream.range(0, Facts.PLANNING_PERIODS) //
+	// .map(p -> {
+	// var storage = this.periods[p].storage.energyPerPeriod;
+	// var production = forecast.periods[p].production;
+	// var consumption = forecast.periods[p].consumption;
+	// var grid = consumption - storage - production;
+	// final int revenue;
+	// if (grid < 0) {
+	// revenue = -1 * grid * forecast.periods[0].sellToGridRevenue;
+	// } else {
+	// revenue = -1 * grid * forecast.periods[0].buyFromGridCost;
+	// }
+	// this.periods[p].revenue = revenue;
+	// return revenue;
+	// }) //
+	// .sum() //
+	// // Standardize to interval by factor
+	// / facts.revenueStandardizationFactor);
+	//
+	// // Calculate cost of too missing the target final energy in storage
+	// var finalEnergy = this.periods[this.periods.length -
+	// 1].storage.finalEnergy();
+	// var costTargetEnergy = Math.round(Math.abs(finalEnergy -
+	// facts.targetStorageEnergyInFinalPeriod));
+	//
+	// // Cost should avoid delta in wrong direction
+	//
+	// return revenueGrid - costTargetEnergy;
+	// }
 }

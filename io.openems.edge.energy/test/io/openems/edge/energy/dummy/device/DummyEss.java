@@ -6,9 +6,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulatable.Simulatable;
 import io.openems.edge.energy.api.simulatable.Simulator;
 
-public class DummyEvcs extends AbstractOpenemsComponent implements OpenemsComponent, Simulatable {
+public class DummyEss extends AbstractOpenemsComponent implements OpenemsComponent, Simulatable {
 
-	protected DummyEvcs(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+	protected DummyEss(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		for (Channel<?> channel : this.channels()) {
@@ -17,21 +17,23 @@ public class DummyEvcs extends AbstractOpenemsComponent implements OpenemsCompon
 		super.activate(null, id, "", true);
 	}
 
-	public DummyEvcs(String id) {
+	public DummyEss(String id) {
 		this(id, //
 				OpenemsComponent.ChannelId.values() //
 		);
 	}
 
+	// private int getSoc() {
+	// return 50;
+	// }
+	//
+	// private int getCapacity() {
+	// return 10000;
+	// }
+
 	@Override
 	public Simulator getSimulator() {
-		// return new Simulator() {
-		//
-		// @Override
-		// public void simulate(Period period) {
-		// // TODO Auto-generated method stub
-		// }
-		// };
+		// return new SimpleEssSimulator(this.id(), this.getCapacity(), this.getSoc());
 		return null;
 	}
 }

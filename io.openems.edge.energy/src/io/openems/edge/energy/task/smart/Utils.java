@@ -14,7 +14,7 @@ public class Utils {
 	 * Sums quarterly values (array of 96 Integer values) to hourly values (array of
 	 * 24 Integer values).
 	 * 
-	 * @param values
+	 * @param values the values
 	 * @return array of Integers
 	 */
 	public static Integer[] sumQuartersToHours(Integer[] values) {
@@ -36,7 +36,7 @@ public class Utils {
 	 * Averages quarterly values (array of 96 Float values) to hourly values (array
 	 * of 24 Float values).
 	 * 
-	 * @param values
+	 * @param values the values
 	 * @return array of Floats
 	 */
 	public static Float[] avgQuartersToHours(Float[] values) {

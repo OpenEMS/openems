@@ -16,7 +16,7 @@ import io.openems.edge.energy.api.schedulable.Schedule.Preset;
 /**
  * Holds the Schedule for a {@link Schedulable} {@link Controller}.
  * 
- * @param <PRESET>         the configuration preset type
+ * @param <PRESET>         the type of the {@link Schedule.Preset}
  * @param <DYNAMIC_CONFIG> the type of the dynamic configuration
  */
 public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
@@ -40,10 +40,10 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	 * to encapsulate all Schedule related implementations.
 	 * 
 	 * @param <STATIC_CONFIG>  the type of the static configuration
-	 * @param <PRESET>
+	 * @param <PRESET>         the type of the {@link Schedule.Preset}
 	 * @param <DYNAMIC_CONFIG> the type of the dynamic configuration
 	 */
-	public static abstract class Handler<STATIC_CONFIG extends Annotation, PRESET extends Schedule.Preset, DYNAMIC_CONFIG> {
+	public abstract static class Handler<STATIC_CONFIG extends Annotation, PRESET extends Schedule.Preset, DYNAMIC_CONFIG> {
 
 		public final PRESET[] presets;
 
@@ -64,7 +64,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		 * `config` is defined (i.e. != null), this `getCurrentConfig()` will always
 		 * return this.
 		 * 
-		 * @param config the static configuration; or null
+		 * @param staticConfig the static configuration; or null
 		 */
 		public final void applyStaticConfig(STATIC_CONFIG staticConfig) {
 			this.staticConfig = staticConfig;
@@ -77,7 +77,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		 * @return the static component configuration
 		 */
 		public STATIC_CONFIG getStaticConfig() {
-			return staticConfig;
+			return this.staticConfig;
 		}
 
 		/**
@@ -110,7 +110,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 			if (preset == null) {
 				return this.toConfig(this.staticConfig);
 			} else {
-				return toConfig(this.staticConfig, preset);
+				return this.toConfig(this.staticConfig, preset);
 			}
 		}
 
@@ -138,7 +138,7 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	/**
 	 * Build empty {@link Schedule}.
 	 * 
-	 * @param <PRESET>         the configuration preset type
+	 * @param <PRESET>         the type of the {@link Schedule.Preset}
 	 * @param <DYNAMIC_CONFIG> the type of the dynamic configuration
 	 * @return new {@link Schedule}
 	 */
@@ -149,9 +149,11 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	/**
 	 * Build a {@link Schedule} for hourly configuration PRESETs.
 	 * 
-	 * @param <MODE>   the {@link Mode} type
-	 * @param fromDate {@link ZonedDateTime} of the first preset
-	 * @param modes    array of {@link Mode}s, ideally 24 for one day
+	 * @param <PRESET>         the type of the {@link Schedule.Preset}
+	 * @param <DYNAMIC_CONFIG> the type of the dynamic configuration
+	 * @param fromDate         {@link ZonedDateTime} of the first preset
+	 * @param presets          array of {@link Schedule.Preset}s, ideally 24 for one
+	 *                         day
 	 * @return new {@link Schedule}
 	 */
 	public static <PRESET extends Preset, DYNAMIC_CONFIG> Schedule<PRESET, DYNAMIC_CONFIG> ofHourly(
@@ -168,9 +170,11 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 	/**
 	 * Build a {@link Schedule} for quarterly (15-minutes) configuration PRESETs.
 	 * 
-	 * @param <MODE>   the {@link Mode} type
-	 * @param fromDate {@link ZonedDateTime} of the first preset
-	 * @param modes    array of {@link Mode}s, ideally 96 for one day
+	 * @param <PRESET>         the type of the {@link Schedule.Preset}
+	 * @param <DYNAMIC_CONFIG> the type of the dynamic configuration
+	 * @param fromDate         {@link ZonedDateTime} of the first preset
+	 * @param presets          array of {@link Schedule.Preset}s, ideally 24 for one
+	 *                         day
 	 * @return new {@link Schedule}
 	 */
 	public static <PRESET extends Preset, DYNAMIC_CONFIG> Schedule<PRESET, DYNAMIC_CONFIG> ofQuarterly(

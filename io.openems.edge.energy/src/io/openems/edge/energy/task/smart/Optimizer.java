@@ -1,6 +1,6 @@
 package io.openems.edge.energy.task.smart;
 
-import static io.openems.edge.energy.task.smart.ExecutionPlan.NO_OF_PERIODS;
+import static io.openems.edge.energy.api.simulatable.ExecutionPlan.NO_OF_PERIODS;
 import static java.util.stream.Collectors.joining;
 
 import java.time.Duration;
@@ -27,13 +27,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.api.schedulable.Schedule;
+import io.openems.edge.energy.api.simulatable.ExecutionPlan;
 import io.openems.edge.energy.api.simulatable.Forecast;
 import io.openems.edge.energy.api.simulatable.Simulatable;
 import io.openems.edge.energy.api.simulatable.Simulator;
 
 public class Optimizer {
 
-	private final static Logger LOG = LoggerFactory.getLogger(Optimizer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Optimizer.class);
 
 	private Optimizer() {
 	}
@@ -41,21 +42,26 @@ public class Optimizer {
 	/**
 	 * Gets the best {@link ExecutionPlan}.
 	 * 
-	 * @param forecast             the {@link Forecast}
-	 * @param components           all {@link OpenemsComponent}s, filtered for
-	 *                             {@link Simulatable}s
-	 * @param scheduledControllers the scheduled {@link Controller}s
+	 * @param forecast     the {@link Forecast}
+	 * @param controllers  the {@link Controller}s, sorted by OpenEMS Scheduler
+	 * @param simulatables the {@link Simulatable} {@link OpenemsComponent}s
 	 * @return the {@link ExecutionPlan}; or null
 	 */
-	protected static ExecutionPlan getBestExecutionPlan(Forecast forecast, Schedulable[] schedulables,
-			Simulatable[] simulateables) {
+	protected static ExecutionPlan getBestExecutionPlan(Forecast forecast, Controller[] controllers,
+			Simulatable[] simulatables) {
+		var schedulables = Stream.of(controllers) //
+				.filter(Schedulable.class::isInstance) //
+				.map(Schedulable.class::cast) //
+				.toArray(Schedulable[]::new);
+
 		LOG.info("### getBestExecutionPlan");
 		LOG.info("Schedulables: " + Stream.of(schedulables).map(Controller::id).collect(joining(", ")));
-		LOG.info("Simulatables: " + Stream.of(simulateables).map(OpenemsComponent::id).collect(joining(", ")));
+		LOG.info("Simulatables: " + Stream.of(simulatables).map(OpenemsComponent::id).collect(joining(", ")));
 
-//		if (schedulables.length == 0 && simulateables.length == 0) {
-//			throw new OpenemsException("Unable to find any Simulateables or Schedulables");
-//		}
+		// if (schedulables.length == 0 && simulateables.length == 0) {
+		// throw new OpenemsException("Unable to find any Simulateables or
+		// Schedulables");
+		// }
 
 		// Jenetics
 		var gtf = Genotype.of(//
@@ -64,10 +70,11 @@ public class Optimizer {
 						.collect(Collectors.toUnmodifiableList()));
 
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
-//			var executionPlan = simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, gt);
-//			var cost = executionPlan.getTotalGridCost();
+			// var executionPlan = simulateGenotype(simulatables, scheduleables,
+			// scheduledControllers, forecast, gt);
+			// var cost = executionPlan.getTotalGridCost();
 			// TODO consider further function costs, e.g. target SoC
-//			return cost;
+			// return cost;
 			return Math.random();
 		};
 		var engine = Engine //
@@ -85,8 +92,7 @@ public class Optimizer {
 		LOG.info(statistics.toString());
 
 		// Recalculate and print best plan
-//		return simulateGenotype(simulatables, scheduleables, scheduledControllers, forecast, bestGt);
-		return null;
+		return simulateGenotype(simulatables, schedulables, controllers, forecast, bestGt);
 	}
 
 	private static ExecutionPlan simulateGenotype(Simulatable[] simulatables, Schedulable[] schedulables,
@@ -114,16 +120,16 @@ public class Optimizer {
 	/**
 	 * Converts the {@link Genotype} to an {@link ExecutionPlan}.
 	 * 
-	 * @param scheduleables the {@link Schedulable} components
-	 * @param forecast      the {@link Forecast}
-	 * @param gt            the current {@link Genotype}
+	 * @param schedulables the {@link Schedulable} components
+	 * @param forecast     the {@link Forecast}
+	 * @param gt           the current {@link Genotype}
 	 * @return the {@link ExecutionPlan}, ready for simulation
 	 */
-	protected static ExecutionPlan buildExecutionPlan(Schedulable[] scheduleables, Forecast forecast,
+	protected static ExecutionPlan buildExecutionPlan(Schedulable[] schedulables, Forecast forecast,
 			Genotype<IntegerGene> gt) {
 		var result = ExecutionPlan.create(forecast);
-		IntStream.range(0, scheduleables.length).forEach(i -> {
-			var schedulable = scheduleables[i];
+		IntStream.range(0, schedulables.length).forEach(i -> {
+			var schedulable = schedulables[i];
 			var presets = schedulable.getScheduleHandler().presets;
 			result.add(schedulable.id(), //
 					IntStream.range(0, NO_OF_PERIODS) //
@@ -135,14 +141,14 @@ public class Optimizer {
 
 	private static void simulatePeriod(Map<String, Simulator> simulators, String simulatorId,
 			ExecutionPlan.Period period) {
-//		var simulator = simulators.get(simulatorId);
-//		if (simulator == null) {
-//			return;
-//		}
-//		if (simulator instanceof PresetSimulator<?>) {
-//			((PresetSimulator<?>) simulator).simulate(period, simulatorId);
-//		} else {
-//			simulator.simulate(period);
-//		}
+		// var simulator = simulators.get(simulatorId);
+		// if (simulator == null) {
+		// return;
+		// }
+		// if (simulator instanceof PresetSimulator<?>) {
+		// ((PresetSimulator<?>) simulator).simulate(period, simulatorId);
+		// } else {
+		// simulator.simulate(period);
+		// }
 	}
 }

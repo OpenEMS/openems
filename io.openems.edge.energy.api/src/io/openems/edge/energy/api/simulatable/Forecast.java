@@ -27,7 +27,7 @@ public class Forecast {
 			this.sellToGridRevenue = sellToGridRevenue;
 		}
 
-		public Float getGridCost(Integer energy) {
+		protected Float getGridCost(Integer energy) {
 			if (energy == null) {
 				return null;
 
@@ -55,11 +55,11 @@ public class Forecast {
 				.toArray(Period[]::new);
 	}
 
-	public Stream<Period> periods() {
+	protected Stream<Period> periods() {
 		return Stream.of(this.periods);
 	}
 
-	public Period getPeriod(int p) throws IllegalArgumentException {
+	protected Period getPeriod(int p) throws IllegalArgumentException {
 		if (p < NO_OF_PERIODS) {
 			return this.periods[p];
 		}

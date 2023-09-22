@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.energy.api.schedulable.Schedulable;
+import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.simulatable.Forecast;
 import io.openems.edge.energy.api.simulatable.Simulatable;
 import io.openems.edge.energy.task.AbstractEnergyTask;
@@ -36,22 +36,20 @@ public class SmartTask extends AbstractEnergyTask {
 	public void run() {
 		// Schedulable Controllers in the order given by the Scheduler
 		var forecast = generateForecast(this.predictor, this.timeOfUseTariff);
-		var schedulables = this.scheduler.getControllers().stream() //
+		var controllers = this.scheduler.getControllers().stream() //
 				.map(c -> this.componentManager.getComponentOrNull(c)) //
 				.filter(Objects::nonNull) //
-				.filter(Schedulable.class::isInstance) //
-				.map(Schedulable.class::cast) //
-				.toArray(Schedulable[]::new);
-		var simulateables = this.componentManager.getEnabledComponentsOfType(Simulatable.class) //
+				.toArray(Controller[]::new);
+		var simulatables = this.componentManager.getEnabledComponentsOfType(Simulatable.class) //
 				.toArray(Simulatable[]::new);
 
-		var ep = Optimizer.getBestExecutionPlan(forecast, schedulables, simulateables);
+		var ep = Optimizer.getBestExecutionPlan(forecast, controllers, simulatables);
 		ep.print();
 
 		this.log.info("To be implemented...");
 	}
 
-	private Forecast generateForecast(PredictorManager predictor, TimeOfUseTariff timeOfUseTariff) {
+	private static Forecast generateForecast(PredictorManager predictor, TimeOfUseTariff timeOfUseTariff) {
 		// TODO use 96 instead of 24 periods
 		var production = Utils.sumQuartersToHours(
 				predictor.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower")).getValues());

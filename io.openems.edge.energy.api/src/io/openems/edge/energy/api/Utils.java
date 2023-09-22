@@ -42,6 +42,15 @@ public final class Utils {
 		}
 	}
 
+	/**
+	 * Get entry of Array; or else.
+	 * 
+	 * @param <T>    the type
+	 * @param array  the array
+	 * @param index  the target index
+	 * @param orElse alternative value
+	 * @return value on index or alternative value
+	 */
 	// TODO move to ArrayUtils
 	public static <T> T orElse(T[] array, int index, T orElse) {
 		if (index < array.length) {

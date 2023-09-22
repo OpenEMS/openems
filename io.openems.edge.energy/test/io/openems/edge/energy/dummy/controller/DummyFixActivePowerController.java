@@ -12,40 +12,43 @@ import io.openems.edge.energy.api.schedulable.Schedule;
 import io.openems.edge.energy.api.schedulable.Schedule.Handler;
 import io.openems.edge.energy.api.simulatable.Simulatable;
 import io.openems.edge.energy.api.simulatable.Simulator;
-import io.openems.edge.energy.dummy.controller.DummyEvcsController.ScheduleHandler.DynamicConfig;
-import io.openems.edge.energy.dummy.controller.DummyEvcsController.ScheduleHandler.Preset;
-import io.openems.edge.energy.dummy.device.DummyEvcs;
+import io.openems.edge.energy.dummy.controller.DummyFixActivePowerController.ScheduleHandler.DynamicConfig;
+import io.openems.edge.energy.dummy.controller.DummyFixActivePowerController.ScheduleHandler.Preset;
+import io.openems.edge.energy.dummy.device.DummyEss;
 
-public class DummyEvcsController extends AbstractOpenemsComponent
+public class DummyFixActivePowerController extends AbstractOpenemsComponent
 		implements Controller, Simulatable, OpenemsComponent, Schedulable {
 
 	private @interface Config {
 		@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 		String id() default "ctrlEvcs0";
 
-		@AttributeDefinition(name = "Charge-Mode", description = "Set the charge-mode.")
-		Mode.Config chargeMode() default Mode.Config.FORCE_CHARGE;
+		@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+		Mode.Config mode() default Mode.Config.MANUAL_ON;
+
+		@AttributeDefinition(name = "Charge/Discharge power [W]", description = "Negative values for Charge; positive for Discharge")
+		int power();
 	}
 
-	public enum ChargeMode {
-		OFF, FORCE_CHARGE, EXCESS_POWER
-	}
+	public enum Mode {
 
-	public class Mode {
+		MANUAL_ON, MANUAL_OFF;
+
 		public static enum Config {
-			FORCE_CHARGE, EXCESS_POWER, SMART;
+			MANUAL_ON, MANUAL_OFF, SMART;
 		}
 	}
 
 	public class ScheduleHandler extends Schedule.Handler<Config, Preset, DynamicConfig> {
 
-		public record DynamicConfig(ChargeMode chargeMode) {
+		public record DynamicConfig(Mode mode, int power) {
 		}
 
 		public static enum Preset implements Schedule.Preset {
 			OFF, //
-			EXCESS_POWER, //
-			FORCE_FAST_CHARGE;
+			FORCE_ZERO, //
+			FORCE_DISCHARGE_5000, //
+			FORCE_CHARGE_5000;
 		}
 
 		protected ScheduleHandler() {
@@ -54,26 +57,26 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 
 		@Override
 		protected DynamicConfig toConfig(Config config) {
-			var chargeMode = switch (config.chargeMode()) {
-			case FORCE_CHARGE -> ChargeMode.FORCE_CHARGE;
-			case EXCESS_POWER -> ChargeMode.EXCESS_POWER;
+			var mode = switch (config.mode()) {
+			case MANUAL_ON -> Mode.MANUAL_ON;
+			case MANUAL_OFF -> Mode.MANUAL_OFF;
 			case SMART -> null; // Fallback
 			};
 
-			return new DynamicConfig(chargeMode);
-
+			return new DynamicConfig(mode, config.power());
 		}
 
 		@Override
 		protected DynamicConfig toConfig(Config config, Preset preset) {
-			return switch (config.chargeMode()) {
-			case EXCESS_POWER, FORCE_CHARGE -> this.toConfig(config);
+			return switch (config.mode()) {
+			case MANUAL_ON, MANUAL_OFF -> this.toConfig(config);
 
 			case SMART -> //
 				switch (preset) {
-				case OFF -> new DynamicConfig(ChargeMode.OFF);
-				case EXCESS_POWER -> new DynamicConfig(ChargeMode.EXCESS_POWER);
-				case FORCE_FAST_CHARGE -> new DynamicConfig(ChargeMode.FORCE_CHARGE);
+				case OFF -> new DynamicConfig(Mode.MANUAL_OFF, 0);
+				case FORCE_CHARGE_5000 -> new DynamicConfig(Mode.MANUAL_ON, -5000);
+				case FORCE_ZERO -> new DynamicConfig(Mode.MANUAL_ON, 0);
+				case FORCE_DISCHARGE_5000 -> new DynamicConfig(Mode.MANUAL_ON, 5000);
 				};
 			};
 		}
@@ -81,7 +84,7 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 
 	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
 
-	protected DummyEvcsController(String id, DummyEvcs evcs,
+	protected DummyFixActivePowerController(String id, DummyEss ess,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
@@ -91,8 +94,8 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 		super.activate(null, id, "", true);
 	}
 
-	public DummyEvcsController(String id, DummyEvcs evcs) {
-		this(id, evcs, //
+	public DummyFixActivePowerController(String id, DummyEss ess) {
+		this(id, ess, //
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values() //
 		);
@@ -111,6 +114,13 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 	@Override
 	public Simulator getSimulator() {
 		return (period) -> {
+			// return (period, componentId) -> {
+			// var mode = period.<ScheduleMode>getMode(componentId);
+			// var power = mode.getConfig().power;
+			// if (power != null) {
+			// period.setStorage(DummyFixActivePowerController.this.id(), power);
+			// }
+			// };
 			// TODO
 		};
 	}
