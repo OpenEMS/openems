@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.SortedMap;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
@@ -12,7 +13,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 
 public class ScheduleUtils {
@@ -28,7 +28,7 @@ public class ScheduleUtils {
 	 * @param timeStamp The time stamp of the first entry in the schedule.
 	 * @return The schedule data as a {@link JsonArray}.
 	 */
-	public static JsonArray getSchedule(JsonArray prices, JsonArray states, ZonedDateTime timeStamp) {
+	public static JsonArray createSchedule(JsonArray prices, JsonArray states, ZonedDateTime timeStamp) {
 
 		var schedule = JsonUtils.buildJsonArray();
 
@@ -64,8 +64,8 @@ public class ScheduleUtils {
 	 * 24-hour {@link Schedule}.
 	 * 
 	 * @param schedule                   The {@link Schedule}.
-	 * @param config                     The {@link Config}.
-	 * @param request                    The {@link GetScheduleRequest}.
+	 * @param controlMode                The {@link ControlMode}.
+	 * @param requestId                  The JSON-RPC id.
 	 * @param queryResult                The historic data.
 	 * @param channeladdressPrices       The {@link ChannelAddress} for Quarterly
 	 *                                   prices.
@@ -73,8 +73,8 @@ public class ScheduleUtils {
 	 *                                   machine.
 	 * @return The {@link GetScheduleResponse}.
 	 */
-	public static GetScheduleResponse handleGetScheduleRequest(Schedule schedule, Config config,
-			GetScheduleRequest request, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult,
+	public static GetScheduleResponse handleGetScheduleRequest(Schedule schedule, ControlMode controlMode,
+			UUID requestId, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult,
 			ChannelAddress channeladdressPrices, ChannelAddress channeladdressStateMachine) {
 
 		// Extract the price data
@@ -107,7 +107,7 @@ public class ScheduleUtils {
 		// Create StateMachine for future values based on schedule created.
 		schedule.periods.forEach(period -> {
 			priceValuesFuture.add(period.price);
-			stateMachineValuesFuture.add(period.getStateMachine(config.controlMode()).getValue());
+			stateMachineValuesFuture.add(period.getStateMachine(controlMode).getValue());
 		});
 
 		var prices = Stream.concat(//
@@ -123,8 +123,8 @@ public class ScheduleUtils {
 				.collect(JsonUtils.toJsonArray());
 
 		var timestamp = queryResult.firstKey();
-		var result = ScheduleUtils.getSchedule(prices, states, timestamp);
+		var result = ScheduleUtils.createSchedule(prices, states, timestamp);
 
-		return new GetScheduleResponse(request.getId(), result);
+		return new GetScheduleResponse(requestId, result);
 	}
 }

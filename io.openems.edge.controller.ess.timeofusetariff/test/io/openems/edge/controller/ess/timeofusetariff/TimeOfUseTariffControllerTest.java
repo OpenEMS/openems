@@ -1,16 +1,25 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
@@ -20,6 +29,7 @@ import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
+import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class TimeOfUseTariffControllerTest {
@@ -33,6 +43,7 @@ public class TimeOfUseTariffControllerTest {
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");
 	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(ESS_ID, "MaxApparentPower");
 	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
+	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
 
 	/*
 	 * Default Prediction values
@@ -122,6 +133,16 @@ public class TimeOfUseTariffControllerTest {
 			149.99f, 157.43f, 130.9f, 120.14f //
 	};
 
+	private static final Integer[] STATES = { 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, //
+			2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //
+			2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, //
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, //
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, //
+			2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 //
+	};
+
 	// Predictions
 	final DummyPrediction24Hours productionPredictionQuarterly = new DummyPrediction24Hours(
 			DEFAULT_PRODUCTION_PREDICTION_QUARTERLY);
@@ -168,8 +189,18 @@ public class TimeOfUseTariffControllerTest {
 				.next(new TestCase("Cycle - 1") //
 						.input(MAX_APPARENT_POWER, 9000) //
 						.input(ESS_CAPACITY, 12000) //
-						.input(ESS_SOC, 100) //
-				);
+						.input(ESS_SOC, 100)) //
+				.activate(MyConfig.create() //
+						.setId(CTRL_ID) //
+						.setEssId(ESS_ID) //
+						.setMode(Mode.OFF) //
+						.setControlMode(ControlMode.CHARGE_CONSUMPTION) //
+						.setRiskLevel(RiskLevel.HIGH) //
+						.setMaxPower(4000) //
+						.build())
+				.next(new TestCase("Cycle - 2") //
+						.output(STATE_MACHINE, StateMachine.ALLOWS_DISCHARGE)) //
+		;
 	}
 
 	@Test
@@ -351,5 +382,97 @@ public class TimeOfUseTariffControllerTest {
 		}).collect(Collectors.toList());
 
 		assertTrue(expectedBatteryValues.equals(calculatedBatteryValues));
+	}
+
+	@Test
+	public void createScheduleTest() {
+		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+
+		var states = new JsonArray();
+		var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
+		var prices = new JsonArray();
+
+		// Price provider
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.quarterlyPrices(ZonedDateTime.now(clock),
+				DEFAULT_HOURLY_PRICES_SUMMER);
+
+		for (Float price : timeOfUseTariffProvider.getPrices().getValues()) {
+			prices.add(price);
+		}
+
+		for (Integer state : STATES) {
+			states.add(state);
+		}
+
+		var result = ScheduleUtils.createSchedule(prices, states, timestamp);
+
+		// Check if the result is same size as prices.
+		assertEquals(prices.size(), result.size());
+
+		var expectedLastTimestamp = timestamp.plusDays(1).minusMinutes(15).format(DateTimeFormatter.ISO_INSTANT)
+				.toString();
+		var generatedLastTimestamp = result.get(95).getAsJsonObject().get("timestamp").getAsString();
+
+		// Check if the last timestamp is as expected.
+		assertEquals(expectedLastTimestamp, generatedLastTimestamp);
+
+	}
+
+	@Test
+	public void handleGetScheduleRequestTest() {
+		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+
+		var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
+		final var channeladdressPrices = new ChannelAddress("", "QuarterlyPrices");
+		final var channeladdressStateMachine = new ChannelAddress("", "StateMachine");
+
+		final Float[] DEFAULT_PAST_HOURLY_PRICES = { 158.95f, 160.98f, 171.95f, 174.96f, //
+				161.93f, 152f, 120.01f, 111.03f, //
+				105.04f, 105f, 74.23f, 73.28f, //
+		};
+
+		final Integer[] PAST_STATES = { 1, 1, 1, 1, //
+				1, 3, 3, 1, //
+				2, 1, 2, 2, //
+		};
+
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> dummyQueryResult = new TreeMap<>();
+
+		for (int i = 0; i < 12; i++) {
+			SortedMap<ChannelAddress, JsonElement> dummyChannelValues = new TreeMap<>();
+			dummyChannelValues.put(channeladdressPrices, new JsonPrimitive(DEFAULT_PAST_HOURLY_PRICES[i]));
+			dummyChannelValues.put(channeladdressStateMachine, new JsonPrimitive(PAST_STATES[i]));
+
+			dummyQueryResult.put(timestamp.plusMinutes(i * 15), dummyChannelValues);
+		}
+
+		// Price provider
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.quarterlyPrices(ZonedDateTime.now(clock),
+				DEFAULT_HOURLY_PRICES);
+		final var controlMode = ControlMode.CHARGE_CONSUMPTION;
+
+		Schedule schedule = new Schedule(controlMode, RiskLevel.HIGH, 12000, 12000, 2250, -2250,
+				timeOfUseTariffProvider.getPrices().getValues(), DEFAULT_CONSUMPTION_PREDICTION_QUARTERLY,
+				DEFAULT_PRODUCTION_PREDICTION_QUARTERLY, 1000);
+
+		schedule.createSchedule();
+
+		var result = ScheduleUtils.handleGetScheduleRequest(schedule, controlMode, null, dummyQueryResult,
+				channeladdressPrices, channeladdressStateMachine);
+
+		JsonUtils.prettyPrint(result.getResult());
+
+		var scheduleArray = result.getResult().get("schedule").getAsJsonArray();
+
+		// Check if the logic generates 96 values.
+		assertEquals(96, scheduleArray.size());
+
+		// Check if first value of last three hour data present in schedule.
+		assertTrue(scheduleArray.get(0).getAsJsonObject().get("price").getAsDouble() == 158.95f);
+
+		// Check if last value of 96 hourly prices array is avoided, since the logic
+		// limits to 96 values.
+		assertTrue(scheduleArray.get(95).getAsJsonObject().get("price").getAsDouble() != 120.14f);
+
 	}
 }

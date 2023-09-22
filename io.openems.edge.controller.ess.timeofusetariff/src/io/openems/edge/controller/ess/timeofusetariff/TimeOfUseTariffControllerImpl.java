@@ -228,6 +228,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		// Generate Final schedule.
 		this.schedule.createSchedule();
 
+		// log the schedule
+		this.logInfo(this.log, this.schedule.toString());
+
 		// Update next quarter.
 		this.nextQuarter = now.plus(TIME_PER_PERIOD);
 
@@ -398,8 +401,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 		}
 
-		var response = ScheduleUtils.handleGetScheduleRequest(this.schedule, this.config, request, queryResult,
-				channeladdressPrices, channeladdressStateMachine);
+		var response = ScheduleUtils.handleGetScheduleRequest(this.schedule, this.config.controlMode(), request.getId(),
+				queryResult, channeladdressPrices, channeladdressStateMachine);
 
 		return CompletableFuture.completedFuture(response);
 	}

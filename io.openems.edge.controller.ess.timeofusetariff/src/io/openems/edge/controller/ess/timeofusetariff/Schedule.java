@@ -172,8 +172,6 @@ public class Schedule {
 			// Simulates and updates the schedule.
 			this.simulateSchedule();
 		}
-
-		System.out.println(this.toString());
 	}
 
 	/**
@@ -456,13 +454,13 @@ public class Schedule {
 	@Override
 	public String toString() {
 		var b = new StringBuilder();
-		b.append("%10s %10s %10s %10s %10s %10s %10s \n".formatted("Index.", "Product.", "Consumpt.", "price.",
-				"Battery.", "Grid.", "EssEnegery.", "State."));
+		b.append("\n %10s %10s %10s %10s   %10s %10s  %10s %10s\n".formatted("Index.", "Product.", "Consumpt.",
+				"price.", "Battery.", "Grid.", "EssEnergy.", "State."));
 		final var iterator = this.periods.listIterator();
 		while (iterator.hasNext()) {
 			final var index = iterator.nextIndex();
 			final var period = iterator.next();
-			b.append("%10d %10d %10d %10f %10d %10d %10d %10s\n".formatted(index, //
+			b.append("%10d %10d %10d   %10f %10d %10d %10d      %10s\n".formatted(index, //
 					period.productionPrediction, period.consumptionPrediction, //
 					period.price, period.chargeDischargeEnergy, //
 					period.gridEnergy, period.essInitialEnergy, //
