@@ -1,6 +1,7 @@
 package io.openems.edge.common.type;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Optional;
 
@@ -76,6 +77,19 @@ public class TypeUtilsTest {
 		assertEquals(null, TypeUtils.min((Double) null, null, null));
 		assertEquals(17, (int) TypeUtils.min(null, 17, 25, 40));
 		assertEquals(34, (int) TypeUtils.min(null, 34, 40));
+	}
+
+	@Test
+	public void testSumDouble() {
+		assertNull(TypeUtils.sum((Double) null, null));
+		assertEquals(4.0, TypeUtils.sum(1.5, 2.5), 0.1);
+	}
+
+	@Test
+	public void testSubtractDouble() {
+		assertNull(TypeUtils.subtract((Double) null, null));
+		assertEquals(2.0, TypeUtils.subtract(4.5, 2.5), 0.1);
+		assertEquals(4.5, TypeUtils.subtract(4.5, null), 0.1);
 	}
 
 	@Test

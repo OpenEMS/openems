@@ -42,6 +42,7 @@
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.enfasbms',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.commercial',\
+	bnd.identity;id='io.openems.edge.battery.fenecon.f2b',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
 	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
@@ -194,6 +195,7 @@
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
 	io.openems.edge.battery.enfasbms;version=snapshot,\
 	io.openems.edge.battery.fenecon.commercial;version=snapshot,\
+	io.openems.edge.battery.fenecon.f2b;version=snapshot,\
 	io.openems.edge.battery.fenecon.home;version=snapshot,\
 	io.openems.edge.battery.soltaro;version=snapshot,\
 	io.openems.edge.batteryinverter.api;version=snapshot,\

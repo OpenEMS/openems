@@ -1,0 +1,59 @@
+= FENECON F2B FEMS-to-Battery
+
+Electrical vehicle batteries are those whose "automotive" life has ended but which nevertheless have a state of health of between 70 and 80%.
+This means that it can be used in permanent systems to support the electrical grid or in conjunction with renewable energy generation, such as wind and solar. Reducing the carbon footprint of batteries and boosting the amount of renewable energy on the grid are two benefits of battery life extension. It is intended to incorporate BMW vehicle batteries into OpenEMS in line with this goal. 
+It has been put into place as a result to create the FENECON industrial product.
+
+== Implemented applications
+
+`Battery Protection`::
+It was carried out considering the required limits in order for the battery to work under suitable conditions.
+The battery protection is enhanced by using a `Voltage Regulator`. Considering the maximum voltage and temperature values at which the battery can operate, current limitation has been made where necessary. And this limitation is done with a `Low Pass Filter`.
+Related informations can be find in doc folder under `industrial_battery_functions`.
+
+`Cooling, Heating`::
+To protect the battery, temperature control mechanisms recommended by BMW have been implemented.
+
+`Balancing`::
+The Balancing function has been implemented to reduce the cell voltage differences caused by charge/discharge situations.
+
+`Insulation Monitor`::
+The battery is equipped with an insulation monitoring system. In operational conditions the insulation monitoring system remains periodically active in the background and checks the insulation status, if activated. `Insulation Monitor` application implemented to detect the errors related to insulation monitor.
+
+`Contactor Diagnosis`::
+It is integrated to check whether the switching of the `High Voltage Contactor (Main Contactor)` is blocked when the battery is started and stopped.
+
+
+--
+
+
+= Battery Cluster
+
+Its aim is to designate a group of batteries or clusters, as well as the battery limitations and regulate the start/stop operation for each group. It is made up of two clusters: `Battery Serial Cluster` and `Battery Parallel Cluster`.
+
+``Battery Serial Cluster``::
+	Its made up with serial connected batteries.
+
+ ``Cluster Start``:::
+	It is targeted by starting the serial cluster, with each battery starting one after the other.
+
+ ``Cluster Stop``:::
+	It is targeted by stopping the serial cluster, with stopping all batteries at the same time.
+
+ `Serial Cluster Battery Limits`:::
+	. `Current`:::: It has the same current with the other batteries current.	
+	. `Voltage`:::: It is equal to sum of the other battery voltages.	
+	. `Charge Max Current`:::: Battery safety states that the 'charge max current' of the lowest amount of batteries has been taken into account.
+	. `Discharge Max Current`:::: Similar to `Charge Max Current`, the minimum value is considered.
+	. `Charge Max Voltage`:::: For each battery, the differences `battery voltage` and `charge max voltage` values are calculated. The smallest difference is multiplied by the number of batteries. The outcome is then `added` with the serial cluster voltage. The result identifies the "Charge Max Voltage".
+	. `Discharge Min Voltage`::::  For each battery, the differences `battery voltage`  and `discharge min voltage` values are calculated. The smallest difference is multiplied by the number of batteries. The outcome is then `subtracted` with the serial cluster voltage. The result identifies the "Discharge Min Voltage".
+'''
+			
+``Battery Parallel Cluster``::			
+***
+TODO
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.cluster[Source Code icon:github[]]
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.industrial[Source Code icon:github[]]
