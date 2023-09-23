@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.schedulable.Schedule.Preset;
+import io.openems.edge.energy.api.simulatable.PresetSimulator;
 
 /**
  * Holds the Schedule for a {@link Schedulable} {@link Controller}.
@@ -131,6 +132,13 @@ public class Schedule<PRESET extends Preset, DYNAMIC_CONFIG> {
 		 * @return a Dynamic Config; never null
 		 */
 		protected abstract DYNAMIC_CONFIG toConfig(STATIC_CONFIG config, PRESET preset);
+
+		/**
+		 * Generates a {@link PresetSimulator} for this {@link Schedulable}.
+		 * 
+		 * @return a {@link PresetSimulator}
+		 */
+		protected abstract PresetSimulator generateSimulator();
 	}
 
 	private final ImmutableSortedMap<ZonedDateTime, PRESET> schedule;

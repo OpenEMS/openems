@@ -1,14 +1,7 @@
 package io.openems.edge.energy.task.smart;
 
-import static io.openems.edge.energy.api.simulatable.ExecutionPlan.NO_OF_PERIODS;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.junit.Test;
 
-import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
 import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.dummy.controller.DummyEvcsController;
 import io.openems.edge.energy.dummy.controller.DummyFixActivePowerController;
@@ -28,12 +21,10 @@ public class OptimizerTest {
 
 		var forecast = DummyForecast.autumn24();
 
-		var gtf = Genotype.of(//
-				Stream.of(schedulables) //
-						.map(s -> IntegerChromosome.of(0, s.getScheduleHandler().presets.length - 1, NO_OF_PERIODS)) //
-						.collect(Collectors.toUnmodifiableList()));
-
-		Optimizer.buildExecutionPlan(schedulables, forecast, gtf);
+		var gtf = Optimizer.generateGenotypeFactory(schedulables);
+		var gt = gtf.newInstance();
+		var ep = Optimizer.buildExecutionPlan(schedulables, forecast, gt);
+		System.out.println(ep);
 	}
 
 }

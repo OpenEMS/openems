@@ -10,14 +10,12 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.api.schedulable.Schedule;
 import io.openems.edge.energy.api.schedulable.Schedule.Handler;
-import io.openems.edge.energy.api.simulatable.Simulatable;
-import io.openems.edge.energy.api.simulatable.Simulator;
+import io.openems.edge.energy.api.simulatable.PresetSimulator;
 import io.openems.edge.energy.dummy.controller.DummyEvcsController.ScheduleHandler.DynamicConfig;
 import io.openems.edge.energy.dummy.controller.DummyEvcsController.ScheduleHandler.Preset;
 import io.openems.edge.energy.dummy.device.DummyEvcs;
 
-public class DummyEvcsController extends AbstractOpenemsComponent
-		implements Controller, Simulatable, OpenemsComponent, Schedulable {
+public class DummyEvcsController extends AbstractOpenemsComponent implements Controller, OpenemsComponent, Schedulable {
 
 	private @interface Config {
 		@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -77,6 +75,14 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 				};
 			};
 		}
+
+		@Override
+		protected PresetSimulator generateSimulator() {
+//			return (period) -> {
+//				// TODO
+//			};
+			return null;
+		}
 	}
 
 	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
@@ -106,12 +112,5 @@ public class DummyEvcsController extends AbstractOpenemsComponent
 	@Override
 	public Handler<?, ?, ?> getScheduleHandler() {
 		return this.scheduleHandler;
-	}
-
-	@Override
-	public Simulator getSimulator() {
-		return (period) -> {
-			// TODO
-		};
 	}
 }

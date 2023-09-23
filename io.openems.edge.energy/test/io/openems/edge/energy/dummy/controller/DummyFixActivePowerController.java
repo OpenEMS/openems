@@ -10,14 +10,13 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.schedulable.Schedulable;
 import io.openems.edge.energy.api.schedulable.Schedule;
 import io.openems.edge.energy.api.schedulable.Schedule.Handler;
-import io.openems.edge.energy.api.simulatable.Simulatable;
-import io.openems.edge.energy.api.simulatable.Simulator;
+import io.openems.edge.energy.api.simulatable.PresetSimulator;
 import io.openems.edge.energy.dummy.controller.DummyFixActivePowerController.ScheduleHandler.DynamicConfig;
 import io.openems.edge.energy.dummy.controller.DummyFixActivePowerController.ScheduleHandler.Preset;
 import io.openems.edge.energy.dummy.device.DummyEss;
 
 public class DummyFixActivePowerController extends AbstractOpenemsComponent
-		implements Controller, Simulatable, OpenemsComponent, Schedulable {
+		implements Controller, OpenemsComponent, Schedulable {
 
 	private @interface Config {
 		@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -80,6 +79,21 @@ public class DummyFixActivePowerController extends AbstractOpenemsComponent
 				};
 			};
 		}
+
+		@Override
+		protected PresetSimulator generateSimulator() {
+//			return (period) -> {
+			// return (period, componentId) -> {
+			// var mode = period.<ScheduleMode>getMode(componentId);
+			// var power = mode.getConfig().power;
+			// if (power != null) {
+			// period.setStorage(DummyFixActivePowerController.this.id(), power);
+			// }
+			// };
+			// TODO
+//			};
+			return null;
+		}
 	}
 
 	private final ScheduleHandler scheduleHandler = new ScheduleHandler();
@@ -109,19 +123,5 @@ public class DummyFixActivePowerController extends AbstractOpenemsComponent
 	@Override
 	public Handler<?, ?, ?> getScheduleHandler() {
 		return this.scheduleHandler;
-	}
-
-	@Override
-	public Simulator getSimulator() {
-		return (period) -> {
-			// return (period, componentId) -> {
-			// var mode = period.<ScheduleMode>getMode(componentId);
-			// var power = mode.getConfig().power;
-			// if (power != null) {
-			// period.setStorage(DummyFixActivePowerController.this.id(), power);
-			// }
-			// };
-			// TODO
-		};
 	}
 }

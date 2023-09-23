@@ -22,6 +22,7 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.engine.Limits;
+import io.jenetics.util.Factory;
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -55,19 +56,15 @@ public class Optimizer {
 				.toArray(Schedulable[]::new);
 
 		LOG.info("### getBestExecutionPlan");
-		LOG.info("Schedulables: " + Stream.of(schedulables).map(Controller::id).collect(joining(", ")));
+		LOG.info("Schedulables: " + Stream.of(schedulables).map(OpenemsComponent::id).collect(joining(", ")));
 		LOG.info("Simulatables: " + Stream.of(simulatables).map(OpenemsComponent::id).collect(joining(", ")));
 
-		// if (schedulables.length == 0 && simulateables.length == 0) {
-		// throw new OpenemsException("Unable to find any Simulateables or
-		// Schedulables");
-		// }
+		if (schedulables.length == 0) {
+			return null;
+		}
 
 		// Jenetics
-		var gtf = Genotype.of(//
-				Stream.of(schedulables) //
-						.map(s -> IntegerChromosome.of(0, s.getScheduleHandler().presets.length - 1, NO_OF_PERIODS)) //
-						.collect(Collectors.toUnmodifiableList()));
+		var gtf = generateGenotypeFactory(schedulables);
 
 		var eval = (Function<Genotype<IntegerGene>, Double>) (gt) -> {
 			// var executionPlan = simulateGenotype(simulatables, scheduleables,
@@ -93,6 +90,20 @@ public class Optimizer {
 
 		// Recalculate and print best plan
 		return simulateGenotype(simulatables, schedulables, controllers, forecast, bestGt);
+	}
+
+	/**
+	 * Generates a {@link Genotype} {@link Factory} for the given
+	 * {@link Schedulable} Presets.
+	 * 
+	 * @param schedulables the {@link Schedulable}s
+	 * @return the Genotype Factory
+	 */
+	protected static Factory<Genotype<IntegerGene>> generateGenotypeFactory(Schedulable[] schedulables) {
+		return Genotype.of(//
+				Stream.of(schedulables) //
+						.map(s -> IntegerChromosome.of(0, s.getScheduleHandler().presets.length - 1, NO_OF_PERIODS)) //
+						.collect(Collectors.toUnmodifiableList()));
 	}
 
 	private static ExecutionPlan simulateGenotype(Simulatable[] simulatables, Schedulable[] schedulables,
