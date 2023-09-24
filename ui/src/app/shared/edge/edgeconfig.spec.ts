@@ -1,3 +1,4 @@
+import { SumState } from "src/app/index/shared/sumState";
 import { TextIndentation } from "../genericComponents/modal/modal-line/modal-line";
 import { OeFormlyViewTester } from "../genericComponents/shared/tester";
 import { Role } from "../type/role";
@@ -6,7 +7,7 @@ import { EdgeConfig } from "./edgeconfig";
 
 export namespace DummyConfig {
 
-    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date());
+    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
     export function from(...components: Component[]): EdgeConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{

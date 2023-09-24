@@ -1661,6 +1661,20 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Takes a JSON in the form 'YYYY-MM-DD' and converts it to a
+	 * {@link ZonedDateTime}.
+	 *
+	 * @param element    the {@link JsonElement}
+	 * @param memberName the name of the member of the JsonObject
+	 * @return the {@link ZonedDateTime}
+	 */
+	public static Optional<ZonedDateTime> getAsOptionalZonedDateTime(JsonElement element, String memberName)
+			throws OpenemsNamedException {
+		return JsonUtils.getAsOptionalString(element, memberName)//
+				.map(DateUtils::parseZonedDateTimeOrNull);
+	}
+
+	/**
 	 * Parses a string to a {@link JsonElement}.
 	 *
 	 * @param string to be parsed

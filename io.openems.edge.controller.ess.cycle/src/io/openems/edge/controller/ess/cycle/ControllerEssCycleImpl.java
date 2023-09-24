@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.cycle;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -8,15 +9,15 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -25,8 +26,6 @@ import io.openems.edge.controller.ess.cycle.statemachine.Context;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -35,13 +34,16 @@ import io.openems.edge.ess.power.api.Pwr;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssCycleImpl extends AbstractOpenemsComponent
-		implements Controller, OpenemsComponent, ControllerEssCycle {
+		implements ControllerEssCycle, Controller, OpenemsComponent {
 
-	// Time formatter from the String
-	public static final String TIME_FORMAT = "HH:mm";
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssCycleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	private LocalDateTime parsedStartTime;
+	private LocalDateTime lastStateChangeTime;
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -49,12 +51,8 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policyOption = ReferencePolicyOption.GREEDY)
 	private ManagedSymmetricEss ess;
-
-	private Config config;
-	/** Timestamp of the last time the State has changed. */
-	private LocalDateTime lastStateChange = LocalDateTime.MIN;
 
 	public ControllerEssCycleImpl() {
 		super(//
@@ -66,15 +64,26 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = config;
-		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", this.config.ess_id())) {
+	private void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		if (this.applyConfig(context, config)) {
 			return;
 		}
 	}
 
-	// TODO add @Modified to enable configuration changes during long running cycles
+	@Modified
+	private void modified(ComponentContext context, Config config) {
+		super.modified(context, config.id(), config.alias(), config.enabled());
+		if (this.applyConfig(context, config)) {
+			return;
+		}
+	}
+
+	private boolean applyConfig(ComponentContext context, Config config) {
+		this.config = config;
+		this.parsedStartTime = DateUtils.parseLocalDateTimeOrNull(this.config.startTime(), DATE_TIME_FORMATTER);
+		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
+	}
 
 	@Override
 	@Deactivate
@@ -84,31 +93,49 @@ public class ControllerEssCycleImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-		// get max charge/discharge power
-		var maxDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		var maxChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-
-		// store current state in StateMachine channel
-		var state = this.stateMachine.getCurrentState();
-		this.channel(ControllerEssCycle.ChannelId.STATE_MACHINE).setNextValue(state);
-
-		// Prepare Context
-		var previousState = this.stateMachine.getPreviousState();
-		var context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower, maxDischargePower,
-				previousState, this.lastStateChange);
-
-		// Call the StateMachine
-		try {
-			this.stateMachine.run(context);
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		if (this.parsedStartTime == null) {
+			this.logError(this.log, "Start time could not be parsed");
+			return;
 		}
 
-		if (previousState != state) {
-			// State has changed
-			this.lastStateChange = LocalDateTime.now(this.componentManager.getClock());
+		// store current state in StateMachine channel
+		this._setStateMachine(this.stateMachine.getCurrentState());
+
+		switch (this.config.mode()) {
+		case MANUAL_ON -> {
+			var context = new Context(this, //
+					this.config, //
+					this.componentManager.getClock(), //
+					this.ess, //
+					this.parsedStartTime);
+			if (!this.ess.getSoc().isDefined()) {
+				this.stateMachine.forceNextState(State.UNDEFINED);
+			}
+			this.stateMachine.run(context);
+		}
+
+		case MANUAL_OFF -> {
+			// Do nothing
+		}
 		}
 	}
 
+	/**
+	 * Gets the time when {@link StateMachine} {@link State} changed.
+	 * 
+	 * @return {@link LocalDateTime} last state changed time.
+	 */
+
+	public LocalDateTime getLastStateChangeTime() {
+		return this.lastStateChangeTime;
+	}
+
+	/**
+	 * Sets the time when {@link StateMachine} {@link State} changed.
+	 *
+	 * @param time {@link LocalDateTime} last state changed time.
+	 */
+	public void setLastStateChangeTime(LocalDateTime time) {
+		this.lastStateChangeTime = time;
+	}
 }

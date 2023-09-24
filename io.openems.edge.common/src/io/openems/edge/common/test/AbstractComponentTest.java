@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -29,6 +30,7 @@ import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
@@ -374,13 +376,26 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					for (Object enumConstant : subclass.getEnumConstants()) {
 						var channelId = (ChannelId) enumConstant;
 						// and validate that they were initialized in the constructor.
+						final Channel<?> channel;
 						try {
-							sut.channel(channelId);
+							channel = sut.channel(channelId);
 						} catch (IllegalArgumentException e) {
 							throw new OpenemsException(
 									"OpenEMS Nature [" + iface.getSimpleName() + "] was not properly implemented. " //
 											+ "Please make sure to initialize the Channel-IDs in the constructor.",
 									e);
+						}
+
+						// Test if all values of OptionsEnum types are unique
+						if (channel.channelDoc() instanceof EnumDoc e) {
+							if (e.getOptions().length > Stream.of(e.getOptions()) //
+									.mapToInt(OptionsEnum::getValue) //
+									.distinct() //
+									.count()) {
+								throw new OpenemsException(
+										"OptionsEnum [" + e.getOptions()[0].getClass().getSimpleName() + "] in " //
+												+ "[" + sut.getClass().getSimpleName() + "] has non-unique values!");
+							}
 						}
 					}
 				}

@@ -6,6 +6,7 @@ import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
+import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
 
 import { Edge } from '../edge/edge';
@@ -282,13 +283,14 @@ export class Service extends AbstractService {
    * @param limit the number of edges to be retrieved
    * @returns a Promise
    */
-  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter['value'] }): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
           ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit })
+          ...(limit && { limit: limit }),
+          ...(searchParamsObj && { searchParams: searchParamsObj })
         })).then((response) => {
 
           const result = (response as GetEdgesResponse).result;
@@ -304,7 +306,9 @@ export class Service extends AbstractService {
               ("version" in edge) ? edge["version"] : "0.0.0",
               Role.getRole(edge.role.toString()),
               edge.isOnline,
-              edge.lastmessage
+              edge.lastmessage,
+              edge.sumState,
+              edge.firstSetupProtocol
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -342,7 +346,9 @@ export class Service extends AbstractService {
           ("version" in edgeData) ? edgeData["version"] : "0.0.0",
           Role.getRole(edgeData.role.toString()),
           edgeData.isOnline,
-          edgeData.lastmessage
+          edgeData.lastmessage,
+          edgeData.sumState,
+          edgeData.firstSetupProtocol
         );
 
         this.currentEdge.next(currentEdge);

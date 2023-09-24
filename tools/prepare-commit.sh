@@ -181,6 +181,7 @@ echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\\" >> "$bndrun.new" # required for timescaledb
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
