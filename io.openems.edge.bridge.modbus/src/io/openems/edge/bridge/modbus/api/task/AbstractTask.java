@@ -113,20 +113,25 @@ public abstract non-sealed class AbstractTask<//
 		var logVerbosity = this.getLogVerbosity(bridge);
 		try {
 			// First try
-			return this.logRequest(bridge, logVerbosity, request,
+			return this.logRequest(TryExecute.FIRST_TRY, bridge, logVerbosity, request,
 					() -> sendRequest(bridge, unitId, this.responseClazz, request));
 
 		} catch (Exception e) {
 			// Second try; with new connection
 			bridge.closeModbusConnection();
-			return this.logRequest(bridge, logVerbosity, request,
+			return this.logRequest(TryExecute.SECOND_TRY, bridge, logVerbosity, request,
 					() -> sendRequest(bridge, unitId, this.responseClazz, request));
 		}
+	}
+
+	private static enum TryExecute {
+		FIRST_TRY, SECOND_TRY
 	}
 
 	/**
 	 * Logs the execution of a {@link ModbusRequest}.
 	 * 
+	 * @param tryExecute   marker for execute first/second try
 	 * @param bridge       the {@link BridgeModbus}
 	 * @param logVerbosity the {@link LogVerbosity}
 	 * @param request      the {@link ModbusRequest}
@@ -135,17 +140,24 @@ public abstract non-sealed class AbstractTask<//
 	 * @return typed {@link ModbusResponse}
 	 * @throws Exception on error
 	 */
-	protected RESPONSE logRequest(BridgeModbus bridge, LogVerbosity logVerbosity, REQUEST request,
-			ThrowingSupplier<RESPONSE, Exception> supplier) throws Exception {
+	protected RESPONSE logRequest(TryExecute tryExecute, BridgeModbus bridge, LogVerbosity logVerbosity,
+			REQUEST request, ThrowingSupplier<RESPONSE, Exception> supplier) throws Exception {
 		return switch (logVerbosity) {
 		case NONE, DEBUG_LOG -> {
-			try {
-				yield supplier.get();
-
-			} catch (Exception e) {
-				this.logError(e, "Execute failed", this.toLogMessage(logVerbosity, request, e));
-				throw e;
+			yield switch (tryExecute) {
+			case FIRST_TRY ->
+				// On first try: do not log error in low LogVerbosity
+				supplier.get();
+			case SECOND_TRY -> {
+				// On second try: always log error
+				try {
+					yield supplier.get();
+				} catch (Exception e) {
+					this.logError(e, "Execute failed", this.toLogMessage(logVerbosity, request, e));
+					throw e;
+				}
 			}
+			};
 		}
 
 		case READS_AND_WRITES, READS_AND_WRITES_VERBOSE -> {
