@@ -6,11 +6,11 @@ import { MenuController, ModalController, Platform, ToastController } from '@ion
 import { Subject, timer } from 'rxjs';
 import { filter, retry, switchMap, takeUntil } from 'rxjs/operators';
 
+import { Meta } from '@angular/platform-browser';
 import { environment } from '../environments';
 import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
-import { Meta } from '@angular/platform-browser';
 
 export interface CachetComponentStatus {
   data: {
