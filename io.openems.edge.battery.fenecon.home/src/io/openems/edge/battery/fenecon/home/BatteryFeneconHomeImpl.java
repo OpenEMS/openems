@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 
 import java.util.Objects;
@@ -59,6 +60,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -81,8 +83,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	private static final String SERIAL_NUMBER_PREFIX_BMS = "519100001009";
 	private static final String SERIAL_NUMBER_PREFIX_MODULE = "519110001210";
 
+	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconHomeImpl.class);
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Reference
@@ -98,7 +101,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	private Config config;
-	private BatteryProtection batteryProtection; // set in constructor
+	private BatteryProtection batteryProtection;
 
 	public BatteryFeneconHomeImpl() {
 		super(//
@@ -161,14 +164,14 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		BooleanWriteChannel batteryStartUpRelayChannel;
-		try {
-			batteryStartUpRelayChannel = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
-		} catch (IllegalArgumentException | OpenemsNamedException e1) {
-			batteryStartUpRelayChannel = null;
-		}
-		var context = new Context(this, batteryStartUpRelayChannel);
+		var batteryStartUpRelayChannel = this.getBatteryStartUpRelayChannel();
+		var batteryStartUpRelay = batteryStartUpRelayChannel != null ? batteryStartUpRelayChannel.value().get() : null;
+		var context = new Context(this, this.componentManager.getClock(), //
+				batteryStartUpRelay,
+				(value) -> setBatteryStartUpRelay(batteryStartUpRelayChannel, value, this::logInfo, this::logWarn), //
+				this.getBmsControl(), //
+				this.getModbusCommunicationFailed(), //
+				() -> this.retryModbusCommunication());
 
 		// Call the StateMachine
 		try {
@@ -328,7 +331,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 						m(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(10024))), //
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(new BitsWordElement(44000, this) //
-								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL)) //
+								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL, INVERT)) //
 				));
 	}
 
@@ -434,8 +437,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				Battery.getModbusSlaveNatureTable(accessMode) //
-		);
+				Battery.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BatteryFeneconHome.class, accessMode, 100) //
+						.build());
 	}
 
 	@Override
@@ -916,6 +920,61 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private static int extractNumber(int value, int length, int position) {
 		return (1 << length) - 1 & value >> position - 1;
+	}
+
+	private void logInfo(String message) {
+		this.logInfo(this.log, message);
+	}
+
+	private void logWarn(String message) {
+		this.logWarn(this.log, message);
+	}
+
+	/**
+	 * Gets the Battery-Start-Up-Relay Channel.
+	 * 
+	 * @return {@link BooleanWriteChannel} or null
+	 */
+	private BooleanWriteChannel getBatteryStartUpRelayChannel() {
+		try {
+			var channel = this.componentManager
+					.<BooleanWriteChannel>getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
+			return channel;
+		} catch (Exception e) {
+			this.logWarn("Unable to get Battery-Start-Up-Relay: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Switch Battery-Start-Up-Relay ON or OFF.
+	 *
+	 * @param batteryStartUpRelayChannel the Battery-Start-Up-Relay
+	 *                                   {@link BooleanWriteChannel}; or null
+	 * @param value                      true to switch the relay on; <br/>
+	 *                                   false to switch the relay off
+	 * @param logInfo                    Consumer for log messages
+	 * @param logWarn                    Consumer for warn messages
+	 */
+	private static void setBatteryStartUpRelay(BooleanWriteChannel batteryStartUpRelayChannel, boolean value,
+			Consumer<String> logInfo, Consumer<String> logWarn) {
+		var valueString = value ? "ON" : "OFF";
+
+		// Validate availability of batteryStartUpRelay, otherwise ignore
+		if (batteryStartUpRelayChannel == null) {
+			logWarn.accept("Switching Battery Start Up Relay " + valueString + " failed. Relay is missing");
+			return;
+		}
+
+		// Switch StartUpRelay
+		try {
+			batteryStartUpRelayChannel.setNextWriteValue(value);
+			logInfo.accept("Switching Battery Start Up Relay " + valueString //
+					+ " [" + batteryStartUpRelayChannel.address() + "]");
+		} catch (OpenemsNamedException e) {
+			logWarn.accept("Switching Battery Start Up Relay " + valueString //
+					+ " failed [" + batteryStartUpRelayChannel.address() + "]: " + e.getMessage());
+		}
 	}
 
 	/**

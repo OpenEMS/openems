@@ -30,21 +30,17 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 
 	/**
 	 * Gets the BmsControl, see {@link ChannelId#BMS_CONTROL}.
+	 * 
+	 * <ul>
+	 * <li>true: is started
+	 * <li>false: is not started
+	 * <li>null: undefined (e.g. Modbus Communication Failed)
+	 * </ul>
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getBmsControl() {
-		return this.getBmsControlChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#BMS_CONTROL}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setBmsControl(Boolean value) {
-		this.getBmsControlChannel().setNextValue(value);
+	public default Boolean getBmsControl() {
+		return this.getBmsControlChannel().value().get();
 	}
 
 	/**
@@ -653,8 +649,14 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
 				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
-		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
-				.text("BMS CONTROL(1: Shutdown, 0: no action)")),
+		/**
+		 * true: started; false: not-started.
+		 * 
+		 * <p>
+		 * NOTE that Modbus Bit is inverted: 1: is-not-started; 0: is-started
+		 */
+		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN)),
+		
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //
