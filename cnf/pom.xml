@@ -316,12 +316,6 @@
 			<version>1.16.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by Apache Felix Web Management Console -->
-			<groupId>org.owasp.encoder</groupId>
-			<artifactId>encoder</artifactId>
-			<version>1.2.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
 			<version>8.1.0</version>
@@ -395,6 +389,12 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.util.promise</artifactId>
 			<version>1.3.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by Apache Felix Web Management Console -->
+			<groupId>org.owasp.encoder</groupId>
+			<artifactId>encoder</artifactId>
+			<version>1.2.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->

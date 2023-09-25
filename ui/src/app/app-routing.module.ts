@@ -43,13 +43,16 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
-import { IndexComponent } from './index/index.component';
+import { LoginComponent } from './index/login.component';
+import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
+
 const routes: Routes = [
-  { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+  { path: 'overview', component: OverViewComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
@@ -111,8 +114,7 @@ const routes: Routes = [
     ]
   },
 
-
-  { path: 'demo', component: IndexComponent }
+  { path: 'demo', component: LoginComponent }
 ];
 
 export const appRoutingProviders: any[] = [

@@ -42,7 +42,6 @@ import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeResponse;
 import io.openems.common.jsonrpc.response.GetEdgesResponse;
-import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
