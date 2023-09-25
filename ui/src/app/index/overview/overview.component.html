@@ -2,7 +2,7 @@
 <ion-content>
     <ion-grid>
         <ion-row class="ion-justify-content-center">
-            <ion-col size="12" size-md="6" size-lg="4">
+            <ion-col size="12" size-md="8" size-lg="6">
                 <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                     <ng-container *ngIf="noEdges; else showEdges">
                         <ion-card class="ion-justify-content-center">
@@ -45,6 +45,10 @@
                                 </ion-col>
                             </ion-row>
 
+                            <!-- Filter -->
+                            <oe-filter (setSearchParams)="searchOnChange($event)"
+                                *ngIf="loggedInUserCanInstall"></oe-filter>
+
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
                                     <ion-list lines="full">
@@ -77,8 +81,8 @@
                                                         edge.getRoleString() }}.
                                                     </p>
                                                 </ion-label>
-                                                <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
-                                            </ion-item>
+                                                <oe-sum-state [sumState]="edge.sumState"
+                                                    [isEdgeOnline]="edge.isOnline"></oe-sum-state> </ion-item>
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
