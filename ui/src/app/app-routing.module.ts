@@ -53,7 +53,6 @@ const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
   { path: 'overview', component: OverViewComponent },
-  { path: 'overview/installation', component: InstallationComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
