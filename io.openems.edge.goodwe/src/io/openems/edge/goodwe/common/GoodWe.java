@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
@@ -1454,7 +1455,9 @@ public interface GoodWe extends OpenemsComponent {
 				.text("SMART mode does not work correctly with active PID filter")),
 		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
 				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
-		GOODWE_HARDWARE_TYPE(Doc.of(GoodWeHardwareType.values())) //
+		GOODWE_HARDWARE_TYPE(Doc.of(GoodWeHardwareType.values())),
+		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.FAULT) //
+				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")) //
 		;
 
 		private final Doc doc;
@@ -1845,5 +1848,24 @@ public interface GoodWe extends OpenemsComponent {
 	 */
 	public default Value<Integer> getSocStopToForceCharge() {
 		return this.getSocStopToForceChargeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#IMPOSSIBLE_FENECON_HOME_COMBINATION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getImpossibleFeneconHomeCombinationChannel() {
+		return this.channel(ChannelId.IMPOSSIBLE_FENECON_HOME_COMBINATION);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#IMPOSSIBLE_FENECON_HOME_COMBINATION} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setImpossibleFeneconHomeCombination(boolean value) {
+		this.getImpossibleFeneconHomeCombinationChannel().setNextValue(value);
 	}
 }
