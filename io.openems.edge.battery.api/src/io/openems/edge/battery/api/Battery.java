@@ -13,6 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.statemachine.AbstractStateMachine;
 
 /**
  * Represents a Battery.
@@ -733,5 +734,27 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	 */
 	public default void _setMaxCellVoltage(int value) {
 		this.getMaxCellVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Generates a default DebugLog message for {@link Battery} implementations with
+	 * a State-Machine.
+	 * 
+	 * @param battery      the {@link Battery}
+	 * @param stateMachine the actual StateMachine (extends
+	 *                     {@link AbstractStateMachine})
+	 * @return a debug log String
+	 */
+	public static String generateDebugLog(Battery battery, AbstractStateMachine<?, ?> stateMachine) {
+		return new StringBuilder() //
+				.append(stateMachine.debugLog()) //
+				.append("|SoC:").append(battery.getSoc()) //
+				.append("|Actual:").append(battery.getVoltage()) //
+				.append(";").append(battery.getCurrent()) //
+				.append("|Charge:").append(battery.getChargeMaxVoltage()) //
+				.append(";").append(battery.getChargeMaxCurrent()) //
+				.append("|Discharge:").append(battery.getDischargeMinVoltage()) //
+				.append(";").append(battery.getDischargeMaxCurrent()) //
+				.toString();
 	}
 }

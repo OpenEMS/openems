@@ -473,6 +473,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely add Doubles. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 * 
+	 * @param values the {@link Double} values
+	 * @return the sum, possibly null
+	 */
+	public static Double sum(Double... values) {
+		Double result = null;
+		for (var value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely subtract Integers.
 	 *
 	 * <ul>
@@ -509,6 +531,29 @@ public class TypeUtils {
 	 * @return the result, possibly null
 	 */
 	public static Long subtract(Long minuend, Long subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
+	 * Safely subtract Doubles.
+	 *
+	 * <ul>
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
+	 * </ul>
+	 *
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Double subtract(Double minuend, Double subtrahend) {
 		if (minuend == null) {
 			return null;
 		}
