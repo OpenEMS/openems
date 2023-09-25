@@ -66,8 +66,8 @@ public class SchedulerAggregateTaskImpl implements AggregateTask, AggregateTask.
 	 */
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.removeIds.addAll(this.aggregateTask.getDeletedComponents());
 		this.removeIds.removeAll(AppManagerAppHelperImpl.getSchedulerIdsFromConfigs(otherAppConfigurations));
+		this.removeIds.addAll(this.aggregateTask.getDeletedComponents());
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.removeIds);
 	}

@@ -22,6 +22,9 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome20;
+import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
@@ -62,6 +65,26 @@ public class Apps {
 	 */
 	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
 		return app(t, FeneconHome::new, "App.FENECON.Home");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome20}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome20 feneconHome20(AppManagerTestBundle t) {
+		return app(t, FeneconHome20::new, "App.FENECON.Home.20");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome30}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome30 feneconHome30(AppManagerTestBundle t) {
+		return app(t, FeneconHome30::new, "App.FENECON.Home.30");
 	}
 
 	// TimeOfUseTariff
@@ -257,6 +280,19 @@ public class Apps {
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
 		return app(t, (componentManager, componentContext, cm, componentUtil) -> new SocomecMeter(componentManager,
 				componentContext, cm, componentUtil, t.appManagerUtil), "App.Meter.Socomec");
+	}
+
+	/**
+	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
+		return app(t,
+				(componentManager, componentContext, cm, componentUtil) -> new MicrocareSdm630Meter(componentManager,
+						componentContext, cm, componentUtil, t.appManagerUtil),
+				"App.Meter.Microcare.Sdm630");
 	}
 
 	// ess-controller
