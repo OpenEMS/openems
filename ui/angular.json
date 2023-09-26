@@ -132,6 +132,151 @@
                   "with": "src/themes/openems/environments/gitpod.ts"
                 }
               ]
+            },
+            "fenecon": {
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "src/themes/fenecon/root",
+                  "output": ""
+                },
+                {
+                  "glob": "**/*.svg",
+                  "input": "node_modules/ionicons/dist/ionicons/svg",
+                  "output": "./svg"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/fenecon/scss"
+                ]
+              },
+              "styles": [
+                "src/themes/fenecon/scss/variables.scss",
+                "src/global.scss"
+              ]
+            },
+            "fenecon-backend-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/fenecon/environments/backend-dev.ts"
+                }
+              ]
+            },
+            "fenecon-backend-prod": {
+              "baseHref": "/m/",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/fenecon/environments/backend-prod.ts"
+                }
+              ]
+            },
+            "fenecon-edge-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/fenecon/environments/edge-dev.ts"
+                }
+              ]
+            },
+            "fenecon-edge-prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/fenecon/environments/edge-prod.ts"
+                }
+              ]
+            },
+            "heckert": {
+              "assets": [
+                "src/assets",
+                {
+                  "glob": "**/*",
+                  "input": "src/themes/heckert/root",
+                  "output": ""
+                },
+                {
+                  "glob": "**/*.svg",
+                  "input": "node_modules/ionicons/dist/ionicons/svg",
+                  "output": "./svg"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/heckert/scss"
+                ]
+              },
+              "styles": [
+                "src/themes/heckert/scss/variables.scss",
+                "src/global.scss"
+              ]
+            },
+            "heckert-backend-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/heckert/environments/backend-dev.ts"
+                }
+              ]
+            },
+            "heckert-backend-prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/heckert/environments/backend-prod.ts"
+                }
+              ]
+            },
+            "heckert-edge-dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/heckert/environments/edge-dev.ts"
+                }
+              ]
+            },
+            "heckert-edge-prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/heckert/environments/edge-prod.ts"
+                }
+              ]
             }
           }
         },
@@ -155,6 +300,30 @@
             },
             "openems-gitpod": {
               "browserTarget": "app:build:openems,openems-gitpod"
+            },
+            "fenecon-backend-dev": {
+              "browserTarget": "app:build:fenecon,fenecon-backend-dev"
+            },
+            "fenecon-edge-dev": {
+              "browserTarget": "app:build:fenecon,fenecon-edge-dev"
+            },
+            "fenecon-backend-prod": {
+              "browserTarget": "app:build:fenecon,fenecon-backend-prod,prod"
+            },
+            "fenecon-edge-prod": {
+              "browserTarget": "app:build:fenecon,fenecon-edge-prod,prod"
+            },
+            "heckert-backend-dev": {
+              "browserTarget": "app:build:heckert,heckert-backend-dev"
+            },
+            "heckert-edge-dev": {
+              "browserTarget": "app:build:heckert,heckert-edge-dev"
+            },
+            "heckert-backend-prod": {
+              "browserTarget": "app:build:heckert,heckert-backend-prod,prod"
+            },
+            "heckert-edge-prod": {
+              "browserTarget": "app:build:heckert,heckert-edge-prod,prod"
             }
           }
         },

@@ -1,5 +1,7 @@
 {
-  "name": "openems-ui",
-  "integrations": {},
+  "name": "fenecon",
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }
