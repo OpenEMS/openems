@@ -1,0 +1,65 @@
+
+== TimerManager 
+
+Access to different kind of timers. Can be used to 
+
+* `timerManager.getTimerCount()` - count each call to the timer.  
+* `timerManager.getTimerCoreCycles()` - count each core cycle.
+* `timerManager.getTimerTimer()` - count a given time in seconds.
+
+
+=== Usage Example 
+
+[source,java]
+----
+@Reference 
+TimerManager timerManager;
+
+Timer countTimer;
+Timer countTimer2;
+Timer timeTimer;
+Timer cyclesTimer;
+
+activate() {
+    //counts down on each call of countTimer.check()
+    countTimer        = timerManager.getTimerCount( 104 );                             
+
+    //counts down on each call to countTimer.check(), but has an initial start delay, 
+    //helpful for e.g. heatpumps
+    countTimer2       = timerManager.getTimerCount( 104, config.getStartDelay() );
+	
+	//counts down on each core cycle
+    coreCyclesTimer   = timerManager.getTimerCoreCycles(100 );
+              		     
+	//counts down seconds from now
+    oneMinTimer       = timerManager.getTimerTime( 120 );
+                                   
+    //counts down seconds, writes state of timer to the given channel
+    twoMinTimer       = timerManager.getTimerTime( this.channel, 180 );            
+}
+
+doSomething() {
+    if(oneMinTimer.check()){
+        // do stuff ...
+        oneMinTimer.reset();
+    }
+
+    if(oneMinTimer.checkAndReset()){
+        // do stuff ...
+        //no need to reset the timer 
+    }
+}
+
+----
+
+== Implementation Hints
+
+* Timer relevant actions in OpenEMS typically depends on the running context. Therefore the timer 
+is implemented as synchronous function interface and does not provide asynchrounous callbacks. 
+  
+* Count timers and time timers are simple utility classes. Nevertheless this package 
+is designed as singleton OpenEMS component. Reason are the core cycle timers. This reduces
+ coding expenses within the concrete implementations.
+   
+ 
+

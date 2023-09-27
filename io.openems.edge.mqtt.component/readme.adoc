@@ -1,0 +1,61 @@
+= MQTT Components
+
+== Publish
+
+In general Publish Components allow the user to configure MqttComponents that reference another OpenEMS-Component Those Components are configured to publish ChannelValues to the broker by a given "key" (JsonObjects).
+
+== Subscribe
+
+In general Subscribe Components allow the user to configure MqttComponents that reference another OpenEMS-Component Subscribed MQTT Topics should contain JsonObjects.
+Those simple JsonObjects will be scanned for a certain configured key.
+If this key is available the configured OpenEMS-Channel will be updated by the value.
+
+== Example
+
+=== Publish
+
+There is a Thermometer `thermometer0` in the configured OpenEMS Edge containing a Temperature in its Temperature channel.
+
+The broker awaits a Temperature at topic `tp` and a payload containing `tp-1` with the given temperature.
+
+A MqttComponent (e.g. GenericPublish) is configured in the following way
+
+. `referencedComponent_id` == `thermometer0`
+
+. `topic` = `tp`
+
+. `keyToChannel` -> add 1 Entry containing `tp-1=Temperature`
+
+*Note: *if you do not know all of the ChannelIds of a referenced component: Those will be filled 
+in automatically after installing and reconfiguring the component therefore `keyToChannel` can 
+be filled in at a later time.
+
+Result:
+
+[source,json]
+----
+{
+"timestamp": "2023-08-02T11:33:25.664+00:00",
+"tp-1":200
+}
+----
+
+=== Subscribe
+
+Let's assume we want to subscribe, what we have previously written into the broker.
+
+We could therefore subscribe the topic `tp` and await `tp-1` and write whatever 
+value there is into another Component.
+Further Assumption: There is a VirtualThermometer awaiting a Temperature with the 
+id `VirtualThermometer0`.
+
+Configuration:
+
+. `referencedComponent_id` == `VirtualThermometer0`
+
+. `topic` = `tp`
+
+. `keyToChannel` -> add 1 Entry containing `tp-1=Temperature`
+
+The Component will subscribe to the topic `tp`, awaiting a Payload containing `tp-1` and 
+write whatever Value there is to the "Temperature" channel.

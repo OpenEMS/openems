@@ -1,0 +1,14 @@
+Bundle-Name: OpenEMS Edge Mqtt Bridge
+Bundle-Vendor: opernikus GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.core,\
+	org.eclipse.paho.client.mqttv3,\
+
+-testpath: \
+	${testpath}

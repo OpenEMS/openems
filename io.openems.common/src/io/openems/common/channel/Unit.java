@@ -342,6 +342,52 @@ public enum Unit {
 	}
 
 	/**
+	 * Gets the value in its base unit, e.g. converts [kW] to [W].
+	 *
+	 * @param value the value
+	 * @return the converted value
+	 */
+	public int getAsBaseUnit(double value) {
+		return (int) (value * Math.pow(10, this.scaleFactor));
+	}
+
+	/**
+	 * Allows the conversion of a value to another scaled Unit. e.g. converts kV to
+	 * mV. Unit conversion is only allowed if both Units have the same base Unit.
+	 *
+	 * @param value the value
+	 * @param unit  the other Unit to convert to.
+	 * @return the converted value.
+	 */
+	public int convertToScaledUnit(int value, Unit unit) {
+		if (this.baseUnit == unit.baseUnit || this == unit.baseUnit) {
+			return (int) (this.getAsBaseUnit(value) * Math.pow(10, unit.scaleFactor * -1));
+		} else if (this.baseUnit == unit) {
+			return this.getAsBaseUnit(value);
+		} else {
+			return value;
+		}
+	}
+
+	/**
+	 * Allows the conversion of a value to another scaled Unit. e.g. converts kV to
+	 * mV. Unit conversion is only allowed if both Units have the same base Unit.
+	 *
+	 * @param value the value
+	 * @param unit  the other Unit to convert to.
+	 * @return the converted value.
+	 */
+	public double convertToScaledUnit(double value, Unit unit) {
+		if (this.baseUnit == unit.baseUnit || this == unit.baseUnit) {
+			return (double) (this.getAsBaseUnit(value) * Math.pow(10, unit.scaleFactor * -1));
+		} else if (this.baseUnit == unit) {
+			return this.getAsBaseUnit(value);
+		} else {
+			return value;
+		}
+	}
+
+	/**
 	 * Formats the value in the given type.
 	 *
 	 * <p>
