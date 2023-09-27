@@ -7,7 +7,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 - OpenEMS Edge - expects a Edge *Controller.Api.Websocket* on default port `8075`
 
    - Serve to port `4200`
-   
+
       `ng serve`
 
       `ng serve -o -c openems-edge-dev`
@@ -25,7 +25,7 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 - OpenEMS Backend - expects a Backend *Ui.Websocket* on default port `8082`
 
    - Serve to port `4200`
-   
+
       `ng serve -o -c openems-backend-dev`
 
    - Build Development
@@ -85,3 +85,24 @@ ngOnDestroy() {
 
 #### Debugging Angular PWA Via USB-Connection
 Please follow this: https://medium.com/nerd-for-tech/google-chrome-how-to-inspect-websites-on-mobile-devices-804677f863ce
+
+## Native Apps for Android and iOS
+
+To generate the project for the respective target platforms, run:
+
+`$ npx ionic cap build ios|android -c openems,openems-backend-prod`
+
+This should automatically open the IDE for further mobile app compilation. Keep in mind that the first time you want to build the app, all dependencies need to be installed via CocoaPods:
+
+```
+$ cd ui/ios/App
+$ pod install
+```
+
+You can verify this by checking for a newly created `Podfile.lock`.
+
+### Prerequisites
+
+For iOS, the package manager [CocoaPods](https://cocoapods.org) needs to be installed. The recommended way of installation is via [Homebrew](https://brew.sh):
+
+`$ brew install cocoapods`
