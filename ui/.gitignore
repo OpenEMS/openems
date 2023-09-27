@@ -31,3 +31,8 @@ npm-debug.log*
 /www
 /cache
 /.angular/cache
+
+/ios
+/android
+/resources/ios
+/resources/android
