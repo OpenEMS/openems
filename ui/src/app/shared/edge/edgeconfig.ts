@@ -287,6 +287,17 @@ export class EdgeConfig {
     }
 
     /**
+     * Is the given meter implementing given nature
+     * 
+     * @param component the meter component
+     * @param natureId the nature id
+     * @returns true if component implements nature
+     */
+    public isComponentImplementingNature(component: EdgeConfig.Component, natureId: string) {
+        return this.getNatureIdsByFactoryId(component.factoryId)?.filter(nature => nature === natureId)?.length > 0 ?? false;
+    }
+
+    /**
      * Is the given Meter of type 'PRODUCTION'?
      * 
      * @param component the Meter Component
@@ -296,6 +307,11 @@ export class EdgeConfig {
         if (component.properties['type'] == "PRODUCTION") {
             return true;
         }
+
+        if (this.isComponentImplementingNature(component, 'io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter')) {
+            return true;
+        }
+
         // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
         switch (component.factoryId) {
             case 'Fenecon.Dess.PvMeter':
