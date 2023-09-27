@@ -106,3 +106,9 @@ You can verify this by checking for a newly created `Podfile.lock`.
 For iOS, the package manager [CocoaPods](https://cocoapods.org) needs to be installed. The recommended way of installation is via [Homebrew](https://brew.sh):
 
 `$ brew install cocoapods`
+
+### Asset Generation
+
+In order to have fitting assets for the apps, you need to run:
+
+`$ npx capacitor-assets generate --(ios|android|pwa)`
