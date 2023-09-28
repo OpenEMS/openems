@@ -20,6 +20,8 @@ import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
+import io.openems.edge.app.evcs.WebastoNextEvcs;
+import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
@@ -223,6 +225,26 @@ public class Apps {
 	 */
 	public static final IesKeywattEvcs iesKeywattEvcs(AppManagerTestBundle t) {
 		return app(t, IesKeywattEvcs::new, "App.Evcs.IesKeywatt");
+	}
+
+	/**
+	 * Test method for creating a {@link WebastoNextEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoNextEvcs webastoNext(AppManagerTestBundle t) {
+		return app(t, WebastoNextEvcs::new, "App.Evcs.Webasto.Next");
+	}
+
+	/**
+	 * Test method for creating a {@link WebastoUniteEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoUniteEvcs webastoUnite(AppManagerTestBundle t) {
+		return app(t, WebastoUniteEvcs::new, "App.Evcs.Webasto.Unite");
 	}
 
 	/**
