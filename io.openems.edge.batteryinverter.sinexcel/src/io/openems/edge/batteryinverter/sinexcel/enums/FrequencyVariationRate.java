@@ -5,8 +5,8 @@ import io.openems.common.types.OptionsEnum;
 public enum FrequencyVariationRate implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DISABLED(0, "Disabled"), //
-	RATE_0125(0, "Rate limit 0.125 Hz/s"), //
-	RATE_02(0, "Rate limit 0.2 Hz/s");//
+	RATE_0125(1, "Rate limit 0.125 Hz/s"), //
+	RATE_02(2, "Rate limit 0.2 Hz/s");//
 
 	private final int value;
 	private final String name;

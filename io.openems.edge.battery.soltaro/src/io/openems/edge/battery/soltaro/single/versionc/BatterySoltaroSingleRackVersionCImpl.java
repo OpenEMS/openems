@@ -42,9 +42,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -215,16 +215,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append(this.stateMachine.debugLog()) //
-				.append("|SoC:").append(this.getSoc()) //
-				.append("|Actual:").append(this.getVoltage()) //
-				.append(";").append(this.getCurrent()) //
-				.append("|Charge:").append(this.getChargeMaxVoltage()) //
-				.append(";").append(this.getChargeMaxCurrent()) //
-				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
-				.append(";").append(this.getDischargeMaxCurrent()) //
-				.toString();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
@@ -491,7 +482,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 								.bit(12, BatterySoltaroSingleRackVersionC.ChannelId.SLAVE_BMS_INIT)//
 						))); //
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2080)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER,
@@ -564,7 +555,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL1 (Level1 warning registers RW)
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2040)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL1_CELL_OVER_VOLTAGE_RECOVER,
@@ -637,7 +628,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 		// WARN_LEVEL2 (Level2 Protection registers RW)
 		{
-			AbstractModbusElement<?>[] elements = {
+			ModbusElement[] elements = {
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2400)), //
 					m(BatterySoltaroSingleRackVersionC.ChannelId.LEVEL2_CELL_OVER_VOLTAGE_RECOVER,
@@ -724,7 +715,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 		 */
 		Consumer<CellChannelFactory.Type> addCellChannels = type -> {
 			for (var i = 0; i < numberOfModules; i++) {
-				var elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+				var elements = new ModbusElement[type.getSensorsPerModule()];
 				for (var j = 0; j < type.getSensorsPerModule(); j++) {
 					var sensorIndex = i * type.getSensorsPerModule() + j;
 					var channelId = CellChannelFactory.create(type, sensorIndex);

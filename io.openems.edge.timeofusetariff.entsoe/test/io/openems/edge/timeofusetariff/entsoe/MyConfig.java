@@ -1,7 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.common.currency.CurrencyConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

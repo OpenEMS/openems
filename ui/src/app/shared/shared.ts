@@ -10,6 +10,7 @@ export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
+import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
 import { Role } from "./type/role";
 
@@ -33,6 +34,17 @@ export class UserPermission {
     }
 
     return user.hasMultipleEdges;
+  }
+
+  /**
+   * Checks if user is allowed to see {@link HomeServiceAssistentComponent}
+   * Producttype needs to be home and globalRole needs to be admin
+   * 
+   * @param user the current user
+   * @returns true, if user is at least admin
+   */
+  public static isUserAllowedToSeeHomeAssistent(user: User, edge: Edge): boolean {
+    return Role.isAtLeast(user.globalRole, Role.ADMIN) && edge.producttype === 'home';
   }
 }
 
@@ -59,3 +71,13 @@ export namespace Currency {
   }
 }
 
+export enum EssStateMachine {
+  UNDEFINED = -1, //
+  START_BATTERY = 10, //
+  START_BATTERY_INVERTER = 11, //
+  STARTED = 12, //
+  STOP_BATTERY_INVERTER = 20, //
+  STOP_BATTERY = 21, //
+  STOPPED = 22, //
+  ERROR = 30
+}

@@ -1,0 +1,5 @@
+= Battery Enfas BMS
+
+Battery implementation for communication to a battery via Enfas battery management system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.enfasbms[Source Code icon:github[]]

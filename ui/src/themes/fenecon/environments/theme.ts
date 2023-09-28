@@ -1,3 +1,5 @@
+import { TranslateService } from '@ngx-translate/core';
+import { Filter } from 'src/app/index/filter/filter.component';
 import { Theme } from 'src/environments';
 
 export const theme = {
@@ -10,7 +12,7 @@ export const theme = {
     docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/",
     links: {
         COMMON_STORAGE: "ui/standardwidgets.html#_speicher",
-
+        FORGET_PASSWORD: "https://erp.fenecon.de/web/reset_password?",
         EVCS_HARDY_BARTH: "fems-app/includes/FEMS_App_Ladestation_eCharge_Hardy_Barth.html",
         EVCS_KEBA_KECONTACT: "fems-app/includes/FEMS_App_Ladestation_KEBA.html",
         EVCS_OCPP_IESKEYWATTSINGLE: "fems-app/includes/FEMS_App_Ladestation_Ies_Keywatt.html",
@@ -54,5 +56,36 @@ export const theme = {
                 DE: "#"
             }
         }
-    }
+    },
+    PRODUCT_TYPES: (translate: TranslateService): Filter => (
+        {
+            placeholder: translate.instant("Index.TYPE"),
+            category: "producttype",
+            options: [
+                {
+                    name: "Home 10",
+                    value: "home"
+                },
+                {
+                    name: "Commercial 30",
+                    value: "Commercial 30-Serie"
+                },
+                {
+                    name: "Commercial 50",
+                    value: "Commercial 50-Serie"
+                },
+                {
+                    name: "Industrial S",
+                    value: "Industrial S"
+                },
+                {
+                    name: "Industrial M",
+                    value: "Industrial M"
+                },
+                {
+                    name: "Industrial L",
+                    value: "Industrial L"
+                }
+            ]
+        })
 };

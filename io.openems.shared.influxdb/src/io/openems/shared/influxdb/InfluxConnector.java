@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -38,7 +39,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.shared.influxdb.proxy.QueryProxy;
 import okhttp3.OkHttpClient;
@@ -66,10 +66,12 @@ public class InfluxConnector {
 
 	private final WriteParameters defaultWriteParameters;
 	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
+	private final AtomicInteger rejectedExecutionCount = new AtomicInteger();
 
 	/**
 	 * The Constructor.
 	 *
+	 * @param componentId   ID of the calling OpenEMS Component
 	 * @param queryLanguage A {@link QueryLanguageConfig}
 	 * @param url           URL of the InfluxDB-Server (http://ip:port)
 	 * @param org           The organisation; '-' for InfluxDB v1
@@ -86,9 +88,9 @@ public class InfluxConnector {
 	 *                      {@link MergePointsWorker} for. All later used
 	 *                      {@link WriteParameters} need to be passed here
 	 */
-	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError,
-			boolean safeWrite, WriteParameters... parameters) {
+	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
+			String bucket, boolean isReadOnly, int poolSize, int maxQueueSize,
+			Consumer<BadRequestException> onWriteError, boolean safeWrite, WriteParameters... parameters) {
 		this.queryProxy = QueryProxy.from(queryLanguage);
 		this.url = url;
 		this.org = org;
@@ -99,16 +101,23 @@ public class InfluxConnector {
 
 		this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue<Runnable>(maxQueueSize), //
-				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build());
+				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build(), //
+				(r, executor) -> {
+					// Custom RejectedExecutionHandler; avoid throwing a RejectedExecutionException
+					this.rejectedExecutionCount.incrementAndGet();
+				});
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
+					.append(componentId).append(" ") //
 					.append(ThreadPoolUtils.debugLog(this.executor)) //
 					.append(", MergePointsWorker[") //
 					.append(this.mergePointsWorkerByWriteParameters.values().stream().map(MergePointsWorker::debugLog)
 							.collect(Collectors.joining(", ")))
 					.append("], Limit:") //
 					.append(this.queryProxy.queryLimit) //
+					.append(", RejectedExecutions:") //
+					.append(this.rejectedExecutionCount.get()) //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
@@ -142,11 +151,11 @@ public class InfluxConnector {
 		}
 	}
 
-	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError,
-			WriteParameters... parameters) {
-		this(queryLanguage, url, org, apiKey, bucket, isReadOnly, poolSize, maxQueueSize, onWriteError, false,
-				parameters);
+	public InfluxConnector(String componentId, QueryLanguageConfig queryLanguage, URI url, String org, String apiKey,
+			String bucket, boolean isReadOnly, int poolSize, int maxQueueSize,
+			Consumer<BadRequestException> onWriteError, WriteParameters... parameters) {
+		this(componentId, queryLanguage, url, org, apiKey, bucket, isReadOnly, poolSize, maxQueueSize, onWriteError,
+				false, parameters);
 	}
 
 	public static class InfluxConnection {
@@ -235,6 +244,33 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries historic energy where only one value per day is saved.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @param measurement  the measurement
+	 * @return a map between ChannelAddress and value
+	 * @throws OpenemsException on error
+	 */
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergySingleValueInDay(//
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate, //
+			Set<ChannelAddress> channels, //
+			String measurement //
+	) throws OpenemsNamedException {
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		return this.queryProxy.queryHistoricEnergySingleValueInDay(this.getInfluxConnection(), this.bucket, measurement,
+				influxEdgeId, fromDate, toDate, channels);
+	}
+
+	/**
 	 * Queries historic energy per period.
 	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
@@ -256,6 +292,31 @@ public class InfluxConnector {
 
 		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, measurement,
 				influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
+	/**
+	 * Queries the raw historic values without calculating the difference between
+	 * two values.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param fromDate     the From-Date
+	 * @param toDate       the To-Date
+	 * @param channels     the Channels to query
+	 * @param resolution   the resolution in seconds
+	 * @param measurement  the measurement
+	 * @return the historic data as Map
+	 * @throws OpenemsException on error
+	 */
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryRawHistoricEnergyPerPeriodSinglePerDay(
+			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
+			Resolution resolution, String measurement) throws OpenemsNamedException {
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		return this.queryProxy.queryRawHistoricEnergyPerPeriodSingleValueInDay(this.getInfluxConnection(), this.bucket,
+				measurement, influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	/**
@@ -284,6 +345,36 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries the first valid values before the given date.
+	 * 
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param date         the date
+	 * @param channels     the Channels to query
+	 * @param measurement  the measurement
+	 * @return the values mapped to their channel
+	 * @throws OpenemsNamedException on error
+	 */
+	public SortedMap<ChannelAddress, JsonElement> queryFirstValueBefore(//
+			Optional<Integer> influxEdgeId, //
+			ZonedDateTime date, //
+			Set<ChannelAddress> channels, //
+			String measurement //
+	) throws OpenemsNamedException {
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		return this.queryProxy.queryFirstValueBefore(//
+				this.bucket, //
+				this.getInfluxConnection(), //
+				measurement, //
+				influxEdgeId, //
+				date, //
+				channels//
+		);
+	}
+
+	/**
 	 * Actually write the Point to InfluxDB.
 	 *
 	 * @param point the InfluxDB Point
@@ -301,9 +392,10 @@ public class InfluxConnector {
 	 *                        constructor
 	 */
 	public void write(Point point, WriteParameters writeParameters) {
+		if (!point.hasFields()) {
+			return;
+		}
 		if (this.isReadOnly) {
-			this.log.info("Read-Only-Mode is activated. Not writing points: "
-					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
 		final var mergePointsWorker = this.mergePointsWorkerByWriteParameters.get(writeParameters);
@@ -316,9 +408,12 @@ public class InfluxConnector {
 
 	/**
 	 * Gets the edges which already have the available since field set. Mapped from
-	 * edgeId to timestamp of availableSince.
+	 * edgeId to timestamp of availableSince. The timestamp should be in epoch
+	 * seconds.
 	 * 
-	 * @return the map
+	 * @return the map, where the first key is the edge id the second key is the
+	 *         channel and the value is the available since timestamp in epoch
+	 *         seconds
 	 * @throws OpenemsNamedException on error
 	 */
 	public Map<Integer, Map<String, Long>> queryAvailableSince() throws OpenemsNamedException {
@@ -330,11 +425,11 @@ public class InfluxConnector {
 	 * {@link QueryProxy.AVAILABLE_SINCE_COLUMN_NAME} field to the new value.
 	 * 
 	 * @param influxEdgeId            the id of the edge
-	 * @param availableSinceTimestamp the new timestamp
+	 * @param availableSinceTimestamp the new timestamp in epoch seconds
 	 * @param channel                 the channels
 	 * @return the {@link Point}
 	 */
-	public Point buildUpdateAvailableSincePoint(//
+	public static Point buildUpdateAvailableSincePoint(//
 			int influxEdgeId, //
 			String channel, //
 			long availableSinceTimestamp //

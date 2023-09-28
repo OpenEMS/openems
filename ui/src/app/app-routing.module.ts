@@ -1,7 +1,3 @@
-import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { environment } from 'src/environments';
-
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
@@ -37,6 +33,7 @@ import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent }
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
+import { HomeServiceAssistentComponent } from './edge/settings/homeassistent/homeassistent';
 import { NetworkOldComponent as EdgeSettingsNetworkOldComponent } from './edge/settings/network.old/network.old.component';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
@@ -47,18 +44,23 @@ import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
-import { IndexComponent } from './index/index.component';
+import { LoginComponent } from './index/login.component';
+import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
+import { NgModule } from '@angular/core';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { environment } from 'src/environments';
+
 
 const routes: Routes = [
-  { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+  { path: 'overview', component: OverViewComponent },
+  { path: 'overview/installation', component: InstallationComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
-
-  { path: 'index/installation', component: InstallationComponent },
 
   // Edge Pages
   {
@@ -116,12 +118,12 @@ const routes: Routes = [
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
-      { path: 'settings/alerting', component: EdgeSettingsAlerting }
+      { path: 'settings/alerting', component: EdgeSettingsAlerting },
+      { path: 'settings/homeServiceAssistent', component: HomeServiceAssistentComponent, data: { navbarTitle: 'Home-Assistent' } }
     ]
   },
 
-
-  { path: 'demo', component: IndexComponent }
+  { path: 'demo', component: LoginComponent }
 ];
 
 export const appRoutingProviders: any[] = [

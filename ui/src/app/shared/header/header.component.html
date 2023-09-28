@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary" mode="md">
     <ion-buttons *ngIf="backUrl" slot="start">
-      <ion-button [routerLink]="backUrl">
+      <ion-button [routerLink]="backUrl" replaceUrl="true">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>

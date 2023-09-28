@@ -1,0 +1,153 @@
+<header></header>
+<ion-content>
+  <ion-grid>
+    <ion-row justify-content-center>
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <oe-flat-widget title="Batterie">
+          <oe-flat-widget-line [name]="'General.soc' | translate" [channelAddress]="'battery0/Soc'"
+            [converter]="Converter.STATE_IN_PERCENT"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Be- & Entladestrom'" [channelAddress]="'battery0/Current'"
+            [converter]="Converter.CURRENT_TO_AMPERE"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximaler Beladestrom'" [channelAddress]="'battery0/ChargeMaxCurrent'"
+            [converter]="Converter.CURRENT_TO_AMPERE"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximaler Entladestrom'" [channelAddress]="'battery0/DischargeMaxCurrent'"
+            [converter]="Converter.CURRENT_TO_AMPERE"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Gesamtspannung'" [channelAddress]="'battery0/Voltage'"
+            [converter]="Converter.VOLTAGE_TO_VOLT"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Ladeschlussspannung'" [channelAddress]="'battery0/ChargeMaxVoltage'"
+            [converter]="Converter.VOLTAGE_TO_VOLT"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Entladeschlussspannung'" [channelAddress]="'battery0/DischargeMinVoltage'"
+            [converter]="Converter.VOLTAGE_TO_VOLT"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Anzahl der Batteriemodule'"
+            [channelAddress]="'battery0/NumberOfModulesPerTower'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Anzahl der Batterietürme'"
+            [channelAddress]="'battery0/NumberOfTowers'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Status'" [channelAddress]="'battery0/StateMachine'"></oe-flat-widget-line>
+        </oe-flat-widget>
+      </ion-col>
+
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <oe-flat-widget title="MPP-Tracker">
+          <ng-container *ngFor="let charger of ['charger0', 'charger1']">
+            <oe-flat-widget-line leftColumnWidth="20" [name]="charger">
+              <oe-flat-widget-line-item [channelAddress]="charger+'/Voltage'"
+                [converter]="Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT"></oe-flat-widget-line-item>
+              <oe-flat-widget-line-item [channelAddress]="charger+'/Current'"
+                [converter]="Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE"></oe-flat-widget-line-item>
+              <oe-flat-widget-line-item [channelAddress]="charger+ '/ActualPower'"
+                [converter]="Converter.POWER_IN_WATT"></oe-flat-widget-line-item>
+            </oe-flat-widget-line>
+          </ng-container>
+        </oe-flat-widget>
+      </ion-col>
+
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <ng-container
+          *ngFor="let meter of [{displayName: 'meter0 (Grid-Meter)', id: 'meter0'},{displayName: 'meter2 (Notstromverbraucher)', id: 'meter2'}]; let last = last">
+          <oe-flat-widget [title]="meter.displayName">
+
+            <ng-container *ngFor="let phase of ['L1', 'L2', 'L3']">
+              <oe-flat-widget-line leftColumnWidth="20" [name]="'Phase ' + phase">
+                <oe-flat-widget-line-item [channelAddress]="meter.id + '/Voltage' + phase"
+                  [converter]="VOLTAGE_IN_MILLI_VOLT_TO_VOLT_WITH_3_DECIMALS"></oe-flat-widget-line-item>
+                <oe-flat-widget-line-item [channelAddress]="meter.id + '/Current' + phase"
+                  [converter]="AMPERE_IN_MILLI_AMPERE_TO_AMPERE_WITH_3_DECIMALS"></oe-flat-widget-line-item>
+                <oe-flat-widget-line-item [channelAddress]="meter.id + '/ActivePower' + phase"
+                  [converter]="Converter.POWER_IN_WATT"></oe-flat-widget-line-item>
+              </oe-flat-widget-line>
+            </ng-container>
+          </oe-flat-widget>
+        </ng-container>
+      </ion-col>
+
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <oe-flat-widget title="ess0">
+          <oe-flat-widget-line [name]="'General.soc' | translate" [channelAddress]="'ess0/Soc'"
+            [converter]="Converter.STATE_IN_PERCENT"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Be- & Entladeleistung'" [channelAddress]="'ess0/DcDischargePower'"
+            [converter]="Converter.POWER_IN_WATT"></oe-flat-widget-line> <!-- ?? -->
+          <oe-flat-widget-line [name]="'DC PV-Leistung (PV1 + PV2)'" [channelAddress]="'_sum/ProductionDcActualPower'"
+            [converter]="Converter.POWER_IN_WATT"></oe-flat-widget-line>
+          <!-- DC PV ohne AC -->
+          <!-- ?? -->
+          <oe-flat-widget-line [name]="'Leistungsfreigaben (Beladen / Entladen) in [W]'">
+            <oe-flat-widget-line-item [channelAddress]="'ess0/AllowedChargePower'"></oe-flat-widget-line-item>
+            <oe-flat-widget-line-item [value]="'|'"></oe-flat-widget-line-item>
+            <oe-flat-widget-line-item [channelAddress]="'ess0/AllowedDischargePower'"></oe-flat-widget-line-item>
+          </oe-flat-widget-line>
+
+          <oe-flat-widget-line [name]="'Status'" [channelAddress]="'ess0/StateMachine'"
+            [converter]="Converter.CONVERT_TO_ESS_STATE"></oe-flat-widget-line>
+
+
+          <!-- Backup is notstromverbraucher, macht keinen Sinn -->
+          <!-- ON-GRID macht keinen Sinn weil notstrom mit einberechnet ist und alles andere -->
+
+          <!-- METER_TEST is todo für zukunft -->
+        </oe-flat-widget>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <oe-flat-widget title="Wechselrichter (batteryInverter0)">
+          <!-- <oe-flat-widget-line [name]="'Leistungsfreigaben (Beladen / Entladen)'">
+            <oe-flat-widget-line-item
+              [channelAddress]="'batteryInverter0/AllowedChargePower'"></oe-flat-widget-line-item>
+            <oe-flat-widget-line-item
+              [channelAddress]="'batteryInverter0/AllowedDischargePower'"></oe-flat-widget-line-item>
+          </oe-flat-widget-line> -->
+          <oe-flat-widget-line [name]="'Radiatortemperatur (Kühlkörper)'"
+            [channelAddress]="'batteryInverter0/RadiatorTemperature'"
+            [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Umgebungstemperatur'" [channelAddress]="'batteryInverter0/AirTemperature'"
+            [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'ARM-Softwareversion'"
+            [channelAddress]="'batteryInverter0/ArmFmVersion'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'DSP-Softwareversion'"
+            [channelAddress]="'batteryInverter0/DspFmVersionMaster'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'GoodWe Type'"
+            [channelAddress]="'batteryInverter0/GoodweType'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Batteriemodus (BatteryMode)'"
+            [channelAddress]="'batteryInverter0/BatteryMode'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Netzmodus (GridMode)'"
+            [channelAddress]="'batteryInverter0/GridMode'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Notstrommodus (BackupEnable)'"
+            [channelAddress]="'batteryInverter0/BackUpEnable'"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Ländereinstellung'"
+            [channelAddress]="'batteryInverter0/SafetyCountryCode'"></oe-flat-widget-line>
+          <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+
+          <oe-flat-widget-line [name]="'Rundsteuerempfänger'" [channelAddress]="'batteryInverter0/DredCmd'"
+            [converter]="Converter.CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'DREDCmd'" [channelAddress]="'batteryInverter0/DredCmd'"></oe-flat-widget-line>
+        </oe-flat-widget>
+      </ion-col>
+
+      <ion-col size-lg="6" size-md="12" size-sm="12">
+        <oe-flat-widget [title]="'Zellspannungen'">
+          <oe-flat-widget-line [name]="'Minimale Zellspannung'" [channelAddress]="'battery0/MinCellVoltage'"
+            [converter]="VOLTAGE_TO_MILLI_VOLT_WITH_3_DECIMALS"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximale Zellspannung'" [channelAddress]="'battery0/MaxCellVoltage'"
+            [converter]="VOLTAGE_TO_MILLI_VOLT_WITH_3_DECIMALS"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximale Zellspannungsdifferenz'" [value]="cellVoltageDifference"
+            [converter]="VOLTAGE_TO_MILLI_VOLT_WITH_3_DECIMALS"></oe-flat-widget-line>
+          <oe-flat-widget>
+            <cellVoltageChart></cellVoltageChart>
+          </oe-flat-widget>
+        </oe-flat-widget>
+      </ion-col>
+
+      <ion-col size-lg="3" size-md="6" size-sm="12">
+        <oe-flat-widget [title]="'Zelltemperaturen'">
+          <oe-flat-widget-line [name]="'Minimale Zelltemperatur'" [channelAddress]="'battery0/MinCellTemperature'"
+            [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximale Zelltemperatur'" [channelAddress]="'battery0/MaxCellTemperature'"
+            [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-flat-widget-line>
+          <oe-flat-widget-line [name]="'Maximale Zelltemperaturdifferenz'" [value]="cellTemperatureDifference"
+            [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-flat-widget-line>
+        </oe-flat-widget>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

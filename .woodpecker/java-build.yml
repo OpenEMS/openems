@@ -8,7 +8,7 @@
 
 variables:
   - &sftp-settings
-    server: 10.0.0.40
+    server: 10.10.112.10
     username: user
     password: pass
     ignore_branch: true

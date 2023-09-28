@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 @ProviderType
 public interface AppCenterMetadata {
@@ -110,16 +109,6 @@ public interface AppCenterMetadata {
 		 * @throws OpenemsNamedException on error
 		 */
 		public JsonArray sendGetRegisteredKeys(String edgeId, String appId) throws OpenemsNamedException;
-
-		/**
-		 * Adds a key to the request if needed for a 'addAppInstance' request.
-		 * 
-		 * @param user    the user
-		 * @param edgeId  the edge
-		 * @param request the request
-		 */
-		@Deprecated(since = "2023.3.1", forRemoval = true)
-		public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request) throws OpenemsNamedException;
 
 		/**
 		 * Gets a key that can be supplied to the installation of the given app.

@@ -11,7 +11,7 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
     public override readonly id: string = 'commercial-30-anschluss';
-
+    public override readonly emergencyPower = 'DISABLE';
     constructor(translate: TranslateService) {
         super([
             View.PreInstallation,

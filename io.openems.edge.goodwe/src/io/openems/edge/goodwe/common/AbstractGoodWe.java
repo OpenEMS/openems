@@ -25,10 +25,10 @@ import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
@@ -244,24 +244,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WORK_MODE, new UnsignedWordElement(35187)), //
 						new DummyRegisterElement(35188), //
 						m(new BitsWordElement(35189, this) //
-								.bit(0, GoodWe.ChannelId.STATE_0) //
-								.bit(1, GoodWe.ChannelId.STATE_1) //
-								.bit(2, GoodWe.ChannelId.STATE_2) //
-								.bit(3, GoodWe.ChannelId.STATE_3) //
-								.bit(4, GoodWe.ChannelId.STATE_4) //
-								.bit(5, GoodWe.ChannelId.STATE_5) //
-								.bit(6, GoodWe.ChannelId.STATE_6) //
-								.bit(7, GoodWe.ChannelId.STATE_7) //
-								.bit(8, GoodWe.ChannelId.STATE_8) //
-								.bit(9, GoodWe.ChannelId.STATE_9) //
-								.bit(10, GoodWe.ChannelId.STATE_10) //
-								.bit(11, GoodWe.ChannelId.STATE_11) //
-								.bit(12, GoodWe.ChannelId.STATE_12) //
-								.bit(13, GoodWe.ChannelId.STATE_13)//
-								.bit(14, GoodWe.ChannelId.STATE_14)//
-								.bit(15, GoodWe.ChannelId.STATE_15)//
-						), //
-						m(new BitsWordElement(35190, this) //
 								.bit(0, GoodWe.ChannelId.STATE_16) //
 								.bit(1, GoodWe.ChannelId.STATE_17) //
 								.bit(2, GoodWe.ChannelId.STATE_18) //
@@ -278,6 +260,24 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								.bit(13, GoodWe.ChannelId.STATE_29) //
 								.bit(14, GoodWe.ChannelId.STATE_30) //
 								.bit(15, GoodWe.ChannelId.STATE_31) //
+						), //
+						m(new BitsWordElement(35190, this) //
+								.bit(0, GoodWe.ChannelId.STATE_0) //
+								.bit(1, GoodWe.ChannelId.STATE_1) //
+								.bit(2, GoodWe.ChannelId.STATE_2) //
+								.bit(3, GoodWe.ChannelId.STATE_3) //
+								.bit(4, GoodWe.ChannelId.STATE_4) //
+								.bit(5, GoodWe.ChannelId.STATE_5) //
+								.bit(6, GoodWe.ChannelId.STATE_6) //
+								.bit(7, GoodWe.ChannelId.STATE_7) //
+								.bit(8, GoodWe.ChannelId.STATE_8) //
+								.bit(9, GoodWe.ChannelId.STATE_9) //
+								.bit(10, GoodWe.ChannelId.STATE_10) //
+								.bit(11, GoodWe.ChannelId.STATE_11) //
+								.bit(12, GoodWe.ChannelId.STATE_12) //
+								.bit(13, GoodWe.ChannelId.STATE_13)//
+								.bit(14, GoodWe.ChannelId.STATE_14)//
+								.bit(15, GoodWe.ChannelId.STATE_15)//
 						), //
 
 						// The total PV production energy from installation
@@ -1783,7 +1783,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	protected AbstractModbusElement<?> getSocModbusElement(int address) throws NotImplementedException {
+	protected ModbusElement getSocModbusElement(int address) throws NotImplementedException {
 		if (this instanceof HybridEss) {
 			return m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(address), new ElementToChannelConverter(
 					// element -> channel

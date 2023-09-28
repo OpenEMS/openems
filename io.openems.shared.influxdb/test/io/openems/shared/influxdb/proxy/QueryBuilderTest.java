@@ -63,13 +63,35 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void testInlfuxqlFetchAvailableSinceQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildFetchAvailableSinceQuery(BUCKET);
+	public void testFluxBuildHistoricEnergyPerPeriodQuerySingleValueInDay() throws OpenemsNamedException {
+		FLUX.buildHistoricEnergyPerPeriodQuerySingleValueInDay(BUCKET, MEASUREMENT, EDGE_ID, TO_DATE, FROM_DATE,
+				ENERGY_CHANNELS, RESOLUTION);
+	}
+
+	@Test
+	public void testInfluxqlBuildHistoricEnergyPerPeriodQuerySingleValueInDay() throws OpenemsNamedException {
+		INFLUX_QL.buildHistoricEnergyPerPeriodQuerySingleValueInDay(BUCKET, MEASUREMENT, EDGE_ID, TO_DATE, FROM_DATE,
+				ENERGY_CHANNELS, RESOLUTION);
 	}
 
 	@Test
 	public void testFluxFetchAvailableSinceQuery() throws OpenemsNamedException {
 		FLUX.buildFetchAvailableSinceQuery(BUCKET);
+	}
+
+	@Test
+	public void testInlfuxqlFetchAvailableSinceQuery() throws OpenemsNamedException {
+		INFLUX_QL.buildFetchAvailableSinceQuery(BUCKET);
+	}
+
+	@Test
+	public void testFluxBuildFetchFirstValueBefore() throws OpenemsNamedException {
+		FLUX.buildFetchFirstValueBefore(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, ENERGY_CHANNELS);
+	}
+
+	@Test
+	public void testInfluxqlBuildFetchFirstValueBefore() throws OpenemsNamedException {
+		INFLUX_QL.buildFetchFirstValueBefore(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, ENERGY_CHANNELS);
 	}
 
 }

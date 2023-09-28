@@ -9,6 +9,7 @@ import { Category } from '../../../shared/category';
 import { Coupler } from '../../../shared/coupler';
 import { FeedInType, ModbusBridgeType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
+import { IbnUtils } from '../../../shared/ibnutils';
 import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -17,6 +18,7 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
     public override readonly id: string = 'commercial-30-netztrennstelle';
+    public override readonly emergencyPower = 'ENABLE';
 
     // configuration-emergency-reserve
     public override emergencyReserve?: {
@@ -110,6 +112,11 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         }, 3);
+
+        // Add ip address to network configuration to communicate with the Coupler.
+        if (!IbnUtils.addIpAddress('eth1', '192.168.1.49/30', edge, websocket)) {
+            service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.IP_ADDRESS_WARNING'), 'danger');
+        }
 
         // io1
         switch (this.emergencyReserve.coupler) {

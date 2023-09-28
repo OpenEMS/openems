@@ -3,6 +3,7 @@ package io.openems.backend.uiwebsocket.impl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +34,7 @@ import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -132,15 +134,15 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public void send(String token, JsonrpcNotification notification) throws OpenemsNamedException {
-		var wsData = this.getWsDataForTokenOrError(token);
+	public void send(UUID websocketId, JsonrpcNotification notification) throws OpenemsNamedException {
+		var wsData = this.getWsDataForIdOrError(websocketId);
 		wsData.send(notification);
 	}
 
 	@Override
-	public CompletableFuture<JsonrpcResponseSuccess> send(String token, JsonrpcRequest request)
+	public CompletableFuture<JsonrpcResponseSuccess> send(UUID websocketId, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		var wsData = this.getWsDataForTokenOrError(token);
+		var wsData = this.getWsDataForIdOrError(websocketId);
 		return wsData.send(request);
 	}
 
@@ -166,20 +168,22 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	/**
 	 * Gets the WebSocket connection attachment for a UI token.
 	 *
-	 * @param token the UI token
+	 * @param websocketId the id of the websocket connection
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
-	private WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
+	private WsData getWsDataForIdOrError(UUID websocketId) throws OpenemsNamedException {
+		if (this.server == null) {
+			throw new OpenemsException("Server is not yet fully initialized");
+		}
 		var connections = this.server.getConnections();
 		for (var websocket : connections) {
 			WsData wsData = websocket.getAttachment();
-			var thisToken = wsData.getToken();
-			if (thisToken.isPresent() && thisToken.get().equals(token)) {
+			if (wsData.getId().equals(websocketId)) {
 				return wsData;
 			}
 		}
-		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(token);
+		throw OpenemsError.BACKEND_NO_UI_WITH_TOKEN.exception(websocketId);
 	}
 
 	/**

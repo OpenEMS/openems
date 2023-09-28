@@ -441,6 +441,7 @@
   "General": {
     "active": "Aktiv",
     "actualPower": "E-Auto Beladung",
+    "ALL": "Alle",
     "apply": "Übernehmen",
     "autarchy": "Autarkie",
     "automatic": "Automatisch",
@@ -502,7 +503,6 @@
     "soc": "Ladezustand",
     "state": "Zustand",
     "storageSystem": "Speichersystem",
-    "systemState": "Systemzustand",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",
@@ -541,7 +541,8 @@
     },
     "yes": "Ja",
     "no": "Nein",
-    "value": "Wert"
+    "value": "Wert",
+    "SUM_STATE": "Systemzustand"
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -550,12 +551,15 @@
     "connectionSuccessful": "Verbindung zu {{ value }} hergestellt.",
     "deviceOffline": "Das Gerät ist nicht verbunden!",
     "isOffline": "OpenEMS ist offline!",
-    "loggedInAs": "Angemeldet als:",
+    "LOGGED_IN_AS": "Angemeldet als",
     "toEnergymonitor": "Zum Energiemonitor...",
-    "type": "Typ",
+    "TYPE": "Typ",
     "OFFLINE_SINCE": "Offline seit",
     "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
-    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
+    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
+    "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
+    "FIRST_SETUP_PROTOCOL": "Commissioning"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -620,7 +624,8 @@
         "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
       },
-      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais"
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
+      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden."
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",

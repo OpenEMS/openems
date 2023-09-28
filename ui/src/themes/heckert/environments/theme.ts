@@ -11,7 +11,7 @@ export const theme = {
     docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/fems-app/includes/",
     links: {
         COMMON_STORAGE: "ui/standardwidgets.html#_speicher",
-
+        FORGET_PASSWORD: "https://erp.fenecon.de/web/reset_password?",
         EVCS_HARDY_BARTH: "fems-app/includes/FEMS_App_Ladestation_eCharge_Hardy_Barth.html",
         EVCS_KEBA_KECONTACT: "fems-app/includes/FEMS_App_Ladestation_KEBA.html",
         EVCS_OCPP_IESKEYWATTSINGLE: "fems-app/includes/FEMS_App_Ladestation_Ies_Keywatt.html",
@@ -55,5 +55,6 @@ export const theme = {
                 DE: "#"
             }
         }
-    }
+    },
+    PRODUCT_TYPES: () => null
 };

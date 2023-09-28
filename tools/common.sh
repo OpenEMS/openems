@@ -4,11 +4,13 @@ common_initialize_environment() {
     # Code files relevant for version
     SRC_OPENEMS_CONSTANTS="io.openems.common/src/io/openems/common/OpenemsConstants.java"
     SRC_PACKAGE_JSON="ui/package.json"
+    SRC_PACKAGE_LOCK_JSON="ui/package-lock.json"
     SRC_CHANGELOG_CONSTANTS="ui/src/app/changelog/view/component/changelog.constants.ts"
 
     # Set environment variables
     THEME="fenecon"
     PACKAGE_NAME="fems"
+
     VERSION_STRING=""
     VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
     tmp_version=$(echo $VERSION | cut -d'-' -f1)
@@ -28,7 +30,10 @@ common_update_version_in_code() {
     sed --in-place "s/\(VERSION_STRING = \)\"\(.*\)\";$/\1\"$VERSION_STRING\";/" $SRC_OPENEMS_CONSTANTS
 
     echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_JSON
+    sed --in-place "s/^\(    \"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_JSON
+
+    echo "## Update $SRC_PACKAGE_LOCK_JSON"
+    sed --in-place "s/^\(    \"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_LOCK_JSON
 
     echo "## Update $SRC_CHANGELOG_CONSTANTS"
     sed --in-place "s/\(UI_VERSION = \"\).*\(\";\)$/\1$VERSION\2/" $SRC_CHANGELOG_CONSTANTS

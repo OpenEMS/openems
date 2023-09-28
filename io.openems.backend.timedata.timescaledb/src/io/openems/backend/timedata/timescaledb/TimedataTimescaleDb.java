@@ -29,6 +29,7 @@ import io.openems.backend.timedata.timescaledb.internal.read.TimescaledbReadHand
 import io.openems.backend.timedata.timescaledb.internal.write.TimescaledbWriteHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -99,6 +100,11 @@ public class TimedataTimescaleDb extends AbstractOpenemsBackendComponent impleme
 	public void write(String edgeId, AggregatedDataNotification data) {
 		// TODO
 		this.logWarn(this.log, "Timedata.TimescaleDB do not support write of AggregatedDataNotification");
+	}
+
+	@Override
+	public void write(String edgeId, ResendDataNotification data) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
