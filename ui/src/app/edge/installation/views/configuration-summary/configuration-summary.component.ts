@@ -173,7 +173,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     const batteryData: ComponentData[] = [];
     batteryData.push(
-      { label: this.translate.instant('Index.type'), value: this.ibn.type }
+      { label: this.translate.instant('Index.TYPE'), value: this.ibn.type }
     );
 
     tableData.push({

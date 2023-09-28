@@ -12,7 +12,8 @@
         <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
 
         <ng-template #contentTpl>
-            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
+            <td *ngIf="contentTpl?.length > 0" [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'"
+                class="align_right">
                 <!-- 'Normal' line, name and value  -->
                 <ng-content></ng-content>
             </td>

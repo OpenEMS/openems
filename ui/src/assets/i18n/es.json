@@ -106,9 +106,9 @@
     "connectionSuccessful": "Conexión a {{ value }} hecho.",
     "deviceOffline": "El aparato no está conectado!",
     "isOffline": "OpenEMS está fuera de línea!",
-    "loggedInAs": "Conectado como:",
+    "LOGGED_IN_AS": "Conectado como",
     "toEnergymonitor": "Al monitor de energía...",
-    "type": "Tipo:"
+    "TYPE": "Tipo"
   },
   "Login": {
     "title": "Login",

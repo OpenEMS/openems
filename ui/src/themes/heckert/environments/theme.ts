@@ -56,5 +56,5 @@ export const theme = {
             }
         }
     },
-    PRODUCT_TYPES: null
+    PRODUCT_TYPES: () => null
 };

@@ -59,11 +59,11 @@ export const theme = {
     },
     PRODUCT_TYPES: (translate: TranslateService): Filter => (
         {
-            placeholder: translate.instant("Index.type"),
+            placeholder: translate.instant("Index.TYPE"),
             category: "producttype",
             options: [
                 {
-                    name: "Home",
+                    name: "Home 10",
                     value: "home"
                 },
                 {
@@ -75,20 +75,17 @@ export const theme = {
                     value: "Commercial 50-Serie"
                 },
                 {
-                    name: "Industrial",
-                    value: "INDUSTRIAL"
+                    name: "Industrial S",
+                    value: "Industrial S"
                 },
                 {
-                    name: "Pro Hybrid GW",
-                    value: "Pro Hybrid GW"
+                    name: "Industrial M",
+                    value: "Industrial M"
                 },
                 {
-                    name: "Pro Hybrid 10",
-                    value: "Pro Hybrid 10-Serie"
-                },
-                {
-                    name: "Pro 9-12",
-                    value: "Pro 9-12"
-                }]
+                    name: "Industrial L",
+                    value: "Industrial L"
+                }
+            ]
         })
 };

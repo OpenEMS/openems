@@ -46,8 +46,10 @@
                             </ion-row>
 
                             <!-- Filter -->
-                            <oe-filter (setSearchParams)="searchOnChange($event)"
-                                *ngIf="loggedInUserCanInstall"></oe-filter>
+                            <ng-container *ngIf="(service.metadata | async)?.user as user">
+                                <oe-filter (setSearchParams)="searchOnChange($event)"
+                                    *ngIf="user.globalRole === 'admin'"></oe-filter>
+                            </ng-container>
 
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
@@ -72,13 +74,13 @@
                                                     <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                                                         <p>ID: {{ edge.id }}</p>
                                                         <p class="ion-text-wrap">
-                                                            <ion-text translate>Index.type</ion-text> {{
+                                                            <ion-text translate>Index.TYPE</ion-text>: {{
                                                             edge.producttype }}
                                                         </p>
                                                     </ng-container>
                                                     <p class="ion-text-wrap">
-                                                        <ion-text translate>Index.loggedInAs</ion-text> {{
-                                                        edge.getRoleString() }}.
+                                                        <ion-text translate>Index.LOGGED_IN_AS</ion-text>: {{
+                                                        edge.getRoleString() }}
                                                     </p>
                                                 </ion-label>
                                                 <oe-sum-state [sumState]="edge.sumState"

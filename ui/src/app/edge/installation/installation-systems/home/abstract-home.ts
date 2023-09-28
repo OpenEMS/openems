@@ -617,7 +617,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: this.batteryInverter?.shadowManagementDisabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
         },
         {
-          label: this.translate.instant('Index.type'),
+          label: this.translate.instant('Index.TYPE'),
           value: feedInLimitation.feedInSetting ?? FeedInSetting.Undefined
         }
       )
