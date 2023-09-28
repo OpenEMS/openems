@@ -39,6 +39,34 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.8.2',
         changes: [
+          Changelog.openems('2023.9.0'),
+          Changelog.UI,
+          "Performance-Optimierung in der Historischen Ansicht -> Erzeugung",
+          "Umfangreiche Optimierung der Modbus-Kommunikation",
+          Changelog.product(Product.COMMERCIAL_30) + "Verbesserungen am Inbetriebnahmeassistenten für die Netztrennstelle",
+          Changelog.app(App.MODBUS_TCP_API) + "Verbesserungen im App Center",
+          "Daten Nachsenden: verbesserte Erkennung von Übertragungsfehlern",
+          "Verbesserung der Kompatibilität mit SunSpec PV-Wechselrichtern (Unterstützung von 7xx-Blöcken)",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Verbesserung der Status-/Fehlermeldungen",
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für FENECON Home 20 & 30 (App Center, Prüfbox, F&F Filipowski Analog-Ausgänge, etc.)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix SDM630 Zähler: Energiewerte" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix FENECON Home: Ansteuerung des Start-Relais für die Batterie" },
+          { roleIsAtLeast: Role.ADMIN, change: "FENECON Home: Implementierung eines spezifischen Service-Dashboards unter Online-Monitoring -> Einstellungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Online-Monitoring FEMS-Übersicht: BETA-Test Filter nach Produkttyp; Anzeige Systemstatus" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix Online-Monitoring: setze richtige Farbe für Smartphone-Notch" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix System-Log: funktioniert jetzt auch für mehrere FEMSe/Browser-Tabs gleichzeitig" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix im DebugLog für Generic-ESS: Max-Charge-Power" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS Cycle-Controller: Umfangreiche Verbesserungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix Energie-Berechnung für SolarLog" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix KACO50/92: Leistungs-Setpoints" },
+          { roleIsAtLeast: Role.ADMIN, change: "Industrial S/L: enfasbms, F2B" },
+          { roleIsAtLeast: Role.ADMIN, change: "Neue OpenEMS Apps für Webasto Next und Webasto Unite Ladesäulen. Info im OpenEMS Community-Forum folgt" },
+          Changelog.library(Library.OKIO, Library.RRD4J, Library.APACHE_FELIX_HTTP_JETTY, Library.GRADLE, Library.FASTEXCEL, Library.APACHE_FELIX_WEBCONSOLE)
+        ]
+      },
+      {
+        version: '2023.8.2',
+        changes: [
           Changelog.openems('2023.8.0'),
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + Changelog.GENERAL_OPTIMIZATION,
           "App Center: Verbesserte Auswahl von Relaisausgängen",
