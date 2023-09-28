@@ -18,6 +18,12 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Invert Energy", description = "Swaps production and consumptioon energy")
+	boolean invert() default false;
+
+	@AttributeDefinition(name = "Converter Factor", description = "Converter factor if current converters are in use")
+	int converterFactor() default 2000;
+
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
 
