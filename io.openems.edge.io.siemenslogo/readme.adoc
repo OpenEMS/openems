@@ -1,16 +1,8 @@
 = io.openems.edge.io.siemenslogo
 
-
-
 First you have to configure a modbus server in LogoSoft which either accepts all connection sources or you limit this to your EMS-system Like all other modbus devices you have to configure a modbus-ID (255 is default in LogoSoft!) and a start address, e.g. 100 or use the default address 0.
 
 If you don´t do any changes the addresses are configured as coils. In Logo! a virtual address (V) is written 0.0 which is the virtual address 0, Bit 0. For the connected device the coil-addresses start with 800 (first bit/coil), 801 is the second coil and so on
-
-You can either talk to the relay outputs directly or configure network inputs with corresponding virtual addresses. This depends on your needs - respectively if you want to add some logic on the Logo.
-
-In my case the addresses start with offset 808 which is virtual address 101.0 in the logo. So you need to configure the network inputs 101.0 -101.3 (for a 4 digital outputs standard Logo!)
-
-Sometimes it is better to have different addresses for reading and writing. So you can leave it to Logo!`s logic what to do with DIs/DOs
 
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.siemenslogo[Source Code icon:github[]]
