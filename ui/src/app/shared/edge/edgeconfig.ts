@@ -1,5 +1,5 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { Widgets } from '../type/widget';
+import { WidgetNature, Widgets } from '../type/widget';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {
@@ -308,7 +308,7 @@ export class EdgeConfig {
             return true;
         }
 
-        if (this.isComponentImplementingNature(component, 'io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter')) {
+        if (this.isComponentImplementingNature(component, WidgetNature.MANAGED_SYMMETRIC_PVINVERTER)) {
             return true;
         }
 
@@ -317,17 +317,8 @@ export class EdgeConfig {
             case 'Fenecon.Dess.PvMeter':
             case 'Fenecon.Mini.PvMeter':
             case 'Fenecon.Pro.PvMeter':
-            case 'Kaco.BlueplanetHybrid10.PvInverter':
             case 'Kostal.Piko.Charger':
-            case 'PV-Inverter.Fronius':
-            case 'PV-Inverter.KACO.blueplanet':
-            case 'PV-Inverter.Kostal':
-            case 'PV-Inverter.SMA.SunnyTripower':
-            case 'PV-Inverter.Solarlog':
-            case 'PV-Inverter.SunSpec':
             case 'Simulator.ProductionMeter.Acting':
-            case 'Simulator.PvInverter':
-            case 'SolarEdge.PV-Inverter':
                 return true;
         }
 
