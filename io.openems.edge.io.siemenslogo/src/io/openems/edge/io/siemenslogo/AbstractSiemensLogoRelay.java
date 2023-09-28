@@ -47,7 +47,7 @@ public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComp
 	public BooleanWriteChannel[] digitalOutputChannels() {
 		return this.digitalOutputChannels;
 	}
-
+	
 
 	@Override
 	public String debugLog() {
