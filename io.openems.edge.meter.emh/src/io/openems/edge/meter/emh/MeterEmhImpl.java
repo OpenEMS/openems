@@ -15,19 +15,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-
-
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
-
-
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -44,10 +37,13 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 		implements MeterEmh, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private MeterType meterType = MeterType.PRODUCTION;
+	private MeterType meterType = MeterType.GRID;
 
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private boolean invert; // Swaps Consumption / Production Energy
+	private int converterFactor; // necessary if current converters are used
 
 	public MeterEmhImpl() {
 		super(//
@@ -66,6 +62,8 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
+		this.invert = config.invert();
+		this.converterFactor = config.converterFactor();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -90,24 +88,33 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(8, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(8),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
+								UNSIGNED_POWER_CONVERTER),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(10),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
+								UNSIGNED_POWER_CONVERTER),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(12),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
+								UNSIGNED_POWER_CONVERTER),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(14),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
+								UNSIGNED_POWER_CONVERTER),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(16),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
-						new DummyRegisterElement(18, 19), // Reserved
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(20),
-								SIGNED_POWER_CONVERTER_AND_INVERT),
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(22),
-								SIGNED_POWER_CONVERTER_AND_INVERT)));
+								UNSIGNED_POWER_CONVERTER)));
+
+		if (this.invert) {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(20, Priority.HIGH, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(20),
+							UNSIGNED_POWER_CONVERTER),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(22),
+							UNSIGNED_POWER_CONVERTER)));
+		} else {
+			modbusProtocol.addTask(new FC3ReadRegistersTask(20, Priority.HIGH, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(20),
+							UNSIGNED_POWER_CONVERTER),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(22),
+							UNSIGNED_POWER_CONVERTER)));
+		}
 		return modbusProtocol;
 	}
 
-	private static final ElementToChannelConverter SIGNED_POWER_CONVERTER_AND_INVERT = new ElementToChannelConverter(//
+	private final ElementToChannelConverter UNSIGNED_POWER_CONVERTER = new ElementToChannelConverter(//
 			value -> {
 				if (value == null) {
 					return null;
@@ -116,7 +123,7 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 				if (intValue == -10_000) {
 					return 0; // ignore '-10_000'
 				}
-				return intValue * 2000; // invert
+				return intValue * converterFactor; //
 			}, //
 			value -> value);
 
@@ -129,7 +136,6 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode)
-		);
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode));
 	}
 }
