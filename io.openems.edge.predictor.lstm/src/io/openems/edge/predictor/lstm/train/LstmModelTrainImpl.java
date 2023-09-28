@@ -111,7 +111,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
-		MakeModel obj = new MakeModel((ArrayList<Double>) data, date);
+		MakeModel obj = new MakeModel((ArrayList<Double>) data, date,1);
 
 	}
 

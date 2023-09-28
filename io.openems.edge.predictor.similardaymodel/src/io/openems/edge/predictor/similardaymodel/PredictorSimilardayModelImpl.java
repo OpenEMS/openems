@@ -98,7 +98,7 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor24Hours
 
 		// Query database
 		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
+			queryResult = this.timedata.queryHistoricData("10001", fromDate, now, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());

@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstm.preprocessing;
+package io.openems.edge.predictor.lstm.common;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,19 +10,20 @@ import java.util.Collections;
 
 public class ReadCsv {
 
-	public static final String FILENAME = "\\testResults\\Consumption_data_Fems_10005.csv";
+	public static final String FILENAME = "\\TestFolder\\Consumption_data_Fems_10005.csv";
 
 	public ArrayList<Double> data = new ArrayList<Double>();
 	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
 
-	public ReadCsv() {
-		getDataFromCSV();
+	public ReadCsv(String path) {
+		
+		getDataFromCSV(path);
 	}
 
-	public void getDataFromCSV() {
+	public void getDataFromCSV(String fileName) {
 
 		try {
-			String filename = "\\testResults\\Consumption_data_Fems_10005.csv";
+			String filename = "\\TestFolder\\"+fileName;
 			String path = new File(".").getCanonicalPath() + filename;
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -36,7 +37,7 @@ public class ReadCsv {
 				Double temp2 = 0.0;
 
 				for (int i = 1; i < parts.length; i++) {
-					if (parts[i].equals("")) {
+					if (parts[i].equals("") || parts[i].equals("nan")) {
 						temp2 = Double.NaN;
 					} else {
 						temp2 = (Double.parseDouble(parts[i]));
@@ -45,6 +46,7 @@ public class ReadCsv {
 
 				dates.add(date);
 				data.add(temp2);
+				
 
 				line = reader.readLine();
 			}

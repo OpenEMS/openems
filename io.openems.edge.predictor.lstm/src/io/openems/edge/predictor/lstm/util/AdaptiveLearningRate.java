@@ -12,13 +12,13 @@ public class AdaptiveLearningRate {
 		} else if (5 < perc && perc < 30) {
 			learningRate = learningRate / 10000;
 		} else if (30 < perc && perc < 45) {
-			learningRate = learningRate / 40000;
+			learningRate = learningRate / 10000;
 		} else if (45 < perc && perc < 60) {
-			learningRate = learningRate / 40000;
-		} else if (60 < perc && perc < 75) {
-			learningRate = learningRate / 40000;
+			learningRate = learningRate / 10000;
+		} else if (60 < perc && perc < 75) {                                                                                   
+			learningRate = learningRate / 10000;
 		} else {
-			learningRate = learningRate / 40000;
+			learningRate = learningRate / 10000;
 		}
 		return learningRate;
 

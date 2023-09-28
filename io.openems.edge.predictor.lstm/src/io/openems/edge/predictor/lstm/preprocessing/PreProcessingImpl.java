@@ -15,11 +15,9 @@ public class PreProcessingImpl {
 	public static final Function<double[], ArrayList<Double>> CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST = UtilityConversion::convertDoubleArrayToArrayListDouble;
 	public static final Function<List<List<Double>>, double[][]> CONVERT_2DDOUBLE_LIST_TO_2DDOUBLE_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
 
-	private double max = 0;
-	private double min = 0;
+	
 	private int windowSize = 7;
 
-	private ArrayList<Double> dataList;
 	private ArrayList<Double> scaleDataList;
 
 	public TrainTestSplit trainTestSplit;
@@ -32,12 +30,12 @@ public class PreProcessingImpl {
 	public double[] validateTarget;
 	public double[] testTarget;
 
-	public PreProcessingImpl(List<Double> data, int windowSize, double minTraining, double maxTraining) {
-		this.dataList = (ArrayList<Double>) data;
+	public PreProcessingImpl(List<Double> data, int windowSize) {
 		this.windowSize = windowSize;
+		scaleDataList = (ArrayList<Double>) data;
 
-		this.max = maxTraining;// Collections.max(this.dataList);
-		this.min = minTraining;// Collections.min(this.dataList);
+//		this.max = maxTraining;// Collections.max(this.dataList);
+//		this.min = minTraining;// Collections.min(this.dataList);
 		// TODO make percentage dynamic
 		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
 	}
@@ -95,13 +93,13 @@ public class PreProcessingImpl {
 	 * @param minScaled minimum scale
 	 * @param maxScaled maximum scale
 	 */
-	public void scale(double minScaled, double maxScaled) {
-
-		double scaleFactor = maxScaled - minScaled;
-
-		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
-				.map(item -> (((item - min) / (max - min)) * (scaleFactor)) + minScaled) //
-				.collect(Collectors.toList());
+//	public void scale(double minScaled, double maxScaled) {
+//
+//		double scaleFactor = maxScaled - minScaled;
+//
+//		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
+//				.map(item -> (((item - min) / (max - min)) * (scaleFactor)) + minScaled) //
+//				.collect(Collectors.toList());
 	}
 
 	/**
@@ -112,15 +110,15 @@ public class PreProcessingImpl {
 	 * @param data      list to be reverse scaled
 	 * @return result Integer array of reverse scaled data
 	 */
-	public Integer[] reverseScale(double minScaled, double maxScaled, double[] data) {
+//	public Integer[] reverseScale(double minScaled, double maxScaled, double[] data) {
+//
+//		double scaleFactor = maxScaled - minScaled;
+//
+//		return CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST.apply(data) //
+//				.stream() //
+//				.map(item -> (((item * (this.max - this.min)) / (scaleFactor)) + this.min)) //
+//				.map(p -> p.intValue()) //
+//				.toArray(Integer[]::new);
 
-		double scaleFactor = maxScaled - minScaled;
+//	}
 
-		return CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST.apply(data) //
-				.stream() //
-				.map(item -> (((item * (this.max - this.min)) / (scaleFactor)) + this.min)) //
-				.map(p -> p.intValue()) //
-				.toArray(Integer[]::new);
-
-	}
-}

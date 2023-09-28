@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstm.model;
+package io.openems.edge.predictor.lstm.common;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,7 +12,7 @@ public class SaveModel {
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix, String fileName) {
 
 		try {
-			String relativePath = "\\testResults\\" + fileName;
+			String relativePath = "\\TestFolder\\" + fileName;
 			String path = new File(".").getCanonicalPath() + relativePath;
 			FileWriter fw = new FileWriter(path);
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -39,7 +39,7 @@ public class SaveModel {
 
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix) {
 		try {
-			String filename = "\\testResults\\model.txt";
+			String filename = "\\TestFolder\\SavedModel.txt";
 			String path = new File(".").getCanonicalPath() + filename;
 			FileWriter fw = new FileWriter(path);
 			BufferedWriter bw = new BufferedWriter(fw);

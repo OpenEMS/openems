@@ -20,20 +20,16 @@ public class CubicalInterpolation {
 	ArrayList<ArrayList<Double>> AInv = new ArrayList<ArrayList<Double>>();
 	ArrayList<Double> result = new ArrayList<Double>();
 	static int groupSize = 1;// Do not change this
-	
-
 
 	static public ArrayList<Double> Interpolate(ArrayList<Double> data) {
 		interpolationData = getInterpolatingData(data);
 
 //		
 
-		
 		ArrayList<ArrayList<Double>> xInterval = groupToInterval(interpolationData.get(0));
 		ArrayList<ArrayList<Double>> yInterval = groupToInterval(interpolationData.get(1));
 		ArrayList<Double> mVector = generateAndSolveTriDiagonal(xInterval, yInterval);
-	
-	
+
 		for (int i = 0; i < interpolationData.get(2).size(); i++) {
 
 			int tempval = (int) Math.round(interpolationData.get(2).get(i));
@@ -82,14 +78,14 @@ public class CubicalInterpolation {
 		for (int i = 0; i < A.size(); i++) {
 			A.get(i).remove(0);
 			A.get(i).remove(A.get(i).size() - 1);
-			}
-		
+		}
+
 		mVector = linearEquationSolver(A, vector);
 		mVector.add(0, 0.0);
 		mVector.add(0.0);
-		
 
-		//ArrayList<ArrayList<Double>> mVectorGrouped = groupToInterval((ArrayList<Double>) mVector);
+		// ArrayList<ArrayList<Double>> mVectorGrouped =
+		// groupToInterval((ArrayList<Double>) mVector);
 		return (ArrayList<Double>) mVector;
 
 	}
@@ -117,7 +113,7 @@ public class CubicalInterpolation {
 		return result;
 	}
 
-	static ArrayList<Double> linearEquationSolver(List<List<Double>> matA, List<Double> vectB) {		
+	static ArrayList<Double> linearEquationSolver(List<List<Double>> matA, List<Double> vectB) {
 		ArrayList<Double> x = new ArrayList<Double>();
 		double[][] tempMat = new double[matA.size()][matA.get(0).size()];
 		double[] tempVect = new double[vectB.size()];

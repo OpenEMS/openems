@@ -180,7 +180,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	bnd.identity;id='io.openems.edge.predictor.lstm';version=latest
+	bnd.identity;id='io.openems.edge.predictor.lstm'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -321,6 +321,7 @@
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
+	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
@@ -401,3 +402,4 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
 	io.openems.edge.predictor.lstm;version=snapshot
+	

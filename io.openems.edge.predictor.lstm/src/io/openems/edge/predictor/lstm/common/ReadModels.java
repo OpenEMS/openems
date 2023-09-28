@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstm.predictor;
+package io.openems.edge.predictor.lstm.common;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,17 +6,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import io.openems.edge.predictor.lstm.model.SaveModel;
-
 
 
 public class ReadModels {
 	public ArrayList<ArrayList<ArrayList<Double>>> dataList = new ArrayList<ArrayList<ArrayList<Double>>>();
-	public  ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+	public static  ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
 	public ReadModels() {
 
-		String path = "C:\\repositories\\forecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+
+		System.out.println(path);
+		String filePath = path;
+		dataList = readDataFile(filePath);
+		allModel = reshape();
+	}
+	
+	public ReadModels(String path) {		
+
 		System.out.println(path);
 		String filePath = path;
 		dataList = readDataFile(filePath);
@@ -83,7 +90,7 @@ public class ReadModels {
 		return temp2;
 	}
 
-	public  void updateModel(List<List<Integer>> index) {
+	public  void updateModel(List<List<Integer>> index,String FileName) {
 		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
@@ -94,9 +101,9 @@ public class ReadModels {
 
 		}
 		finalWeight.add(optimumWeight);
-		SaveModel.saveModels(finalWeight);
+		SaveModel.saveModels(finalWeight,FileName);
 
-		SaveModel.saveModels(finalWeight, "BestModels.txt");
+		//SaveModel.saveModels(finalWeight, "BestModels.txt");
 
 	}
 

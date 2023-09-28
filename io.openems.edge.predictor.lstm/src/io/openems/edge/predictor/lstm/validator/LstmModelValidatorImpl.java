@@ -46,7 +46,7 @@ public class LstmModelValidatorImpl extends AbstractPredictor24Hours
 
 	public LstmModelValidatorImpl() throws OpenemsNamedException {
 		super(//
-				OpenemsComponent.ChannelId.values(), //
+				OpenemsComponent.ChannelId.values(), //q
 				Controller.ChannelId.values() //
 
 		);

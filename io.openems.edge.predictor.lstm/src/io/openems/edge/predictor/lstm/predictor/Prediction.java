@@ -6,8 +6,11 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 
+
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
+import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.ReadModels;
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
 
@@ -19,7 +22,7 @@ public class Prediction {
 	public double min = 0;
 	public double max = 0;
 
-	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date) {
+	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date,double min,double max) {
 
 		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
@@ -29,17 +32,17 @@ public class Prediction {
 		ArrayList<Double> dataToPredict = data;
 		ArrayList<OffsetDateTime> dateToPredict = date;
 
-		min = Collections.min(data);
-		max = Collections.max(data);
+		 min = Collections.min(data);
+		 max = Collections.max(data);
 
 		// Interpolate
 		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict);
 		dataToPredict = interpolationManager.interpolated;
 
 		// Scaling
-		Preprocessing preprocessing = new Preprocessing(dataToPredict);
-		preprocessing.scale(min, max);
-		scaledData = preprocessing.scaledData;
+		
+		
+		scaledData = DataModification.scale(dataToPredict, min, max);
 
 		// Grouping data by hour
 		GroupBy groupBy = new GroupBy(scaledData, dateToPredict);
@@ -65,7 +68,7 @@ public class Prediction {
 		predicted = Predictor.Predict(dataGroupedByMinute1, readModels.allModel.get(readModels.allModel.size() - 1));
 
 		for (int i = 0; i < predicted.size(); i++) {
-			predictedAndScaledBack.add(ScaleBack.scaleBack(predicted.get(i), min, max));
+			predictedAndScaledBack.add(DataModification.scaleBack(predicted.get(i), min, max));
 		}
 	}
 
