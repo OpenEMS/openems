@@ -20,11 +20,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
-	@AttributeDefinition(name = "Modbus read address offset", description = "read address offset in Logo!. This is where the virtual addresses start, e.g. 808 for virtual address 101.0 in Logo!")
+	@AttributeDefinition(name = "Modbus read address offset", description = "Address offset in Logo!. This is where the virtual addresses start, e.g. 808 for virtual address 101.0 in Logo!")
 	int modbusOffsetReadAddress() default 800;
-
-	@AttributeDefinition(name = "Modbus write address offset", description = "Sometimes you want different read/write addresses. Enter same offset value for both if you don´t...")
-	int modbusOffsetWriteAddress() default 800;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
