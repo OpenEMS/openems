@@ -397,9 +397,9 @@ public class TimeOfUseTariffControllerTest {
 	@Test
 	public void createScheduleTest() {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
 
 		var states = new JsonArray();
-		var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
 		var prices = new JsonArray();
 
 		// Price provider
@@ -414,7 +414,7 @@ public class TimeOfUseTariffControllerTest {
 			states.add(state);
 		}
 
-		var result = ScheduleUtils.createSchedule(prices, states, timestamp);
+		final var result = ScheduleUtils.createSchedule(prices, states, timestamp);
 
 		// Check if the result is same size as prices.
 		assertEquals(prices.size(), result.size());
@@ -432,7 +432,7 @@ public class TimeOfUseTariffControllerTest {
 	public void handleGetScheduleRequestTest() {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 
-		var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
+		final var timestamp = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(ZonedDateTime.now(), 15).minusHours(3);
 		final var channeladdressPrices = new ChannelAddress("", "QuarterlyPrices");
 		final var channeladdressStateMachine = new ChannelAddress("", "StateMachine");
 
@@ -450,19 +450,18 @@ public class TimeOfUseTariffControllerTest {
 		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.quarterlyPrices(ZonedDateTime.now(clock),
 				DEFAULT_HOURLY_PRICES);
 		final var controlMode = ControlMode.CHARGE_CONSUMPTION;
-
-		Schedule schedule = new Schedule(controlMode, RiskLevel.HIGH, 12000, 12000, 2250, -2250,
+		final var schedule = new Schedule(controlMode, RiskLevel.HIGH, 12000, 12000, 2250, -2250,
 				timeOfUseTariffProvider.getPrices().getValues(), DEFAULT_CONSUMPTION_PREDICTION_QUARTERLY,
 				DEFAULT_PRODUCTION_PREDICTION_QUARTERLY, 1000);
 
 		schedule.createSchedule();
 
-		var result = ScheduleUtils.handleGetScheduleRequest(schedule, controlMode, null, dummyQueryResult,
+		final var result = ScheduleUtils.handleGetScheduleRequest(schedule, controlMode, null, dummyQueryResult,
 				channeladdressPrices, channeladdressStateMachine);
 
 		JsonUtils.prettyPrint(result.getResult());
 
-		var scheduleArray = result.getResult().get("schedule").getAsJsonArray();
+		final var scheduleArray = result.getResult().get("schedule").getAsJsonArray();
 
 		// Check if the logic generates 96 values.
 		assertEquals(96, scheduleArray.size());
