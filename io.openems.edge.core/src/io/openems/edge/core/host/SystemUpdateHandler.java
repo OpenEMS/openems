@@ -29,10 +29,6 @@ import io.openems.edge.core.host.jsonrpc.GetSystemUpdateStateResponse.UpdateStat
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-/**
- * This Worker reads the actual network configuration and stores it in the Host
- * configuration.
- */
 public class SystemUpdateHandler {
 
 	private static final int SHORT_TIMEOUT = 10; // [s]
@@ -76,8 +72,8 @@ public class SystemUpdateHandler {
 
 		} else {
 			// Read currently installed version
-			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show fems", SHORT_TIMEOUT)
-					.whenComplete((response, ex) -> {
+			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show " + OpenemsOEM.SYSTEM_UPDATE_PACKAGE,
+					SHORT_TIMEOUT).whenComplete((response, ex) -> {
 						if (ex != null) {
 							result.completeExceptionally(ex);
 							return;

@@ -1,6 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -17,6 +16,7 @@ import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserAlertingConfigsRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
+import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
@@ -35,7 +35,6 @@ import io.openems.common.jsonrpc.request.GetEdgeRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
-import io.openems.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
@@ -43,7 +42,6 @@ import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeResponse;
 import io.openems.common.jsonrpc.response.GetEdgesResponse;
-import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -307,10 +305,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, String edgeId,
 			User user, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		user.assertEdgeRoleIsAtLeast(SubscribeSystemLogRequest.METHOD, edgeId, Role.OWNER);
-		var token = wsData.assertToken();
 
 		// Forward to Edge
-		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+		return this.parent.edgeWebsocket.handleSubscribeSystemLogRequest(edgeId, user, wsData.getId(), request);
 	}
 
 	/**
@@ -489,27 +486,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final User user, //
 			final GetEdgesRequest request //
 	) throws OpenemsNamedException {
-		var devices = this.parent.metadata.getPageDevice(user, request.getPaginationOptions());
-
-		List<EdgeMetadata> edgeMetadata = new ArrayList<>();
-		for (var device : devices.entrySet()) {
-			var edgeOpt = this.parent.metadata.getEdge(device.getKey());
-			if (edgeOpt.isPresent()) {
-				var cachedEdge = edgeOpt.get();
-				edgeMetadata.add(new EdgeMetadata(//
-						cachedEdge.getId(), // Edge-ID
-						cachedEdge.getComment(), // Comment
-						cachedEdge.getProducttype(), // Product-Type
-						cachedEdge.getVersion(), // Version
-						device.getValue(), // Role
-						cachedEdge.isOnline(), // Online-State
-						cachedEdge.getLastmessage() // Last-Message Timestamp
-				));
-			}
-		}
-
-		return CompletableFuture //
-				.completedFuture(new GetEdgesResponse(request.getId(), edgeMetadata));
+		final var edgeMetadata = this.parent.metadata.getPageDevice(user, request.getPaginationOptions());
+		return CompletableFuture.completedFuture(new GetEdgesResponse(request.getId(), edgeMetadata));
 	}
 
 	/**
@@ -524,23 +502,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final User user, //
 			final GetEdgeRequest request //
 	) throws OpenemsNamedException {
-		var edge = this.parent.metadata.getEdge(request.edgeId)
-				.orElseThrow(() -> new OpenemsException("Unable to find edge with id [" + request.edgeId + "]"));
-
-		var role = this.parent.metadata.getRoleForEdge(user, request.edgeId);
-
-		var edgeMetdata = new EdgeMetadata(//
-				edge.getId(), // Edge-ID
-				edge.getComment(), // Comment
-				edge.getProducttype(), // Product-Type
-				edge.getVersion(), // Version
-				role, // Role
-				edge.isOnline(), // Online-State
-				edge.getLastmessage() // Last-Message Timestamp
-		);
+		final var edgeMetadata = this.parent.metadata.getEdgeMetadataForUser(user, request.edgeId);
+		if (edgeMetadata == null) {
+			throw new OpenemsException("Unable to find edge with id [" + request.edgeId + "]");
+		}
 
 		return CompletableFuture //
-				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetdata));
+				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetadata));
 	}
 
 }

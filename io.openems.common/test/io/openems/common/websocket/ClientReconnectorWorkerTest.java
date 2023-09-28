@@ -87,8 +87,8 @@ public class ClientReconnectorWorkerTest {
 	@Ignore
 	@Test
 	public void testResetWebSocketClient() throws Exception {
-		var ws = new MyWebsocketClient("name", URI.create("ws://localhost")).ws;
-		ClientReconnectorWorker.resetWebSocketClient(ws);
+		final var websocketClient = new MyWebsocketClient("name", URI.create("ws://localhost"));
+		ClientReconnectorWorker.resetWebSocketClient(websocketClient.ws, websocketClient::createWsData);
 	}
 
 }

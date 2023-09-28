@@ -88,7 +88,7 @@ export class Websocket implements WebsocketInterface {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
-            this.router.navigate(['/index']);
+            this.router.navigate(['/login']);
           }
         }
       },
@@ -154,16 +154,18 @@ export class Websocket implements WebsocketInterface {
    * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
    * 
    * @param request the JSON-RPC Request
+   * @param lang provided for @demo User. This doesn't change the global language, its just set locally 
    */
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
       this.sendRequest(request).then(r => {
         let authenticateResponse = (r as AuthenticateResponse).result;
 
-        let language = Language.getByKey(authenticateResponse.user.language.toLocaleLowerCase());
+        let language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
         this.status = 'online';
+
         // received login token -> save in cookie
         this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
@@ -183,6 +185,8 @@ export class Websocket implements WebsocketInterface {
             }
           });
         });
+
+        this.router.navigate(['/overview']);
         resolve();
       }).catch(reason => {
         this.checkErrorCode(reason);
@@ -222,7 +226,7 @@ export class Websocket implements WebsocketInterface {
 
   private onLoggedOut(): void {
     this.status = 'waiting for credentials';
-    this.cookieService.delete('token');
+    this.cookieService.delete('token', '/');
     this.service.onLogout();
   }
 

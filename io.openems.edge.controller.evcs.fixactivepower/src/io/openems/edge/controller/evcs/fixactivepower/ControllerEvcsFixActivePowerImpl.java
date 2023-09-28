@@ -26,8 +26,6 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 public class ControllerEvcsFixActivePowerImpl extends AbstractOpenemsComponent
 		implements ControllerEvcsFixActivePower, Controller, OpenemsComponent {
 
-	private static final int RUN_EVERY_MINUTES = 1;
-
 	@Reference
 	private ComponentManager componentManager;
 
@@ -56,18 +54,21 @@ public class ControllerEvcsFixActivePowerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		var now = LocalDateTime.now(this.componentManager.getClock());
+		if (this.updateTimerExpired()) {
+			ManagedEvcs evcs = this.componentManager.getComponent(this.config.evcs_id());
+			var powerLimit = this.config.power();
 
-		// Execute only every ... minutes
-		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(now)) {
-			return;
+			evcs.setChargePowerLimit(powerLimit);
 		}
+	}
 
-		ManagedEvcs evcs = this.componentManager.getComponent(this.config.evcs_id());
-
-		// set charge power
-		evcs.setChargePowerLimit(this.config.power());
-		this.lastRun = now;
+	private boolean updateTimerExpired() {
+		var now = LocalDateTime.now(this.componentManager.getClock());
+		var result = !this.lastRun.plusSeconds(this.config.updateFrequency()).isAfter(now);
+		if (result) {
+			this.lastRun = now;
+		}
+		return result;
 	}
 
 }

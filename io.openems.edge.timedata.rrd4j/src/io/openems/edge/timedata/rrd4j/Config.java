@@ -20,7 +20,13 @@ import io.openems.common.channel.PersistencePriority;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Store only Channels with a Persistence Priority above this. Be aware that too many writes can wear-out your flash storage.")
-	PersistencePriority persistencePriority() default PersistencePriority.MEDIUM;
+	PersistencePriority persistencePriority() default PersistencePriority.HIGH;
+
+	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to rrd4j.")
+	boolean isReadOnly() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
 
 	String webconsole_configurationFactory_nameHint() default "Timedata RRD4J [{id}]";
 }
