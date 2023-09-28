@@ -5,15 +5,14 @@
             <ng-container *ngIf="name">{{ name }}</ng-container>
         </td>
         <!-- Value of Parameter on the right side -->
-        <td [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
-            <ng-container *ngIf="displayValue !== null">{{ displayValue }}</ng-container>
+        <td *ngIf="displayValue !== null" [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
+            <ng-container>{{ displayValue }}</ng-container>
         </td>
 
         <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
 
         <ng-template #contentTpl>
-            <td *ngIf="contentTpl?.length > 0" [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'"
-                class="align_right">
+            <td *ngIf="!displayValue" [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
                 <!-- 'Normal' line, name and value  -->
                 <ng-content></ng-content>
             </td>
