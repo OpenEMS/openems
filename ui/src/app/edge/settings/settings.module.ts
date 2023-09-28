@@ -18,6 +18,8 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
 import { OeSystemUpdateComponent } from './systemupdate/oe-system-update.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
+import { HomeServiceAssistentComponent } from './homeassistent/homeassistent';
+import { ChartComponent } from './homeassistent/chart/chart';
 
 @NgModule({
   imports: [
@@ -41,7 +43,9 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SystemExecuteComponent,
     SystemUpdateComponent,
     SystemUpdateOldComponent,
-    AlertingComponent
+    AlertingComponent,
+    HomeServiceAssistentComponent,
+    ChartComponent
   ],
   entryComponents: [
   ],

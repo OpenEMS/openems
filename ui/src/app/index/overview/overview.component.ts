@@ -146,7 +146,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
             }
 
             let searchParamsObj = {};
-            if (this.searchParams) {
+            if (this.searchParams && this.searchParams.size > 0) {
                 for (const [key, value] of this.searchParams) {
                     searchParamsObj[key] = value;
                 }
