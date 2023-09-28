@@ -89,6 +89,7 @@
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
+	bnd.identity;id='io.openems.edge.controller.io.analog',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
@@ -128,6 +129,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe',\
+	bnd.identity;id='io.openems.edge.io.filipowski',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
@@ -244,6 +246,7 @@
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
 	io.openems.edge.controller.io.alarm;version=snapshot,\
+	io.openems.edge.controller.io.analog;version=snapshot,\
 	io.openems.edge.controller.io.channelsinglethreshold;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
@@ -286,6 +289,7 @@
 	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
+	io.openems.edge.io.filipowski;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.offgridswitch;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
