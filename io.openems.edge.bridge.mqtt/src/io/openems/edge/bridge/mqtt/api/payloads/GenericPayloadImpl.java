@@ -6,15 +6,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.OpenemsComponent;
 
 public class GenericPayloadImpl extends AbstractPayload implements Payload {
 
-	protected String deviceId;
-
 	public GenericPayloadImpl(Map<ChannelId, String> payloadKeyToChannelIdMap, String deviceId) {
 		super(payloadKeyToChannelIdMap, "timestamp", "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", true);
-		this.deviceId = deviceId;
 	}
 
 	@Override
@@ -36,11 +32,5 @@ public class GenericPayloadImpl extends AbstractPayload implements Payload {
 	@Override
 	public void updatePayloadAfterCallback(Payload payload) {
 		this.updatePayloadAfterCallback(payload.getPayloadMessage());
-	}
-
-	@Override
-	public Payload build(OpenemsComponent component) {
-		this.payload.addProperty("device", this.deviceId);
-		return super.build(component);
 	}
 }

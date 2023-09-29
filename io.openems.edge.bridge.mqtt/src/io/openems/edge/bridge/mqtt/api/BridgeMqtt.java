@@ -20,6 +20,7 @@ import io.openems.edge.common.cycle.Cycle;
  * The Interface/Nature of a MqttBridge. Provides base methods and Channels,
  * that should be called by e.g. {@link AbstractOpenEmsMqttComponent}, when
  * creating a {@link MqttProtocol} and adding it to the bridge.
+ * This Bridge is heavily inspired by the ModbusBridge.
  */
 public interface BridgeMqtt extends OpenemsComponent {
 	String DEFAULT_COMMUNICATION_FAILED_MESSAGE = "Communication with the Broker failed.";

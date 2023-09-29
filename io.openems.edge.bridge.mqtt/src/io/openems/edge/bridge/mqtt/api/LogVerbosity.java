@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.mqtt.api;
 
+// TODO Use LogVerbosity in the future.
 public enum LogVerbosity {
 	/**
 	 * Show now logs.

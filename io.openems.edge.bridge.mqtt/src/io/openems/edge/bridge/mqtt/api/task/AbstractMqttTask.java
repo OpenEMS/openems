@@ -42,7 +42,6 @@ public abstract class AbstractMqttTask implements MqttTask {
 		return this.lastExecuteDuration;
 	}
 
-	// Currently unused -> mqttTasks do not use Priorities
 	@Override
 	public Priority getPriority() {
 		return Priority.HIGH;

@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
  * This Class extends the existing {@link MqttPublishTaskImpl}. This tasks
  * allows a fixed interval time. E.g. the base MqttPublish Tasks pushes its
  * payload after X amounts of seconds. However the FixedMinute looks at the real
- * clock time an tries to push every X minute on the hour. Comparison/Example:
+ * clock time and tries to push every X minute on the hour. Comparison/Example:
  * Base Publish Tasks -> pushes every 15 minutes -> if its 15:03 -> next push
  * 15:18 -> next push 15:33 Fixed Minute -> pushes every 15 minutes -> if its
  * 15:03 -> next push 15:15 -> next push 15:30 This is important when collecting

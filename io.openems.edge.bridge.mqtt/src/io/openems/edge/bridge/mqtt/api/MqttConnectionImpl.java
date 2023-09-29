@@ -12,6 +12,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
 
+/**
+ * This handles the connection to the Mqtt Broker and provides the ability to subscribe/publish from/to it.
+ */
 public class MqttConnectionImpl implements MqttCallbackExtended {
 
 	private static final int BASIC_KEEP_ALIVE_INTERVAL = 300;
@@ -47,8 +50,6 @@ public class MqttConnectionImpl implements MqttCallbackExtended {
 		this.mqttConnectOptions.setKeepAliveInterval(BASIC_KEEP_ALIVE_INTERVAL);
 		this.mqttConnectOptions.setConnectionTimeout(10);
 		this.mqttConnectOptions.setMqttVersion(version);
-		//this.mqttConnectOptions.setHttpsHostnameVerificationEnabled(false);
-		//this.mqttConnectOptions.setSocketFactory(SSLSocketFactory.getDefault());
 		this.mqttClient.setCallback(this);
 		this.mqttConnectOptions.setAutomaticReconnect(true);
 	}
@@ -89,7 +90,7 @@ public class MqttConnectionImpl implements MqttCallbackExtended {
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-		// TODO maybe
+		// ignore
 	}
 
 	/**

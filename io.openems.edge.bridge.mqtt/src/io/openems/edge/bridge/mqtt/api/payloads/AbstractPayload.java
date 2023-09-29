@@ -27,7 +27,6 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Example Payload: <br>
  * { <br>
  * "time":"2023-07-24T16:30:00+02:00", <br>
- * "device":"pv-1", <br>
  * "electric_power_plus-1":169530, <br>
  * "electric_renergy_plus-1":1983418, <br>
  * } <br>
@@ -42,6 +41,9 @@ public abstract class AbstractPayload implements Payload {
 	protected DateTimeFormatter formatter;
 	protected String timeKey;
 	protected Map<ChannelId, String> payloadKeyToChannelIdMap;
+
+	// Sometimes a true / false cannot be processed correctly by e.g. an influx that is connected to the broker
+	// -> therefor ability to change true/false to 0/1
 	protected boolean boolConversion;
 
 	protected AbstractPayload(Map<ChannelId, String> payloadKeyToChannelIdMap, String timeKey, String timePattern,
@@ -60,10 +62,10 @@ public abstract class AbstractPayload implements Payload {
 				JsonElement channelObj;
 				var shouldConvertBool = this.boolConversion && channel.getType().equals(OpenemsType.BOOLEAN);
 				if (shouldConvertBool) {
-					boolean val = (Boolean) channel.value().get();
+					boolean val = (Boolean) value;
 					channelObj = new Gson().toJsonTree(val ? 1 : 0);
 				} else {
-					channelObj = new Gson().toJsonTree(channel.value().get());
+					channelObj = new Gson().toJsonTree(value);
 				}
 				this.payload.add(this.payloadKeyToChannelIdMap.get(channel.channelId()), channelObj);
 			});

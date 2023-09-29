@@ -6,10 +6,10 @@ import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
 import java.util.Objects;
 
 /**
- * The Wrapper Class for a Topic. It has a TopicName (the Actual URI) -> either
+ * The Wrapper Class for a Topic. It has a Topic-Name (actual URI) -> either
  * where a Payload is published to, or subscribed from. A Quality of Service
- * (0-2) And some Information for the
- * {@link MqttWorker}.
+ * (0-2).
+ * It also stores a Payload object, used by Publish/SubscribeTasks and the {@link MqttWorker}.
  */
 public class Topic {
 
@@ -18,16 +18,18 @@ public class Topic {
 
 	private final Payload payload;
 
+	//Are we subscribed to the topic URI ?
 	private boolean isSubscribed;
 
+	// Declares if we need to subscribe to this topic URI
 	private boolean needsToBeSubscribed;
 
-	// usually called by Subscribe
+	// usually called by MqttComponents, creating SubscribeTasks
 	public Topic(String topicName, Payload payload) {
 		this(topicName, 1, payload, true);
 	}
 
-	// usually called by Publish
+	// usually called by MqttComponents, creating PublishTasks
 	public Topic(String topicName, int qos, Payload payload) {
 		this(topicName, qos, payload, false);
 	}
@@ -80,19 +82,14 @@ public class Topic {
 	public boolean isSubscribed() {
 		return this.isSubscribed;
 	}
-
-	/**
-	 * Setter for the isSubscribed attribute.
-	 * 
-	 * @param subscribed a boolean.
-	 */
+	
 	public void setSubscribed(boolean subscribed) {
 		this.isSubscribed = subscribed;
 	}
 
 	/**
 	 * Attribute Getter for {@link #needsToBeSubscribed}.
-	 * 
+	 *
 	 * @return a boolean.
 	 */
 	public boolean needsToBeSubscribed() {

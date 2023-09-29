@@ -8,8 +8,9 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * Base Nature of MqttComponents extending/being
+ * Base Nature of MqttComponents. Usually they extend
  * {@link AbstractOpenEmsMqttComponent}.
+ * Provides StateChannel, called by the {@link io.openems.edge.bridge.mqtt.api.worker.MqttWorker}.
  */
 public interface MqttComponent extends OpenemsComponent {
 

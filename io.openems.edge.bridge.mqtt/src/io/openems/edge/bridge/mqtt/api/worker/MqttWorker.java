@@ -33,6 +33,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.mqtt.api.BridgeMqtt;
 import io.openems.edge.bridge.mqtt.api.MqttComponent;
 import io.openems.edge.bridge.mqtt.api.MqttConnectionImpl;
@@ -43,14 +51,6 @@ import io.openems.edge.bridge.mqtt.api.task.MqttPublishTask;
 import io.openems.edge.bridge.mqtt.api.task.MqttSubscribeTask;
 import io.openems.edge.bridge.mqtt.api.task.MqttTask;
 import io.openems.edge.bridge.mqtt.api.task.MqttWaitTask;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Stopwatch;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.TasksManager;
@@ -58,11 +58,15 @@ import io.openems.edge.common.timer.Timer;
 import io.openems.edge.core.timer.TimerManager;
 
 /**
- * The MqttWorker. This is the heart/logic part of the
- * {@link BridgeMqtt}. It manages the
- * MqttConnection, tasks, managing of tasks, updates the subscriptions, handles
- * subscribe/unsubscribe from the MqttBroker, Calculates the Time to handle all
- * MqttTasks etc. This Implementation orients itself to the ModbusWorker.
+ * The MqttWorker. This is the heart/logic part of the {@link BridgeMqtt}. It
+ * manages the MqttConnection, tasks, managing of tasks, updates the
+ * subscriptions, handles subscribe/unsubscribe from the MqttBroker, Calculates
+ * the Time to handle all MqttTasks etc. This Implementation is heavily inspired
+ * by the ModbusWorker. TODO: If needed in the future -> Instead of creating an
+ * instance of {@link MqttConnectionImpl} call a Factory, to create the
+ * connection. Since there are 2 different libraries for mqttv3 and mqttv5
+ * (paho) the "Connection" differs. (Mqttv5 is afaik not backwards compatible).
+ * A Factory would help to create either a Mqttv5 or 3 connection.
  * 
  */
 public class MqttWorker extends AbstractImmediateWorker {
@@ -98,7 +102,7 @@ public class MqttWorker extends AbstractImmediateWorker {
 	/**
 	 * Setup for the MqttConnection and Setup for the Timer.
 	 * 
-	 * @param mqttData the wrapper class of the {@link MqttData}.
+	 * @param mqttData necessary data for connection setup {@link MqttData}.
 	 * @param tm       the {@link TimerManager} of the Parent.
 	 */
 	public void initialize(MqttData mqttData, TimerManager tm) {
@@ -113,11 +117,11 @@ public class MqttWorker extends AbstractImmediateWorker {
 			);
 			this.setInitialize = true;
 		} catch (MqttException e) {
-			this.analyzeReason(e);
+			this.analyzeReasonOfMqttException(e);
 		}
 	}
 
-	private void analyzeReason(MqttException e) {
+	private void analyzeReasonOfMqttException(MqttException e) {
 		switch (e.getReasonCode()) {
 		case REASON_CODE_FAILED_AUTHENTICATION -> this.parent._setAuthenticationFailed(true);
 		case REASON_CODE_NOT_AUTHORIZED -> this.parent._setAccessDenied(true);
@@ -130,7 +134,7 @@ public class MqttWorker extends AbstractImmediateWorker {
 	/**
 	 * Converts the {@link MqttException#getReasonCode()} to a readable text.
 	 * 
-	 * @param reasonCode the reasoncode.
+	 * @param reasonCode the reasonCode.
 	 * @return the Reason as a String.
 	 */
 	private String reasonCodeToString(int reasonCode) {
@@ -138,33 +142,24 @@ public class MqttWorker extends AbstractImmediateWorker {
 		case REASON_CODE_CLIENT_EXCEPTION -> "Client Exception";
 		case REASON_CODE_INVALID_PROTOCOL_VERSION -> "BrokerVersion Mismatch. Only Version 3.1.1 is supported";
 		case REASON_CODE_INVALID_CLIENT_ID -> "Invalid ClientId -> please reactivated this component";
-		case REASON_CODE_BROKER_UNAVAILABLE, REASON_CODE_SERVER_CONNECT_ERROR ->
-			"Broker is unavailable, check URL, or try again later/Call Customer support of the Broker provider.";
-		case REASON_CODE_FAILED_AUTHENTICATION ->
-			"Authentication failed, please check Username and Password, check if \"userRequired\" is correctly set.";
-		case REASON_CODE_NOT_AUTHORIZED ->
-			"Not authorized. A Configuration tries to access a topic, that your client is not allowed to.";
-		case REASON_CODE_SUBSCRIBE_FAILED ->
-			"Subscription to a topic failed, check your Configuration or call the support of the Broker provider.";
-		case REASON_CODE_CLIENT_TIMEOUT, REASON_CODE_WRITE_TIMEOUT, REASON_CODE_CLIENT_NOT_CONNECTED ->
-			"Client Timeout, Please check your Connection and reactivate this component.";
-		case REASON_CODE_NO_MESSAGE_IDS_AVAILABLE, REASON_CODE_TOKEN_INUSE ->
-			"Internal Error, Please wait or reactivate this component.";
+		case REASON_CODE_BROKER_UNAVAILABLE, REASON_CODE_SERVER_CONNECT_ERROR -> "Broker is unavailable, check URL, or try again later/Call Customer support of the Broker provider.";
+		case REASON_CODE_FAILED_AUTHENTICATION -> "Authentication failed, please check Username and Password, check if \"userRequired\" is correctly set.";
+		case REASON_CODE_NOT_AUTHORIZED -> "Not authorized. A Configuration tries to access a topic, that your client is not allowed to.";
+		case REASON_CODE_SUBSCRIBE_FAILED -> "Subscription to a topic failed, check your Configuration or call the support of the Broker provider.";
+		case REASON_CODE_CLIENT_TIMEOUT, REASON_CODE_WRITE_TIMEOUT, REASON_CODE_CLIENT_NOT_CONNECTED -> "Client Timeout, Please check your Connection and reactivate this component.";
+		case REASON_CODE_NO_MESSAGE_IDS_AVAILABLE, REASON_CODE_TOKEN_INUSE -> "Internal Error, Please wait or reactivate this component.";
 		// case REASON_CODE_CLIENT_CONNECTED -> ; shouldn't occur/ignore
 		// case REASON_CODE_CLIENT_ALREADY_DISCONNECTED -> 32101; ignore already
 		// disconnected
-		case REASON_CODE_CLIENT_DISCONNECTING ->
-			"Couldn't handle tasks, client is disconnected. Please reactivate the Bridge.";
+		case REASON_CODE_CLIENT_DISCONNECTING -> "Couldn't handle tasks, client is disconnected. Please reactivate the Bridge.";
 		case REASON_CODE_SOCKET_FACTORY_MISMATCH -> "The provided Port is wrong, please check the Config.";
 		case REASON_CODE_SSL_CONFIG_ERROR -> "SSL Error, please Update certificates of the System.";
-		case REASON_CODE_CLIENT_DISCONNECT_PROHIBITED, REASON_CODE_CLIENT_CLOSED ->
-			"Internal Error, restart the System.";
+		case REASON_CODE_CLIENT_DISCONNECT_PROHIBITED, REASON_CODE_CLIENT_CLOSED -> "Internal Error, restart the System.";
 		case REASON_CODE_INVALID_MESSAGE -> "Invalid MQTT Package, please contact the Broker Provider";
 		case REASON_CODE_CONNECTION_LOST -> "Unexpected disconnect";
 		case REASON_CODE_CONNECT_IN_PROGRESS -> "Unexpected Connection attempt, please wait.";
 		case REASON_CODE_MAX_INFLIGHT -> "Maximum parallel Requests, reduce MqttTasks, or reduce the PublishInterval";
-		case REASON_CODE_DISCONNECTED_BUFFER_FULL ->
-			"Full Buffer, please Reconnect the Bridge to the Broker or delete the Component.";
+		case REASON_CODE_DISCONNECTED_BUFFER_FULL -> "Full Buffer, please Reconnect the Bridge to the Broker or delete the Component.";
 		default -> "Unknown reason. " + BridgeMqtt.DEFAULT_COMMUNICATION_FAILED_MESSAGE;
 		};
 	}
@@ -193,7 +188,7 @@ public class MqttWorker extends AbstractImmediateWorker {
 				// mqttConnection.
 			}
 		} catch (MqttException e) {
-			this.analyzeReason(e);
+			this.analyzeReasonOfMqttException(e);
 		}
 		if (this.mqttConnection.isConnected()) {
 			if (this.timerRevalidate.checkAndReset()) {
@@ -223,27 +218,28 @@ public class MqttWorker extends AbstractImmediateWorker {
 				if (mqttComponent != null) {
 					mqttComponent._setMqttCommunicationFailed(true);
 				}
-
 				// invalidate topic of this task
 				var topic = task.getTopic();
 				this.defectiveTopics.add(topic);
 			}
 		} else {
-			// on reconnect (callback from mqttConnection) -> set to false
-			//this.parent._setCommunicationFailed(true);
-			this.subscribedTopics.forEach(topic -> topic.setSubscribed(false)); // mark every topic as not subscribed
+			// mark every topic as not subscribed since we lost our connection and broker
+			// may not store the callbacks
+			this.subscribedTopics.forEach(topic -> topic.setSubscribed(false));
 			this.defectiveTopics.addAll(this.subscribedTopics);
 			this.subscribedTopics.clear();
 			if (this.timerRevalidate.checkAndReset()) {
 				try {
 					this.mqttConnection.disconnect();
-				} catch (MqttException e) { // when already disconnected
-				} finally { // try to reconnect when already disconnected
+				} catch (MqttException e) {
+					// usually happens when we are already disconnected -> ignore
+				} finally {
+					// try to reconnect when already disconnected
 					try {
 						this.mqttConnection.connect();
 						this.autoValidateTopics();
 					} catch (MqttException e) {
-						this.analyzeReason(e);
+						this.analyzeReasonOfMqttException(e);
 					}
 				}
 			}
@@ -252,9 +248,9 @@ public class MqttWorker extends AbstractImmediateWorker {
 	}
 
 	/**
-	 * After a certain amount of time, try to auto Validate Topics. E.g. if a topic
-	 * needs to be subscribed but is not subscribed -> subscribe. If a topic needs
-	 * to be unsubscribed -> unsubscribe.
+	 * After a certain amount of time, try to auto Validate Topics (auto
+	 * subscribe/unsubscribe). E.g. if we need a topic to subscribe to but isn't
+	 * (e.g. bc of broker disconnect).
 	 */
 	private void autoValidateTopics() {
 		this.defectiveTopics.stream().filter(topic -> //
@@ -282,8 +278,7 @@ public class MqttWorker extends AbstractImmediateWorker {
 	 * Adds the MqttProtocol and containing tasks to the publish/subscribeTask
 	 * manager.
 	 * 
-	 * @param sourceId     the parent
-	 *                     {@link MqttComponent}
+	 * @param sourceId     the parent {@link MqttComponent}
 	 * @param mqttProtocol the {@link MqttProtocol}.
 	 */
 	public void addProtocol(String sourceId, MqttProtocol mqttProtocol) {
@@ -444,20 +439,22 @@ public class MqttWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Called by the {@link MqttConnectionImpl} when the connection to the broker
-	 * was lost.
+	 * was lost. Store all subscribed Topics to the defective Topics -> We don't
+	 * know if the Broker keeps the callbacks. Therefor we subscribe all of our
+	 * Topics later again.
 	 * 
 	 * @param throwable the cause of the connection loss.
 	 */
 	public void connectionLost(Throwable throwable) {
 		if (throwable instanceof MqttException) {
-			this.analyzeReason((MqttException) throwable);
+			this.analyzeReasonOfMqttException((MqttException) throwable);
 			this.defectiveTopics.addAll(this.subscribedTopics);
 		}
 	}
 
 	/**
 	 * Called by {@link #mqttConnection}. Is a Callback and updates Payloads of a
-	 * Topic Object.
+	 * Topic Object on a new subscription Payload.
 	 * 
 	 * @param topic   the subscribed topic.
 	 * @param payload the Mqtt Payload.
@@ -473,7 +470,8 @@ public class MqttWorker extends AbstractImmediateWorker {
 	}
 
 	/**
-	 * Unsubscribes the Topic.
+	 * Unsubscribes the Topic. Add to defective Topics on UNEXPECTED_ERROR (Callback
+	 * may still exist).
 	 * 
 	 * @param unsubscribe the topic to unsubscribe.
 	 */
@@ -494,10 +492,12 @@ public class MqttWorker extends AbstractImmediateWorker {
 		try {
 			this.mqttConnection.disconnect();
 		} catch (MqttException e) {
-			// ignore
+			// ignore, if disconnect fails for whatever reason, the broker cancels the
+			// connection automatically after the
+			// keep alive time. And we can ignore the exception, due to deactivation of the
+			// component.
 		} finally {
 			super.deactivate();
-
 		}
 	}
 }

@@ -10,18 +10,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.openems.edge.bridge.mqtt.api.payloads.Payload;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.mqtt.api.payloads.Payload;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * An Abstract OpenEmsMqttComponent. OpenEms Components that connects 1 or
- * multiple OpenEmsComponents to a Broker by providing publish/subscribe tasks
+ * An abstract OpenEmsMqttComponent. OpenEms Components that connects one or
+ * multiple referenced OpenEmsComponents to a Broker by providing publish/subscribe tasks
  * should extend this component.
+ * When implementing your own OpenEmsMqttComponent, it is recommended to also consider putting a "channels" property
+ * into the configuration.
+ * This is used to display all channel of the referenced Component.
  */
 public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsComponent
 		implements OpenemsComponent, MqttComponent {
@@ -71,14 +74,14 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled,
 			ConfigurationAdmin cm, String mqttId, String referenceId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
-		// Initialize ModbusCommunicationFailed State (this also tests if the
-		// ModbusComponent nature was properly implemented)
+		// Initialize MqttCommunicationFailed State
 		this._setMqttCommunicationFailed(false);
 		this._setConfigurationFail(false);
-		// update filter for 'Modbus'
+		// update filter for 'Mqtt'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), MEMBER_MQTT, mqttId)) {
 			return true;
 		}
+		// update filter for 'ReferencedComponent'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), MEMBER_REFERENCED_COMPONENT, referenceId)) {
 			return true;
 		}
@@ -101,21 +104,22 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	 *                    'config.enabled()'
 	 * @param cm          An instance of ConfigurationAdmin. Receive it
 	 *                    using @Reference
-	 * @param modbusId    The ID of the Modbus bridge. Typically 'config.mqtt_id()'
+	 * @param mqttId    The ID of the mqtt bridge. Typically 'config.mqtt_id()'
 	 * @param referenceId The component the MqttComponent is Referencing
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
 	 * @throws OpenemsException on error
 	 */
 	protected boolean modified(ComponentContext context, String id, String alias, boolean enabled,
-			ConfigurationAdmin cm, String modbusId, String referenceId) throws OpenemsException {
+			ConfigurationAdmin cm, String mqttId, String referenceId) throws OpenemsException {
 		super.modified(context, id, alias, enabled);
 		this._setMqttCommunicationFailed(false);
 		this._setConfigurationFail(false);
-		// update filter for 'Modbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), MEMBER_MQTT, modbusId)) {
+		// update filter for 'Mqtt'
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), MEMBER_MQTT, mqttId)) {
 			return true;
 		}
+		// update filter for 'ReferencedComponent'
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), MEMBER_REFERENCED_COMPONENT, referenceId)) {
 			return true;
 		}
@@ -127,6 +131,17 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 		return false;
 	}
 
+	/**
+	 * This method updates the Component configuration, by collecting all channel of
+	 * the {@link #referenceComponent}, and putting them into the "channels"
+	 * property of the component.
+	 * 
+	 * @param channelConfigLength the length of the channels property
+	 * @param cm                  An instance of ConfigurationAdmin. Receive it *
+	 *                            using @Reference
+	 * @throws OpenemsException thrown when the configuration couldn't be updated
+	 *                          (IOException)
+	 */
 	protected void updateChannelInConfig(int channelConfigLength, ConfigurationAdmin cm) throws OpenemsException {
 		var refComponentChannel = this.referenceComponent.get().channels();
 		if (refComponentChannel.size() != channelConfigLength) {
@@ -175,9 +190,9 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	}
 
 	/**
-	 * Defines the Modbus protocol.
+	 * Defines the Mqtt protocol.
 	 *
-	 * @return the ModbusProtocol
+	 * @return the MqttProtocol
 	 * @throws OpenemsException on error
 	 */
 	protected abstract MqttProtocol defineMqttProtocol() throws OpenemsException;
@@ -192,9 +207,9 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	}
 
 	/**
-	 * Unset the Modbus bridge. Should be called by @Reference
+	 * Unset the Mqtt bridge. Should be called by @Reference
 	 *
-	 * @param mqtt the BridgeModbus Reference
+	 * @param mqtt the BridgeMqtt Reference
 	 */
 	protected void unsetMqtt(BridgeMqtt mqtt) {
 		this.mqtt.compareAndSet(mqtt, null);
@@ -204,7 +219,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	}
 
 	/**
-	 * Gets the Modbus-Bridge.
+	 * Gets the Mqtt-Bridge.
 	 *
 	 * @return the {@link BridgeMqtt}.
 	 */
@@ -250,13 +265,12 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	}
 
 	/**
-	 * Creates the Configured Map used within
-	 * {@link Payload}.
+	 * Creates the Configured KeyToChannelId Map used within {@link Payload}. E.g.
+	 * Channel ActivePower should be published to "Foo" 1 entry of the configuration
+	 * should look like "Foo=ActivePower".
+	 * A basic Payload would create a Json with an entry being {"foo": 1000}, if ActivePower was 1000 W.
 	 * 
-	 * @param keyToChannelConfig Configuration of a Key to Channel value. e.g.
-	 *                           Channel ActivePower should be published to "Foo" 1
-	 *                           entry of the configuration should look like
-	 *                           "Foo=ActivePower".
+	 * @param keyToChannelConfig Configuration of a Key to Channel value.
 	 * @return the Map ChannelId to String.
 	 */
 	protected Map<io.openems.edge.common.channel.ChannelId, String> createMap(List<String> keyToChannelConfig)
@@ -272,7 +286,8 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 					throw new RuntimeException(new OpenemsException(
 							"Configuration Issue in: " + this.id() + " The Configuration of entry: " + entry));
 				}
-				var channelOpt = channels.stream().filter(channel -> channel.channelId().id().equals(config[1]))
+				var channelOpt = channels.stream().filter(channel -> //
+								channel.channelId().id().equals(config[1]))
 						.findAny(); //
 				if (channelOpt.isPresent()) {
 					idToKeyMap.put(channelOpt.get().channelId(), config[0]);
@@ -286,7 +301,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 			});
 			this.getConfigurationFailedChannel().setNextValue(false);
 		} catch (RuntimeException e) {
-			if (e.getCause() instanceof OpenemsException ex) {
+			if (e.getCause()instanceof OpenemsException ex) {
 				throw ex;
 			}
 			this.getConfigurationFailedChannel().setNextValue(true);

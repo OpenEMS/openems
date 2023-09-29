@@ -8,9 +8,9 @@ import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
 import io.openems.edge.common.taskmanager.TasksManager;
 
 /**
- * The MqttProtocol, oriented to the ModbusProtocol. This Protocol is created by
- * each OpenEmsComponent derivated from the
- * {@link AbstractOpenEmsMqttComponent}. it provides collections of publish and
+ * The MqttProtocol, oriented to the ModbusProtocol. This protocol is created by
+ * each OpenEmsComponent extending the
+ * {@link AbstractOpenEmsMqttComponent}. It provides collections of publish and
  * subscribe Tasks. Those tasks are handled by the
  * {@link MqttWorker}.
  */
