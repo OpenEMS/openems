@@ -88,33 +88,33 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(8, Priority.HIGH, //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(8),
-								UNSIGNED_POWER_CONVERTER),
+								this.applyValueFromFactor),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(10),
-								UNSIGNED_POWER_CONVERTER),
+								this.applyValueFromFactor),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(12),
-								UNSIGNED_POWER_CONVERTER),
+								this.applyValueFromFactor),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(14),
-								UNSIGNED_POWER_CONVERTER),
+								this.applyValueFromFactor),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(16),
-								UNSIGNED_POWER_CONVERTER)));
+								this.applyValueFromFactor)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(20, Priority.HIGH, //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(20),
-							UNSIGNED_POWER_CONVERTER),
+							this.applyValueFromFactor),
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(22),
-							UNSIGNED_POWER_CONVERTER)));
+							this.applyValueFromFactor)));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(20, Priority.HIGH, //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(20),
-							UNSIGNED_POWER_CONVERTER),
+							this.applyValueFromFactor),
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(22),
-							UNSIGNED_POWER_CONVERTER)));
+							this.applyValueFromFactor)));
 		}
 		return modbusProtocol;
 	}
 
-	private final ElementToChannelConverter UNSIGNED_POWER_CONVERTER = new ElementToChannelConverter(//
+	private final ElementToChannelConverter applyValueFromFactor = new ElementToChannelConverter(//
 			value -> {
 				if (value == null) {
 					return null;
@@ -123,7 +123,7 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 				if (intValue == -10_000) {
 					return 0; // ignore '-10_000'
 				}
-				return intValue * converterFactor; //
+				return intValue * this.converterFactor; //
 			}, //
 			value -> value);
 
