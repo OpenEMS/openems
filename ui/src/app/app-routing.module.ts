@@ -54,6 +54,9 @@ import { environment } from 'src/environments';
 
 
 const routes: Routes = [
+
+  // TODO should be removed in the future
+  { path: 'index', redirectTo: 'login', pathMatch: 'full' },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
   { path: 'overview', component: OverViewComponent },
