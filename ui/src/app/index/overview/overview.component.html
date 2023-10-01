@@ -40,7 +40,7 @@
                         <ion-grid>
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
-                                    <ion-searchbar [(ngModel)]="query" (ionChange)="searchOnChange($event)">
+                                    <ion-searchbar [(ngModel)]="query" (ionChange)="searchOnChange()">
                                     </ion-searchbar>
                                 </ion-col>
                             </ion-row>
@@ -120,7 +120,8 @@
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
                     <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                        <ion-button color="primary" [routerLink]="'/installation'" routerLinkActive="active" translate
+                        <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
+                            translate
                             [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
