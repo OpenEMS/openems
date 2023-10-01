@@ -107,9 +107,9 @@
     "connectionSuccessful": "Úspěšně připojeno k {{ value }}.",
     "deviceOffline": "Zařízení není připojeno!",
     "isOffline": "OpenEMS je ve stavu offline!",
-    "loggedInAs": "Registrováno jako:",
+    "LOGGED_IN_AS": "Registrováno jako",
     "toEnergymonitor": "Do Monitoringu energetických toků…",
-    "type": "Typ:"
+    "TYPE": "Typ"
   },
   "Login": {
     "title": "Login",

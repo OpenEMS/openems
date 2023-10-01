@@ -556,7 +556,8 @@ export class Utils {
 }
 export enum YAxisTitle {
   PERCENTAGE,
-  ENERGY
+  ENERGY,
+  VOLTAGE
 }
 
 export enum ChartAxis {
@@ -611,6 +612,8 @@ export namespace HistoryUtils {
     hideLabelInLegend?: boolean,
     /** Borderstyle of label in legend */
     borderDash?: number[],
+    /** Hides shadow of chart lines, default false */
+    hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
     customUnit?: YAxisTitle,

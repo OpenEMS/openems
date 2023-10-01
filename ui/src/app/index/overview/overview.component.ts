@@ -10,6 +10,8 @@ import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 
+import { ChosenFilter } from "../filter/filter.component";
+
 @Component({
     selector: 'overview',
     templateUrl: './overview.component.html'
@@ -34,6 +36,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
     /** True, if all available edges for this user had been retrieved */
     private limitReached: boolean = false;
     protected loading: boolean = false;
+    protected searchParams: Map<string, ChosenFilter['value']> = new Map();
 
     constructor(
         public service: Service,
@@ -67,13 +70,15 @@ export class OverViewComponent implements OnInit, OnDestroy {
      * 
      * @param event from template passed event
      */
-    protected searchOnChange(event) {
+    protected searchOnChange(searchParams?: Map<string, ChosenFilter['value']>) {
+
+        if (searchParams) {
+            this.searchParams = searchParams;
+        }
+
         this.filteredEdges = [];
         this.page = 0;
         this.limitReached = false;
-
-        const query = event.target.value.toLowerCase();
-        this.query = query;
 
         this.loadNextPage().then((edges) => {
             this.filteredEdges = edges;
@@ -139,7 +144,14 @@ export class OverViewComponent implements OnInit, OnDestroy {
                 resolve([]);
                 return;
             }
-            this.service.getEdges(this.page, this.query, this.limit)
+
+            let searchParamsObj = {};
+            if (this.searchParams && this.searchParams.size > 0) {
+                for (const [key, value] of this.searchParams) {
+                    searchParamsObj[key] = value;
+                }
+            }
+            this.service.getEdges(this.page, this.query, this.limit, searchParamsObj)
                 .then((edges) => {
                     this.limitReached = edges.length < this.limit;
                     resolve(edges);

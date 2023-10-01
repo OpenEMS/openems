@@ -32,9 +32,13 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
 
   ngOnInit() {
 
-    if (this.websocket.status === 'online') {
-      this.router.navigateByUrl('/overview');
-    }
+    // TODO add websocket status observable
+    const interval = setInterval(() => {
+      if (this.websocket.status === 'online') {
+        this.router.navigateByUrl('/overview');
+        clearInterval(interval);
+      }
+    }, 1000);
 
     this.service.setCurrentComponent('', this.route);
   }
