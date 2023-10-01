@@ -15,6 +15,4 @@ The following bundles are available in OpenEMS Backend.
 This list is not complete.
 ====
 
-
 include::service.adoc.d/_include.adoc[leveloffset=+0]
-

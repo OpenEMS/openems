@@ -262,33 +262,32 @@ task copyBundleReadmes() {
 				if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
 					def bundle = sourceFile.getParentFile().getName()
 					def target = null
-					// evaluate the OpenEMS Component ('Backend' or 'Edge')
+
 					if(bundle.startsWith("io.openems.edge.")) {
-					// evaluate the bundle type (e.g. 'Controller')
-					def edgeBundle = bundle.substring("io.openems.edge.".length())
-					if(edgeBundle.endsWith(".api")) {
-						target = targetNature
-					} else if(edgeBundle.startsWith("controller.")) {
-						target = targetController
-					} else if(edgeBundle.startsWith("scheduler.")) {
-						target = targetScheduler
-					} else if(edgeBundle.startsWith("bridge.")) {
-						target = targetBridge
-					} else if(edgeBundle.startsWith("timedata.")) {
-						target = targetTimedata
-					} else {
-						target = targetDeviceService
-					}
+						def edgeBundle = bundle.substring("io.openems.edge.".length())
+						if(edgeBundle.endsWith(".api")) {
+							target = targetNature
+						} else if(edgeBundle.startsWith("controller.")) {
+							target = targetController
+						} else if(edgeBundle.startsWith("scheduler.")) {
+							target = targetScheduler
+						} else if(edgeBundle.startsWith("bridge.")) {
+							target = targetBridge
+						} else if(edgeBundle.startsWith("timedata.")) {
+							target = targetTimedata
+						} else {
+							target = targetDeviceService
+						}
 	
 					} else if(bundle.startsWith("io.openems.backend.")) {
-							def backendBundle = bundle.substring("io.openems.backend.".length())
-							if(backendBundle.startsWith("timedata.")) {
-								target = targetBackendService
-							}else if(backendBundle.startsWith("metadata.")) {
-								target = targetBackendService
-							}else{
-								return						// ignore
-							}
+						def backendBundle = bundle.substring("io.openems.backend.".length())
+						if(backendBundle.startsWith("timedata.")) {
+							target = targetBackendService
+						} else if(backendBundle.startsWith("metadata.")) {
+							target = targetBackendService
+						} else {
+							return // ignore
+						}
 
 					} else if(bundle.startsWith("io.openems.wrapper")) {
 						// ignore
