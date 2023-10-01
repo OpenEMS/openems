@@ -1,6 +1,6 @@
 = Timedata TimescaleDB
 
-OpenEMS Backend implementation for TimescaleDB: https://timescale.com
+OpenEMS Backend implementation for TimescaleDB.
 
 == Setup TimescaleDB on Debian
 
