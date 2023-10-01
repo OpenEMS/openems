@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
@@ -288,6 +289,27 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
+
+		/*
+		 * Allow only valid combinations for FENECON Home Systems
+		 */
+		if (battery instanceof BatteryFeneconHome homeBattery) {
+
+			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
+
+			// TODO: Add relation in GoodweType enum
+			// Check combination of GoodWe inverter and FENECON Home battery
+			if (!this.getGoodweHardwareType().isValidHomeBattery.test(homeBattery.getBatteryHardwareType())) {
+				this._setImpossibleFeneconHomeCombination(true);
+
+				// Set zero limits to avoid charging and discharging
+				setChargeMaxCurrent = 0;
+				setDischargeMaxCurrent = 0;
+			} else {
+				this._setImpossibleFeneconHomeCombination(false);
+			}
+		}
+
 		if (bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent)
 				|| bmsDischargeMaxCurrent.isDefined()
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)

@@ -1,5 +1,6 @@
 package io.openems.edge.app.common.props;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_LABEL;
 import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_VALUE;
 
@@ -10,15 +11,24 @@ import java.util.function.Predicate;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppDef.FieldValuesFunction;
+import io.openems.edge.core.appmanager.AppDef.FieldValuesSupplier;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
+import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder;
+import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder.SelectOption;
+import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder.SelectOptionExpressions;
+import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -89,7 +99,7 @@ public final class ComponentProps {
 			final Function<APP, List<? extends OpenemsComponent>> supplyComponents //
 	) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setLabel("Component-ID") //
+				.setTranslatedLabel("component.id.singular") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(supplyComponents.apply(app), //
 							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE);
@@ -247,6 +257,87 @@ public final class ComponentProps {
 	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier> //
 	AppDef<APP, Nameable, BundleProvider> pickTcpModbusId() {
 		return pickModbusId(c -> c.serviceFactoryPid().equals("Bridge.Modbus.Tcp"));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select component ids with a specific
+	 * order. Used for e. g. in ModbusTcpApi's or EVCS Cluster.
+	 * 
+	 * @param <APP>                   the type of the {@link OpenemsApp}
+	 * @param supplyComponents        the method to get the selectable components
+	 *                                from
+	 * @param expressionFunction      the function to get the expressions of one
+	 *                                {@link SelectOption}
+	 * @param additionalFieldSupplier the additional fields which are inserted after
+	 *                                the component selection; can be used to
+	 *                                display additional information inside the
+	 *                                modal
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp> //
+	AppDef<APP, Nameable, BundleProvider> pickOrderedArrayIds(//
+			final Function<APP, List<? extends OpenemsComponent>> supplyComponents, //
+			final FieldValuesFunction<APP, Nameable, BundleProvider, OpenemsComponent, SelectOptionExpressions> expressionFunction, //
+			final List<FieldValuesSupplier<APP, Nameable, BundleProvider, FormlyBuilder<?>>> additionalFieldSupplier //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("component.id.plural") //
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+					field.setPopupInput(property, DisplayType.STRING);
+
+					final var arrayBuilder = new ReorderArrayBuilder(property) //
+							.setLabel(TranslationUtil.getTranslation(parameter.bundle(),
+									"component.addAdditionalComponent"));
+					final var components = supplyComponents.apply(app);
+					components.stream()//
+							.map(c -> new SelectOption(c.alias(), c.id(),
+									expressionFunction == null ? null
+											: expressionFunction.apply(app, property, l, parameter, c))) //
+							.forEach(arrayBuilder::addSelectOption);
+
+					final var fields = JsonUtils.buildJsonArray() //
+							.add(arrayBuilder.build());
+
+					additionalFieldSupplier.stream() //
+							.map(t -> t.get(app, property, l, parameter)) //
+							.map(FormlyBuilder::build) //
+							.forEach(fields::add);
+
+					field.setFieldGroup(fields.build());
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select component ids with a specific
+	 * order. Used for e. g. in ModbusTcpApi's or EVCS Cluster.
+	 * 
+	 * @param <APP>                   the type of the {@link OpenemsApp}
+	 * @param <T>                     the type of the selectable components
+	 * @param type                    the class of the selectable components
+	 * @param filter                  the filter to apply on the component list
+	 * @param expressionFunction      the function to get the expressions of one
+	 *                                {@link SelectOption}
+	 * @param additionalFieldSupplier the additional fields which are inserted after
+	 *                                the component selection; can be used to
+	 *                                display additional information inside the
+	 *                                modal
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier, T extends OpenemsComponent> //
+	AppDef<APP, Nameable, BundleProvider> pickOrderedArrayIds(//
+			final Class<T> type, //
+			final Predicate<T> filter, //
+			final FieldValuesFunction<APP, Nameable, BundleProvider, OpenemsComponent, SelectOptionExpressions> expressionFunction, //
+			final List<FieldValuesSupplier<APP, Nameable, BundleProvider, FormlyBuilder<?>>> additionalFieldSupplier //
+	) {
+		return pickOrderedArrayIds(app -> {
+			final var componentUtil = app.getComponentUtil();
+			var components = componentUtil.getEnabledComponentsOfType(type).stream();
+			if (filter != null) {
+				components = components.filter(filter);
+			}
+			return components.toList();
+		}, expressionFunction, additionalFieldSupplier);
 	}
 
 	private ComponentProps() {

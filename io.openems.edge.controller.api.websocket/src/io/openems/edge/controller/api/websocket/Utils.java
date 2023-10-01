@@ -25,7 +25,9 @@ public class Utils {
 				OpenemsConstants.VERSION, // Version
 				role, // Role
 				true, // Is Online
-				ZonedDateTime.now() // now
+				ZonedDateTime.now(), // now
+				ZonedDateTime.now(), //
+				ControllerApiWebsocket.SUM_STATE //
 		));
 	}
 

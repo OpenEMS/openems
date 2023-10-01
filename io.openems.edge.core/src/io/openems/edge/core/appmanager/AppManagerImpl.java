@@ -543,10 +543,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			}
 
 			try {
+				final var tmpInstance = instance;
 				final var installedValues = this.lastUpdate = this.useAppManagerAppHelper(appHelper -> {
 					// actually install the app
-					return appHelper.installApp(user, instance, openemsApp);
+					return appHelper.installApp(user, tmpInstance, openemsApp);
 				});
+				
+				instance = installedValues.rootInstance;
 
 				warnings.addAll(installedValues.warnings);
 				this.instantiatedApps.removeAll(installedValues.modifiedOrCreatedApps);

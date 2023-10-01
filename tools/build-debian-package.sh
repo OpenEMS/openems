@@ -27,9 +27,9 @@ initialize_environment() {
 
     # Build detailed SNAPSHOT name
     if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
-        GIT_BRANCH="$(git branch --show-current)"
-        GIT_BRANCH="${GIT_BRANCH/\//"."}"
-        GIT_BRANCH="${GIT_BRANCH/-/"."}"
+        # Replace unwanted characters with '.', compliant with Debian version
+        # Ref: https://unix.stackexchange.com/a/23673
+        GIT_BRANCH="$(git branch --show-current | tr -cs 'a-zA-Z0-9\n' '.')"
         GIT_HASH=""
         if [[ $(git diff --stat) != '' ]]; then
             GIT_HASH="dirty"
