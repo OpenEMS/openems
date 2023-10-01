@@ -24,5 +24,5 @@ export const theme = {
         SETTINGS_ALERTING: null,
         SETTINGS_NETWORK_CONFIGURATION: null
     },
-    PRODUCT_TYPES: null
+    PRODUCT_TYPES: () => null
 };
