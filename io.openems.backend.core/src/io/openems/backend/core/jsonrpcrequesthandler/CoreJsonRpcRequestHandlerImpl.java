@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
 import io.openems.backend.common.jsonrpc.response.GetEdgesChannelsValuesResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
+import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
@@ -53,6 +55,9 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AppCenterMetadata.UiData appCenterMetadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile TimedataManager timedataManager;

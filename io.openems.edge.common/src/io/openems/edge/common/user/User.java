@@ -84,4 +84,9 @@ public class User extends AbstractUser {
 		return "User [id=" + this.getId() + ", name=" + this.getName() + "]";
 	}
 
+	@Override
+	public boolean hasMultipleEdges() {
+		return false;
+	}
+
 }

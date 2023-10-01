@@ -25,12 +25,13 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 
 /**
  * Describes a app for a Carlo Gavazzi meter.
@@ -107,17 +108,17 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 								.setOptions(this.buildMeterOptions(language)) //
 								.build()) //
 						.add(JsonFormlyUtil.buildSelect(Property.MODBUS_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusId.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusId")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "communication.modbusId.description")) //
 								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("modbus"),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusUnitId")) //
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
-								.setInputType(Type.NUMBER) //
+								.setInputType(InputType.NUMBER) //
 								.setDefaultValue(6) //
 								.setMin(0) //
 								.isRequired(true) //

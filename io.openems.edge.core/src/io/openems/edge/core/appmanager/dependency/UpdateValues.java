@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager.dependency;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
@@ -20,9 +21,9 @@ public class UpdateValues {
 	public UpdateValues(OpenemsAppInstance rootInstance, List<OpenemsAppInstance> modifiedOrCreatedApps,
 			List<OpenemsAppInstance> deletedApps, List<String> warnings) {
 		this.rootInstance = rootInstance;
-		this.modifiedOrCreatedApps = modifiedOrCreatedApps;
-		this.deletedApps = deletedApps;
-		this.warnings = warnings;
+		this.modifiedOrCreatedApps = Collections.unmodifiableList(modifiedOrCreatedApps);
+		this.deletedApps = Collections.unmodifiableList(deletedApps);
+		this.warnings = Collections.unmodifiableList(warnings);
 	}
 
 }

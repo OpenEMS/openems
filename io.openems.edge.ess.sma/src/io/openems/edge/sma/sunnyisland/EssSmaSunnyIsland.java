@@ -1,6 +1,7 @@
 package io.openems.edge.sma.sunnyisland;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
@@ -31,7 +32,8 @@ public interface EssSmaSunnyIsland extends ManagedSinglePhaseEss, SinglePhaseEss
 		SET_CONTROL_MODE(Doc.of(SetControlMode.values()).accessMode(AccessMode.READ_WRITE)), //
 
 		// LongReadChannels
-		SERIAL_NUMBER(Doc.of(OpenemsType.LONG)), //
+		SERIAL_NUMBER(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		// IntegerWriteChannels
 		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //

@@ -25,7 +25,7 @@
         "storageDischarge": "Storage-Discharge",
         "title": "Energy monitor",
         "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
-        "ERROR_TOO_LONG": "The display of the data is partly not possible due to reconstruction work on our servers. Your data for this period is not lost. Alternatively, it is still possible to view the historical data via <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>local monitoring</a>. We ask for your understanding."
+        "ERROR_TOO_LONG": ""
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -139,9 +139,9 @@
           "chargeLimitReached": "Charge limit reached",
           "chargeMode": "Charge Mode",
           "chargeTarget": "Charge target",
-          "charging": "Is charing",
+          "charging": "Is charging",
           "chargingLimit": "Charging limit",
-          "chargingPower": "Charing power",
+          "chargingPower": "Charging power",
           "chargingStation": "Charging Station",
           "chargingStationCluster": "Charging station cluster",
           "chargingStationDeactivated": "Charging station deactivated",
@@ -197,7 +197,8 @@
             "maxChargingDetails": "If the car can not load the entered maximum value, the power will be automatically limited.",
             "name": "Force charging",
             "shortName": "Manually"
-          }
+          },
+          "Uncontrollable": "This charging station can not be controlled."
         },
         "Heatingelement": {
           "activeForced": "Active (Minimum runtime)",
@@ -390,8 +391,9 @@
         "errorCompatible": "Compatibility errors",
         "notAvailable": "Not available",
         "Key": {
-          "enterKey": "Enter the license key you received when you ordered the app here",
+          "enterKey": "Enter the license key you received with the order of the app",
           "useRegisteredKey": "Redeem already registered licence key?",
+          "useMasterKey": "Use masterkey",
           "registeredKey": "Registered licence keys",
           "successRegisterKey": "successfully registered Key",
           "failedRegisterKey": "failed registering Key",
@@ -404,7 +406,9 @@
           "invalid": "licence key is invalid",
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
           "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
-          "invalidPattern": "Input is invalid"
+          "invalidPattern": "Input is invalid",
+          "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Note</span>: When entering the licence key, watch out for possible typos: <ul><li>small L \"l\" vs. capital i \"I\" </li><li>zero \"0\" vs. capital o \"O\"</li></ul>We always recommend copying the licence key from the delivery note and pasting it into the field above instead of typing it in manually.<br>",
+          "MASTER_KEY_HINT": "<br><span class=\"warning\">Note</span>: The master key is used in the background. No key is displayed. If a licence key is available, please use it.<br>"
         },
         "successInstall": "Successfully installed App",
         "failInstall": "Error installing App '{{error}}'",
@@ -439,6 +443,7 @@
   "General": {
     "active": "Active",
     "actualPower": "e-car Charge power",
+    "ALL": "All",
     "apply": "Apply",
     "autarchy": "Autarchy",
     "automatic": "Automatically",
@@ -498,7 +503,6 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
-    "systemState": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -537,7 +541,8 @@
     },
     "yes": "Yes",
     "no": "No",
-    "value": "value"
+    "value": "value",
+    "SUM_STATE": "System state"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -551,7 +556,283 @@
     "type": "Type",
     "OFFLINE_SINCE": "Offline since",
     "ADD_EDGE": "Add new {{ edgeShortName }}",
-    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet."
+    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
+    "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
+    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+  },
+  "INSTALLATION": {
+    "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
+    "BACK": "Back",
+    "COMPLETE": "complete",
+    "COMPLETION": {
+      "DOWNLOAD_ERROR": "The Protocol could not be downloaded",
+      "DOWNLOAD": "IBN-Protocol download",
+      "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
+      "TITLE": "Set-up complete"
+    },
+    "CONFIGURATION_EMERGENCY_RESERVE": {
+      "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
+      "EMERGENCY_RESERVE_VALUE": "Emergency reserve value",
+      "EMERGENCY_RESERVE": "Emergency power reserve {{ symbol }}",
+      "IS_ACTIVATED": "Activate Emergency power reserve?",
+      "IS_ENABLED": "Should the Emergency power function be activated?",
+      "RECENT": "Current:",
+      "TITLE": "Emergency power reserve",
+      "VALUE": "Value [%]",
+      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}",
+      "COUPLER_TITLE": "Which fieldbus coupler is installed in your Offgrid network point?"
+    },
+    "CONFIGURATION_EXECUTE": {
+      "BATTERY_INVERTER": "Battery-Inverter",
+      "BATTERY": "Battery",
+      "COMMUNICATION_WITH_BATTERY_INVERTER": "Communication with Battery-Inverter",
+      "COMMUNICATION_WITH_BATTERY": "Communication with Battery",
+      "DESCRIPTION_1": "To verify that all components of your system are set up correctly,",
+      "DESCRIPTION_2": "the configuration and the subsequent functional tests can take up to 10 minutes to complete.",
+      "EMERGENCY_CAPACITY_RESERVE": "Emergency control reserve",
+      "EMERGENCY_POWER_CONSUMER": "Emergency power consumer",
+      "ERROR": "Error",
+      "EXISTING_CONFIGURATION": "An existing configuration was found. You can overwrite these by starting the configuration process manually.",
+      "FUNCTION_TEST_ERROR": "Functional test completed with errors.",
+      "FUNCTION_TEST": "Functional test",
+      "GRID_METER": "Grid meter",
+      "GRID_OPTIMIZED_CHARGE": "Grid friendly charging",
+      "LEGEND": "Legend",
+      "NOT_YET_CONFIGURED": "Not yet configured / checked",
+      "PARTIAL_CONFIGURATION": "Not all components could be configured correctly.",
+      "PRE_CONFIGURED": "Preconfigured / Warning",
+      "PROGNOSIS": "Prognosis",
+      "RELAY_BOARD": "Relay board",
+      "SELF_CONSUMPTION": "Self-Consumption optmization",
+      "START": "Start configuration",
+      "STORAGE_SYSTEM": "Energy storage system",
+      "SUCCESSFULLY_CONFIGURED": "Successfully configured / checked",
+      "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
+      "TITLE": "Configuration",
+      "WAITING": "Configuration running...",
+      "WILL_BE_CONFIGURED": "Will be configured / checked",
+      "POWER": "Power",
+      "COMMUNICATION_WITH_METER": "Communication with the Meter",
+      "WAGO_BRIDGE": "Wago Bridge",
+      "FIELD_BUS_COUPLER": "Fieldbus coupler",
+      "CONTROL_GRID_POINT": "Control of the grid disconnection point",
+      "BATTERY_INTERFACE": "Battery interface",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
+        "WAGO_BRIDGE": "WAGO (Gray component)"
+      },
+      "COMMUNICATION_WITH_RELAY": "Communication with Relay",
+      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration."
+    },
+    "CONFIGURATION_LINE_SIDE_METER_FUSE": {
+      "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
+      "OTHER_VALUE": "Custom value",
+      "OTHER": "Other",
+      "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
+      "TITLE_HOME": "Circuit breaker at the grid connection point",
+      "VALUE": "Value [A]",
+      "METER_LABEL": "Grid connection point meter type"
+    },
+    "CONFIGURATION_SUMMARY": {
+      "BATTERY_LOCATION": "BESS Location",
+      "BATTERY": "Battery",
+      "COUNTRY_SETTING": "Country settings",
+      "CUSTOMER": "Customer",
+      "DEVICE_ACTIVE_CHECKED": "Battery and Inverter switched ON",
+      "EDGE_NUMBER": "{{ edgeShortName }} Number",
+      "GENERAL": "General",
+      "GTC_ACCEPT": "GTC",
+      "INSTALLER": "Installer",
+      "INVERTER": "Inverter",
+      "NEXT_CLICKED_DESCRIPTION": "By clicking on the 'next' button, the storage system will be configured. Make sure the battery and inverter are powered on throughout the configuration process.",
+      "PRODUCER": "Generator",
+      "SUMMARY": "Summary",
+      "TIME_OF_INSTALLATION": "Time of the installation",
+      "VALUE_AC": "Value AC",
+      "WARRANTY_TERMS": "Warranty terms",
+      "PEAK_SHAVING": "Peak shaving",
+      "APPS": "Apps",
+      "HECKERT": "Your chosen free app",
+      "ACCEPT": "acceptation"
+    },
+    "CONFIGURATION_SYSTEM": {
+      "OPEN_INSTRUCTIONS": "Open instructions",
+      "PRODUCT_NAME": "Product name",
+      "TITLE": "Please choose the product to be configured."
+    },
+    "CONFIRM_APP_SELECTION": "Are you sure to select the following app?",
+    "CONFIRM_APP_SELECTION_LATER": "Are you sure to do the selection later?",
+    "FORM": {
+      "MANDATORY_FIELD": "This is a mandatory field",
+      "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} is not a valid serial number. A valid serial number consists of {{ length }} digits.",
+      "MIN": "Please enter a value greater than {{ min }}",
+      "MAX": "Please enter a value less than {{ max }}.",
+      "EMAIL_MATCH": "E-Mails do not match.",
+      "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
+      "POSITIVE_INTEGER": "Only positive integer numbers are allowed."
+    },
+    "FORWARD": "continue",
+    "LOAD": "load",
+    "NEXT": "next",
+    "PLEASE_SELECT_OPTION": "Please select a option",
+    "PRE_INSTALLATION": {
+      "AUTHENTICATION_FAILED": "Authentication failed",
+      "EDGE_OFFLINE": "A connection to the {{ edgeShortName }} could not be established",
+      "INSTALLATION_SUCCESS": "installation started for {{ edgeId }}",
+      "NOTE": "Note:",
+      "TITLE": "Enter the installation key",
+      "WRONG_KEY_NOTE": "If the installation key is incorrectly recognized as invalid, please refresh the page."
+    },
+    "PROTOCOL_FEED_IN_MANAGEMENT": {
+      "CHOOSE": "Choose",
+      "CONSTANT_VALUE": "Cos φ value",
+      "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
+      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in (e.g. 70% limit)",
+      "EXTERNAL_CONTROLLER_CHECK": "The external control reciever was installed properly and completely according to the instructions.",
+      "EXTERNAL_LIMITATION_ACTIVATED": "External control reciever activated?",
+      "EXTERNAL_LIMITATION": "External controller (External limitation by the DSO)",
+      "FEED_IN_SETTING_DESCRIPTION": "Active power reduction in case of overfrequency",
+      "FIXED_POWER_FACTOR": "Constant Cos φ (P)",
+      "MAXIMUM_FEED_IN_VALUE": "Maximum feed-in value [W]",
+      "MAXIMUM_VALUE_DESCRIPTION": "This value may be required by the DSO.",
+      "PU_ENABLED_CURVE": "Displacement power factor Cos φ (P)",
+      "QU_ENABLED_CURVE": "Reactive power - Q(U) characteristics",
+      "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
+      "TITLE": "Feed-In management",
+      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever"
+    },
+    "PROTOCOL_INSTALLER_AND_CUSTOMER": {
+      "CITY": "City",
+      "COMPANY_CUSTOMER": "Company?",
+      "COMPANY_NAME": "Company name",
+      "COUNTRY": "Country",
+      "EMAIL_CONFIRMATION": "confirmation",
+      "EMAIL_DESCRIPTION": "for the personal access",
+      "EMAIL": "E-Mail-Address",
+      "FIRST_NAME": "First name",
+      "LAST_NAME": "Last name",
+      "PHONE": "Phone number",
+      "STREET_ADDRESS": "Street adress",
+      "TITLE_CUSTOMER": "Contact data - End customer",
+      "TITLE_INSTALLER": "Contact data - Installer",
+      "ZIP": "ZIP code"
+    },
+    "PROTOCOL_PV_AND_ADDITIONAL_AC": {
+      "ADD": "Add generator",
+      "ADDITIONAL_GENERATOR": "Additional AC-Generator",
+      "ALIAS_DESCRIPTION_ADDITIONAL_AC": "e.g. \"PV-Roof\"",
+      "ALIAS_DESCRIPTION_PV": "will be displayed in the Online-Monitoring, e.g. \"PV-Roof\"",
+      "ALIAS": "Description",
+      "DIRECTIONS": {
+        "EAST": "East",
+        "NORTH_EAST": "Northeast",
+        "NORTH_WEST": "Northwest",
+        "NORTH": "North",
+        "SOUTH_EAST": "Southeast",
+        "SOUTH_WEST": "Southwest",
+        "SOUTH": "South",
+        "WEST": "West"
+      },
+      "INSTALLED_POWER": "Installed power[Wₚ]",
+      "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
+      "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
+      "METER_TYPE": "Type of the sensor",
+      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
+      "MODBUS": "Modbus",
+      "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
+      "MODULE_TYPE_WITH_LABEL": "Type of modules {{ label }}{{ number }}",
+      "MODULE_TYPE": "Type of modules",
+      "NUMBER_OF_MODULES_WITH_LABEL": "Number of PV module {{ label }}{{ number }}",
+      "NUMBER_OF_MODULES": "Number of PV module",
+      "OPEN_MANUAL": "Open manual",
+      "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
+      "ORIENTATION": "Orientation",
+      "SAVE_TO_CONTINUE": "First save your entries to continue.",
+      "SAVE": "Save generator",
+      "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
+      "SHADE_MANAGEMENT_DESCRIPTION": "The shade management has to be disabled, only if optimizers are installed.",
+      "TITLE_ADDITIONAL_AC": "AC-Generator",
+      "TITLE_PV": "DC-PV installation (Inverter inputs)",
+      "VALID_DATA": "Enter valid data to save.",
+      "TITLE_DC": "DC-PV-Installation",
+      "AC_NOT_CREATED": "AC Meter not created!",
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
+    },
+    "PROTOCOL_SERIAL_NUMBERS": {
+      "BATTERY_MODULE": "Battery module ",
+      "BATTERY_TOWER": "Battery Tower {{ towerNumber }}",
+      "BESS_COMPONENTS": "BESS components",
+      "BMS_BOX": "BMS Box & Base",
+      "CONFIRM": "Confirm",
+      "ENTER_VALID_ADDRESS": "To apply the settings, enter valid values.",
+      "ERROR_SENDING": "Error sending Protocols.",
+      "INVERTER": "Inverter",
+      "NEXT_BUTTON_DESCRIPTION": "By clicking on “next” button, the IBN protocol will be automatically sent to FENECON GmbH.",
+      "NUMBER_OF_MODULES_PER_TOWER": "Number of modules per tower",
+      "NUMBER_OF_TOWERS": "Number of Towers",
+      "READ_DESCRIPTION": "Please check the \"System setup\". Please read the description of the fields.",
+      "SAME_SERIAL_NUMBERS": "{{ serialNumbers }} have the same serial numbers",
+      "SENT_SUCCESSFULLY": "The Protocols sent successfully.",
+      "SERIAL_NUMBER": "Serial numbers",
+      "SETUP_NOTE": "Complete the serial numbers by replacing the placeholders (marked with \"x\") with the appropriate characters.",
+      "SINGLE_SERIAL_NUMBER": " {{ label }} Serial number",
+      "SYSTEM_SETUP": "System setup",
+      "BATTERY_STRING": "Battery String {{ stringNumber }}",
+      "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
+      "EMS_BOX_HECKERT": "EMS Box",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} and Maximum: {{ max }}",
+      "NUMBER_OF_STRINGS": "Number of Strings",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Number of Modules per String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules per String for Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
+    },
+    "PROTOCOL_SYSTEM": {
+      "FIRSTNAME": "First name of the contact person",
+      "LAST_NAME": "Last name of the contact person",
+      "LOCATION_SAME_AS_ADDRESS": "Is the BESS location same as the address of the customer?",
+      "TITLE": "Location of the BESS"
+    },
+    "STEP_FROM_TO": "Step {{ from }} from {{ to }}",
+    "STEP_TO": "Step {{ number }}",
+    "SYSTEM_UPDATE": {
+      "UPDATE_WARNING": "Version must be updated!"
+    },
+    "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
+    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Self-Consumption optmization",
+      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
+      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
+      "FEATURE_DESCRIPTION": "The corresponding App must be available",
+      "HEADER": "Information on the use of the Storage system",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
+      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
+      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
+      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
+      "DISCHARGE_ABOVE_LABEL": "Discharge above",
+      "CHARGE_BELOW_LABEL": "Charge below"
+    },
+    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Select the type of Communication"
+    }
   },
   "Login": {
     "title": "Login",
@@ -585,9 +866,41 @@
     "loggedInAs": "Logged in as '{{ value }}'."
   },
   "Register": {
+    "title": "Create account",
+    "segment": {
+      "user": "User",
+      "installer": "Installer"
+    },
     "Form": {
-      "firstname": "First name"
-    }
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Contact Details",
+      "companyName": "Company name",
+      "firstname": "First name",
+      "lastname": "Last name",
+      "street": "Street",
+      "zip": "Postal code",
+      "city": "City",
+      "country": "Country",
+      "phone": "Phone number",
+      "email": "E-Mail",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "company": "Company",
+      "confirmEmail": "confirm E-Mail"
+    },
+    "button": "Create",
+    "errors": {
+      "requiredFields": "Please fill in all fields",
+      "passwordNotEqual": "Passwords are not equal",
+      "emailNotEqual": "E-Mails are not equal"
+    },
+    "success": "Registration successful",
+    "createUser": "Create installer account"
   },
   "Role": {
     "guest": "Guest",
@@ -608,5 +921,16 @@
       "UPDATE_SEARCH": "Checking for updates...",
       "UPDATE_TIME": "(This can take up to 10 minutes)"
     }
+  },
+  "CHANNELS": {
+    "SAVE": "Save Configuration",
+    "SAVE_DESCRIPTION": "Saving the configuration will overwrite the existing one for this {{edgeShortName}} and will be applied on page reload.",
+    "Component": "Component",
+    "ADD_CHANNEL": "Add Channel",
+    "ADD": "Add",
+    "VALUE": "Value",
+    "SET_VALUE": "Set value",
+    "MORE_CHANNELS": "Add More Channels",
+    "CHANNEL": "Channel"
   }
 }

@@ -19,7 +19,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
   public component: EdgeConfig.Component = null;
-  public edge: Edge;
+  public override edge: Edge;
   private currencyLabel: string; // Default
 
   ngOnChanges() {
@@ -29,8 +29,8 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   };
 
   constructor(
-    protected service: Service,
-    protected translate: TranslateService,
+    protected override service: Service,
+    protected override translate: TranslateService,
     private route: ActivatedRoute
   ) {
     super("timeOfUseTariffDischarge-chart", service, translate);
@@ -257,17 +257,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       let channels: ChannelAddress[] = [
-        new ChannelAddress(this.componentId, 'Delayed'),
         new ChannelAddress(this.componentId, 'QuarterlyPrices'),
         new ChannelAddress(this.componentId, 'StateMachine'),
         new ChannelAddress('_sum', 'EssSoc')
         // new ChannelAddress(this.componentId, 'PredictedSocWithoutLogic'),
       ];
-
-      // Channel only in the new controller.
-      if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
-        channels.push(new ChannelAddress(this.componentId, 'Charged'));
-      }
 
       resolve(channels);
     });

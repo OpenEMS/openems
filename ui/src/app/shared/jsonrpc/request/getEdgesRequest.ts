@@ -1,3 +1,4 @@
+
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -14,7 +15,8 @@ import { JsonrpcRequest } from "../base";
  *   "params": {
  *      "page": number,
  *      "query?": string,
- *      "limit?": number
+ *      "limit?": number,
+ *      "searchParams?": {}
  *   }
  * }
  * </pre>
@@ -24,13 +26,13 @@ export class GetEdgesRequest extends JsonrpcRequest {
     private static METHOD: string = "getEdges";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             page: number,
             query?: string,
-            limit?: number
+            limit?: number,
+            searchParams?: {}
         }
     ) {
         super(GetEdgesRequest.METHOD, params);
     }
-
 }

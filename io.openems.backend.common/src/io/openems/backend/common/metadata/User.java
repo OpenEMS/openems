@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
@@ -23,13 +24,19 @@ public class User extends AbstractUser {
 	 */
 	private final String token;
 
-	public User(String id, String name, String token, Language language, Role globalRole) {
-		this(id, name, token, language, globalRole, new TreeMap<>());
+	/**
+	 * True, if the current User can see multiple edges.
+	 */
+	private final boolean hasMultipleEdges;
+
+	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges) {
+		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges);
 	}
 
 	public User(String id, String name, String token, Language language, Role globalRole,
-			NavigableMap<String, Role> roles) {
+			NavigableMap<String, Role> roles, boolean hasMultipleEdges) {
 		super(id, name, language, globalRole, roles);
+		this.hasMultipleEdges = hasMultipleEdges;
 		this.token = token;
 	}
 
@@ -86,11 +93,18 @@ public class User extends AbstractUser {
 						edge.getVersion(), // Version
 						role, // Role
 						edge.isOnline(), // Online-State
-						edge.getLastmessage() // Last-Message Timestamp
+						edge.getLastmessage(), // Last-Message Timestamp
+						null, //
+						Level.OK //
 				));
 			}
 		}
 		return metadatas;
+	}
+
+	@Override
+	public boolean hasMultipleEdges() {
+		return this.hasMultipleEdges;
 	}
 
 }

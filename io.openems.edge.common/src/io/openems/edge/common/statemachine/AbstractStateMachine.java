@@ -45,6 +45,22 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	}
 
 	/**
+	 * Gets a message that is suitable for a continuous Debug log. Returns the name
+	 * of the current state in Camel-Case by default.
+	 *
+	 * @return the debug log output
+	 */
+	public String debugLog() {
+		var log = this.stateHandlers //
+				.get(this.state) //
+				.debugLog();
+		if (log != null) {
+			return log;
+		}
+		return this.state.asCamelCase();
+	}
+
+	/**
 	 * Gets the {@link StateHandler} for each State.
 	 *
 	 * <p>

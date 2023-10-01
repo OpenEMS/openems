@@ -140,10 +140,11 @@ public class EssGenericOffGridImpl
 
 	@Override
 	public String debugLog() {
-		return super.genericDebugLog() //
-				.append("|").append(this.channel(EssGenericOffGrid.ChannelId.STATE_MACHINE).value().asOptionString()) //
-				.append("|").append(this.getGridModeChannel().value().asOptionString()) //
-				.toString();
+		var sb = new StringBuilder(this.stateMachine.debugLog());
+		super.genericDebugLog(sb);
+		sb //
+				.append("|").append(this.getGridModeChannel().value().asOptionString()); //
+		return sb.toString();
 	}
 
 	@Override

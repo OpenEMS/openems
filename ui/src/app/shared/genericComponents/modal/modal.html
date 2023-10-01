@@ -1,68 +1,67 @@
 <ion-header>
-    <ion-toolbar color="primary">
-        <ion-title translate>{{title}}</ion-title>
-        <ion-buttons slot="end">
+  <ion-toolbar color="primary">
+    <ion-title translate>{{title}}</ion-title>
+    <ion-buttons slot="end">
+      <!-- Additional Toolbarbuttons -->
+      <ng-container *ngIf="toolbarButtons !== null">
+        <ng-container *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
+          <ion-button *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">
+            <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
+              [size]="button.icon?.size ??'medium'">
+            </ion-icon>
+          </ion-button>
+        </ng-container>
 
-            <!-- Additional Toolbarbuttons -->
-            <ng-container *ngIf="toolbarButtons !== null">
-                <ng-container
-                    *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
-                    <ion-button *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">
-                        <ion-icon [name]="button.icon?.name ?? 'help-circle-outline'"
-                            [color]="button.icon?.color ?? 'light'" [size]="button.icon?.size ??'medium'">
-                        </ion-icon>
-                    </ion-button>
-                </ng-container>
+        <ng-template #singleButton>
+          <ion-button [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
+            <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
+              [color]="toolbarButtons.icon?.color ??'light'" [size]="toolbarButtons.icon?.size ??'medium'">
+            </ion-icon>
+          </ion-button>
+        </ng-template>
+      </ng-container>
 
-                <ng-template #singleButton>
-                    <ion-button [href]="toolbarButtons.url" target="_blank">
-                        <ion-icon [name]="toolbarButtons.icon?.name ?? 'help-circle-outline'"
-                            [color]="toolbarButtons.icon?.color ?? 'light'"
-                            [size]="toolbarButtons.icon?.size ?? 'medium'">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
-            </ng-container>
+      <ng-content select="[button]"></ng-content>
+      <oe-help-button *ngIf="helpKey" [key]="helpKey"></oe-help-button>
 
-            <oe-help-button *ngif="helpKey" [key]="helpKey"></oe-help-button>
-
-            <ion-button (click)="modalController.dismiss()">
-                <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+      <ion-button (click)="modalController.dismiss()">
+        <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content style="height: 100%; font-size: 1em;">
 
-    <!-- If FromGroup is used -->
-    <form [formGroup]="formGroup" *ngIf="formGroup"
-        style="padding-left: 5%; padding-right: 5%; padding-top: 2%;position: absolute; overflow-y: auto;overflow-x:hidden; height: 88%; width: 100%; padding-bottom: 10%">
+  <!-- If FromGroup is used -->
+  <form [formGroup]="formGroup" *ngIf="formGroup"
+    style="padding-left: 5%; padding-right: 5%; padding-top: 2%;position: absolute; overflow-y: auto;overflow-x:hidden; height: 88%; width: 100%; padding-bottom: 10%">
 
-        <!-- For gap between header and content  -->
-        <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
-        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-    </form>
-
-    <!-- If FormGroup not used -->
-    <ng-container *ngIf="!formGroup">
-        <div
-            style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%;position: absolute; overflow-y: auto;overflow-x:hidden; height: 88%; width: 100%;">
-            <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-        </div>
+    <!-- For gap between header and content  -->
+    <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
+    <ng-container *ngTemplateOutlet="contentTpl">
     </ng-container>
+  </form>
 
-    <!-- Workaround because multiple ng-content cant be used -->
-    <ng-template #contentTpl>
-        <ng-content></ng-content>
-    </ng-template>
+  <!-- If FormGroup not used -->
+  <ng-container *ngIf="!formGroup">
+    <div
+      style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%;position: absolute; overflow-y: auto;overflow-x:hidden; height: 88%; width: 100%;">
+      <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    </div>
+  </ng-container>
 
-    <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-    <ion-fab *ngIf="formGroup?.dirty" style="padding-bottom: 10%;" vertical="bottom"
-        [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
-        <ion-fab-button (click)="applyChanges()">
-            <ion-icon size="large" name="checkmark-circle-outline">
-            </ion-icon>
-        </ion-fab-button>
-    </ion-fab>
+  <!-- Workaround because multiple ng-content cant be used -->
+  <ng-template #contentTpl>
+    <ng-content></ng-content>
+  </ng-template>
+
+  <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
+  <ion-fab *ngIf="formGroup?.dirty" style="padding-bottom: 10%;" vertical="bottom"
+    [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+    <ion-fab-button (click)="applyChanges()">
+      <ion-icon size="large" name="checkmark-circle-outline">
+      </ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

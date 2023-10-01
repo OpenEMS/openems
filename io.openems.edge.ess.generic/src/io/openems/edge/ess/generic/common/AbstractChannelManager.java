@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -40,6 +41,7 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 			ManagedSymmetricBatteryInverter batteryInverter) {
 		this.addBatteryListener(clockProvider, battery);
 		this.addBatteryInverterListener(batteryInverter);
+		this.addEssListener(clockProvider, battery);
 	}
 
 	private void addBatteryInverterListener(ManagedSymmetricBatteryInverter batteryInverter) {
@@ -107,6 +109,16 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		this.addCopyListener(battery, //
 				Battery.ChannelId.SOC, //
 				SymmetricEss.ChannelId.SOC);
+	}
+
+	private void addEssListener(ClockProvider clockProvider, Battery battery) {
+		/*
+		 * ESS / Parent
+		 */
+		if (this.parent instanceof StartStoppable) {
+			this.addOnChangeListener(this.parent, StartStoppable.ChannelId.START_STOP,
+					(ignored0, ignored1) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+		}
 	}
 
 	/**

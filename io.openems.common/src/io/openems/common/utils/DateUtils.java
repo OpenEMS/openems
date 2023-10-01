@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -92,7 +93,7 @@ public class DateUtils {
 	 */
 	public static ZonedDateTime parseZonedDateTimeOrError(String date, DateTimeFormatter formatter)
 			throws OpenemsException {
-		return parseDateOrError(ZonedDateTime.class.getSimpleName(), ZonedDateTime::parse, date, formatter);
+		return parseDateOrError(ZonedDateTime.class, ZonedDateTime::parse, date, formatter);
 	}
 
 	/**
@@ -148,7 +149,65 @@ public class DateUtils {
 	 * @throws OpenemsException on error
 	 */
 	public static LocalDate parseLocalDateOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
-		return parseDateOrError(LocalDate.class.getSimpleName(), LocalDate::parse, date, formatter);
+		return parseDateOrError(LocalDate.class, LocalDate::parse, date, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or returns null.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence)}
+	 * 
+	 * @param dateTime date the string value
+	 * @return a {@link LocalDateTime} or null
+	 */
+	public static LocalDateTime parseLocalDateTimeOrNull(String dateTime) {
+		return parseDateOrNull(LocalDateTime::parse, dateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or returns null.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param dateTime  date the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalDateTime} or null
+	 */
+	public static LocalDateTime parseLocalDateTimeOrNull(String dateTime, DateTimeFormatter formatter) {
+		return parseDateOrNull(LocalDateTime::parse, dateTime, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence)}
+	 * 
+	 * @param dateTime date the string value
+	 * @return a {@link LocalDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDateTime parseLocalDateTimeOrError(String dateTime) throws OpenemsException {
+		return parseDateOrError(LocalDateTime.class, LocalDateTime::parse, dateTime,
+				DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDateTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param dateTime  date the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDateTime parseLocalDateTimeOrError(String dateTime, DateTimeFormatter formatter)
+			throws OpenemsException {
+		return parseDateOrError(LocalDateTime.class, LocalDateTime::parse, dateTime, formatter);
 	}
 
 	/**
@@ -204,7 +263,7 @@ public class DateUtils {
 	 * @throws OpenemsException on error
 	 */
 	public static LocalTime parseLocalTimeOrError(String time, DateTimeFormatter formatter) throws OpenemsException {
-		return parseDateOrError(LocalTime.class.getSimpleName(), LocalTime::parse, time, formatter);
+		return parseDateOrError(LocalTime.class, LocalTime::parse, time, formatter);
 	}
 
 	private static final <T> T parseDateOrNull(//
@@ -227,26 +286,27 @@ public class DateUtils {
 	}
 
 	private static final <T> T parseDateOrError(//
-			String variableName, //
+			Class<?> clazz, //
 			BiFunction<String, DateTimeFormatter, T> parser, //
 			String value, //
 			DateTimeFormatter formatter //
 	) throws OpenemsException {
 		if (value == null) {
-			throw new OpenemsException(variableName + " is null");
+			throw new OpenemsException(clazz.getSimpleName() + " is null");
 		}
 		if (value.isBlank()) {
-			throw new OpenemsException(variableName + " is blank");
+			throw new OpenemsException(clazz.getSimpleName() + " is blank");
 		}
 		try {
 			return parser.apply(value, formatter);
 		} catch (DateTimeParseException e) {
 			// unable to parse date
-			throw new OpenemsException("Unable to parse " + variableName + " [" + value + "] " + e.getMessage());
+			throw new OpenemsException(
+					"Unable to parse " + clazz.getSimpleName() + " [" + value + "] " + e.getMessage());
 		} catch (RuntimeException e) {
 			// unexpected error
-			throw new OpenemsException(
-					"Unexpected error while trying to parse " + variableName + " [" + value + "] " + e.getMessage());
+			throw new OpenemsException("Unexpected error while trying to parse " + clazz.getSimpleName() //
+					+ " [" + value + "] " + e.getMessage());
 		}
 	}
 

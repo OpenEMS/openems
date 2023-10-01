@@ -1,4 +1,3 @@
-
 import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
@@ -15,7 +14,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() protected refresh: boolean;
-    @Input() protected edge: Edge;
+    @Input() protected override edge: Edge;
     @Input() public component: EdgeConfig.Component;
     @Input() public targetEpochSeconds: number;
     @Input() public chargeStartEpochSeconds: number;
@@ -27,8 +26,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     };
 
     constructor(
-        protected service: Service,
-        protected translate: TranslateService,
+        protected override service: Service,
+        protected override translate: TranslateService,
         private route: ActivatedRoute
     ) {
         super("prediction-chart", service, translate);

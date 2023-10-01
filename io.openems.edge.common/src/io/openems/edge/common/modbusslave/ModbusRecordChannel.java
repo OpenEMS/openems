@@ -117,11 +117,19 @@ public class ModbusRecordChannel extends ModbusRecord {
 		if (component != null) {
 			Channel<?> channel = component.channel(this.channelId);
 			if (channel != null) {
-			    if (channel.channelDoc().getAccessMode() == AccessMode.WRITE_ONLY) {
-				value = null;
-			    } else {
-				value = channel.value().get();
-			    }
+				value = switch (channel.channelDoc().getAccessMode()) {
+				case WRITE_ONLY -> null; // no read allowed/possible
+
+				case READ_ONLY, READ_WRITE -> {
+					try {
+						yield channel.value().get();
+					} catch (IllegalArgumentException e) {
+						this.log.warn("Channel [" + channel.address() + "] is not available: " + e.getMessage());
+						yield null;
+					}
+				}
+				};
+
 			} else {
 				this.log.warn("Channel [" + component.id() + "/" + this.channelId.id() + "] is not available for "
 						+ this.toString());

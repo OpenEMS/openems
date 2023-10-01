@@ -1,4 +1,6 @@
-apply plugin: 'com.github.node-gradle.node'
+plugins {
+	id 'com.github.node-gradle.node'
+}
 
 node {
 	nodeModulesDir = file("${projectDir}/build")

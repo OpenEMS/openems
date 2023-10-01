@@ -59,7 +59,7 @@
         </ion-card>
 
         <!-- Show and Edit UserInformation -->
-        <ion-card *ngIf="showInformation" style="margin-top: 5%;">
+        <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
@@ -67,9 +67,10 @@
             </ion-label>
           </ion-item>
           <ion-card-content>
-            <formly-form [form]="form?.formGroup" [fields]="form?.fields" [model]="form?.model" style="color: primary"
-              color="primary">
-            </formly-form>
+
+            <formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup" [fields]="userInformationFields"
+              [model]="form?.model">
+            </formly-skeleton-wrapper>
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
@@ -86,6 +87,7 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
+
       <ion-col size="12" size-md="8" size-xl="4">
         <ion-card>
           <ion-item lines="full" color="light">
@@ -103,11 +105,14 @@
               </li>
             </ul>
             <p class="ion-padding" translate>About.build</p>
-            <ul>
-              <li>
-                <a routerLinkActive="active" routerLink="/changelog">2023.8.0-SNAPSHOT</a>
-              </li>
-            </ul>
+            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
+              <p class="ion-padding" translate>About.build</p>
+              <ul>
+                <li>
+                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                </li>
+              </ul>
+            </div>
             <p class="ion-padding">
               <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
             </p>

@@ -172,10 +172,7 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc() //
-				+ "|Discharge:" + this.getDischargeMinVoltage() + ";" + this.getDischargeMaxCurrent() //
-				+ "|Charge:" + this.getChargeMaxVoltage() + ";" + this.getChargeMaxCurrent() //
-				+ "|State:" + this.stateMachine.getCurrentState();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override

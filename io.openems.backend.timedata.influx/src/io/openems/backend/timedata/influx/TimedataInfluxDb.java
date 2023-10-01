@@ -2,35 +2,42 @@ package io.openems.backend.timedata.influx;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.AbstractDataNotification;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.ResendDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
@@ -45,9 +52,10 @@ import io.openems.shared.influxdb.InfluxConnector;
 		}, //
 		immediate = true //
 )
-public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements Timedata {
-
-	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+@EventTopics({ //
+		Edge.Events.ON_SET_ONLINE //
+})
+public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements Timedata, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataInfluxDb.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
@@ -57,6 +65,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 
 	private Config config;
 	private InfluxConnector influxConnector = null;
+
+	// edgeId, channelIds which are timestamped channels
+	private final Multimap<Integer, String> timestampedChannelsForEdge = HashMultimap.create();
 
 	public TimedataInfluxDb() {
 		super("Timedata.InfluxDB");
@@ -75,16 +86,11 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
-				(throwable) -> {
-					if (throwable instanceof BadRequestException) {
-						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
-
-					} else {
-						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
-								+ ": " + throwable.getMessage());
-					}
+		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
+				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(),
+				config.maxQueueSize(), //
+				(e) -> {
+					this.fieldTypeConflictHandler.handleException(e);
 				});
 	}
 
@@ -97,29 +103,104 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
-		// parse the numeric EdgeId
-		int influxEdgeId = TimedataInfluxDb.parseNumberFromName(edgeId);
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case Edge.Events.ON_SET_ONLINE:
+			final var reader = new EventReader(event);
+			final var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
+			final var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+			if (!isOnline) {
+				try {
+					var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+					this.timestampedChannelsForEdge.removeAll(influxEdgeId);
+				} catch (OpenemsException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		}
+	}
 
-		// Write data to default location
-		this.writeData(influxEdgeId, data);
+	@Override
+	public void write(String edgeId, TimestampedDataNotification notification) {
+		if (this.config.isReadOnly()) {
+			return;
+		}
+
+		// parse the numeric EdgeId
+		try {
+			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+
+			// Write data to default location
+			this.writeData(//
+					influxEdgeId, //
+					notification, //
+					channel -> {
+						this.timestampedChannelsForEdge.put(influxEdgeId, channel);
+						return true;
+					});
+		} catch (OpenemsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void write(String edgeId, AggregatedDataNotification notification) {
+		if (this.config.isReadOnly()) {
+			return;
+		}
+
+		try {
+			int influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+
+			// Write data to default location
+			this.writeData(//
+					influxEdgeId, //
+					notification, //
+					channel -> !this.isTimestampedChannel(influxEdgeId, channel));
+		} catch (OpenemsException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void write(String edgeId, ResendDataNotification data) {
+		// TODO Auto-generated method stub
+	}
+
+	private boolean isTimestampedChannel(int edgeId, String channel) {
+		final var channelSet = this.timestampedChannelsForEdge.get(edgeId);
+		// if edge is not set the checked channel may be timestamped channel so
+		// initially return true
+		if (channelSet == null) {
+			return true;
+		}
+		return channelSet.contains(channel);
 	}
 
 	/**
 	 * Actually writes the data to InfluxDB.
 	 *
-	 * @param influxEdgeId the unique, numeric identifier of the Edge
-	 * @param data         the data
+	 * @param influxEdgeId     the unique, numeric identifier of the Edge
+	 * @param notification     the {@link AbstractDataNotification}
+	 * @param shouldWriteValue the function which determines if the value should be
+	 *                         written
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, String, JsonElement> data) {
+	private void writeData(//
+			int influxEdgeId, //
+			AbstractDataNotification notification, //
+			Function<String, Boolean> shouldWriteValue //
+	) {
+		final var data = notification.getData();
 		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
-		for (Entry<Long, Map<String, JsonElement>> dataEntry : dataEntries) {
+		for (var dataEntry : dataEntries) {
 			var channelEntries = dataEntry.getValue().entrySet();
 			if (channelEntries.isEmpty()) {
 				// no points to add
@@ -129,39 +210,21 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			var timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
 			var point = Point //
-					.measurement(InfluxConnector.MEASUREMENT) //
+					.measurement(this.config.measurement()) //
 					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, WritePrecision.MS);
-			for (Entry<String, JsonElement> channelEntry : channelEntries) {
-				this.addValue(point, channelEntry.getKey(), channelEntry.getValue());
+			for (var channelEntry : channelEntries) {
+				if (!shouldWriteValue.apply(channelEntry.getKey())) {
+					continue;
+				}
+				this.addValue(//
+						point, //
+						channelEntry.getKey(), //
+						channelEntry.getValue());
 			}
-			if (point.hasFields()) {
-				this.influxConnector.write(point);
-			}
+			
+			this.influxConnector.write(point);
 		}
-	}
-
-	/**
-	 * Parses the number of an Edge from its name string.
-	 *
-	 * <p>
-	 * e.g. translates "edge0" to "0".
-	 *
-	 * @param name the edge name
-	 * @return the number
-	 * @throws OpenemsException on error
-	 */
-	public static Integer parseNumberFromName(String name) throws OpenemsException {
-		try {
-			var matcher = TimedataInfluxDb.NAME_NUMBER_PATTERN.matcher(name);
-			if (matcher.find()) {
-				var nameNumberString = matcher.group(1);
-				return Integer.parseInt(nameNumberString);
-			}
-		} catch (NullPointerException e) {
-			/* ignore */
-		}
-		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 
 	@Override
@@ -169,17 +232,19 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(TimedataInfluxDb.parseNumberFromName(edgeId));
+		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
 
-		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
+		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution,
+				this.config.measurement());
 	}
 
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(TimedataInfluxDb.parseNumberFromName(edgeId));
-		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
+		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels,
+				this.config.measurement());
 	}
 
 	@Override
@@ -187,8 +252,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(TimedataInfluxDb.parseNumberFromName(edgeId));
-		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution,
+				this.config.measurement());
 	}
 
 	/**

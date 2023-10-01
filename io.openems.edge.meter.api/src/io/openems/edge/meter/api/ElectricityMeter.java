@@ -327,7 +327,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L1.
@@ -341,7 +341,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L2.
@@ -355,7 +355,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L3.
@@ -369,7 +369,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Consumption Energy.
@@ -383,7 +383,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L1.
@@ -397,7 +397,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L2.
@@ -411,7 +411,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L3.
@@ -425,7 +425,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),; //
 
 		private final Doc doc;
@@ -1678,9 +1678,9 @@ public interface ElectricityMeter extends OpenemsComponent {
 	public static void calculateSumActiveProductionEnergyFromPhases(ElectricityMeter meter) {
 		final Consumer<Value<Long>> calculate = ignore -> {
 			meter._setActiveProductionEnergy(TypeUtils.sum(//
-					meter.getActivePowerL1Channel().getNextValue().get(), //
-					meter.getActivePowerL2Channel().getNextValue().get(), //
-					meter.getActivePowerL3Channel().getNextValue().get())); //
+					meter.getActiveProductionEnergyL1Channel().getNextValue().get(), //
+					meter.getActiveProductionEnergyL2Channel().getNextValue().get(), //
+					meter.getActiveProductionEnergyL3Channel().getNextValue().get())); //
 		};
 		meter.getActiveProductionEnergyL1Channel().onSetNextValue(calculate);
 		meter.getActiveProductionEnergyL2Channel().onSetNextValue(calculate);

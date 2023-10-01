@@ -19,7 +19,7 @@ export class ChannelExportXlsxRequest extends JsonrpcRequest {
     public static METHOD: string = "channelExportXlsx";
 
     public constructor(
-        public readonly params: {
+        public override readonly params: {
             componentId: string
         }
     ) {

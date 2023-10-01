@@ -1,5 +1,7 @@
 package io.openems.edge.timedata.influxdb;
 
+import static java.util.Collections.emptySortedMap;
+
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -34,6 +36,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.Timeranges;
 import io.openems.shared.influxdb.InfluxConnector;
 
 /**
@@ -82,10 +85,10 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
-				(throwable) -> {
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
+		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
+				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
+				(e) -> {
+					// ignore
 				});
 	}
 
@@ -116,7 +119,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 
 		if (++this.cycleCount >= this.config.noOfCycles()) {
 			this.cycleCount = 0;
-			final var point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, WritePrecision.MS);
+			final var point = Point.measurement(this.config.measurement()).time(timestamp, WritePrecision.MS);
 			final var addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
 			this.componentManager.getEnabledComponents().stream().filter(OpenemsComponent::isEnabled)
@@ -183,7 +186,8 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
+		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution,
+				this.config.measurement());
 	}
 
 	@Override
@@ -191,7 +195,8 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels,
+				this.config.measurement());
 	}
 
 	@Override
@@ -200,13 +205,28 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution,
+				this.config.measurement());
+	}
+
+	@Override
+	public SortedMap<Long, SortedMap<ChannelAddress, JsonElement>> queryResendData(ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO implement this method
+		return emptySortedMap();
 	}
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// TODO implement this method
 		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	@Override
+	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
+			throws OpenemsNamedException {
+		// TODO implement this method
+		return new Timeranges();
 	}
 
 }
