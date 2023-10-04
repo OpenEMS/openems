@@ -232,7 +232,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	 *
 	 * @param component the BridgeMqtt Reference
 	 */
-	protected void setReferenceComponent(OpenemsComponent component) {
+	protected void setReferencedComponent(OpenemsComponent component) {
 		this.referenceComponent.set(component);
 	}
 

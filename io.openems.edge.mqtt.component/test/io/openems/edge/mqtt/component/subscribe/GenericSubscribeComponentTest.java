@@ -37,7 +37,7 @@ public class GenericSubscribeComponentTest {
 		new ComponentTest(sut)//
 				.addReference("cm", new DummyConfigurationAdmin())
 				.addReference("setMqtt", new DummyMqttBridgeImpl(BRIDGE_ID))
-				.addReference("setReferenceComponent", dummyComponent).addComponent(dummyCpm)
+				.addReference("setReferencedComponent", dummyComponent).addComponent(dummyCpm)
 				.activate(MyConfigGenericSubscribe.create() //
 						.setId(MQTT_COMPONENT_ID) //
 						.setChannels(cNames.toArray(new String[0])) //

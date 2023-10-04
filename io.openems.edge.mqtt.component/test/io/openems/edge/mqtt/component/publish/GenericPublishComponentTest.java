@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.mqtt.test.DummyMqttBridgeImpl;
-import io.openems.edge.mqtt.component.enums.TimeIntervalSeconds;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -17,6 +16,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.mqtt.component.enums.TimeIntervalSeconds;
 
 public class GenericPublishComponentTest {
 
@@ -37,7 +37,7 @@ public class GenericPublishComponentTest {
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setMqtt", new DummyMqttBridgeImpl(BRIDGE_ID)) //
-				.addReference("setReferenceComponent", dummyComponent) //
+				.addReference("setReferencedComponent", dummyComponent) //
 				// .addComponent(dummyCpm)
 				.activate(MyConfigGenericPublish //
 						.create() //

@@ -51,8 +51,8 @@ public class GenericPublishComponentFixedMinute extends AbstractOpenEmsMqttCompo
 	private GenericPublishFixedMinuteConfig config;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setReferenceComponent(OpenemsComponent referencedComponent) {
-		super.setReferenceComponent(referencedComponent);
+	protected void setReferencedComponent(OpenemsComponent referencedComponent) {
+		super.setReferencedComponent(referencedComponent);
 	}
 
 	@Override

@@ -23,7 +23,7 @@ public abstract class DummyMqttComponent extends AbstractOpenEmsMqttComponent im
 		);
 		this.channels().forEach(Channel::nextProcessImage);
 		this.setMqtt(bridge);
-		this.setReferenceComponent(referenceComponent);
+		this.setReferencedComponent(referenceComponent);
 		var context = new DummyComponentContext();
 		context.addProperty(Constants.SERVICE_PID, Constants.SERVICE_PID);
 		var cm = new DummyConfigurationAdmin();
