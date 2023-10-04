@@ -74,21 +74,6 @@ export class AdvertWidgets {
         })
         */
 
-
-        // If EmergencyreserveController not installed
-        if (edge.producttype == ProductType.HOME) {
-
-            list.push({
-                name: 'Extended-Warranty',
-                title: 'Garantieverlängerung für Bestandssysteme'
-            });
-        }
-
-        list.push({
-            name: 'Fems-App-Center',
-            title: 'FEMS App Center'
-        });
-
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
     }
