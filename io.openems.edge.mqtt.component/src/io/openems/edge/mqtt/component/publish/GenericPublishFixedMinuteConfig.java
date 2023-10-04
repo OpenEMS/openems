@@ -20,7 +20,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Mqtt-ID", description = "ID of Mqtt bridge.")
-	String mqtt_id() default "mqttBridge";
+	String mqtt_id() default "mqttBridge0";
 
 	@AttributeDefinition(name = "Reference-ID", description = "ID of Referenced OpenEms Component.")
 	String referencedComponent_id();
