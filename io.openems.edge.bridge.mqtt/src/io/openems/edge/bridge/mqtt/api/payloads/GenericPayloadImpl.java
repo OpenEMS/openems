@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.ChannelId;
 
 public class GenericPayloadImpl extends AbstractPayload implements Payload {
 
-	public GenericPayloadImpl(Map<ChannelId, String> payloadKeyToChannelIdMap, String deviceId) {
+	public GenericPayloadImpl(Map<ChannelId, String> payloadKeyToChannelIdMap) {
 		super(payloadKeyToChannelIdMap, "timestamp", "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", true);
 	}
 

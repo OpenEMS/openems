@@ -9,8 +9,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Base Nature of MqttComponents. Usually they extend
- * {@link AbstractOpenEmsMqttComponent}.
- * Provides StateChannel, called by the {@link io.openems.edge.bridge.mqtt.api.worker.MqttWorker}.
+ * {@link AbstractOpenEmsMqttComponent}. Provides StateChannel, called by the
+ * {@link io.openems.edge.bridge.mqtt.api.worker.MqttWorker}.
  */
 public interface MqttComponent extends OpenemsComponent {
 
@@ -20,7 +20,7 @@ public interface MqttComponent extends OpenemsComponent {
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
 				.text("Mqtt Communication failed")), //
 		CONFIGURATION_ISSUE(Doc.of(Level.FAULT) //
-				.text("Configuration is wrong, please Check available Channel and Channel config."))//
+				.text("Configuration is wrong, please Check available Channel and Channel config or set the Topic."))//
 		;
 
 		private final Doc doc;

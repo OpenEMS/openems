@@ -20,11 +20,11 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * An abstract OpenEmsMqttComponent. OpenEms Components that connects one or
- * multiple referenced OpenEmsComponents to a Broker by providing publish/subscribe tasks
- * should extend this component.
- * When implementing your own OpenEmsMqttComponent, it is recommended to also consider putting a "channels" property
- * into the configuration.
- * This is used to display all channel of the referenced Component.
+ * multiple referenced OpenEmsComponents to a Broker by providing
+ * publish/subscribe tasks should extend this component. When implementing your
+ * own OpenEmsMqttComponent, it is recommended to also consider putting a
+ * "channels" property into the configuration. This is used to display all
+ * channel of the referenced Component.
  */
 public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsComponent
 		implements OpenemsComponent, MqttComponent {
@@ -104,7 +104,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	 *                    'config.enabled()'
 	 * @param cm          An instance of ConfigurationAdmin. Receive it
 	 *                    using @Reference
-	 * @param mqttId    The ID of the mqtt bridge. Typically 'config.mqtt_id()'
+	 * @param mqttId      The ID of the mqtt bridge. Typically 'config.mqtt_id()'
 	 * @param referenceId The component the MqttComponent is Referencing
 	 * @return true if the target filter was updated. You may use it to abort the
 	 *         activate() method.
@@ -125,6 +125,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 		}
 		var mqtt = this.mqtt.get();
 		mqtt.removeMqttProtocol(this.id());
+		this.protocol = null;
 		if (this.isEnabled()) {
 			mqtt.addMqttProtocol(this.id(), this.getMqttProtocol());
 		}
@@ -267,8 +268,8 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 	/**
 	 * Creates the Configured KeyToChannelId Map used within {@link Payload}. E.g.
 	 * Channel ActivePower should be published to "Foo" 1 entry of the configuration
-	 * should look like "Foo=ActivePower".
-	 * A basic Payload would create a Json with an entry being {"foo": 1000}, if ActivePower was 1000 W.
+	 * should look like "Foo=ActivePower". A basic Payload would create a Json with
+	 * an entry being {"foo": 1000}, if ActivePower was 1000 W.
 	 * 
 	 * @param keyToChannelConfig Configuration of a Key to Channel value.
 	 * @return the Map ChannelId to String.
@@ -287,8 +288,7 @@ public abstract class AbstractOpenEmsMqttComponent extends AbstractOpenemsCompon
 							"Configuration Issue in: " + this.id() + " The Configuration of entry: " + entry));
 				}
 				var channelOpt = channels.stream().filter(channel -> //
-								channel.channelId().id().equals(config[1]))
-						.findAny(); //
+				channel.channelId().id().equals(config[1])).findAny(); //
 				if (channelOpt.isPresent()) {
 					idToKeyMap.put(channelOpt.get().channelId(), config[0]);
 				} else {

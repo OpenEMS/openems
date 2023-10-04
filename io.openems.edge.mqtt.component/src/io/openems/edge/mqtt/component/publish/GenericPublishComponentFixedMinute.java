@@ -2,7 +2,6 @@ package io.openems.edge.mqtt.component.publish;
 
 import java.util.Arrays;
 
-import io.openems.edge.bridge.mqtt.api.payloads.Payload;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -23,6 +22,7 @@ import io.openems.edge.bridge.mqtt.api.MqttComponent;
 import io.openems.edge.bridge.mqtt.api.MqttProtocol;
 import io.openems.edge.bridge.mqtt.api.Topic;
 import io.openems.edge.bridge.mqtt.api.payloads.GenericPayloadImpl;
+import io.openems.edge.bridge.mqtt.api.payloads.Payload;
 import io.openems.edge.bridge.mqtt.api.task.MqttPublishTaskFixedMinuteTimeImpl;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -30,8 +30,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * An Implementation of the {@link AbstractOpenEmsMqttComponent}. This class
  * provides the basic ability to publish any OpenEmsComponent/OpenEmsComponent
  * Channel by providing a Config where a Channel is mapped to a Keyword. See
- * {@link Payload} for an
- * example Payload.
+ * {@link Payload} for an example Payload.
  */
 
 @Designate(//
@@ -94,10 +93,12 @@ public class GenericPublishComponentFixedMinute extends AbstractOpenEmsMqttCompo
 
 	@Override
 	protected MqttProtocol defineMqttProtocol() throws OpenemsException {
+		if (this.config.topic().equals("")) {
+			this._setConfigurationFail(true);
+		}
 		return new MqttProtocol(this, new MqttPublishTaskFixedMinuteTimeImpl(new Topic(this.config.topic(), //
 				this.config.publishIntervalSeconds().qos, //
-				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList()),
-						this.config.deviceId())),
+				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList()))),
 				this.config.publishIntervalSeconds().interval));
 	}
 }

@@ -82,10 +82,6 @@ public class MyConfigGenericPublish extends AbstractComponentConfig implements G
 		return this.builder.referencedComponentId;
 	}
 
-	@Override
-	public String deviceId() {
-		return "test";
-	}
 
 	@Override
 	public String[] channels() {

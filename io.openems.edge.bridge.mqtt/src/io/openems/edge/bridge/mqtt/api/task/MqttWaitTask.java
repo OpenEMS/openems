@@ -3,19 +3,17 @@ package io.openems.edge.bridge.mqtt.api.task;
 import java.time.Clock;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.bridge.mqtt.api.MqttComponent;
 import io.openems.edge.bridge.mqtt.api.MqttConnectionImpl;
 import io.openems.edge.bridge.mqtt.api.Topic;
 import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
- * A WaitTask, sets the
- * {@link MqttWorker} to
- * sleep, when to tasks are given.
+ * A WaitTask, sets the {@link MqttWorker} to sleep, when to tasks are given.
  */
 public class MqttWaitTask implements MqttTask {
 	private final Logger log = LoggerFactory.getLogger(MqttWaitTask.class);

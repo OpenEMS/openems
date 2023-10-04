@@ -45,10 +45,9 @@ public interface MqttTask extends ManagedTask {
 	}
 
 	/**
-	 * This is the Execute-Method, used by the
-	 * {@link MqttWorker}. This
-	 * tells the {@link MqttPublishTask} to build its current Payload and send it to
-	 * the broker. Where as {@link MqttSubscribeTask}s update the corresponding
+	 * This is the Execute-Method, used by the {@link MqttWorker}. This tells the
+	 * {@link MqttPublishTask} to build its current Payload and send it to the
+	 * broker. Where as {@link MqttSubscribeTask}s update the corresponding
 	 * OpenEMSComponent Channel with the received values.
 	 * 
 	 * @param topics         the Topics that are updated by the Broker.

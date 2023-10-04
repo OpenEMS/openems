@@ -30,8 +30,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * An Implementation of the {@link AbstractOpenEmsMqttComponent}. This class
  * provides the basic ability to publish any OpenEmsComponent/OpenEmsComponent
  * Channel by providing a Config where a Channel is mapped to a Keyword. See
- * {@link Payload} for an
- * example Payload.
+ * {@link Payload} for an example Payload.
  */
 
 @Designate(//
@@ -93,10 +92,12 @@ public class GenericPublishImpl extends AbstractOpenEmsMqttComponent implements 
 
 	@Override
 	protected MqttProtocol defineMqttProtocol() throws OpenemsException {
+		if (this.config.topic().equals("")) {
+			this._setConfigurationFail(true);
+		}
 		return new MqttProtocol(this, new MqttPublishTaskImpl(new Topic(this.config.topic(), //
 				this.config.publishIntervalSeconds().qos, //
-				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList()),
-						this.config.deviceId())),
+				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList()))),
 				this.config.publishIntervalSeconds().interval));
 	}
 }

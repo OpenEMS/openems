@@ -25,9 +25,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Reference-ID", description = "ID of Referenced OpenEms Component.")
 	String referencedComponent_id();
 
-	@AttributeDefinition(name = "Device-ID Broker", description = "Representable Component Id within the Broker.")
-	String deviceId() default "pv-1";
-
 	@AttributeDefinition(name = "Referenced Component Channels", description = "This is auto-generated after first save.")
 	String[] channels();
 

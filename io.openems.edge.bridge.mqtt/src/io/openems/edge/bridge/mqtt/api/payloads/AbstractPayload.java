@@ -42,7 +42,8 @@ public abstract class AbstractPayload implements Payload {
 	protected String timeKey;
 	protected Map<ChannelId, String> payloadKeyToChannelIdMap;
 
-	// Sometimes a true / false cannot be processed correctly by e.g. an influx that is connected to the broker
+	// Sometimes a true / false cannot be processed correctly by e.g. an influx that
+	// is connected to the broker
 	// -> therefor ability to change true/false to 0/1
 	protected boolean boolConversion;
 

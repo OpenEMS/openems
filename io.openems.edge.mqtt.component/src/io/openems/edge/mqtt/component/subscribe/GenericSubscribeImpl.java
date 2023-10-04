@@ -30,14 +30,11 @@ import io.openems.edge.common.component.OpenemsComponent;
  * An Implementation of the {@link AbstractOpenEmsMqttComponent}. This class
  * provides the basic ability to subscribe to a topic and map values from the
  * broker to any OpenEmsComponent/OpenEmsComponent Channel In this Case in the
- * style of a
- * {@link Payload}
- * This is possible, due to configuring which Channel listens to a certain
- * keyword. See
- * {@link Payload} for an
- * example Payload. E.g. when the Payload contains "Consumption" and your
- * OpenEmsComponent listens to this keyword with its channel "ActivePower" the
- * value received within Consumption is set to ActivePower channel.
+ * style of a {@link Payload} This is possible, due to configuring which Channel
+ * listens to a certain keyword. See {@link Payload} for an example Payload.
+ * E.g. when the Payload contains "Consumption" and your OpenEmsComponent
+ * listens to this keyword with its channel "ActivePower" the value received
+ * within Consumption is set to ActivePower channel.
  */
 
 @Designate(//
@@ -100,8 +97,10 @@ public class GenericSubscribeImpl extends AbstractOpenEmsMqttComponent implement
 
 	@Override
 	protected MqttProtocol defineMqttProtocol() throws OpenemsException {
-
+		if (this.config.topic().equals("")) {
+			this._setConfigurationFail(true);
+		}
 		return new MqttProtocol(this, new MqttSubscribeTaskImpl(new Topic(this.config.topic(), //
-				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList()), ""))));
+				new GenericPayloadImpl(super.createMap(Arrays.stream(this.config.keyToChannel()).toList())))));
 	}
 }

@@ -8,8 +8,8 @@ import java.util.Objects;
 /**
  * The Wrapper Class for a Topic. It has a Topic-Name (actual URI) -> either
  * where a Payload is published to, or subscribed from. A Quality of Service
- * (0-2).
- * It also stores a Payload object, used by Publish/SubscribeTasks and the {@link MqttWorker}.
+ * (0-2). It also stores a Payload object, used by Publish/SubscribeTasks and
+ * the {@link MqttWorker}.
  */
 public class Topic {
 
@@ -18,7 +18,7 @@ public class Topic {
 
 	private final Payload payload;
 
-	//Are we subscribed to the topic URI ?
+	// Are we subscribed to the topic URI ?
 	private boolean isSubscribed;
 
 	// Declares if we need to subscribe to this topic URI
@@ -82,7 +82,7 @@ public class Topic {
 	public boolean isSubscribed() {
 		return this.isSubscribed;
 	}
-	
+
 	public void setSubscribed(boolean subscribed) {
 		this.isSubscribed = subscribed;
 	}

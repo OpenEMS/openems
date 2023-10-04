@@ -13,7 +13,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
 
 /**
- * This handles the connection to the Mqtt Broker and provides the ability to subscribe/publish from/to it.
+ * This handles the connection to the Mqtt Broker and provides the ability to
+ * subscribe/publish from/to it.
  */
 public class MqttConnectionImpl implements MqttCallbackExtended {
 

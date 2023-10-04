@@ -79,10 +79,10 @@ public class BridgeMqttImplTest {
 			config2.add("TEST=" + MyDummyOpenEmsComponent.ChannelId.DUMMY_2.id());
 			return new MqttProtocol(this, new MqttPublishTaskImpl(new Topic("test", //
 					0, //
-					new GenericPayloadImpl(super.createMap(config), //
-							"test0") //
+					new GenericPayloadImpl(super.createMap(config) //
+                    ) //
 			), 0), new MqttSubscribeTaskImpl(new Topic("test2", //
-					new GenericPayloadImpl(super.createMap(config2), ""))));
+					new GenericPayloadImpl(super.createMap(config2)))));
 		}
 	}
 

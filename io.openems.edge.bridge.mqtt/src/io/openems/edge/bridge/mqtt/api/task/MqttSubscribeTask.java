@@ -7,10 +7,9 @@ import java.util.Collection;
 
 /**
  * This Interface extends the {@link MqttTask}. This is mostly important for the
- * {@link MqttWorker}.
- * Whenever a Callback of Subscribed topics is received, the Worker checks if
- * the {@link MqttSubscribeTask} has subscribed to a {@link Topic}, that was
- * updated.
+ * {@link MqttWorker}. Whenever a Callback of Subscribed topics is received, the
+ * Worker checks if the {@link MqttSubscribeTask} has subscribed to a
+ * {@link Topic}, that was updated.
  */
 public interface MqttSubscribeTask extends MqttTask {
 
@@ -24,9 +23,8 @@ public interface MqttSubscribeTask extends MqttTask {
 	boolean hasTopic(Topic topic);
 
 	/**
-	 * Usually called by the
-	 * {@link MqttWorker}. The
-	 * Worker asks the Task, if they listen to a topic, that were updated.
+	 * Usually called by the {@link MqttWorker}. The Worker asks the Task, if they
+	 * listen to a topic, that were updated.
 	 * 
 	 * @param topics the updated Topics.
 	 * @return a Boolean

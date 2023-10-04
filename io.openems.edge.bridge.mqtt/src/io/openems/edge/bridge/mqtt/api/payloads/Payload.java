@@ -15,20 +15,18 @@ public interface Payload {
 	// Those are usually Used by the Broker
 
 	/**
-	 * This method is called by the
-	 * {@link MqttWorker}. After
-	 * Subscribing to a Topic and receiving a Callback with the Broker Payload as a
-	 * String, the internal Payload will be updated.
+	 * This method is called by the {@link MqttWorker}. After Subscribing to a Topic
+	 * and receiving a Callback with the Broker Payload as a String, the internal
+	 * Payload will be updated.
 	 * 
 	 * @param payload the payload from the Broker as a String.
 	 */
 	void updatePayloadAfterCallback(String payload);
 
 	/**
-	 * This method is called by the
-	 * {@link MqttWorker}. After
-	 * Subscribing to a Topic and receiving a Callback with the Broker Payload as a
-	 * String, the internal Payload will be updated.
+	 * This method is called by the {@link MqttWorker}. After Subscribing to a Topic
+	 * and receiving a Callback with the Broker Payload as a String, the internal
+	 * Payload will be updated.
 	 * 
 	 * @param payload the payload from the Broker as a JsonObject.
 	 */
@@ -38,20 +36,17 @@ public interface Payload {
 	// subscribe payload
 
 	/**
-	 * This method is usually Called by the
-	 * {@link MqttSubscribeTaskImpl}
-	 * After receiving an update of the
-	 * {@link MqttWorker} The
-	 * SubscribeTask updates its Payloads. The ModbusWorker does not overwrite the
-	 * Payload directly, because multiple Messages can be send to the topic and this
-	 * should be able to be handled differently, than purely overwriting everything
-	 * the SubscribeTask has. E.g. You subscribe to Topic Foo and you wait for
-	 * Message containing "A" "B" and "C", multiple devices could send messages, One
-	 * for "A", one for "B" and one for "C" to prevent overwriting and prevent
-	 * starvation, handle a more "addative" approach instead.
+	 * This method is usually Called by the {@link MqttSubscribeTaskImpl} After
+	 * receiving an update of the {@link MqttWorker} The SubscribeTask updates its
+	 * Payloads. The ModbusWorker does not overwrite the Payload directly, because
+	 * multiple Messages can be send to the topic and this should be able to be
+	 * handled differently, than purely overwriting everything the SubscribeTask
+	 * has. E.g. You subscribe to Topic Foo and you wait for Message containing "A"
+	 * "B" and "C", multiple devices could send messages, One for "A", one for "B"
+	 * and one for "C" to prevent overwriting and prevent starvation, handle a more
+	 * "addative" approach instead.
 	 * 
-	 * @param payload the Payload, stored in the
-	 *                {@link MqttWorker}.
+	 * @param payload the Payload, stored in the {@link MqttWorker}.
 	 */
 	void updatePayloadAfterCallback(Payload payload);
 
@@ -87,8 +82,7 @@ public interface Payload {
 	 * CalledBySubscribeTasks -> Usually to Update the Component based on the
 	 * subscribed Payload.
 	 * 
-	 * @param comp the referenced Component usually from
-	 *             {@link MqttComponent}.
+	 * @param comp the referenced Component usually from {@link MqttComponent}.
 	 */
 	void handlePayloadToComponent(OpenemsComponent comp);
 

@@ -14,10 +14,8 @@ import io.openems.edge.bridge.mqtt.api.worker.MqttWorker;
 /**
  * An Implementation of the {@link MqttSubscribeTask} by extending the
  * {@link AbstractMqttTask}. On Execute -> get the updated Topic from the
- * {@link MqttWorker} And
- * update the Topic it stores itself. After that, the corresponding
- * OpenEmsComponent will be updated by the
- * {@link Payload} object.
+ * {@link MqttWorker} And update the Topic it stores itself. After that, the
+ * corresponding OpenEmsComponent will be updated by the {@link Payload} object.
  */
 public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubscribeTask {
 
@@ -50,9 +48,8 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
 	/**
 	 * Called from the
 	 * {@link MqttTask#execute(Collection, MqttConnectionImpl, Clock)} method. After
-	 * finding the corresponding topic, update the stored
-	 * {@link Payload} within
-	 * the {@link Topic} object and update the reference Component by calling the
+	 * finding the corresponding topic, update the stored {@link Payload} within the
+	 * {@link Topic} object and update the reference Component by calling the
 	 * {@link MqttComponent#getReferenceComponent()}. method.
 	 * 
 	 * @param topic the corresponding {@link Topic}, received from the updated Topic
