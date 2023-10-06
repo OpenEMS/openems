@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -14,14 +15,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SinglePhase;
@@ -34,7 +37,6 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE//
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPlugImpl extends AbstractOpenemsComponent
@@ -43,9 +45,12 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlugImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
-	private ShellyApi shellyApi = null;
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
+	private String baseUrl;
+
+	@Reference
+	private BridgeHttp httpBridge;
 
 	public IoShellyPlugImpl() {
 		super(//
@@ -64,9 +69,20 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.baseUrl = "http://" + config.ip();
+
+		if (!this.isEnabled()) {
+			return;
+		}
+		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", t -> {
+			this.processHttpResult(t);
+			this._setSlaveCommunicationFailed(false);
+		}, t -> {
+			this.logDebug(this.log, t.getMessage());
+			this._setSlaveCommunicationFailed(true);
+		});
 	}
 
 	@Override
@@ -101,39 +117,21 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.eventBeforeProcessImage();
-			break;
-
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.eventExecuteWrite();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
+			this.executeWrite(this.getRelayChannel(), 0);
+		}
 		}
 	}
 
-	/**
-	 * Execute on Cycle Event "Before Process Image".
-	 */
-	private void eventBeforeProcessImage() {
-		Boolean relayIson = null;
-		Integer power = null;
-		Long energy = null;
-		try {
-			var json = this.shellyApi.getStatus();
-			var relays = JsonUtils.getAsJsonArray(json, "relays");
-			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-			var meters = JsonUtils.getAsJsonArray(json, "meters");
-			var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
-			power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
-			energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
+	private void processHttpResult(JsonElement jsonElement) throws OpenemsNamedException {
+		final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
+		final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+		final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
+		final var meters = JsonUtils.getAsJsonArray(jsonElement, "meters");
+		final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+		final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+		final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
-			this._setSlaveCommunicationFailed(false);
-
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
-			this._setSlaveCommunicationFailed(true);
-		}
 		this._setRelay(relayIson);
 		this._setActivePower(power);
 		this._setActiveProductionEnergy(energy);
@@ -141,21 +139,14 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Execute on Cycle Event "Execute Write".
+	 * 
+	 * @param channel write channel
+	 * @param index   index
 	 */
-	private void eventExecuteWrite() {
-		try {
-			this.executeWrite(this.getRelayChannel(), 0);
-
-			this._setSlaveCommunicationFailed(false);
-		} catch (OpenemsNamedException e) {
-			this._setSlaveCommunicationFailed(true);
-		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
+	private void executeWrite(BooleanWriteChannel channel, int index) {
 		var readValue = channel.value().get();
 		var writeValue = channel.getNextWriteValueAndReset();
-		if (!writeValue.isPresent()) {
+		if (writeValue.isEmpty()) {
 			// no write value
 			return;
 		}
@@ -163,7 +154,10 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			// read value = write value
 			return;
 		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
+		final var url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
+		this.httpBridge.request(url).whenComplete((t, e) -> {
+			this._setSlaveCommunicationFailed(e != null);
+		});
 	}
 
 	@Override
