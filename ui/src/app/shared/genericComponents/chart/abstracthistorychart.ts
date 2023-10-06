@@ -3,11 +3,11 @@ import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
+import { startOfMonth } from 'date-fns';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { startOfMonth } from 'date-fns';
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
@@ -21,10 +21,10 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 import { Language } from '../../type/language';
 import { ColorUtils } from '../../utils/color/color.utils';
 import { DateUtils } from '../../utils/dateutils/dateutils';
+import { TimeUtils } from '../../utils/timeutils/timeutils';
 import { Converter } from '../shared/converter';
 
 import 'chartjs-adapter-date-fns';
-import { TimeUtils } from '../../utils/timeutils/timeutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
@@ -46,7 +46,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public datasets: Chart.ChartDataset[] = HistoryUtils.createEmptyDataset(this.translate);
   public options: any | null = DEFAULT_TIME_CHART_OPTIONS;
   public colors: any[] = [];
-  public chartObject: HistoryUtils.ChartData = null;
+  public chartObject: HistoryUtils.ChartData | null = null;
 
   protected spinnerId: string = uuidv4();
   protected chartType: 'line' | 'bar' = 'bar';
@@ -313,7 +313,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param chartType the chart type
    * @returns chart options
    */
-  static applyChartTypeSpecificOptionsChanges(chartType: string, options: Chart.ChartOptions, service: Service): Chart.ChartOptions {
+  public static applyChartTypeSpecificOptionsChanges(chartType: string, options: Chart.ChartOptions, service: Service, chartObject: HistoryUtils.ChartData | null): Chart.ChartOptions {
     switch (chartType) {
       case 'bar':
         options.plugins.tooltip.mode = 'x';
@@ -355,6 +355,12 @@ export abstract class AbstractHistoryChart implements OnInit {
         options.scales.x['offset'] = false;
         options.scales.x.ticks['source'] = 'data';
         options.plugins.tooltip.mode = 'index';
+
+        if (chartObject) {
+          for (let yAxis of chartObject.yAxes) {
+            options.scales[yAxis.yAxisId]['stacked'] = false;
+          }
+        }
         break;
     }
 
@@ -546,7 +552,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string): Chart.ChartOptions {
 
     let tooltipsLabel: string | null = null;
-    let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
+    let options: Chart.ChartOptions = Utils.deepCopy(<Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
 
     chartObject.yAxes.forEach((element) => {
       options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale);
@@ -561,8 +567,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
     };
 
-    options = AbstractHistoryChart.applyChartTypeSpecificOptionsChanges(chartType, options, service);
-
+    options = AbstractHistoryChart.applyChartTypeSpecificOptionsChanges(chartType, options, service, chartObject);
 
     options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
 
@@ -612,6 +617,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           chartLegendLabelItems.push({
             text: dataset.label,
             datasetIndex: index,
+            fontColor: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-text'),
             fillStyle: dataset.backgroundColor?.toString(),
             hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
             lineWidth: 2,
@@ -680,7 +686,6 @@ export abstract class AbstractHistoryChart implements OnInit {
     options.scales.x.ticks['source'] = 'auto';
     options.scales.x.ticks.maxTicksLimit = 31;
     options.scales.x['bounds'] = 'ticks';
-    options.scales.x.stacked = true;
 
     return options;
   }
@@ -706,6 +711,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             min: 0,
             max: 1,
             beginAtZero: true,
+
             title: {
               text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               display: true,
@@ -714,11 +720,12 @@ export abstract class AbstractHistoryChart implements OnInit {
                 size: 11,
               },
             },
+
             grid: {
               display: element.displayGrid ?? true,
             },
             ticks: {
-
+              color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary'),
               // Two states are possible
               callback: function (value, index, ticks) {
                 return Converter.ON_OFF(translate)(value);
@@ -810,7 +817,6 @@ export abstract class AbstractHistoryChart implements OnInit {
       case YAxisTitle.ENERGY:
       case YAxisTitle.VOLTAGE:
         options.scales[element.yAxisId] = {
-          stacked: true,
           title: {
             text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
             display: true,

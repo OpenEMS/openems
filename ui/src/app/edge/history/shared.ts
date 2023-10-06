@@ -170,6 +170,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
 
             position: 'bottom',
             labels: {
+                color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary'),
                 generateLabels: (chart: Chart.Chart) => { return null; },
             },
             onClick: (event, legendItem, legend) => { },

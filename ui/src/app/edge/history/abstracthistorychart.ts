@@ -297,6 +297,14 @@ export abstract class AbstractHistoryChart {
 
         const locale = this.service.translate.currentLang;
         const yAxis: HistoryUtils.yAxis = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
+        const chartObject: HistoryUtils.ChartData = {
+            input: [],
+            output: () => [],
+            yAxes: [yAxis],
+            tooltip: {
+                formatNumber: this.formatNumber
+            }
+        };
         const unit = this.unit;
         const formatNumber = this.formatNumber;
         const colors = this.colors;
@@ -402,7 +410,7 @@ export abstract class AbstractHistoryChart {
         options.scales.x['stacked'] = true;
         options.scales[ChartAxis.LEFT]['stacked'] = false;
 
-        NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service);
+        NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service, chartObject);
 
         /** Overwrite default yAxisId */
         this.datasets = this.datasets
