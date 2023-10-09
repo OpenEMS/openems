@@ -1,3 +1,6 @@
 = io.openems.edge.meter.emh
 
+Implementation of an EMH LZQJ meter with modbus interface. The modbus addresses are configured by the metering point service provider (german: Messstellenbetreiber) and are set according to OBIS values.
+These addresses are unfortunately individual and have to by configured within the module´s source code.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.emh[Source Code icon:github[]]
