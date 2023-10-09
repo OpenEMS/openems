@@ -23,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
@@ -37,13 +38,15 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 		implements MeterEmh, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private MeterType meterType = MeterType.GRID;
+	private Config config;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private boolean invert; // Swaps Consumption / Production Energy
-	private int converterFactor; // necessary if current converters are used
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
 	public MeterEmhImpl() {
 		super(//
@@ -54,33 +57,20 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
-
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.meterType = config.type();
-		this.invert = config.invert();
-		this.converterFactor = config.converterFactor();
+		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		// this.config = config;
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return this.meterType;
-		// return this.config.type();
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override
@@ -98,7 +88,7 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(16),
 								this.applyValueFromFactor)));
 
-		if (this.invert) {
+		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(20, Priority.HIGH, //
 					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(20),
 							this.applyValueFromFactor),
@@ -123,7 +113,7 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 				if (intValue == -10_000) {
 					return 0; // ignore '-10_000'
 				}
-				return intValue * this.converterFactor; //
+				return intValue * this.config.converterFactor(); //
 			}, //
 			value -> value);
 
@@ -136,6 +126,13 @@ public class MeterEmhImpl extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode));
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode),
+				ModbusSlaveNatureTable.of(MeterEmh.class, accessMode, 100) //
+						.build());
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return this.config.type();
 	}
 }

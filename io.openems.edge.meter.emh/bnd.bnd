@@ -2,6 +2,8 @@ Bundle-Name: OpenEMS Edge Meter Emh
 Bundle-Vendor: OpenEMS Association e.V.
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: Implements a EMH LZQJ-XC meter. Modbus-Addresses added by operator of measuring \
+	point and are individual
 
 -buildpath: \
 	${buildpath},\
@@ -11,6 +13,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.meter.api
 	
-Bundle-Description: Implements a EMH LZQJ-XC meter. Modbus-Addresses added by operator of measuring \
-	point and are individual
-	
+-testpath: \
+	${testpath}
