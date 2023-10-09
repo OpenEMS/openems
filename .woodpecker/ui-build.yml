@@ -53,6 +53,7 @@ steps:
       - cd ui
       - npm ci --prefer-offline --cache $npm_config_cache --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g src/themes/fenecon/root/site.webmanifest
       - node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
       - node_modules/.bin/ng build --base-href /${CI_COMMIT_BRANCH}/ -c "$OEM,$OEM-backend-prod,prod"
       - node_modules/.bin/ng lint
