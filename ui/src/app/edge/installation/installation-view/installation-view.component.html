@@ -18,7 +18,8 @@
               <ion-label>{{ 'INSTALLATION.BACK' | translate}}</ion-label>
               <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
             </ion-button>
-            <ion-button slot="end" [disabled]="isWaiting" *ngIf="labelToShow" (click)="nextClicked.emit()">
+            <ion-button slot="end" [disabled]="isWaiting || isNextDisabled" *ngIf="labelToShow"
+              (click)="nextClicked.emit()">
               <ion-label>{{labelToShow.label}}</ion-label>
               <ion-icon [name]="labelToShow.icon" slot="end"></ion-icon>
             </ion-button>

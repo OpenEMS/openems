@@ -2,14 +2,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { Category } from '../../../shared/category';
-import { FeedInType } from '../../../shared/enums';
+import { FeedInType, View } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour } from '../../abstract-ibn';
 import { AbstractCommercial50Ibn } from './abstract-commercial-50';
+import { SystemId } from '../../../shared/system';
 
 export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50Ibn {
 
-    public override readonly id: string = 'commercial-50-eigenverbrauchsoptimierung';
+    public override readonly id: SystemId = SystemId.COMMERCIAL_50_BALANCING;
 
     constructor(translate: TranslateService) {
         super([
@@ -21,7 +22,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
+            View.ConfigurationCommercialModbuBridge,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,

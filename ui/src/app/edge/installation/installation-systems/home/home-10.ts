@@ -1,15 +1,19 @@
 import { TranslateService } from '@ngx-translate/core';
 
 import { Category } from '../../shared/category';
-import { View } from '../abstract-ibn';
+import { View } from '../../shared/enums';
+import { SystemId, SystemType } from '../../shared/system';
 import { AbstractHomeIbn } from './abstract-home';
 
-export class HomeFeneconIbn extends AbstractHomeIbn {
-    public override readonly type = 'Fenecon-Home';
+export class Home10FeneconIbn extends AbstractHomeIbn {
 
-    public override readonly id = 'home';
-
+    public override readonly type: SystemType = SystemType.FENECON_HOME_10;
+    public override readonly id: SystemId = SystemId.FENECON_HOME_10;
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HOME;
+    public override maxNumberOfPvStrings: number = 2;
+    public override maxFeedInLimit: number = 29999;
+    public override homeAppId: string = 'App.FENECON.Home';
+    public override homeAppAlias: string = 'FENECON Home';
 
     constructor(public override translate: TranslateService) {
         super([

@@ -3,19 +3,22 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
+import { View } from '../../shared/enums';
 import { IbnUtils } from '../../shared/ibnutils';
+import { SystemId, SystemType } from '../../shared/system';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
-import { View } from '../abstract-ibn';
 import { AbstractHomeIbn } from './abstract-home';
 
-export class HomeHeckertIbn extends AbstractHomeIbn {
+export class Home10HeckertIbn extends AbstractHomeIbn {
 
-    public override readonly type = 'Symphon-E';
-
-    public override readonly id = 'heckert';
-
+    public override readonly type: SystemType = SystemType.HECKERT_HOME_10;
+    public override readonly id: SystemId = SystemId.HECKERT_HOME_10;
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
+    public override maxNumberOfPvStrings: number = 2;
+    public override maxFeedInLimit: number = 29999;
+    public override homeAppId: string = 'App.FENECON.Home';
+    public override homeAppAlias: string = 'FENECON Home';
 
     // TODO remove when all customers have a key to install the app
     // TODO set key
@@ -289,5 +292,4 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         });
         return componentConfigurator;
     }
-
 }

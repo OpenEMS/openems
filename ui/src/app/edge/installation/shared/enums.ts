@@ -52,8 +52,8 @@ export enum FeedInSetting {
 }
 
 export enum FeedInType {
-    DYNAMIC_LIMITATION,
-    EXTERNAL_LIMITATION
+    DYNAMIC_LIMITATION = 'DYNAMIC_LIMITATION',
+    EXTERNAL_LIMITATION = 'EXTERNAL_LIMITATION'
 }
 
 export enum WebLinks {
@@ -109,4 +109,28 @@ export namespace WebLinks {
 export enum ModbusBridgeType {
     TCP_IP,
     RS485
+}
+
+export enum View {
+    Completion,
+    ConfigurationEmergencyReserve,
+    ConfigurationExecute,
+    ConfigurationLineSideMeterFuse,
+    ConfigurationSummary,
+    ConfigurationSystem,
+    PreInstallation,
+    PreInstallationUpdate,
+    ProtocolAdditionalAcProducers,
+    ProtocolCustomer,
+    ProtocolFeedInLimitation,
+    ProtocolInstaller,
+    ProtocolPv,
+    ProtocolSerialNumbers,
+    ProtocolSystem,
+    HeckertAppInstaller,
+    ConfigurationFeaturesStorageSystem,
+    ConfigurationCommercial,
+    ConfigurationPeakShaving,
+    ConfigurationCommercialModbuBridge,
+    ConfigurationMpptSelection
 }

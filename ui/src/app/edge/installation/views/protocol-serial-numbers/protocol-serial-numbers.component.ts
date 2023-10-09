@@ -44,7 +44,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     this.setIsWaiting(true);
 
     // Read settings
-    this.ibn.getSettings(this.edge, this.websocket).then((settings) => {
+    this.ibn.getPreSettingInformationFromEdge(this.edge, this.websocket).then((settings) => {
 
       // 'Tower' is same as 'String' in Commercial, though the technical meaning is different.
       this.numberOfTowers = settings.numberOfTowers;
@@ -138,12 +138,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
         // Settings fields
         this.formSettings = new FormGroup({});
-        this.fieldsSettings = this.ibn.getSettingsFields(this.numberOfModulesPerTower, this.numberOfTowers);
+        this.fieldsSettings = this.ibn.getPreSettingsFields(this.numberOfModulesPerTower, this.numberOfTowers);
         this.modelSettings = {};
 
         // Battery modules fields.
         this.forms = new Array(this.numberOfTowers);
-        this.forms = this.ibn.fillForms(this.numberOfTowers, this.numberOfModulesPerTower, models, this.forms);
+        this.forms = this.ibn.fillSerialNumberForms(this.numberOfTowers, this.numberOfModulesPerTower, models, this.forms);
 
         resolve();
       });
@@ -157,7 +157,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     let result: Promise<Object>[] = [];
     for (let i = 0; i < this.numberOfTowers; i++) {
-      result.push(this.ibn.getSerialNumbers(i, this.edge, this.websocket, this.numberOfModulesPerTower));
+      result.push(this.ibn.getSerialNumbersFromEdge(i, this.edge, this.websocket, this.numberOfModulesPerTower));
     }
 
     return result;

@@ -26,6 +26,7 @@ import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-
 import { ProtocolPvComponent } from "./views/protocol-pv/protocol-pv.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
 import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
+import { ConfigurationMpptSelectionComponent } from "./views/configuration-mppt-selection/configuration-mppt-selection.component";
 
 //#region Validators
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
@@ -49,7 +50,7 @@ export function BatteryInverterSerialNumberValidator(control: FormControl): Vali
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
-  return /^(FH)?[FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
+  return /^F[HE][FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
 }
 
 export function EmsBoxNetztrennstelleSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -142,7 +143,8 @@ export function DefaultAsMinValueValidator(control: FormControl, field: FormlyFi
     ConfigurationCommercialComponent,
     ConfigurationFeaturesStorageSystemComponent,
     ConfigurationPeakShavingComponent,
-    ConfigurationCommercialModbuBridgeComponent
+    ConfigurationCommercialModbuBridgeComponent,
+    ConfigurationMpptSelectionComponent
   ]
 })
 export class InstallationModule { }

@@ -4,12 +4,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Commercial30AnschlussIbn } from '../../installation-systems/commercial/commercial-30/commercial30-anschluss';
-import { Commercial50EigenverbrauchsOptimierung } from '../../installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
-import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
-import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
 import { ComponentData } from '../../shared/ibndatatypes';
-import { WebLinks } from '../../shared/enums';
+import { System, SystemType } from '../../shared/system';
 
 @Component({
   selector: ConfigurationSystemComponent.SELECTOR,
@@ -48,14 +44,16 @@ export class ConfigurationSystemComponent implements OnInit {
 
     switch (environment.theme) {
       case 'Heckert':
-        label = [{ value: 'heckert-home', label: 'Symphon-E' }];
+        label = [{ value: SystemType.HECKERT_HOME_10, label: System.getSystemTypeLabel(SystemType.HECKERT_HOME_10) }];
         break;
       case 'FENECON':
       default:
         label = (
-          [{ value: 'home', label: 'FENECON Home' },
-          { value: 'commercial-30', label: 'FENECON Commercial 30' },
-          { value: 'commercial-50', label: 'FENECON Commercial 50' }
+          [{ value: SystemType.FENECON_HOME_10, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_10) },
+          { value: SystemType.FENECON_HOME_20, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_20) },
+          { value: SystemType.FENECON_HOME_30, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_30) },
+          { value: SystemType.COMMERCIAL_30, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_30) },
+          { value: SystemType.COMMERCIAL_50, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_50) }
           ]);
         break;
     }
@@ -81,44 +79,15 @@ export class ConfigurationSystemComponent implements OnInit {
    * Redirects to the appropriate url for system manual.
    */
   public openManual() {
-
-    const system = this.form.controls['type'].value;
-
-    switch (system) {
-      case 'heckert-home':
-        window.open('https://www.heckertsolar.com/wp-content/uploads/2022/06/Montage_und-Serviceanleitung-Symphon-E-1.pdf');
-        break;
-      case 'home':
-        window.open(WebLinks.getLink(this.ibn.manualLinks.home));
-        break;
-      case 'commercial-30':
-        window.open('https://fenecon.de/downloadcenter-commercial-30/');
-        break;
-      case 'commercial-50':
-        window.open('https://fenecon.de/downloadcenter-commercial-50/');
-        break;
-    }
+    const system = this.form.controls.type.value;
+    window.open(System.getSystemTypeLink(system));
   }
 
   /**
    * Loads the appropriate Ibn object.
    */
   private setIbn() {
-    const system = this.form.controls['type'].value;
-
-    switch (system) {
-      case 'heckert-home':
-        this.ibn = new HomeHeckertIbn(this.translate);
-        break;
-      case 'home':
-        this.ibn = new HomeFeneconIbn(this.translate);
-        break;
-      case 'commercial-30':
-        this.ibn = new Commercial30AnschlussIbn(this.translate);
-        break;
-      case 'commercial-50':
-        this.ibn = new Commercial50EigenverbrauchsOptimierung(this.translate);
-        break;
-    }
+    const system = this.form.controls.type.value;
+    this.ibn = System.getSystemObjectFromSystemType(system, this.translate);
   }
 }

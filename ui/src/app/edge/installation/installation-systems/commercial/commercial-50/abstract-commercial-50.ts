@@ -6,6 +6,7 @@ import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { ComponentData, SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
+import { SystemType } from '../../../shared/system';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
@@ -17,8 +18,8 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             type: Category.BALANCING
         } | {
             type: Category.PEAK_SHAVING_SYMMETRIC | Category.PEAK_SHAVING_ASYMMETRIC,
-            entladungÜber: number;
-            beladungUnter: number;
+            dischargeAbove: number;
+            chargeBelow: number;
         }
     } = {
             // Initialization
@@ -27,7 +28,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             }
         };
 
-    public override readonly type: string = 'Fenecon-Commercial-50';
+    public override readonly type: SystemType = SystemType.COMMERCIAL_50;
 
     public override readonly defaultNumberOfModules: number = 20;
 
@@ -36,11 +37,11 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             peakShavingData.push(
                 {
                     label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_LABEL'),
-                    value: this.commercial50Feature.feature.entladungÜber
+                    value: this.commercial50Feature.feature.dischargeAbove
                 },
                 {
                     label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_LABEL'),
-                    value: this.commercial50Feature.feature.beladungUnter
+                    value: this.commercial50Feature.feature.chargeBelow
                 });
         }
         return peakShavingData;
@@ -60,13 +61,13 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         } else {
             // model From Peak Shaving view.
             if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-                this.commercial50Feature.feature.beladungUnter = commercial50Feature.beladungUnter;
-                this.commercial50Feature.feature.entladungÜber = commercial50Feature.entladungÜber;
+                this.commercial50Feature.feature.chargeBelow = commercial50Feature.chargeBelow;
+                this.commercial50Feature.feature.dischargeAbove = commercial50Feature.dischargeAbove;
             }
         }
     }
 
-    public fillForms(
+    public override fillSerialNumberForms(
         numberOfTowers: number,
         numberOfModulesPerTower: number,
         models: any,
@@ -75,18 +76,18 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         this.numberOfModulesPerTower = numberOfModulesPerTower;
         for (let i = 0; i < numberOfTowers; i++) {
             forms[i] = {
-                fieldSettings: this.getFields(i, numberOfModulesPerTower),
+                fieldSettings: this.getSerialNumberFields(i, numberOfModulesPerTower),
                 model: models[i],
                 formTower: new FormGroup({}),
                 header: numberOfTowers === 1
                     ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
-                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: (i + 1) })
+                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) })
             };
         }
         return forms;
     }
 
-    public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
+    public override getPreSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
         const fields: FormlyFieldConfig[] = [];
 
         fields.push({
@@ -123,7 +124,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getFields(towerNr: number, numberOfModulesPerTower: number) {
+    public override getSerialNumberFields(towerNr: number, numberOfModulesPerTower: number) {
         const fields: FormlyFieldConfig[] = [];
 
         if (towerNr === 0) {

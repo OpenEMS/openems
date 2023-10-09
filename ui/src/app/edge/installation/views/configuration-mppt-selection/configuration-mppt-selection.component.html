@@ -1,0 +1,7 @@
+<installation-view iconName="settings-outline"
+    header="{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.TITLE_PV' | translate }}"
+    (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" [isNextDisabled]="isNextDisabled">
+
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+</installation-view>

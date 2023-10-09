@@ -3,12 +3,14 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 import { Category } from '../../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour } from '../../abstract-ibn';
 import { AbstractCommercial50Ibn } from './abstract-commercial-50';
+import { SystemId } from '../../../shared/system';
+import { View } from '../../../shared/enums';
 
 export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
-    public override readonly id: string = 'commercial-50-lastspitzenkappung';
+    public override readonly id: SystemId = SystemId.COMMERCIAL_50_PEAK_SHAVING;
 
     constructor(translate: TranslateService) {
         super([
@@ -21,7 +23,7 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
             View.ProtocolSystem,
             View.ConfigurationPeakShaving,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
+            View.ConfigurationCommercialModbuBridge,
             View.ProtocolAdditionalAcProducers,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
@@ -45,8 +47,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
         let factoryId: string;
         let alias: string;
-        let entladungÜber: number;
-        let beladungUnter: number;
+        let dischargeAbove: number;
+        let chargeBelow: number;
 
         if (this.commercial50Feature.feature.type === Category.PEAK_SHAVING_SYMMETRIC) {
             factoryId = 'Controller.Symmetric.PeakShaving';
@@ -57,8 +59,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         }
 
         if (this.commercial50Feature.feature.type !== Category.BALANCING) {
-            entladungÜber = this.commercial50Feature.feature.entladungÜber;
-            beladungUnter = this.commercial50Feature.feature.beladungUnter;
+            dischargeAbove = this.commercial50Feature.feature.dischargeAbove;
+            chargeBelow = this.commercial50Feature.feature.chargeBelow;
         }
 
         componentConfigurator.add({
@@ -69,8 +71,8 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'meter.id', value: 'meter0' },
-                { name: 'peakShavingPower', value: entladungÜber },
-                { name: 'rechargePower', value: beladungUnter }
+                { name: 'peakShavingPower', value: dischargeAbove },
+                { name: 'rechargePower', value: chargeBelow }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
