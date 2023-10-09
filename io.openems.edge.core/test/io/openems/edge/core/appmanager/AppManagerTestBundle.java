@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -337,6 +338,21 @@ public class AppManagerTestBundle {
 			// only string comparison
 			assertEquals(entry.getValue().toString().replace("\"", ""), existingValue.toString());
 		}
+	}
+
+	/**
+	 * Checks if the given order of ids matches the order in the scheduler.
+	 * 
+	 * @param message  the identifying message for the {@link AssertionError}
+	 *                 (<code>null</code> okay)
+	 * @param orderIds the ids of components in the scheduler
+	 * @throws IOException on IO-Error
+	 */
+	public void assertExactSchedulerOrder(String message, String... orderIds) throws IOException {
+		final var config = this.cm
+				.getConfiguration(this.componentManger.getEdgeConfig().getComponent("scheduler0").get().getPid(), null);
+		final var ids = (String[]) config.getProperties().get("controllers.ids");
+		assertArrayEquals(message, orderIds, ids);
 	}
 
 	/**

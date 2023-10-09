@@ -10,7 +10,7 @@ export const theme = {
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     links: {
         COMMON_STORAGE: null,
-
+        FORGET_PASSWORD: "#",
         EVCS_HARDY_BARTH: "io.openems.edge.evcs.hardybarth/readme.adoc",
         EVCS_KEBA_KECONTACT: "io.openems.edge.evcs.keba.kecontact/readme.adoc",
         EVCS_OCPP_IESKEYWATTSINGLE: "io.openems.edge.evcs.ocpp.ies.keywatt.singleccs/readme.adoc",
@@ -24,5 +24,5 @@ export const theme = {
         SETTINGS_ALERTING: null,
         SETTINGS_NETWORK_CONFIGURATION: null
     },
-    PRODUCT_TYPES: null
+    PRODUCT_TYPES: () => null
 };

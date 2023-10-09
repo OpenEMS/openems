@@ -551,12 +551,14 @@
     "connectionSuccessful": "Successfully connected to {{ value }}.",
     "deviceOffline": "The device is not connected!",
     "isOffline": "OpenEMS is offline!",
-    "loggedInAs": "Logged in as:",
+    "LOGGED_IN_AS": "Logged in as",
     "toEnergymonitor": "To Energymonitor...",
-    "type": "Type",
+    "TYPE": "Type",
     "OFFLINE_SINCE": "Offline since",
     "ADD_EDGE": "Add new {{ edgeShortName }}",
     "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
+    "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
     "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
   },
   "INSTALLATION": {

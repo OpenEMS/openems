@@ -136,7 +136,8 @@ export type ChartOptions = {
             afterTitle?(item: ChartTooltipItem[], data: Data): string | string[],
             footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
-    }
+    },
+    legendCallback?(chart: Chart): string
 }
 
 export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {

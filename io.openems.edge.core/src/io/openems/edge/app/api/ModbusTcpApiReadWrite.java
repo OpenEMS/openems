@@ -1,10 +1,10 @@
 package io.openems.edge.app.api;
 
-import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_LABEL;
-import static io.openems.edge.core.appmanager.formly.builder.SelectBuilder.DEFAULT_COMPONENT_2_VALUE;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
-import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -17,24 +17,24 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -65,52 +65,65 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Api.ModbusTcp.ReadWrite")
-public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+public class ModbusTcpApiReadWrite extends AbstractOpenemsAppWithProps<ModbusTcpApiReadWrite, Property, BundleParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public static enum Property implements Type<Property, ModbusTcpApiReadWrite, BundleParameter> {
 		// Component-IDs
-		CONTROLLER_ID, //
+		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusTcp0")), //
 		// Properties
-		API_TIMEOUT, //
-		COMPONENT_IDS //
+		API_TIMEOUT(AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.Api.apiTimeout.label") //
+				.setTranslatedDescription("App.Api.apiTimeout.description") //
+				.setDefaultValue(60) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
+					field.isRequired(true) //
+							.setInputType(NUMBER) //
+							.setMin(0);
+				}) //
+		)), //
+		COMPONENT_IDS(AppDef.copyOfGeneric(ModbusTcpApiProps.pickModbusIds(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					final var jsonArrayBuilder = JsonUtils.buildJsonArray() //
+							.add("_sum");
+
+					// add ess ids
+					app.getComponentUtil().getEnabledComponentsOfStartingId("ess").stream() //
+							.sorted((o1, o2) -> o1.id().compareTo(o2.id())) //
+							.forEach(ess -> jsonArrayBuilder.add(ess.id()));
+
+					return jsonArrayBuilder.build();
+				}) //
+				.bidirectional(CONTROLLER_ID, "component.ids", ComponentManagerSupplier::getComponentManager) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
 		;
+
+		private final AppDef<? super ModbusTcpApiReadWrite, ? super Property, ? super BundleParameter> def;
+
+		private Property(AppDef<? super ModbusTcpApiReadWrite, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, ModbusTcpApiReadWrite, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super ModbusTcpApiReadWrite, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<ModbusTcpApiReadWrite>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
 	@Activate
 	public ModbusTcpApiReadWrite(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
-	}
-
-	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
-								.setDefaultValue(60) //
-								.isRequired(true) //
-								.setInputType(NUMBER) //
-								.setMin(0) //
-								.build())
-						.add(JsonFormlyUtil.buildSelect(Property.COMPONENT_IDS) //
-								.isMulti(true) //
-								.isRequired(true) //
-								.setLabel(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".componentIds.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".componentIds.description")) //
-								.setOptions(this.componentManager.getEnabledComponentsOfType(ModbusSlave.class), //
-										DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE)
-								.setDefaultValue(JsonUtils.buildJsonArray() //
-										.add("_sum") //
-										.build()) //
-								.build())
-						.build())
-				.build();
 	}
 
 	@Override
@@ -130,12 +143,11 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-
-			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiModbusTcp0");
-			var apiTimeout = EnumUtils.getAsInt(p, Property.API_TIMEOUT);
-			var controllerIds = EnumUtils.getAsJsonArray(p, Property.COMPONENT_IDS);
+			final var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
+			final var apiTimeout = this.getInt(p, Property.API_TIMEOUT);
+			final var controllerIds = this.getJsonArray(p, Property.COMPONENT_IDS);
 
 			// remove self if selected
 			for (var i = 0; i < controllerIds.size(); i++) {
@@ -145,7 +157,7 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 				}
 			}
 
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.ModbusTcp.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
@@ -160,7 +172,7 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 					"ctrlBalancing0" //
 			);
 
-			var dependencies = Lists.newArrayList(//
+			final var dependencies = Lists.newArrayList(//
 					new DependencyDeclaration("READ_ONLY", //
 							DependencyDeclaration.CreatePolicy.NEVER, //
 							DependencyDeclaration.UpdatePolicy.ALWAYS, //
@@ -181,8 +193,13 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected ModbusTcpApiReadWrite getApp() {
+		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 }

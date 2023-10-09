@@ -8,11 +8,13 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocke
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../shared/dataservice";
+import { Converter } from "../shared/converter";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     public readonly Utils = Utils;
+    public readonly Converter = Converter;
 
     @Input()
     protected componentId: string;
