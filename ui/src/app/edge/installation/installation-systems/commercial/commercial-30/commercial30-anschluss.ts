@@ -82,8 +82,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_CONNECTION_BOX_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
-                    prefix: 'FC',
-                    placeholder: 'xxxxxxxxx'
+                    placeholder: 'xxxxxxxxxxxx'
                 },
                 validators: {
                     validation: ['emsBoxSerialNumber']

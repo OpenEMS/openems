@@ -49,8 +49,8 @@ export function BatteryInverterSerialNumberValidator(control: FormControl): Vali
 }
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
-  // This validator only checks the value after the prefix
-  return /^F[HE][FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
+  // This validator only checks the value after the prefix, Applies for Home and Commercial but not Netztrenstelle.
+  return /^F[CEH][FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
 }
 
 export function EmsBoxNetztrennstelleSerialNumberValidator(control: FormControl): ValidationErrors {

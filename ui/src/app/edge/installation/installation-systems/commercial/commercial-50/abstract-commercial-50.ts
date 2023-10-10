@@ -150,8 +150,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_COMMERCIAL', { edgeShortname: environment.edgeShortName }),
                     required: true,
-                    prefix: 'FC',
-                    placeholder: 'xxxxxxxxx'
+                    placeholder: 'xxxxxxxxxxxx'
                 },
                 validators: {
                     validation: ['emsBoxSerialNumber']
