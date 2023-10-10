@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.timeofusetariff.discharge;
+package io.openems.edge.controller.ess.timeofusetariff;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
@@ -10,9 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String essId;
 		private Mode mode;
-		private int maxStartHour;
-		private int maxEndHour;
-		private DelayDischargeRiskLevel delayDischargeRiskLevel;
+		private ControlMode controlMode;
+		private int maxPower;
+		private RiskLevel riskLevel;
 
 		private Builder() {
 		}
@@ -32,29 +32,29 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaxStartHour(int maxStartHour) {
-			this.maxStartHour = maxStartHour;
+		public Builder setControlMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 
-		public Builder setMaxEndHour(int maxEndHour) {
-			this.maxEndHour = maxEndHour;
+		public Builder setMaxPower(int maxPower) {
+			this.maxPower = maxPower;
+			return this;
+		}
+
+		public Builder setRiskLevel(RiskLevel riskLevel) {
+			this.riskLevel = riskLevel;
 			return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
-
-		public Builder setDelayDischargeRiskLevel(DelayDischargeRiskLevel delayDischargeRiskLevel) {
-			this.delayDischargeRiskLevel = delayDischargeRiskLevel;
-			return this;
-		}
 	}
 
 	/**
 	 * Create a Config builder.
-	 *
+	 * 
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -79,13 +79,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int maxStartHour() {
-		return this.builder.maxStartHour;
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
 	}
 
 	@Override
-	public int maxEndHour() {
-		return this.builder.maxEndHour;
+	public int maxChargePowerFromGrid() {
+		return this.builder.maxPower;
+	}
+
+	@Override
+	public RiskLevel riskLevel() {
+		return this.builder.riskLevel;
 	}
 
 	@Override
@@ -93,8 +98,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
-	@Override
-	public DelayDischargeRiskLevel delayDischargeRiskLevel() {
-		return this.builder.delayDischargeRiskLevel;
-	}
 }
