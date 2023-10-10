@@ -1,0 +1,3 @@
+= io.openems.edge.battery.pylontech.powercubeM2
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech.powercubeM2[Source Code icon:github[]]
