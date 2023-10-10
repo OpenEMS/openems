@@ -257,13 +257,6 @@
 			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
-			<!-- Checker Qual: annotations for type-checking by the Checker Framework -->
-			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>3.39.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
 			<version>0.15.7</version>
