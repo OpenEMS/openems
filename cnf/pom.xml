@@ -117,7 +117,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.1</version>
+			<version>8.1.2</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -242,7 +242,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.9.4</version>
+			<version>4.9.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -255,13 +255,6 @@
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
 			<version>4.13.2_1</version>
-		</dependency>
-		<dependency>
-			<!-- Checker Qual: annotations for type-checking by the Checker Framework -->
-			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
-			<groupId>org.checkerframework</groupId>
-			<artifactId>checker-qual</artifactId>
-			<version>3.39.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
