@@ -36,7 +36,7 @@
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                   <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                  <ion-button type="submit" class="ion-float-right">
+                  <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
                     <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
                   </ion-button>
                 </div>
@@ -76,7 +76,7 @@
                     </tr>
                     </th>
                     <th>
-                      <ion-button type="submit" class="ion-float-right" size="medium">
+                      <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right" size="medium">
                         <small>Login</small>
                         <ion-icon slot="end" name="log-in-outline"></ion-icon>
                       </ion-button>

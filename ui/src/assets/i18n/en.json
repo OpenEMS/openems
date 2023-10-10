@@ -559,7 +559,7 @@
     "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
-    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+    "FIRST_SETUP_PROTOCOL": "Commissioning"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",

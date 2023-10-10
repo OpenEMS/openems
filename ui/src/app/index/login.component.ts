@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   public form: FormGroup;
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
+  protected formIsDisabled: boolean = false;
 
   constructor(
     public service: Service,
@@ -67,13 +68,41 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
   }
 
   /**
+   * Trims credentials
+   * 
+   * @param password the password
+   * @param username the username
+   * @returns trimmed credentials
+   */
+  public static trimCredentials(password: string, username?: string): { password: string, username?: string } {
+    return {
+      password: password?.trim(),
+      ...(username && { username: username?.trim() })
+    };
+  }
+
+  /**
    * Login to OpenEMS Edge or Backend.
    * 
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-    this.websocket.login(new AuthenticateWithPasswordRequest(param));
-    this.router.navigateByUrl("/overview");
+
+    param = LoginComponent.trimCredentials(param.password, param.username);
+
+    // Prevent that user submits via keyevent 'enter' multiple times
+    if (this.formIsDisabled) {
+      return;
+    }
+
+    this.formIsDisabled = true;
+    this.websocket.login(new AuthenticateWithPasswordRequest(param))
+      .finally(() => {
+
+        // Unclean
+        this.ngOnInit();
+        this.formIsDisabled = false;
+      });
   }
 
   /**
