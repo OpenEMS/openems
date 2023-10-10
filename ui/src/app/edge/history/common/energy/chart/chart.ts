@@ -97,11 +97,10 @@ export class ChartComponent extends AbstractHistoryChart {
           ...[chartType === 'bar' && {
             name: translate.instant('General.directConsumption'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
+              return Utils.subtractSafely(energyValues.result.data['_sum/ProductionActiveEnergy'], energyValues.result.data['_sum/GridSellActiveEnergy'], energyValues.result.data['_sum/EssDcChargeEnergy']);
             },
             converter: () =>
-              data['ProductionActivePower']?.map((value, index) =>
-                Utils.subtractSafely(Utils.subtractSafely(value, data['GridSell'][index]), data['EssCharge'][index]))
+              data['ProductionActivePower']?.map((value, index) => Utils.subtractSafely(value, data['GridSell'][index], data['EssCharge'][index]))
                 ?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
             stack: [1, 2],

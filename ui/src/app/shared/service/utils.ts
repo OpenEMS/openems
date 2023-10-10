@@ -110,14 +110,18 @@ export class Utils {
    * @param v1 
    * @param v2 
    */
-  public static subtractSafely(v1: number, v2: number): number {
-    if (v1 == null) {
-      return v2;
-    } else if (v2 == null) {
-      return v1;
-    } else {
-      return v1 - v2;
-    }
+  public static subtractSafely(...values: number[]): number {
+    var result = null;
+    values.forEach(v => {
+      if (v != null) {
+        if (result == null) {
+          result = v;
+        } else {
+          result -= v;
+        }
+      }
+    })
+    return result;
   }
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
