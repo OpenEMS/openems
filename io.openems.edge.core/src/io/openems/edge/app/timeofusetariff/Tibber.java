@@ -72,11 +72,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
 				f.setInputType(PASSWORD) //
 						.isRequired(true)) //
-				.setAllowedToSave(false)), //
-		CONTROL_MODE(AppDef.copyOfGeneric(TimeOfUseProps.controlMode()) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}));
+				.setAllowedToSave(false));
 
 		private final AppDef<? super Tibber, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -115,14 +111,13 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
-			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
 			}
 
-			var comp = TimeOfUseProps.getComponents(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
-					this.getName(l), timeOfUseTariffProviderId, mode,
+			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
+					this.getName(l), timeOfUseTariffProviderId,
 					b -> b.addPropertyIfNotNull("accessToken", accessToken));
 
 			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));

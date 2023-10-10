@@ -61,11 +61,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
-		ALIAS(CommonProps.alias()), //
-		CONTROL_MODE(AppDef.copyOfGeneric(TimeOfUseProps.controlMode()) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}));
+		ALIAS(CommonProps.alias());
 
 		private final AppDef<? super AwattarHourly, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -102,10 +98,9 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
-			var components = TimeOfUseProps.getComponents(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Awattar",
-					this.getName(l), timeOfUseTariffProviderId, mode, null);
+			var components = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Awattar",
+					this.getName(l), timeOfUseTariffProviderId, null);
 
 			return new AppConfiguration(components, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
 		};

@@ -69,11 +69,7 @@ public class StromdaoCorrently extends
 				.setTranslatedDescriptionWithAppPrefix(".zipCode.description") //
 				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
 				f.setInputType(InputType.NUMBER) //
-						.isRequired(true))), //
-		CONTROL_MODE(AppDef.copyOfGeneric(TimeOfUseProps.controlMode()) //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}));
+						.isRequired(true)));
 
 		private final AppDef<? super StromdaoCorrently, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -112,10 +108,9 @@ public class StromdaoCorrently extends
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
-			final var mode = this.getEnum(p, ControlMode.class, Property.CONTROL_MODE);
 
-			var comp = TimeOfUseProps.getComponents(ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Corrently",
-					this.getName(l), timeOfUseTariffProviderId, mode, b -> b.addPropertyIfNotNull("zipcode", zipCode));
+			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Corrently",
+					this.getName(l), timeOfUseTariffProviderId, b -> b.addPropertyIfNotNull("zipcode", zipCode));
 
 			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
 		};
