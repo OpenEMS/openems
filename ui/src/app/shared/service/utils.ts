@@ -120,7 +120,7 @@ export class Utils {
           result -= v;
         }
       }
-    })
+    });
     return result;
   }
   /**
