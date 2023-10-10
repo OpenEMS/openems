@@ -121,7 +121,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
 				"_sum/ProductionActivePower");
 		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
+				"_sum/UnmanagedConsumptionActivePower");
 
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
@@ -172,7 +172,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
 				"_sum/ProductionActivePower");
 		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
+				"_sum/UnmanagedConsumptionActivePower");
 
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
@@ -253,7 +253,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
 				"_sum/ProductionActivePower");
 		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
+				"_sum/UnmanagedConsumptionActivePower");
 
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
@@ -267,7 +267,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
 		// System.out.println(Arrays.toString(predictorManager
-		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/UnmanagedConsumptionActivePower")).getValues()));
 
 		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -309,7 +309,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
 				"_sum/ProductionActivePower");
 		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
+				"_sum/UnmanagedConsumptionActivePower");
 
 		// PredictorManager
 		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
@@ -323,7 +323,7 @@ public class ControllerEssTimeOfUseTariffDischargeImplTest {
 		// System.out.println(Arrays.toString(predictorManager
 		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
 		// System.out.println(Arrays.toString(predictorManager
-		// .get24HoursPrediction(ChannelAddress.fromString("_sum/ConsumptionActivePower")).getValues()));
+		// .get24HoursPrediction(ChannelAddress.fromString("_sum/UnmanagedConsumptionActivePower")).getValues()));
 
 		new ControllerTest(new ControllerEssTimeOfUseTariffDischargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
