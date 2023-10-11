@@ -20,7 +20,9 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-
+		
+		// TODO: If battery goes into over/undervoltage, it will be necessary to send a CHARGE/DISCHARGE command to close the relay before charge/discharge
+		
 		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > WAIT_IN_ERROR_STATE_SECONDS) {
 			// Try again
 			return State.UNDEFINED;

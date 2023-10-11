@@ -359,6 +359,9 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	public String debugLog() {
 		return new StringBuilder() //
 				.append(stateMachine.debugLog()) //
+				.append("|Status: ").append(this.getSystemStatus().toString())
+				.append("|StartStopTarget: ").append(this.getStartStopTarget().toString())
+				.append("|StartStopChannel: ").append(this.getStartStop().toString())
 				.append("|SoC:").append(this.getSoc()) //
 				.append("|Actual:").append(this.getVoltage())
 				.append(";").append(this.getCurrent()) //
@@ -371,9 +374,10 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		log.info("setStartStop called with value: " + value.toString());
 		// TODO Auto-generated method stub
 		if (this.startStopTarget.getAndSet(value) != value) {
-			// If the Start/Stop target is changed - (i.e someone changed the config) -> force the state machine into undefined (so that the state machine will stop/start accordingly)
+			// If the Start/Stop target is changed - (i.e the battery has been started from outside) -> force the state machine into undefined (so that the state machine will stop/start accordingly)
 			this.stateMachine.forceNextState(State.UNDEFINED);
 		}
 	}
