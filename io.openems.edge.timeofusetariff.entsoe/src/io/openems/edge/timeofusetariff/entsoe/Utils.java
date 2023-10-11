@@ -27,6 +27,7 @@ import io.openems.edge.common.currency.Currency;
 public class Utils {
 
 	private static final DateTimeFormatter FORMATTER_MINUTES = DateTimeFormatter.ofPattern("u-MM-dd'T'HH:mmX");
+	private static final String SOURCE_CURRENCY = "EUR";
 
 	private static record QueryResult(ZonedDateTime start, List<Float> prices) {
 		protected static class Builder {
@@ -74,8 +75,8 @@ public class Utils {
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution, double exchangeRate)
-			throws ParserConfigurationException, SAXException, IOException {
+	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution,
+			double exchangeRate) throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
@@ -166,9 +167,10 @@ public class Utils {
 	protected static Double exchangeRateParser(String response, Currency currency) throws OpenemsNamedException {
 
 		var line = JsonUtils.parseToJsonObject(response);
-		var data = JsonUtils.getAsJsonObject(line, "rates");
+		var data = JsonUtils.getAsJsonObject(line, "quotes");
+		var currencyLabel = SOURCE_CURRENCY.concat(currency.toString());
 
-		return JsonUtils.getAsDouble(data, currency.toString());
+		return JsonUtils.getAsDouble(data, currencyLabel);
 	}
 
 }

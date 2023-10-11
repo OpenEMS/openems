@@ -18,8 +18,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD)
+	@AttributeDefinition(name = "ENTSO-E Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD)
 	String securityToken();
+
+	@AttributeDefinition(name = "Exchange Rate access key", description = "Access key for the Exchange rate host API, Please log into https://exchangerate.host/ to get personal access key", type = AttributeType.PASSWORD)
+	String accessKey();
 
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
 	BiddingZone biddingZone();

@@ -80,6 +80,11 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
 			return;
 		}
+
+		if (config.accessKey() == null || config.accessKey().isBlank()) {
+			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
+			return;
+		}
 		this.config = config;
 
 		// React on updates to Currency.
@@ -115,7 +120,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			final var globalCurrency = this.meta.getCurrency();
 			final var exchangeRate = globalCurrency.name() == entsoeCurrency //
 					? 1 // No need to fetch exchange rate from API.
-					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(), globalCurrency);
+					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(this.config.accessKey()),
+							globalCurrency);
 
 			// Parse the response for the prices
 			this.prices.set(Utils.parsePrices(result, "PT60M", exchangeRate));
@@ -151,7 +157,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Override
 	public TimeOfUsePrices getPrices() {
 		// return empty TimeOfUsePrices if data is not yet available.
-		if (!this.config.enabled() || this.updateTimeStamp == null) {
+		if (this.config == null || !this.config.enabled() || this.updateTimeStamp == null) {
 			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 

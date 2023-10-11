@@ -19,6 +19,7 @@ public class TouEntsoeTest {
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setSecurityToken("foo-bar") //
+						.setaccessKey("") //
 						.setBiddingZone(BiddingZone.GERMANY) //
 						.build());
 	}

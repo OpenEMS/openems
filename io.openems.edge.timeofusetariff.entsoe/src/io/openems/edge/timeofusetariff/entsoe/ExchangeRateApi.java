@@ -17,9 +17,8 @@ import okhttp3.Request;
  */
 public class ExchangeRateApi {
 
-	private static final String BASE_URL = "https://api.exchangerate.host/latest?base=%s";
+	private static final String BASE_URL = "http://api.exchangerate.host/live?access_key=%s&source=EUR";
 	private static final OkHttpClient client = new OkHttpClient();
-	private static final String URL = String.format(BASE_URL, "EUR");
 
 	/**
 	 * Fetches the exchange rates from base currency EUR.
@@ -27,7 +26,8 @@ public class ExchangeRateApi {
 	 * @return the Response string.
 	 * @throws IOException on error.
 	 */
-	protected static String getExchangeRates() throws IOException {
+	protected static String getExchangeRates(String accessKey) throws IOException {
+		var URL = String.format(BASE_URL, accessKey);
 		var request = new Request.Builder() //
 				.url(URL) //
 				.build();
