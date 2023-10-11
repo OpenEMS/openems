@@ -23,13 +23,14 @@ public class ExchangeRateApi {
 	/**
 	 * Fetches the exchange rates from base currency EUR.
 	 * 
+	 * @param accessKey Personal key for accessing exchange rate host API.
 	 * @return the Response string.
 	 * @throws IOException on error.
 	 */
 	protected static String getExchangeRates(String accessKey) throws IOException {
-		var URL = String.format(BASE_URL, accessKey);
+		var url = String.format(BASE_URL, accessKey);
 		var request = new Request.Builder() //
-				.url(URL) //
+				.url(url) //
 				.build();
 
 		try (var response = client.newCall(request).execute()) {
