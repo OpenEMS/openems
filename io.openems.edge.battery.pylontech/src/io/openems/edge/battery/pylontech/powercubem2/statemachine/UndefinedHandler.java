@@ -10,8 +10,6 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 		var battery = context.getParent();
 
-		// TODO: Define if we will use a Start-Stop target mode - we are working in start by default mode
-
 		switch(battery.getStartStopTarget()) {
 		case UNDEFINED: {
 			// Stuck in undefined state

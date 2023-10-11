@@ -359,7 +359,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	public String debugLog() {
 		return new StringBuilder() //
 				.append(stateMachine.debugLog()) //
-				.append("|SoC").append(this.getSoc()) //
+				.append("|SoC:").append(this.getSoc()) //
 				.append("|Actual:").append(this.getVoltage())
 				.append(";").append(this.getCurrent()) //
 				.append("|Charge:").append(this.getChargeMaxVoltage()) //
