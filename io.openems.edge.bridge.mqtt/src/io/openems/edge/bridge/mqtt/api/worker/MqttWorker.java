@@ -490,7 +490,9 @@ public class MqttWorker extends AbstractImmediateWorker {
 	@Override
 	public void deactivate() {
 		try {
-			this.mqttConnection.disconnect();
+			if (this.mqttConnection.isConnected()) {
+				this.mqttConnection.disconnect();
+			}
 		} catch (MqttException e) {
 			// ignore, if disconnect fails for whatever reason, the broker cancels the
 			// connection automatically after the

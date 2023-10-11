@@ -80,8 +80,10 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	@Deactivate
 	protected void deactivate() {
+		if (this.worker != null) {
+			this.worker.deactivate();
+		}
 		super.deactivate();
-		this.worker.deactivate();
 	}
 
 	@Override
