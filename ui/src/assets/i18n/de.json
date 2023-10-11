@@ -503,6 +503,7 @@
     "soc": "Ladezustand",
     "state": "Zustand",
     "storageSystem": "Speichersystem",
+    "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",

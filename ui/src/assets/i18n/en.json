@@ -503,6 +503,7 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
+    "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
