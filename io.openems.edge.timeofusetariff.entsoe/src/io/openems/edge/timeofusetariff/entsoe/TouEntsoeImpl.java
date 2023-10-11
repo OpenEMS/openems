@@ -27,10 +27,12 @@ import org.xml.sax.SAXException;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -118,7 +120,11 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
 			final var entsoeCurrency = Utils.parseCurrency(result);
 			final var globalCurrency = this.meta.getCurrency();
-			final var exchangeRate = globalCurrency.name() == entsoeCurrency //
+			if (globalCurrency == Currency.UNDEFINED) {
+				throw new OpenemsException("Global Currency is UNDEFINED. Please configure it in Core.Meta component");
+			}
+
+			final var exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
 					? 1 // No need to fetch exchange rate from API.
 					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(this.config.accessKey()),
 							globalCurrency);
