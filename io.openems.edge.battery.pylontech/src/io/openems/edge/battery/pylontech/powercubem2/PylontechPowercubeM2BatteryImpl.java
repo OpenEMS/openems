@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -58,6 +60,10 @@ import io.openems.edge.battery.pylontech.powercubem2.statemachine.StateMachine.S
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent, 
 		Battery, EventHandler, ModbusSlave, StartStoppable, PylontechPowercubeM2Battery {
 
@@ -342,7 +348,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				),
 
 				// Write sleep/wake register
-				new FC16WriteRegistersTask(0x1090,
+				new FC6WriteRegisterTask(0x1090,
 						m(PylontechPowercubeM2Battery.ChannelId.SLEEP_WAKE_CHANNEL,
 								new UnsignedWordElement(0x1090)))
 
@@ -357,19 +363,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append(stateMachine.debugLog()) //
-				.append("|Status: ").append(this.getSystemStatus().toString())
-				.append("|StartStopTarget: ").append(this.getStartStopTarget().toString())
-				.append("|StartStopChannel: ").append(this.getStartStop().toString())
-				.append("|SoC:").append(this.getSoc()) //
-				.append("|Actual:").append(this.getVoltage())
-				.append(";").append(this.getCurrent()) //
-				.append("|Charge:").append(this.getChargeMaxVoltage()) //
-				.append(";").append(this.getChargeMaxCurrent()) //
-				.append("|Discharge:").append(this.getDischargeMinVoltage())
-				.append(";").append(this.getDischargeMaxCurrent()) //
-				.toString();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
