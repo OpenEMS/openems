@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.Level;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.session.Role;
@@ -28,7 +29,17 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetEdgesResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeMetadata {
+	public record EdgeMetadata(//
+			String id, //
+			String comment, //
+			String producttype, //
+			SemanticVersion version, //
+			Role role, //
+			boolean isOnline, //
+			ZonedDateTime lastmessage, //
+			ZonedDateTime firstSetupProtocol, //
+			Level sumState //
+	) {
 
 		/**
 		 * Converts a collection of EdgeMetadatas to a JsonArray.
@@ -49,30 +60,9 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 		 * @return a JsonArray
 		 */
 		public static JsonArray toJson(List<EdgeMetadata> metadatas) {
-			var result = new JsonArray();
-			for (EdgeMetadata metadata : metadatas) {
-				result.add(metadata.toJsonObject());
-			}
-			return result;
-		}
-
-		private final String id;
-		private final String comment;
-		private final String producttype;
-		private final SemanticVersion version;
-		private final Role role;
-		private final boolean isOnline;
-		private final ZonedDateTime lastmessage;
-
-		public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, Role role,
-				boolean isOnline, ZonedDateTime lastmessage) {
-			this.id = id;
-			this.comment = comment;
-			this.producttype = producttype;
-			this.version = version;
-			this.role = role;
-			this.isOnline = isOnline;
-			this.lastmessage = lastmessage;
+			return metadatas.stream() //
+					.map(EdgeMetadata::toJsonObject) //
+					.collect(JsonUtils.toJsonArray());
 		}
 
 		protected JsonObject toJsonObject() {
@@ -84,6 +74,8 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 					.add("role", this.role.asJson()) //
 					.addProperty("isOnline", this.isOnline) //
 					.addPropertyIfNotNull("lastmessage", this.lastmessage) //
+					.addPropertyIfNotNull("sumState", this.sumState) //
+					.addPropertyIfNotNull("firstSetupProtocol", this.firstSetupProtocol) //
 					.build();
 		}
 	}

@@ -115,16 +115,13 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		this.channel(TimeOfUseTariffAwattar.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 
 		/*
-		 * Schedule next price update for 2 pm
+		 * Schedule next price update every hour
 		 */
 		var now = ZonedDateTime.now();
-		var nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
-		if (now.isAfter(nextRun)) {
-			nextRun = nextRun.plusDays(1);
-		}
-
-		var duration = Duration.between(now, nextRun);
-		var delay = duration.getSeconds();
+		// We query every hour since Awattar gives the prices for only next 24 hours
+		// instead of 96.
+		var nextRun = now.plusHours(1).truncatedTo(ChronoUnit.HOURS);
+		var delay = Duration.between(now, nextRun).getSeconds();
 
 		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
 	};

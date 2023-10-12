@@ -5,6 +5,7 @@ import { MenuController, ModalController, Platform, ToastController } from '@ion
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
+import { Meta } from '@angular/platform-browser';
 import { environment } from '../environments';
 import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, UserPermission, Websocket } from './shared/shared';
@@ -33,7 +34,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
-    private titleService: Title
+    private titleService: Title,
+    private meta: Meta
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
@@ -66,6 +68,12 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.platform.ready().then(() => {
+
+      // OEM colors exist only after ionic is initialized, so the notch color has to be set here
+      const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
+      this.meta.updateTag(
+        { name: 'theme-color', content: notchColor }
+      );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();
       this.checkSmartphoneResolution(true);

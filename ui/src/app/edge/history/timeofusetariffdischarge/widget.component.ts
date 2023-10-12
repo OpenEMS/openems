@@ -31,9 +31,6 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
-            this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.componentId);
-            });
         });
     }
 
@@ -47,8 +44,8 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     // Calculate active time based on a time counter
     protected updateValues() {
-
         this.service.getConfig().then(config => {
+            this.component = config.getComponent(this.componentId);
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
@@ -64,11 +61,16 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
+        const result: ChannelAddress[] = [];
+
+        if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
+            result.push(new ChannelAddress(this.componentId, 'ChargedTime'));
+        } else {
+            result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
+        }
 
         return new Promise((resolve) => {
-            resolve([
-                new ChannelAddress(this.componentId, 'DelayedTime'),
-                new ChannelAddress(this.componentId, 'ChargedTime')]);
+            resolve(result);
         });
     }
 }

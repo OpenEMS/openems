@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -258,8 +259,8 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, websocketId, request);
 	}
 
 	/**

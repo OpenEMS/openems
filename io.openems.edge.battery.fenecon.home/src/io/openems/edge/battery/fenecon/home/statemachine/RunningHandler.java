@@ -14,7 +14,8 @@ public class RunningHandler extends StateHandler<State, Context> {
 			return State.UNDEFINED;
 		}
 
-		if (!context.isBatteryStarted()) {
+		// Is Battery still started?
+		if (context.bmsControl != Boolean.TRUE) {
 			return State.UNDEFINED;
 		}
 
