@@ -122,124 +122,124 @@ public interface PylontechPowercubeM2Battery extends Battery, OpenemsComponent, 
 		SYSTEM_STATUS(Doc.of(Status.values())
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("System status. 00=Sleep, 01=Charge, 02=Discharge")),
-		SYSTEM_ERROR_PROTECTION(Doc.of(Level.WARNING) // TODO: Check if these should be boolean or WARNING?
+		SYSTEM_ERROR_PROTECTION(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("System error protection (0: Normal, 1: Protect)")),
-		SYSTEM_CURRENT_PROTECTION(Doc.of(Level.WARNING) //
+		SYSTEM_CURRENT_PROTECTION(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY) // 
 				.text("Current Protection active")),
-		SYSTEM_VOLTAGE_PROTECTION(Doc.of(Level.WARNING) // 
+		SYSTEM_VOLTAGE_PROTECTION(Doc.of(Level.FAULT) // 
 				.accessMode(AccessMode.READ_ONLY) //  
 				.text("Voltage Protection Active.")),
-		SYSTEM_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING) //
+		SYSTEM_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Temperature Protection Active")),
-		SYSTEM_VOLTAGE_ALARM(Doc.of(Level.WARNING) // TODO: Check if this should be fault
+		SYSTEM_VOLTAGE_ALARM(Doc.of(Level.FAULT) 
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Voltage Alarm")),
-		SYSTEM_CURRENT_ALARM(Doc.of(Level.WARNING) // TODO: Check if this should be fault
+		SYSTEM_CURRENT_ALARM(Doc.of(Level.FAULT) 
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Current Alarm")),
-		SYSTEM_TEMPERATURE_ALARM(Doc.of(Level.WARNING) // TODO: Check if this should be fault
+		SYSTEM_TEMPERATURE_ALARM(Doc.of(Level.FAULT) 
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Temperature Alarm")),
-		SYSTEM_IDLE_STATUS(Doc.of(OpenemsType.BOOLEAN) // TODO: Check if this should be fault
+		SYSTEM_IDLE_STATUS(Doc.of(OpenemsType.BOOLEAN) 
 				.accessMode(AccessMode.READ_ONLY)
 				.text("System idle status")),
-		SYSTEM_CHARGE_STATUS(Doc.of(OpenemsType.BOOLEAN) // TODO: Check if this should be fault
+		SYSTEM_CHARGE_STATUS(Doc.of(OpenemsType.BOOLEAN)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("System charge status")),
-		SYSTEM_DISCHARGE_STATUS(Doc.of(OpenemsType.BOOLEAN) // TODO: Check if this should be fault
+		SYSTEM_DISCHARGE_STATUS(Doc.of(OpenemsType.BOOLEAN)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("System discharge status")),
-		SYSTEM_SLEEP_STATUS(Doc.of(OpenemsType.BOOLEAN) // TODO: Check if this should be fault
+		SYSTEM_SLEEP_STATUS(Doc.of(OpenemsType.BOOLEAN)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("System sleep status")),
-		SYSTEM_FAN_WARN(Doc.of(Level.WARNING) // TODO: Check if this should be fault
+		SYSTEM_FAN_WARN(Doc.of(Level.WARNING)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("System fan warning")),
-		BATTERY_CELL_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		BATTERY_CELL_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Battery cell under voltage protection.")),
-		BATTERY_CELL_OVER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		BATTERY_CELL_OVER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Battery cell over voltage protection.")),
-		PILE_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		PILE_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Pile under voltage protection.")),
-		PILE_OVER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		PILE_OVER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Pile over voltage protection.")),
-		CHARGE_UNDER_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING)
+		CHARGE_UNDER_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge under temperature protection.")),
-		CHARGE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING)
+		CHARGE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge over temperature protection.")),
-		DISCHARGE_UNDER_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING)
+		DISCHARGE_UNDER_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Discharge under temperature protection.")),
-		DISCHARGE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING)
+		DISCHARGE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Discharge over temperature protection.")),
-		CHARGE_OVER_CURRENT_PROTECTION(Doc.of(Level.WARNING)
+		CHARGE_OVER_CURRENT_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge over current protection.")),
-		DISCHARGE_OVER_CURRENT_PROTECTION(Doc.of(Level.WARNING)
+		DISCHARGE_OVER_CURRENT_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Discharge over current protection.")),
-		SHORT_CIRCUIT_PROTECTION(Doc.of(Level.WARNING)
+		SHORT_CIRCUIT_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Short circuit protection.")),
-		MODULE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.WARNING)
+		MODULE_OVER_TEMPERATURE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module over temperature protection.")),
-		MODULE_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		MODULE_UNDER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module under voltage protection.")),
-		MODULE_OVER_VOLTAGE_PROTECTION(Doc.of(Level.WARNING)
+		MODULE_OVER_VOLTAGE_PROTECTION(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module over voltage protection.")),
-		BATTERY_CELL_LOW_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		BATTERY_CELL_LOW_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Battery cell low voltage alarm.")),
-		BATTERY_CELL_HIGH_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		BATTERY_CELL_HIGH_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Battery cell high voltage alarm.")),
-		PILE_LOW_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		PILE_LOW_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Pile low voltage alarm.")),
-		PILE_HIGH_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		PILE_HIGH_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Pile high voltage alarm.")),
-		CHARGE_LOW_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		CHARGE_LOW_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge low temperature alarm.")),
-		CHARGE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		CHARGE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge high temperature alarm.")),
-		DISCHARGE_LOW_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		DISCHARGE_LOW_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Discharge low temperature alarm.")),
-		DISCHARGE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		DISCHARGE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Discharge high temperature alarm.")),
-		CHARGE_OVER_CURRENT_ALARM(Doc.of(Level.WARNING)
+		CHARGE_OVER_CURRENT_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Charge over current alarm.")),
-		DISCHARGE_OVER_CURRENT_ALARM(Doc.of(Level.WARNING)
+		DISCHARGE_OVER_CURRENT_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Disharge over current alarm.")),
-		BMS_HIGH_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		BMS_HIGH_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Main controller (BMS) high temperature alarm.")),
-		MODULE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.WARNING)
+		MODULE_HIGH_TEMPERATURE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module high temperature alarm.")),
-		MODULE_LOW_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		MODULE_LOW_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module low voltage alarm.")),
-		MODULE_HIGH_VOLTAGE_ALARM(Doc.of(Level.WARNING)
+		MODULE_HIGH_VOLTAGE_ALARM(Doc.of(Level.FAULT)
 				.accessMode(AccessMode.READ_ONLY)
 				.text("Module high voltage alarm.")),
 		SYSTEM_TEMPERATURE(Doc.of(OpenemsType.INTEGER) 

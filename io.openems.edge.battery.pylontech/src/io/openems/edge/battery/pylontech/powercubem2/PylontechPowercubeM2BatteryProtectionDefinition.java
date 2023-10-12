@@ -13,12 +13,12 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 	 */
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {
-		return 180; // [A]
+		return 148; // [A]
 	}
 
 	@Override
 	public int getInitialBmsMaxEverDischargeCurrent() {
-		return 180; // [A]
+		return 148; // [A]
 	}
 
 	@Override

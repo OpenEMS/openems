@@ -137,7 +137,6 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	}
 
 	protected void handleStatusRegister(Integer value, io.openems.edge.common.channel.ChannelId channelId) {
-		//	TODO: Check that this is correct. V important. Did this correctly extract the 3 least significant bits?
 		this.channel(channelId).setNextValue(this.getStatusFromRegisterValue(value));
 	}
 
@@ -183,8 +182,8 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 							this.handleStatusRegister(value, PylontechPowercubeM2Battery.ChannelId.SYSTEM_STATUS);
 						})
 						), 
-				new FC3ReadRegistersTask(0x1100, Priority.LOW, //
-						m(new BitsWordElement(0x1100, this) // TODO: Check that it isnt a problem to trigger the read on this register twice
+				new FC3ReadRegistersTask(0x1100, Priority.LOW, 
+						m(new BitsWordElement(0x1100, this) 
 								.bit(3, PylontechPowercubeM2Battery.ChannelId.SYSTEM_ERROR_PROTECTION) // System Error Protection
 								.bit(4, PylontechPowercubeM2Battery.ChannelId.SYSTEM_CURRENT_PROTECTION)
 								.bit(5, PylontechPowercubeM2Battery.ChannelId.SYSTEM_VOLTAGE_PROTECTION)
@@ -234,13 +233,13 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 				new FC3ReadRegistersTask(0x1103, Priority.LOW, //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1103),  
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), 
-						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104), // TODO: This might not be right - it looks like they use 2 addresses to get it.. and complement makes negative.. 
+						m(Battery.ChannelId.CURRENT, new SignedDoublewordElement(0x1104), // TODO: Validate
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // TODO: Important - check this is right.
 						m(PylontechPowercubeM2Battery.ChannelId.SYSTEM_TEMPERATURE, new SignedWordElement(0x1106), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x1107),
 								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(PylontechPowercubeM2Battery.ChannelId.CYCLE_TIMES, new UnsignedWordElement(0x1108), // TODO: Check type here
+						m(PylontechPowercubeM2Battery.ChannelId.CYCLE_TIMES, new UnsignedWordElement(0x1108),
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(0x1109),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
@@ -369,7 +368,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		log.info("setStartStop called with value: " + value.toString());
-		// TODO Auto-generated method stub
+		
 		if (this.startStopTarget.getAndSet(value) != value) {
 			// If the Start/Stop target is changed - (i.e the battery has been started from outside) -> force the state machine into undefined (so that the state machine will stop/start accordingly)
 			this.stateMachine.forceNextState(State.UNDEFINED);
