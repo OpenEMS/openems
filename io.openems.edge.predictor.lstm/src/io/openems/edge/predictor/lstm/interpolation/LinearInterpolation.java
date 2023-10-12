@@ -1,0 +1,98 @@
+package io.openems.edge.predictor.lstm.interpolation;
+
+import java.util.ArrayList;
+
+public class LinearInterpolation {
+	private ArrayList<Double> actualData = new ArrayList<Double>();
+
+	public LinearInterpolation(ArrayList<Double> data) {
+
+		this.actualData = data;
+
+		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(this.actualData);
+		for (int i = 0; i < coordinate.size(); i++) {
+			ArrayList<Double> val = this.computeInterpolation(coordinate.get(i).get(0).get(0),
+					coordinate.get(i).get(0).get(1), coordinate.get(i).get(1).get(0), coordinate.get(i).get(1).get(1));
+			this.actualData = this.conCat(this.actualData, val, coordinate.get(i).get(0).get(0),
+					coordinate.get(i).get(0).get(1));
+
+		}
+
+	}
+
+	static ArrayList<ArrayList<ArrayList<Double>>> determineInterpolatingPoints(ArrayList<Double> data) {
+
+		double x1 = -1;
+		double x2 = -1;
+		double y1 = -1.0000;
+		double y2 = -1.000000;
+		int flag = 0;
+		boolean flag1 = false;
+
+		ArrayList<ArrayList<ArrayList<Double>>> coordinate = new ArrayList<ArrayList<ArrayList<Double>>>();
+
+		for (int i = 0; i < data.size(); i++) {
+			ArrayList<Double> x = new ArrayList<Double>();
+			ArrayList<Double> y = new ArrayList<Double>();
+			ArrayList<ArrayList<Double>> temp = new ArrayList<ArrayList<Double>>();
+
+			if (Double.isNaN(data.get(i))) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+			}
+
+			if (flag1 == true && flag == 0) {
+				x1 = i - 1;
+				y1 = data.get(i - 1);
+				flag = 1;
+
+			} else if (flag1 == true && flag == 1) {
+				// do nothing
+			} else if (flag1 == false && flag == 1) {
+				x2 = i;
+				y2 = data.get(i);
+				flag = 0;
+				x.add(x1);
+				x.add(x2);
+				y.add(y1);
+				y.add(y2);
+
+				temp.add(x);
+				temp.add(y);
+				coordinate.add(temp);
+				Double.isNaN(i);
+
+			} else {
+				// do nothing
+			}
+		}
+		return coordinate;
+
+	}
+
+	private ArrayList<Double> computeInterpolation(double x1, double x2, double y1, double y2) {
+		ArrayList<Double> val = new ArrayList<Double>();
+		for (int i = 0; i < (x2 - x1); i++) {
+			val.add((y1 * ((x2 - (i + x1)) / (x2 - x1)) + y2 * ((i) / (x2 - x1))));
+		}
+		return val;
+	}
+
+	private ArrayList<Double> conCat(ArrayList<Double> data, ArrayList<Double> val, double x1, double x2) {
+		int tempX1 = (int) x1;
+		int tempX2 = (int) x2;
+		for (int i = 1; i < (tempX2 - tempX1); i++) {
+			data.set((i + tempX1), val.get(i));
+		}
+		return data;
+	}
+
+	public ArrayList<Double> getActualData() {
+		return this.actualData;
+	}
+
+	public void setActualData(ArrayList<Double> actualData) {
+		this.actualData = actualData;
+	}
+}
