@@ -26,7 +26,7 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	/**
 	 * Set the {@link MeterType}.
 	 *
-	 * @param value the value
+	 * @param meterType the meterType
 	 * @return myself
 	 */
 	public SELF withMeterType(MeterType meterType) {
@@ -35,14 +35,242 @@ public abstract class AbstractDummyElectricityMeter<SELF extends AbstractDummyEl
 	}
 
 	/**
-	 * Set {@link SymmetricEss.ChannelId#ACTIVE_POWER} of this
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER} of this
 	 * {@link ElectricityMeter}.
 	 *
 	 * @param value the value
 	 * @return myself
 	 */
-	public SELF withActivePower(int value) {
+	public SELF withActivePower(Integer value) {
 		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L1} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActivePowerL1(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER_L1, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L2} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActivePowerL2(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER_L2, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_POWER_L3} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActivePowerL3(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER_L3, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withReactivePower(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.REACTIVE_POWER, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L1} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withReactivePowerL1(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.REACTIVE_POWER_L1, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L2} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withReactivePowerL2(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.REACTIVE_POWER_L2, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#REACTIVE_POWER_L3} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withReactivePowerL3(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.REACTIVE_POWER_L3, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withCurrent(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.CURRENT, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L1} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withCurrentL1(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.CURRENT_L1, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L2} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withCurrentL2(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.CURRENT_L2, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#CURRENT_L3} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withCurrentL3(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.CURRENT_L3, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withVoltage(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.VOLTAGE, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L1} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withVoltageL1(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.VOLTAGE_L1, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L2} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withVoltageL2(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.VOLTAGE_L2, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#VOLTAGE_L3} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withVoltageL3(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.VOLTAGE_L3, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActiveProductionEnergy(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L1} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActiveProductionEnergyL1(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L2} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActiveProductionEnergyL2(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY_L3} of this
+	 * {@link ElectricityMeter}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withActiveProductionEnergyL3(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, value);
 		return this.self();
 	}
 

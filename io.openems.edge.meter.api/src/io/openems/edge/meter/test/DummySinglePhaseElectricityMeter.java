@@ -31,7 +31,7 @@ public class DummySinglePhaseElectricityMeter extends AbstractDummyElectricityMe
 	/**
 	 * Set the {@link SinglePhase}.
 	 *
-	 * @param value the value
+	 * @param phase the phase
 	 * @return myself
 	 */
 	public DummySinglePhaseElectricityMeter withPhase(SinglePhase phase) {

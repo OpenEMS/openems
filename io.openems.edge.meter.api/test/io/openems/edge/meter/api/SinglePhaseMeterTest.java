@@ -33,7 +33,6 @@ public class SinglePhaseMeterTest {
 
 		// Phase 2
 		sut.withPhase(SinglePhase.L2);
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(sut);
 		sut.withActivePower(2000);
 		TestUtils.activateNextProcessImage(sut);
 		assertEquals(2000, sut.getActivePower().get().intValue());
@@ -43,7 +42,6 @@ public class SinglePhaseMeterTest {
 
 		// Phase 3
 		sut.withPhase(SinglePhase.L3);
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(sut);
 		sut.withActivePower(1000);
 		TestUtils.activateNextProcessImage(sut);
 		assertEquals(1000, sut.getActivePower().get().intValue());
