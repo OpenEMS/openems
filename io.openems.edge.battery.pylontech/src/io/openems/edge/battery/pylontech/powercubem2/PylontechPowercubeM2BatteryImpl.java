@@ -249,7 +249,7 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(0x110C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new SignedDoublewordElement(0x110D),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_2, ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT)),
 						m(new BitsWordElement(0x110F, this)
 								.bit(0, PylontechPowercubeM2Battery.ChannelId.DISCHARGE_CIRCUIT_ACTIVE)
 								.bit(1, PylontechPowercubeM2Battery.ChannelId.CHARGE_CIRCUIT_ACTIVE)
@@ -538,7 +538,8 @@ public class PylontechPowercubeM2BatteryImpl extends AbstractOpenemsModbusCompon
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 								m(this.generatePileChannel(pile, "MAX_DISCHARGE_CURRENT", OpenemsType.INTEGER), // TODO: Check if it is correct to use integer type - the value should be in increments of 0.1V
 										new SignedDoublewordElement(pileOffset + 0x000D),
-										ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+										ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_2, ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT)
+										),
 								m(new BitsWordElement(pileOffset + 0x000F, this)
 										.bit(0, this.generatePileChannel(pile, "DISCHARGE_CIRCUIT_ACTIVE", OpenemsType.BOOLEAN))
 										.bit(1, this.generatePileChannel(pile, "CHARGE_CIRCUIT_ACTIVE", OpenemsType.BOOLEAN))
