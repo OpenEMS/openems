@@ -11,7 +11,7 @@
 			<!-- On update: also update gradle.properties file -->
 			<groupId>biz.aQute.bnd.workspace</groupId>
 			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
-			<version>6.4.0</version>
+			<version>7.0.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
