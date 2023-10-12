@@ -344,6 +344,11 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "scripts": []
+          },
+          "configurations": {
+            "local": {
+              "karmaConfig": "karma.conf.local.js"
+            }
           }
         }
       }
