@@ -12,30 +12,19 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 	/**
 	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
 	 *
-	 * @param hourlyPrices an array of 24 hourly prices.
-	 * @param now          {@ZonedDateTime} given during test.
-	 * @return a {@link DummyTimeOfUseTariffProvider}.
-	 */
-	public static DummyTimeOfUseTariffProvider hourlyPrices(ZonedDateTime now, Float... hourlyPrices) {
-		return new DummyTimeOfUseTariffProvider(now, hourlyPrices);
-	}
-
-	/**
-	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
-	 *
 	 * @param hourlyPrices an array of hourly prices.
 	 * @param now          {@ZonedDateTime} given during test.
 	 * @return a {@link DummyTimeOfUseTariffProvider}.
 	 */
-	public static DummyTimeOfUseTariffProvider quarterlyPrices(ZonedDateTime now, Float... hourlyPrices) {
+	public static DummyTimeOfUseTariffProvider fromHourlyPrices(ZonedDateTime now, Float... hourlyPrices) {
 
 		var quarterlyPrices = new Float[96];
 
 		for (var i = 0; i < 24; i++) {
-			quarterlyPrices[(i * 4)] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 1] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 2] = hourlyPrices[i];
-			quarterlyPrices[(i * 4) + 3] = hourlyPrices[i];
+			quarterlyPrices[i] = hourlyPrices[i];
+			quarterlyPrices[i + 1] = hourlyPrices[i];
+			quarterlyPrices[i + 2] = hourlyPrices[i];
+			quarterlyPrices[i + 3] = hourlyPrices[i];
 		}
 
 		return new DummyTimeOfUseTariffProvider(now, quarterlyPrices);
