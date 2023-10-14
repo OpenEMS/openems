@@ -72,7 +72,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 			var phase = phaseProvider.apply(meter);
 			meter.getActivePowerL1Channel().setNextValue(phase == SinglePhase.L1 ? value : null);
 			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L2 ? value : null);
-			meter.getActivePowerL2Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
+			meter.getActivePowerL3Channel().setNextValue(phase == SinglePhase.L3 ? value : null);
 		});
 	}
 
