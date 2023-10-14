@@ -28,9 +28,39 @@ public class OpenemsOEM {
 	 * Name of the Debian package.
 	 */
 	public static final String SYSTEM_UPDATE_PACKAGE = "fems";
-	public static final String SYSTEM_UPDATE_LATEST_VERSION_URL = "https://fenecon.de/fems-download/"
-			+ SYSTEM_UPDATE_PACKAGE + "-latest.version";
 	public static final String SYSTEM_UPDATE_SCRIPT_URL = "https://fenecon.de/fems-download/update-fems.sh";
+
+	/**
+	 * Gets the System-Update Latest-Version file URL.
+	 * 
+	 * @return the full URL
+	 */
+	public static String getSystemUpdateLatestVersionUrl() {
+		return getSystemUpdateLatestVersionUrl(OpenemsConstants.VERSION_DEV_BRANCH);
+	}
+
+	protected static String getSystemUpdateLatestVersionUrl(String devBranch) {
+		if (devBranch == null || devBranch.isBlank()) {
+			return "https://fenecon.de/fems-download/" + SYSTEM_UPDATE_PACKAGE + "-latest.version";
+		}
+		return "https://dev.intranet.fenecon.de/" + devBranch + "/" + SYSTEM_UPDATE_PACKAGE + ".version";
+	}
+
+	/**
+	 * Gets the parameters for the System-Update script.
+	 * 
+	 * @return parameters
+	 */
+	public static String getSystemUpdateScriptParams() {
+		return getSystemUpdateScriptParams(OpenemsConstants.VERSION_DEV_BRANCH);
+	}
+
+	protected static String getSystemUpdateScriptParams(String devBranch) {
+		if (devBranch == null || devBranch.isBlank()) {
+			return "";
+		}
+		return " -fb \"" + devBranch + "\"";
+	}
 
 	/*
 	 * Backend InfluxDB.

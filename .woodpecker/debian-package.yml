@@ -60,4 +60,5 @@ steps:
       #rm: true
       source:
         - ./*.deb
+        - ./*.version
       target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
