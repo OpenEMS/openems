@@ -20,6 +20,7 @@ import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -379,4 +380,21 @@ public interface BatteryInverterRefuStore88k
 		return this.channel(BatteryInverterRefuStore88k.ChannelId.ST).value().asEnum();
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#TMP_CAB}.
+	 *
+	 * @return the {@link Channel}
+	 */
+	public default IntegerReadChannel getInverterTemperatureChannel() {
+		return this.channel(ChannelId.TMP_CAB);
+	}
+
+	/**
+	 * Gets the Inverter Cabin temperature. See {@link ChannelId#TMP_CAB}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getInverterTemperature() {
+		return this.getInverterTemperatureChannel().value();
+	}
 }

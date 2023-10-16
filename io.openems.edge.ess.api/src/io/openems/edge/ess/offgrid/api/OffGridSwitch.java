@@ -114,7 +114,7 @@ public interface OffGridSwitch extends OpenemsComponent {
 	 * @return the Channel {@link Value}
 	 */
 	public default Optional<Contactor> getGroundingContactor() {
-		var groundingContactor = this.getMainContactorChannel().value();
+		var groundingContactor = this.getGroundingContactorChannel().value();
 		return groundingContactor.asOptional().map(value -> {
 			return value ? Contactor.CLOSE : Contactor.OPEN;
 		});

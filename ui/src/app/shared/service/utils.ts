@@ -149,6 +149,25 @@ export class Utils {
     }
   }
 
+  /**
+   * Safely compares two arrays - possibly 'null'
+   * 
+   * @param v1
+   * @param v2 
+   * @returns 
+   */
+  public static compareArraysSafely(v1: any[], v2: any[]): boolean {
+    if (v1 == null || v2 == null) {
+      return null;
+    }
+
+    const set1 = new Set(v1);
+    const set2 = new Set(v2);
+
+    return v1.every(item => set2.has(item)) &&
+      v2.every(item => set1.has(item));
+  }
+
   public static getRandomInteger(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -277,7 +296,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
-    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh';
+    return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh';
   };
 
   /**
@@ -312,6 +331,7 @@ export class Utils {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
   };
+
 
   /**
    * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
@@ -534,6 +554,16 @@ export class Utils {
     }
   }
 }
+export enum YAxisTitle {
+  PERCENTAGE,
+  ENERGY,
+  VOLTAGE
+}
+
+export enum ChartAxis {
+  LEFT = 'left',
+  RIGHT = 'right'
+}
 export namespace HistoryUtils {
 
   export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (data: number[]): number[] | null[] => {
@@ -554,10 +584,6 @@ export namespace HistoryUtils {
     }];
   }
 
-  export enum YAxisTitle {
-    PERCENTAGE,
-    ENERGY
-  }
   export type InputChannel = {
 
     /** Must be unique, is used as identifier in {@link ChartData.input} */
@@ -581,8 +607,24 @@ export namespace HistoryUtils {
     /** color in rgb-Format */
     color: string,
     /** the stack for barChart */
-    stack?: number,
+    stack?: number | number[],
+    /** False per default */
+    hideLabelInLegend?: boolean,
+    /** Borderstyle of label in legend */
+    borderDash?: number[],
+    /** Hides shadow of chart lines, default false */
+    hideShadow?: boolean,
+    /** axisId from yAxes  */
+    yAxisId?: ChartAxis,
+    customUnit?: YAxisTitle,
+    tooltip?: [{
+      afterTitle: (channelData?: { [name: string]: number[] }) => string,
+      stackIds: number[]
+    }],
+    /** The smaller the number, the further forward it is displayed */
+    order?: number
   }
+
   /**
  * Data from a subscription to Channel or from a historic data query.
  * 
@@ -600,20 +642,28 @@ export namespace HistoryUtils {
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,
-      afterTitle?: string
+      afterTitle?: (stack: string) => string,
     },
+    yAxes: yAxes[],
+  }
+
+  export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
+    customTitle?: string,
+    position: 'left' | 'right' | 'bottom' | 'top',
+    yAxisId: ChartAxis,
+    /** Default: true */
+    displayGrid?: boolean
   }
 
   export namespace ValueConverter {
 
     export const NEGATIVE_AS_ZERO = (value) => {
-      if (value > 0) {
-        return value;
-      } else {
-        return 0;
+      if (value == null) {
+        return null;
       }
+      return Math.max(0, value);
     };
 
     export const NON_NEGATIVE = (value) => {

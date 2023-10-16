@@ -18,6 +18,7 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.validator.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.validator.Validator;
 
@@ -155,7 +156,11 @@ public class GetApp {
 					.addProperty("cardinality", app.getCardinality().name()) //
 					.addProperty("appId", app.getAppId()) //
 					.addProperty("name", app.getName(language)) //
+					.addProperty("shortName", app.getShortName(language)) //
 					.addPropertyIfNotNull("image", image) //
+					.add("flags", Arrays.stream(app.flags()) //
+							.map(Flag::toJson) //
+							.collect(JsonUtils.toJsonArray()))
 					.add("status", status) //
 					.add("instanceIds", instantiatedApps.stream() //
 							.filter(instance -> app.getAppId().equals(instance.appId)) //
@@ -165,6 +170,7 @@ public class GetApp {
 		} catch (InterruptedException | CancellationException e) {
 			throw new OpenemsException(e);
 		} catch (ExecutionException e) {
+			e.getCause().printStackTrace();
 			throw new OpenemsException(e.getCause());
 		}
 	}

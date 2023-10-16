@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Hashtable;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -298,6 +299,13 @@ public class AppManagerImplTest {
 			);
 		});
 
+		final var config = this.appManagerTestBundle.cm.getConfiguration(
+				this.appManagerTestBundle.componentManger.getEdgeConfig().getComponent("scheduler0").get().getPid(),
+				null);
+		final var props = new Hashtable<String, Object>();
+		props.put("controllers.ids", new String[] { "ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0",
+				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0" });
+		config.update(props);
 	}
 
 	@Test
@@ -314,7 +322,7 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testFindAppById() {
-		assertEquals(this.homeApp, this.appManagerTestBundle.sut.findAppById("App.FENECON.Home"));
+		assertEquals(this.homeApp, this.appManagerTestBundle.sut.findAppById("App.FENECON.Home").orElse(null));
 	}
 
 	@Test

@@ -3,7 +3,6 @@ package io.openems.edge.meter.phoenixcontact;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.phoenixcontact.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

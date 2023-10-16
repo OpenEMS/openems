@@ -1,5 +1,5 @@
-import { CurrentData } from "../../shared";
 import { TextIndentation } from "../modal/modal-line/modal-line";
+import { Converter } from "./converter";
 import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
 
 export class OeFormlyViewTester {
@@ -102,6 +102,36 @@ export class OeFormlyViewTester {
         return result;
       }
 
+
+      /**
+       * {@link OeFormlyField.ValueLineFromMultipleChannels}
+       */
+      case "value-from-channels-line": {
+        const tmp = OeFormlyViewTester.applyValueLineFromChannels(field, context);
+        if (tmp == null) {
+          return null; // filter did not pass
+        }
+
+        // Read or generate name
+        const name: string = field.name;
+
+        // Prepare result
+        let result: OeFormlyViewTester.Field.ValueLine = {
+          type: field.type,
+          name: name
+        };
+
+        // Apply properties if available
+        if (tmp.value !== null) {
+          result.value = tmp.value;
+        }
+        if (field.indentation) {
+          result.indentation = field.indentation;
+        }
+
+        return result;
+      }
+
       /**
        * OeFormlyField.Item
        */
@@ -166,6 +196,144 @@ export class OeFormlyViewTester {
       rawValue: rawValue,
       value: value
     };
+  }
+}
+
+export namespace OeChartTester {
+
+  export type Context = {
+    energyChannel: { [id: string]: number[] }[]
+    powerChannel: { [id: string]: number[] }[]
+  }[]
+
+  export type View = {
+    datasets: {
+      data: OeChartTester.Dataset.Data[],
+      labels: OeChartTester.Dataset.LegendLabel,
+      options: OeChartTester.Dataset.Option
+    }
+  }
+
+  export type Dataset =
+    | Dataset.Data
+    | Dataset.LegendLabel
+    | Dataset.Option
+
+  export namespace Dataset {
+
+    export type Data = {
+      type: 'data',
+      label: string | Converter,
+      value: number[] | null
+    }
+
+    export type LegendLabel = {
+      type: 'label',
+      timestamps: Date[]
+    }
+    export type Option = {
+      type: 'option',
+      options: ChartOptions
+    }
+  }
+}
+
+export class OeChartTester {
+
+  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: History.OeChannels, testContext: TestContext): OeChartTester.View {
+
+    let channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
+
+    // Set historyPeriod manually with passed timestamps
+    testContext.service.historyPeriod.next({
+      from: new Date(channelData.result.timestamps[0] ?? 0),
+      to: new Date(channelData.result.timestamps.reverse()[0] ?? 0),
+      getText: () => testContext.service.historyPeriod.value.getText(testContext.translate)
+    });
+
+    // Fill Data
+    let configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
+    let data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
+    let labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
+    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels);
+
+    return {
+      datasets: {
+        data: data,
+        labels: labels,
+        options: options
+      }
+    };
+  };
+
+  /**
+   * Converts chartLabels to legendLabels
+   * 
+   * @param labels the labels
+   * @returns legendlabels
+   */
+  public static convertChartLabelsToLegendLabels(labels: Date[]): OeChartTester.Dataset.LegendLabel {
+    return {
+      type: 'label',
+      timestamps: labels
+    };
+  }
+
+  /**
+   * Converts chartData to Dataset
+   * 
+   * @param datasets the datasets
+   * @returns data from a chartData dataset
+   */
+  public static convertChartDatasetsToDatasets(datasets: ChartDataSets[]): OeChartTester.Dataset.Data[] {
+    let fields: OeChartTester.Dataset.Data[] = [];
+
+    for (let dataset of datasets) {
+      fields.push(
+        {
+          type: 'data',
+          label: dataset.label,
+          value: dataset.data as number[]
+        });
+    }
+
+    return fields;
+  }
+
+  /**
+   * Converts chartData to chartOptions
+   * 
+   * @param chartObject the chartObject
+   * @param chartType the chartType
+   * @param testContext the testContext
+   * @param channels the channels
+   * @returns dataset options
+   */
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: History.OeChannels): OeChartTester.Dataset.Option {
+
+    let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
+    let displayValues = chartData.output(channelData.result.data);
+    let legendOptions: any[] = [];
+
+    displayValues.forEach(displayValue => {
+      let yAxis = chartData.yAxes.find(yaxis => yaxis?.yAxisId == (displayValue?.yAxisId ?? chartData.yAxes[0].yAxisId));
+      let label = AbstractHistoryChart.getTooltipsLabelName(displayValue.name, yAxis?.unit, typeof displayValue.nameSuffix == 'function' ? displayValue.nameSuffix(channels.energyChannelWithValues) : null);
+      legendOptions.push(AbstractHistoryChart.getLegendOptions(label, displayValue));
+    });
+
+    return {
+      type: 'option',
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result)
+    };
+  }
+
+  private static getChannelDataByCharttype(chartType: 'line' | 'bar', channels: History.OeChannels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
+    switch (chartType) {
+      case 'line':
+        return channels.dataChannelWithValues;
+      case 'bar':
+        return channels.energyPerPeriodChannelWithValues;
+    }
   }
 }
 
@@ -248,17 +416,17 @@ export namespace OeFormlyViewTester {
   export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
 
     // Read values from channels
-    let rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
+    const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
 
     // Apply filter
     if (field.filter && field.filter(rawValues) === false) {
       return null;
     }
 
-    let currentData: CurrentData = { allComponents: context };
+    const currentData: CurrentData = { allComponents: context };
 
     // Apply converter
-    let value: string = field.value
+    const value: string = field.value
       ? field.value(currentData)
       : rawValues === null ? null : "";
 

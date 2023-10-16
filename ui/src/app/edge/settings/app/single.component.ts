@@ -15,6 +15,7 @@ import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
+import { InstallAppComponent } from './install.component';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,
@@ -41,6 +42,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   private edge: Edge | null = null;
 
   private key: string | null = null;
+  private useMasterKey: boolean = false;
 
   protected canEnterKey: boolean | undefined;
   protected hasPredefinedKey: boolean | undefined;
@@ -132,10 +134,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       const state = history?.state;
       if (state && 'app' in history.state) {
         if ('app' in history.state) {
-          this.setApp(history.state['app']);
+          this.setApp(history.state.app);
         }
         if ('appKey' in history.state) {
-          this.key = history.state['appKey'];
+          this.key = history.state.appKey;
+        }
+        if ('useMasterKey' in history.state) {
+          this.useMasterKey = history.state.useMasterKey;
         }
       } else {
         edge.sendRequest(this.websocket,
@@ -158,10 +163,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         })).then(response => {
           let descriptor = (response as GetAppDescriptor.Response).result;
           this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast('Error while receiving AppDescriptor for App[' + appId + ']: ' + reason.error.message, 'danger');
-        }).finally(() => {
+        })
+        .catch(InstallAppComponent.errorToast(this.service, error => 'Error while receiving AppDescriptor for App[' + appId + ']: ' + error))
+        .finally(() => {
           this.increaseReceivedResponse();
         });
     });
@@ -218,15 +222,15 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   }
 
   protected installApp(appId: string) {
-    if (this.key != null) {
-      let key = this.key;
+    if (this.key || this.useMasterKey) {
       // if key already set navigate directly to installation view
+      const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-        , { queryParams: { name: this.appName }, state: { appKey: key } });
+        , { queryParams: { name: this.appName }, state: state });
       return;
     }
     // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-    if (!hasKeyModel(this.edge) || this.hasPredefinedKey || this.isFreeApp) {
+    if (!hasKeyModel(this.edge) || this.isFreeApp) {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
         , { queryParams: { name: this.appName } });
       return;

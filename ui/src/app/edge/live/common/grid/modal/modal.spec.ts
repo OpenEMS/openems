@@ -1,7 +1,7 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, LINE_NO_RECEPTION, PHASE_ADMIN, PHASE_GUEST, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
 import { GridMode } from "src/app/shared/shared";
-import { sharedSetup } from "src/app/shared/test/utils.spec";
+import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
 import { expectView } from "./constants.spec";
@@ -18,7 +18,7 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
 });
 
 describe('Grid - Modal', () => {
-  let TEST_CONTEXT;
+  let TEST_CONTEXT: TestContext;
   beforeEach(() => TEST_CONTEXT = sharedSetup());
 
   it('generateView()', () => {
@@ -71,7 +71,11 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ '_sum/GridMode': GridMode.OFF_GRID }), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-          LINE_NO_RECEPTION,
+          {
+            type: "channel-line",
+            name: "Keine Netzverbindung!",
+            value: ""
+          },
           CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),

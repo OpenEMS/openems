@@ -1,6 +1,6 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { App } from "./app";
 
+import { App } from "./app";
 
 /**
  * Gets if a key can be redeemed.
@@ -55,7 +55,7 @@ export namespace AppCenterIsKeyApplicable {
     export class Request extends JsonrpcRequest {
 
         public constructor(
-            public readonly params: {
+            public override readonly params: {
                 key: string,
                 appId: string,
             }
@@ -67,8 +67,8 @@ export namespace AppCenterIsKeyApplicable {
     export class Response extends JsonrpcResponseSuccess {
 
         public constructor(
-            public readonly id: string,
-            public readonly result: {
+            public override readonly id: string,
+            public override readonly result: {
                 isKeyApplicable: boolean,
                 additionalInfo: {
                     keyId: string,

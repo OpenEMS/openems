@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 import { FieldWrapper } from '@ngx-formly/core';
 
 @Component({
@@ -7,24 +8,87 @@ import { FieldWrapper } from '@ngx-formly/core';
 })
 export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper implements OnInit {
 
-    ngOnInit() {
-        this.props.defaultValueOptions?.forEach((item: FieldDefaultCases) => {
-            this.form.get(item["field"]).valueChanges.subscribe((value) => {
-                this.onChange(item, value);
+    private casesToSubscribe: FieldDefaultCases[] = [];
+
+    public ngOnInit() {
+        this.getOptions().forEach((item: FieldDefaultCases) => {
+            this.form.valueChanges.subscribe((value) => {
+                const indicesToRemove = [];
+                const casesToSub = this.casesToSubscribe;
+                this.casesToSubscribe = [];
+                casesToSub.forEach((defaultCase, i) => {
+                    const control = this.form.get(defaultCase.field);
+                    if (control) {
+                        this.subscribe(item, control);
+                        indicesToRemove.push(i);
+                    }
+                });
+                casesToSub.forEach((a, i) => {
+                    if (indicesToRemove.some(c => c === i)) {
+                        return;
+                    }
+                    this.casesToSubscribe.push(a);
+                });
             });
+
+            const control = this.form.get(item.field);
+            if (control) {
+                this.subscribe(item, control);
+            } else {
+                this.casesToSubscribe.push(item);
+            }
+
+            // if value is already set keep current value
+            if (this.formControl.value) {
+                return;
+            }
             let value = this.model[item.field];
-            if (value) {
-                this.onChange(item, value);
+            if (!value) {
+                return;
+            }
+            if (this.onChange(item, value)) {
+                return;
             }
         });
     }
 
-    private onChange(item: FieldDefaultCases, value: any) {
+    private subscribe(item: FieldDefaultCases, control: AbstractControl) {
+        control.valueChanges.subscribe((value) => {
+            if (this.onChange(item, value)) {
+                return;
+            }
+            // search for first other case
+            const options = this.getOptions();
+            for (const option of options) {
+                const valueOfField = this.form.getRawValue()[option.field];
+                if (!valueOfField) {
+                    continue;
+                }
+                for (const optionCase of option.cases) {
+                    if (optionCase.case == valueOfField) {
+                        this.formControl.setValue(optionCase.defaultValue);
+                        return;
+                    }
+                }
+            }
+        });
+        this.onChange(item, this.form.getRawValue()[item.field]);
+    }
+
+    private getOptions(): FieldDefaultCases[] {
+        return this.props.defaultValueOptions ?? [];
+    }
+
+    private onChange(item: FieldDefaultCases, value: any): boolean {
         const foundCase = item.cases.find(element => element.case == value);
         if (!foundCase) {
-            return;
+            return false;
+        }
+        if (foundCase.defaultValue === value) {
+            return true;
         }
         this.formControl.setValue(foundCase.defaultValue);
+        return true;
     }
 
 }

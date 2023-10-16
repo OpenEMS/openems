@@ -2,6 +2,9 @@
 import { CurrentData, EdgeConfig, Utils } from "../../shared";
 import { Formatter } from "./formatter";
 
+import { CurrentData, EdgeConfig, Utils } from "../../shared";
+import { Formatter } from "./formatter";
+
 export type Converter = (value: number | string | null) => string;
 
 export namespace Converter {
@@ -19,7 +22,27 @@ export namespace Converter {
     return "" + value;
   };
 
-  const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
+
+  const FORMAT_WATT = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-0') + " W";
+  };
+
+  const FORMAT_MILLI_VOLT = (value: number) => {
+    return formatNumber(value, 'de', '1.0-0') + " mV";
+  };
+
+  const FORMAT_VOLT = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-0') + " V";
+  };
+
+  const FORMAT_AMPERE = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.1-1') + " A";
+  };
+
+  export const IF_NUMBER = (value: number | string | null, callback: (number: number) => string) => {
     if (typeof value === 'number') {
       return callback(value);
     }
@@ -77,6 +100,16 @@ export namespace Converter {
       Formatter.FORMAT_WATT(value));
   };
 
+  export const STATE_IN_PERCENT: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_PERCENT(value));
+  };
+
+  export const TEMPERATURE_IN_DEGREES: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      Formatter.FORMAT_CELSIUS(value));
+  };
+
   /**
    * Formats a Voltage value as Volt [V]. 
    * 
@@ -91,6 +124,11 @@ export namespace Converter {
       Formatter.FORMAT_VOLT(value / 1000));
   };
 
+  export const VOLTAGE_TO_VOLT: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_VOLT(value));
+  };
+
   /**
    * Formats a Current value as Ampere [A]. 
    * 
@@ -102,7 +140,7 @@ export namespace Converter {
    */
   export const CURRENT_IN_MILLIAMPERE_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_AMPERE(value / 1000));
+      FORMAT_AMPERE(value / 1000));
   };
 
   export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
@@ -111,6 +149,37 @@ export namespace Converter {
         ? Formatter.FORMAT_WATT(0)
         : Formatter.FORMAT_WATT(value));
   };
+
+  export const CURRENT_TO_AMPERE: Converter = (raw) => {
+    return IF_NUMBER(raw, value =>
+      FORMAT_AMPERE(value));
+  };
+
+  export const CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION: Converter = (raw) => {
+    return IF_NUMBER(raw, value => {
+      const limitation = () => {
+        switch (value) {
+          case 1:
+            return '0';
+          case 2:
+            return '30';
+          case 4:
+            return '60';
+          case 8:
+            return '100';
+          default:
+            return null;
+        }
+      };
+
+      if (limitation() == null) {
+        return "-";
+      }
+
+      return Utils.CONVERT_TO_PERCENT(limitation());
+    });
+  };
+
   /**
    * Hides the actual value, always returns empty string.
    * 
@@ -130,9 +199,9 @@ export namespace Converter {
    * @returns the otherPower
    */
   export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EdgeConfig.Component[], consumptionMeters: EdgeConfig.Component[], currentData: CurrentData): number => {
-    let activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
-    let evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
-    let consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    const activePowerTotal = currentData.allComponents['_sum/ConsumptionActivePower'] ?? null;
+    const evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + '/ChargePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+    const consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + '/ActivePower'])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
 
     return Utils.subtractSafely(activePowerTotal,
       Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));

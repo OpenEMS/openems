@@ -110,7 +110,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 	 */
 	protected abstract void handleStateMachine();
 
-	protected StringBuilder genericDebugLog() {
+	protected void genericDebugLog(StringBuilder sb) {
 		// Get DC-PV-Power for Hybrid ESS
 		Integer dcPvPower = null;
 		var batteryInverter = this.getBatteryInverter();
@@ -118,29 +118,27 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 			dcPvPower = ((HybridManagedSymmetricBatteryInverter) batteryInverter).getDcPvPower();
 		}
 
-		var result = new StringBuilder() //
-				.append("SoC:").append(this.getSoc().asString()) //
+		sb //
+				.append("|SoC:").append(this.getSoc().asString()) //
 				.append("|L:").append(this.getActivePower().asString());
 
 		// For HybridEss show actual Battery charge power and PV production power
 		if (dcPvPower != null) {
 			HybridEss me = this;
-			result //
+			sb //
 					.append("|Battery:").append(me.getDcDischargePower().asString()) //
 					.append("|PV:").append(dcPvPower);
 		}
 
 		// Show max AC export/import active power:
 		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
-		result //
+		sb //
 				.append("|Allowed:") //
-				.append(TypeUtils.min(//
+				.append(TypeUtils.max(//
 						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
 				.append(";") //
 				.append(TypeUtils.min(//
 						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
-
-		return result;
 	}
 
 	/**

@@ -2,6 +2,7 @@ package io.openems.edge.common.type;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -412,6 +413,28 @@ public class TypeUtils {
 	 * @param values the {@link Integer} values
 	 * @return the sum
 	 */
+	public static Integer sumInt(List<Integer> values) {
+		return sum(values.toArray(Integer[]::new));
+	}
+
+	/**
+	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
+	 * are null, 'null' is returned.
+	 *
+	 * @param values the {@link Long} values
+	 * @return the sum
+	 */
+	public static Long sumLong(List<Long> values) {
+		return sum(values.toArray(Long[]::new));
+	}
+
+	/**
+	 * Safely add Integers. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the sum
+	 */
 	public static Integer sum(Integer... values) {
 		Integer result = null;
 		for (Integer value : values) {
@@ -437,6 +460,28 @@ public class TypeUtils {
 	public static Long sum(Long... values) {
 		Long result = null;
 		for (Long value : values) {
+			if (value == null) {
+				continue;
+			}
+			if (result == null) {
+				result = value;
+			} else {
+				result += value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely add Doubles. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 * 
+	 * @param values the {@link Double} values
+	 * @return the sum, possibly null
+	 */
+	public static Double sum(Double... values) {
+		Double result = null;
+		for (var value : values) {
 			if (value == null) {
 				continue;
 			}
@@ -486,6 +531,29 @@ public class TypeUtils {
 	 * @return the result, possibly null
 	 */
 	public static Long subtract(Long minuend, Long subtrahend) {
+		if (minuend == null) {
+			return null;
+		}
+		if (subtrahend == null) {
+			return minuend;
+		}
+		return minuend - subtrahend;
+	}
+
+	/**
+	 * Safely subtract Doubles.
+	 *
+	 * <ul>
+	 * <li>if minuend is null -&gt; result is null
+	 * <li>if subtrahend is null -&gt; result is minuend
+	 * <li>if both are null -&gt; result is null
+	 * </ul>
+	 *
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 */
+	public static Double subtract(Double minuend, Double subtrahend) {
 		if (minuend == null) {
 			return null;
 		}
@@ -730,6 +798,16 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(List<Integer> values) {
+		return averageInt(values.toArray(Integer[]::new));
+	}
+
+	/**
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
 	 *
@@ -803,12 +881,38 @@ public class TypeUtils {
 	/**
 	 * Fits a value within a lower and upper boundary.
 	 *
-	 * @param lowLimit  the lower boundary
-	 * @param highLimit the upper boundary
-	 * @param value     the actual value
-	 * @return the adjusted value
+	 * @param lowLimit  the int lower boundary
+	 * @param highLimit the int upper boundary
+	 * @param value     the int actual value
+	 * @return the adjusted int value
 	 */
 	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the double lower boundary
+	 * @param highLimit the double upper boundary
+	 * @param value     the double actual value
+	 * @return the adjusted double value
+	 */
+	public static double fitWithin(double lowLimit, double highLimit, double value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the float lower boundary
+	 * @param highLimit the float upper boundary
+	 * @param value     the float actual value
+	 * @return the adjusted float value
+	 */
+	public static float fitWithin(float lowLimit, float highLimit, float value) {
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}

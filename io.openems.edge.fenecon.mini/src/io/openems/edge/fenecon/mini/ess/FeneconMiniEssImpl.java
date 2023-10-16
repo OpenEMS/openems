@@ -510,11 +510,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 			return "SoC:" + this.getSoc().asString() //
 					+ "|L:" + this.getActivePower().asString(); //
 		}
-		return "SoC:" + this.getSoc().asString() //
+		return this.stateMachine.debugLog() //
+				+ "|SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
 				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
-				+ this.getAllowedDischargePower().asString() //
-				+ "|" + this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).value().asEnum().asCamelCase();
+				+ this.getAllowedDischargePower().asString(); //
 	}
 
 	@Override

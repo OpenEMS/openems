@@ -43,9 +43,9 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -682,17 +682,16 @@ public class BatterySoltaroClusterVersionBImpl extends AbstractOpenemsModbusComp
 		return addressOffsetRack + OFFSET_CONTACTOR_CONTROL;
 	}
 
-	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element) {
+	protected final <T extends ModbusElement> T map(io.openems.edge.common.channel.ChannelId channelId, T element) {
 		return this.m(channelId, element);
 	}
 
-	protected final AbstractModbusElement<?> map(io.openems.edge.common.channel.ChannelId channelId,
-			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
+	protected final <T extends ModbusElement> T map(io.openems.edge.common.channel.ChannelId channelId, T element,
+			ElementToChannelConverter converter) {
 		return this.m(channelId, element, converter);
 	}
 
-	protected final AbstractModbusElement<?> map(BitsWordElement bitsWordElement) {
+	protected final BitsWordElement map(BitsWordElement bitsWordElement) {
 		return super.m(bitsWordElement);
 	}
 

@@ -106,9 +106,9 @@
     "connectionSuccessful": "Conexión a {{ value }} hecho.",
     "deviceOffline": "El aparato no está conectado!",
     "isOffline": "OpenEMS está fuera de línea!",
-    "loggedInAs": "Conectado como:",
+    "LOGGED_IN_AS": "Conectado como",
     "toEnergymonitor": "Al monitor de energía...",
-    "type": "Tipo:"
+    "TYPE": "Tipo"
   },
   "Login": {
     "title": "Login",
@@ -117,6 +117,38 @@
     "passwordReset": "Restablecer contraseña",
     "authenticationFailed": "Fallo de autentificación",
     "user": "Usuario"
+  },
+  "Register": {
+    "segment": {
+      "user": "Usuario",
+      "installer": "Instalador"
+    },
+    "Form": {
+      "user": {
+        "acceptPrivacyPolicy": ""
+      },
+      "installer": {
+        "acceptPrivacyPolicy": ""
+      },
+      "contactDetails": "Datos de contacto",
+      "companyName": "Nombre de la empresa",
+      "firstname": "Nombre",
+      "lastname": "Apellido",
+      "street": "Calle | número de casa",
+      "zip": "Código postal",
+      "city": "Ciudad",
+      "country": "País",
+      "phone": "Número de teléfono",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "button": "Crear",
+    "errors": {
+      "requiredFields": "Por favor, rellene todos los campos",
+      "passwordNotEqual": "Las contraseñas no son iguales"
+    },
+    "success": "Registro realizado con éxito"
   },
   "Edge": {
     "Index": {

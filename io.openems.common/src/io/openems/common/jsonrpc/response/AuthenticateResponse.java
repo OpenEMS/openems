@@ -60,7 +60,8 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
-						.addProperty("language", this.language.name()) //
+						.addProperty("language", this.language.name())//
+						.addProperty("hasMultipleEdges", this.user.hasMultipleEdges())//
 						.add("globalRole", this.user.getGlobalRole().asJson()) //
 						.build()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //

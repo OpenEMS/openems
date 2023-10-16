@@ -35,7 +35,7 @@ public class EssFeneconCommercial40Pv1ImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-				.activate(MyConfigPV1.create() //
+				.activate(MyConfigPv1.create() //
 						.setId(CHARGER_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setEssId(ESS_ID) //

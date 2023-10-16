@@ -36,7 +36,7 @@ describe('Consumption - Modal', () => {
       });
     }
 
-    // two evcs and two consumptionMeter, negative ConsumptionActivePower
+    // two evcs and two consumptionMeter, negative consumptionMeter phase
     {
       const EMS = DummyConfig.from(
         SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),

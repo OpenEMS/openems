@@ -15,16 +15,20 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelScaleFactorConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
@@ -35,6 +39,11 @@ import io.openems.edge.common.taskmanager.Priority;
  * This class provides a generic implementation of SunSpec ModBus protocols.
  */
 public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsModbusComponent {
+
+	/**
+	 * Limit of a task length in j2mod.
+	 */
+	private static final int MAXIMUM_TASK_LENGTH = 126;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsSunSpecComponent.class);
 
@@ -167,8 +176,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					}
 
 					// Handle SunSpec Block
-					int length = values.get(1);
-
 					if (blockId == 1 /* SunSpecModel.S_1 */) {
 						this.commonBlockCounter++;
 					}
@@ -199,8 +206,14 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 						}
 					}
 
+					// Stop reading if all expectedBlocks have been read
+					if (remainingBlocks.isEmpty()) {
+						finished.complete(null);
+						return;
+					}
+
 					// Read next block recursively
-					var nextBlockStartAddress = startAddress + 2 + length;
+					var nextBlockStartAddress = startAddress + 2 + values.get(1);
 					try {
 
 						final var readNextBlockFuture = this.readNextBlock(nextBlockStartAddress, remainingBlocks);
@@ -278,72 +291,137 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
 		this.logInfo(this.log, "Adding SunSpec-Model [" + model.getBlockId() + ":" + model.label() + "] starting at ["
 				+ startAddress + "]");
-		AbstractModbusElement<?>[] elements = new AbstractModbusElement[model.points().length];
+		var readElements = new ArrayList<ModbusElement>();
+		var writeElements = new ArrayList<ModbusElement>();
 		startAddress += 2;
 		for (var i = 0; i < model.points().length; i++) {
 			var point = model.points()[i];
-			AbstractModbusElement<?> element = point.get().generateModbusElement(startAddress);
-			startAddress += element.getLength();
-			elements[i] = element;
+			final var element = point.get().generateModbusElement(startAddress);
 
-			SunSChannelId<?> channelId = point.getChannelId();
-			this.addChannel(channelId);
-
-			if (point.get().scaleFactor.isPresent()) {
-				// This Point needs a ScaleFactor
-				// - find the ScaleFactor-Point
-				var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(point.get().scaleFactor.get());
-				SunSpecPoint scaleFactorPoint = null;
-				for (SunSpecPoint sfPoint : model.points()) {
-					if (sfPoint.name().equals(scaleFactorName)) {
-						scaleFactorPoint = sfPoint;
-						break;
-					}
-				}
-				if (scaleFactorPoint == null) {
-					// Unable to find ScaleFactor-Point
-					this.logError(this.log,
-							"Unable to find ScaleFactor [" + scaleFactorName + "] for Point [" + point.name() + "]");
-				}
-
-				// Add a scale-factor mapping between Element and Channel
-				element = this.m(channelId, element,
-						new ElementToChannelScaleFactorConverter(this, point, scaleFactorPoint.getChannelId()));
-
-			} else {
-				// Add a direct mapping between Element and Channel
-				element = this.m(channelId, element, new ElementToChannelConverter(
-						// Element -> Channel
-						value -> {
-							if (!point.isDefined(value)) {
-								// This value is set to be 'UNDEFINED' for the given type by SunSpec
-								return null;
-							}
-							return value;
-						},
-						// Channel -> Element
-						value -> value));
-
+			// Handle AccessMode
+			switch (point.get().accessMode) {
+			case READ_ONLY -> {
+				readElements.add(element);
+			}
+			case READ_WRITE -> {
+				readElements.add(element);
+				writeElements.add(element);
+			}
+			case WRITE_ONLY -> {
+				readElements.add(new DummyRegisterElement(element.startAddress, element.length));
+				writeElements.add(element);
+			}
 			}
 
-			// Evaluate Access-Mode of the Channel
-			switch (point.get().accessMode) {
-			case READ_ONLY:
-				// Read-Only -> replace element with dummy
-				element = new DummyRegisterElement(element.getStartAddress(),
-						element.getStartAddress() + point.get().type.length - 1);
-				break;
-			case READ_WRITE:
-			case WRITE_ONLY:
-				// Add a Write-Task
-				final Task writeTask = new FC16WriteRegistersTask(element.getStartAddress(), element);
-				this.modbusProtocol.addTask(writeTask);
-				break;
+			startAddress += element.length;
+			var channelId = point.getChannelId();
+			this.addChannel(channelId);
+			this.m(channelId, element, this.generateElementToChannelConverter(model, point));
+		}
+
+		// Create Tasks and add them to the ModbusProtocol
+		for (var elements : preprocessModbusElements(readElements)) {
+			this.modbusProtocol.addTask(//
+					new FC3ReadRegistersTask(//
+							elements.get(0).startAddress, priority, elements.toArray(ModbusElement[]::new)));
+		}
+		for (var elements : preprocessModbusElements(writeElements)) {
+			this.modbusProtocol.addTask(//
+					new FC16WriteRegistersTask(//
+							elements.get(0).startAddress, elements.toArray(ModbusElement[]::new)));
+		}
+	}
+
+	/**
+	 * Converts a list of {@link ModbusElement}s to sublists, prepared for Modbus
+	 * {@link AbstractTask}s.
+	 * 
+	 * <ul>
+	 * <li>Sublists are without holes (i.e. nextStartAddress = currentStartAddress +
+	 * Length + 1)
+	 * <li>Length of sublist <= MAXIMUM_TASK_LENGTH
+	 * </ul>
+	 * 
+	 * @param elements the source elements
+	 * @return list of {@link ModbusElement} lists
+	 */
+	protected static List<List<ModbusElement>> preprocessModbusElements(List<ModbusElement> elements) {
+		var result = Lists.<List<ModbusElement>>newArrayList(Lists.<ModbusElement>newArrayList());
+		for (var element : elements) {
+			// Get last sublist in result
+			var l = result.get(result.size() - 1);
+			// Get last element of sublist
+			var e = l.isEmpty() ? null : l.get(l.size() - 1);
+			if ((
+			// Is first element of the sublist?
+			e == null
+					// Is element direct successor?
+					|| e.startAddress + e.length == element.startAddress) //
+					&& // Does element fit in task?
+					l.stream().mapToInt(m -> m.length).sum() + element.length <= MAXIMUM_TASK_LENGTH //
+			) {
+				l.add(element); // Add to existing sublist
+
+			} else {
+				result.add(Lists.<ModbusElement>newArrayList(element)); // Create new sublist
 			}
 		}
 
-		final Task readTask = new FC3ReadRegistersTask(elements[0].getStartAddress(), priority, elements);
-		this.modbusProtocol.addTask(readTask);
+		// Avoid length check for sublist
+		if (result.get(0).isEmpty()) {
+			return List.of();
+		}
+		return result;
+	}
+
+	/**
+	 * Generates a {@link ElementToChannelConverter} for a Point.
+	 * 
+	 * <ul>
+	 * <li>Check for UNDEFINED value as defined in SunSpec per Type specification
+	 * <li>If a Scale-Factor is defined, try to add it - either as other point of
+	 * model (e.g. "W_SF") or as static value converter
+	 * </ul>
+	 * 
+	 * @param model the {@link SunSpecModel}
+	 * @param point the {@link SunSpecPoint}
+	 * @return an {@link ElementToChannelConverter}, never null
+	 */
+	protected ElementToChannelConverter generateElementToChannelConverter(SunSpecModel model, SunSpecPoint point) {
+		// Create converter for 'defined' state
+		final var valueIsDefinedConverter = new ElementToChannelConverter(//
+				/* Element -> Channel */ value -> point.isDefined(value) ? value : null,
+				/* Channel -> Element */ value -> value);
+
+		// Generate Scale-Factor converter (possibly null)
+		ElementToChannelConverter scaleFactorConverter = null;
+		if (point.get().scaleFactor.isPresent()) {
+			final var scaleFactor = point.get().scaleFactor.get();
+			final var scaleFactorName = SunSpecCodeGenerator.toUpperUnderscore(scaleFactor);
+			scaleFactorConverter = Stream.of(model.points()) //
+					.filter(p -> p.name().equals(scaleFactorName)) //
+					.map(sfp -> new ElementToChannelScaleFactorConverter(this, point, sfp.getChannelId())) //
+					// Found matching Scale-Factor Point in SunSpec Modal
+					.findFirst()
+
+					// Else: try to parse constant Scale-Factor
+					.orElseGet(() -> {
+						try {
+							return new ElementToChannelScaleFactorConverter(Integer.parseInt(scaleFactor));
+						} catch (NumberFormatException e) {
+							// Unable to parse Scale-Factor to static value
+							this.logError(this.log, "Unable to parse Scale-Factor [" + scaleFactor + "] for Point ["
+									+ point.name() + "]");
+							return null;
+						}
+					}); //
+		}
+
+		if (scaleFactorConverter != null) {
+			return ElementToChannelConverter.chain(valueIsDefinedConverter, scaleFactorConverter);
+		} else {
+			return valueIsDefinedConverter;
+		}
 	}
 
 	/**
@@ -355,7 +433,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @throws OpenemsException on error
 	 */
 	@SafeVarargs
-	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(AbstractModbusElement<T>... elements)
+	private final <T> CompletableFuture<List<T>> readElementsOnceTyped(ModbusRegisterElement<?, T>... elements)
 			throws OpenemsException {
 		// Register listeners for elements
 		@SuppressWarnings("unchecked")
@@ -375,7 +453,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		}
 
 		// Activate task
-		final Task task = new FC3ReadRegistersTask(elements[0].getStartAddress(), Priority.HIGH, elements);
+		final Task task = new FC3ReadRegistersTask(elements[0].startAddress, Priority.HIGH, elements);
 		this.modbusProtocol.addTask(task);
 
 		// Prepare result
