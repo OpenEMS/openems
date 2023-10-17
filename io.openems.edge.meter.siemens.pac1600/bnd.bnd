@@ -1,0 +1,17 @@
+Bundle-Name: OpenEMS Edge Meter Siemens PAC1600
+Bundle-Vendor: Universität Bayreuth Lehrstuhl Elektrische Energiesysteme
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	com.ghgande.j2mod,\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.meter.api;version=latest
+
+-testpath: \
+	${testpath},\
+	io.openems.edge.meter.api
+Bundle-Description: Implements the Siemens PAC1600 tested by 7kt1665
