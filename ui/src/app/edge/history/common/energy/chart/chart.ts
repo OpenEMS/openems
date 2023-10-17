@@ -93,108 +93,109 @@ export class ChartComponent extends AbstractHistoryChart {
             order: 1
           },
 
-          // DirectConsumption, displayed in stack 1 & 2, only one legenItem
-          ...[chartType === 'bar' && {
-            name: translate.instant('General.directConsumption'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
-            },
-            converter: () =>
-              data['ProductionActivePower']?.map((value, index) =>
-                value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
-            color: 'rgb(244,164,96)',
-            stack: [1, 2],
-            order: 2
-          }],
+          // // DirectConsumption, displayed in stack 1 & 2, only one legenItem
+          // ...[chartType === 'bar' && {
+          //   name: translate.instant('General.directConsumption'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
+          //   },
+          //   converter: () =>
+          //     data['ProductionActivePower']?.map((value, index) =>
+          //       value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
+          //   color: 'rgb(244,164,96)',
+          //   stack: [1, 2],
+          //   order: 2
+          // }],
 
-          // Charge Power
-          {
-            name: translate.instant('General.chargePower'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/EssDcChargeEnergy'];
-            },
-            converter: () => {
-              return chartType === 'line' ?
-                data['EssCharge']?.map((value, index) => {
-                  return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
-                }) : data['EssCharge'];
-            },
-            color: 'rgb(0,223,0)',
-            stack: 1,
-            ...(chartType === 'line' && { order: 6 })
-          },
+          // // Charge Power
+          // {
+          //   name: translate.instant('General.chargePower'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/EssDcChargeEnergy'];
+          //   },
+          //   converter: () => {
+          //     return chartType === 'line' ?
+          //       data['EssCharge']?.map((value, index) => {
+          //         return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+          //       }) : data['EssCharge'];
+          //   },
+          //   color: 'rgb(0,223,0)',
+          //   stack: 1,
+          //   ...(chartType === 'line' && { order: 6 })
+          // },
 
-          // Discharge Power
-          {
-            name: translate.instant('General.dischargePower'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/EssDcDischargeEnergy'];
-            },
-            converter: () => {
-              return chartType === 'line' ?
-                data['EssDischarge']?.map((value, index) => {
-                  return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
-                }) : data['EssDischarge'];
-            },
-            color: 'rgb(200,0,0)',
-            stack: 2,
-            ...(chartType === 'line' && { order: 5 })
-          },
+          // // Discharge Power
+          // {
+          //   name: translate.instant('General.dischargePower'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/EssDcDischargeEnergy'];
+          //   },
+          //   converter: () => {
+          //     return chartType === 'line' ?
+          //       data['EssDischarge']?.map((value, index) => {
+          //         return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+          //       }) : data['EssDischarge'];
+          //   },
+          //   color: 'rgb(200,0,0)',
+          //   stack: 2,
+          //   ...(chartType === 'line' && { order: 5 })
+          // },
 
-          // Sell to grid
-          {
-            name: translate.instant('General.gridSell'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridSellActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridSell'];
-            },
-            color: 'rgb(0,0,200)',
-            stack: 1,
-            ...(chartType === 'line' && { order: 4 })
-          },
+          // // Sell to grid
+          // {
+          //   name: translate.instant('General.gridSell'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/GridSellActiveEnergy'];
+          //   },
+          //   converter: () => {
+          //     return data['GridSell'];
+          //   },
+          //   color: 'rgb(0,0,200)',
+          //   stack: 1,
+          //   ...(chartType === 'line' && { order: 4 })
+          // },
 
-          // Buy from Grid
-          {
-            name: translate.instant('General.gridBuy'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/GridBuyActiveEnergy'];
-            },
-            converter: () => {
-              return data['GridBuy'];
-            },
-            color: 'rgb(0,0,0)',
-            stack: 2,
-            ...(chartType === 'line' && { order: 2 })
-          },
+          // // Buy from Grid
+          // {
+          //   name: translate.instant('General.gridBuy'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/GridBuyActiveEnergy'];
+          //   },
+          //   converter: () => {
+          //     return data['GridBuy'];
+          //   },
+          //   color: 'rgb(0,0,0)',
+          //   stack: 2,
+          //   ...(chartType === 'line' && { order: 2 })
+          // },
 
-          // Consumption
-          {
-            name: translate.instant('General.consumption'),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ConsumptionActiveEnergy'];
-            },
-            converter: () => {
-              return data['Consumption'];
-            },
-            color: 'rgb(253,197,7)',
-            stack: 3,
-            hiddenOnInit: chartType == 'line' ? false : true,
-            ...(chartType === 'line' && { order: 0 })
-          },
-          ...[chartType === 'line' &&
-          {
-            name: translate.instant('General.soc'),
-            converter: () => {
-              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
-            },
-            color: 'rgb(189, 195, 199)',
-            borderDash: [10, 10],
-            yAxisId: ChartAxis.RIGHT,
-            stack: 1,
-            customUnit: YAxisTitle.PERCENTAGE
-          }]
+          // // Consumption
+          // {
+          //   name: translate.instant('General.consumption'),
+          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+          //     return energyValues.result.data['_sum/ConsumptionActiveEnergy'];
+          //   },
+          //   converter: () => {
+          //     return data['Consumption'];
+          //   },
+          //   color: 'rgb(253,197,7)',
+          //   stack: 3,
+          //   hiddenOnInit: chartType == 'line' ? false : true,
+          //   ...(chartType === 'line' && { order: 0 })
+          // },
+          // ...[chartType === 'line' &&
+          // {
+          //   name: translate.instant('General.soc'),
+          //   converter: () => {
+          //     return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
+          //   },
+          //   color: 'rgb(189, 195, 199)',
+          //   borderDash: [10, 10],
+          //   yAxisId: ChartAxis.RIGHT,
+          //   stack: 1,
+          //   customUnit: YAxisTitle.PERCENTAGE
+          // }
+          // ]
         ];
       },
       tooltip: {
@@ -218,13 +219,13 @@ export class ChartComponent extends AbstractHistoryChart {
         },
 
         // Right Yaxis, only shown for line-chart
-        (chartType === 'line' && {
-          unit: YAxisTitle.PERCENTAGE,
-          customTitle: '%',
-          position: 'right',
-          yAxisId: ChartAxis.RIGHT,
-          displayGrid: false
-        })
+        // (chartType === 'line' && {
+        //   unit: YAxisTitle.PERCENTAGE,
+        //   customTitle: '%',
+        //   position: 'right',
+        //   yAxisId: ChartAxis.RIGHT,
+        //   displayGrid: false
+        // })
       ]
     };
   }

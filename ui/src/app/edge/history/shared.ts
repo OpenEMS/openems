@@ -1,4 +1,4 @@
-import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
@@ -60,6 +60,7 @@ export type YAxis = {
 }
 
 export type ChartOptions = {
+    plugins: {},
     layout?: {
         padding: {
             left: number,
@@ -68,13 +69,14 @@ export type ChartOptions = {
             bottom: number
         }
     }
+    datasets: {},
     responsive?: boolean,
     maintainAspectRatio: boolean,
     legend: {
-        onClick?(event: MouseEvent, legendItem: ChartLegendLabelItem): void
+        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void
         labels: {
-            generateLabels?(chart: Chart): ChartLegendLabelItem[],
-            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
+            generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
+            filter?(legendItem: Chart.LegendItem, data: ChartData): any,
         },
         position: "bottom"
     },
@@ -129,23 +131,23 @@ export type ChartOptions = {
         mode: string,
         intersect: boolean,
         axis: string,
-        itemSort?(itemA: ChartTooltipItem, itemB: ChartTooltipItem, data?: ChartData): number,
+        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: TooltipItem[], data: Data): string,
-            afterTitle?(item: ChartTooltipItem[], data: Data): string | string[],
-            footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
+            title?(tooltipItems: Chart.TooltipItem<any>[], data: Data): string,
+            afterTitle?(item: Chart.TooltipItem<any>[], data: Data): string | string[],
+            footer?(item: Chart.TooltipItem<any>[], data: ChartData): string | string[]
         }
     },
-    legendCallback?(chart: Chart): string
+    legendCallback?(chart: Chart.Chart): string
 }
 
-export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
+export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
     maintainAspectRatio: false,
-    legend: {
-        labels: {},
-        position: 'bottom'
-    },
+    // legend: {
+    //     labels: {},
+    //     position: 'bottom'
+    // },
     elements: {
         point: {
             radius: 0,
@@ -156,59 +158,65 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             borderWidth: 2,
             tension: 0.1
         },
-        rectangle: {
-            borderWidth: 2
-        }
+        // rectangle: {
+        //     borderWidth: 2
+        // }
     },
     hover: {
         mode: 'point',
         intersect: true
     },
     scales: {
-        yAxes: [{
-            position: 'left',
-            scaleLabel: {
-                display: true,
-                labelString: ""
-            },
-            ticks: {
-                beginAtZero: true
-            }
-        }],
-        xAxes: [{
-            ticks: {},
-            stacked: false,
-            type: 'time',
-            time: {
-                minUnit: 'hour',
-                displayFormats: {
-                    millisecond: 'SSS [ms]',
-                    second: 'HH:mm:ss a', // 17:20:01
-                    minute: 'HH:mm', // 17:20
-                    hour: 'HH:[00]', // 17:20
-                    day: 'DD', // Sep 04 2015
-                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: 'MM', // September
-                    quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY' // 2015,
-                }
-            }
-        }]
+        // yAxes: [{
+        //     position: 'left',
+        //     scaleLabel: {
+        //         display: true,
+        //         labelString: ""
+        //     },
+        //     ticks: {
+        //         beginAtZero: true
+        //     }
+        // }],
+        // xAxes: [{
+        //     ticks: {},
+        //     stacked: false,
+        //     type: 'time',
+        //     time: {
+        //         minUnit: 'hour',
+        //         displayFormats: {
+        //             millisecond: 'SSS [ms]',
+        //             second: 'HH:mm:ss a', // 17:20:01
+        //             minute: 'HH:mm', // 17:20
+        //             hour: 'HH:[00]', // 17:20
+        //             day: 'DD', // Sep 04 2015
+        //             week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+        //             month: 'MM', // September
+        //             quarter: '[Q]Q - YYYY', // Q3 - 2015
+        //             year: 'YYYY' // 2015,
+        //         }
+        //     }
+        // }]
     },
-    tooltips: {
-        mode: 'index',
-        intersect: false,
-        axis: 'x',
-        callbacks: {
-            title(tooltipItems: TooltipItem[], data: Data): string {
-                let date = new Date(tooltipItems[0].xLabel);
-                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-            }
-        }
-    }
+    // tooltips: {
+    //     mode: 'index',
+    //     intersect: false,
+    //     axis: 'x',
+    //     callbacks: {
+    //         // title(tooltipItems: TooltipItem[], data: Data): string {
+    //         //     let date = new Date(tooltipItems[0].xLabel);
+    //         //     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    //         // }
+    //     }
+    // }
 };
 
 export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {
+    plugins: {
+        legend: {
+            labels: {}
+        }
+    },
+    datasets: {},
     maintainAspectRatio: false,
     legend: {
         labels: {},
@@ -259,8 +267,8 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
         intersect: false,
         axis: 'x',
         callbacks: {
-            title(tooltipItems: TooltipItem[], data: Data): string {
-                let date = new Date(tooltipItems[0].xLabel);
+            title(tooltipItems: Chart.TooltipItem<any>[], data: Data): string {
+                let date = new Date(tooltipItems[0].label);
                 return date.toLocaleDateString() + " " + date.toLocaleTimeString();
             }
         }

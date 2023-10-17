@@ -1,6 +1,6 @@
 import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
+import * as Chart from 'chart.js';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
@@ -576,7 +576,7 @@ export namespace HistoryUtils {
  * @param translate the TranslateService
  * @returns a dataset
  */
-  export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+  export function createEmptyDataset(translate: TranslateService): Chart.ChartDataset[] {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],

@@ -3,12 +3,12 @@ import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { de } from 'date-fns/locale';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -18,7 +18,10 @@ import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/qu
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 
+import 'chartjs-adapter-date-fns';
+
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
+
 @Directive()
 export abstract class AbstractHistoryChart implements OnInit {
 
@@ -34,8 +37,8 @@ export abstract class AbstractHistoryChart implements OnInit {
   public edge: Edge | null = null;
   public loading: boolean = true;
   public labels: Date[] = [];
-  public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
-  public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
+  public datasets: Chart.ChartDataset[] = HistoryUtils.createEmptyDataset(this.translate);
+  public options: any | null = DEFAULT_TIME_CHART_OPTIONS;
   public colors: any[] = [];
   public chartObject: HistoryUtils.ChartData = null;
 
@@ -135,7 +138,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     });
 
     // Fill datasets, labels and colors
-    let datasets: ChartDataSets[] = [];
+    let datasets: Chart.ChartDataset[] = [];
     let colors: any[] = [];
     let displayValues: HistoryUtils.DisplayValues[] = chartObject.output(channelData.data);
     let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
@@ -173,10 +176,10 @@ export abstract class AbstractHistoryChart implements OnInit {
     };
   }
 
-  public static fillData(element: HistoryUtils.DisplayValues, label: string, chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', data: number[] | null): { datasets: ChartDataSets[], colors: any[], legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] } {
+  public static fillData(element: HistoryUtils.DisplayValues, label: string, chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', data: number[] | null): { datasets: Chart.ChartDataset[], colors: any[], legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] } {
 
     let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
-    let datasets: ChartDataSets[] = [];
+    let datasets: Chart.ChartDataset[] = [];
     let colors: any[] = [];
 
 
@@ -237,8 +240,8 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param stack the stack
    * @returns a dataset
    */
-  public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData): Chart.ChartDataSets {
-    let dataset: Chart.ChartDataSets;
+  public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData): Chart.ChartDataset {
+    let dataset: Chart.ChartDataset;
 
     dataset = {
       label: label,
@@ -304,10 +307,12 @@ export abstract class AbstractHistoryChart implements OnInit {
             }
           }
         }
-        this.datasets.forEach(element => {
-          element.barPercentage = barWidthPercentage;
-          element.categoryPercentage = categoryGapPercentage;
-        });
+
+        // this.datasets.filter(dataset => dataset.type == 'bar').forEach(element => {
+        //   element.data
+        // //   element.borderWidth = 1;//.barPercentage = barWidthPercentage;
+        // //   // element.categoryPercentage = categoryGapPercentage;
+        // });
       });
     } else {
 
@@ -488,41 +493,116 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     } else if (unit == Unit.DAYS) {
       // Monthly view
-      return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+      return date.toLocaleDateString('default', { day: '2-digit', month: 'long' }) + "----";
 
     } else {
       // Default
-      return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' }) + "----";
     }
   }
 
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
-    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): ChartOptions {
-
+    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): any {
 
     let tooltipsLabel: string | null = null;
-    let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));
+    let options = {
+      elements: {
+        line: {
+          stepped: false,
+          capBezierPoints: false
+        },
+        point: {
+          pointStyle: false
+        }
+      },
+      datasets: {
+        bar: {}
+      },
+      plugins: {
+        colors: {
+          enabled: false
+        },
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            generateLabels: (chart: Chart.Chart) => { }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              let label = context.dataset.label;
+              let value = context.dataset.data[context.dataIndex];
+              let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
+              let unit = displayValue?.customUnit
+                ?? chartObject.yAxes[0]?.unit;
+
+              if (unit != null) {
+                tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(unit, chartType);
+              }
+
+              // Show floating point number for values between 0 and 1
+              // TODO find better workaround for legend labels
+              return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+            },
+            title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
+              debugger;
+              let date = new Date(tooltipItems[0].label);
+              return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+            },
+          }
+        }
+      },
+      responsive: true,
+      scales: {
+        x: {
+          bounds: 'ticks',
+          type: 'time',
+
+          adapters: {
+            date: {
+              locale: de,
+            },
+          },
+          time: {
+            unit: 'hour',
+            displayFormats: {
+              millisecond: 'SSS [ms]',
+              second: 'HH:mm:ss a', // 17:20:01
+              minute: 'HH:mm', // 17:20
+              hour: 'HH:00', // 17:20
+              day: 'dd', // Sep 04 2015
+              week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+              month: 'MM', // September
+              quarter: '[Q]Q - YYYY', // Q3 - 2015
+              year: 'YYYY' // 2015,
+            }
+          }
+        },
+        yAxes: [],
+      },
+      // tooltips: {
+      //   mode: {},
+      //   callbacks: {
+      //     afterTitle: (items: Chart.TooltipItem<any>[], data: Data) => { },
+      //     title: (tooltipItems: Chart.TooltipItem<any>[], data: Data) => { },
+      //     label: (tooltipItem: TooltipItem, data: Data) => { }
+      //   }
+      // }
+    }
+
+    // Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));
 
     chartObject.yAxes.forEach((element) => {
       switch (element.unit) {
 
         case YAxisTitle.PERCENTAGE:
           options.scales.yAxes.push({
-            id: element.yAxisId,
-            position: element.position,
-            scaleLabel: {
-              display: true,
-              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              padding: 10
-            },
-            gridLines: {
+            grid: {
               display: element.displayGrid ?? true
             },
             ticks: {
-              beginAtZero: true,
-              max: 100,
-              padding: 5,
-              stepSize: 20
             }
           });
           break;
@@ -530,18 +610,23 @@ export abstract class AbstractHistoryChart implements OnInit {
         case YAxisTitle.ENERGY:
         case YAxisTitle.VOLTAGE:
           options.scales.yAxes.push({
-            id: element.yAxisId,
-            position: element.position,
-            scaleLabel: {
-              display: true,
-              labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              padding: 5,
-              fontSize: 11
-            },
-            gridLines: {
+            // id: element.yAxisId,
+            // position: element.position,
+            // scaleLabel: {
+            //   display: true,
+            //   labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+            //   padding: 5,
+            //   fontSize: 11
+            // },
+            grid: {
               display: element.displayGrid ?? true
             },
             ticks: {
+              // callback: function (val, index) {
+              //   // Hide every 2nd tick label
+              //   return index % 2 === 0 ? this.getLabelForValue(val) : '';
+              // },
+              // color: 'rgb(0,0,0)',
               beginAtZero: false
             }
           });
@@ -550,128 +635,159 @@ export abstract class AbstractHistoryChart implements OnInit {
       tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(element.unit, chartType);
     });
 
-    options.scales.xAxes[0].time.unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
+    options.scales.x.time.unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
 
-    if (chartType == 'bar') {
-      options.scales.xAxes[0].stacked = true;
-      options.scales.yAxes[0].stacked = true;
-      options.scales.xAxes[0].offset = true;
-      options.scales.xAxes[0].ticks.maxTicksLimit = 12;
-      options.scales.xAxes[0].ticks.source = 'data';
+    // options.scales.xAxes[0].stacked = true;
+    // options.scales.yAxes[0].stacked = true;
+    // options.scales.xAxes[0].offset = true;
+    // options.scales.xAxes[0].ticks.maxTicksLimit = 12;
+    // options.scales.xAxes[0].ticks.source = 'data';
 
-      // Enables tooltip for each datasetindex / stack
-      options.tooltips.mode = 'x';
+    // Enables tooltip for each datasetindex / stack
+    // options.tooltips.mode = 'x';
 
-      options.tooltips.callbacks.afterTitle = function (items: ChartTooltipItem[], data: Data) {
+    //   options.tooltips.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[], data: Data) {
 
-        // only way to figure out, which stack is active
-        var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
-        var datasetIndex = tooltipItem.datasetIndex;
-        // Get the dataset object
-        var dataset = data.datasets[datasetIndex];
+    //     // only way to figure out, which stack is active
+    //     var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
+    //     var datasetIndex = tooltipItem.datasetIndex;
+    //     // Get the dataset object
+    //     var dataset = data.datasets[datasetIndex];
 
-        // Assuming the dataset is a bar chart using the 'stacked' option
-        var stack = dataset.stack || datasetIndex;
+    //     // Assuming the dataset is a bar chart using the 'stacked' option
+    //     var stack = dataset.stack || datasetIndex;
 
-        // If only one item in stack do not show sum of values
-        if (items.length <= 1) {
-          return null;
-        }
+    //     // If only one item in stack do not show sum of values
+    //     if (items.length <= 1) {
+    //       return null;
+    //     }
 
-        let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
-        let totalValue = items.filter(element => !element.label.includes(afterTitle
-        )).reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+    //     let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
+    //     let totalValue = items.filter(element => !element.label.includes(afterTitle
+    //     )).reduce((a, e) => a + parseFloat(
+    //       <string>e.label
+    //     ), 0);
 
-        if (afterTitle) {
-          return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
-        }
+    //     if (afterTitle) {
+    //       return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+    //     }
 
-        return null;
-      };
-    }
+    //     return null;
+    //   };
+    // }
 
-    options.scales.xAxes[0].bounds = 'ticks';
+    // options.scales.xAxes[0].bounds = 'ticks';
     options.responsive = true;
 
     // Overwrite Tooltips -Title -Label 
-    options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
-      let date = new Date(tooltipItems[0].xLabel);
-      return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
-    };
+    // options.tooltips.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[], data: Data): string => {
+    //   let date = new Date(tooltipItems[0].label);
+    //   return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+    // };
 
     let displayValues = chartObject.output(channelData.data);
-    options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
+    // options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
 
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.value;
-      let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
-      let unit = displayValue?.customUnit
-        ?? chartObject.yAxes[0]?.unit;
+    //   let label = data.datasets[tooltipItem.datasetIndex].label;
+    //   let value = tooltipItem.value;
+    //   let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
+    //   let unit = displayValue?.customUnit
+    //     ?? chartObject.yAxes[0]?.unit;
 
-      if (unit != null) {
-        tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(unit, chartType);
-      }
+    //   if (unit != null) {
+    //     tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(unit, chartType);
+    //   }
 
-      // Show floating point number for values between 0 and 1
-      // TODO find better workaround for legend labels
-      return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
-    };
+    //   // Show floating point number for values between 0 and 1
+    //   // TODO find better workaround for legend labels
+    //   return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+    // };
 
     // Set Y-Axis Title
-    options.scales.yAxes[0].scaleLabel.labelString = AbstractHistoryChart.getYAxisTitle(chartObject.yAxes[0]?.unit, translate, chartType);
+    // options.scales.yAxes[0].scaleLabel.labelString = AbstractHistoryChart.getYAxisTitle(chartObject.yAxes[0]?.unit, translate, chartType);
+
+
 
     // let legendOptions = legendOptions;
-    options.legend.labels.generateLabels = function (chart: Chart) {
+    options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
+      console.log("🚀 ~ file: abstracthistorychart.ts:682 ~ AbstractHistoryChart ~ chart:", chart.data)
 
-      let chartLegendLabelItems: ChartLegendLabelItem[] = [];
+      let chartLegendLabelItems: Chart.LegendItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
+
 
         let legendItem = legendOptions?.find(element => element.label == dataset.label);
 
         //Remove duplicates from legend
-        if (chartLegendLabelItems.filter(element => element.text == dataset.label).length > 0) {
+        if (chartLegendLabelItems.filter(element => element['text'] == dataset.label).length > 0) {
           return;
         }
 
         let isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
         displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
+
           chartLegendLabelItems.push({
             text: dataset.label,
-            datasetIndex: index,
-            fillStyle: dataset.backgroundColor.toString(),
-            hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
-            lineWidth: 2,
-            strokeStyle: dataset.borderColor.toString(),
-            lineDash: dataset.borderDash
-          });
+            fillStyle: 'rgb(200,0,0)'
+          })
+          // chartLegendLabelItems.push({
+          //   text: dataset.label,
+          //   datasetIndex: index,
+          //   fillStyle: dataset.backgroundColor?.toString(),
+          //   fontColor: dataset.backgroundColor?.toString(),
+
+          //   hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
+          //   lineWidth: 2,
+          //   strokeStyle: dataset.borderColor.toString(),
+          //   // lineDash: dataset.
+          // });
         });
       });
 
       return chartLegendLabelItems;
     };
 
+    options.datasets.bar = {
+      barPercentage: 1
+    }
+
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-    Chart.defaults.global.legend.onClick = function (event: MouseEvent, legendItem: ChartLegendLabelItem) {
-      let chart: Chart = this.chart;
+    // Chart.defaults.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem) {
+    //   let chart: Chart.Chart = this.chart;
 
-      let legendItems = Chart.defaults.global.legend.labels.generateLabels(this.chart);
+    //   let legendItems = Chart.defaults.global.legend.labels.generateLabels(this.chart);
 
-      legendItems = legendItems.filter(item => item.text == legendItem.text);
-      legendItems.forEach(legendItem => {
-        //   original.call(this, event, legendItem1);
-        setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItem.datasetIndex));
+    //   legendItems = legendItems.filter(item => item.text == legendItem.text);
+    //   legendItems.forEach(legendItem => {
+    //     //   original.call(this, event, legendItem1);
+    //     setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItem.datasetIndex));
 
-        var index = legendItem.datasetIndex;
-        var meta = chart.getDatasetMeta(index);
+    //     var index = legendItem.datasetIndex;
+    //     var meta = chart.getDatasetMeta(index);
 
-        // See controller.isDatasetVisible comment
-        meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-      });
+    //     // See controller.isDatasetVisible comment
+    //     meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+    //   });
 
-      // We hid a dataset ... rerender the chart
-      chart.update();
-    };
+    //   // We hid a dataset ... rerender the chart
+    //   chart.update();
+    // };
+
+    // options.plugins.colors = {
+    //   enabled: false
+    // }
+
+    // options.scales.xAxes[0] = {
+    //   ticks: {
+    //     display: false,
+    //     callback: function (val, index) {
+    //       // Hide every 2nd tick label
+    //       return index % 2 === 0 ? this.getLabelForValue(val) : '';
+    //     },
+    //     color: 'rgba(0,0,0,1)'
+    //   },
+    //   type: 'time'
     return options;
   }
 

@@ -1,16 +1,16 @@
 import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartDataSets } from 'chart.js';
+import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMonths } from 'date-fns';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
-import { HistoryUtils } from 'src/app/shared/service/utils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -28,8 +28,8 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = HistoryUtils.createEmptyDataset(this.translate);
-    public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
+    public datasets: any[] = HistoryUtils.createEmptyDataset(this.translate);
+    public options: any | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = [];
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
@@ -178,8 +178,8 @@ export abstract class AbstractHistoryChart {
         let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
         // Overwrite TooltipsTitle
-        options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
-            let date = new Date(tooltipItems[0].xLabel);
+        options.tooltips.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[], data: Data): string => {
+            let date = new Date(tooltipItems[0].label);
             return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
         };
 
