@@ -67,6 +67,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.prepareBatteryExtension(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		});
@@ -90,8 +93,7 @@ public class TestTranslations {
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				var a = app.getAppAssistant(user);
-				JsonUtils.prettyPrint(a.fields);
+				app.getAppAssistant(user);
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);
