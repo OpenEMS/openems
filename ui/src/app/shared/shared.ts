@@ -10,10 +10,10 @@ export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 
+
 import { Edge } from "./edge/edge";
 import { User } from "./jsonrpc/shared";
 import { Role } from "./type/role";
-
 import { addIcons } from 'ionicons';
 
 addIcons({
@@ -38,14 +38,52 @@ export class UserPermission {
 
   /**
    * Checks if user is allowed to see {@link HomeServiceAssistentComponent}
-   * Producttype needs to be home and globalRole needs to be admin
+   * Producttype needs to be Producttype.HOME or Producttype.HOME_20_30 and globalRole needs to be admin
    * 
    * @param user the current user
    * @returns true, if user is at least admin
    */
   public static isUserAllowedToSeeHomeAssistent(user: User, edge: Edge): boolean {
-    return Role.isAtLeast(user.globalRole, Role.ADMIN) && edge.producttype === 'home';
+    const isProductTypeAllowed = (() => {
+      switch (edge.producttype) {
+        case Producttype.HOME:
+        case Producttype.HOME_20_30:
+          return true;
+        default:
+          return false;
+      }
+    })();
+    return Role.isAtLeast(user.globalRole, Role.ADMIN) && isProductTypeAllowed;
   }
+
+  /**
+  * Checks if user is allowed to see {@link ServiceAssistantComponent}
+  * Producttype needs to be Commercial and globalRole needs to be admin
+  * 
+  * @param user the current user
+  * @returns true, if user is at least admin
+  */
+  public static isUserAllowedToSeeCommercialServiceAssistent(user: User, edge: Edge) {
+    const isProductTypeAllowed = (() => {
+      switch (edge.producttype) {
+        case Producttype.COMMERCIAL_30:
+        case Producttype.COMMERCIAL_50:
+        case Producttype.COMMERCIAL_40_45:
+          return true;
+        default:
+          return false;
+      }
+    })();
+    return Role.isAtLeast(user.globalRole, Role.ADMIN) && isProductTypeAllowed;
+  }
+}
+
+export enum Producttype {
+  HOME = 'home',
+  HOME_20_30 = 'Home 20 & 30',
+  COMMERCIAL_30 = 'Commercial 30-Serie',
+  COMMERCIAL_50 = 'Commercial 50-Serie',
+  COMMERCIAL_40_45 = 'COMMERCIAL 40-45'
 }
 
 export namespace Currency {

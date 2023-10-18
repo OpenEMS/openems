@@ -15,6 +15,7 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
@@ -318,6 +319,16 @@ public class Apps {
 	}
 
 	// ess-controller
+
+	/**
+	 * Test method for creating a {@link FixActivePower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixActivePower fixActivePower(AppManagerTestBundle t) {
+		return app(t, FixActivePower::new, "App.Ess.FixActivePower");
+	}
 
 	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.

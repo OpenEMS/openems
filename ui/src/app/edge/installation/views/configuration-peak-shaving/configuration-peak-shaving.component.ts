@@ -52,7 +52,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
         const fields: FormlyFieldConfig[] = [];
 
         fields.push({
-            key: 'entladungÜber',
+            key: 'dischargeAbove',
             type: 'input',
             className: 'overflow-wrapper',
             templateOptions: {
@@ -64,7 +64,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
         });
 
         fields.push({
-            key: 'beladungUnter',
+            key: 'chargeBelow',
             type: 'input',
             className: 'line-break',
             templateOptions: {
@@ -74,8 +74,8 @@ export class ConfigurationPeakShavingComponent implements OnInit {
                 required: true
             },
             expressionProperties: {
-                // "beladungUnter" value cannot be greater than "entladungÜber" value
-                'templateOptions.max': `parseInt(model.entladungÜber)`
+                // "chargeBelow" value cannot be greater than "dischargeAbove" value
+                'templateOptions.max': `parseInt(model.dischargeAbove)`
             }
         });
 

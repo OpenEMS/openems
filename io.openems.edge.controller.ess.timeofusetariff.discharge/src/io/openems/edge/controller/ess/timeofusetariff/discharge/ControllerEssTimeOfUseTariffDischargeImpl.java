@@ -51,7 +51,7 @@ public class ControllerEssTimeOfUseTariffDischargeImpl extends AbstractOpenemsCo
 		implements Controller, OpenemsComponent, TimedataProvider, ControllerEssTimeOfUseTariffDischarge {
 
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
+	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "UnmanagedConsumptionActivePower");
 
 	/** Delayed Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,

@@ -4,15 +4,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { Edge, Logger, Service, Websocket } from 'src/app/shared/shared';
 
-import { AbstractIbn, View } from './installation-systems/abstract-ibn';
-import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial-30/commercial30-anschluss';
-import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial-30/commercial30-netztrenn';
-import { Commercial50EigenverbrauchsOptimierung } from './installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
-import { Commercial50Lastspitzenkappung } from './installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
+import { AbstractIbn } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
-import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
-import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
 import { IbnUtils } from './shared/ibnutils';
+import { SystemId, System } from './shared/system';
+import { View } from './shared/enums';
 
 @Component({
   selector: InstallationComponent.SELECTOR,
@@ -58,13 +54,13 @@ export class InstallationComponent implements OnInit {
       // Ibn is added in second view.
       if (sessionStorage.ibn) {
         const ibnString = JSON.parse(sessionStorage.getItem('ibn'));
-        const systemId = ibnString.id;
+        const systemId: SystemId = ibnString.id;
 
         // Load the specific Ibn implementation. and copy to the indivual fileds.
         // Copying the plain Json string does not recognize particular Ibn functions.
         // So we have to mention what type of implementation it is.
         // This is helpful particularly if installer does the refresh in between views.
-        ibn = this.getIbnType(systemId);
+        ibn = this.getIbn(systemId);
         ibn.views = ibnString.views ?? [];
         ibn.customer = ibnString.customer ?? {};
         ibn.installer = ibnString.installer ?? {};
@@ -111,23 +107,8 @@ export class InstallationComponent implements OnInit {
    *
    * @returns Specific Ibn object
    */
-  public getIbnType(systemId: string): AbstractIbn {
-    switch (systemId) {
-      case 'general':
-        return new GeneralIbn(this.translate);
-      case 'home':
-        return new HomeFeneconIbn(this.translate);
-      case 'heckert':
-        return new HomeHeckertIbn(this.translate);
-      case 'commercial-30-anschluss':
-        return new Commercial30AnschlussIbn(this.translate);
-      case 'commercial-30-netztrennstelle':
-        return new Commercial30NetztrennIbn(this.translate);
-      case 'commercial-50-eigenverbrauchsoptimierung':
-        return new Commercial50EigenverbrauchsOptimierung(this.translate);
-      case 'commercial-50-lastspitzenkappung':
-        return new Commercial50Lastspitzenkappung(this.translate);
-    }
+  public getIbn(systemId: SystemId): AbstractIbn {
+    return System.getSystemObjectFromSystemId(systemId, this.translate);
   }
 
   /**

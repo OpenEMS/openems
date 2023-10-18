@@ -76,9 +76,9 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsAppWithProps<ModbusTcp
 				.setTranslatedLabel("App.Api.apiTimeout.label") //
 				.setTranslatedDescription("App.Api.apiTimeout.description") //
 				.setDefaultValue(60) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
-					field.isRequired(true) //
-							.setInputType(NUMBER) //
+					field.setInputType(NUMBER) //
 							.setMin(0);
 				}) //
 		)), //

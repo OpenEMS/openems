@@ -37,7 +37,28 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2023.8.2',
+        version: '2023.10.1',
+        changes: [
+          Changelog.openems('2023.9.0'),
+          Changelog.UI,
+          Changelog.product(Product.HOME_20_30, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.app(App.EVCS_DC, App.ALPITRONIC) + "Verbesserung der Energieberechnung bei Kommunikationsausfall",
+          Changelog.app(App.PV_INVERTER, App.KACO, App.SMA, App.KOSTAL, App.FRONIUS, App.SOLAREDGE) + "Verbesserung in der Kompatibilität mit Modbus/SunSpec-Protokollen (Handling von häufig wechselnden 'Scale-Factors')",
+          Changelog.app(App.MODBUS_TCP_API) + "Vermeide Lese-Fehler bei 'Write-Only' Registern",
+          "Korrektur der Hilfe-Links zur Dokumentation/Anleitungen",
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Filter in der Übersichtssliste, Routing in der Web-App, Login 'trim' für Benutzername+Passwort" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI Komponente Konfigurieren: Fehlerbehebung bei JSON-Format (z. B. Daily-Scheduler)" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI/Edge: Daten senden für netzdienliche Beladung und Shelly (Plug + 2.5)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Edge: ESS-Cluster Start/Stop, neuer Channel '_sum/UnmanagedConsumptionActivePower', Bugfix bei 1-phasigen und 3-phasig symmetrischen Zählern/PV-Wechselrichtern auf Phase 3" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung bei Pflichtfeldern (z. B. IP-Adresse KEBA und andere), Reihenfolge von Auswahllisten, neue FEMS App 'Manuelle Be-/Entladung' (Fix-Active-Power-Controller; nur Admin User)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Release Candidates/SNAPSHOT-Branches: Update auf neuesten RC bzw. SNAPSHOT über System-Update-Funktion im UI" },
+          { roleIsAtLeast: Role.ADMIN, change: "Phoenix Contact Zähler (EEM-MA370-24DC/EEM-MB370-24DC): Implementierung 'invert' Funktion" },
+          { roleIsAtLeast: Role.ADMIN, change: "Neuer Zugang für FEMS Remote-Service: siehe Anleitung in FEMS Teams/Allgemein" },
+          Changelog.library(Library.GRADLE, Library.OKIO, Library.APACHE_FELIX_HTTP_JETTY, Library.BNDTOOLS, Library.APACHE_FELIX_WEBCONSOLE, Library.GUAVA)
+        ]
+      },
+      {
+        version: '2023.9.1',
         changes: [
           Changelog.openems('2023.9.0'),
           Changelog.UI,

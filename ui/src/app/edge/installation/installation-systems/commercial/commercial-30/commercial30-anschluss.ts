@@ -3,26 +3,28 @@ import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 
-import { FeedInType } from '../../../shared/enums';
+import { FeedInType, View } from '../../../shared/enums';
+import { SystemId } from '../../../shared/system';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour } from '../../abstract-ibn';
 import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
-    public override readonly id: string = 'commercial-30-anschluss';
+    public override readonly id: SystemId = SystemId.COMMERCIAL_30_ANSCHLUSS;
     public override readonly emergencyPower = 'DISABLE';
+
     constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
-            View.ConfigurationCommercialComponent,
+            View.ConfigurationCommercial,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
+            View.ConfigurationCommercialModbuBridge,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
@@ -67,7 +69,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         return componentConfigurator;
     }
 
-    public getFields(stringNr: number, numberOfModulesPerString: number) {
+    public override getSerialNumberFields(stringNr: number, numberOfModulesPerString: number) {
 
         const fields: FormlyFieldConfig[] = this.getCommercial30SerialNumbersFields(stringNr, numberOfModulesPerString);
 
@@ -80,8 +82,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_CONNECTION_BOX_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
-                    prefix: 'FC',
-                    placeholder: 'xxxxxxxxx'
+                    placeholder: 'xxxxxxxxxxxx'
                 },
                 validators: {
                     validation: ['emsBoxSerialNumber']

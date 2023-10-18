@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -14,8 +15,8 @@ import io.openems.edge.ess.power.api.Power;
  * Provides a simple, simulated ManagedAsymmetricEss component that can be used
  * together with the OpenEMS Component test framework.
  */
-public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
-		implements ManagedAsymmetricEss, ManagedSymmetricEss, AsymmetricEss, SymmetricEss, OpenemsComponent {
+public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss implements ManagedAsymmetricEss,
+		ManagedSymmetricEss, AsymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent {
 
 	private Consumer<AsymmetricApplyPowerRecord> asymmetricApplyPowerCallback = null;
 
@@ -25,8 +26,8 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				ManagedAsymmetricEss.ChannelId.values() //
-		);
+				ManagedAsymmetricEss.ChannelId.values(), //
+				StartStoppable.ChannelId.values());
 	}
 
 	public DummyManagedAsymmetricEss(String id) {

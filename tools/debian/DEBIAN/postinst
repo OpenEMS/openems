@@ -49,7 +49,9 @@ case "$1" in
 		if [ $(grep "^fems:" /etc/passwd | wc -l) -eq 0 ]; then
 			useradd fems --system --user-group
 		fi
+		mkdir -p /usr/lib/openems
 		chown -R fems:fems /usr/lib/openems
+		mkdir -p /etc/openems.d
 		chown -R fems:fems /etc/openems.d
 		
 		# Disable source packages
@@ -69,6 +71,7 @@ case "$1" in
 		
 		# Enable and start services
 		start_service openems
+		start_service fems-remote-service
 		start_service fems-pagekite
 		start_service cron
 		start_service nginx

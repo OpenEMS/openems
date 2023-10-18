@@ -2,9 +2,12 @@ package io.openems.edge.ess.test;
 
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -15,7 +18,7 @@ import io.openems.edge.ess.power.api.Power;
  * together with the OpenEMS Component test framework.
  */
 public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent {
 
 	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
 
@@ -42,8 +45,8 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 		this(id, power, //
 				OpenemsComponent.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				SymmetricEss.ChannelId.values() //
-		);
+				SymmetricEss.ChannelId.values(), //
+				StartStoppable.ChannelId.values());
 	}
 
 	public DummyManagedSymmetricEss(String id) {
@@ -197,5 +200,10 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 			this.activePower = activePower;
 			this.reactivePower = reactivePower;
 		}
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+		this._setStartStop(value);
 	}
 }

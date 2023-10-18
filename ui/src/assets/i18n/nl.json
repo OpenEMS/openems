@@ -53,7 +53,7 @@
     "soc": "Laadstatus",
     "state": "Staat",
     "storageSystem": "Batterij",
-    "systemState": "Systeemstatus",
+    "SYSTEM_STATE": "Systeemstatus",
     "TOTAL": "totale verbruik",
     "totalState": "Algemene staat",
     "warning": "Waarschuwing",

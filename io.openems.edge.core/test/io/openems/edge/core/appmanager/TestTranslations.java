@@ -18,11 +18,8 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 
 public class TestTranslations {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private record TestTranslation(OpenemsApp app, boolean validateAppAssistant, JsonObject config) {
 
@@ -70,6 +67,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.prepareBatteryExtension(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		});
@@ -86,19 +86,24 @@ public class TestTranslations {
 	}
 
 	private void testTranslations(Language l) throws Exception {
+		final var user = new DummyUser("1", "password", l, Role.ADMIN);
+
 		final var debugTranslator = TranslationUtil.enableDebugMode();
 
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				app.getAppAssistant(this.user);
+				app.getAppAssistant(user);
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);
 			}
 		}
 
-		assertTrue(debugTranslator.getMissingKeys().isEmpty());
+		assertTrue(
+				"Missing Translation Keys for Language " + l + " ["
+						+ String.join(", ", debugTranslator.getMissingKeys()) + "]",
+				debugTranslator.getMissingKeys().isEmpty());
 	}
 
 }

@@ -6,16 +6,15 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
 
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
-import { FeedInSetting, FeedInType, WebLinks } from '../../shared/enums';
+import { FeedInSetting, FeedInType, View, WebLinks } from '../../shared/enums';
 import { AcPv, ComponentData, DcPv, SerialNumberFormData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
-import { AbstractIbn, SchedulerIdBehaviour, View } from '../abstract-ibn';
+import { AbstractIbn, SchedulerIdBehaviour } from '../abstract-ibn';
 
 type FeneconHome = {
   SAFETY_COUNTRY: SafetyCountry,
@@ -71,8 +70,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   // protocol-pv
   public override pv?: {
-    dc1?: DcPv;
-    dc2?: DcPv;
+    dc?: DcPv[];
     ac?: AcPv[];
   };
 
@@ -94,65 +92,29 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       warrantyLink: WebLinks.WARRANTY_LINK_HOME
     };
 
+  public mppt: {} = {
+    mppt1pv1: true,
+    mppt2pv2: true
+  };
+
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
 
   public override readonly showRundSteuerManual: boolean = true;
-
-  public override readonly defaultNumberOfModules: number = 5;
-
-  public abstract readonly emsBoxLabel: Category;
-
   public override showViewCount: boolean = true;
-
+  public override readonly defaultNumberOfModules: number = 5;
   private numberOfModulesPerTower: number;
 
-  public getLineSideMeterFuseFields() {
-    const fields: FormlyFieldConfig[] = [];
-
-    fields.push({
-      key: "fixedValue",
-      type: "select",
-      templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-        description: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.FIXED_VALUE_DESCRIPTION'),
-        options: [
-          { label: "25 A", value: 25 },
-          { label: "32 A", value: 32 },
-          { label: "35 A", value: 35 },
-          { label: "40 A", value: 40 },
-          { label: "50 A", value: 50 },
-          { label: "63 A", value: 63 },
-          { label: "80 A", value: 80 },
-          { label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER'), value: -1 }
-        ],
-        required: true
-      },
-      parsers: [Number]
-    });
-
-    fields.push({
-      key: "otherValue",
-      type: "input",
-      templateOptions: {
-        type: "number",
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER_VALUE'),
-        min: 0,
-        required: true
-      },
-      parsers: [Number],
-      validators: {
-        validation: ["onlyPositiveInteger"]
-      },
-      hideExpression: model => model.fixedValue !== -1
-    });
-    return fields;
-  }
+  public abstract readonly emsBoxLabel: Category;
+  public abstract readonly maxNumberOfPvStrings: number;
+  public abstract readonly maxFeedInLimit: number;
+  public abstract readonly homeAppId: string;
+  public abstract readonly homeAppAlias: string;
 
   public override addPeakShavingData(peakShavingData: ComponentData[]) {
     return peakShavingData;
   }
 
-  public fillForms(
+  public override fillSerialNumberForms(
     numberOfTowers: number,
     numberOfModulesPerTower: number,
     models: any,
@@ -160,16 +122,16 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     this.numberOfModulesPerTower = numberOfModulesPerTower;
     for (let i = 0; i < numberOfTowers; i++) {
       forms[i] = {
-        fieldSettings: this.getFields(i, numberOfModulesPerTower),
+        fieldSettings: this.getSerialNumberFields(i, numberOfModulesPerTower),
         model: models[i],
         formTower: new FormGroup({}),
-        header: i === 0 ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS') : (this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { towerNumber: i }))
+        header: i === 0 ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS') : (this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { number: i }))
       };
     }
     return forms;
   }
 
-  public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
+  public override getPreSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
     const fields: FormlyFieldConfig[] = [];
 
     fields.push({
@@ -203,7 +165,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return fields;
   }
 
-  public getFields(towerNr: number, numberOfModulesPerTower: number) {
+  public override getSerialNumberFields(towerNr: number, numberOfModulesPerTower: number) {
     const fields: FormlyFieldConfig[] = [];
     const emsBoxSerialNumber: string = sessionStorage.getItem('emsBoxSerialNumber');
 
@@ -228,7 +190,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           templateOptions: {
             label: Category.toTranslatedString(this.emsBoxLabel, this.translate),
             required: true,
-            prefix: emsBoxSerialNumber ? '' : 'FH',
             placeholder: 'xxxxxxxxxx'
           },
           defaultValue: emsBoxSerialNumber,
@@ -305,7 +266,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return fields;
   }
 
-  public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
+  public override getSerialNumbersFromEdge(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
     return new Promise((resolve) => {
       let isResolved = false;
       const channelAddresses: { [key: string]: ChannelAddress } = {};
@@ -370,7 +331,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
   }
 
-  public getSettings(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number, numberOfModulesPerTower: number }> {
+  public override getPreSettingInformationFromEdge(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number, numberOfModulesPerTower: number }> {
     return new Promise((resolve) => {
       let isResolved = false;
 
@@ -417,12 +378,15 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   public getFeedInLimitFields() {
 
-    const fields: FormlyFieldConfig[] = [];
-    const pv = this.pv;
-    let totalPvPower = 0;
+    const pv: {
+      dc?: DcPv[];
+      ac?: AcPv[];
+    } = this.pv;
 
-    totalPvPower += (pv.dc1.isSelected ? pv.dc1.value : 0);
-    totalPvPower += (pv.dc2.isSelected ? pv.dc2.value : 0);
+    let totalPvPower: number = 0;
+    for (const dc of pv.dc) {
+      totalPvPower += (dc.isSelected ? Number.parseInt(dc.value.toString()) : 0);
+    }
 
     if (pv.ac) {
       for (const ac of pv.ac) {
@@ -430,131 +394,21 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       }
     }
 
-    // Max feed in power is always 70% of total pv power.
     // maximum limit for feed in power is 30000.
-    totalPvPower = Math.min((totalPvPower * 0.7), 29999);
+    totalPvPower = Math.min(totalPvPower, this.maxFeedInLimit);
 
     // Update the feedInlimitation field
     this.feedInLimitation.maximumFeedInPower = totalPvPower;
     this.feedInLimitation.isManualProperlyFollowedAndRead = this.feedInLimitation.isManualProperlyFollowedAndRead ? this.feedInLimitation.isManualProperlyFollowedAndRead : null;
 
-    fields.push({
-      key: "feedInType",
-      type: "select",
-      className: "white-space-initial",
-      templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
-        placeholder: "Select Option",
-        options: [
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
-        ],
-        required: true
-      }
-    });
+    const fields: FormlyFieldConfig[] = super.getCommonFeedInLimitsFields(totalPvPower);
 
-    fields.push({
-      key: 'maximumFeedInPower',
-      type: 'input',
-      templateOptions: {
-        type: 'number',
-        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
-        required: true,
-        max: 29999 // max feed in power limit value.
-      },
-      parsers: [Number],
-      validators: {
-        validation: ["onlyPositiveInteger"]
-      },
-      defaultValue: totalPvPower,
-      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
-    });
-
-    fields.push({
-      key: 'feedInSetting',
-      type: 'radio',
-      templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FEED_IN_SETTING_DESCRIPTION'),
-        options: [
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.QU_ENABLED_CURVE'), value: FeedInSetting.QuEnableCurve },
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.PU_ENABLED_CURVE'), value: FeedInSetting.PuEnableCurve },
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FIXED_POWER_FACTOR'), value: FeedInSetting.FixedPowerFactor }
-        ],
-        required: true
-      }
-    });
-
-    fields.push({
-      key: 'fixedPowerFactor',
-      type: 'select',
-      templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
-        options: [
-          // Leading
-          { label: '0.80', value: FeedInSetting.Leading_0_80 },
-          { label: '0.81', value: FeedInSetting.Leading_0_81 },
-          { label: '0.82', value: FeedInSetting.Leading_0_82 },
-          { label: '0.83', value: FeedInSetting.Leading_0_83 },
-          { label: '0.84', value: FeedInSetting.Leading_0_84 },
-          { label: '0.85', value: FeedInSetting.Leading_0_85 },
-          { label: '0.86', value: FeedInSetting.Leading_0_86 },
-          { label: '0.87', value: FeedInSetting.Leading_0_87 },
-          { label: '0.88', value: FeedInSetting.Leading_0_88 },
-          { label: '0.89', value: FeedInSetting.Leading_0_89 },
-          { label: '0.90', value: FeedInSetting.Leading_0_90 },
-          { label: '0.91', value: FeedInSetting.Leading_0_91 },
-          { label: '0.92', value: FeedInSetting.Leading_0_92 },
-          { label: '0.93', value: FeedInSetting.Leading_0_93 },
-          { label: '0.94', value: FeedInSetting.Leading_0_94 },
-          { label: '0.95', value: FeedInSetting.Leading_0_95 },
-          { label: '0.96', value: FeedInSetting.Leading_0_96 },
-          { label: '0.97', value: FeedInSetting.Leading_0_97 },
-          { label: '0.98', value: FeedInSetting.Leading_0_98 },
-          { label: '0.99', value: FeedInSetting.Leading_0_99 },
-          { label: '1', value: FeedInSetting.Leading_1 },
-          // Lagging
-          { label: '-0.80', value: FeedInSetting.Lagging_0_80 },
-          { label: '-0.81', value: FeedInSetting.Lagging_0_81 },
-          { label: '-0.82', value: FeedInSetting.Lagging_0_82 },
-          { label: '-0.83', value: FeedInSetting.Lagging_0_83 },
-          { label: '-0.84', value: FeedInSetting.Lagging_0_84 },
-          { label: '-0.85', value: FeedInSetting.Lagging_0_85 },
-          { label: '-0.86', value: FeedInSetting.Lagging_0_86 },
-          { label: '-0.87', value: FeedInSetting.Lagging_0_87 },
-          { label: '-0.88', value: FeedInSetting.Lagging_0_88 },
-          { label: '-0.89', value: FeedInSetting.Lagging_0_89 },
-          { label: '-0.90', value: FeedInSetting.Lagging_0_90 },
-          { label: '-0.91', value: FeedInSetting.Lagging_0_91 },
-          { label: '-0.92', value: FeedInSetting.Lagging_0_92 },
-          { label: '-0.93', value: FeedInSetting.Lagging_0_93 },
-          { label: '-0.94', value: FeedInSetting.Lagging_0_94 },
-          { label: '-0.95', value: FeedInSetting.Lagging_0_95 },
-          { label: '-0.96', value: FeedInSetting.Lagging_0_96 },
-          { label: '-0.97', value: FeedInSetting.Lagging_0_97 },
-          { label: '-0.98', value: FeedInSetting.Lagging_0_98 },
-          { label: '-0.99', value: FeedInSetting.Lagging_0_99 }
-        ],
-        required: true
-      },
-      hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor
-    });
-
-    fields.push({
-      key: "isManualProperlyFollowedAndRead",
-      type: "checkbox",
-      templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_CHECK'),
-        required: true
-      },
-      hideExpression: model => model.feedInType != FeedInType.EXTERNAL_LIMITATION
-    });
+    super.addAdditionalFeedInLimitsFields(fields);
 
     return fields;
   }
 
-  public setFeedInLimitsFields(model: any) {
+  public override setFeedInLimitFields(model: any) {
 
     this.feedInLimitation.feedInType = model.feedInType;
     this.feedInLimitation.feedInSetting = model.feedInSetting ?? FeedInSetting.Undefined;
@@ -564,26 +418,26 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return this.feedInLimitation;
   }
 
-  public setRequiredControllers() {
+  public override setRequiredControllers() {
     this.requiredControllerIds = [];
     if (this.emergencyReserve.isEnabled) {
       this.requiredControllerIds.push({
-        componentId: "ctrlEmergencyCapacityReserve0"
-        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        componentId: "ctrlEmergencyCapacityReserve0",
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
       });
     }
     this.requiredControllerIds.push(
       {
-        componentId: "ctrlGridOptimizedCharge0"
-        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        componentId: "ctrlGridOptimizedCharge0",
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
       },
       {
-        componentId: "ctrlEssSurplusFeedToGrid0"
-        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        componentId: "ctrlEssSurplusFeedToGrid0",
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
       },
       {
-        componentId: "ctrlBalancing0"
-        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        componentId: "ctrlBalancing0",
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
       }
     );
   }
@@ -625,11 +479,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.SHADE_MANAGEMENT_DEACTIVATED'),
           value: this.translate.instant('General.yes')
-        });
+        }
+      );
 
-    if (
-      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
-    ) {
+    if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
       batteryInverterData.push({
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
         value: feedInLimitation.fixedPowerFactor
@@ -639,104 +492,49 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   }
 
   public override addCustomPvData(pvData: ComponentData[]) {
-    let dcNr = 1;
-    for (const dc of [this.pv.dc1, this.pv.dc2]) {
+    let pvNr = 1;
+    for (const dc of this.pv.dc) {
+      const mppt: Number = this.maxNumberOfPvStrings > 2 ? Math.ceil(pvNr / 2) : pvNr;
       if (dc.isSelected) {
         pvData = pvData.concat([
-          { label: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: 'MPPT', number: dcNr }), value: dc.alias },
-          { label: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: 'MPPT', number: dcNr, symbol: '' }), value: dc.value }
-        ]);
+          {
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ALIAS_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
+            value: dc.alias
+          },
+          {
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr, symbol: '' }),
+            value: dc.value
+          }]);
         if (dc.orientation) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: 'MPPT', number: dcNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ORIENTATION_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
             value: dc.orientation
           });
         }
         if (dc.moduleType) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: 'MPPT', number: dcNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.MODULE_TYPE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
             value: dc.moduleType
           });
         }
         if (dc.modulesPerString) {
           pvData.push({
-            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: 'MPPT', number: dcNr }),
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.NUMBER_OF_MODULES_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
             value: dc.modulesPerString
           });
         }
-        dcNr++;
       }
+      pvNr++;
     }
     return pvData;
   }
 
-  public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
-    const installer = this.installer;
-    const customer = this.customer;
+  public override getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
+    const protocol: SetupProtocol = super.getCommonProtocolItems(edge);
+
     const feedInLimitation = this.feedInLimitation;
-    const pv = this.pv;
     const emergencyReserve = this.emergencyReserve;
-    const lineSideMeterFuse = this.lineSideMeterFuse;
-    const serialNumbers = this.serialNumbers;
-    const dc1 = pv.dc1;
-    const dc2 = pv.dc2;
-    const ac = pv.ac;
 
-    const installerObj: any = {
-      firstname: installer.firstName,
-      lastname: installer.lastName
-    };
-
-    const customerObj: any = {
-      firstname: customer.firstName,
-      lastname: customer.lastName,
-      email: customer.email,
-      phone: customer.phone,
-      address: {
-        street: customer.street,
-        city: customer.city,
-        zip: customer.zip,
-        country: customer.country
-      }
-    };
-
-    if (customer.isCorporateClient) {
-      customerObj.company = {
-        name: customer.companyName
-      };
-    }
-
-    const protocol: SetupProtocol = {
-      fems: {
-        id: edge.id
-      },
-      installer: installerObj,
-      customer: customerObj,
-      oem: environment.theme
-    };
-
-    // If location data is different to customer data, the location
-    // data gets sent too
-    if (!this.location.isEqualToCustomerData) {
-      const location = this.location;
-      protocol.location = {
-        firstname: location.firstName,
-        lastname: location.lastName,
-        email: location.email,
-        phone: location.phone,
-        address: {
-          street: location.street,
-          city: location.city,
-          zip: location.zip,
-          country: location.country
-        },
-        company: {
-          name: location.companyName
-        }
-      };
-    }
-
-    protocol.items = [];
     protocol.items.push({
       category: Category.EMERGENCY_RESERVE,
       name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_LABEL', { symbol: '?' }),
@@ -751,83 +549,43 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       });
     }
 
-    let lineSideMeterFuseValue: number;
-    if (lineSideMeterFuse.otherValue) {
-      lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
-    } else {
-      lineSideMeterFuseValue = lineSideMeterFuse.fixedValue;
-    }
+    for (let index = 0; index < this.pv.dc.length; index++) {
+      const dc: DcPv = this.pv.dc[index];
+      const label: string = 'MPPT';
+      const dcNr: number = index + 1;
 
-    protocol.items.push({
-      category: this.lineSideMeterFuse.category,
-      name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ''
-    });
+      // DC-PV
+      if (dc.isSelected) {
+        protocol.items.push(
+          {
+            category: Category.DC_PV_INSTALLATION,
+            name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: dcNr }),
+            value: dc.alias
+          },
+          {
+            category: Category.DC_PV_INSTALLATION,
+            name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: dcNr, symbol: '[Wp]' }),
+            value: dc.value ? dc.value.toString() : ''
+          });
 
-    // DC-PV 1
-    if (dc1.isSelected) {
-      protocol.items.push(
-        {
+        dc.orientation && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
-          name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: 'MPPT', number: 1 }),
-          value: dc1.alias
-        },
-        {
-          category: Category.DC_PV_INSTALLATION,
-          name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: 'MPPT', number: 1, symbol: '[Wp]' }),
-          value: dc1.value ? dc1.value.toString() : ''
+          name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: dcNr }),
+          value: dc.orientation
         });
 
-      dc1.orientation && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: 'MPPT', number: 1 }),
-        value: dc1.orientation
-      });
-
-      dc1.moduleType && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: 'MPPT', number: 1 }),
-        value: dc1.moduleType
-      });
-
-      dc1.modulesPerString && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: 'MPPT', number: 1 }),
-        value: dc1.modulesPerString ? dc1.modulesPerString.toString() : ''
-      });
-    }
-
-    // DC-PV 2
-    if (dc2.isSelected) {
-      protocol.items.push(
-        {
+        dc.moduleType && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
-          name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: 'MPPT', number: 2, symbol: '[Wp]' }),
-          value: dc2.value ? dc2.value.toString() : ''
-        },
-        {
-          category: Category.DC_PV_INSTALLATION,
-          name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: 'MPPT', number: 2 }),
-          value: dc2.alias
+          name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: dcNr }),
+          value: dc.moduleType
         });
 
-      dc2.orientation && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION', { label: 'MPPT', number: 2 }),
-        value: dc2.orientation
-      });
-
-      dc2.moduleType && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: 'MPPT', number: 2 }),
-        value: dc2.moduleType
-      });
-
-      dc2.modulesPerString && protocol.items.push({
-        category: Category.DC_PV_INSTALLATION,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: 'MPPT', number: 2 }),
-        value: dc2.modulesPerString ? dc2.modulesPerString.toString() : ''
-      });
+        dc.modulesPerString && protocol.items.push({
+          category: Category.DC_PV_INSTALLATION,
+          name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: dcNr }),
+          value: dc.modulesPerString ? dc.modulesPerString.toString() : ''
+        });
+      }
     }
 
     protocol.items.push({
@@ -855,11 +613,13 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: feedInLimitation.maximumFeedInPower
             ? feedInLimitation.maximumFeedInPower.toString()
             : (0).toString()
-        }, {
-        category: Category.FEED_IN_MANAGEMENT,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
-        value: feedInLimitation.feedInSetting
-      });
+        },
+        {
+          category: Category.FEED_IN_MANAGEMENT,
+          name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
+          value: feedInLimitation.feedInSetting
+        }
+      );
 
       if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
         protocol.items.push({
@@ -870,109 +630,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       }
     }
 
-    for (let index = 0; index < ac.length; index++) {
-      const element = ac[index];
-      const label = 'AC';
-      const acNr = (index + 1);
-
-      protocol.items.push(
-        {
-          category: Category.ADDITIONAL_AC_PRODUCERS,
-          name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
-          value: element.alias
-        },
-        {
-          category: Category.ADDITIONAL_AC_PRODUCERS,
-          name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
-          value: element.value ? element.value.toString() : ''
-        });
-
-      element.orientation && protocol.items.push({
-        category: Category.ADDITIONAL_AC_PRODUCERS,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-        value: element.orientation
-      });
-
-      element.moduleType && protocol.items.push({
-        category: Category.ADDITIONAL_AC_PRODUCERS,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: element.moduleType
-      });
-
-      element.modulesPerString && protocol.items.push({
-        category: Category.ADDITIONAL_AC_PRODUCERS,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
-        value: element.modulesPerString
-          ? element.modulesPerString.toString()
-          : ''
-      });
-
-      element.meterType && protocol.items.push({
-        category: Category.ADDITIONAL_AC_PRODUCERS,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: Meter.toLabelString(element.meterType)
-      });
-
-      element.modbusCommunicationAddress && protocol.items.push({
-        category: Category.ADDITIONAL_AC_PRODUCERS,
-        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
-        value: element.modbusCommunicationAddress
-          ? element.modbusCommunicationAddress.toString()
-          : ''
-      });
-    }
-
-    protocol.items.push({
-      category: Category.EMS_DETAILS,
-      name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
-      value: edge.id
-    });
-
-    // Speichersystemkomponenten
-    protocol.lots = [];
-
-    // Initial tower has 3 static components other than modules such as Welcherischter, BMS and EMS box.
-    const initialStaticTowerComponents: number = 3;
-
     // Subsequent towers will have only 2 static components. Paralell box and BMS box.
     const subsequentStaticTowerComponents: number = 2;
+    const categoryElement: string = 'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER';
 
-    // Total number of components each tower contains, so that easier to categorize the serial numbers based on towers.
-    const numberOfComponentsTower1: number = this.numberOfModulesPerTower + initialStaticTowerComponents;
-    const numberOfComponentsTower2: number = numberOfComponentsTower1 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
-    const numberOfComponentsTower3: number = numberOfComponentsTower2 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
-
-    for (let componentCount = 0; componentCount < serialNumbers.modules.length; componentCount++) {
-      if (serialNumbers.modules[componentCount].value !== null && serialNumbers.modules[componentCount].value !== '') {
-        var name: string = this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SINGLE_SERIAL_NUMBER', { label: serialNumbers.modules[componentCount].label });
-        var serialNumber: string = serialNumbers.modules[componentCount].value;
-
-        // Tower 1
-        if (componentCount < numberOfComponentsTower1) {
-          protocol.lots.push({
-            category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS'),
-            name: name,
-            serialNumber: serialNumber
-          });
-        }
-        // Tower 2 
-        else if (componentCount < numberOfComponentsTower2) {
-          protocol.lots.push({
-            category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { towerNumber: 2 }),
-            name: name,
-            serialNumber: serialNumber
-          });
-        }
-        // tower 3
-        else if (componentCount < numberOfComponentsTower3) {
-          protocol.lots.push({
-            category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { towerNumber: 3 }),
-            name: name,
-            serialNumber: serialNumber
-          });
-        }
-      }
-    }
+    super.addProtocolSerialNumbers(protocol, this.numberOfModulesPerTower, subsequentStaticTowerComponents, categoryElement);
 
     return new Promise((resolve, reject) => {
       websocket
@@ -986,28 +648,60 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
   }
 
-  public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service) {
+  /**
+   * Generates and returns the Specific properties required for Home APP variant.
+   * 
+   * @param safetyCountry Safety Country configured.
+   * @param feedInSetting Feed in Setting configured.
+   * @returns The Home APP properties of the specific variant.
+   */
+  public getHomeAppProperties(safetyCountry: SafetyCountry, feedInSetting: FeedInSetting): {} {
+
+    const dc1 = this.pv.dc[0];
+    const dc2 = this.pv.dc[1];
+
+    // meter1
+    const acArray = this.pv.ac;
+    const isAcCreated: boolean = acArray.length >= 1;
+    const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
+
+    const home10AppProperties: FeneconHome = {
+      SAFETY_COUNTRY: safetyCountry,
+      ...(this.feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
+      ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
+      FEED_IN_SETTING: feedInSetting,
+      HAS_AC_METER: isAcCreated,
+      ...(isAcCreated && { AC_METER_TYPE: Meter.toAppAcMeterType(acMeterType) }),
+      HAS_DC_PV1: dc1.isSelected,
+      ...(dc1.isSelected && { DC_PV1_ALIAS: dc1.alias }),
+      HAS_DC_PV2: dc2.isSelected,
+      ...(dc2.isSelected && { DC_PV2_ALIAS: dc2.alias }),
+      HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
+      ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
+      ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
+      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
+    };
+
+    return home10AppProperties;
+  }
+
+  public override getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service) {
     const componentConfigurator: ComponentConfigurator =
       new ComponentConfigurator(edge, config, websocket);
 
     // Determine safety country
-    let safetyCountry: SafetyCountry;
-    if (this.location.isEqualToCustomerData) {
-      safetyCountry = SafetyCountry.getSafetyCountry(this.customer.country);
-    } else {
-      safetyCountry = SafetyCountry.getSafetyCountry(this.location.country);
-    }
+    const safetyCountry: SafetyCountry = this.location.isEqualToCustomerData
+      ? SafetyCountry.getSafetyCountry(this.customer.country)
+      : SafetyCountry.getSafetyCountry(this.location.country);
+
 
     // Determine feed-in-setting
     let feedInSetting: FeedInSetting;
     const feedInLimitation = this.feedInLimitation;
-    if (
-      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
-    ) {
-      feedInSetting = feedInLimitation.fixedPowerFactor;
-    } else {
-      feedInSetting = feedInLimitation.feedInSetting;
-    }
+    feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
+      ? feedInSetting = feedInLimitation.fixedPowerFactor
+      : feedInSetting = feedInLimitation.feedInSetting;
+
 
     // meter1
     const acArray = this.pv.ac;
@@ -1018,32 +712,17 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       : 0;
     const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
 
-    let homeAppProperties: FeneconHome = {
-      SAFETY_COUNTRY: safetyCountry,
-      ...(feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
-      ...(feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
-      FEED_IN_SETTING: feedInSetting,
-      HAS_AC_METER: isAcCreated,
-      ...(isAcCreated && { AC_METER_TYPE: Meter.toAppAcMeterType(acMeterType) }),
-      HAS_DC_PV1: this.pv.dc1.isSelected,
-      ...(this.pv.dc1.isSelected && { DC_PV1_ALIAS: this.pv.dc1.alias }),
-      HAS_DC_PV2: this.pv.dc2.isSelected,
-      ...(this.pv.dc2.isSelected && { DC_PV2_ALIAS: this.pv.dc2.alias }),
-      HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
-      ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
-      ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
-      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
-    };
-
     // TODO remove
     // system not updated => newest appManager not available
     const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
     const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
     if (isAppManagerAvailable) {
+      const homeAppProperties = this.getHomeAppProperties(safetyCountry, feedInSetting);
+
       componentConfigurator.addInstallAppCallback(() => {
         return new Promise((resolve, reject) => {
-          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties, AppCenterUtil.keyForIntegratedSystems())
+          AppCenterUtil.createOrUpdateApp(edge, websocket, this.homeAppId, this.homeAppAlias, homeAppProperties, AppCenterUtil.keyForIntegratedSystems())
             .then(instance => {
               if (!isAcCreated) {
                 resolve(instance);
@@ -1190,37 +869,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     componentConfigurator.add(goodweconfig);
 
     // PV Meter optional
-    componentConfigurator.add(super.addAcPvMeter('modbus1'));
+    componentConfigurator.add(super.addAcPvMeter('modbus1', baseMode));
 
-    // charger0
-    componentConfigurator.add({
-      factoryId: 'GoodWe.Charger-PV1',
-      componentId: 'charger0',
-      alias: this.pv.dc1.alias ?? "MPPT 1",
-      properties: [
-        { name: 'enabled', value: true },
-        { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
-        { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: 247 }
-      ],
-      mode: this.pv.dc1.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
-    });
-
-    // charger1
-    componentConfigurator.add({
-      factoryId: 'GoodWe.Charger-PV2',
-      componentId: 'charger1',
-      alias: this.pv.dc2.alias ?? "MPPT 2",
-      properties: [
-        { name: 'enabled', value: true },
-        { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
-        { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: 247 }
-      ],
-      mode: this.pv.dc2.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
-    });
+    this.addHomeDcConfiguration(componentConfigurator, baseMode);
 
     // ess0
     componentConfigurator.add({
@@ -1354,5 +1005,54 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     return componentConfigurator;
+  }
+
+  public override setNonAbstractFields(ibnString: any) {
+
+    // Configuration mppt selection
+    if ('mppt' in ibnString) {
+      this.mppt = ibnString.mppt;
+    }
+  }
+
+  /**
+   * Adds the specific DC configuration for the Home variant.
+   * 
+   * @param componentConfigurator configuration object.
+   * @param baseMode BaseMode
+   */
+  public addHomeDcConfiguration(componentConfigurator: ComponentConfigurator, baseMode: BaseMode) {
+
+    // Chargers
+    for (let i = 0; i < this.maxNumberOfPvStrings; i++) {
+      const dc = this.pv.dc[i];
+      let factoryId: string;
+      let alias: string;
+
+      // Home 20. Home 30 has more than 2 pv strings.
+      if (this.maxNumberOfPvStrings > 2) {
+        factoryId = 'GoodWe.Charger.Two-String';
+        alias = "PV " + i;
+      } else {
+        factoryId = 'GoodWe.Charger-PV' + (i + 1);
+        alias = "MPPT " + (i + 1);
+      }
+
+      if (dc.isSelected) {
+        componentConfigurator.add({
+          factoryId: factoryId,
+          componentId: 'charger' + i,
+          alias: dc.alias ?? alias,
+          properties: [
+            { name: 'enabled', value: true },
+            { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
+            { name: 'modbus.id', value: 'modbus1' },
+            { name: 'modbusUnitId', value: 247 }
+          ],
+          mode: dc.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+          baseMode: baseMode
+        });
+      }
+    }
   }
 }

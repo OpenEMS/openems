@@ -56,7 +56,7 @@
     "soc": "Cargo",
     "state": "Estado",
     "storageSystem": "Almacenamiento",
-    "systemState": "Estado del sistema",
+    "SYSTEM_STATE": "Estado del sistema",
     "TOTAL": "consumo total",
     "totalState": "Condición general",
     "warning": "Advertencia",

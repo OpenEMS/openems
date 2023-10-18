@@ -32,9 +32,15 @@ export type AcPv = {
 
 export type DcPv = {
     isSelected: boolean,
-    alias: string,
-    value: number,
-    orientation: string,
-    moduleType: string,
-    modulesPerString: number
+    alias?: string,
+    value?: number,
+    orientation?: string,
+    moduleType?: string,
+    modulesPerString?: number
+};
+
+export type dcForm = {
+    formGroup: FormGroup<any>;
+    fields: FormlyFieldConfig[];
+    model: any;
 };

@@ -58,7 +58,7 @@
     "soc": "état de charge",
     "state": "Etat",
     "storageSystem": "Système de stockage",
-    "systemState": "System state",
+    "SYSTEM_STATE": "État du système",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",

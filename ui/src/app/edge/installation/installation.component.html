@@ -26,7 +26,7 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-system>
 
-                <configuration-commercial *ngSwitchCase="view.ConfigurationCommercialComponent" [ibn]="ibn"
+                <configuration-commercial *ngSwitchCase="view.ConfigurationCommercial" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-commercial>
 
@@ -58,9 +58,13 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-line-side-meter-fuse>
 
-                <configuration-commercial-modbusbridge *ngSwitchCase="view.ConfigurationCommercialModbuBridgeComponent"
+                <configuration-commercial-modbusbridge *ngSwitchCase="view.ConfigurationCommercialModbuBridge"
                     [ibn]="ibn" (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-commercial-modbusbridge>
+
+                <configuration-mppt-selection *ngSwitchCase="view.ConfigurationMpptSelection" [ibn]="ibn"
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-mppt-selection>
 
                 <protocol-pv *ngSwitchCase="view.ProtocolPv" [ibn]="ibn" (previousViewEvent)="displayPreviousView()"
                     (nextViewEvent)="displayNextView($event)">

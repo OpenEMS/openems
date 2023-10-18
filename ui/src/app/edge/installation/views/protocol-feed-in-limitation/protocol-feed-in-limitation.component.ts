@@ -43,7 +43,7 @@ export class ProtocolFeedInLimitationComponent implements OnInit {
     }
 
     // fields are different for different system. So we do it in individual system level.
-    this.ibn.feedInLimitation = this.ibn.setFeedInLimitsFields(this.model);
+    this.ibn.feedInLimitation = this.ibn.setFeedInLimitFields(this.model);
 
     this.ibn.feedInLimitation.maximumFeedInPower = this.form.controls["maximumFeedInPower"]?.dirty ? this.form.controls["maximumFeedInPower"].value : this.totalPvPower;
     this.nextViewEvent.emit(this.ibn);

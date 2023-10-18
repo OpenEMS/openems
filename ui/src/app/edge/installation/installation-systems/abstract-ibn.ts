@@ -4,35 +4,15 @@ import { TranslateService } from '@ngx-translate/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Country } from 'src/app/shared/type/country';
+import { environment } from 'src/environments';
 import { Category } from '../shared/category';
-import { FeedInType, WebLinks } from '../shared/enums';
+import { FeedInSetting, FeedInType, View, WebLinks } from '../shared/enums';
 import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { Meter } from '../shared/meter';
-import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
+import { FEED_IN_POWER_FACTOR_OPTIONS } from '../shared/options';
+import { SystemId, SystemType } from '../shared/system';
+import { BaseMode, ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
-
-export enum View {
-  Completion,
-  ConfigurationEmergencyReserve,
-  ConfigurationExecute,
-  ConfigurationLineSideMeterFuse,
-  ConfigurationSummary,
-  ConfigurationSystem,
-  PreInstallation,
-  PreInstallationUpdate,
-  ProtocolAdditionalAcProducers,
-  ProtocolCustomer,
-  ProtocolFeedInLimitation,
-  ProtocolInstaller,
-  ProtocolPv,
-  ProtocolSerialNumbers,
-  ProtocolSystem,
-  HeckertAppInstaller,
-  ConfigurationFeaturesStorageSystem,
-  ConfigurationCommercialComponent,
-  ConfigurationPeakShaving,
-  ConfigurationCommercialModbuBridgeComponent
-}
 
 export type SerialNumberData = {
   formGroup: FormGroup;
@@ -53,10 +33,10 @@ export enum SchedulerIdBehaviour {
 
 export abstract class AbstractIbn {
   // Battery type
-  public readonly type: string;
+  public readonly type: SystemType;
 
   // Id
-  public readonly id: string;
+  public readonly id: SystemId;
 
   // protocol-installer
   public installer?: {
@@ -144,6 +124,7 @@ export abstract class AbstractIbn {
   } = {
       home: WebLinks.MANUAL_HOME
     };
+
   //Controller-Id's
   public requiredControllerIds: SchedulerId[];
 
@@ -168,18 +149,12 @@ export abstract class AbstractIbn {
   constructor(public views: View[], public translate: TranslateService) { }
 
   /**
-   * Retrieves the fields for View Line side meter Fuse,
-   * which are different for Home and Commercial systems.
-   */
-  public abstract getLineSideMeterFuseFields(): FormlyFieldConfig[];
-
-  /**
    * Returns the number of towers and modules per tower.
    *
    * @param edge the current edge.
    * @param websocket the Websocket connection.
    */
-  public abstract getSettings(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number }>;
+  public abstract getPreSettingInformationFromEdge(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number }>;
 
   /**
    * Returns the component fields for serial numbers based on system being installed.
@@ -187,7 +162,7 @@ export abstract class AbstractIbn {
    * @param towerNr number of towers.
    * @param numberOfModulesPerTower number of modules per tower.
    */
-  public abstract getFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[];
+  public abstract getSerialNumberFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[];
 
   /**
    * Returns the fields to enter number of towers and modules, manually.
@@ -195,7 +170,7 @@ export abstract class AbstractIbn {
    * @param numberOfModulesPerTower number of modules per tower.
    * @param numberOfTowers number of towers.
    */
-  public abstract getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[];
+  public abstract getPreSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[];
 
   /**
    * Fills the entire fields.
@@ -205,7 +180,7 @@ export abstract class AbstractIbn {
    * @param models form specific data.
    * @param forms Array of form data to display.
    */
-  public abstract fillForms(
+  public abstract fillSerialNumberForms(
     numberOfTowers: number,
     numberOfModulesPerTower: number,
     models: any,
@@ -219,7 +194,7 @@ export abstract class AbstractIbn {
    * @param websocket the Websocket connection.
    * @param numberOfModulesPerTower number of modules per tower.
    */
-  public abstract getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object>;
+  public abstract getSerialNumbersFromEdge(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object>;
 
   /**
    * View Configuration Dynamic Feed-In limitation.
@@ -232,7 +207,7 @@ export abstract class AbstractIbn {
    * 
    * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
    */
-  public abstract setFeedInLimitsFields(model: any);
+  public abstract setFeedInLimitFields(model: any);
 
   /**
    * View Configuration-execute.
@@ -335,12 +310,13 @@ export abstract class AbstractIbn {
   }
 
   /**
-   * Returns the pv meter configuration object.
+   * Returns the configuration object with inclusion of ac meter.
    * 
    * @param modbusId modbus unit id.
+   * @param baseMode Base mode for the configuration. Default is 'UI'.
    * @returns ConfigurationObject.
    */
-  public addAcPvMeter(modbusId: string): ConfigurationObject {
+  public addAcPvMeter(modbusId: string, baseMode: BaseMode = BaseMode.UI): ConfigurationObject {
 
     const acArray: AcPv[] = this.pv.ac;
     const isAcCreated: boolean = acArray.length >= 1;
@@ -359,9 +335,344 @@ export abstract class AbstractIbn {
         { name: 'modbusUnitId', value: acModbusUnitId },
         { name: 'invert', value: false }
       ],
-      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     };
 
     return configurationObject;
+  }
+
+  /**
+   * Returns the common fields for all systems in Feed in limitation view.
+   * 
+   * @param totalPvPower The total pv power configured.
+   * @returns common fields for feed in limits fields.
+   */
+  public getCommonFeedInLimitsFields(totalPvPower: number): FormlyFieldConfig[] {
+    const fields: FormlyFieldConfig[] = [];
+
+    fields.push({
+      key: "feedInType",
+      type: "select",
+      className: "white-space-initial",
+      templateOptions: {
+        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
+        placeholder: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.PLACE_HOLDER'),
+        options: [
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
+        ],
+        required: true
+      }
+    });
+
+    fields.push({
+      key: 'maximumFeedInPower',
+      type: 'input',
+      templateOptions: {
+        type: 'number',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
+        required: true,
+        max: 29999 // max feed in power limit value.
+      },
+      parsers: [Number],
+      defaultValue: totalPvPower,
+      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
+    });
+
+    return fields;
+  }
+
+  /**
+   * Returns the additional fields for feed in limitation view.
+   * 
+   * @param fields The common fields already existing.
+   */
+  public addAdditionalFeedInLimitsFields(fields: FormlyFieldConfig[]) {
+    fields.push({
+      key: 'feedInSetting',
+      type: 'radio',
+      templateOptions: {
+        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FEED_IN_SETTING_DESCRIPTION'),
+        options: [
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.QU_ENABLED_CURVE'), value: FeedInSetting.QuEnableCurve },
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.PU_ENABLED_CURVE'), value: FeedInSetting.PuEnableCurve },
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FIXED_POWER_FACTOR'), value: FeedInSetting.FixedPowerFactor }
+        ],
+        required: true
+      }
+    });
+
+    fields.push({
+      key: 'fixedPowerFactor',
+      type: 'select',
+      templateOptions: {
+        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
+        options: FEED_IN_POWER_FACTOR_OPTIONS(),
+        required: true
+      },
+      hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor
+    });
+
+    fields.push({
+      key: "isManualProperlyFollowedAndRead",
+      type: "checkbox",
+      templateOptions: {
+        label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_CHECK'),
+        required: true
+      },
+      hideExpression: model => model.feedInType != FeedInType.EXTERNAL_LIMITATION
+    });
+  }
+
+  /**
+   * Retrieves the fields for View Line side meter Fuse,
+   * which are different for Home and Commercial systems.
+   */
+  public getLineSideMeterFuseFields(): FormlyFieldConfig[] {
+    const fields: FormlyFieldConfig[] = [];
+
+    fields.push({
+      key: "fixedValue",
+      type: "select",
+      templateOptions: {
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
+        description: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.FIXED_VALUE_DESCRIPTION'),
+        options: [
+          { label: "25 A", value: 25 },
+          { label: "32 A", value: 32 },
+          { label: "35 A", value: 35 },
+          { label: "40 A", value: 40 },
+          { label: "50 A", value: 50 },
+          { label: "63 A", value: 63 },
+          { label: "80 A", value: 80 },
+          { label: "100 A", value: 100 },
+          { label: "120 A", value: 120 },
+          { label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER'), value: -1 }
+        ],
+        required: true
+      },
+      parsers: [Number]
+    });
+
+    fields.push({
+      key: "otherValue",
+      type: "input",
+      templateOptions: {
+        type: "number",
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER_VALUE'),
+        min: 0,
+        required: true
+      },
+      parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
+      hideExpression: model => model.fixedValue !== -1
+    });
+    return fields;
+  }
+
+  /**
+   * Returns Setup Protocol with common objects for all systems.
+   * 
+   * @param edge The current Edge object
+   * @returns new SetupProtocol with objects added.
+   */
+  public getCommonProtocolItems(edge: Edge): SetupProtocol {
+    const installer = this.installer;
+    const customer = this.customer;
+    const lineSideMeterFuse = this.lineSideMeterFuse;
+    const ac = this.pv.ac ?? [];
+
+    const installerObj: any = {
+      firstname: installer.firstName,
+      lastname: installer.lastName
+    };
+
+    const customerObj: any = {
+      firstname: customer.firstName,
+      lastname: customer.lastName,
+      email: customer.email,
+      phone: customer.phone,
+      address: {
+        street: customer.street,
+        city: customer.city,
+        zip: customer.zip,
+        country: customer.country
+      }
+    };
+
+    if (customer.isCorporateClient) {
+      customerObj.company = {
+        name: customer.companyName
+      };
+    }
+
+    const protocol: SetupProtocol = {
+      fems: {
+        id: edge.id
+      },
+      installer: installerObj,
+      customer: customerObj,
+      oem: environment.theme
+    };
+
+    // If location data is different to customer data, the location
+    // data gets sent too
+    if (!this.location.isEqualToCustomerData) {
+      const location = this.location;
+      protocol.location = {
+        firstname: location.firstName,
+        lastname: location.lastName,
+        email: location.email,
+        phone: location.phone,
+        address: {
+          street: location.street,
+          city: location.city,
+          zip: location.zip,
+          country: location.country
+        },
+        company: {
+          name: location.companyName
+        }
+      };
+    }
+
+    protocol.items = [];
+
+    let lineSideMeterFuseValue: number;
+    if (lineSideMeterFuse.otherValue) {
+      lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
+    } else {
+      lineSideMeterFuseValue = lineSideMeterFuse.fixedValue;
+    }
+
+    protocol.items.push({
+      category: this.lineSideMeterFuse.category,
+      name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
+      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ''
+    });
+
+    const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS;
+    for (let index = 0; index < ac.length; index++) {
+      const element = ac[index];
+      const label = 'AC';
+      const acNr = (index + 1);
+
+      protocol.items.push(
+        {
+          category: additionalAcCategory,
+          name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
+          value: element.alias
+        },
+        {
+          category: additionalAcCategory,
+          name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
+          value: element.value ? element.value.toString() : ''
+        });
+
+      element.orientation && protocol.items.push({
+        category: additionalAcCategory,
+        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
+        value: element.orientation
+      });
+
+      element.moduleType && protocol.items.push({
+        category: additionalAcCategory,
+        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
+        value: element.moduleType
+      });
+
+      element.modulesPerString && protocol.items.push({
+        category: additionalAcCategory,
+        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
+        value: element.modulesPerString
+          ? element.modulesPerString.toString()
+          : ''
+      });
+
+      element.meterType && protocol.items.push({
+        category: additionalAcCategory,
+        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
+        value: Meter.toLabelString(element.meterType)
+      });
+
+      element.modbusCommunicationAddress && protocol.items.push({
+        category: additionalAcCategory,
+        name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
+        value: element.modbusCommunicationAddress
+          ? element.modbusCommunicationAddress.toString()
+          : ''
+      });
+    }
+
+    protocol.items.push({
+      category: Category.EMS_DETAILS,
+      name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
+      value: edge.id
+    });
+
+    return protocol;
+  }
+
+  /**
+   * Adds the serial numbers of the Battery modules and other components installed to the setup protocol given.
+   * 
+   * @param protocol The SetupProtocol with already exisiting elements.
+   * @param numberOfModulesPerTower The configured number of moduler per tower for the system.
+   * @param subsequentStaticComponents The default number of fixed components per subsequent Towers/Strings.
+   * @param categoryElement the label string for category.
+   */
+  public addProtocolSerialNumbers(protocol: SetupProtocol, numberOfModulesPerTower: number, subsequentStaticComponents: number, categoryElement: string) {
+    const serialNumbers = this.serialNumbers;
+
+    // Speichersystemkomponenten
+    protocol.lots = [];
+
+    // Initial tower has 3 static components other than modules such as Welcherischter, BMS and EMS box.
+    const initialStaticTowerComponents = 3;
+
+    // Number of towers/strings
+    const numTowers = 4;
+
+    // Total number of components each tower contains.
+    const staticComponents: number = numberOfModulesPerTower + subsequentStaticComponents;
+    const numberOfComponentsTower1: number = numberOfModulesPerTower + initialStaticTowerComponents;
+
+    // Calculate the number of components in each tower
+    const numComponentsPerTower: number[] = [0];
+    for (let i = 1; i <= 4; i++) {
+      numComponentsPerTower.push(numComponentsPerTower[i - 1] + (i === 1 ? numberOfComponentsTower1 : staticComponents));
+    }
+
+    // Tower/String is valid for both Home and Industrial. String alone is valid for Commercial.
+    for (let componentCount = 0; componentCount < serialNumbers.modules.length; componentCount++) {
+      const module = serialNumbers.modules[componentCount];
+      if (module.value !== null && module.value !== '') {
+        const name: string = this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SINGLE_SERIAL_NUMBER', { label: module.label });
+        const serialNumber: string = module.value;
+
+        // Determine the tower/string number based on the componentCount
+        for (let tower = 1; tower <= numTowers; tower++) {
+          if (componentCount < numComponentsPerTower[tower]) {
+            const category: string = tower === 1
+              ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
+              : this.translate.instant(categoryElement, { number: tower });
+
+            // Push the data to protocol.lots
+            protocol.lots.push({
+              category: category,
+              name: name,
+              serialNumber: serialNumber
+            });
+
+            break;
+          }
+        }
+      }
+    }
   }
 }

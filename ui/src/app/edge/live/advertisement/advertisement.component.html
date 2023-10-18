@@ -18,23 +18,6 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-
-                <ion-slide *ngSwitchCase="'Fems-App-Center'">
-                    <fems-app-center></fems-app-center>
-                </ion-slide>
-
-                <ion-slide *ngSwitchCase="'Alerting'">
-                    <alerting></alerting>
-                </ion-slide>
-
-                <ion-slide *ngSwitchCase="'FeneconHomeExtension'">
-                    <feneconHomeExtension></feneconHomeExtension>
-                </ion-slide>
-
-                <ion-slide *ngSwitchCase="'Extended-Warranty'">
-                    <extended-warranty></extended-warranty>
-                </ion-slide>
-
             </ng-container>
         </ion-slides>
     </ion-card-content>

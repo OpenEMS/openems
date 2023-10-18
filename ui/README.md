@@ -96,6 +96,12 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
       `ng build -c "heckert,heckert-backend-prod,prod"`
 
+## Testing
+- Testing
+   `ng test`
+- Testing with Karma UI 
+   `ng test -c "local"`
+
 ## Further help
 
 #### Creating a Theme

@@ -76,10 +76,9 @@ public class WebastoUniteEvcs extends AbstractOpenemsAppWithProps<WebastoUniteEv
 		// Properties
 		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+				.setRequired(true))), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
-				.setDefaultValue(255) //
-		)), //
+				.setDefaultValue(255))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //

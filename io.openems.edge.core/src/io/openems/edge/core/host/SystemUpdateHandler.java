@@ -87,7 +87,7 @@ public class SystemUpdateHandler {
 
 						// Read latest version
 						try {
-							var latestVersion = this.download(OpenemsOEM.SYSTEM_UPDATE_LATEST_VERSION_URL).trim();
+							var latestVersion = this.download(OpenemsOEM.getSystemUpdateLatestVersionUrl()).trim();
 							result.complete(
 									GetSystemUpdateStateResponse.from(request.getId(), currentVersion, latestVersion));
 
@@ -205,7 +205,7 @@ public class SystemUpdateHandler {
 				this.updateState.addLog("# Executing update script [" + scriptFile + "]");
 				var response = this.executeSystemCommand("echo '" //
 						+ "  {" //
-						+ "    bash -ex " + scriptFile.toString() + "; " //
+						+ "    bash -ex " + scriptFile.toString() + OpenemsOEM.getSystemUpdateScriptParams() + "; " //
 						+ "    if [ $? -eq 0 ]; then " //
 						+ "      echo \"" + MARKER_FINISHED_SUCCESSFULLY + "\"; " //
 						+ "    else " //

@@ -29,7 +29,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public static final short VERSION_MINOR = 9;
+	public static final short VERSION_MINOR = 10;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -56,6 +56,21 @@ public class OpenemsConstants {
 			OpenemsConstants.VERSION_MINOR, //
 			OpenemsConstants.VERSION_PATCH, //
 			OpenemsConstants.VERSION_STRING);
+
+	/**
+	 * The version development branch.
+	 */
+	public static final String VERSION_DEV_BRANCH = "";
+
+	/**
+	 * The version development commit hash.
+	 */
+	public static final String VERSION_DEV_COMMIT = "";
+
+	/**
+	 * The version development build time.
+	 */
+	public static final String VERSION_DEV_BUILD_TIME = "";
 
 	/**
 	 * The manufacturer of the device that is running OpenEMS.

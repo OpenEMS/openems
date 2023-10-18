@@ -75,15 +75,14 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 				.setTranslatedLabelWithAppPrefix(".chargepoint.label") //
 				.setTranslatedDescriptionWithAppPrefix(".chargepoint.description") //
 				.setDefaultValue("IES1") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
-				field.isRequired(true))), //
+				.setRequired(true)), //
 		OCCP_CONNECTOR_IDENTIFIER(AppDef.of(IesKeywattEvcs.class) //
 				.setTranslatedLabelWithAppPrefix(".connector.label") //
 				.setTranslatedDescriptionWithAppPrefix(".connector.description") //
 				.setDefaultValue(1) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
 				field.setInputType(NUMBER) //
-						.isRequired(true) //
 						.setMin(0))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //

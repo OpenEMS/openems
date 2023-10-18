@@ -5,17 +5,17 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/sh
 import { FeedInType } from '../../../shared/enums';
 import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
+import { SystemType } from '../../../shared/system';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
 export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
     public override readonly defaultNumberOfModules = 9;
-
+    public override readonly type: SystemType = SystemType.COMMERCIAL_30;
     public abstract readonly emergencyPower: 'ENABLE' | 'DISABLE';
-    public override readonly type: string = 'Fenecon-Commercial-30';
 
-    public fillForms(
+    public override fillSerialNumberForms(
         numberOfTowers: number,
         numberOfModulesPerTower: number,
         models: any,
@@ -23,18 +23,18 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
         this.numberOfModulesPerTower = numberOfModulesPerTower;
         for (let i = 0; i < numberOfTowers; i++) {
             forms[i] = {
-                fieldSettings: this.getFields(i, numberOfModulesPerTower),
+                fieldSettings: this.getSerialNumberFields(i, numberOfModulesPerTower),
                 model: models[i],
                 formTower: new FormGroup({}),
                 header: numberOfTowers === 1
                     ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
-                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: (i + 1) })
+                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) })
             };
         }
         return forms;
     }
 
-    public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
+    public override getPreSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
         const fields: FormlyFieldConfig[] = [];
 
         fields.push({

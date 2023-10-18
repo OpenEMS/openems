@@ -2,13 +2,15 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
+import { View } from '../shared/enums';
 import { SerialNumberFormData } from '../shared/ibndatatypes';
+import { SystemId } from '../shared/system';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
-import { AbstractIbn, View } from './abstract-ibn';
+import { AbstractIbn } from './abstract-ibn';
 
 export class GeneralIbn extends AbstractIbn {
 
-    public override readonly id = 'general';
+    public override readonly id = SystemId.GENERAL;
 
     public override showViewCount = false;
 
@@ -17,7 +19,7 @@ export class GeneralIbn extends AbstractIbn {
             View.PreInstallation,
             View.PreInstallationUpdate,
             View.ConfigurationSystem,
-            View.ConfigurationCommercialComponent,
+            View.ConfigurationCommercial,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
@@ -34,37 +36,34 @@ export class GeneralIbn extends AbstractIbn {
         ], translate);
     }
 
-    public getLineSideMeterFuseFields(): FormlyFieldConfig[] {
+    public override getPreSettingInformationFromEdge(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number; }> {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getSettings(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number; }> {
+    public override getSerialNumberFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[] {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[] {
+    public override getPreSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[] {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[] {
+    public override fillSerialNumberForms(numberOfTowers: number, numberOfModulesPerTower: number, models: any, forms: SerialNumberFormData[]): SerialNumberFormData[] {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public fillForms(numberOfTowers: number, numberOfModulesPerTower: number, models: any, forms: SerialNumberFormData[]): SerialNumberFormData[] {
+    public override getSerialNumbersFromEdge(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object> {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object> {
+    public override getFeedInLimitFields(): FormlyFieldConfig[] {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getFeedInLimitFields(): FormlyFieldConfig[] {
+    public override getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service): ComponentConfigurator {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service): ComponentConfigurator {
+    public override getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
+    public override setRequiredControllers() {
         throw new Error('This is General Ibn, Method not implemented.');
     }
-    public setRequiredControllers() {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
-    public setFeedInLimitsFields(model: any) {
+    public override setFeedInLimitFields(model: any) {
         throw new Error('This is General Ibn, Method not implemented.');
     }
 }

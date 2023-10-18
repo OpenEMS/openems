@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: InstallationViewComponent.SELECTOR,
   templateUrl: './installation-view.component.html'
 })
-export class InstallationViewComponent implements OnInit {
+export class InstallationViewComponent implements OnChanges {
 
   private static readonly SELECTOR = "installation-view";
 
@@ -16,6 +16,7 @@ export class InstallationViewComponent implements OnInit {
   @Input() public fields: FormlyFieldConfig[];
 
   @Input() public isWaiting: boolean = false;
+  @Input() public isNextDisabled: boolean = false;
   @Input() public isFirstView: boolean = false;
   @Input() public isLastView: boolean = false;
 
@@ -25,28 +26,34 @@ export class InstallationViewComponent implements OnInit {
 
   constructor(private translate: TranslateService) { }
 
-  public ngOnInit() {
-
+  // often 'isWaiting' changes its value after initialization and ngOnInit dose not record the changed values,
+  // So using the ngOnChanges.
+  public ngOnChanges() {
     if (this.isWaiting) {
-      this.labelToShow = {
-        label: this.translate.instant('INSTALLATION.LOAD'),
-        icon: 'hourglass-outline'
-      };
+      this.setLabelAndIcon(this.translate.instant('INSTALLATION.LOAD'), 'hourglass-outline');
     } else if (this.isLastView) {
-      this.labelToShow = {
-        label: this.translate.instant('INSTALLATION.COMPLETE'),
-        icon: 'checkmark-done-outline1'
-      };
+      this.setLabelAndIcon(this.translate.instant('INSTALLATION.COMPLETE'), 'checkmark-done-outline1');
     } else {
-      this.labelToShow = {
-        label: this.translate.instant('INSTALLATION.NEXT'),
-        icon: 'arrow-forward-outline'
-      };
+      this.setLabelAndIcon(this.translate.instant('INSTALLATION.NEXT'), 'arrow-forward-outline');
     }
   }
+
   public keyPressed(event) {
     if (event.key === 'Enter') {
       this.nextClicked.emit();
     }
+  }
+
+  /**
+   * Sets the label and icons for the button.
+   * 
+   * @param labelKey Translated labels.
+   * @param icon Icon to be displayed
+   */
+  private setLabelAndIcon(labelKey: string, icon: string) {
+    this.labelToShow = {
+      label: labelKey,
+      icon: icon
+    };
   }
 }

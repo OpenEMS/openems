@@ -8,11 +8,11 @@ export const theme = {
     edgeLongName: "Heckert Solar Symphon-E Energiemanagementsystem",
 
     // TODO 
-    docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/fems-app/includes/",
+    docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/",
     links: {
         COMMON_STORAGE: "ui/standardwidgets.html#_speicher",
         FORGET_PASSWORD: "https://erp.fenecon.de/web/reset_password?",
-        EVCS_HARDY_BARTH: "fems-app/includes/FEMS_App_Ladestation_eCharge_Hardy_Barth.html",
+        EVCS_HARDY_BARTH: "fems-app/includes/fems-app/includes/FEMS_App_Ladestation_eCharge_Hardy_Barth.html",
         EVCS_KEBA_KECONTACT: "fems-app/includes/FEMS_App_Ladestation_KEBA.html",
         EVCS_OCPP_IESKEYWATTSINGLE: "fems-app/includes/FEMS_App_Ladestation_Ies_Keywatt.html",
 
@@ -21,6 +21,13 @@ export const theme = {
         CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "fems-app/includes/FEMS_App_Schwellwertsteuerung.html",
         CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "fems-app/includes/FEMS_App_Manuelle_Relaissteuerung.html",
         CONTROLLER_IO_HEAT_PUMP_SG_READY: "fems-app/includes/FEMS_App_Waermepumpe_SG-Ready.html",
+        CONTROLLER_IO_HEATING_ELEMENT: "fems-app/includes/FEMS_App_Heizstab.html",
+
+        CONTROLLER_API_MODBUSTCP_READ: "fems-app/OEM_App_Modbus_TCP.html#_lesezugriff",
+        CONTROLLER_API_MODBUSTCP_READWRITE: "fems-app/OEM_App_Modbus_TCP.html#_schreibzugriff",
+
+        CONTROLLER_API_REST_READ: "fems-app/OEM_App_REST_JSON.html#_lesezugriff",
+        CONTROLLER_API_REST_READWRITE: "fems-app/OEM_App_REST_JSON.html#_schreibzugriff",
 
         SETTINGS_ALERTING: "ui/settings.html#_benachrichtigung",
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
