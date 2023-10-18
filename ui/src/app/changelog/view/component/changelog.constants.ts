@@ -3,7 +3,7 @@ import { environment } from "src/environments";
 
 export class Changelog {
 
-    public static readonly UI_VERSION = "2023.10.1-SNAPSHOT";
+    public static readonly UI_VERSION = "2023.10.1";
 
     public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
     public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
@@ -132,6 +132,7 @@ export class Library {
     public static readonly APACHE_FELIX_SCR = new Library('Apache Felix SCR', 'org.apache.felix.scr');
     public static readonly APACHE_FELIX_WEBCONSOLE = new Library('Apache Felix Webconsole', 'org.apache.felix.webconsole');
     public static readonly APACHE_FELIX_CONFIGADMIN = new Library('Apache Felix Configuration Admin', 'org.apache.felix.configadmin');
+    public static readonly BNDTOOLS = new Library('bndtools', 'biz.aQute.bnd'); // https://github.com/bndtools/bnd
     public static readonly CHARGETIME_OCPP = new Library('Open Charge Alliance Java OCPP', 'eu.chargetime.ocpp'); // https://github.com/ChargeTimeEU/Java-OCA-OCPP
     public static readonly ECLIPSE_OSGI = new Library('Eclipse OSGi', 'org.eclipse.osgi');
     public static readonly FASTEXCEL = new Library('fastexcel', 'fastexcel');
