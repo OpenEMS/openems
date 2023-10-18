@@ -22,6 +22,8 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
   protected cellVoltageDifference: number | null = null;
   protected cellTemperatureDifference: number | null = null;
 
+  protected date: string = this.service?.historyPeriod?.value?.getText(this.translate) ?? "";
+
   protected override getChannelAddresses(): ChannelAddress[] {
     return [
       new ChannelAddress('battery0', 'MaxCellVoltage'),

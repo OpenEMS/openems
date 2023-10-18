@@ -1,3 +1,6 @@
+import { NgModule } from '@angular/core';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { environment } from 'src/environments';
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
@@ -48,9 +51,6 @@ import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
-import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { environment } from 'src/environments';
 
 
 const routes: Routes = [
@@ -59,6 +59,7 @@ const routes: Routes = [
   { path: 'index', redirectTo: 'login', pathMatch: 'full' },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+
   { path: 'overview', component: OverViewComponent },
   { path: 'overview/installation', component: InstallationComponent },
 
@@ -126,12 +127,12 @@ const routes: Routes = [
     ]
   },
 
-  { path: 'demo', component: LoginComponent }
+  { path: 'demo', component: LoginComponent },
+  // Fallback
+  { path: '**', pathMatch: 'full', redirectTo: 'login' }
 ];
 
-export const appRoutingProviders: any[] = [
-
-];
+export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [

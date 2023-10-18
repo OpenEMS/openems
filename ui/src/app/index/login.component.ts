@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit, AfterContentChecked, OnDestroy {
     // TODO add websocket status observable
     const interval = setInterval(() => {
       if (this.websocket.status === 'online') {
-        this.router.navigateByUrl('/overview');
+        this.router.navigate(['/overview']);
         clearInterval(interval);
       }
     }, 1000);
