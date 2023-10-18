@@ -561,8 +561,8 @@ export enum YAxisTitle {
 }
 
 export enum ChartAxis {
-  LEFT = 'left',
-  RIGHT = 'right'
+  LEFT = 'yAxisRight',
+  RIGHT = 'yAxisLeft'
 }
 export namespace HistoryUtils {
 
