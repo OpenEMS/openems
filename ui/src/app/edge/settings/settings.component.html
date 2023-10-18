@@ -125,12 +125,12 @@
         </ng-template>
       </ng-container>
 
-      <ng-container *ngIf="edge.roleIsAtLeast('admin')">
+      <ng-container *ngIf="canSeeCommercialAssistent">
         <ion-col size="12" size-sm="4">
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" size="large" color="primary" name="construct-outline"></ion-icon>
-              <ion-label>{{ environment.edgeShortName }} Soltaro Service Assistent</ion-label>
+              <ion-label>Commercial Service Assistent</ion-label>
             </ion-item>
             <ion-card-content>
               <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/servcieAssistant">
@@ -210,6 +210,7 @@
               <ion-label>Home Service Assistent</ion-label>
             </ion-item>
             <ion-card-content>
+              <ion-note>Für Home 10 optimiert</ion-note>
               <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/homeServiceAssistent">
                 <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
               </ion-button>

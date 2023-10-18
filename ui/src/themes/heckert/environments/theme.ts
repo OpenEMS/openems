@@ -8,7 +8,7 @@ export const theme = {
     edgeLongName: "Heckert Solar Symphon-E Energiemanagementsystem",
 
     // TODO 
-    docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/fems-app/includes/",
+    docsUrlPrefix: "https://docs.fenecon.de/{language}/_/latest/fems/",
     links: {
         COMMON_STORAGE: "ui/standardwidgets.html#_speicher",
         FORGET_PASSWORD: "https://erp.fenecon.de/web/reset_password?",

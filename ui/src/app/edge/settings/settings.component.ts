@@ -16,6 +16,7 @@ export class SettingsComponent implements OnInit {
   public canSeeAppCenter: boolean | undefined;
 
   protected canSeeHomeAssistent: boolean = false;
+  protected canSeeCommercialAssistent: boolean = false;
   protected isEdgeBackend: boolean = environment.backend === 'OpenEMS Edge';
 
   constructor(
@@ -30,6 +31,7 @@ export class SettingsComponent implements OnInit {
       this.edge = edge;
       this.canSeeAppCenter = canSeeAppCenter(this.edge);
       this.canSeeHomeAssistent = UserPermission.isUserAllowedToSeeHomeAssistent(this.service.metadata?.value?.user, edge);
+      this.canSeeCommercialAssistent = UserPermission.isUserAllowedToSeeCommercialServiceAssistent(this.service.metadata?.value?.user, edge);
     });
   }
 }
