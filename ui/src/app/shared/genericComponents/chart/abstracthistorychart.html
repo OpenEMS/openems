@@ -7,7 +7,6 @@
 <div [style.height.px]="getChartHeight()">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
-        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
-            [type]="chartType"></canvas>
+        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
     </ng-container>
 </div>
