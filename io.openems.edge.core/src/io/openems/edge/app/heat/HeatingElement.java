@@ -104,20 +104,20 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedLabelWithAppPrefix(".powerPerPhase.label") //
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
 				.setDefaultValue(2000) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
 					field.setInputType(NUMBER) //
 							.setUnit(WATT, l) //
-							.isRequired(true) //
 							.setMin(0);
 				})), //
 		HYSTERESIS(AppDef.of(HeatingElement.class) //
 				.setTranslatedLabelWithAppPrefix(".hysteresis.label") //
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
 				.setDefaultValue(60) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
 					field.setInputType(NUMBER) //
 							.setUnit(SECONDS, l) //
-							.isRequired(true) //
 							.setMin(0);
 				}) //
 				.bidirectional(CTRL_IO_HEATING_ELEMENT_ID, "minimumSwitchingTime", //

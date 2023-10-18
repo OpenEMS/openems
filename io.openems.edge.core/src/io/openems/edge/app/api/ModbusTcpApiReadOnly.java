@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -63,8 +65,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 		// Components
 		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusTcp0")), //
 		// Properties
-		ALIAS(AppDef.of(ModbusTcpApiReadOnly.class) //
-				.setDefaultValueToAppName()),
+		ALIAS(alias()), //
 		ACTIVE(AppDef.of(ModbusTcpApiReadOnly.class) //
 				.setDefaultValue((app, prop, l, param) -> {
 					var active = app.componentManager.getEdgeConfig()
