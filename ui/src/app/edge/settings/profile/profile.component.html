@@ -99,35 +99,33 @@
                       <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend"
-                            translate>General.manual</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
                           <ion-button (click)="getModbusProtocol(item.id)">Download Protocol</ion-button>
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_schreibzugriff"
-                            translate>General.manual</ion-button>
+                          <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend"
-                            translate>General.manual</ion-button>
+                          <oe-help-button key="CONTROLLER_API_REST_READ">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                         <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_schreibzugriff"
-                            translate>General.manual</ion-button>
-                        </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Backend'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_cloud_schnittstellen" translate>
-                            General.manual</ion-button>
-                        </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Websocket'">
-                          <ion-button target="_blank"
-                            href="https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_cloud_websocketjson_api"
-                            translate>General.manual</ion-button>
+                          <oe-help-button key="CONTROLLER_API_REST_READWRITE">
+                            <span translate>
+                              General.manual
+                            </span>
+                          </oe-help-button>
                         </ion-text>
                       </ng-container>
                       <!-- Additional information for all Components -->
