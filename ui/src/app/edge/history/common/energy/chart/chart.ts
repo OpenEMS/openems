@@ -142,60 +142,60 @@ export class ChartComponent extends AbstractHistoryChart {
           // },
 
           // // Sell to grid
-          // {
-          //   name: translate.instant('General.gridSell'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/GridSellActiveEnergy'];
-          //   },
-          //   converter: () => {
-          //     return data['GridSell'];
-          //   },
-          //   color: 'rgb(0,0,200)',
-          //   stack: 1,
-          //   ...(chartType === 'line' && { order: 4 })
-          // },
+          {
+            name: translate.instant('General.gridSell'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/GridSellActiveEnergy'];
+            },
+            converter: () => {
+              return data['GridSell'];
+            },
+            color: 'rgb(0,0,200)',
+            stack: 1,
+            ...(chartType === 'line' && { order: 4 })
+          },
 
           // // Buy from Grid
-          // {
-          //   name: translate.instant('General.gridBuy'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/GridBuyActiveEnergy'];
-          //   },
-          //   converter: () => {
-          //     return data['GridBuy'];
-          //   },
-          //   color: 'rgb(0,0,0)',
-          //   stack: 2,
-          //   ...(chartType === 'line' && { order: 2 })
-          // },
+          {
+            name: translate.instant('General.gridBuy'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/GridBuyActiveEnergy'];
+            },
+            converter: () => {
+              return data['GridBuy'];
+            },
+            color: 'rgb(0,0,0)',
+            stack: 2,
+            ...(chartType === 'line' && { order: 2 })
+          },
 
           // // Consumption
-          // {
-          //   name: translate.instant('General.consumption'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/ConsumptionActiveEnergy'];
-          //   },
-          //   converter: () => {
-          //     return data['Consumption'];
-          //   },
-          //   color: 'rgb(253,197,7)',
-          //   stack: 3,
-          //   hiddenOnInit: chartType == 'line' ? false : true,
-          //   ...(chartType === 'line' && { order: 0 })
-          // },
-          // ...[chartType === 'line' &&
-          // {
-          //   name: translate.instant('General.soc'),
-          //   converter: () => {
-          //     return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
-          //   },
-          //   color: 'rgb(189, 195, 199)',
-          //   borderDash: [10, 10],
-          //   yAxisId: ChartAxis.RIGHT,
-          //   stack: 1,
-          //   customUnit: YAxisTitle.PERCENTAGE
-          // }
-          // ]
+          {
+            name: translate.instant('General.consumption'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/ConsumptionActiveEnergy'];
+            },
+            converter: () => {
+              return data['Consumption'];
+            },
+            color: 'rgb(253,197,7)',
+            stack: 3,
+            hiddenOnInit: chartType == 'line' ? false : true,
+            ...(chartType === 'line' && { order: 0 })
+          },
+          ...[chartType === 'line' &&
+          {
+            name: translate.instant('General.soc'),
+            converter: () => {
+              return data['EssSoc']?.map(value => Utils.multiplySafely(value, 1000));
+            },
+            color: 'rgb(189, 195, 199)',
+            borderDash: [10, 10],
+            yAxisId: ChartAxis.RIGHT,
+            stack: 1,
+            customUnit: YAxisTitle.PERCENTAGE
+          }
+          ]
         ];
       },
       tooltip: {

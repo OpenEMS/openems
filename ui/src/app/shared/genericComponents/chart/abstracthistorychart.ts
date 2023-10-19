@@ -177,8 +177,6 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     let datasets: Chart.ChartDataset[] = [];
-    let colors: any[] = [];
-
 
     if (Array.isArray(element.stack)) {
       for (let stack of element.stack) {
@@ -276,39 +274,6 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.legendOptions = displayValues.legendOptions;
         this.labels = displayValues.labels;
         this.setChartLabel();
-      }).finally(() => {
-
-        let barPercentage = 0;
-        let categoryPercentage = 0;
-        switch (this.service.periodString) {
-          case DefaultTypes.PeriodString.CUSTOM: {
-            barPercentage = 0.7;
-            categoryPercentage = 0.4;
-          }
-          case DefaultTypes.PeriodString.MONTH: {
-            if (this.service.isSmartphoneResolution == true) {
-              barPercentage = 1;
-              categoryPercentage = 0.6;
-            } else {
-              barPercentage = 0.9;
-              categoryPercentage = 0.8;
-            }
-          }
-          case DefaultTypes.PeriodString.YEAR: {
-            if (this.service.isSmartphoneResolution == true) {
-              barPercentage = 1;
-              categoryPercentage = 0.6;
-            } else {
-              barPercentage = 0.8;
-              categoryPercentage = 0.8;
-            }
-          }
-        }
-
-        this.options.datasets.bar = {
-          barPercentage: barPercentage,
-          categoryPercentage: categoryPercentage
-        }
       });
     } else {
 
@@ -336,10 +301,46 @@ export abstract class AbstractHistoryChart implements OnInit {
   applyOptionsChanges(chartType: string, options: any) {
     switch (chartType) {
       case 'bar':
-        return options.plugins.tooltip.mode = 'x';
+        // options.tooltip.interaction = {
+        //   mode: 'x'
+        // }
+        options.plugins.tooltip.mode = 'x';
+        // options.plugins.tooltip.intersect = false;
+        let barPercentage = 0;
+        let categoryPercentage = 0;
+        switch (this.service.periodString) {
+          case DefaultTypes.PeriodString.CUSTOM: {
+            barPercentage = 0.7;
+            categoryPercentage = 0.4;
+          }
+          case DefaultTypes.PeriodString.MONTH: {
+            if (this.service.isSmartphoneResolution == true) {
+              barPercentage = 1;
+              categoryPercentage = 0.6;
+            } else {
+              barPercentage = 0.9;
+              categoryPercentage = 0.8;
+            }
+          }
+          case DefaultTypes.PeriodString.YEAR: {
+            if (this.service.isSmartphoneResolution == true) {
+              barPercentage = 1;
+              categoryPercentage = 0.6;
+            } else {
+              barPercentage = 0.8;
+              categoryPercentage = 0.8;
+            }
+          }
+        }
+        options.datasets.bar = {
+          barPercentage: barPercentage,
+          categoryPercentage: categoryPercentage
+        }
+        break;
       case 'line':
-        return options;
+        break;
     }
+    return options;
   }
 
   /**
@@ -514,15 +515,26 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     let tooltipsLabel: string | null = null;
     let options = {
+      // interaction: {
+      //   mode: 'x'
+      // },
       responsive: true,
       maintainAspectRatio: false,
       elements: {
         line: {
           stepped: false,
+          fill: true
         },
         point: {
           pointStyle: false
         }
+      },
+      // hover: {
+      //   mode: 'point',
+      //   intersect: true
+      // },
+      datasets: {
+        bar: {}
       },
       plugins: {
         colors: {
@@ -533,13 +545,14 @@ export abstract class AbstractHistoryChart implements OnInit {
           position: 'bottom',
           labels: {
             generateLabels: (chart: Chart.Chart) => { }
-          }
+          },
+          onClick: (event, legendItem, legend) => { }
         },
         tooltip: {
           intersect: false,
           mode: 'index',
           callbacks: {
-            label: (context: Chart.TooltipItem<any>[]) => {
+            label: (context: Chart.TooltipItem<any>) => {
               // let label = context.dataset.label;
               // let value = context.dataset.data[context.dataIndex];
               // let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
@@ -559,11 +572,13 @@ export abstract class AbstractHistoryChart implements OnInit {
             //   return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
             // },
             afterTitle: (items: Chart.TooltipItem<any>[], data: Data) => { },
+            labelColor: (context: Chart.TooltipItem<any>) => { }
           }
         }
       },
       scales: {
         x: {
+          stacked: true,
           type: 'time',
           offset: false,
           ticks: {
@@ -599,6 +614,11 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         case YAxisTitle.PERCENTAGE:
           options.scales[element.yAxisId] = {
+            max: 100,
+            padding: 5,
+            stepSize: 20,
+            min: 0,
+            type: 'linear',
             title: {
               text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               display: true,
@@ -611,10 +631,11 @@ export abstract class AbstractHistoryChart implements OnInit {
               display: element.displayGrid ?? true,
             },
             ticks: {
-              beginAtZero: false,
+              beginAtZero: true,
               max: 100,
               padding: 5,
-              stepSize: 20
+              stepSize: 20,
+              min: 0
             }
           };
           break;
@@ -639,7 +660,6 @@ export abstract class AbstractHistoryChart implements OnInit {
               beginAtZero: false
             }
           };
-
           break;
       }
       tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(element.unit, chartType);
@@ -656,39 +676,24 @@ export abstract class AbstractHistoryChart implements OnInit {
     // options.tooltips.mode = 'x';
 
     options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
-      // sessionStorage.setItem("items", JSON.stringify(items[0]))
-      // debugger;
-
-      // var datasets = displayValues.filter(element )
-
-
-      // return "test"
-
-      // items.dataIndex
 
       // only way to figure out, which stack is active
       var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
       var datasetIndex = tooltipItem.datasetIndex;
       // Get the dataset object
-      var dataset = items[0].dataset;
-      // var dataset = data.datasets[datasetIndex];
+      var datasets = items.map(element => element.dataset);
 
       // Assuming the dataset is a bar chart using the 'stacked' option
       var stack = items[0].dataset.stack || datasetIndex
-      // var stack = dataset.stack || datasetIndex;
 
       // If only one item in stack do not show sum of values
       if (items.length <= 1) {
         return null;
       }
 
-
       let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
-      let totalValue = items.filter(element => !element.label.includes(afterTitle
-      )).reduce((a, e) => a + parseFloat(
-        <string>e.label
-      ), 0);
 
+      let totalValue = datasets.reduce((_total, curr) => curr.data.reduce((a, b) => Utils.addSafely(a, b)), 0);
       if (afterTitle) {
         return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
       }
@@ -706,19 +711,22 @@ export abstract class AbstractHistoryChart implements OnInit {
     // };
 
     let displayValues = chartObject.output(channelData.data);
-    options.plugins.tooltip.callbacks.label = (items: Chart.TooltipItem<any>[]) => {
 
-      // debugger;
-      // return "";
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
       debugger;
-      let label = items[0].label;//.datasets[tooltipItem.datasetIndex].label;
-      let value = items[0].dataset.data[items[0].dataIndex];
+      return {
+        borderColor: 'rgba(0, 0, 255, 1)',
+        backgroundColor: item.dataset.backgroundColor,
+      };
+    };
+    options.plugins.tooltip.callbacks.label = (items: Chart.TooltipItem<any>) => {
 
+      let label = items.dataset.label;//.datasets[tooltipItem.datasetIndex].label;
+      let value = items.dataset.data[items.dataIndex];
 
       let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
       let unit = displayValue?.customUnit
         ?? chartObject.yAxes[0]?.unit;
-
 
       if (unit != null) {
         tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(unit, chartType);
@@ -727,19 +735,12 @@ export abstract class AbstractHistoryChart implements OnInit {
       // // Show floating point number for values between 0 and 1
       // // TODO find better workaround for legend labels
       return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
-      return "";
     };
-
-    // Set Y-Axis Title
-    // options.scales.yAxes[0].scaleLabel.labelString = AbstractHistoryChart.getYAxisTitle(chartObject.yAxes[0]?.unit, translate, chartType);
-
-
 
     options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
 
       let chartLegendLabelItems: Chart.LegendItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
-
 
         let legendItem = legendOptions?.find(element => element.label == dataset.label);
 
@@ -765,11 +766,11 @@ export abstract class AbstractHistoryChart implements OnInit {
       return chartLegendLabelItems;
     };
 
-    // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-    // Chart.defaults.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem) {
+    // // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
+    // options.plugins.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem, legend) {
     //   let chart: Chart.Chart = this.chart;
 
-    //   let legendItems = Chart.defaults.global.legend.labels.generateLabels(this.chart);
+    //   let legendItems = options.plugins.legend.labels.generateLabels(this.chart);
 
     //   legendItems = legendItems.filter(item => item.text == legendItem.text);
     //   legendItems.forEach(legendItem => {
@@ -786,6 +787,8 @@ export abstract class AbstractHistoryChart implements OnInit {
     //   // We hid a dataset ... rerender the chart
     //   chart.update();
     // };
+
+
 
     // options.plugins.colors = {
     //   enabled: false
