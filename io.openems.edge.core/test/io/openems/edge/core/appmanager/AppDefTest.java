@@ -14,13 +14,11 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 public class AppDefTest {
 
-	private AppManagerTestBundle appManagerTestBundle;
-
 	private TestC testCApp;
 
 	@Before
 	public void beforeEach() throws Exception {
-		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
+		new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
 					this.testCApp = Apps.testC(t) //
 			);
