@@ -163,7 +163,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"], { replaceUrl: true });
+
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            this.router.navigate(['../history'], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }
     }
