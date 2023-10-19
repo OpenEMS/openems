@@ -21,7 +21,7 @@ export interface Environment {
     readonly docsUrlPrefix: string;
     readonly links: {
         readonly COMMON_STORAGE: string,
-
+        readonly FORGET_PASSWORD: string,
         readonly EVCS_KEBA_KECONTACT: string,
         readonly EVCS_HARDY_BARTH: string,
         readonly EVCS_OCPP_IESKEYWATTSINGLE: string,
