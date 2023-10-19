@@ -37,16 +37,22 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.10.2',
+        changes: [
+          "Fehlerbehebung lokales Monitoring: die Abfrage historischer Daten war seit Version 2023.10.1 nur für den aktuellen Tag möglich"
+        ]
+      },
+      {
         version: '2023.10.1',
         changes: [
-          Changelog.openems('2023.9.0'),
+          Changelog.openems('2023.10.0'),
           Changelog.UI,
           Changelog.product(Product.HOME_20_30, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.EVCS_DC, App.ALPITRONIC) + "Verbesserung der Energieberechnung bei Kommunikationsausfall",
           Changelog.app(App.PV_INVERTER, App.KACO, App.SMA, App.KOSTAL, App.FRONIUS, App.SOLAREDGE) + "Verbesserung in der Kompatibilität mit Modbus/SunSpec-Protokollen (Handling von häufig wechselnden 'Scale-Factors')",
           Changelog.app(App.MODBUS_TCP_API) + "Vermeide Lese-Fehler bei 'Write-Only' Registern",
           "Korrektur der Hilfe-Links zur Dokumentation/Anleitungen",
-          { roleIsAtLeast: Role.ADMIN, change: "UI: Filter in der Übersichtssliste, Routing in der Web-App, Login 'trim' für Benutzername+Passwort" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Filter in der Übersichtsliste, Routing in der Web-App, Login 'trim' für Benutzername+Passwort" },
           { roleIsAtLeast: Role.ADMIN, change: "UI Komponente Konfigurieren: Fehlerbehebung bei JSON-Format (z. B. Daily-Scheduler)" },
           { roleIsAtLeast: Role.ADMIN, change: "UI/Edge: Daten senden für netzdienliche Beladung und Shelly (Plug + 2.5)" },
           { roleIsAtLeast: Role.ADMIN, change: "Edge: ESS-Cluster Start/Stop, neuer Channel '_sum/UnmanagedConsumptionActivePower', Bugfix bei 1-phasigen und 3-phasig symmetrischen Zählern/PV-Wechselrichtern auf Phase 3" },

@@ -26,7 +26,7 @@ public class Utils {
 				role, // Role
 				true, // Is Online
 				ZonedDateTime.now(), // now
-				ZonedDateTime.now(), //
+				null, //
 				ControllerApiWebsocket.SUM_STATE //
 		));
 	}
