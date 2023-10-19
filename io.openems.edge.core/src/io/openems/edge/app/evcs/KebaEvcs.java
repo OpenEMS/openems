@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -18,7 +20,6 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -68,9 +69,10 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		EVCS_ID(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
+		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
-				.setDefaultValue("192.168.25.11")), //
+				.setDefaultValue("192.168.25.11") //
+				.setRequired(true)), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
