@@ -1,5 +1,8 @@
 package io.openems.edge.ess.cluster;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -8,6 +11,8 @@ import java.util.function.Function;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
@@ -56,6 +61,8 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		// ManagedSymmetricEss
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
+		// StartStoppable
+		this.calculateStartStop(esss);
 	}
 
 	/**
@@ -92,6 +99,36 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.GRID_MODE, callback);
 		}
+	}
+
+	/**
+	 * Calculate effective StartStop status of {@link SymmetricEss}.
+	 *
+	 * @param esss the List of {@link SymmetricEss}
+	 */
+	private void calculateStartStop(List<SymmetricEss> esss) {
+		final var startStoppableEss = esss.stream() //
+				.filter(StartStoppable.class::isInstance) //
+				.map(StartStoppable.class::cast) //
+				.toList();
+		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
+			final var essMap = startStoppableEss.stream() //
+					.collect(groupingBy(StartStoppable::getStartStop));
+
+			var result = StartStop.UNDEFINED;
+			if (!startStoppableEss.isEmpty()) {
+				if (essMap.getOrDefault(StartStop.START, emptyList()).size() == startStoppableEss.size()) {
+					result = StartStop.START;
+				}
+				if (essMap.getOrDefault(StartStop.STOP, emptyList()).size() == startStoppableEss.size()) {
+					result = StartStop.STOP;
+				}
+			}
+			this.parent._setStartStop(result);
+		};
+		startStoppableEss.forEach(ess -> {
+			this.addOnChangeListener(ess, StartStoppable.ChannelId.START_STOP, callback);
+		});
 	}
 
 	/**
