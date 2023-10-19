@@ -30,7 +30,7 @@ export const theme = {
 
         SETTINGS_ALERTING: null,
         SETTINGS_NETWORK_CONFIGURATION: null,
-        EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
+        EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc"
     },
     PRODUCT_TYPES: () => null
 };
