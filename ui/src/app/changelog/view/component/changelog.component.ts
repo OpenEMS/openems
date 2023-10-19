@@ -37,6 +37,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.10.2',
+        changes: [
+          "Fehlerbehebung lokales Monitoring: die Abfrage historischer Daten war seit Version 2023.10.1 nur für den aktuellen Tag möglich"
+        ]
+      },
+      {
         version: '2023.10.1',
         changes: [
           Changelog.openems('2023.10.0'),
