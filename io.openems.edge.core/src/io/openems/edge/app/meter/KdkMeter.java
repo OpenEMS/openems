@@ -72,16 +72,17 @@ public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Pa
 		// Properties
 		ALIAS(alias()), //
 		TYPE(MeterProps.type(MeterType.GRID)), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> {
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
+				.setRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> {
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.isRequired(true);
 				})).setAutoGenerateField(false)), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def.setDefaultValue(7) //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))) //
-				.setAutoGenerateField(false)), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setDefaultValue(7) //
+				.setAutoGenerateField(false))), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;

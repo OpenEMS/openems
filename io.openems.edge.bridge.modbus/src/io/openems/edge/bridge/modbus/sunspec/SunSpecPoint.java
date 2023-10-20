@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import static io.openems.edge.bridge.modbus.api.element.AbstractModbusElement.FillElementsPriority.HIGH;
+
 import java.util.Optional;
 
 import io.openems.common.channel.AccessMode;
@@ -109,7 +111,9 @@ public interface SunSpecPoint {
 		public final ModbusElement generateModbusElement(Integer startAddress) {
 			return switch (this.type) {
 			case UINT16, ACC16, ENUM16, BITFIELD16 -> new UnsignedWordElement(startAddress);
-			case INT16, SUNSSF, COUNT -> new SignedWordElement(startAddress);
+			case SUNSSF -> new SignedWordElement(startAddress)//
+					.fillElementsPriority(HIGH);
+			case INT16, COUNT -> new SignedWordElement(startAddress);
 			case UINT32, ACC32, ENUM32, BITFIELD32, IPADDR -> new UnsignedDoublewordElement(startAddress);
 			case INT32 -> new SignedDoublewordElement(startAddress);
 			case UINT64, ACC64 -> new UnsignedQuadruplewordElement(startAddress);
@@ -118,8 +122,7 @@ public interface SunSpecPoint {
 			case PAD -> new DummyRegisterElement(startAddress);
 			case FLOAT64 -> new FloatQuadruplewordElement(startAddress);
 			case EUI48 -> null;
-			case IPV6ADDR
-				// TODO this would be UINT128
+			case IPV6ADDR // TODO this would be UINT128
 				-> null;
 			case STRING2 -> new StringWordElement(startAddress, 2);
 			case STRING4 -> new StringWordElement(startAddress, 4);
@@ -202,8 +205,7 @@ public interface SunSpecPoint {
 			case UINT64 -> !value.equals(0xFFFFFFFFFFFFFFFFL); // TODO correct?
 			case FLOAT32 -> !value.equals(Float.NaN);
 			case FLOAT64 -> false; // TODO not implemented
-			case PAD
-				// This point is never needed/reserved
+			case PAD // This point is never needed/reserved
 				-> false;
 			case STRING12, STRING16, STRING2, STRING20, STRING25, STRING32, STRING4, STRING5, STRING6, STRING7,
 					STRING8 ->

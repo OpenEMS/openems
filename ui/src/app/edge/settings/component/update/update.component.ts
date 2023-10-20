@@ -61,7 +61,15 @@ export class ComponentUpdateComponent implements OnInit {
         Utils.deepCopy(property.schema, field);
         fields.push(field);
         if (component.properties[property.id]) {
-          model[property_id] = component.properties[property.id];
+
+          // filter arrays with nested objects
+          if (Array.isArray(component.properties[property.id]) && component.properties[property.id]?.length > 0 && component.properties[property.id]?.every(element => typeof element === 'object')) {
+
+            // Stringify json for objects nested inside an array
+            model[property_id] = JSON.stringify(component.properties[property.id]);
+          } else {
+            model[property_id] = component.properties[property.id];
+          }
         }
       }
       this.form = new FormGroup({});
