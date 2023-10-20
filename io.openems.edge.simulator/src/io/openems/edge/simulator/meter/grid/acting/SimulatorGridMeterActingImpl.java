@@ -2,6 +2,7 @@ package io.openems.edge.simulator.meter.grid.acting;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -135,6 +136,13 @@ public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
 		this._setActivePowerL1(activePowerByThree);
 		this._setActivePowerL2(activePowerByThree);
 		this._setActivePowerL3(activePowerByThree);
+
+		this._setFrequency(getRandomNumberUsingNextInt(49500, 51500));
+	}
+
+	public int getRandomNumberUsingNextInt(int min, int max) {
+		Random random = new Random();
+		return random.nextInt(max - min) + min;
 	}
 
 	@Override

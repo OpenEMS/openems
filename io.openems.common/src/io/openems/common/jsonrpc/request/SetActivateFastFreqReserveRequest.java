@@ -63,7 +63,7 @@ public class SetActivateFastFreqReserveRequest extends JsonrpcRequest {
 
 	private SetActivateFastFreqReserveRequest(JsonrpcRequest request, String edgeId,
 			List<ActivateFastFreqReserveSchedule> schedule) {
-		super(request, SetGridConnScheduleRequest.METHOD);
+		super(request, SetActivateFastFreqReserveRequest.METHOD);
 		this.edgeId = edgeId;
 		this.schedule = schedule;
 	}
@@ -112,33 +112,12 @@ public class SetActivateFastFreqReserveRequest extends JsonrpcRequest {
 
 	public static final String START_TIME_STAMP = "startTimestamp";
 	public static final String DURATION = "duration";
-	public static final String DISCHARGE_POWER_SETPOINT = "dischargePowerSetPoint";
+	public static final String DISCHARGE_POWER_SETPOINT = "dischargeActivePowerSetPoint";
 	public static final String FREQ_LIMIT = "frequencyLimit";
 	public static final String ACTIVATION_RUNTIME = "activationRunTime";
-	public static final String SUPPORT_DURATION = "supportDuration";	
+	public static final String SUPPORT_DURATION = "supportDuration";
 
 	public static class ActivateFastFreqReserveSchedule {
-		
-		
-		public static List<ActivateFastFreqReserveSchedule> from(JsonArray j) throws OpenemsNamedException {
-			List<ActivateFastFreqReserveSchedule> schedule = new ArrayList<>();
-			for (JsonElement se : j) {
-				var startTimestamp = JsonUtils.getAsLong(se, START_TIME_STAMP);
-				var duration = JsonUtils.getAsInt(se, DURATION);				
-				var dischargePowerSetPoint = JsonUtils.getAsInt(se, DISCHARGE_POWER_SETPOINT);
-				var frequencyLimit = JsonUtils.getAsInt(se, FREQ_LIMIT);
-				var activationRunTime = JsonUtils.getAsString(se, ACTIVATION_RUNTIME);
-				var supportDuration = JsonUtils.getAsString(se, SUPPORT_DURATION);
-				schedule.add(new ActivateFastFreqReserveSchedule(startTimestamp, //
-						duration, //
-						dischargePowerSetPoint, //
-						frequencyLimit, //
-						activationRunTime, //
-						supportDuration));
-			}
-			schedule.sort(Comparator.comparing(ActivateFastFreqReserveSchedule::getStartTimestamp));
-			return schedule;
-		}
 
 		private final long startTimestamp;
 		private final int duration;
@@ -160,6 +139,26 @@ public class SetActivateFastFreqReserveRequest extends JsonrpcRequest {
 			this.activationRunTime = activationRunTime;
 			this.supportDuration = supportDuration;
 
+		}
+
+		public static List<ActivateFastFreqReserveSchedule> from(JsonArray j) throws OpenemsNamedException {
+			List<ActivateFastFreqReserveSchedule> schedule = new ArrayList<>();
+			for (JsonElement se : j) {
+				var startTimestamp = JsonUtils.getAsLong(se, START_TIME_STAMP);
+				var duration = JsonUtils.getAsInt(se, DURATION);
+				var dischargePowerSetPoint = JsonUtils.getAsInt(se, DISCHARGE_POWER_SETPOINT);
+				var frequencyLimit = JsonUtils.getAsInt(se, FREQ_LIMIT);
+				var activationRunTime = JsonUtils.getAsString(se, ACTIVATION_RUNTIME);
+				var supportDuration = JsonUtils.getAsString(se, SUPPORT_DURATION);
+				schedule.add(new ActivateFastFreqReserveSchedule(startTimestamp, //
+						duration, //
+						dischargePowerSetPoint, //
+						frequencyLimit, //
+						activationRunTime, //
+						supportDuration));
+			}
+			schedule.sort(Comparator.comparing(ActivateFastFreqReserveSchedule::getStartTimestamp));
+			return schedule;
 		}
 
 		public long getStartTimestamp() {

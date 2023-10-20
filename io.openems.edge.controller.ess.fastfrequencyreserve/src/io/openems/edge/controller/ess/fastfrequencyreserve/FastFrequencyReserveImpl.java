@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.fastfrequencyreserve;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -18,10 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SetActivateFastFreqReserveRequest;
 import io.openems.common.jsonrpc.request.SetActivateFastFreqReserveRequest.ActivateFastFreqReserveSchedule;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -29,6 +36,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.fastfrequencyreserve.enums.ActivationTime;
 import io.openems.edge.controller.ess.fastfrequencyreserve.enums.Mode;
@@ -47,7 +56,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
-		implements FastFrequencyReserve, Controller, OpenemsComponent, ComponentManagerProvider {
+		implements FastFrequencyReserve, Controller, OpenemsComponent, ComponentManagerProvider, JsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(FastFrequencyReserveImpl.class);
 
@@ -114,11 +123,8 @@ public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
 			this.applySchedule(scheduleArray);
 
 		}
+		
 		this._setScheduleParseFailed(false);
-	}
-
-	private void applySchedule(JsonArray j) throws OpenemsNamedException {
-		this.schedule = SetActivateFastFreqReserveRequest.ActivateFastFreqReserveSchedule.from(j);
 	}
 
 	@Deactivate
@@ -128,15 +134,6 @@ public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-//		var now = Instant.now(this.componentManager.getClock()).getEpochSecond();
-//		System.out.println("** now : " + Instant.ofEpochSecond(now));
-//		
-//		for (var x : this.schedule) {
-//			System.out.println(x.getStartTimestamp());
-//		}
-//		
-
 		boolean modeChanged;
 		do {
 			modeChanged = false;
@@ -151,55 +148,7 @@ public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
 				break;
 			}
 		} while (modeChanged);
-
 		this.channel(FastFrequencyReserve.ChannelId.MODE).setNextValue(this.mode);
-
-	}
-
-	private void getConfigParams() {
-
-		this.setPoint(FastFrequencyReserve.ChannelId.DISCHARGE_POWER_SET_POINT, //
-				this.GET_DISCHARGE_POWER);
-
-		this.setPoint(FastFrequencyReserve.ChannelId.FREQUENCY_LIMIT, //
-				this.GET_FREQ_LIMIT);
-
-		this.setPoint(FastFrequencyReserve.ChannelId.DURATION, //
-				this.GET_DURATION);
-
-		this.setPoint(FastFrequencyReserve.ChannelId.START_TIMESTAMP, //
-				this.GET_STARTTIME_STAMP);
-
-	}
-
-	private void setPoint(//
-			FastFrequencyReserve.ChannelId channelId, //
-			Function<ActivateFastFreqReserveSchedule, ?> getMethod) {
-
-		WriteChannel<?> channel = this.channel(channelId);
-		var setPointFromChannel = channel.getNextWriteValueAndReset();
-		if (setPointFromChannel.isPresent()) {
-			var setValue = setPointFromChannel.get();
-			channel.setNextValue(setValue);
-			return;
-		}
-		var now = Instant.now(this.componentManager.getClock()).getEpochSecond();
-
-		for (var e : this.schedule) {
-
-			System.out.println("Now : " + Instant.ofEpochSecond(now));
-			System.out.println("Start : " + Instant.ofEpochSecond(e.getStartTimestamp()));
-//			System.out.println("now >= e.getStartTimestamp() : " + (now >= e.getStartTimestamp()));
-//			System.out.println("end : " + Instant.ofEpochSecond(e.getStartTimestamp() + e.getDuration()));
-//			System.out.println("now <= e.getStartTimestamp() + e.getDuration() : "
-//					+ (now <= e.getStartTimestamp() + e.getDuration()));
-
-			if (now >= e.getStartTimestamp() - 900 && now <= e.getStartTimestamp() + e.getDuration()) {
-				channel.setNextValue(getMethod.apply(e));
-				return;
-			}
-		}
-		channel.setNextValue(null);
 	}
 
 	private void handleFfrStatemachine() {
@@ -238,7 +187,6 @@ public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
 		// Call the StateMachine
 		try {
 			this.stateMachine.run(context);
-			// System.out.println(state);
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
@@ -273,7 +221,81 @@ public class FastFrequencyReserveImpl extends AbstractOpenemsComponent
 				this.getDischargeActivePowerSetPoint(), //
 				this.getFrequencyLimitSetPoint(), //
 				this.getDuration(), //
-				this.getStartTimeStamp()).allMatch(Value::isDefined);
+				this.getStartTimeStamp())//
+				.allMatch(Value::isDefined);
 	}
+
+	@Override
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+		switch (request.getMethod()) {
+		case SetActivateFastFreqReserveRequest.METHOD -> {
+			return this.handleSetActivateFastFreqReserveRequest(user, SetActivateFastFreqReserveRequest.from(request));
+		}
+		default -> throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetActivateFastFreqReserveRequest(User user,
+			SetActivateFastFreqReserveRequest request) throws OpenemsNamedException {
+		this.schedule = request.getSchedule();
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), new JsonObject()));
+	}
+
+	private void applySchedule(JsonArray j) throws OpenemsNamedException {
+		this.schedule = SetActivateFastFreqReserveRequest.ActivateFastFreqReserveSchedule.from(j);
+	}
+
+	private void setPoint(//
+			FastFrequencyReserve.ChannelId channelId, //
+			Function<ActivateFastFreqReserveSchedule, ?> getMethod) {
+
+		WriteChannel<?> channel = this.channel(channelId);
+		var setPointFromChannel = channel.getNextWriteValueAndReset();
+		if (setPointFromChannel.isPresent()) {
+			var setValue = setPointFromChannel.get();
+			channel.setNextValue(setValue);
+			return;
+		}
+		var now = Instant.now(this.componentManager.getClock()).getEpochSecond();
+
+		for (var e : this.schedule) {
+			 this.printer(now, e);
+			if (now >= e.getStartTimestamp() - 900 && now <= e.getStartTimestamp() + e.getDuration()) {
+				channel.setNextValue(getMethod.apply(e));
+				return;
+			}
+		}
+		channel.setNextValue(null);
+	}
+	
+	private void printer(long now, ActivateFastFreqReserveSchedule e) {
+		System.out.println("Now : " + Instant.ofEpochSecond(now));
+		System.out.println("Start : " + Instant.ofEpochSecond(e.getStartTimestamp()));
+		System.out.println("now >= e.getStartTimestamp() : " + (now >= e.getStartTimestamp()));
+		System.out.println("end : " + Instant.ofEpochSecond(e.getStartTimestamp() + e.getDuration()));
+		System.out.println(
+				"now <= e.getStartTimestamp() + e.getDuration() : " + (now <= e.getStartTimestamp() + e.getDuration()));
+	}
+
+	private void getConfigParams() {
+
+		this.setPoint(FastFrequencyReserve.ChannelId.DISCHARGE_POWER_SET_POINT, //
+				this.GET_DISCHARGE_POWER);
+
+		this.setPoint(FastFrequencyReserve.ChannelId.FREQUENCY_LIMIT, //
+				this.GET_FREQ_LIMIT);
+
+		this.setPoint(FastFrequencyReserve.ChannelId.DURATION, //
+				this.GET_DURATION);
+
+		this.setPoint(FastFrequencyReserve.ChannelId.START_TIMESTAMP, //
+				this.GET_STARTTIME_STAMP);
+
+	}
+
+
+
 	// CHECKSTYLE:ON
 }

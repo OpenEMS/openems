@@ -73,6 +73,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.delaycharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.emergencycapacityreserve',\
+	bnd.identity;id='io.openems.edge.controller.ess.fastfrequencyreserve',\
 	bnd.identity;id='io.openems.edge.controller.ess.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.ess.fixstateofcharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.gridoptimizedcharge',\
@@ -178,8 +179,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
-	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	bnd.identity;id='io.openems.edge.timeofusetariff.tibber'	
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -229,6 +229,7 @@
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
 	io.openems.edge.controller.ess.emergencycapacityreserve;version=snapshot,\
+	io.openems.edge.controller.ess.fastfrequencyreserve;version=snapshot,\
 	io.openems.edge.controller.ess.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.ess.fixstateofcharge;version=snapshot,\
 	io.openems.edge.controller.ess.gridoptimizedcharge;version=snapshot,\
