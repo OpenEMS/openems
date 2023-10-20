@@ -20,6 +20,7 @@ export interface Environment {
 
     readonly docsUrlPrefix: string;
     readonly links: {
+
         readonly COMMON_STORAGE: string,
         readonly FORGET_PASSWORD: string,
         readonly EVCS_KEBA_KECONTACT: string,
@@ -31,9 +32,16 @@ export interface Environment {
         readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string,
         readonly CONTROLLER_IO_FIX_DIGITAL_OUTPUT: string,
         readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string,
+        readonly CONTROLLER_IO_HEATING_ELEMENT: string,
+
+        readonly CONTROLLER_API_MODBUSTCP_READ: string,
+        readonly CONTROLLER_API_MODBUSTCP_READWRITE: string,
+
+        readonly CONTROLLER_API_REST_READ: string,
+        readonly CONTROLLER_API_REST_READWRITE: string,
 
         readonly SETTINGS_ALERTING: string,
         readonly SETTINGS_NETWORK_CONFIGURATION: string,
-    }
+    },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
 }

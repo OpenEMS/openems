@@ -19,7 +19,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD)
-	String securityToken();
+	String securityToken() default "";
 
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
 	BiddingZone biddingZone();
