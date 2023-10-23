@@ -93,53 +93,53 @@ export class ChartComponent extends AbstractHistoryChart {
             order: 1
           },
 
-          // // DirectConsumption, displayed in stack 1 & 2, only one legenItem
-          // ...[chartType === 'bar' && {
-          //   name: translate.instant('General.directConsumption'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
-          //   },
-          //   converter: () =>
-          //     data['ProductionActivePower']?.map((value, index) =>
-          //       value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
-          //   color: 'rgb(244,164,96)',
-          //   stack: [1, 2],
-          //   order: 2
-          // }],
+          // DirectConsumption, displayed in stack 1 & 2, only one legenItem
+          ...[chartType === 'bar' && {
+            name: translate.instant('General.directConsumption'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
+            },
+            converter: () =>
+              data['ProductionActivePower']?.map((value, index) =>
+                value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
+            color: 'rgb(244,164,96)',
+            stack: [1, 2],
+            order: 2
+          }],
 
-          // // Charge Power
-          // {
-          //   name: translate.instant('General.chargePower'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/EssDcChargeEnergy'];
-          //   },
-          //   converter: () => {
-          //     return chartType === 'line' ?
-          //       data['EssCharge']?.map((value, index) => {
-          //         return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
-          //       }) : data['EssCharge'];
-          //   },
-          //   color: 'rgb(0,223,0)',
-          //   stack: 1,
-          //   ...(chartType === 'line' && { order: 6 })
-          // },
+          // Charge Power
+          {
+            name: translate.instant('General.chargePower'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/EssDcChargeEnergy'];
+            },
+            converter: () => {
+              return chartType === 'line' ?
+                data['EssCharge']?.map((value, index) => {
+                  return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+                }) : data['EssCharge'];
+            },
+            color: 'rgb(0,223,0)',
+            stack: 1,
+            ...(chartType === 'line' && { order: 6 })
+          },
 
           // // Discharge Power
-          // {
-          //   name: translate.instant('General.dischargePower'),
-          //   nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-          //     return energyValues.result.data['_sum/EssDcDischargeEnergy'];
-          //   },
-          //   converter: () => {
-          //     return chartType === 'line' ?
-          //       data['EssDischarge']?.map((value, index) => {
-          //         return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
-          //       }) : data['EssDischarge'];
-          //   },
-          //   color: 'rgb(200,0,0)',
-          //   stack: 2,
-          //   ...(chartType === 'line' && { order: 5 })
-          // },
+          {
+            name: translate.instant('General.dischargePower'),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/EssDcDischargeEnergy'];
+            },
+            converter: () => {
+              return chartType === 'line' ?
+                data['EssDischarge']?.map((value, index) => {
+                  return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(Utils.subtractSafely(value, data['ProductionDcActual']?.[index]));
+                }) : data['EssDischarge'];
+            },
+            color: 'rgb(200,0,0)',
+            stack: 2,
+            ...(chartType === 'line' && { order: 5 })
+          },
 
           // // Sell to grid
           {
@@ -155,7 +155,7 @@ export class ChartComponent extends AbstractHistoryChart {
             ...(chartType === 'line' && { order: 4 })
           },
 
-          // // Buy from Grid
+          // Buy from Grid
           {
             name: translate.instant('General.gridBuy'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
@@ -201,6 +201,11 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: '1.0-2',
         afterTitle: (stack: string) => {
+
+          if (chartType !== 'bar') {
+            return null;
+          }
+
           if (stack === "1") {
             return translate.instant('General.production');
           } else if (stack === "2") {

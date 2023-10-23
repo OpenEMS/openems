@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -17,8 +17,16 @@ import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
+import { ColorUtils } from '../../utils/color.utils';
 
 import 'chartjs-adapter-date-fns';
+
+// TODO
+// - seperate tooltip for each datastack: mode:x
+// - fix x Axes last tick to be 00:00 not 23:00
+// - hide and show labels, with sessionstorage
+// - duplicate directConsumption label in tooltip
+// - hiding both directConsumption with one legendItem
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
@@ -43,7 +51,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public chartObject: HistoryUtils.ChartData = null;
 
   protected spinnerId: string = uuidv4();
-  protected chartType: 'line' | 'bar' = 'line';
+  protected chartType: 'line' | 'bar' = 'bar';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
@@ -219,7 +227,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public static getColors(color: string, chartType: 'line' | 'bar'): { backgroundColor: string, borderColor: string } {
     return {
       backgroundColor: 'rgba(' + (chartType == 'bar' ? color.split('(').pop().split(')')[0] + ',0.4)' : color.split('(').pop().split(')')[0] + ',0.05)'),
-      borderColor: 'rgba(' + color.split('(').pop().split(')')[0] + ',1)'
+      borderColor: 'rgba(' + color.split('(').pop().split(')')[0] + ',1)',
     };
   }
 
@@ -235,7 +243,6 @@ export abstract class AbstractHistoryChart implements OnInit {
   public static getDataSet(element: HistoryUtils.DisplayValues, label: string, data: number[], stack: number, chartObject: HistoryUtils.ChartData, chartType: 'bar' | 'line'): Chart.ChartDataset {
     let dataset: Chart.ChartDataset;
 
-    // debugger;
     dataset = {
       label: label,
       data: data,
@@ -263,7 +270,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
-      this.options = this.applyOptionsChanges(this.chartType, this.options);
+      this.options = AbstractHistoryChart.applyOptionsChanges(this.chartType, this.options, this.service);
       this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -298,23 +305,19 @@ export abstract class AbstractHistoryChart implements OnInit {
    * 
    * @param chartType 
    */
-  applyOptionsChanges(chartType: string, options: any) {
+  static applyOptionsChanges(chartType: string, options: any, service: Service) {
     switch (chartType) {
       case 'bar':
-        // options.tooltip.interaction = {
-        //   mode: 'x'
-        // }
         options.plugins.tooltip.mode = 'x';
-        // options.plugins.tooltip.intersect = false;
         let barPercentage = 0;
         let categoryPercentage = 0;
-        switch (this.service.periodString) {
+        switch (service.periodString) {
           case DefaultTypes.PeriodString.CUSTOM: {
             barPercentage = 0.7;
             categoryPercentage = 0.4;
           }
           case DefaultTypes.PeriodString.MONTH: {
-            if (this.service.isSmartphoneResolution == true) {
+            if (service.isSmartphoneResolution == true) {
               barPercentage = 1;
               categoryPercentage = 0.6;
             } else {
@@ -323,7 +326,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             }
           }
           case DefaultTypes.PeriodString.YEAR: {
-            if (this.service.isSmartphoneResolution == true) {
+            if (service.isSmartphoneResolution == true) {
               barPercentage = 1;
               categoryPercentage = 0.6;
             } else {
@@ -332,14 +335,19 @@ export abstract class AbstractHistoryChart implements OnInit {
             }
           }
         }
+
         options.datasets.bar = {
           barPercentage: barPercentage,
           categoryPercentage: categoryPercentage
         }
         break;
+
       case 'line':
+        options.scales.x['offset'] = false;
+        options.plugins.tooltip.mode = 'index';
         break;
     }
+
     return options;
   }
 
@@ -502,11 +510,11 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     } else if (unit == Unit.DAYS) {
       // Monthly view
-      return date.toLocaleDateString('default', { day: '2-digit', month: 'long' }) + "----";
+      return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
 
     } else {
       // Default
-      return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' }) + "----";
+      return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
     }
   }
 
@@ -515,9 +523,6 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     let tooltipsLabel: string | null = null;
     let options = {
-      // interaction: {
-      //   mode: 'x'
-      // },
       responsive: true,
       maintainAspectRatio: false,
       elements: {
@@ -529,10 +534,6 @@ export abstract class AbstractHistoryChart implements OnInit {
           pointStyle: false
         }
       },
-      // hover: {
-      //   mode: 'point',
-      //   intersect: true
-      // },
       datasets: {
         bar: {}
       },
@@ -546,31 +547,21 @@ export abstract class AbstractHistoryChart implements OnInit {
           labels: {
             generateLabels: (chart: Chart.Chart) => { }
           },
-          onClick: (event, legendItem, legend) => { }
+          onClick: (event, legendItem, legend) => {
+
+          }
         },
         tooltip: {
           intersect: false,
           mode: 'index',
           callbacks: {
-            label: (context: Chart.TooltipItem<any>) => {
-              // let label = context.dataset.label;
-              // let value = context.dataset.data[context.dataIndex];
-              // let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
-              // let unit = displayValue?.customUnit
-              //   ?? chartObject.yAxes[0]?.unit;
+            label: (item: Chart.TooltipItem<any>) => {
 
-              // if (unit != null) {
-              //   tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(unit, chartType);
-              // }
-
-              // Show floating point number for values between 0 and 1
-              // TODO find better workaround for legend labels
-              // return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
             },
-            // title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
-            //   let date = new Date(tooltipItems[0].label);
-            //   return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
-            // },
+            title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
+              let date = new Date(Date.parse(tooltipItems[0].label));
+              return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+            },
             afterTitle: (items: Chart.TooltipItem<any>[], data: Data) => { },
             labelColor: (context: Chart.TooltipItem<any>) => { }
           }
@@ -579,8 +570,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       scales: {
         x: {
           stacked: true,
+          // offset: false,
           type: 'time',
-          offset: false,
           ticks: {
             source: 'data'
           },
@@ -591,9 +582,10 @@ export abstract class AbstractHistoryChart implements OnInit {
             },
           },
           time: {
-            parser: 'MM/DD/YYYY HH:mm',
+            // parser: 'MM/DD/YYYY HH:mm',
             unit: 'hour',
             displayFormats: {
+              datetime: 'yyyy-MM-dd HH:mm:ss',
               millisecond: 'SSS [ms]',
               second: 'HH:mm:ss a', // 17:20:01
               minute: 'HH:mm', // 17:20
@@ -608,12 +600,14 @@ export abstract class AbstractHistoryChart implements OnInit {
         }
       },
     }
+    options = AbstractHistoryChart.applyOptionsChanges(chartType, options, service);
 
     chartObject.yAxes.forEach((element) => {
       switch (element.unit) {
 
         case YAxisTitle.PERCENTAGE:
           options.scales[element.yAxisId] = {
+            stacked: true,
             max: 100,
             padding: 5,
             stepSize: 20,
@@ -643,6 +637,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         case YAxisTitle.ENERGY:
         case YAxisTitle.VOLTAGE:
           options.scales[element.yAxisId] = {
+            stacked: true,
             id: element.yAxisId,
             title: {
               text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
@@ -657,6 +652,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               display: element.displayGrid ?? true
             },
             ticks: {
+              source: 'data',
               beginAtZero: false
             }
           };
@@ -666,63 +662,10 @@ export abstract class AbstractHistoryChart implements OnInit {
     });
 
     options.scales.x.time.unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
-    // options.scales.xAxes[0].stacked = true;
-    // options.scales.yAxes[0].stacked = true;
-    // options.scales.xAxes[0].offset = true;
-    // options.scales.xAxes[0].ticks.maxTicksLimit = 12;
-    // options.scales.x.ticks.source = 'data';
+    options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
 
-    // Enables tooltip for each datasetindex / stack
-    // options.tooltips.mode = 'x';
-
-    options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
-
-      // only way to figure out, which stack is active
-      var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
-      var datasetIndex = tooltipItem.datasetIndex;
-      // Get the dataset object
-      var datasets = items.map(element => element.dataset);
-
-      // Assuming the dataset is a bar chart using the 'stacked' option
-      var stack = items[0].dataset.stack || datasetIndex
-
-      // If only one item in stack do not show sum of values
-      if (items.length <= 1) {
-        return null;
-      }
-
-      let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
-
-      let totalValue = datasets.reduce((_total, curr) => curr.data.reduce((a, b) => Utils.addSafely(a, b)), 0);
-      if (afterTitle) {
-        return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
-      }
-
-      return null;
-    };
-
-    // options.scales.xAxes[0].bounds = 'ticks';
-    // options.responsive = true;
-
-    // Overwrite Tooltips -Title -Label 
-    // options.tooltips.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[], data: Data): string => {
-    //   let date = new Date(tooltipItems[0].label);
-    //   return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
-    // };
-
-    let displayValues = chartObject.output(channelData.data);
-
-    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
-      debugger;
-      return {
-        borderColor: 'rgba(0, 0, 255, 1)',
-        backgroundColor: item.dataset.backgroundColor,
-      };
-    };
-    options.plugins.tooltip.callbacks.label = (items: Chart.TooltipItem<any>) => {
-
-      let label = items.dataset.label;//.datasets[tooltipItem.datasetIndex].label;
-      let value = items.dataset.data[items.dataIndex];
+      let label = item.dataset.label;
+      let value = item.dataset.data[item.dataIndex];
 
       let displayValue = displayValues.find(element => element.name === label.split(":")[0]);
       let unit = displayValue?.customUnit
@@ -737,15 +680,24 @@ export abstract class AbstractHistoryChart implements OnInit {
       return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
     };
 
+    let displayValues = chartObject.output(channelData.data);
+
+    options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+      return {
+        borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
+        backgroundColor: ColorUtils.changeOpacityFromRGBA(item.dataset.backgroundColor, 0.6),
+      };
+    };
+
     options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
 
       let chartLegendLabelItems: Chart.LegendItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
 
         let legendItem = legendOptions?.find(element => element.label == dataset.label);
-
-        //Remove duplicates from legend
+        //Remove duplicates 'directConsumption' from legend
         if (chartLegendLabelItems.filter(element => element['text'] == dataset.label).length > 0) {
+
           return;
         }
 
@@ -766,44 +718,51 @@ export abstract class AbstractHistoryChart implements OnInit {
       return chartLegendLabelItems;
     };
 
-    // // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-    // options.plugins.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem, legend) {
-    //   let chart: Chart.Chart = this.chart;
+    options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
 
-    //   let legendItems = options.plugins.legend.labels.generateLabels(this.chart);
+      // only way to figure out, which stack is active
+      var tooltipItem = items[0]; // Assuming only one tooltip item is displayed
+      var datasetIndex = tooltipItem.dataIndex;
+      // Get the dataset object
+      var datasets = items.map(element => element.dataset);
 
-    //   legendItems = legendItems.filter(item => item.text == legendItem.text);
-    //   legendItems.forEach(legendItem => {
-    //     //   original.call(this, event, legendItem1);
-    //     setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItem.datasetIndex));
+      // Assuming the dataset is a bar chart using the 'stacked' option
+      var stack = items[0].dataset.stack || datasetIndex;
 
-    //     var index = legendItem.datasetIndex;
-    //     var meta = chart.getDatasetMeta(index);
+      // If only one item in stack do not show sum of values
+      if (items.length <= 1) {
+        return null;
+      }
 
-    //     // See controller.isDatasetVisible comment
-    //     meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-    //   });
+      let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
 
-    //   // We hid a dataset ... rerender the chart
-    //   chart.update();
-    // };
+      let totalValue = datasets.filter(el => el.stack == stack).reduce((_total, dataset) => Utils.addSafely(_total, Math.abs(dataset.data[datasetIndex])), 0);
+      if (afterTitle) {
+        return afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+      }
 
+      return null;
+    };
 
+    // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
+    options.plugins.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem, legend) {
+      let chart: Chart.Chart = this.chart;
+      let legendItems = legend.legendItems.filter(item => item.text == legendItem.text);
 
-    // options.plugins.colors = {
-    //   enabled: false
-    // }
+      legendItems.forEach(legendItem => {
+        // original.call(this, event, legendItem1);
+        setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItem.datasetIndex));
 
-    // options.scales.xAxes[0] = {
-    //   ticks: {
-    //     display: false,
-    //     callback: function (val, index) {
-    //       // Hide every 2nd tick label
-    //       return index % 2 === 0 ? this.getLabelForValue(val) : '';
-    //     },
-    //     color: 'rgba(0,0,0,1)'
-    //   },
-    //   type: 'time'
+        var index = legendItem.datasetIndex;
+        var meta = chart.getDatasetMeta(index);
+
+        // See controller.isDatasetVisible comment
+        meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+      });
+
+      // We hid a dataset ... rerender the chart
+      chart.update();
+    };
     return options;
   }
 
