@@ -97,7 +97,6 @@ public class TimedataTimescaleDb extends AbstractOpenemsBackendComponent impleme
 	@Override
 	public void write(String edgeId, ResendDataNotification data) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

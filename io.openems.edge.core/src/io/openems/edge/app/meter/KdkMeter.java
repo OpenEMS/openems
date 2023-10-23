@@ -1,6 +1,9 @@
 package io.openems.edge.app.meter;
 
-import java.util.EnumMap;
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,22 +18,28 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.common.props.ComponentProps;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.KdkMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a App for a Kdk meter.
@@ -54,37 +63,77 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * </pre>
  */
 @Component(name = "App.Meter.Kdk")
-public class KdkMeter extends AbstractMeterApp<Property> implements OpenemsApp {
+public class KdkMeter extends AbstractOpenemsAppWithProps<KdkMeter, Property, Parameter.BundleParameter>
+		implements OpenemsApp, AppManagerUtilSupplier {
 
-	public enum Property implements Nameable {
+	public enum Property implements Type<Property, KdkMeter, Parameter.BundleParameter> {
 		// Component-IDs
-		METER_ID, //
+		METER_ID(AppDef.componentId("meter1")), //
 		// Properties
-		ALIAS, //
-		TYPE, //
-		MODBUS_ID, //
-		MODBUS_UNIT_ID, //
+		ALIAS(alias()), //
+		TYPE(MeterProps.type(MeterType.GRID)), //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
+				.setRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> {
+					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+						field.readonly(true);
+					}
+				})).setAutoGenerateField(false)), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setDefaultValue(7) //
+				.setAutoGenerateField(false))), //
+		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
+				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;
+
+		private final AppDef<? super KdkMeter, ? super Property, ? super BundleParameter> def;
+
+		private Property(AppDef<? super KdkMeter, ? super Property, ? super BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Type<Property, KdkMeter, BundleParameter> self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super KdkMeter, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<KdkMeter>, BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
-	public KdkMeter(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public KdkMeter(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference AppManagerUtil appManagerUtil //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
+			final var meterId = this.getId(t, p, Property.METER_ID, "meter1");
 
-			var meterId = this.getId(t, p, Property.METER_ID, "meter1");
+			final var alias = this.getString(p, l, Property.ALIAS);
+			final var type = this.getString(p, Property.TYPE);
+			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
+			final var modbusId = this.getString(p, Property.MODBUS_ID);
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			var type = this.getValueOrDefault(p, Property.TYPE, "PRODUCTION");
-			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
-			var modbusId = this.getValueOrDefault(p, Property.MODBUS_ID, "modbus1");
-
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.KDK.2PUCT", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
@@ -98,50 +147,34 @@ public class KdkMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "App.Meter.mountType.label")) //
-								.setOptions(this.buildMeterOptions(language)) //
-								.setDefaultValue("PRODUCTION") //
-								.build()) //
-						.add(JsonFormlyUtil.buildSelect(Property.MODBUS_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusId.description")) //
-								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("modbus"),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
-								.isRequired(true) //
-								.build()) //
-						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
-								.setInputType(Type.NUMBER) //
-								.setDefaultValue(1) //
-								.setMin(0) //
-								.isRequired(true) //
-								.build()) //
-						.build())
-				.build();
-	}
-
-	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.build();
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
+	}
+
+	@Override
+	protected KdkMeter getApp() {
+		return this;
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
+	}
+
+	@Override
+	public final OpenemsAppCategory[] getCategories() {
+		return new OpenemsAppCategory[] { OpenemsAppCategory.METER };
 	}
 
 }

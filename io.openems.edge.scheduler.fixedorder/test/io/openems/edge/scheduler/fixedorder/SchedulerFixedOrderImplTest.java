@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -46,7 +47,7 @@ public class SchedulerFixedOrderImplTest {
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {
 		return scheduler.getControllers().stream() //
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 }

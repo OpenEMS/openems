@@ -1,9 +1,14 @@
 package io.openems.edge.core.appmanager.validator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
+
+import io.openems.edge.core.appmanager.OnlyIf;
+import io.openems.edge.core.appmanager.Self;
 
 public class ValidatorConfig {
 
@@ -24,8 +29,18 @@ public class ValidatorConfig {
 			return this;
 		}
 
+		public Builder setCompatibleCheckableConfigs(CheckableConfig... compatibleCheckableConfigs) {
+			this.compatibleCheckableConfigs = new ArrayList<>(Arrays.asList(compatibleCheckableConfigs));
+			return this;
+		}
+
 		public Builder setInstallableCheckableConfigs(List<CheckableConfig> installableCheckableConfigs) {
 			this.installableCheckableConfigs = installableCheckableConfigs;
+			return this;
+		}
+
+		public Builder setInstallableCheckableConfigs(CheckableConfig... installableCheckableConfigs) {
+			this.installableCheckableConfigs = new ArrayList<>(Arrays.asList(installableCheckableConfigs));
 			return this;
 		}
 
@@ -35,18 +50,11 @@ public class ValidatorConfig {
 
 	}
 
-	// TODO convert to record in java 17.
-	public static final class CheckableConfig {
-
-		public final String checkableComponentName;
-		public final boolean invertResult;
-		public final Map<String, ?> properties;
-
-		public CheckableConfig(String checkableComponentName, boolean invertResult, Map<String, ?> properties) {
-			this.checkableComponentName = checkableComponentName;
-			this.invertResult = invertResult;
-			this.properties = properties;
-		}
+	public static record CheckableConfig(//
+			String checkableComponentName, //
+			boolean invertResult, //
+			Map<String, ?> properties //
+	) {
 
 		public CheckableConfig(String checkableComponentName, Map<String, ?> properties) {
 			this(checkableComponentName, false, properties);
@@ -67,7 +75,8 @@ public class ValidatorConfig {
 
 	}
 
-	public static final class MapBuilder<T extends Map<K, V>, K, V> {
+	public static final class MapBuilder<T extends Map<K, V>, K, V>
+			implements Self<MapBuilder<T, K, V>>, OnlyIf<MapBuilder<T, K, V>> {
 
 		private final T map;
 
@@ -84,6 +93,11 @@ public class ValidatorConfig {
 		 */
 		public MapBuilder<T, K, V> put(K key, V value) {
 			this.map.put(key, value);
+			return this;
+		}
+
+		@Override
+		public MapBuilder<T, K, V> self() {
 			return this;
 		}
 

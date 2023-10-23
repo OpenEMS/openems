@@ -1,5 +1,7 @@
 package io.openems.edge.app.ess;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -27,7 +29,6 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -36,6 +37,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
  * Describes a prepare battery extension app.
@@ -67,20 +69,19 @@ public class PrepareBatteryExtension
 				.setDefaultValue("ctrlPrepareBatteryExtension0")), //
 
 		// Properties
-		ALIAS(AppDef.of(PrepareBatteryExtension.class) //
-				.setDefaultValueToAppName()), //
+		ALIAS(alias()), //
 		TARGET_SOC(AppDef.of(PrepareBatteryExtension.class) //
 				.setTranslatedLabelWithAppPrefix(".targetSoc.label") //
 				.setDefaultValue(30) //
-				.setField(JsonFormlyUtil::buildRange, //
-						(app, prop, l, param, f) -> f.isRequired(true) //
-								.setMin(0) //
-								.setMax(100))), //
-		;
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildRange, (app, prop, l, param, field) -> {
+					field.setMin(0) //
+							.setMax(100);
+				}));
 
-		private final AppDef<PrepareBatteryExtension, Property, BundleParameter> def;
+		private final AppDef<? super PrepareBatteryExtension, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<PrepareBatteryExtension, Property, BundleParameter> def) {
+		private Property(AppDef<? super PrepareBatteryExtension, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -90,7 +91,7 @@ public class PrepareBatteryExtension
 		}
 
 		@Override
-		public AppDef<PrepareBatteryExtension, Property, BundleParameter> def() {
+		public AppDef<? super PrepareBatteryExtension, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 

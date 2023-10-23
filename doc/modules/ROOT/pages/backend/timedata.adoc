@@ -1,0 +1,45 @@
+= Timedata
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+Live and historical data of an OpenEMS Edge are handled by a https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.common/src/io/openems/backend/common/timedata/Timedata.java[Timedata] service.
+It describes basically methods to write and read Edge data to/from a database. There are different kind of timedata providers within OpenEMS (see xref:service.adoc[Service] for concrete implementations).
+ 
+Within OpenEMS Backend the only component which uses the different timedata services directly is the https://github.com/OpenEMS/openems/blob/develop/io.openems.backend.core/src/io/openems/backend/core/timedatamanager/TimedataManagerImpl.java[TimedataManager].
+It passes Edge relevant data to **all** Timedata service and it reads the data from the **first** Timedata providers which can deliver it. 
+
+[NOTE]
+====
+Following paragraphs describe the new data handlng since OpenEMS version 2023.8.
+====
+
+OpenEMS Edges will send different types of data to the OpenEMS Backend:
+
+* `TimestampedDataNotification` 
+ ** channel values which have changed 
+ ** every 5 minutes a full snapshot of all channel values is sent, including channels which haven't changed over this time period
+
+* `AggregatedDataNotification`
+ ** data is sent in a format that is optimized for fast querying from the database, to allow very fast responses in OpenEMS UI
+ ** aggregated (average or maximum) channel values are sent every 5 minutes
+ ** Backend services handle values differently according to their aggregation type, e.g. 5-minute-average is always stored; maximum is only stored if feasible for fast energy queries (e.g. at the end of a day, depending on a time-zone)
+
+* `ResendDataNotification`
+ ** historic data that is resent after connection problems between Edge and Backend
+ ** this data is always aggregated in the form of the Edge.Timedata service (e.g. RRD4j) 
+
+Splitting the data enables OpenEMS to implement different timedata providers, 
+which handle data differently. This gives more flexibility when scaling OpenEMS.  
+Also due to performance reasons the computation of `AggregatedDataNotification` is done on the Edge side. 
+This helps keeping CPU load on the database server low.
+  
+To get a better understanding of the new Edge data concept, have a look at the   
+xref:service.adoc.d/io.openems.backend.timedata.aggregatedinflux.adoc[Aggregated Influx] bundle.
+

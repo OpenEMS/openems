@@ -107,8 +107,7 @@
     <ion-row *ngIf="key && key.bundles">
       <ion-col>
         <ion-segment [(ngModel)]="selectedBundle">
-          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}}
-            (click)="updateSelection(null)">
+          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}} (click)="updateSelection()">
             <ion-text text-nowrap>
               {{ bundle.length }}
             </ion-text>

@@ -1,9 +1,11 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -24,11 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
@@ -39,6 +43,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -50,10 +55,12 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -73,15 +80,12 @@ import io.openems.edge.common.type.TypeUtils;
 public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent implements ModbusComponent, OpenemsComponent,
 		Battery, EventHandler, ModbusSlave, StartStoppable, BatteryFeneconHome {
 
-	private static final int SENSORS_PER_MODULE = 14;
-	private static final int MODULE_MIN_VOLTAGE = 42; // [V]
-	private static final int MODULE_MAX_VOLTAGE = 49; // [V]; 3.5 V x 14 Cells per Module
-	private static final int CAPACITY_PER_MODULE = 2200; // [Wh]
 	private static final String SERIAL_NUMBER_PREFIX_BMS = "519100001009";
 	private static final String SERIAL_NUMBER_PREFIX_MODULE = "519110001210";
 
+	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconHomeImpl.class);
-	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Reference
@@ -97,7 +101,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	private Config config;
-	private BatteryProtection batteryProtection = null;
+	private BatteryProtection batteryProtection;
 
 	public BatteryFeneconHomeImpl() {
 		super(//
@@ -108,21 +112,24 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				BatteryProtection.ChannelId.values(), //
 				BatteryFeneconHome.ChannelId.values() //
 		);
+		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
+		// Predefine BatteryProtection. Later adapted to the hardware type.
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection52(), this.componentManager) //
+				.build();
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
 
-		// Initialize Battery-Protection
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection(), this.componentManager) //
-				.build();
+		this.detectHardwareType();
 	}
 
 	@Override
@@ -133,7 +140,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	@Override
 	public void handleEvent(Event event) {
-
 		if (!this.isEnabled()) {
 			return;
 		}
@@ -158,14 +164,14 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		BooleanWriteChannel batteryStartUpRelayChannel;
-		try {
-			batteryStartUpRelayChannel = this.componentManager
-					.getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
-		} catch (IllegalArgumentException | OpenemsNamedException e1) {
-			batteryStartUpRelayChannel = null;
-		}
-		var context = new Context(this, batteryStartUpRelayChannel);
+		var batteryStartUpRelayChannel = this.getBatteryStartUpRelayChannel();
+		var batteryStartUpRelay = batteryStartUpRelayChannel != null ? batteryStartUpRelayChannel.value().get() : null;
+		var context = new Context(this, this.componentManager.getClock(), //
+				batteryStartUpRelay,
+				(value) -> setBatteryStartUpRelay(batteryStartUpRelayChannel, value, this::logInfo, this::logWarn), //
+				this.getBmsControl(), //
+				this.getModbusCommunicationFailed(), //
+				() -> this.retryModbusCommunication());
 
 		// Call the StateMachine
 		try {
@@ -318,41 +324,85 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 						m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, new UnsignedWordElement(12000))), //
 				new FC3ReadRegistersTask(10000, Priority.LOW, //
 						m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, new UnsignedWordElement(10000)), //
-						new DummyRegisterElement(10001, 10023), //
+						new DummyRegisterElement(10001, 10018), //
+						m(BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE, new UnsignedWordElement(10019),
+								SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(10020, 10023), //
 						m(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(10024))), //
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(new BitsWordElement(44000, this) //
-								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL)) //
+								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL, INVERT)) //
 				));
 	}
 
 	/**
-	 * Generates prefix for Channel-IDs for Cell Temperature and Voltage channels.
-	 *
-	 * <p>
-	 * "%03d" creates string number with leading zeros
-	 *
-	 * @param num    number of the Cell
-	 * @param module number of the Module
-	 * @param tower  number of the Tower
-	 * @return a prefix e.g. "TOWER_1_MODULE_2_CELL_003"
+	 * Detects the Hardware Type and updates the HardwareType Channel.
+	 * 
+	 * @throws OpenemsException on error
 	 */
-	private static String getSingleCellPrefix(int tower, int module, int num) {
-		return "TOWER_" + tower + "_MODULE_" + module + "_CELL_" + String.format("%03d", num);
+	private void detectHardwareType() throws OpenemsException {
+		// Set Battery-Protection
+		ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(10019), true) //
+				.thenAccept(value -> {
+					if (value == null) {
+						return;
+					}
+
+					var hardwareType = parseHardwareTypeFromRegisterValue(value);
+					if (hardwareType == null) {
+						this.logWarn(this.log, "Unable to Identify Hardware Type from Register value [" + value + "]");
+						hardwareType = BatteryFeneconHomeHardwareType.DEFAULT;
+					}
+					this.updateHardwareType(hardwareType);
+				});
+	}
+
+	/**
+	 * Get GoodWe hardware version from register value.
+	 * 
+	 * @param value Register value not formated with SCALE_FACTOR_MINUS_1
+	 * @return type as {@link GoodweHardwareType} or null
+	 */
+	public static BatteryFeneconHomeHardwareType parseHardwareTypeFromRegisterValue(int value) {
+		return OptionsEnum.getOption(BatteryFeneconHomeHardwareType.class, value / 10);
+	}
+
+	/**
+	 * Sets the BatteryHardwareTypeChannel and updates the BatteryProtection.
+	 * 
+	 * @param hardwareType the {@link BatteryFeneconHomeHardwareType}
+	 */
+	private void updateHardwareType(BatteryFeneconHomeHardwareType hardwareType) {
+		this.getBatteryHardwareTypeChannel().setNextValue(hardwareType);
+
+		// Set Battery Protection depending on the hardware type
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(hardwareType.batteryProtection, this.componentManager) //
+				.build();
 	}
 
 	/**
 	 * Generates a Channel-ID for channels that are specific to a tower.
 	 *
-	 * @param tower           number of the Tower
-	 * @param channelIdSuffix e.g. "STATUS_ALARM"
-	 * @param openemsType     specified type e.g. "INTEGER"
+	 * @param tower               number of the Tower
+	 * @param channelIdSuffix     e.g. "STATUS_ALARM"
+	 * @param openemsType         specified type e.g. "INTEGER"
+	 * @param additionalDocConfig the additional doc configuration
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
-	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
-		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, Doc.of(openemsType));
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+		final var doc = Doc.of(openemsType);
+		if (additionalDocConfig != null) {
+			additionalDocConfig.accept(doc);
+		}
+		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, doc);
 		this.addChannel(channelId);
 		return channelId;
+	}
+
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
+		return this.generateTowerChannel(tower, channelIdSuffix, openemsType, null);
 	}
 
 	/**
@@ -371,24 +421,16 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append(this.stateMachine.debugLog()) //
-				.append("|SoC:").append(this.getSoc()) //
-				.append("|Actual:").append(this.getVoltage()) //
-				.append(";").append(this.getCurrent()) //
-				.append("|Charge:").append(this.getChargeMaxVoltage()) //
-				.append(";").append(this.getChargeMaxCurrent()) //
-				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
-				.append(";").append(this.getDischargeMaxCurrent()) //
-				.toString();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				Battery.getModbusSlaveNatureTable(accessMode) //
-		);
+				Battery.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BatteryFeneconHome.class, accessMode, 100) //
+						.build());
 	}
 
 	@Override
@@ -443,7 +485,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				|| !tower2BmsSoftwareVersion.isDefined()) {
 			return;
 		}
-		int numberOfModulesPerTower = numberOfModulesPerTowerOpt.get();
 
 		// Evaluate the total number of towers by reading the software versions of
 		// towers 2 and 3: they are '0' when the respective tower is not available.
@@ -460,10 +501,15 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
 		numberOfTowersChannel.setNextValue(numberOfTowers);
 
+		var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
+		var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
+		var capacityPerModule = this.getBatteryHardwareType().capacityPerModule;
+		int numberOfModulesPerTower = numberOfModulesPerTowerOpt.get();
+
 		// Set Battery Channels
-		this._setChargeMaxVoltage(numberOfModulesPerTower * MODULE_MAX_VOLTAGE);
-		this._setDischargeMinVoltage(numberOfModulesPerTower * MODULE_MIN_VOLTAGE);
-		this._setCapacity(numberOfTowers * numberOfModulesPerTower * CAPACITY_PER_MODULE);
+		this._setChargeMaxVoltage(Math.round(numberOfModulesPerTower * moduleMaxVoltage));
+		this._setDischargeMinVoltage(Math.round(numberOfModulesPerTower * moduleMinVoltage));
+		this._setCapacity(numberOfTowers * numberOfModulesPerTower * capacityPerModule);
 
 		// Initialize available Tower- and Module-Channels dynamically.
 		try {
@@ -711,7 +757,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new UnsignedDoublewordElement(towerOffset + 47)),
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
-								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING),
+								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING,
+										doc -> doc.persistencePriority(PersistencePriority.HIGH)),
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
@@ -726,6 +773,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 				moduleToUse = 0;
 			}
 
+			final var cellsPerModule = this.getBatteryHardwareType().cellsPerModule;
+			final var tempSensorsPerModule = this.getBatteryHardwareType().tempSensorsPerModule;
+
 			for (var tower = towerToUse; tower < numberOfTowers; tower++) {
 				final var towerOffset = tower * 2000 + 10000;
 				final var moduleOffset = towerOffset + 100;
@@ -734,50 +784,72 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					/*
 					 * Number Of Modules per Tower increased.
 					 *
-					 * Dynamically generate Channels and Modbus mappings for Cell-Temperatures and
-					 * for Cell-Voltages.Channel-IDs are like "TOWER_0_OFFSET_2_TEMPERATURE_003".
-					 * Channel-IDs are like "TOWER_0_OFFSET_2_VOLTAGE_003".
+					 * Dynamically generate Channels and Modbus mappings for Cell-Voltages.
+					 * Channel-IDs are like "TOWER_0_MODULE_2_CELL_001_VOLTAGE".
 					 */
-					var ameVolt = new ModbusElement[SENSORS_PER_MODULE];
-					var ameTemp = new ModbusElement[SENSORS_PER_MODULE];
-					for (var j = 0; j < SENSORS_PER_MODULE; j++) {
-						{
-							// Create Voltage Channel
-							var channelId = new ChannelIdImpl(//
-									getSingleCellPrefix(tower, module, j) + "_VOLTAGE",
-									Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
-							this.addChannel(channelId);
+					var ameVolt = new ModbusElement[cellsPerModule];
+					for (var cell = 0; cell < cellsPerModule; cell++) {
 
-							// Create Modbus-Mapping for Voltages
-							var uwe = new UnsignedWordElement(moduleOffset + module * 100 + 2 + j);
-							ameVolt[j] = m(channelId, uwe);
-						}
-						{
-							// TODO only 8 temperatures
+						// Create Voltage Channel
+						var channelId = new ChannelIdImpl(//
+								generateSingleCellPrefix(tower, module, cell) + "_VOLTAGE",
+								Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
+						this.addChannel(channelId);
 
-							// Create Temperature Channel
-							var channelId = new ChannelIdImpl(//
-									getSingleCellPrefix(tower, module, j) + "_TEMPERATURE",
-									Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
-							this.addChannel(channelId);
+						// Create Modbus-Mapping for Voltages
+						var uwe = new UnsignedWordElement(moduleOffset + module * 100 + 2 + cell);
+						ameVolt[cell] = m(channelId, uwe);
+					}
 
-							// Create Modbus-Mapping for Temperatures
-							// Cell Temperatures Read Registers for Tower_1 starts from 10000, for Tower_2
-							// 12000, for Tower_3 14000
-							// (t-1)*2000+10000) calculates Tower Offset value
-							var uwe = new SignedWordElement(moduleOffset + module * 100 + 18 + j);
-							ameTemp[j] = m(channelId, uwe);
-						}
+					/*
+					 * Dynamically generate Channels and Modbus mappings for temperature sensors.
+					 * Channel-IDs are like "TOWER_0_MODULE_2_TEMPERATURE_SENSOR_1".
+					 */
+					var ameTemp = new ModbusElement[tempSensorsPerModule];
+					for (var sensor = 0; sensor < tempSensorsPerModule; sensor++) {
+
+						// Create Temperature Channel
+						var channelId = new ChannelIdImpl(//
+								generateTempSensorChannelName(tower, module, sensor + 1),
+								Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
+						this.addChannel(channelId);
+
+						// Create Modbus-Mapping for Temperatures
+						// Cell Temperatures Read Registers for Tower_1 starts from 10000, for Tower_2
+						// 12000, for Tower_3 14000
+						// (t-1)*2000+10000) calculates Tower Offset value
+						var uwe = new SignedWordElement(moduleOffset + module * 100 + 18 + sensor);
+						ameTemp[sensor] = m(channelId, uwe);
+					}
+
+					/*
+					 * Temperature balancing sensors
+					 */
+					final var defaultBalancingTemperatures = 2;
+					var ameTempBalancing = new ModbusElement[defaultBalancingTemperatures];
+					for (var j = 0; j < defaultBalancingTemperatures; j++) {
+
+						// Create Temperature Channel
+						var channelId = new ChannelIdImpl(//
+								generateTempBalancingChannelName(tower, module, j + 1),
+								Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
+						this.addChannel(channelId);
+
+						var uwe = new SignedWordElement(moduleOffset + module * 100 + 18 + tempSensorsPerModule + j);
+						ameTempBalancing[j] = m(channelId, uwe);
 					}
 
 					var channelId = new ChannelIdImpl(//
 							"TOWER_" + tower + "_MODULE_" + module + "_SERIAL_NUMBER", //
-							Doc.of(OpenemsType.STRING));
+							Doc.of(OpenemsType.STRING)//
+									.persistencePriority(PersistencePriority.HIGH));
 					this.addChannel(channelId);
 
 					this.getModbusProtocol().addTasks(//
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 2, Priority.LOW, ameVolt),
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 18, Priority.LOW, ameTemp),
+							new FC3ReadRegistersTask(moduleOffset + module * 100 + 18 + tempSensorsPerModule,
+									Priority.LOW, ameTempBalancing),
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 83, Priority.LOW,
 									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
 											new ElementToChannelConverter(value -> {
@@ -839,5 +911,125 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private static int extractNumber(int value, int length, int position) {
 		return (1 << length) - 1 & value >> position - 1;
+	}
+
+	private void logInfo(String message) {
+		this.logInfo(this.log, message);
+	}
+
+	private void logWarn(String message) {
+		this.logWarn(this.log, message);
+	}
+
+	/**
+	 * Gets the Battery-Start-Up-Relay Channel.
+	 * 
+	 * @return {@link BooleanWriteChannel} or null
+	 */
+	private BooleanWriteChannel getBatteryStartUpRelayChannel() {
+		try {
+			var channel = this.componentManager
+					.<BooleanWriteChannel>getChannel(ChannelAddress.fromString(this.config.batteryStartUpRelay()));
+			return channel;
+		} catch (Exception e) {
+			this.logWarn("Unable to get Battery-Start-Up-Relay: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Switch Battery-Start-Up-Relay ON or OFF.
+	 *
+	 * @param batteryStartUpRelayChannel the Battery-Start-Up-Relay
+	 *                                   {@link BooleanWriteChannel}; or null
+	 * @param value                      true to switch the relay on; <br/>
+	 *                                   false to switch the relay off
+	 * @param logInfo                    Consumer for log messages
+	 * @param logWarn                    Consumer for warn messages
+	 */
+	private static void setBatteryStartUpRelay(BooleanWriteChannel batteryStartUpRelayChannel, boolean value,
+			Consumer<String> logInfo, Consumer<String> logWarn) {
+		var valueString = value ? "ON" : "OFF";
+
+		// Validate availability of batteryStartUpRelay, otherwise ignore
+		if (batteryStartUpRelayChannel == null) {
+			logWarn.accept("Switching Battery Start Up Relay " + valueString + " failed. Relay is missing");
+			return;
+		}
+
+		// Switch StartUpRelay
+		try {
+			batteryStartUpRelayChannel.setNextWriteValue(value);
+			logInfo.accept("Switching Battery Start Up Relay " + valueString //
+					+ " [" + batteryStartUpRelayChannel.address() + "]");
+		} catch (OpenemsNamedException e) {
+			logWarn.accept("Switching Battery Start Up Relay " + valueString //
+					+ " failed [" + batteryStartUpRelayChannel.address() + "]: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Generates prefix for Channel-IDs for Cell Temperature and Voltage channels.
+	 *
+	 * @param tower  number to use
+	 * @param module number to use
+	 * @return a prefix e.g. "TOWER_1_MODULE_2"
+	 */
+	private static String generateModulePrefix(int tower, int module) {
+		return "TOWER_" + tower + "_MODULE_" + module;
+	}
+
+	/**
+	 * Generates Channel names for Cell Voltage Channel-IDs.
+	 *
+	 * <p>
+	 * "%03d" creates string number with leading zeros
+	 * 
+	 * @param tower  number to use
+	 * @param module number to use
+	 * @param cell   number to user
+	 * @return a Channel name e.g. "TOWER_1_MODULE_2_CELL_003_VOLTAGE"
+	 */
+	public static String generateCellVoltageChannelName(int tower, int module, int cell) {
+		return generateModulePrefix(tower, module) + "_CELL_" + String.format("%03d", cell) + "_VOLTAGE";
+	}
+
+	/**
+	 * Generates Channel names for Temperature Sensor Channel-IDs.
+	 *
+	 * @param tower  number to use
+	 * @param module number to use
+	 * @param sensor number to user
+	 * @return a Channel name e.g. "TOWER_1_MODULE_2_TEMPERATURE_SENSOR_2"
+	 */
+	public static String generateTempSensorChannelName(int tower, int module, int sensor) {
+		return generateModulePrefix(tower, module) + "_TEMPERATURE_SENSOR_" + sensor;
+	}
+
+	/**
+	 * Generates Channel names for Temperature Balancing Channel-IDs.
+	 *
+	 * @param tower  number to use
+	 * @param module number to use
+	 * @param value  number to user
+	 * @return a Channel name e.g. "TOWER_1_MODULE_2_TEMPERATURE_BALANCING_1"
+	 */
+	public static String generateTempBalancingChannelName(int tower, int module, int value) {
+		return generateModulePrefix(tower, module) + "_TEMPERATURE_BALANCING_" + value;
+	}
+
+	/**
+	 * Generates prefix for Channel-IDs for Cell Temperature and Voltage channels.
+	 *
+	 * <p>
+	 * "%03d" creates string number with leading zeros
+	 *
+	 * @param num    number of the Cell
+	 * @param module number of the Module
+	 * @param tower  number of the Tower
+	 * @return a prefix e.g. "TOWER_1_MODULE_2_CELL_003"
+	 */
+	private static String generateSingleCellPrefix(int tower, int module, int num) {
+		return "TOWER_" + tower + "_MODULE_" + module + "_CELL_" + String.format("%03d", num);
 	}
 }

@@ -161,7 +161,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.calculateTotalEnergy.update(this.getChargePower().orElse(0));
+			this.calculateTotalEnergy.update(this.getChargePower().get());
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.writeHandler.run();
