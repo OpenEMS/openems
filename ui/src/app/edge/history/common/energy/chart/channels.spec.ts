@@ -2,102 +2,138 @@ import { OeChartTester } from "src/app/shared/genericComponents/shared/tester";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import * as Chart from 'chart.js';
+import { de } from "date-fns/locale";
 
 export namespace History {
 
   export const LINE_CHART_OPTIONS = (period: string): OeChartTester.Dataset.Option => ({
     type: 'option',
     options: {
-      "maintainAspectRatio": false,
-      "legend": {
-        "labels": {},
-        "position": "bottom"
+      "datasets": {
+        bar: {},
+        line: {}
       },
-      "elements": {
-        "point": {
-          "radius": 0,
-          "hitRadius": 0,
-          "hoverRadius": 0
+      "maintainAspectRatio": false,
+      elements: {
+        line: {
+          stepped: false,
+          fill: true
         },
-        "line": {
-          "borderWidth": 2,
-          "tension": 0.1
-        },
-        "rectangle": {
-          "borderWidth": 2
+        point: {
+          pointStyle: false
         }
       },
-      "hover": {
-        "mode": "point",
-        "intersect": true
-      },
       "scales": {
-        "yAxes": [
-          {
-            "id": "left",
-            "position": "left",
-            "scaleLabel": {
-              "display": true,
-              "labelString": "kW",
-              "padding": 5,
-              "fontSize": 11
+        x: {
+          stacked: true,
+          offset: false,
+          type: 'time',
+          ticks: {
+            source: 'data'
+          },
+          bounds: 'ticks',
+          adapters: {
+            date: {
+              locale: de,
             },
-            "gridLines": {
-              "display": true
-            },
-            "ticks": {
-              "beginAtZero": false
+          },
+          time: {
+            // parser: 'MM/DD/YYYY HH:mm',
+            unit: period as any,
+            displayFormats: {
+              datetime: 'yyyy-MM-dd HH:mm:ss',
+              millisecond: 'SSS [ms]',
+              second: 'HH:mm:ss a', // 17:20:01
+              minute: 'HH:mm', // 17:20
+              hour: 'HH:00', // 17:20
+              day: 'dd', // Sep 04 2015
+              week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+              month: 'MM', // September
+              quarter: '[Q]Q - YYYY', // Q3 - 2015
+              year: 'YYYY' // 2015,
+            }
+          }
+        },
+        yAxisLeft: {
+          // "id": "left",
+          stacked: true,
+          title: {
+            text: "kW",
+            display: true,
+            padding: 5,
+            font: {
+              size: 11
             }
           },
-          {
-            "id": "right",
-            "position": "right",
-            "scaleLabel": {
-              "display": true,
-              "labelString": "%",
-              "padding": 10
-            },
-            "gridLines": {
-              "display": false
-            },
-            "ticks": {
-              "beginAtZero": true,
-              "max": 100,
-              "padding": 5,
-              "stepSize": 20
+          position: "left",
+          grid: {
+            display: true
+          },
+          ticks: {
+            // begin
+            source: 'data',
+          }
+        },
+        yAxisRight:
+        {
+          stacked: true,
+          max: 100,
+          min: 0,
+          type: 'linear',
+          title: {
+            text: "%",
+            display: true,
+            font: {
+              size: 11
             }
+          },
+          position: 'right',
+          grid: {
+            display: false,
+          },
+          ticks: {
+            padding: 5,
+            stepSize: 20,
           }
-        ],
-        "xAxes": [
-          {
-            "ticks": {},
-            "stacked": false,
-            "type": "time",
-            "time": {
-              "minUnit": "hour",
-              "displayFormats": {
-                "millisecond": "SSS [ms]",
-                "second": "HH:mm:ss a",
-                "minute": "HH:mm",
-                "hour": "HH:[00]",
-                "day": "DD",
-                "week": "ll",
-                "month": "MM",
-                "quarter": "[Q]Q - YYYY",
-                "year": "YYYY"
-              },
-              "unit": period
+        },
+      },
+      plugins: {
+        colors: {
+          enabled: false
+        },
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            // generateLabels: (chart: Chart.Chart) => { }
+          },
+          onClick: (event, legendItem, legend) => {
+
+          }
+        },
+        tooltip: {
+          intersect: false,
+          mode: 'index',
+          callbacks: {
+            label: (item: Chart.TooltipItem<any>) => {
+
             },
-            "bounds": "ticks"
+            title: (tooltipItems: Chart.TooltipItem<any>[]) => {
+              // let date = new Date(Date.parse(tooltipItems[0].label));
+              // return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+            },
+            // afterTitle: (items: Chart.TooltipItem<any>[], data: Chart.ChartData) => { },
+            labelColor: (context: Chart.TooltipItem<any>) => { }
           }
-        ]
+        }
       },
-      "tooltips": {
-        "mode": "index",
-        "intersect": false,
-        "axis": "x",
-        "callbacks": {}
-      },
+      // "tooltips": {
+      //   "mode": "index",
+      //   "intersect": false,
+      //   "axis": "x",
+      //   "callbacks": {}
+      // },
       "responsive": true
     }
   });
@@ -105,82 +141,110 @@ export namespace History {
     type: 'option',
     options: {
       "maintainAspectRatio": false,
-      "legend": {
-        "labels": {},
-        "position": "bottom"
-      },
       "elements": {
         "point": {
-          "radius": 0,
-          "hitRadius": 0,
-          "hoverRadius": 0
+          pointStyle: false
         },
         "line": {
-          "borderWidth": 2,
-          "tension": 0.1
+          stepped: false,
+          fill: true
         },
-        "rectangle": {
-          "borderWidth": 2
-        }
       },
-      "hover": {
-        "mode": "point",
-        "intersect": true
+      datasets: {
+        bar: {
+          barPercentage: 0,
+          categoryPercentage: 0
+        },
+        line: {}
       },
       "scales": {
-        "yAxes": [
-          {
-            "id": "left",
-            "position": "left",
-            "scaleLabel": {
-              "display": true,
-              "labelString": "kWh",
-              "padding": 5,
-              "fontSize": 11
+        x: {
+          stacked: true,
+          // offset: false,
+          type: 'time',
+          ticks: {
+            source: 'data'
+          },
+          bounds: 'ticks',
+          adapters: {
+            date: {
+              locale: de,
             },
-            "gridLines": {
-              "display": true
-            },
-            "ticks": {
-              "beginAtZero": false
-            },
-            "stacked": true
+          },
+          time: {
+            // parser: 'MM/DD/YYYY HH:mm',
+            unit: period as any,
+            displayFormats: {
+              datetime: 'yyyy-MM-dd HH:mm:ss',
+              millisecond: 'SSS [ms]',
+              second: 'HH:mm:ss a', // 17:20:01
+              minute: 'HH:mm', // 17:20
+              hour: 'HH:00', // 17:20
+              day: 'dd', // Sep 04 2015
+              week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+              month: 'MM', // September
+              quarter: '[Q]Q - YYYY', // Q3 - 2015
+              year: 'YYYY' // 2015,
+            }
           }
-        ],
-        "xAxes": [
-          {
-            "ticks": {
-              "maxTicksLimit": 12,
-              "source": "data"
-            },
-            "stacked": true,
-            "type": "time",
-            "time": {
-              "minUnit": "hour",
-              "displayFormats": {
-                "millisecond": "SSS [ms]",
-                "second": "HH:mm:ss a",
-                "minute": "HH:mm",
-                "hour": "HH:[00]",
-                "day": "DD",
-                "week": "ll",
-                "month": "MM",
-                "quarter": "[Q]Q - YYYY",
-                "year": "YYYY"
-              },
-              "unit": period
-            },
-            "offset": true,
-            "bounds": "ticks"
+        },
+        yAxisLeft: {
+          // "id": "left",
+          stacked: true,
+          // "id": "yAxisLeft",
+          title: {
+            text: "kWh",
+            display: true,
+            padding: 5,
+            font: {
+              size: 11
+            }
+          },
+          position: "left",
+          grid: {
+            display: true
+          },
+          ticks: {
+            source: 'data',
           }
-        ]
+        },
       },
-      "tooltips": {
-        "mode": "x",
-        "intersect": false,
-        "axis": "x",
-        "callbacks": {}
+      plugins: {
+        colors: {
+          enabled: false
+        },
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            // generateLabels: (chart: Chart.Chart) => { }
+          },
+          onClick: (event, legendItem, legend) => {
+
+          }
+        },
+        tooltip: {
+          intersect: false,
+          mode: 'x',
+          callbacks: {
+            label: (item: Chart.TooltipItem<any>) => {
+
+            },
+            title: (tooltipItems: Chart.TooltipItem<any>[]) => {
+              // let date = new Date(Date.parse(tooltipItems[0].label));
+              // return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+            },
+            // afterTitle: (items: Chart.TooltipItem<any>[], data: Chart.ChartData) => { },
+            labelColor: (context: Chart.TooltipItem<any>) => { }
+          }
+        }
       },
+      // "tooltips": {
+      //   "mode": "index",
+      //   "intersect": false,
+      //   "axis": "x",
+      //   "callbacks": {}
+      // },
       "responsive": true
     }
   });

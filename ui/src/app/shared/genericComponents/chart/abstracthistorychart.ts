@@ -17,7 +17,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
-import { ColorUtils } from '../../utils/color.utils';
+import { ColorUtils } from '../../utils/color/color.utils';
 
 import 'chartjs-adapter-date-fns';
 
@@ -535,7 +535,8 @@ export abstract class AbstractHistoryChart implements OnInit {
         }
       },
       datasets: {
-        bar: {}
+        bar: {},
+        line: {}
       },
       plugins: {
         colors: {
@@ -609,8 +610,6 @@ export abstract class AbstractHistoryChart implements OnInit {
           options.scales[element.yAxisId] = {
             stacked: true,
             max: 100,
-            padding: 5,
-            stepSize: 20,
             min: 0,
             type: 'linear',
             title: {
@@ -625,11 +624,8 @@ export abstract class AbstractHistoryChart implements OnInit {
               display: element.displayGrid ?? true,
             },
             ticks: {
-              beginAtZero: true,
-              max: 100,
               padding: 5,
               stepSize: 20,
-              min: 0
             }
           };
           break;
@@ -638,7 +634,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         case YAxisTitle.VOLTAGE:
           options.scales[element.yAxisId] = {
             stacked: true,
-            id: element.yAxisId,
+            // id: element.yAxisId,
             title: {
               text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               display: true,
@@ -653,7 +649,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             },
             ticks: {
               source: 'data',
-              beginAtZero: false
+              // beginAtZero: false
             }
           };
           break;
