@@ -4,6 +4,7 @@ import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/resp
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 import { AbstractHistoryChart } from './abstracthistorychart';
 import { de } from 'date-fns/locale';
+import { ChartAxis } from 'src/app/shared/service/utils';
 
 export interface Dataset {
     label: string;
@@ -218,9 +219,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
                 }
             }
         },
-        y: {
-
-        }
+        [ChartAxis.LEFT]: {}
     },
 };
 

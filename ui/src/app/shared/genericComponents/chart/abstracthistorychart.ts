@@ -23,11 +23,7 @@ import 'chartjs-adapter-date-fns';
 import { DateUtils } from '../../utils/dateutils/dateutils';
 
 // TODO
-// - seperate tooltip for each datastack: mode:x
 // - fix x Axes last tick to be 00:00 not 23:00
-// - hide and show labels, with sessionstorage
-// - duplicate directConsumption label in tooltip
-// - hiding both directConsumption with one legendItem
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
@@ -187,6 +183,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     let legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     let datasets: Chart.ChartDataset[] = [];
 
+    // Enable one dataset to be displayed in multiple stacks
     if (Array.isArray(element.stack)) {
       for (let stack of element.stack) {
         datasets.push(AbstractHistoryChart.getDataSet(element, label, data, stack, chartObject, chartType));
@@ -302,10 +299,12 @@ export abstract class AbstractHistoryChart implements OnInit {
   }
 
   /**
+   * Change ChartOptions dependent on chartType
    * 
-   * @param chartType 
+   * @param chartType the chart type
+   * @returns chart options
    */
-  static applyOptionsChanges(chartType: string, options: any, service: Service) {
+  static applyOptionsChanges(chartType: string, options: any, service: Service): Chart.ChartOptions {
     switch (chartType) {
       case 'bar':
         options.plugins.tooltip.mode = 'x';
@@ -747,17 +746,20 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
     options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
       let chart: Chart.Chart = this.chart;
-      let legendItems = legend.legendItems.filter(item => item.text == legendItem.text);
 
-      legendItems.forEach(legendItem => {
+      let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
+        if (ds.label == legendItem.text) {
+          arr.push({ label: ds.label, index: i })
+        }
+        return arr;
+      }, []);
+
+      legendItems.forEach(item => {
         // original.call(this, event, legendItem1);
-        setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItem.datasetIndex));
-
-        var index = legendItem.datasetIndex;
-        var meta = chart.getDatasetMeta(index);
-
+        setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
+        var meta = chart.getDatasetMeta(item.index);
         // See controller.isDatasetVisible comment
-        meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
       });
 
       // We hid a dataset ... rerender the chart
