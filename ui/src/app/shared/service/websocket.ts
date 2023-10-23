@@ -186,7 +186,7 @@ export class Websocket implements WebsocketInterface {
           });
         });
 
-        this.router.navigate(['/overview']);
+        this.router.initialNavigation();
         resolve();
       }).catch(reason => {
         this.checkErrorCode(reason);

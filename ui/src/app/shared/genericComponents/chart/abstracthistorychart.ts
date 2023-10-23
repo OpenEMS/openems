@@ -17,6 +17,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
+import { DateUtils } from '../../utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
@@ -70,6 +71,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.config = config;
 
       }).then(() => {
+
         this.chartObject = this.getChartData();
         this.loadChart();
       });
@@ -247,7 +249,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       maxBarThickness: 100,
       ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
-      order: element.order ?? Number.MAX_VALUE
+      order: element.order ?? Number.MAX_VALUE,
+      ...(element.hideShadow && { fill: !element.hideShadow })
     };
     return dataset;
   }
@@ -344,7 +347,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
           let channelAddresses = (await this.getChannelAddresses()).powerChannels;
-          let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+          let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           edge.sendRequest(this.service.websocket, request).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
             if (Object.keys(result).length != 0) {
@@ -392,7 +395,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
+          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
             edge.sendRequest(this.service.websocket, request).then(response => {
@@ -443,8 +446,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
 
-          let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
+          let channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
+          let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
           if (channelAddresses.length > 0) {
             edge.sendRequest(this.service.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
@@ -460,6 +463,8 @@ export abstract class AbstractHistoryChart implements OnInit {
               this.errorResponse = response;
               this.initializeChart();
             });
+          } else {
+            resolve(null);
           }
         });
       });
@@ -524,6 +529,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           break;
 
         case YAxisTitle.ENERGY:
+        case YAxisTitle.VOLTAGE:
           options.scales.yAxes.push({
             id: element.yAxisId,
             position: element.position,
@@ -715,6 +721,8 @@ export abstract class AbstractHistoryChart implements OnInit {
         } else {
           return 'kW';
         }
+      case YAxisTitle.VOLTAGE:
+        return 'Voltage';
       default:
         return 'kW';
     }
@@ -730,6 +738,8 @@ export abstract class AbstractHistoryChart implements OnInit {
     switch (title) {
       case YAxisTitle.PERCENTAGE:
         return '%';
+      case YAxisTitle.VOLTAGE:
+        return 'V';
       case YAxisTitle.ENERGY:
         if (chartType == 'bar') {
           return 'kWh';

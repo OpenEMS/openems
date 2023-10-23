@@ -36,7 +36,7 @@
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                   <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                  <ion-button type="submit" class="ion-float-right">
+                  <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
                     <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
                   </ion-button>
                 </div>
@@ -47,7 +47,7 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / <span translate>Login.passwordLabel</span></ion-label>
+                  <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
                   <ion-input #username required type="input"
                     [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)">
                   </ion-input>
@@ -76,7 +76,7 @@
                     </tr>
                     </th>
                     <th>
-                      <ion-button type="submit" class="ion-float-right" size="medium">
+                      <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right" size="medium">
                         <small>Login</small>
                         <ion-icon slot="end" name="log-in-outline"></ion-icon>
                       </ion-button>

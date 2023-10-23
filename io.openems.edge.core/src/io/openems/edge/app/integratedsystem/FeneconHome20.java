@@ -9,11 +9,11 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEme
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ess;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
@@ -129,9 +129,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		ALIAS(alias()), //
 
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}))), //
+				.setRequired(true))), //
 
 		FEED_IN_TYPE(feedInType()), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //

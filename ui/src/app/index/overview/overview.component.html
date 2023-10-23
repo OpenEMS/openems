@@ -2,7 +2,7 @@
 <ion-content>
     <ion-grid>
         <ion-row class="ion-justify-content-center">
-            <ion-col size="12" size-md="6" size-lg="4">
+            <ion-col size="12" size-md="8" size-lg="6">
                 <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                     <ng-container *ngIf="noEdges; else showEdges">
                         <ion-card class="ion-justify-content-center">
@@ -40,10 +40,16 @@
                         <ion-grid>
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
-                                    <ion-searchbar [(ngModel)]="filter" (ionChange)="searchOnChange($event)">
+                                    <ion-searchbar [(ngModel)]="query" (ionChange)="searchOnChange()">
                                     </ion-searchbar>
                                 </ion-col>
                             </ion-row>
+
+                            <!-- Filter -->
+                            <ng-container *ngIf="(service.metadata | async)?.user as user">
+                                <oe-filter (setSearchParams)="searchOnChange($event)"
+                                    *ngIf="user.globalRole === 'admin'"></oe-filter>
+                            </ng-container>
 
                             <ion-row class="ion-justify-content-center">
                                 <ion-col>
@@ -68,17 +74,17 @@
                                                     <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
                                                         <p>ID: {{ edge.id }}</p>
                                                         <p class="ion-text-wrap">
-                                                            <ion-text translate>Index.type</ion-text> {{
+                                                            <ion-text translate>Index.TYPE</ion-text>: {{
                                                             edge.producttype }}
                                                         </p>
                                                     </ng-container>
                                                     <p class="ion-text-wrap">
-                                                        <ion-text translate>Index.loggedInAs</ion-text> {{
-                                                        edge.getRoleString() }}.
+                                                        <ion-text translate>Index.LOGGED_IN_AS</ion-text>: {{
+                                                        edge.getRoleString() }}
                                                     </p>
                                                 </ion-label>
-                                                <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
-                                            </ion-item>
+                                                <oe-sum-state [sumState]="edge.sumState"
+                                                    [isEdgeOnline]="edge.isOnline"></oe-sum-state> </ion-item>
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
@@ -114,7 +120,8 @@
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
                     <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                        <ion-button color="primary" [routerLink]="'/installation'" routerLinkActive="active" translate
+                        <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
+                            translate
                             [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
