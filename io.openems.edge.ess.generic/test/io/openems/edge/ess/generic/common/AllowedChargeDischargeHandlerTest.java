@@ -11,7 +11,7 @@ import org.junit.Test;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
 import io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetricImpl;
 

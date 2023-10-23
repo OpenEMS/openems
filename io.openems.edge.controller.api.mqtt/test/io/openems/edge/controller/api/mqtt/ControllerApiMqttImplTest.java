@@ -9,7 +9,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 
 public class ControllerApiMqttImplTest {
 

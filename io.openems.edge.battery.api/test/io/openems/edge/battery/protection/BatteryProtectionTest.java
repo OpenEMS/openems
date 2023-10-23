@@ -21,7 +21,7 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 
 public class BatteryProtectionTest {
 

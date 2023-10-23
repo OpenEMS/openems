@@ -11,7 +11,7 @@ import org.junit.Test;
 import io.openems.edge.battery.protection.BatteryProtectionTest;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 
 public class MaxCurrentHandlerTest {
 

@@ -61,7 +61,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.simulator.app.ExecuteSimulationRequest.Profile;

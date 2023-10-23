@@ -15,7 +15,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.scheduler.api.Scheduler;
 
