@@ -7,7 +7,6 @@ import { IonicModule } from '@ionic/angular';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 
 import { appRoutingProviders } from './../app-routing.module';
@@ -21,7 +20,6 @@ import { FormlyFieldModalComponent } from './formly/formly-field-modal/formlyfie
 import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
-import { FormlyFieldWithLoadingAnimationComponent } from './formly/formly-skeleton-wrapper';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { PanelWrapperComponent } from './formly/panel-wrapper.component';
@@ -35,6 +33,9 @@ import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { FormlyFieldWithLoadingAnimationComponent } from './formly/formly-skeleton-wrapper';
+import { FormlyFieldCheckboxWithImageComponent } from './formly/formly-field-checkbox-image/formly-field-checkbox-with-image';
+import { NgChartsModule } from 'ng2-charts';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
@@ -75,7 +76,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: 'panel', component: PanelWrapperComponent },
-        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent },
+        { name: 'formly-field-checkbox-with-image', component: FormlyFieldCheckboxWithImageComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -112,11 +114,13 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperDefaultValueWithCasesComponent,
     FormlyFieldModalComponent,
     PanelWrapperComponent,
-    FormlyFieldWithLoadingAnimationComponent
+    FormlyFieldWithLoadingAnimationComponent,
+    FormlyFieldCheckboxWithImageComponent
   ],
   exports: [
     // modules
     BrowserAnimationsModule,
+    NgChartsModule,
     CommonModule,
     DirectiveModule,
     FormlyIonicModule,
@@ -130,7 +134,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     PipeModule,
     Generic_ComponentsModule,
     MeterModule,
-    NgChartsModule,
     // components
     ChartOptionsComponent,
     HeaderComponent,

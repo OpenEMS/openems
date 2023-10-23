@@ -8,7 +8,8 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { DEFAULT_TIME_CHART_OPTIONS, Data, TooltipItem } from '../shared';
+import * as Chart from 'chart.js';
 
 @Component({
   selector: 'gridOptimizedChargeChart',
@@ -204,27 +205,23 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
   protected setLabel() {
     let translate = this.translate;
-    let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     // adds second y-axis to chart
-    options.scales.yAxes.push({
-      id: 'yAxis2',
+    options.scales['y'] = {
       position: 'right',
-      scaleLabel: {
+      max: 100,
+      title: {
         display: true,
-        labelString: "%",
-        padding: -2,
-        fontSize: 11
-      },
-      gridLines: {
-        display: false
+        text: '%',
+        font: {
+          size: 11
+        }
       },
       ticks: {
-        beginAtZero: true,
-        max: 100,
         padding: -5,
         stepSize: 20
       }
-    });
+    };
     options.layout = {
       padding: {
         left: 2,
@@ -246,19 +243,19 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
     options.scales.yAxes[0].ticks.padding = -5;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      if (label.split(" ").length > 1) {
-        label = label.split(" ").slice(0, 1).toString();
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+      // let label = data.datasets[tooltipItem.datasetIndex].label;
+      // if (label.split(" ").length > 1) {
+      //   label = label.split(" ").slice(0, 1).toString();
 
-      }
+      // }
 
-      let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-      }
+      // let value = tooltipItem.yLabel;
+      // if (label == translate.instant('General.soc')) {
+      //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      // } else {
+      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      // }
     };
     this.options = options;
   }

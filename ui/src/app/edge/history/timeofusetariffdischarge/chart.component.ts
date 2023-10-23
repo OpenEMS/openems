@@ -9,6 +9,7 @@ import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/res
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
+import * as Chart from 'chart.js';
 
 @Component({
   selector: 'timeOfUseTariffDischargeChart',
@@ -268,7 +269,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   }
 
   protected setLabel(config: EdgeConfig) {
-    let options = this.createDefaultChartOptions();
+    let options: Chart.ChartOptions = this.createDefaultChartOptions();
     let translate = this.translate;
     const currencyLabel: string = this.currencyLabel;
 
@@ -276,25 +277,20 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     options.scales.yAxes[0].ticks.beginAtZero = false;
 
     // Adds second y-axis to chart
-    options.scales.yAxes.push({
-      id: 'yAxis2',
+    options.scales.yAxes = {
       position: 'right',
-      scaleLabel: {
+      title: {
+        text: '%',
         display: true,
-        labelString: "%",
-        padding: -2,
-        fontSize: 11
-      },
-      gridLines: {
-        display: false
+        font: {
+          size: 11
+        },
       },
       ticks: {
-        beginAtZero: true,
-        max: 100,
         padding: -5,
         stepSize: 20
       }
-    });
+    };
     options.layout = {
       padding: {
         left: 2,
@@ -319,20 +315,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
     options.scales.yAxes[0].ticks.padding = -5;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-
-      if (!value) {
-        return;
-      }
-      if (label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-        // } else if (label == 'Predicted Soc without logic') {
-        //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
-      }
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
     };
     this.options = options;
   }

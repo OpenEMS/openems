@@ -5,7 +5,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from './../shared';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'heatpumpchart',
@@ -112,32 +112,32 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         };
         options.scales.yAxes[0].ticks.max = 3;
         options.scales.yAxes[0].ticks.stepSize = 1;
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            let toolTipValue;
-            switch (value) {
-                case -1:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
-                    break;
-                case 0:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
-                    break;
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            // let label = data.datasets[tooltipItem.datasetIndex].label;
+            // let value = tooltipItem.yLabel;
+            // let toolTipValue;
+            // switch (value) {
+            //     case -1:
+            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+            //         break;
+            //     case 0:
+            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
+            //         break;
 
-                case 1:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
-                    break;
-                case 2:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
-                    break;
-                case 3:
-                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
-                    break;
-                default:
-                    toolTipValue = '';
-                    break;
-            }
-            return label + ": " + toolTipValue; // TODO get locale dynamically
+            //     case 1:
+            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+            //         break;
+            //     case 2:
+            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+            //         break;
+            //     case 3:
+            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+            //         break;
+            //     default:
+            //         toolTipValue = '';
+            //         break;
+            // }
+            // return label + ": " + toolTipValue; // TODO get locale dynamically
         };
         this.options = options;
     }

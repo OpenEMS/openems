@@ -2,6 +2,8 @@ import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
+import { AbstractHistoryChart } from './abstracthistorychart';
+import { de } from 'date-fns/locale';
 
 export interface Dataset {
     label: string;
@@ -143,71 +145,83 @@ export type ChartOptions = {
 }
 
 export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
+    responsive: true,
     maintainAspectRatio: false,
-    // legend: {
-    //     labels: {},
-    //     position: 'bottom'
-    // },
     elements: {
-        point: {
-            radius: 0,
-            hitRadius: 0,
-            hoverRadius: 0
-        },
         line: {
-            borderWidth: 2,
-            tension: 0.1
+            stepped: false,
+            fill: true
         },
-        // rectangle: {
-        //     borderWidth: 2
-        // }
+        point: {
+            pointStyle: false
+        }
     },
-    hover: {
-        mode: 'point',
-        intersect: true
+    datasets: {
+        bar: {},
+        line: {}
+    },
+    plugins: {
+        colors: {
+            enabled: false
+        },
+        legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+                generateLabels: (chart: Chart.Chart) => { return null; }
+            },
+            onClick: (event, legendItem, legend) => { }
+        },
+        tooltip: {
+            intersect: false,
+            mode: 'index',
+            callbacks: {
+                label: (item: Chart.TooltipItem<any>) => { },
+                title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
+                    return null;
+                    // let date = new Date(Date.parse(tooltipItems[0].label));
+                    // return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+                },
+                afterTitle: (items: Chart.TooltipItem<any>[]) => { },
+                labelColor: (context: Chart.TooltipItem<any>) => { }
+            }
+        }
     },
     scales: {
-        // yAxes: [{
-        //     position: 'left',
-        //     scaleLabel: {
-        //         display: true,
-        //         labelString: ""
-        //     },
-        //     ticks: {
-        //         beginAtZero: true
-        //     }
-        // }],
-        // xAxes: [{
-        //     ticks: {},
-        //     stacked: false,
-        //     type: 'time',
-        //     time: {
-        //         minUnit: 'hour',
-        //         displayFormats: {
-        //             millisecond: 'SSS [ms]',
-        //             second: 'HH:mm:ss a', // 17:20:01
-        //             minute: 'HH:mm', // 17:20
-        //             hour: 'HH:[00]', // 17:20
-        //             day: 'DD', // Sep 04 2015
-        //             week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-        //             month: 'MM', // September
-        //             quarter: '[Q]Q - YYYY', // Q3 - 2015
-        //             year: 'YYYY' // 2015,
-        //         }
-        //     }
-        // }]
+        x: {
+            stacked: true,
+            // offset: false,
+            type: 'time',
+            ticks: {
+                source: 'data'
+            },
+            bounds: 'ticks',
+            adapters: {
+                date: {
+                    locale: de,
+                },
+            },
+            time: {
+                // parser: 'MM/DD/YYYY HH:mm',
+                unit: 'hour',
+                displayFormats: {
+                    datetime: 'yyyy-MM-dd HH:mm:ss',
+                    millisecond: 'SSS [ms]',
+                    second: 'HH:mm:ss a', // 17:20:01
+                    minute: 'HH:mm', // 17:20
+                    hour: 'HH:00', // 17:20
+                    day: 'dd', // Sep 04 2015
+                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+                    month: 'MM', // September
+                    quarter: '[Q]Q - YYYY', // Q3 - 2015
+                    year: 'YYYY' // 2015,
+                }
+            }
+        },
+        y: {
+
+        }
     },
-    // tooltips: {
-    //     mode: 'index',
-    //     intersect: false,
-    //     axis: 'x',
-    //     callbacks: {
-    //         // title(tooltipItems: TooltipItem[], data: Data): string {
-    //         //     let date = new Date(tooltipItems[0].xLabel);
-    //         //     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-    //         // }
-    //     }
-    // }
 };
 
 export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {

@@ -7,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'consumptionSingleChart',
@@ -204,10 +204,10 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     protected setLabel() {
         let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            // let label = data.datasets[tooltipItem.datasetIndex].label;
+            // let value = tooltipItem.yLabel;
+            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         };
         this.options = options;
     }

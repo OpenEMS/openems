@@ -25,6 +25,7 @@ import { Role } from '../type/role';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+import { DateUtils } from '../utils/dateutils/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -251,7 +252,7 @@ export class Service extends AbstractService {
               continue;
             }
 
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
+            let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
@@ -308,7 +309,7 @@ export class Service extends AbstractService {
               edge.isOnline,
               edge.lastmessage,
               edge.sumState,
-              edge.firstSetupProtocol
+              DateUtils.stringToDate(edge.firstSetupProtocol?.toString())
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -348,9 +349,7 @@ export class Service extends AbstractService {
           edgeData.isOnline,
           edgeData.lastmessage,
           edgeData.sumState,
-          edgeData.firstSetupProtocol
-        );
-
+          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
         this.currentEdge.next(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);

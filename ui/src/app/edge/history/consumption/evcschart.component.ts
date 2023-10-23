@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,7 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'consumptionEvcsChart',
@@ -102,10 +101,10 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     protected setLabel() {
         let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            // let label = data.datasets[tooltipItem.datasetIndex].label;
+            // let value = tooltipItem.yLabel;
+            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         };
         this.options = options;
     }

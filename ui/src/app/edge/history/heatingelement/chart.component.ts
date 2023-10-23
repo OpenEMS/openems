@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,7 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import * as Chart from 'chart.js';
 
 @Component({
   selector: 'heatingelementChart',
@@ -108,10 +107,10 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     options.scales.yAxes[0].ticks.beginAtZero = true;
     options.scales.yAxes[0].ticks.max = 3;
     options.scales.yAxes[0].ticks.stepSize = 1;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+      // let label = data.datasets[tooltipItem.datasetIndex].label;
+      // let value = tooltipItem.yLabel;
+      // return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
     };
     this.options = options;
   }

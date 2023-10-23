@@ -1,5 +1,12 @@
 export namespace ColorUtils {
 
+  /**
+   * Converts a rgb-string into a rgba-string
+   * 
+   * @param color the color
+   * @param opacity the opacity
+   * @returns a string in rgba format
+   */
   export function rgbStringToRGBA(color: string, opacity: number): string {
 
     if (!color) {

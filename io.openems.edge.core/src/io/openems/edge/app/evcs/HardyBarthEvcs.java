@@ -169,10 +169,11 @@ public class HardyBarthEvcs extends
 	public enum SubPropertyFirstChargepoint implements PropertyParent {
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setAutoGenerateField(false) //
+				.setRequired(true) //
 				.setDefaultValue((app, property, l, parameter) -> //
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "right")))) //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> field
 						.setDefaultValueCases(new DefaultValueOptions(Property.NUMBER_OF_CHARGING_STATIONS, //
 								new Case(1, app.getName(l)), //
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
@@ -181,7 +182,7 @@ public class HardyBarthEvcs extends
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
 				.setDefaultValue("192.168.25.30") //
 				.setAutoGenerateField(false) //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
+				.setRequired(true)), //
 		;
 
 		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
@@ -232,11 +233,11 @@ public class HardyBarthEvcs extends
 				.setDefaultValue((app, property, l, parameter) -> //
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
+				.setRequired(true)), //
 		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.ip()) //
 				.setDefaultValue("192.168.25.31") //
 				.setAutoGenerateField(false) //
-				.wrapField((app, property, l, parameter, field) -> field.isRequired(true))), //
+				.setRequired(true)), //
 		;
 
 		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;

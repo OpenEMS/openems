@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -69,13 +71,13 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 		EVCS_ID(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		ALIAS(CommonProps.alias()), //
+		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
 				def -> def.setDefaultValue("192.168.50.88") //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+						.setRequired(true))), //
 		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), //
 				def -> def.setDefaultValue(5000) //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+						.setRequired(true))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //

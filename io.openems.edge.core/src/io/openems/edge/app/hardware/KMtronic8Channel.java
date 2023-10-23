@@ -70,7 +70,7 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
 				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description") //
 						.setDefaultValue("192.168.1.199") //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+						.setRequired(true))), //
 		CHECK(AppDef.copyOfGeneric(CommonProps.installationHint(//
 				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle, //
 						"App.Hardware.KMtronic8Channel.installationHint")))), //

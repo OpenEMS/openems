@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,7 +6,9 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import * as Chart from 'chart.js';
+import { formatNumber } from '@angular/common';
+import { calculateResolution } from '../shared';
 
 @Component({
   selector: 'channelthresholdSingleChart',
@@ -94,13 +95,16 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
+    options.scales['y'] = { title: { text: this.translate.instant('General.percentage') }, max: 100 };
+    options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+      let label = tooltipItem.label;
+      let value = tooltipItem.dataset[tooltipItem.dataIndex];
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     };
-    options.scales.yAxes[0].ticks.max = 100;
+
+
+    // options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 

@@ -1,13 +1,13 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
+import * as Chart from 'chart.js';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+
 
 @Component({
   selector: 'singlethresholdChart',
@@ -225,34 +225,29 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
 
     if (inputChannel.channelId != 'EssSoc') {
       // adds second y-axis to chart
-      options.scales.yAxes.push({
-        id: 'yAxis2',
+      options.scales.yAxes = {
+        max: 100,
         position: 'right',
-        scaleLabel: {
-          display: true,
-          labelString: "%"
-        },
-        gridLines: {
-          display: false
+        title: {
+          text: '%',
+          display: true
         },
         ticks: {
-          beginAtZero: true,
-          max: 100,
           padding: -5,
           stepSize: 20
         }
-      });
+      };
     }
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
-      if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
-      }
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+      // let label = data.datasets[tooltipItem.datasetIndex].label;
+      // let value = tooltipItem.yLabel;
+      // if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
+      //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+      // } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
+      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+      // } else {
+      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
+      // }
     };
     this.options = options;
   }

@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	// TODO "_sum/ConsumptionActivePower" holds also actively controlled
 	// consumption; replace, once we introduce a
 	// 'Sum-Non-Regulated-Consumption'-Channel
-	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/ConsumptionActivePower" };
+	String[] channelAddresses() default { "_sum/ProductionActivePower", "_sum/UnmanagedConsumptionActivePower" };
 
 	String webconsole_configurationFactory_nameHint() default "Predictor Persistence-Model [{id}]";
 

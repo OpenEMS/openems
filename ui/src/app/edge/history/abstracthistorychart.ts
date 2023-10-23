@@ -7,10 +7,11 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
+import { HistoryUtils } from 'src/app/shared/service/utils';
+import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -28,8 +29,8 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: any[] = HistoryUtils.createEmptyDataset(this.translate);
-    public options: any | null = DEFAULT_TIME_CHART_OPTIONS;
+    public datasets: Chart.ChartDataset[] = HistoryUtils.createEmptyDataset(this.translate);
+    public options: Chart.ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = [];
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
@@ -85,7 +86,7 @@ export abstract class AbstractHistoryChart {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
 
-                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+                        let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         }).catch(error => {
@@ -126,7 +127,7 @@ export abstract class AbstractHistoryChart {
         let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                             timestamps: [null], data: { null: null }
                         }));
@@ -174,23 +175,22 @@ export abstract class AbstractHistoryChart {
      * 
      * @returns the ChartOptions
      */
-    protected createDefaultChartOptions(): ChartOptions {
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    protected createDefaultChartOptions(): Chart.ChartOptions {
+        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
+        options.scales['x'] = {
+            time: { unit: "hour" }
+        }
+
 
         // Overwrite TooltipsTitle
-        options.tooltips.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[], data: Data): string => {
+        options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
             let date = new Date(tooltipItems[0].label);
             return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
         };
 
         //x-axis
-        if (differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) > 1) {
-            options.scales.xAxes[0].time.unit = "month";
-        } else if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5 && differenceInMonths(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) <= 1) {
-            options.scales.xAxes[0].time.unit = "day";
-        } else {
-            options.scales.xAxes[0].time.unit = "hour";
-        }
+        options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         return options;
     }
 

@@ -4,9 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
+import * as Chart from 'chart.js';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+
 
 @Component({
     selector: 'storageESSChart',
@@ -156,24 +157,8 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         let translate = this.translate; // enables access to TranslateService
         let options = this.createDefaultChartOptions();
         options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            if (value < -0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.chargePower');
-                } else {
-                    label = translate.instant('General.chargePower');
-                }
-            } else if (value > 0.005) {
-                if (label.includes(translate.instant('General.phase'))) {
-                    label += ' ' + translate.instant('General.dischargePower');
-                } else {
-                    label = translate.instant('General.dischargePower');
-                }
-            }
-            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+
         };
         this.options = options;
     }

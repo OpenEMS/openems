@@ -6,6 +6,7 @@ import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart'
 import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'predictionChart',
@@ -222,32 +223,20 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     protected setLabel() {
         let translate = this.translate;
-        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
         // Remove left y axis for now
-        options.scales.yAxes.shift();
+        // options.scales.yAxes.shift();
 
         // adds second y-axis to chart
-        options.scales.yAxes
-            .push({
-                id: 'yAxis2',
-                position: 'right',
-                scaleLabel: {
-                    display: true,
-                    labelString: "%",
-                    padding: -2,
-                    fontSize: 11
-                },
-                gridLines: {
-                    display: true
-                },
-                ticks: {
-                    beginAtZero: true,
-                    max: 100,
-                    padding: -5,
-                    stepSize: 20
-                }
-            });
+        options.scales.yAxes =
+        {
+            position: 'right',
+            ticks: {
+                padding: -5,
+                stepSize: 20
+            }
+        };
 
         options.layout = {
             padding: {
@@ -261,14 +250,14 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         options.scales.xAxes[0].time.unit = "hour";
 
         //y-axis
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
-                return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            } else {
-                return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-            }
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            // let label = data.datasets[tooltipItem.datasetIndex].label;
+            // let value = tooltipItem.yLabel;
+            // if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
+            //     return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+            // } else {
+            //     return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+            // }
         };
         this.options = options;
     }

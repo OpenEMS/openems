@@ -20,6 +20,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 import { ColorUtils } from '../../utils/color/color.utils';
 
 import 'chartjs-adapter-date-fns';
+import { DateUtils } from '../../utils/dateutils/dateutils';
 
 // TODO
 // - seperate tooltip for each datastack: mode:x
@@ -270,7 +271,6 @@ export abstract class AbstractHistoryChart implements OnInit {
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       this.chartType = 'bar';
-      this.options = AbstractHistoryChart.applyOptionsChanges(this.chartType, this.options, this.service);
       this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
@@ -368,7 +368,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
           let channelAddresses = (await this.getChannelAddresses()).powerChannels;
-          let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+          let request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           edge.sendRequest(this.service.websocket, request).then(response => {
             let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
             if (Object.keys(result).length != 0) {
@@ -416,7 +416,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution);
+          let request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
           if (channelAddresses.length > 0) {
 
             edge.sendRequest(this.service.websocket, request).then(response => {
@@ -468,7 +468,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.service.getConfig().then(async () => {
 
           let channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
-          let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
+          let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
           if (channelAddresses.length > 0) {
             edge.sendRequest(this.service.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
@@ -522,86 +522,92 @@ export abstract class AbstractHistoryChart implements OnInit {
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): any {
 
     let tooltipsLabel: string | null = null;
-    let options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      elements: {
-        line: {
-          stepped: false,
-          fill: true
-        },
-        point: {
-          pointStyle: false
-        }
-      },
-      datasets: {
-        bar: {},
-        line: {}
-      },
-      plugins: {
-        colors: {
-          enabled: false
-        },
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: {
-            generateLabels: (chart: Chart.Chart) => { }
-          },
-          onClick: (event, legendItem, legend) => {
+    let options: Chart.ChartOptions = Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
-          }
-        },
-        tooltip: {
-          intersect: false,
-          mode: 'index',
-          callbacks: {
-            label: (item: Chart.TooltipItem<any>) => {
+    options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
+      let date = new Date(Date.parse(tooltipItems[0].label));
+      return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+    },
+      // let options = {
+      //   responsive: true,
+      //   maintainAspectRatio: false,
+      //   elements: {
+      //     line: {
+      //       stepped: false,
+      //       fill: true
+      //     },
+      //     point: {
+      //       pointStyle: false
+      //     }
+      //   },
+      //   datasets: {
+      //     bar: {},
+      //     line: {}
+      //   },
+      //   plugins: {
+      //     colors: {
+      //       enabled: false
+      //     },
+      //     legend: {
+      //       display: true,
+      //       position: 'bottom',
+      //       labels: {
+      //         generateLabels: (chart: Chart.Chart)
+      //       },
+      //       onClick: (event, legendItem, legend) => {
 
-            },
-            title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
-              let date = new Date(Date.parse(tooltipItems[0].label));
-              return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
-            },
-            afterTitle: (items: Chart.TooltipItem<any>[], data: Data) => { },
-            labelColor: (context: Chart.TooltipItem<any>) => { }
-          }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          // offset: false,
-          type: 'time',
-          ticks: {
-            source: 'data'
-          },
-          bounds: 'ticks',
-          adapters: {
-            date: {
-              locale: de,
-            },
-          },
-          time: {
-            // parser: 'MM/DD/YYYY HH:mm',
-            unit: 'hour',
-            displayFormats: {
-              datetime: 'yyyy-MM-dd HH:mm:ss',
-              millisecond: 'SSS [ms]',
-              second: 'HH:mm:ss a', // 17:20:01
-              minute: 'HH:mm', // 17:20
-              hour: 'HH:00', // 17:20
-              day: 'dd', // Sep 04 2015
-              week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-              month: 'MM', // September
-              quarter: '[Q]Q - YYYY', // Q3 - 2015
-              year: 'YYYY' // 2015,
-            }
-          }
-        }
-      },
-    }
-    options = AbstractHistoryChart.applyOptionsChanges(chartType, options, service);
+      //       }
+      //     },
+      //     tooltip: {
+      //       intersect: false,
+      //       mode: 'index',
+      //       callbacks: {
+      //         label: (item: Chart.TooltipItem<any>) => {
+
+      //         },
+      //         title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
+      //           let date = new Date(Date.parse(tooltipItems[0].label));
+      //           return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
+      //         },
+      //         afterTitle: (items: Chart.TooltipItem<any>[], data: Data) => { },
+      //         labelColor: (context: Chart.TooltipItem<any>) => { }
+      //       }
+      //     }
+      //   },
+      //   scales: {
+      //     x: {
+      //       stacked: true,
+      //       // offset: false,
+      //       type: 'time',
+      //       ticks: {
+      //         source: 'data'
+      //       },
+      //       bounds: 'ticks',
+      //       adapters: {
+      //         date: {
+      //           locale: de,
+      //         },
+      //       },
+      //       time: {
+      //         // parser: 'MM/DD/YYYY HH:mm',
+      //         unit: 'hour',
+      //         displayFormats: {
+      //           datetime: 'yyyy-MM-dd HH:mm:ss',
+      //           millisecond: 'SSS [ms]',
+      //           second: 'HH:mm:ss a', // 17:20:01
+      //           minute: 'HH:mm', // 17:20
+      //           hour: 'HH:00', // 17:20
+      //           day: 'dd', // Sep 04 2015
+      //           week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+      //           month: 'MM', // September
+      //           quarter: '[Q]Q - YYYY', // Q3 - 2015
+      //           year: 'YYYY' // 2015,
+      //         }
+      //       }
+      //     }
+      //   },
+      // }
+      options = AbstractHistoryChart.applyOptionsChanges(chartType, options, service);
 
     chartObject.yAxes.forEach((element) => {
       switch (element.unit) {
@@ -634,7 +640,6 @@ export abstract class AbstractHistoryChart implements OnInit {
         case YAxisTitle.VOLTAGE:
           options.scales[element.yAxisId] = {
             stacked: true,
-            // id: element.yAxisId,
             title: {
               text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               display: true,
@@ -649,7 +654,6 @@ export abstract class AbstractHistoryChart implements OnInit {
             },
             ticks: {
               source: 'data',
-              // beginAtZero: false
             }
           };
           break;
@@ -657,7 +661,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       tooltipsLabel = AbstractHistoryChart.getToolTipsLabel(element.unit, chartType);
     });
 
-    options.scales.x.time.unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
+    options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
     options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
 
       let label = item.dataset.label;
@@ -741,7 +745,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     };
 
     // Remove duplicates from legend, if legendItem with two or more occurrences in legend, use one legendItem to trigger them both
-    options.plugins.legend.onClick = function (event: MouseEvent, legendItem: Chart.LegendItem, legend) {
+    options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem, legend) {
       let chart: Chart.Chart = this.chart;
       let legendItems = legend.legendItems.filter(item => item.text == legendItem.text);
 
