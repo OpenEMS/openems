@@ -21,6 +21,7 @@ import { ModalLineItemComponent } from './modal/modal-line/modal-line-item/modal
 import { ModalPhasesComponent } from './modal/modal-phases/modal-phases';
 import { ModalValueLineComponent } from './modal/modal-value-line/modal-value-line';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
+import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item';
 
 @NgModule({
     imports: [
@@ -37,6 +38,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
         ModalLineComponent,
@@ -52,6 +54,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         HelpButtonComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
@@ -68,6 +71,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         HelpButtonComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,

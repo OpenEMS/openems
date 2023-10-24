@@ -15,4 +15,14 @@ export namespace Formatter {
     // TODO apply correct locale
     return formatNumber(value, 'de', '1.1-1') + " A";
   };
+
+  export const FORMAT_CELSIUS = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-0') + " °C";
+  };
+
+  export const FORMAT_PERCENT = (value: number) => {
+    // TODO apply correct locale
+    return formatNumber(value, 'de', '1.0-0') + " %";
+  };
 }

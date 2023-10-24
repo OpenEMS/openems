@@ -136,3 +136,45 @@ Passing data can be done two ways:
 
 - @Input() channelAddress: provide channel, which will be subscribed in AbstractFlatWidgetLine.
 -  @Input() value: subscribe in the ts-file and pass the subscribed value.
+
+### Creating a modal
+
+Creating a `modal-widget` is pretty similar to creating a `flat-widget`.
+The model should act as the detailed view of a `flat-widget` and can also fit the purpose of user interaction.
+
+There are multiple implementations of `modals` at the creation time of this page, but the one thats considered best practice is the unit-testable version.
+
+#### Creating a Line
+
+Lets take a look at one link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/common/consumption/modal/modal.ts[example].
+
+[source, html]
+----
+public static generateView(
+    config: EdgeConfig, role: Role, translate: TranslateService)
+    :OeFormlyView {
+
+    // Total
+    lines.push({
+      type: 'channel-line',
+      name: translate.instant('General.TOTAL'),
+      channel: '_sum/ConsumptionActivePower',
+      converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+    });
+    
+    return {
+      title: translate.instant('General.grid'),
+      lines: lines
+    };
+}
+----
+
+Predefined fields in link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/genericComponents/shared/oe-formly-component.ts[OeFormlyField] can be used here.
+
+For this line we use the type 'channel-line'. This represents a line, where a channel has to be subscribed. You also need to specify the link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/genericComponents/shared/converter.ts[converter], that uses the data coming from this channel and mutates it. A link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/genericComponents/shared/filter.ts[filter], which has to return a boolean, decides if the line will be shown or not.
+
+NOTE: Lines should always present one line of data visualisation. It could be consisting of a identifier and a value or just a value. The value or channel will be shown at the end of the line, the name, if provided, at the start.
+
+This line will be looking like this:
+
+image::modal-line-example-consumption.png[]

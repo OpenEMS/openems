@@ -202,7 +202,7 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 				Nameable.of("OUTPUT_CHANNEL_1"), Nameable.of("OUTPUT_CHANNEL_2")),
 				b -> b.setTranslatedLabelWithAppPrefix(".outputChannel" + contactPosition + ".label") //
 						.setTranslatedDescription("App.Heat.outputChannel.description") //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
+						.setRequired(true) //
 						.setAutoGenerateField(false));
 	}
 

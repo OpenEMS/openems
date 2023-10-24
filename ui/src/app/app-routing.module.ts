@@ -50,8 +50,12 @@ import { UserComponent } from './user/user.component';
 
 
 const routes: Routes = [
+
+  // TODO should be removed in the future
+  { path: 'index', redirectTo: 'login', pathMatch: 'full' },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+
   { path: 'overview', component: OverViewComponent },
 
   { path: 'user', component: UserComponent },
@@ -114,12 +118,12 @@ const routes: Routes = [
     ]
   },
 
-  { path: 'demo', component: LoginComponent }
+  { path: 'demo', component: LoginComponent },
+  // Fallback
+  { path: '**', pathMatch: 'full', redirectTo: 'login' }
 ];
 
-export const appRoutingProviders: any[] = [
-
-];
+export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [
