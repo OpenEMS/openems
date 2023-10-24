@@ -50,7 +50,16 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             }
 
             const finalModel = { ...this.form.getRawValue(), ...event.data };
+
+            const changedValues = {};
             for (const [key, value] of Object.entries(finalModel)) {
+                if (value === this.model[key]) {
+                    continue;
+                }
+                changedValues[key] = value;
+            }
+
+            for (const [key, value] of Object.entries(changedValues)) {
                 this.model[key] = value;
             }
 
@@ -59,7 +68,14 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             if (this.field.fieldGroup) {
                 this.form.setValue(this.form.getRawValue());
             } else {
-                this.form.setValue(this.model);
+                // only update values which got changed
+                for (const [key, value] of Object.entries(changedValues)) {
+                    const control = this.form.controls[key];
+                    if (!control) {
+                        continue;
+                    }
+                    control.setValue(value);
+                }
             }
             this.formControl.markAsDirty();
         });

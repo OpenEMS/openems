@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,6 +18,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly.Property;
@@ -25,6 +28,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -54,34 +58,38 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
  * </pre>
  */
 @Component(name = "App.Api.ModbusTcp.ReadOnly")
-public class ModbusTcpApiReadOnly
-		extends AbstractOpenemsAppWithProps<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter>
+public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpApiReadOnly, Property, BundleParameter>
 		implements OpenemsApp {
 
-	public static enum Property
-			implements Type<Property, ModbusTcpApiReadOnly, Type.Parameter.BundleParameter>, Nameable {
+	public static enum Property implements Type<Property, ModbusTcpApiReadOnly, BundleParameter>, Nameable {
 		// Components
-		CONTROLLER_ID(AppDef.of(ModbusTcpApiReadOnly.class) //
-				.setDefaultValue("ctrlApiModbusTcp0")), //
+		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusTcp0")), //
 		// Properties
-		ALIAS(AppDef.of(ModbusTcpApiReadOnly.class) //
-				.setDefaultValueToAppName()),
+		ALIAS(alias()), //
 		ACTIVE(AppDef.of(ModbusTcpApiReadOnly.class) //
 				.setDefaultValue((app, prop, l, param) -> {
 					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.ModbusTcp.ReadWrite").size() == 0;
 					return new JsonPrimitive(active);
 				})), //
+		COMPONENT_IDS(AppDef.copyOfGeneric(ModbusTcpApiProps.pickModbusIds(), def -> def //
+				.setDefaultValue((app, property, l, parameter) -> {
+					return JsonUtils.buildJsonArray() //
+							.add("_sum") //
+							.build();
+				}) //
+				.bidirectional(CONTROLLER_ID, "component.ids", ComponentManagerSupplier::getComponentManager) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
 		;
 
-		private AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def;
+		private AppDef<? super ModbusTcpApiReadOnly, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def) {
+		private Property(AppDef<? super ModbusTcpApiReadOnly, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def() {
+		public AppDef<? super ModbusTcpApiReadOnly, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -128,9 +136,12 @@ public class ModbusTcpApiReadOnly
 
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
 
+			final var componentIds = this.getJsonArray(p, Property.COMPONENT_IDS);
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.ModbusTcp.ReadOnly",
 							JsonUtils.buildJsonObject() //
+									.add("component.ids", componentIds) //
 									.build()));
 
 			return new AppConfiguration(components);

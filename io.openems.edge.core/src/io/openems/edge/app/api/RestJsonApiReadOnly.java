@@ -1,5 +1,7 @@
 package io.openems.edge.app.api;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -64,8 +66,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 		CONTROLLER_ID(AppDef.of(RestJsonApiReadOnly.class) //
 				.setDefaultValue("ctrlApiRest0")), //
 		// Properties
-		ALIAS(AppDef.of(RestJsonApiReadOnly.class) //
-				.setDefaultValueToAppName()),
+		ALIAS(alias()), //
 		ACTIVE(AppDef.of(RestJsonApiReadOnly.class) //
 				.setDefaultValue((app, prop, l, param) -> {
 					var active = app.componentManager.getEdgeConfig()
@@ -75,14 +76,14 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 				.setField(JsonFormlyUtil::buildCheckbox)), //
 		;
 
-		private final AppDef<RestJsonApiReadOnly, Property, BundleParameter> def;
+		private final AppDef<? super RestJsonApiReadOnly, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<RestJsonApiReadOnly, Property, BundleParameter> def) {
+		private Property(AppDef<? super RestJsonApiReadOnly, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public AppDef<RestJsonApiReadOnly, Property, BundleParameter> def() {
+		public AppDef<? super RestJsonApiReadOnly, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 

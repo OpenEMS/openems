@@ -72,11 +72,13 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateBackUrl(url: string) {
-        // disable backUrl & Segment Navigation on initial 'index' page
-        if (url === '/index') {
+
+        // disable backUrl & Segment Navigation on initial 'login' page
+        if (url === '/login' || url === '/overview') {
             this.backUrl = false;
             return;
         }
+
 
         // set backUrl for user when an Edge had been selected before
         let currentEdge: Edge = this.service.currentEdge.value;
@@ -84,6 +86,13 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.backUrl = '/device/' + currentEdge.id + "/live";
             return;
         }
+
+        // set backUrl for user if no edge had been selected
+        if (url === '/user') {
+            this.backUrl = '/overview';
+            return;
+        }
+
         if (url === '/changelog' && currentEdge != null) {
             // TODO this does not work if Changelog was opened from /user
             this.backUrl = '/device/' + currentEdge.id + "/settings/profile";
@@ -150,10 +159,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/live", { replaceUrl: true });
+            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
+
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
             this.router.navigate(['../history'], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }

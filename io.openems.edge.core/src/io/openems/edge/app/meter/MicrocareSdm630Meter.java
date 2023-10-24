@@ -73,14 +73,13 @@ public class MicrocareSdm630Meter
 		// Properties
 		ALIAS(CommonProps.alias()), //
 		TYPE(MeterProps.type(MeterType.GRID)), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}).setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), //
-				def -> def.setAutoGenerateField(false) //
-						.setDefaultValue(10) //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false) //
+				.setDefaultValue(10))), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(MODBUS_ID, MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())), //
 		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //

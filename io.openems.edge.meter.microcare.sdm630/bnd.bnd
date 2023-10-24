@@ -9,7 +9,8 @@ Bundle-License: Proprietary (for now)
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-	io.openems.edge.meter.api
+	io.openems.edge.meter.api,\
+	io.openems.edge.timedata.api
 
 -testpath: \
 	${testpath}

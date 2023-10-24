@@ -88,7 +88,7 @@ export class Websocket implements WebsocketInterface {
           } else {
             // No Token -> directly ask for Login credentials
             this.status = 'waiting for credentials';
-            this.router.navigate(['/index']);
+            this.router.navigate(['/login']);
           }
         }
       },
@@ -185,6 +185,8 @@ export class Websocket implements WebsocketInterface {
             }
           });
         });
+
+        this.router.initialNavigation();
         resolve();
       }).catch(reason => {
         this.checkErrorCode(reason);

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { addMonths, addYears, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, subMonths, subYears } from 'date-fns';
+import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from 'date-fns';
 import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Edge, Service } from '../shared';
@@ -14,6 +14,10 @@ import { PickDatePopoverComponent } from './popover/popover.component';
 export class PickDateComponent implements OnInit, OnDestroy {
 
     public disableArrow: boolean | null = null;
+    protected isAllowedToSeeDay: boolean = true;
+
+    protected isForwardArrowAllowed: boolean = false;
+    protected isBackArrowAllowed: boolean = true;
 
     private changePeriodTimeout = null;
     private edge: Edge | null = null;
@@ -28,6 +32,9 @@ export class PickDateComponent implements OnInit, OnDestroy {
         this.checkArrowAutomaticForwarding();
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
+
+            this.isBackArrowAllowed = PickDateComponent.isPreviousPeriodAllowed(this.service, this.edge?.firstSetupProtocol);
+            this.isForwardArrowAllowed = PickDateComponent.isNextPeriodAllowed(this.service);
         });
     }
 
@@ -41,6 +48,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
      * checks if arrow has to be disabled/enabled and if automatic forwarding is needed dependend on the date
      */
     public checkArrowAutomaticForwarding() {
+        this.isBackArrowAllowed = PickDateComponent.isPreviousPeriodAllowed(this.service, this.edge?.firstSetupProtocol);
+        this.isForwardArrowAllowed = PickDateComponent.isNextPeriodAllowed(this.service);
         switch (this.service.periodString) {
             case DefaultTypes.PeriodString.DAY: {
                 if (isFuture(addDays(this.service.historyPeriod.value.from, 1))) {
@@ -118,6 +127,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
      */
     public setDateRange(period: DefaultTypes.HistoryPeriod) {
         this.service.historyPeriod.next(period);
+        this.isBackArrowAllowed = PickDateComponent.isPreviousPeriodAllowed(this.service, this.edge?.firstSetupProtocol);
+        this.isForwardArrowAllowed = PickDateComponent.isNextPeriodAllowed(this.service);
     }
 
     public goForward() {
@@ -203,7 +214,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
                 }
-                this.disableArrow = false;
+
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, 1), subDays((endOfDay(this.service.historyPeriod.value.to)), 1)));
                 break;
             }
@@ -212,7 +223,6 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
                 }
-                this.disableArrow = false;
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subWeeks(this.service.historyPeriod.value.from, 1), subWeeks(endOfWeek(this.service.historyPeriod.value.to, { weekStartsOn: 1 }), 1)));
                 break;
             }
@@ -221,7 +231,6 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
                 }
-                this.disableArrow = false;
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.value.from, 1), endOfMonth(subMonths(this.service.historyPeriod.value.to, 1))));
                 break;
             }
@@ -230,12 +239,10 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
                 }
-                this.disableArrow = false;
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.value.from, 1), endOfYear(subYears(this.service.historyPeriod.value.to, 1))));
                 break;
             }
             case DefaultTypes.PeriodString.CUSTOM: {
-                this.disableArrow = false;
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.value.from - <any>this.service.historyPeriod.value.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.value.from, dateDistance), subDays(this.service.historyPeriod.value.to, dateDistance)));
@@ -334,5 +341,56 @@ export class PickDateComponent implements OnInit, OnDestroy {
         popover.onDidDismiss().then(() => {
             this.checkArrowAutomaticForwarding();
         });
+    }
+
+    /**
+     * Checks if previous time period is allowed to be queried
+     * 
+     * @param service the service
+     * @param firstSetupProtocol the date of setting up the edge
+     * @returns true, if requested fromDate is not before firstSetupProtocolDate
+     */
+    public static isPreviousPeriodAllowed(service: Service, firstSetupProtocol: Date | null): boolean {
+
+        if (!firstSetupProtocol) {
+            return true;
+        }
+
+        switch (service.periodString) {
+            case DefaultTypes.PeriodString.DAY:
+                return isBefore(startOfDay(firstSetupProtocol), endOfDay(subDays(service.historyPeriod.value.from, 1)));
+            case DefaultTypes.PeriodString.WEEK:
+                return isBefore(firstSetupProtocol, endOfWeek(subWeeks(service.historyPeriod.value.from, 1)));
+            case DefaultTypes.PeriodString.MONTH:
+                return isBefore(firstSetupProtocol, endOfMonth(subWeeks(service.historyPeriod.value.from, 1)));
+            case DefaultTypes.PeriodString.YEAR:
+                return isBefore(firstSetupProtocol, endOfYear(subWeeks(service.historyPeriod.value.from, 1)));
+            case DefaultTypes.PeriodString.CUSTOM:
+                var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
+                return isBefore(startOfDay(firstSetupProtocol), startOfDay(subDays(service.historyPeriod.value.from, timeRange)));
+        }
+    }
+
+    /**
+     * Checks if next time period is allowed to be queried
+     * 
+     * @param service the service 
+     * @returns true, if requested toDate is not in the future
+     */
+    public static isNextPeriodAllowed(service: Service): boolean {
+
+        switch (service.periodString) {
+            case DefaultTypes.PeriodString.DAY:
+                return isAfter(new Date(), startOfDay(addDays(service.historyPeriod.value.to, 1)));
+            case DefaultTypes.PeriodString.WEEK:
+                return isAfter(new Date(), startOfDay(startOfWeek(addWeeks(service.historyPeriod.value.to, 1), { weekStartsOn: 1 })));
+            case DefaultTypes.PeriodString.MONTH:
+                return isAfter(new Date(), startOfMonth(addMonths(service.historyPeriod.value.to, 1)));
+            case DefaultTypes.PeriodString.YEAR:
+                return isAfter(new Date(), startOfYear(addYears(service.historyPeriod.value.to, 1)));
+            case DefaultTypes.PeriodString.CUSTOM:
+                var timeRange: number = differenceInDays(service.historyPeriod.value.to, service.historyPeriod.value.from);
+                return isAfter(startOfDay(new Date()), addDays(service.historyPeriod.value.to, timeRange));
+        }
     }
 }

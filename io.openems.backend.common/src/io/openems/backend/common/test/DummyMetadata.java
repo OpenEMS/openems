@@ -18,8 +18,8 @@ import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 
 public class DummyMetadata implements Metadata {
 	@Override
@@ -138,13 +138,13 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

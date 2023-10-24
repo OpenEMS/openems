@@ -1,3 +1,6 @@
 <ion-button *ngIf="link" target="_blank" [href]="link">
-    <ion-icon name="help-circle-outline"></ion-icon>
+    <div #ref>
+        <ng-content></ng-content>
+    </div>
+    <ion-icon *ngIf="ref?.children?.length === 0" name="help-circle-outline"></ion-icon>
 </ion-button>

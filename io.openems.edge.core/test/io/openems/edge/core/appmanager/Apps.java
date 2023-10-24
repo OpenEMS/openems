@@ -15,13 +15,19 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
+import io.openems.edge.app.evcs.WebastoNextEvcs;
+import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome20;
+import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
@@ -62,6 +68,26 @@ public class Apps {
 	 */
 	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
 		return app(t, FeneconHome::new, "App.FENECON.Home");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome20}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome20 feneconHome20(AppManagerTestBundle t) {
+		return app(t, FeneconHome20::new, "App.FENECON.Home.20");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome30}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome30 feneconHome30(AppManagerTestBundle t) {
+		return app(t, FeneconHome30::new, "App.FENECON.Home.30");
 	}
 
 	// TimeOfUseTariff
@@ -203,6 +229,26 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link WebastoNextEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoNextEvcs webastoNext(AppManagerTestBundle t) {
+		return app(t, WebastoNextEvcs::new, "App.Evcs.Webasto.Next");
+	}
+
+	/**
+	 * Test method for creating a {@link WebastoUniteEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoUniteEvcs webastoUnite(AppManagerTestBundle t) {
+		return app(t, WebastoUniteEvcs::new, "App.Evcs.Webasto.Unite");
+	}
+
+	/**
 	 * Test method for creating a {@link EvcsCluster}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -259,7 +305,30 @@ public class Apps {
 				componentContext, cm, componentUtil, t.appManagerUtil), "App.Meter.Socomec");
 	}
 
+	/**
+	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
+		return app(t,
+				(componentManager, componentContext, cm, componentUtil) -> new MicrocareSdm630Meter(componentManager,
+						componentContext, cm, componentUtil, t.appManagerUtil),
+				"App.Meter.Microcare.Sdm630");
+	}
+
 	// ess-controller
+
+	/**
+	 * Test method for creating a {@link FixActivePower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixActivePower fixActivePower(AppManagerTestBundle t) {
+		return app(t, FixActivePower::new, "App.Ess.FixActivePower");
+	}
 
 	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.

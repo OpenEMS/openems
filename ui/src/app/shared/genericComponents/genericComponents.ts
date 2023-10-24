@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+
 import { PickDateComponent } from '../pickdate/pickdate.component';
 import { PipeModule } from '../pipe/pipe';
 import { ChartComponent } from './chart/chart';
@@ -18,7 +19,9 @@ import { ModalInfoLineComponent } from './modal/modal-info-line/modal-info-line'
 import { ModalLineComponent } from './modal/modal-line/modal-line';
 import { ModalLineItemComponent } from './modal/modal-line/modal-line-item/modal-line-item';
 import { ModalPhasesComponent } from './modal/modal-phases/modal-phases';
+import { ModalValueLineComponent } from './modal/modal-value-line/modal-value-line';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
+import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item';
 
 @NgModule({
     imports: [
@@ -35,13 +38,15 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
         ModalLineItemComponent,
-        ModalPhasesComponent
+        ModalPhasesComponent,
+        ModalValueLineComponent
     ],
     declarations: [
         PickDateComponent,
@@ -49,6 +54,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         HelpButtonComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
@@ -57,13 +63,15 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalComponent,
         ChartComponent,
         ModalLineItemComponent,
-        ModalPhasesComponent
+        ModalPhasesComponent,
+        ModalValueLineComponent
     ],
     exports: [
         FlatWidgetComponent,
         FlatWidgetLineComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetPercentagebarComponent,
+        FlatWidgetLineItemComponent,
         HelpButtonComponent,
         ModalButtonsComponent,
         ModalInfoLineComponent,
@@ -73,7 +81,8 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ChartComponent,
         PickDateComponent,
         ModalLineItemComponent,
-        ModalPhasesComponent
+        ModalPhasesComponent,
+        ModalValueLineComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 

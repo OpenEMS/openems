@@ -227,3 +227,8 @@ export module DefaultTypes {
     }
   }
 }
+/** Generic Type for a key-value pair */
+export type TKeyValue<T> = {
+  key: string,
+  value: T
+}
