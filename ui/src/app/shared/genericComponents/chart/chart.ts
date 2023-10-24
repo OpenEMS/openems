@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -10,7 +10,7 @@ import { Edge, Service } from "../../shared";
   selector: 'oe-chart',
   templateUrl: './chart.html'
 })
-export class ChartComponent implements OnInit, AfterViewChecked {
+export class ChartComponent implements OnInit, OnChanges {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';
@@ -41,7 +41,7 @@ export class ChartComponent implements OnInit, AfterViewChecked {
   }
 
   /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
-  ngAfterViewChecked() {
+  ngOnChanges() {
     this.ref.detectChanges();
     this.checkIfPopoverNeeded();
   }

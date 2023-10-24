@@ -43,8 +43,8 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-          CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
+          CHANNEL_LINE("Bezug", "0 W"),
           PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
           PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
@@ -57,8 +57,8 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-          CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
+          CHANNEL_LINE("Bezug", "0 W"),
           PHASE_GUEST("Phase L1 Einspeisung", "500 W"),
           PHASE_GUEST("Phase L2 Bezug", "1.500 W"),
           PHASE_GUEST("Phase L3", "-"),
@@ -76,8 +76,8 @@ describe('Grid - Modal', () => {
             name: "Keine Netzverbindung!",
             value: ""
           },
-          CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
+          CHANNEL_LINE("Bezug", "0 W"),
           PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
           PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
@@ -98,8 +98,8 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-          CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
+          CHANNEL_LINE("Bezug", "0 W"),
           LINE_HORIZONTAL,
           CHANNEL_LINE("meter10", "-"),
           PHASE_ADMIN("Phase L1", "-", "-", "-"),
@@ -119,8 +119,8 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-          CHANNEL_LINE("Bezug", "0 W"),
           CHANNEL_LINE("Einspeisung", "1.000 W"),
+          CHANNEL_LINE("Bezug", "0 W"),
           LINE_HORIZONTAL,
           CHANNEL_LINE("meter10", "-"),
           PHASE_GUEST("Phase L1", "-"),
