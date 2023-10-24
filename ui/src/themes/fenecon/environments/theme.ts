@@ -74,6 +74,10 @@ export const theme = {
                     value: "home"
                 },
                 {
+                    name: "Home 20 & 30",
+                    value: "Home 20 & 30"
+                },
+                {
                     name: "Commercial 30",
                     value: "Commercial 30-Serie"
                 },
