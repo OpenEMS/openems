@@ -105,24 +105,27 @@ export class Utils {
   }
 
   /**
-   * Safely subtracts two - possibly 'null' - values: v1 - v2
+   *  Subtracts values from each other - possibly null values 
    * 
-   * @param v1 
-   * @param v2 
+   * @param values the values
+   * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(...values: number[]): number {
-    var result = null;
-    values.forEach(v => {
-      if (v != null) {
-        if (result == null) {
-          result = v;
+  public static subtractSafely(...values: (number | null)[]): number {
+    let result = null;
+
+    for (const value of values) {
+      if (value !== null) {
+        if (result === null) {
+          result = value;
         } else {
-          result -= v;
+          result -= value;
         }
       }
-    });
+    }
+
     return result;
   }
+
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
