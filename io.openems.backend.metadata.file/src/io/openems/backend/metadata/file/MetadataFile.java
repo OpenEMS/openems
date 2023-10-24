@@ -353,7 +353,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 							Role.ADMIN, //
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
-							null, //
+							null, // firstSetupProtocol
 							Level.OK);
 				}).toList();
 	}
@@ -374,7 +374,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
 	}

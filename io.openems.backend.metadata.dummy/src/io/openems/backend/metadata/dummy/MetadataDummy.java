@@ -322,7 +322,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 							Role.ADMIN, //
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
-							null, //
+							null, // firstSetupProtocol
 							Level.OK);
 				}).toList();
 	}
@@ -343,7 +343,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
 	}

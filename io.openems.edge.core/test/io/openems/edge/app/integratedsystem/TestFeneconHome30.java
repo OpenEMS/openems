@@ -145,6 +145,41 @@ public class TestFeneconHome30 {
 				"ctrlBalancing0");
 	}
 
+	@Test
+	public void testShadowManagement() throws Exception {
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", JsonUtils.buildJsonObject() //
+						.addProperty("SAFETY_COUNTRY", "GERMANY") //
+						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("MAX_FEED_IN_POWER", 1000) //
+						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+						.addProperty("HAS_EMERGENCY_RESERVE", true) //
+						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
+						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+						.addProperty("SHADOW_MANAGEMENT_DISABLED", true) //
+						.build()))
+				.get();
+
+		var batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
+		assertEquals("DISABLE",
+				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
+
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
+						.addProperty("SAFETY_COUNTRY", "GERMANY") //
+						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("MAX_FEED_IN_POWER", 1000) //
+						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
+						.addProperty("HAS_EMERGENCY_RESERVE", true) //
+						.addProperty("EMERGENCY_RESERVE_ENABLED", true) //
+						.addProperty("EMERGENCY_RESERVE_SOC", 15) //
+						.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
+						.build()));
+		batteryInverter = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0");
+		assertEquals("ENABLE",
+				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 

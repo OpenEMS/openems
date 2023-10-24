@@ -80,7 +80,7 @@ public final class FeneconHomeComponents {
 						.addProperty("feedPowerPara", maxFeedInPower) //
 						.addProperty("modbus.id", modbusIdExternal) //
 						.addProperty("modbusUnitId", 247) //
-						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLED" : "ENABLE") //
+						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
 						.addProperty("safetyCountry", safetyCountry) //
 						.addProperty("setfeedInPowerSettings", feedInSetting) //
 						.build());
