@@ -527,7 +527,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 								user.getGlobalRole(), //
 								true, //
 								ZonedDateTime.now(), //
-								ZonedDateTime.now(), //
+								null, //
 								ControllerApiWebsocket.SUM_STATE //
 						) //
 				) //
