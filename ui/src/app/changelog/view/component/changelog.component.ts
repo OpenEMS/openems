@@ -37,6 +37,16 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.10.3',
+        changes: [
+          "Fehlerbehebung: lokales Monitoring",
+          "Fehlerbehebung: historische Ansicht im Online-Monitoring",
+          Changelog.product(Product.HOME_20_30) + "Fehlerbehebung bei der Inbetriebnahme",
+          "Dynamischer Stromtarif ENTSO-E: Sicherstellen, dass Day-Ahead-Tarife beim Start abgerufen werden",
+          Changelog.library(Library.OKHTTP)
+        ]
+      },
+      {
         version: '2023.10.2',
         changes: [
           "Fehlerbehebung lokales Monitoring: die Abfrage historischer Daten war seit Version 2023.10.1 nur für den aktuellen Tag möglich"
