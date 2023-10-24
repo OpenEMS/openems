@@ -108,6 +108,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		}, 10, 10, TimeUnit.SECONDS);
 
 		if (this.metadata.isInitialized()) {
+			// Option A: Metadata is already initialized. We will not get an Metadata.Events.AFTER_IS_INITIALIZED later.
 			this.startServer();
 		}
 	}
@@ -278,6 +279,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
+			// Option B: Metadata initializes too late. We are already activated().
 			this.startServer();
 			break;
 		}

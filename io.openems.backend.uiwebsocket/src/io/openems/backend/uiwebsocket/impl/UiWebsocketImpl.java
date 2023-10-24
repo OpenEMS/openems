@@ -89,6 +89,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
 			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
+		if (this.metadata.isInitialized()) {
+			// Option A: Metadata is already initialized. We will not get an Metadata.Events.AFTER_IS_INITIALIZED later.
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+		}
 	}
 
 	@Deactivate
@@ -224,6 +228,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
+			// Option B: Metadata initializes too late. We are already activated().
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
 			break;
 		}
