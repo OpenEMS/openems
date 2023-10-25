@@ -14,8 +14,8 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.BooleanConsumer;
-import io.openems.edge.battery.fenecon.home.statemachine.GoRunningHandler.SubState;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.battery.fenecon.home.statemachine.GoRunningHandler.SubState;
 
 public class GoRunningHandlerTest {
 

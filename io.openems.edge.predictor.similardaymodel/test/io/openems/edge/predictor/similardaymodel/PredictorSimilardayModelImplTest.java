@@ -10,10 +10,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PredictorSimilardayModelImplTest {
