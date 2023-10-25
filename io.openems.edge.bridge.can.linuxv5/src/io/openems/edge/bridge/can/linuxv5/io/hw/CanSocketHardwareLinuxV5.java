@@ -4,18 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.clehne.revpi.canbus.CanSocket;
-import org.clehne.revpi.canbus.CanSocket.CanFrame;
-import org.clehne.revpi.canbus.CanSocket.CanId;
-import org.clehne.revpi.canbus.CanSocket.CanInterface;
-import org.clehne.revpi.canbus.CanSocket.Mode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.edge.bridge.can.api.data.CanRxTxData;
 import io.openems.edge.bridge.can.api.data.CanSimulationData;
 import io.openems.edge.bridge.can.io.CanDevice;
 import io.openems.edge.bridge.can.io.hw.CanDeviceException;
+import io.openems.edge.socketcan.driver.CanSocket;
+import io.openems.edge.socketcan.driver.CanSocket.CanFrame;
+import io.openems.edge.socketcan.driver.CanSocket.CanInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Delivers access to the real CAN hardware.
@@ -48,7 +46,7 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 	@Override
 	public void open(int baudrate) throws CanDeviceException {
 		try {
-			final var socket = new CanSocket(Mode.RAW);
+			final var socket = new CanSocket(CanSocket.Mode.RAW);
 			final var canif = new CanInterface(socket, CAN_INTERFACE);
 			this.theCanSocket = socket;
 			this.theCanInterface = canif;
@@ -164,9 +162,9 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 		}
 		try {
 
-			var id = new CanId(transmitFrame.getAddress());
+			var id = new CanSocket.CanId(transmitFrame.getAddress());
 			if (transmitFrame.isExtendedAddress()) {
-				id = new CanId(0x80000000 | transmitFrame.getAddress());
+				id = new CanSocket.CanId(0x80000000 | transmitFrame.getAddress());
 			}
 
 			this.theCanSocket.send(new CanFrame(this.theCanInterface, id, transmitFrame.getData()));
@@ -188,9 +186,9 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 			throw new CanDeviceException("No CAN socket");
 		}
 		try {
-			var id = new CanId(transmitFrame.getAddress());
+			var id = new CanSocket.CanId(transmitFrame.getAddress());
 			if (transmitFrame.isExtendedAddress()) {
-				id = new CanId(0x80000000 | transmitFrame.getAddress());
+				id = new CanSocket.CanId(0x80000000 | transmitFrame.getAddress());
 			}
 			this.theCanSocket.sendCyclicallyAdd(new CanFrame(this.theCanInterface, id, transmitFrame.getData()),
 					cycleTime);
@@ -208,9 +206,9 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 			throw new CanDeviceException("No CAN socket");
 		}
 		try {
-			var id = new CanId(transmitFrame.getAddress());
+			var id = new CanSocket.CanId(transmitFrame.getAddress());
 			if (transmitFrame.isExtendedAddress()) {
-				id = new CanId(0x80000000 | transmitFrame.getAddress());
+				id = new CanSocket.CanId(0x80000000 | transmitFrame.getAddress());
 			}
 			this.theCanSocket.sendCyclicallyRemove(new CanFrame(this.theCanInterface, id, transmitFrame.getData()));
 
@@ -227,9 +225,9 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 			throw new CanDeviceException("No CAN socket");
 		}
 		try {
-			var id = new CanId(transmitFrame.getAddress());
+			var id = new CanSocket.CanId(transmitFrame.getAddress());
 			if (transmitFrame.isExtendedAddress()) {
-				id = new CanId(0x80000000 | transmitFrame.getAddress());
+				id = new CanSocket.CanId(0x80000000 | transmitFrame.getAddress());
 			}
 			this.theCanSocket.sendCyclicallyAdopt(new CanFrame(this.theCanInterface, id, transmitFrame.getData()));
 

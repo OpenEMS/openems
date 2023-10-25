@@ -2,12 +2,9 @@ Bundle-Name: OpenEMS Edge Bridge CAN Linux V4
 Bundle-Vendor: opernikus GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Export-Package: \
-	io.openems.edge.bridge.can.linuxv4,\
-	io.openems.edge.bridge.can.linuxv4.io.hw
 		
 -includeresource.libsocketcan: \
-	@lib/libsocket-can-java-4.19.jar; lib:=true
+	@lib/libsocket-can-java.jar; lib:=true
 
 -buildpath: \
 	${buildpath},\
@@ -15,7 +12,7 @@ Export-Package: \
 	io.openems.common,\
 	io.openems.edge.bridge.can.common,\
 	io.openems.edge.common,\
-	lib/libsocket-can-java-4.19.jar;version=file
+	lib/libsocket-can-java.jar;version=file
 
 -testpath: \
 	${testpath}
