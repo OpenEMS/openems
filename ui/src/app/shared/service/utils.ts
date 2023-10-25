@@ -121,7 +121,9 @@ export class Utils {
         }
         return sum;
       }, null);
+
   }
+
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 

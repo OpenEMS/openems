@@ -1,4 +1,4 @@
-package io.openems.edge.common.test;
+package io.openems.common.test;
 
 import java.time.Clock;
 import java.time.Instant;
