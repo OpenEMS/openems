@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
-import { ChannelAddress } from 'src/app/shared/shared';
+import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
   selector: 'gridchart',
@@ -11,15 +12,18 @@ import { ChannelAddress } from 'src/app/shared/shared';
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    this.spinnerId = 'grid-chart';
+  public override getChartData() {
+    return ChartComponent.getChartData(this.config, this.chartType, this.translate, this.showPhases);
+  }
+
+  public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService, showPhases: boolean): HistoryUtils.ChartData {
 
     let input: DefaultTypes.History.InputChannel[] = [
       {
         name: 'GridSell',
         powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
         energyChannel: ChannelAddress.fromString('_sum/GridSellActiveEnergy'),
-        ...(this.chartType === 'line' && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE })
+        ...(chartType === 'line' && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE })
       },
       {
         name: 'GridBuy',
@@ -29,7 +33,7 @@ export class ChartComponent extends AbstractHistoryChart {
       }
     ];
 
-    if (this.showPhases) {
+    if (showPhases) {
       ['L1', 'L2', 'L3'].forEach(phase => {
         input.push({
           name: 'GridActivePower' + phase,
@@ -44,7 +48,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
         let datasets: DefaultTypes.History.DisplayValues[] = [
           {
-            name: this.translate.instant('General.gridSellAdvanced'),
+            name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues?.result.data['_sum/GridSellActiveEnergy'] ?? null;
             },
@@ -57,7 +61,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
 
           {
-            name: this.translate.instant('General.gridBuyAdvanced'),
+            name: translate.instant('General.gridBuyAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null;
             },
@@ -69,7 +73,7 @@ export class ChartComponent extends AbstractHistoryChart {
           }];
 
 
-        if (!this.showPhases) {
+        if (!showPhases) {
           return datasets;
         }
 
@@ -82,7 +86,7 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => {
               return data['GridActivePower' + phase] ?? null;
             },
-            color: this.phaseColors[index],
+            color: AbstractHistoryChart.phaseColors[index],
             stack: 3
           });
         });
