@@ -1,4 +1,4 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
 import { GridMode } from "src/app/shared/shared";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
