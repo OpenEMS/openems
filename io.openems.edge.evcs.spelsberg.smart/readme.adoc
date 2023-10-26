@@ -1,0 +1,24 @@
+= Spelsberg SMART PRO charging station
+
+Implementation of the Spelsberg SMART PRO charging station.
+
+
+=== Technical Data
+
+* Rated current: 16A single and three phase
+* Charging cable: Type 2, up to 16A
+* Max. charging power: 11kW (three phases), 3.7kW (single phase)
+* Communication protocol: Modbus TCP
+
+
+=== This implementation includes:
+
+** Reading of current and power from the EVCS
+** Setting charge power/current via OpenEMS Edge EVCS Controller
+** Calculation of the energy summary for transactions
+** EVCS status updates
+** Support for automatic phase shifting with firmware 5.33
+** Validation of Modbus TCP connection
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.spelsberg.smart[Source Code icon:github[]]
