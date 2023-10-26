@@ -18,7 +18,7 @@ export namespace Formatter {
 
   export const FORMAT_CELSIUS = (value: number) => {
     // TODO apply correct locale
-    return formatNumber(value, 'de', '1.0-0') + " °C";
+    return formatNumber(value, 'de', '1.0-0') + " Â°C";
   };
 
   export const FORMAT_PERCENT = (value: number) => {

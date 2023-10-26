@@ -58,7 +58,7 @@
     "soc": "Stav nabití",
     "state": "Stát",
     "storageSystem": "Systém bateriového úložiště",
-    "systemState": "Stav systému",
+    "SYSTEM_STATE": "Stav systému",
     "TOTAL": "celková spotřeba",
     "totalState": "Celkový stav",
     "warning": "Varování",

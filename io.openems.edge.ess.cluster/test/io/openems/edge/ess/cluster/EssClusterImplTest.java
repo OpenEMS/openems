@@ -3,6 +3,7 @@ package io.openems.edge.ess.cluster;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -47,6 +48,9 @@ public class EssClusterImplTest {
 			"AllowedDischargePower");
 	private static final ChannelAddress ESS2_ALLOWED_DISCHARGE_POWER = new ChannelAddress(ESS2_ID,
 			"AllowedDischargePower");
+	private static final ChannelAddress CLUSTER_START_STOP = new ChannelAddress(CLUSTER_ID, "StartStop");
+	private static final ChannelAddress ESS1_START_STOP = new ChannelAddress(ESS1_ID, "StartStop");
+	private static final ChannelAddress ESS2_START_STOP = new ChannelAddress(ESS2_ID, "StartStop");
 
 	@Test
 	public void testCluster() throws Exception {
@@ -143,6 +147,38 @@ public class EssClusterImplTest {
 						.input(ESS1_SOC, 100) //
 						.output(CLUSTER_SOC, 99) //
 				) //
+		;
+	}
+
+	@Test
+	public void testStartStop() throws Exception {
+		new ComponentTest(new EssClusterImpl()) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS1_ID)) //
+				.addReference("addEss", new DummyManagedSymmetricEss(ESS2_ID)) //
+				.activate(MyConfig.create() //
+						.setId(CLUSTER_ID) //
+						.setEssIds(ESS1_ID, ESS2_ID) //
+						.setStartStop(StartStopConfig.START) //
+						.build())
+				.next(new TestCase() //
+						.input(ESS1_START_STOP, StartStop.UNDEFINED) //
+						.input(ESS2_START_STOP, StartStop.STOP) //
+						.output(CLUSTER_START_STOP, StartStop.UNDEFINED)) //
+				.next(new TestCase() //
+						.input(ESS1_START_STOP, StartStop.STOP) //
+						.input(ESS2_START_STOP, StartStop.STOP) //
+						.output(CLUSTER_START_STOP, StartStop.STOP)) //
+				.next(new TestCase() //
+						.input(ESS1_START_STOP, StartStop.START) //
+						.input(ESS2_START_STOP, StartStop.STOP) //
+						.output(CLUSTER_START_STOP, StartStop.UNDEFINED)) //
+				.next(new TestCase() //
+						.input(ESS1_START_STOP, StartStop.START) //
+						.input(ESS2_START_STOP, StartStop.START) //
+						.output(CLUSTER_START_STOP, StartStop.START)) //
+
 		;
 	}
 }

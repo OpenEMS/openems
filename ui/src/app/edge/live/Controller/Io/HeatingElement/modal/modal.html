@@ -1,5 +1,5 @@
-<oe-modal [toolbarButtons]="{url: 'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Heizstab.html'}"
-    [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
+    helpKey="CONTROLLER_IO_HEATING_ELEMENT" *ngIf="isInitialized">
     <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
     </oe-modal-line>
 

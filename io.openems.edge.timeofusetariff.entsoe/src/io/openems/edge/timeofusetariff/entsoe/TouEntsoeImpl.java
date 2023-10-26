@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -57,7 +58,10 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	private Meta meta;
 
 	private Config config = null;
+	private String securityToken = "";
+	private String accessKey = "";
 	private ZonedDateTime updateTimeStamp = null;
+	private ScheduledFuture<?> future = null;
 
 	public TouEntsoeImpl() {
 		super(//
@@ -78,12 +82,14 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 
-		if (config.securityToken() == null || config.securityToken().isBlank()) {
+		this.securityToken = Token.parseOrNull(config.securityToken());
+		if (this.securityToken == null) {
 			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
 			return;
 		}
 
-		if (config.accessKey() == null || config.accessKey().isBlank()) {
+		this.accessKey = Token.parseOrNull(config.accessKey());
+		if (this.accessKey == null) {
 			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
 			return;
 		}
@@ -91,6 +97,9 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
+
+		// Schedule once
+		this.scheduleTask(0);
 	}
 
 	@Deactivate
@@ -105,12 +114,16 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	 * 
 	 * @param seconds execute task in seconds
 	 */
-	private void scheduleTask(long seconds) {
-		this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
+	private synchronized void scheduleTask(long seconds) {
+		if (this.future != null) {
+			this.future.cancel(false);
+		}
+		this.future = this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
 	}
 
 	private final Runnable task = () -> {
-		var token = this.config.securityToken();
+		var token = this.securityToken;
+		var accessKey = this.accessKey;
 		var areaCode = this.config.biddingZone().code;
 		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
 		var toDate = fromDate.plusDays(1);
@@ -126,8 +139,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 			final var exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
 					? 1 // No need to fetch exchange rate from API.
-					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(this.config.accessKey()),
-							globalCurrency);
+					: Utils.exchangeRateParser(ExchangeRateApi.getExchangeRates(accessKey), globalCurrency);
 
 			// Parse the response for the prices
 			this.prices.set(Utils.parsePrices(result, "PT60M", exchangeRate));
