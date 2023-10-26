@@ -315,7 +315,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)
 				|| bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin)
 				|| bmsOfflineSocUnderMin.isDefined()
-						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)) {
+						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)
+				|| bmsChargeMaxVoltage.isDefined() && !Objects.equals(bmsChargeMaxVoltage.get(), setChargeMaxVoltage)
+				|| bmsDischargeMinVoltage.isDefined()
+						&& !Objects.equals(bmsDischargeMinVoltage.get(), setDischargeMinVoltage)) {
+
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
 					+ " Voltages" //
