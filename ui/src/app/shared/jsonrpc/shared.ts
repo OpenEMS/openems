@@ -5,7 +5,8 @@ export type Edges = [{
     version: string
     role: "admin" | "installer" | "owner" | "guest",
     isOnline: boolean,
-    lastmessage: Date
+    lastmessage: Date,
+    firstSetupProtocol: Date
 }];
 
 export type User = {

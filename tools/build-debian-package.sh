@@ -12,6 +12,7 @@ main() {
     common_build_edge_and_ui_in_parallel
     prepare_deb_template
     build_deb
+    create_version_file
     clean_deb_template
     echo "# FINISHED"
 }
@@ -27,21 +28,22 @@ initialize_environment() {
 
     # Build detailed SNAPSHOT name
     if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
-        GIT_BRANCH="$(git branch --show-current)"
-        GIT_BRANCH="${GIT_BRANCH/\//"."}"
-        GIT_BRANCH="${GIT_BRANCH/-/"."}"
-        GIT_HASH=""
+        # Replace unwanted characters with '.', compliant with Debian version
+        # Ref: https://unix.stackexchange.com/a/23673
+        VERSION_DEV_BRANCH="$(git branch --show-current)"
+        VERSION_DEV_COMMIT=""
         if [[ $(git diff --stat) != '' ]]; then
-            GIT_HASH="dirty"
+            VERSION_DEV_COMMIT="dirty"
         else
-            GIT_HASH="$(git rev-parse --short HEAD)"
+            VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
         fi
-        DATE=$(date "+%Y%m%d.%H%M")
+        VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
         # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version
-        VERSION_STRING="${GIT_BRANCH}.${DATE}.${GIT_HASH}"
+        VERSION_STRING="$(echo $VERSION_DEV_BRANCH | tr -cs 'a-zA-Z0-9\n' '.').${VERSION_DEV_BUILD_TIME}.${VERSION_DEV_COMMIT}"
         VERSION="${VERSION/-SNAPSHOT/"-${VERSION_STRING}"}"
     fi
     DEB_FILE="${PACKAGE_NAME}.deb"
+    VERSION_FILE="${PACKAGE_NAME}.version"
 }
 
 print_header() {
@@ -78,6 +80,10 @@ build_deb() {
     dpkg-deb -Zxz --build "debian" "../${DEB_FILE}"
     echo "## Built ${DEB_FILE}"
     cd ..
+}
+
+create_version_file() {
+    echo $VERSION > $VERSION_FILE
 }
 
 clean_deb_template() {

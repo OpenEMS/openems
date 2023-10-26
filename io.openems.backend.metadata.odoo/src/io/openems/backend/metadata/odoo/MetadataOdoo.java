@@ -2,8 +2,8 @@ package io.openems.backend.metadata.odoo;
 
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -47,14 +47,15 @@ import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -519,33 +520,62 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
+	public List<EdgeMetadata> getPageDevice(//
+			final User user, //
+			final PaginationOptions paginationOptions //
+	) throws OpenemsNamedException {
 		var result = this.odooHandler.getEdges((MyUser) user, paginationOptions);
-
-		Map<String, Role> devices = new LinkedHashMap<>();
-
-		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
-		for (var jDevice : jDevices) {
-			var edgeId = JsonUtils.getAsString(jDevice, "name");
-			var role = Role.getRole(JsonUtils.getAsString(jDevice, "role"));
-			user.setRole(edgeId, role);
-
-			devices.put(edgeId, role);
+		final var jsonArray = JsonUtils.getAsJsonArray(result, "devices");
+		final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
+		for (var jElement : jsonArray) {
+			resultMetadata.add(this.convertToEdgeMetadata(user, jElement));
 		}
-
-		return devices;
+		return resultMetadata;
 	}
 
 	@Override
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
-		var result = this.odooHandler.getEdgeWithRole((MyUser) user, edgeId);
-		var roleString = JsonUtils.getAsOptionalString(result, "role") //
-				.orElseThrow(() -> OpenemsError.COMMON_ROLE_UNDEFINED.exception(edgeId, user.getId()));
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+		return this.convertToEdgeMetadata(user, this.odooHandler.getEdgeWithRole(user, edgeId));
+	}
 
-		var role = Role.getRole(roleString);
+	private EdgeMetadata convertToEdgeMetadata(User user, JsonElement jDevice) throws OpenemsNamedException {
+		final var edgeId = JsonUtils.getAsString(jDevice, "name");
+
+		// TODO remove cached edge
+		final var cachedEdge = this.getEdge(edgeId).orElse(null);
+		if (cachedEdge == null) {
+			throw new OpenemsException("Unable to find edge with id [" + edgeId + "]");
+		}
+
+		final var role = Role.getRole(JsonUtils.getAsString(jDevice, "role"));
 		user.setRole(edgeId, role);
-		return role;
+
+		final var sumState = JsonUtils.getAsOptionalString(jDevice, "openems_sum_state_level") //
+				.map(String::toUpperCase) //
+				.map(Level::valueOf) //
+				.orElse(Level.OK);
+		final var commment = JsonUtils.getAsOptionalString(jDevice, "comment").orElse("");
+		final var producttype = JsonUtils.getAsOptionalString(jDevice, "producttype").orElse("");
+		final var firstSetupProtocol = JsonUtils.getAsOptionalString(jDevice, "first_setup_protocol_date")
+				.map(DateTime::stringToDateTime) //
+				.orElse(null);
+		final var lastmessage = JsonUtils.getAsOptionalString(jDevice, "lastmessage") //
+				.map(DateTime::stringToDateTime) //
+				.orElse(null);
+
+		return new EdgeMetadata(//
+				edgeId, //
+				commment, //
+				producttype, //
+				cachedEdge.getVersion(), //
+				role, //
+				// TODO isOnline should also come from odoo and in the ui there should be a
+				// subscribe to maybe "edgeState" if any of these properties change
+				cachedEdge.isOnline(), //
+				lastmessage, //
+				firstSetupProtocol, //
+				sumState //
+		);
 	}
 
 	@Override

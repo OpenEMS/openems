@@ -17,27 +17,36 @@ export class TotalChartComponent extends AbstractHistoryChart {
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
     let channels: HistoryUtils.InputChannel[] = [{
-      name: 'ProductionDcActualPower',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy')
-    },
-    {
-      name: 'ProductionAcActivePowerL1',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
-    },
-    {
-      name: 'ProductionAcActivePowerL2',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
-    },
-    {
-      name: 'ProductionAcActivePowerL3',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
-    },
-    {
       name: 'ProductionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
       energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy')
     }];
+
+    // If at least one charger
+    if (chargerComponents.length > 0) {
+      channels.push({
+        name: 'ProductionDcActualPower',
+        powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
+        energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy')
+      });
+    }
+
+    // If showPhases is true
+    if (this.showPhases) {
+      channels.push(
+        {
+          name: 'ProductionAcActivePowerL1',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
+        },
+        {
+          name: 'ProductionAcActivePowerL2',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
+        },
+        {
+          name: 'ProductionAcActivePowerL3',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
+        });
+    }
 
     for (let component of productionMeterComponents) {
       channels.push({
@@ -151,7 +160,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
     };
 
     return chartObject;
-
   }
 
   public override getChartHeight(): number {

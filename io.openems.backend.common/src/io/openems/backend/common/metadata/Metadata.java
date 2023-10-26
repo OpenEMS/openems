@@ -24,8 +24,8 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -375,7 +375,8 @@ public interface Metadata {
 	 * @return the role to the Edge-IDs
 	 * @throws OpenemsNamedException on error
 	 */
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions) throws OpenemsNamedException;
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException;
 
 	/**
 	 * Gets the Role for a edge of the current user.
@@ -385,7 +386,7 @@ public interface Metadata {
 	 * @return the role to the edge
 	 * @throws OpenemsNamedException on error
 	 */
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException;
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException;
 
 	/**
 	 * Get the SumState of the edge with the given edgeId.

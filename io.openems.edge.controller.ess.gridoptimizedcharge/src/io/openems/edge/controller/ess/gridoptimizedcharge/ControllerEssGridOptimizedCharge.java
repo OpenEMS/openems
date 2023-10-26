@@ -28,12 +28,14 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Current state of the delayed charge function.
 		 */
 		DELAY_CHARGE_STATE(Doc.of(DelayChargeState.values()) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the delayed charge function.")),
 
 		/**
 		 * Current state of the sell to grid limit function.
 		 */
 		SELL_TO_GRID_LIMIT_STATE(Doc.of(SellToGridLimitState.values()) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Current state of the sell to grid limit function.")),
 
 		/**
@@ -41,6 +43,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 */
 		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Delay-Charge power limitation.")), //
 
 		/**
@@ -80,6 +83,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 */
 		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Sell to grid limit charge power limitation in a readable AC format.")),
 
 		/**
@@ -120,6 +124,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Automatically set, when the original TARGET_MINUTE is set.
 		 */
 		TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Target minute as epoch seconds independent of the current mode Manual and Automatic.")),
 
 		/**
@@ -129,6 +134,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Target minute independent of the current mode Manual and Automatic.
 		 */
 		TARGET_MINUTE(new IntegerDoc() //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Target minute independent of the current mode Manual and Automatic.") //
 				.<ControllerEssGridOptimizedChargeImpl>onChannelSetNextValue((self, value) -> {
 					value.asOptional().ifPresent(targetTime -> {
@@ -159,6 +165,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Keeps the time, when the delayed charge will start on the current day.
 		 */
 		PREDICTED_CHARGE_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Time when the delayed charge will start on the current day.")), //
 
 		/**

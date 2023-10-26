@@ -120,7 +120,8 @@ public interface Field {
 		LASTMESSAGE("lastmessage", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
-		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false);
+		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false),
+		FIRST_SETUP_PROTOCOL("first_setup_protocol_date", false);
 
 		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

@@ -6,6 +6,7 @@ import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
+import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
 
 import { Edge } from '../edge/edge';
@@ -24,6 +25,7 @@ import { Role } from '../type/role';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+import { DateUtils } from '../utils/dateutils/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -178,7 +180,7 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
-    this.router.navigate(['/index']);
+    this.router.navigate(['/login']);
   }
 
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
@@ -250,7 +252,7 @@ export class Service extends AbstractService {
               continue;
             }
 
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
+            let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
@@ -282,13 +284,14 @@ export class Service extends AbstractService {
    * @param limit the number of edges to be retrieved
    * @returns a Promise
    */
-  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter['value'] }): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
           ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit })
+          ...(limit && { limit: limit }),
+          ...(searchParamsObj && { searchParams: searchParamsObj })
         })).then((response) => {
 
           const result = (response as GetEdgesResponse).result;
@@ -304,7 +307,9 @@ export class Service extends AbstractService {
               ("version" in edge) ? edge["version"] : "0.0.0",
               Role.getRole(edge.role.toString()),
               edge.isOnline,
-              edge.lastmessage
+              edge.lastmessage,
+              edge.sumState,
+              DateUtils.stringToDate(edge.firstSetupProtocol?.toString())
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -342,9 +347,9 @@ export class Service extends AbstractService {
           ("version" in edgeData) ? edgeData["version"] : "0.0.0",
           Role.getRole(edgeData.role.toString()),
           edgeData.isOnline,
-          edgeData.lastmessage
-        );
-
+          edgeData.lastmessage,
+          edgeData.sumState,
+          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
         this.currentEdge.next(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);

@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement.FillElementsPriority;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -84,30 +86,41 @@ public abstract class AbstractReadTask<//
 	 * @param response the response values
 	 * @throws OpenemsException on error
 	 */
-	@SuppressWarnings("unchecked")
 	private void fillElements(T[] response) throws OpenemsException {
-		var position = 0;
 		var errors = new ArrayList<String>();
 
-		for (var element : this.elements) {
-			if (this.elementClazz.isInstance(element)) {
-				try {
-					this.handleResponse((ELEMENT) element, position, response);
-				} catch (OpenemsException e) {
-					errors.add("Unable to fill Modbus Element. " //
-							+ element.toString() + " Error: " + e.getMessage());
-				}
-			} else {
-				errors.add("Wrong type while filling Modbus Element. " //
-						+ element.toString() + " " //
-						+ "Expected [" + this.elementClazz.getSimpleName() + "] " //
-						+ "Got [" + element.getClass().getSimpleName() + "]");
-			}
-			position = this.calculateNextPosition(element, position);
-		}
+		this.fillElements(FillElementsPriority.HIGH, errors, response);
+		this.fillElements(FillElementsPriority.DEFAULT, errors, response);
 
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(String.join(", ", errors));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void fillElements(FillElementsPriority priority, List<String> errors, T[] response) {
+		var position = 0;
+
+		for (var element : this.elements) {
+			// Filter for FillElementsPriority
+			@SuppressWarnings("deprecation")
+			var thisPriority = ((AbstractModbusElement<?, ?, ?>) element)._getFillElementsPriority();
+			if (thisPriority == priority) {
+				if (this.elementClazz.isInstance(element)) {
+					try {
+						this.handleResponse((ELEMENT) element, position, response);
+					} catch (OpenemsException e) {
+						errors.add("Unable to fill Modbus Element. " //
+								+ element.toString() + " Error: " + e.getMessage());
+					}
+				} else {
+					errors.add("Wrong type while filling Modbus Element. " //
+							+ element.toString() + " " //
+							+ "Expected [" + this.elementClazz.getSimpleName() + "] " //
+							+ "Got [" + element.getClass().getSimpleName() + "]");
+				}
+			}
+			position = this.calculateNextPosition(element, position);
 		}
 	}
 

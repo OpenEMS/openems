@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -23,6 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.channel.Debounce;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
@@ -30,11 +32,11 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -46,36 +48,7 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<SELF, SUT>, SUT extends OpenemsComponent> {
 
-	/**
-	 * Stores a tuple of ChannelAddress and Object value.
-	 */
-	public static class ChannelValue {
-		private final ChannelAddress address;
-		private final Object value;
-
-		public ChannelValue(ChannelAddress address, Object value) {
-			this.address = address;
-			this.value = value;
-		}
-
-		/**
-		 * Gets the {@link ChannelAddress}.
-		 *
-		 * @return the {@link ChannelAddress}
-		 */
-		public ChannelAddress getAddress() {
-			return this.address;
-		}
-
-		/**
-		 * Gets the value {@link Object}.
-		 *
-		 * @return the {@link Object}
-		 */
-		public Object getValue() {
-			return this.value;
-		}
-
+	public record ChannelValue(ChannelAddress address, Object value, boolean force) {
 		@Override
 		public String toString() {
 			return this.address.toString() + ":" + this.value;
@@ -142,7 +115,23 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * @return myself
 		 */
 		public TestCase input(ChannelAddress address, Object value) {
-			this.inputs.add(new ChannelValue(address, value));
+			this.inputs.add(new ChannelValue(address, value, false));
+			return this;
+		}
+
+		/**
+		 * Enforces an input value for a Channel.
+		 * 
+		 * <p>
+		 * Use this method if you want to be sure, that the Channel actually applies the
+		 * value, e.g. to override a {@link Debounce} setting.
+		 *
+		 * @param address the {@link ChannelAddress}
+		 * @param value   the value {@link Object}
+		 * @return myself
+		 */
+		public TestCase inputForce(ChannelAddress address, Object value) {
+			this.inputs.add(new ChannelValue(address, value, true));
 			return this;
 		}
 
@@ -154,7 +143,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * @return myself
 		 */
 		public TestCase output(ChannelAddress address, Object value) {
-			this.outputs.add(new ChannelValue(address, value));
+			this.outputs.add(new ChannelValue(address, value, false));
 			return this;
 		}
 
@@ -289,18 +278,24 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		protected void applyInputs(Map<String, OpenemsComponent> components)
 				throws IllegalArgumentException, OpenemsNamedException {
-			for (ChannelValue input : this.inputs) {
+			for (var input : this.inputs) {
 				var component = components.get(input.address.getComponentId());
 				if (component == null) {
 					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
 							+ "the component [" + input.address.getComponentId() + "] " //
 							+ "was not added to the OpenEMS Component test framework!");
 				}
-				Channel<?> channel = component.channel(input.address.getChannelId());
-				channel.setNextValue(input.getValue());
-				channel.nextProcessImage();
-				if (channel instanceof WriteChannel<?>) {
-					((WriteChannel<?>) channel).setNextWriteValueFromObject(input.getValue());
+				var channel = component.channel(input.address.getChannelId());
+
+				// (Force) set the Read-Value
+				do {
+					channel.setNextValue(input.value());
+					channel.nextProcessImage();
+				} while (input.force() && !Objects.equals(channel.value().get(), input.value()));
+
+				// Set the Write-Value
+				if (channel instanceof WriteChannel<?> c) {
+					c.setNextWriteValueFromObject(input.value());
 				}
 			}
 		}
@@ -312,15 +307,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * @throws Exception on validation failure
 		 */
 		protected void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
-			for (ChannelValue output : this.outputs) {
+			for (var output : this.outputs) {
 				var expected = output.value;
-				Channel<?> channel = components.get(output.address.getComponentId())
-						.channel(output.address.getChannelId());
+				var channel = components.get(output.address.getComponentId()).channel(output.address.getChannelId());
 				Object got;
 				if (channel instanceof WriteChannel) {
 					got = ((WriteChannel<?>) channel).getNextWriteValueAndReset().orElse(null);
 				} else {
-					Value<?> value = channel.getNextValue();
+					var value = channel.getNextValue();
 					got = value.orElse(null);
 				}
 
@@ -375,13 +369,26 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 					for (Object enumConstant : subclass.getEnumConstants()) {
 						var channelId = (ChannelId) enumConstant;
 						// and validate that they were initialized in the constructor.
+						final Channel<?> channel;
 						try {
-							sut.channel(channelId);
+							channel = sut.channel(channelId);
 						} catch (IllegalArgumentException e) {
 							throw new OpenemsException(
 									"OpenEMS Nature [" + iface.getSimpleName() + "] was not properly implemented. " //
 											+ "Please make sure to initialize the Channel-IDs in the constructor.",
 									e);
+						}
+
+						// Test if all values of OptionsEnum types are unique
+						if (channel.channelDoc() instanceof EnumDoc e) {
+							if (e.getOptions().length > Stream.of(e.getOptions()) //
+									.mapToInt(OptionsEnum::getValue) //
+									.distinct() //
+									.count()) {
+								throw new OpenemsException(
+										"OptionsEnum [" + e.getOptions()[0].getClass().getSimpleName() + "] in " //
+												+ "[" + sut.getClass().getSimpleName() + "] has non-unique values!");
+							}
 						}
 					}
 				}

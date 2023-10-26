@@ -443,6 +443,7 @@
   "General": {
     "active": "Active",
     "actualPower": "e-car Charge power",
+    "ALL": "All",
     "apply": "Apply",
     "autarchy": "Autarchy",
     "automatic": "Automatically",
@@ -502,7 +503,7 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
-    "systemState": "System state",
+    "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -541,7 +542,8 @@
     },
     "yes": "Yes",
     "no": "No",
-    "value": "value"
+    "value": "value",
+    "SUM_STATE": "System state"
   },
   "Index": {
     "allConnected": "All connections established.",
@@ -550,12 +552,15 @@
     "connectionSuccessful": "Successfully connected to {{ value }}.",
     "deviceOffline": "The device is not connected!",
     "isOffline": "OpenEMS is offline!",
-    "loggedInAs": "Logged in as:",
+    "LOGGED_IN_AS": "Logged in as",
     "toEnergymonitor": "To Energymonitor...",
-    "type": "Type",
+    "TYPE": "Type",
     "OFFLINE_SINCE": "Offline since",
     "ADD_EDGE": "Add new {{ edgeShortName }}",
-    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet."
+    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
+    "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
+    "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
+    "FIRST_SETUP_PROTOCOL": "Commissioning"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -685,7 +690,7 @@
       "CHOOSE": "Choose",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
-      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in (e.g. 70% limit)",
+      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
       "EXTERNAL_CONTROLLER_CHECK": "The external control reciever was installed properly and completely according to the instructions.",
       "EXTERNAL_LIMITATION_ACTIVATED": "External control reciever activated?",
       "EXTERNAL_LIMITATION": "External controller (External limitation by the DSO)",
@@ -697,7 +702,8 @@
       "QU_ENABLED_CURVE": "Reactive power - Q(U) characteristics",
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever"
+      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
+      "PLACE_HOLDER": "Select option"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -732,7 +738,7 @@
         "WEST": "West"
       },
       "INSTALLED_POWER": "Installed power[Wₚ]",
-      "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
+      "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
       "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
       "METER_TYPE": "Type of the sensor",
       "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
@@ -756,11 +762,12 @@
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
       "AC_NOT_CREATED": "AC Meter not created!",
-      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator.",
+      "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
-      "BATTERY_TOWER": "Battery Tower {{ towerNumber }}",
+      "BATTERY_TOWER": "Battery Tower {{ number }}",
       "BESS_COMPONENTS": "BESS components",
       "BMS_BOX": "BMS Box & Base",
       "CONFIRM": "Confirm",

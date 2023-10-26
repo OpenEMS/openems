@@ -1,0 +1,29 @@
+= Metadata File
+
+OpenEMS Backend implementation for Metadata. 
+
+Allows you to configure multiple edges by a single JSON file. 
+Using this bundle enables you to easily set up an OpenEMS 
+Backend for testing purposes.
+
+
+== Example configuration file
+
+```
+{
+	edges: {
+		edge0: {
+			comment: "Edge #0",
+			apikey: "edge0",
+			setuppassword: "abcdefgh"
+		}, 
+		edge1: {
+			comment: "Edge #1",
+			apikey: "edge1",
+			setuppassword: "1234567"
+		}
+	}
+}
+```
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.metadata.file[Source Code icon:github[]]
