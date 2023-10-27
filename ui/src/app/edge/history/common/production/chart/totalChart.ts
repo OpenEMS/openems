@@ -78,7 +78,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
-          noStrokeThroughLegendIfHidden: false,
           stack: 2
         });
 
