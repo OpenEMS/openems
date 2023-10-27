@@ -1,6 +1,6 @@
 import { SumState } from "src/app/index/shared/sumState";
 import { TextIndentation } from "../genericComponents/modal/modal-line/modal-line";
-import { OeFormlyViewTester } from "../genericComponents/shared/tester";
+import { OeFormlyViewTester } from "../genericComponents/shared/testing/tester";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";
