@@ -13,7 +13,7 @@ content:
 
 ui:
   bundle:
-    url: uibundle_openems.zip
+    url: ./uibundle_openems.zip
 
 output:
   dir: www

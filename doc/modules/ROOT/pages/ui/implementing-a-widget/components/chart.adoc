@@ -1,0 +1,8 @@
+=== Creating a Chart
+
+Charts are mainly used in the History-View and should be acting like the `modal` in the live-view. This means they shouldn't be apparent in the history-view directly, but should open when clicking on a `flat-widget`.
+
+Creating or updating charts has been very difficult, but if you use the recommended and new way of creating them, its much easier and can be done fast. Furthermore they are unittestable now. 
+link:src\app\edge\history\common\energy\chart\chart.ts[Working Example]
+
+If we take a look at a
