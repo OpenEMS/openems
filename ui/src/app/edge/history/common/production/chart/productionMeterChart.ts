@@ -52,7 +52,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
               converter: () => {
                 return data['ActivePowerL' + i] ?? null;
               },
-              color: this.phaseColors[i - 1]
+              color: AbstractHistoryChart.phaseColors[i - 1]
             });
           }
         }
