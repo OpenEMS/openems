@@ -15,7 +15,7 @@ export class ChartComponent extends AbstractHistoryChart {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate);
   }
 
-  public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     let input: HistoryUtils.InputChannel[] =
       config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
         let newObj = [];
