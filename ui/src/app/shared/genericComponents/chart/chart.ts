@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+
 import { ChartOptionsPopoverComponent } from "../../chartoptions/popover/popover.component";
 import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
@@ -10,7 +11,7 @@ import { Edge, Service } from "../../shared";
   selector: 'oe-chart',
   templateUrl: './chart.html'
 })
-export class ChartComponent implements OnInit {
+export class ChartComponent implements OnInit, OnChanges {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';

@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 
 import { Common_Autarchy } from './autarchy/Autarchy';
+import { CommonEnergyMonitor } from './energy/energy';
 import { Common_Grid } from './grid/grid';
 import { Common_Production } from './production/production';
-import { CommonEnergyMonitor } from './energy/energy';
 import { Common_Selfconsumption } from './selfconsumption/SelfConsumption';
 
 @NgModule({
@@ -22,4 +22,4 @@ import { Common_Selfconsumption } from './selfconsumption/SelfConsumption';
     Common_Selfconsumption
   ]
 })
-export class Common_Module { }
+export class Common { }

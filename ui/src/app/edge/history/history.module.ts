@@ -7,7 +7,7 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common_Module } from './common/common';
+import { Common } from './common/common';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
@@ -61,7 +61,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common_Module
+    Common
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
