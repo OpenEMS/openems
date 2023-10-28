@@ -117,25 +117,22 @@ public class IoShelly3Impl extends AbstractOpenemsComponent
 		Boolean relay1IsOn;
 		Boolean relay2IsOn;
 		Boolean relay3IsOn;
+
 		try {
-			var json = this.shellyApi.getStatus();
-			var relays = JsonUtils.getAsJsonArray(json, "relays");
-			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
-			var relay2 = JsonUtils.getAsJsonObject(relays.get(1));
-			relay2IsOn = JsonUtils.getAsBoolean(relay2, "ison");
-			var relay3 = JsonUtils.getAsJsonObject(relays.get(2));
-			relay3IsOn = JsonUtils.getAsBoolean(relay3, "ison");
+			relay1IsOn = this.shellyApi.getRelayIson(0);
+			relay2IsOn = this.shellyApi.getRelayIson(1);
+			relay3IsOn = this.shellyApi.getRelayIson(2);
 
 			this._setSlaveCommunicationFailed(false);
-
 		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
 			relay1IsOn = null;
 			relay2IsOn = null;
 			relay3IsOn = null;
+
 			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
 			this._setSlaveCommunicationFailed(true);
 		}
+
 		this._setRelay1(relay1IsOn);
 		this._setRelay2(relay2IsOn);
 		this._setRelay3(relay3IsOn);
