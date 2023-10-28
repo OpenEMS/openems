@@ -696,5 +696,12 @@ export namespace HistoryUtils {
         return Math.abs(Math.min(0, value));
       }
     };
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+      if (value < 0) {
+        return Math.abs(value);
+      } else {
+        return 0;
+      }
+    };
   }
 }

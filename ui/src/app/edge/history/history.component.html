@@ -18,7 +18,7 @@
           <productionWidget></productionWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
-          <gridWidget [period]="service.historyPeriod.value"></gridWidget>
+          <gridWidget></gridWidget>
         </ion-col>
         <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
           <consumptionWidget [period]="service.historyPeriod.value"></consumptionWidget>

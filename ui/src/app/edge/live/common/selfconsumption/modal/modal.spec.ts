@@ -1,5 +1,5 @@
 import { LINE_INFO } from "src/app/shared/edge/edgeconfig.spec";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
+import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 
 import { ModalComponent } from "./modal";
@@ -14,7 +14,7 @@ export function expectView(testContext: TestContext, viewContext: OeFormlyViewTe
 };
 
 describe('SelfConsumption - Modal', () => {
-  let TEST_CONTEXT:TestContext;
+  let TEST_CONTEXT: TestContext;
   beforeEach(() => TEST_CONTEXT = sharedSetup());
 
   it('generateView()', () => {
