@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -12,7 +13,6 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyCycle;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryFeneconF2bBmwImplTest {
 
