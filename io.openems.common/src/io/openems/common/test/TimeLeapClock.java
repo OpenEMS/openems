@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalUnit;
 
 public class TimeLeapClock extends Clock {
@@ -21,6 +22,10 @@ public class TimeLeapClock extends Clock {
 		this(Instant.now(), zone);
 	}
 
+	public TimeLeapClock(Instant start) {
+		this(start, ZoneOffset.UTC);
+	}
+
 	public TimeLeapClock() {
 		this(Instant.now(), ZoneOffset.UTC);
 	}
@@ -30,7 +35,7 @@ public class TimeLeapClock extends Clock {
 		if (zone.equals(this.zone)) { // intentional NPE
 			return this;
 		}
-		return new TimeLeapClock(zone);
+		return new TimeLeapClock(this.instant, zone);
 	}
 
 	@Override
@@ -60,11 +65,10 @@ public class TimeLeapClock extends Clock {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof TimeLeapClock) {
-			var other = (TimeLeapClock) obj;
-			return this.instant.equals(other.instant) && this.zone.equals(other.zone);
-		}
-		return false;
+		return obj == this //
+				|| obj instanceof Clock other //
+						&& this.instant.equals(other.instant()) //
+						&& this.zone.equals(other.getZone());
 	}
 
 	@Override
@@ -74,6 +78,15 @@ public class TimeLeapClock extends Clock {
 
 	@Override
 	public String toString() {
-		return "TimeLeapClock[" + this.instant + "," + this.zone + "]";
+		return "TimeLeapClock[" + this.instant + ", " + this.zone + "]";
+	}
+
+	/**
+	 * Get current DateTime as {@link ZonedDateTime}.
+	 *
+	 * @return current date and time.
+	 */
+	public ZonedDateTime now() {
+		return ZonedDateTime.ofInstant(this.instant, this.zone);
 	}
 }
