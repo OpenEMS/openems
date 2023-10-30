@@ -34,6 +34,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.AppCenterMetadata;
@@ -500,6 +502,16 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("MetadataOdoo.getEdgeOfflineAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("MetadataOdoo.getSumStateAlertingSettings() is not implemented");
+	}
+
+	@Override
 	public List<EdgeMetadata> getPageDevice(//
 			final User user, //
 			final PaginationOptions paginationOptions //
@@ -516,6 +528,16 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
 		return this.convertToEdgeMetadata(user, this.odooHandler.getEdgeWithRole(user, edgeId));
+	}
+
+	@Override
+	public Optional<Level> getSumState(String edgeId) {
+		try {
+			return Optional.of(this.odooHandler.getSumState(edgeId));
+		} catch (Exception e) {
+			this.log.warn(e.getMessage());
+			return Optional.empty();
+		}
 	}
 
 	private EdgeMetadata convertToEdgeMetadata(User user, JsonElement jDevice) throws OpenemsNamedException {

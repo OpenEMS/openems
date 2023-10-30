@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import org.osgi.annotation.versioning.ProviderType;
 import org.osgi.service.event.EventAdmin;
 
@@ -321,6 +323,25 @@ public interface Metadata {
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException;
 
 	/**
+	 * Gets all the offline-edge-alerting settings for given edge id.
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link OfflineEdgeAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets all the sumState-alerting settings for given edge id.
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link SumStateAlertingSetting}
+	 * @throws OpenemsException on error
+	 */
+	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException;
+
+
+	/**
 	 * Returns an EventAdmin, used by Edge objects.
 	 *
 	 * @return {@link EventAdmin}
@@ -364,5 +385,13 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
+	 * Get the SumState of the edge with the given edgeId.
+	 *
+	 * @param edgeId to search for
+	 * @return sumState as {@link Optional} of {@link Level}
+	 */
+	public Optional<Level> getSumState(String edgeId);
 
 }

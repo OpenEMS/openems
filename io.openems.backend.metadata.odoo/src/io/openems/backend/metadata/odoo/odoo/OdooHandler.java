@@ -36,6 +36,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -1273,6 +1274,16 @@ public class OdooHandler {
 		return JsonUtils.getAsJsonObject(
 				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edge_with_role",
 						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Get the SumState of the edge with the given edgeId, via a ODOO-Request.
+	 *
+	 * @param edgeId to search for
+	 * @return sumState as {@link Level}
+	 */
+	public Level getSumState(String edgeId) throws OpenemsException {
+		throw new UnsupportedOperationException("OdooHandler.getSumState() is not implemented");
 	}
 
 }
