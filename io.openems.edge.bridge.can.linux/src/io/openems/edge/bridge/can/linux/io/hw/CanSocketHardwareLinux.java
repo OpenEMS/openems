@@ -19,23 +19,32 @@ import org.slf4j.LoggerFactory;
  * Delivers access to the real CAN hardware.
  * 
  * <p>
- * Access currently is provided by a CAN Socket implementation running on a
- * Kunbus RevPi CAN extension board
+ * Access currently is provided by a SocketCAN implementation.
  */
 public class CanSocketHardwareLinux implements CanDevice {
 	private final Logger log = LoggerFactory.getLogger(CanSocketHardwareLinux.class);
 
-	// linux CAN Socket interface
-	private static final String CAN_INTERFACE = "vcan0";
-	private static final int CAN_READ_TIMEOUT = 100;// us
+	private static final String DEFAULT_CAN_INTERFACE = "vcan0";
+	
+	/**
+	 * Default receive timeout of the CAN adapter in microseconds.
+	 */
+	private static final int DEFAULT_CAN_READ_TIMEOUT_US = 100;
 
 	private boolean deviceOpened = false;
-
+	private String interfaceName = "vcan0";
 	private CanSocket theCanSocket;
 	private CanInterface theCanInterface;
 
 	public CanSocketHardwareLinux() {
 		this.deviceOpened = false;
+		this.interfaceName = DEFAULT_CAN_INTERFACE;
+		this.log.warn("Using default interface '" + DEFAULT_CAN_INTERFACE + "'");
+	}
+	
+	public CanSocketHardwareLinux(String interfaceName) {
+		this.deviceOpened = false;
+		this.interfaceName = interfaceName;
 	}
 
 	@Override
@@ -47,11 +56,11 @@ public class CanSocketHardwareLinux implements CanDevice {
 	public void open(int baudrate) throws CanDeviceException {
 		try {
 			final var socket = new CanSocket(CanSocket.Mode.RAW);
-			final var canif = new CanInterface(socket, CAN_INTERFACE);
+			final var canif = new CanInterface(socket, this.interfaceName);
 			this.theCanSocket = socket;
 			this.theCanInterface = canif;
 			this.theCanSocket.bind(this.theCanInterface);
-			this.theCanSocket.setReceiveTimeout(0, CAN_READ_TIMEOUT);
+			this.theCanSocket.setReceiveTimeout(0, DEFAULT_CAN_READ_TIMEOUT_US);
 
 			this.log.info("CAN Socket Hardware library loaded and initialized");
 		} catch (Exception e) {
@@ -81,7 +90,7 @@ public class CanSocketHardwareLinux implements CanDevice {
 
 	@Override
 	public void setBaudrate(int baudrate) throws CanDeviceException {
-		; // unused, Note baudRate on Kunbus RevPi needs to be set by CAN initialisation
+		this.log.error("Setting baud rate not supported. Set the baud rate with 'ip link set " + this.interfaceName + " type can bitrate 250000'.");
 	}
 
 	private CanRxTxData can2can(final CanFrame frame) {
@@ -118,7 +127,10 @@ public class CanSocketHardwareLinux implements CanDevice {
 		};
 	}
 
-	// will be called once every cycle
+	/**
+	 * This method will be called every cycle to deliver received packets to OpenEMS.
+	 * @return array of can messages that were received since the last execution.
+	 */
 	@Override
 	public synchronized CanRxTxData[] receiveAll() throws CanDeviceException {
 		if (!this.deviceOpened || this.theCanSocket == null) {
