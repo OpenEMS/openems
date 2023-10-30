@@ -1,11 +1,6 @@
 = CAN Bridge Common
 
-This is a collection of CAN classes and CAN API methods used by the bundles
-
-* io.openems.edge.bridge.can.linuxv4
-* io.openems.edge.bridge.can.linuxv5
-
-and by bundles using a CAN bridge. 
+This is a collection of CAN classes and CAN API methods used by bundles using a CAN bridge. 
 
 The "CAN OpenEMS bridge" provides a simple raw CAN communication mechanism, to 
 * send and receive single CAN frame messages 
@@ -14,13 +9,11 @@ The "CAN OpenEMS bridge" provides a simple raw CAN communication mechanism, to
 
 == Dependencies
 
-The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/clehne/libsocket-can-java for more information).
+The "CAN OpenEMS bridge" depends on the libsocket-can-java git library project (see https://github.com/OpenEMS/libsocket-can-java for more information).
 The library provides access to CAN hardware via generic linux CAN Socket API.   
 
-A binary version of this library (https://github.com/clehne/libsocket-can-java, Branch: `V2023.02`, Date: `2023.03.10` ). 
+A binary version of this library (https://github.com/OpenEMS/libsocket-can-java). 
  is already included in this OpenEMS Bundle.
-
-
 
 == Notes
 * the configuration allows to switch between a CAN simulation and a real CAN device 
@@ -33,6 +26,8 @@ To do so, initialize the CAN driver before (as user `root`):
 
 [source]
 ----
+ modprobe vcan
+ ip link add dev vcan0 type vcan
  ip link set can0 type can bitrate 250000
  ip link set can0 type can restart-ms 100
  ip link set can0 up

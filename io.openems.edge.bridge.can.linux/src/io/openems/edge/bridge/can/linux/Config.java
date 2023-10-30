@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.can.linuxv5;
+package io.openems.edge.bridge.can.linux;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
