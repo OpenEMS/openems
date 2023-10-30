@@ -7,12 +7,12 @@ Bundle-Version: 1.0.0.${tstamp}
 	@lib/libsocket-can-java.jar; lib:=true
 
 -buildpath: \
-	${buildpath},\
+		${buildpath},\
 	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.can.common,\
 	io.openems.edge.common,\
-	lib/libsocket-can-java.jar;version=file
+lib/libsocket-can-java.jar;version=file
 
 -testpath: \
 	${testpath}
