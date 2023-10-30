@@ -20,7 +20,7 @@ import io.openems.backend.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -433,7 +433,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
 			GetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		List<AlertingSetting> users;
+		List<UserAlertingSettings> users;
 
 		if (user.getRole(edgeId).orElse(Role.GUEST).isLessThan(Role.ADMIN)) {
 			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));

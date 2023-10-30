@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import io.openems.backend.alerting.Dummy;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.test.DummyMetadata;
@@ -34,14 +34,14 @@ public class TestOfflineEdgeHandler {
 						this.getTestEdge(this.metadata, "4", ZonedDateTime.now(), false)),
 				Map.of(//
 						"1", List.of(//
-								new AlertingSetting(1, "1", Role.GUEST, this.now.minusDays(1), 1)), //
+								new UserAlertingSettings(1, "1", Role.GUEST, this.now.minusDays(1), 1)), //
 						"2", List.of(), //
 						"3", List.of(//
-								new AlertingSetting(2, "2", Role.GUEST, this.now.plusDays(1), 1), //
-								new AlertingSetting(3, "3", Role.GUEST, this.now, 0)), //
+								new UserAlertingSettings(2, "2", Role.GUEST, this.now.plusDays(1), 1), //
+								new UserAlertingSettings(3, "3", Role.GUEST, this.now, 0)), //
 						"4", List.of(//
-								new AlertingSetting(4, "2", Role.GUEST, this.now.minusDays(1), 1), //
-								new AlertingSetting(5, "3", Role.GUEST, this.now.minusDays(1), 2)) //
+								new UserAlertingSettings(4, "2", Role.GUEST, this.now.minusDays(1), 1), //
+								new UserAlertingSettings(5, "3", Role.GUEST, this.now.minusDays(1), 2)) //
 				));
 	}
 
@@ -75,12 +75,12 @@ public class TestOfflineEdgeHandler {
 		final var msgsch = new Dummy.MessageSchedulerServiceImpl();
 		final var handler = new OfflineEdgeHandler(msgsch, mailer, this.metadata, 1);
 		final var msg_1 = new OfflineEdgeMessage("1", ZonedDateTime.now().minusSeconds(1));
-		msg_1.addRecipient(new AlertingSetting(0, null, null, null, 1));
-		msg_1.addRecipient(new AlertingSetting(0, null, null, null, 2));
+		msg_1.addRecipient(new UserAlertingSettings(0, null, null, null, 1));
+		msg_1.addRecipient(new UserAlertingSettings(0, null, null, null, 2));
 
 		final var msg_2 = new OfflineEdgeMessage("Fail", ZonedDateTime.now().minusSeconds(2));
-		msg_2.addRecipient(new AlertingSetting(0, null, null, null, 1));
-		msg_2.addRecipient(new AlertingSetting(0, null, null, null, 2));
+		msg_2.addRecipient(new UserAlertingSettings(0, null, null, null, 1));
+		msg_2.addRecipient(new UserAlertingSettings(0, null, null, null, 2));
 
 		assertEquals(mailer.sentMails.size(), 0);
 		var msgs = new ArrayList<>(List.of(msg_1, msg_2));
@@ -123,10 +123,10 @@ public class TestOfflineEdgeHandler {
 		}
 
 		@Override
-		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
-			return List.of(new AlertingSetting(0, "user0", Role.OWNER, this.yesterday, 60),
-					new AlertingSetting(1, "user1", Role.OWNER, this.yesterday, 15),
-					new AlertingSetting(2, "user2", Role.OWNER, this.yesterday, 0));
+		public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
+			return List.of(new UserAlertingSettings(0, "user0", Role.OWNER, this.yesterday, 60),
+					new UserAlertingSettings(1, "user1", Role.OWNER, this.yesterday, 15),
+					new UserAlertingSettings(2, "user2", Role.OWNER, this.yesterday, 0));
 		}
 	}
 
