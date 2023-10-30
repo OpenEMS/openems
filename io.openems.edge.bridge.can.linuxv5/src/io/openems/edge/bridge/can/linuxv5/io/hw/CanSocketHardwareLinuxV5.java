@@ -26,7 +26,7 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 	private final Logger log = LoggerFactory.getLogger(CanSocketHardwareLinuxV5.class);
 
 	// linux CAN Socket interface
-	private static final String CAN_INTERFACE = "can0";
+	private static final String CAN_INTERFACE = "vcan0";
 	private static final int CAN_READ_TIMEOUT = 100;// us
 
 	private boolean deviceOpened = false;
