@@ -111,14 +111,6 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.14.0</version>
 		</dependency>
-		<!-- de -->
-		<dependency>
-			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->
-			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
-			<groupId>de.bytefish</groupId>
-			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.2</version>
-		</dependency>
 		<!-- eu -->
 		<dependency>
 			<!-- Used by io.openems.edge.evcs.ocpp. -->
