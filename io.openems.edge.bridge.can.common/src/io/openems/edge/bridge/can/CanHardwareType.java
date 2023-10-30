@@ -7,8 +7,8 @@ public enum CanHardwareType {
 	SIMULATOR,
 
 	/**
-	 * Uses the kunbus RevolutionPi CAN extension board.
+	 * Uses the SocketCAN driver.
 	 */
-	KUNBUS_REV_PI_CAN_EXTENSION;
+	SOCKETCAN;
 
 }

@@ -20,24 +20,6 @@ public class CanUtils {
 	}
 
 	/**
-	 * Parses a given String, either given as decimal or hexadecimal representation,
-	 * to an int.
-	 *
-	 * @param txt The String to be parsed
-	 * @return the parsed int
-	 * @throws NumberFormatException if the string doesn't match the required format
-	 */
-	public static final int parseHexInteger(String txt) throws NumberFormatException {
-		if (txt == null) {
-			throw new NumberFormatException();
-		}
-		if (txt.contains("0x") || txt.contains("0X")) {
-			return Integer.parseInt(txt.substring(2), 16);
-		}
-		return Integer.parseInt(txt);
-	}
-
-	/**
 	 * Gets the least significant byte of a given short value.
 	 *
 	 * @param val the value as short

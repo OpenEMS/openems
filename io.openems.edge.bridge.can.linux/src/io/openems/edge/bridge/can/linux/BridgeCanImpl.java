@@ -20,7 +20,6 @@ import io.openems.edge.bridge.can.LogVerbosity;
 import io.openems.edge.bridge.can.api.BridgeCan;
 import io.openems.edge.bridge.can.api.CanConnection;
 import io.openems.edge.bridge.can.api.CanIoException;
-import io.openems.edge.bridge.can.api.CanUtils;
 import io.openems.edge.bridge.can.io.CanDevice;
 import io.openems.edge.bridge.can.io.CanSimulator;
 import io.openems.edge.bridge.can.linux.io.hw.CanSocketHardwareLinux;
@@ -30,7 +29,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Bridge.CAN.linux", //
+		name = "Bridge.CAN.Linux", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -42,7 +41,8 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 
 	private final Logger log = LoggerFactory.getLogger(BridgeCanImpl.class);
 	private Integer baudrate;
-	private CanConnection _connection = null;
+	private String interfaceName;
+	private CanConnection canConnection = null;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -69,7 +69,7 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 	/**
 	 * Gets the baud rate.
 	 * 
-	 * @return Baud rate
+	 * @return Baud rate in kBit/s
 	 */
 	public int getBaudRate() {
 		return this.baudrate;
@@ -78,7 +78,7 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 	/**
 	 * Sets the baud rate.
 	 * 
-	 * @param newBaudRate set Baud rate
+	 * @param newBaudRate set Baud rate 
 	 */
 	public void setBaudRate(int newBaudRate) {
 		this.baudrate = newBaudRate;
@@ -87,13 +87,13 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws IOException {
 		this.setSelectedHardware(config.selected_hardware());
-
-		var b = config.can_baudrate();
-		this.setBaudRate(CanUtils.parseHexInteger(b));
+		this.interfaceName = config.interface_name();
+		var baud = config.can_baudrate();
+		this.setBaudRate(baud.asInt());
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors());
 
-		this.log.warn("Activate -----------");
+		this.log.info("Activate CAN Bridge on interface " + this.interfaceName + ".");
 		try {
 			this.getCanConnection();
 		} catch (OpenemsException e) {
@@ -105,44 +105,44 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.log.warn("Deactivate -----------");
+		this.log.info("Deactivate CAN Bridge on interface " + this.interfaceName + ".");
 		super.deactivate();
 	}
 
 	@Override
 	public void closeCanConnection() {
-		if (this._connection != null) {
+		if (this.canConnection != null) {
 			try {
-				this._connection.close();
+				this.canConnection.close();
 			} catch (CanIoException e) {
 				;
 			}
-			this._connection = null;
+			this.canConnection = null;
 		}
 	}
 
 	@Override
 	public synchronized CanConnection getCanConnection() throws OpenemsException {
-		if (this._connection == null) {
+		if (this.canConnection == null) {
 			CanDevice canDevice = null;
 			if (this.getSelectedHardware() == CanHardwareType.SIMULATOR) {
 				canDevice = new CanSimulator();
 			} else {
-				canDevice = new CanSocketHardwareLinux();
+				canDevice = new CanSocketHardwareLinux(this.interfaceName);
 			}
 			var connection = new CanConnection(this, this.getSelectedHardware(), canDevice);
-			this._connection = connection;
+			this.canConnection = connection;
 		}
-		if (!this._connection.isOpen()) {
+		if (!this.canConnection.isOpen()) {
 			try {
-				this._connection.connect(this.getBaudRate());
+				this.canConnection.connect(this.getBaudRate());
 
 			} catch (Exception e) {
 				throw new OpenemsException(
-						"CAN Connection open [" + this.getBaudRate() + "] failed: " + e.getMessage());
+						"CAN Connection open on [" + this.interfaceName + "] failed: " + e.getMessage());
 			}
 		}
-		return this._connection;
+		return this.canConnection;
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 		if (this.getLogVerbosity() != LogVerbosity.ALL) {
 			return null;
 		}
-		return ((this._connection != null && this._connection.isOpen()) ? "open" : "close") + "," + this.getBaudRate()
+		return ((this.canConnection != null && this.canConnection.isOpen()) ? "open" : "close") + "," + this.getBaudRate()
 				+ "kBaud" + "," + this.canWorkerDebugStats();
 	}
 
