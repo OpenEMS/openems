@@ -3,16 +3,20 @@ Bundle-Vendor: opernikus GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 		
--includeresource.libsocketcan: \
+Include-Resource: \
 	@lib/libsocket-can-java.jar; lib:=true
 
 -buildpath: \
-		${buildpath},\
+	${buildpath},\
 	com.ghgande.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.can.common,\
 	io.openems.edge.common,\
-lib/libsocket-can-java.jar;version=file
+	lib/libsocket-can-java.jar;version=file
 
 -testpath: \
 	${testpath}
+
+Export-Package: \
+	io.openems.edge.bridge.can.linuxv5,\
+	io.openems.edge.bridge.can.linuxv5.io.hw
