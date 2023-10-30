@@ -173,7 +173,6 @@
 	bnd.identity;id='io.openems.edge.simulator',\
 	bnd.identity;id='io.openems.edge.solaredge',\
 	bnd.identity;id='io.openems.edge.system.fenecon',\
-	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
@@ -337,7 +336,6 @@
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.system.fenecon;version=snapshot,\
-	io.openems.edge.tesla.powerwall2;version=snapshot,\
 	io.openems.edge.thermometer.api;version=snapshot,\
 	io.openems.edge.timedata.api;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
