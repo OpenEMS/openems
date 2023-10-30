@@ -435,7 +435,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var edgeId = request.getEdgeId();
 		List<AlertingSetting> users;
 
-		if (user.getRole(edgeId).orElse(Role.GUEST).isLessThan(Role.ADMIN)) {
+		if (user.getRole(edgeId).orElse(user.getGlobalRole()).isLessThan(Role.ADMIN)) {
 			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
 		} else {
 			users = this.parent.metadata.getUserAlertingSettings(edgeId);
@@ -457,7 +457,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetUserAlertingConfigsRequest(User user,
 			SetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		var role = user.getRole(edgeId).orElse(Role.GUEST);
+		var role = user.getRole(edgeId).orElse(user.getGlobalRole());
 		var userId = user.getId();
 		var userSettings = request.getUserSettings();
 
