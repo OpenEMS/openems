@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Bridge CAN Linux V5
+Bundle-Name: OpenEMS Edge Bridge CAN Linux
 Bundle-Vendor: opernikus GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -18,5 +18,5 @@ Include-Resource: \
 	${testpath}
 
 Export-Package: \
-	io.openems.edge.bridge.can.linuxv5,\
-	io.openems.edge.bridge.can.linuxv5.io.hw
+	io.openems.edge.bridge.can.linux,\
+	io.openems.edge.bridge.can.linux.io.hw

@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.can.linuxv5.io.hw;
+package io.openems.edge.bridge.can.linux.io.hw;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
  * Access currently is provided by a CAN Socket implementation running on a
  * Kunbus RevPi CAN extension board
  */
-public class CanSocketHardwareLinuxV5 implements CanDevice {
-	private final Logger log = LoggerFactory.getLogger(CanSocketHardwareLinuxV5.class);
+public class CanSocketHardwareLinux implements CanDevice {
+	private final Logger log = LoggerFactory.getLogger(CanSocketHardwareLinux.class);
 
 	// linux CAN Socket interface
 	private static final String CAN_INTERFACE = "vcan0";
@@ -34,7 +34,7 @@ public class CanSocketHardwareLinuxV5 implements CanDevice {
 	private CanSocket theCanSocket;
 	private CanInterface theCanInterface;
 
-	public CanSocketHardwareLinuxV5() {
+	public CanSocketHardwareLinux() {
 		this.deviceOpened = false;
 	}
 

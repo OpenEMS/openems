@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.can.linuxv5;
+package io.openems.edge.bridge.can.linux;
 
 import java.io.IOException;
 
@@ -23,14 +23,14 @@ import io.openems.edge.bridge.can.api.CanIoException;
 import io.openems.edge.bridge.can.api.CanUtils;
 import io.openems.edge.bridge.can.io.CanDevice;
 import io.openems.edge.bridge.can.io.CanSimulator;
-import io.openems.edge.bridge.can.linuxv5.io.hw.CanSocketHardwareLinuxV5;
+import io.openems.edge.bridge.can.linux.io.hw.CanSocketHardwareLinux;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Bridge.CAN.linuxv5", //
+		name = "Bridge.CAN.linux", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -128,7 +128,7 @@ public class BridgeCanImpl extends AbstractCanBridge implements BridgeCan, Opene
 			if (this.getSelectedHardware() == CanHardwareType.SIMULATOR) {
 				canDevice = new CanSimulator();
 			} else {
-				canDevice = new CanSocketHardwareLinuxV5();
+				canDevice = new CanSocketHardwareLinux();
 			}
 			var connection = new CanConnection(this, this.getSelectedHardware(), canDevice);
 			this._connection = connection;
