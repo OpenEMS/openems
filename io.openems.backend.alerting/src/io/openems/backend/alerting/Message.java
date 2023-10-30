@@ -15,6 +15,11 @@ public abstract class Message implements Comparable<Message> {
 		this.id = messageId;
 	}
 
+	/**
+	 * Returns the unique identifier for a Message.
+	 *
+	 * @return identifier as {@link String}
+	 */
 	public String getId() {
 		return this.id;
 	}

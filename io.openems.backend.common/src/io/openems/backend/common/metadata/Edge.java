@@ -25,7 +25,7 @@ public class Edge {
 	private String comment;
 	private SemanticVersion version;
 	private String producttype;
-	private ZonedDateTime lastmessage;
+	private ZonedDateTime lastmessage = null;
 	private boolean isOnline = false;
 
 	private final List<EdgeUser> user;
