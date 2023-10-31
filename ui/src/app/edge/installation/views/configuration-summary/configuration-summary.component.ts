@@ -11,6 +11,7 @@ import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 import { Meter } from '../../shared/meter';
 import { WebLinks } from '../../shared/enums';
+import { System } from '../../shared/system';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -173,7 +174,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     const batteryData: ComponentData[] = [];
     batteryData.push(
-      { label: this.translate.instant('Index.TYPE'), value: this.ibn.type }
+      { label: this.translate.instant('Index.TYPE'), value: System.getSystemTypeLabel(this.ibn.type) }
     );
 
     tableData.push({

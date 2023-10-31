@@ -11,6 +11,8 @@ import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installe
 import { AbstractHomeIbn } from './abstract-home';
 
 export class Home10HeckertIbn extends AbstractHomeIbn {
+    public override maxNumberOfTowers: number = 4;
+    public override maxNumberOfModulesPerTower: number = 10;
 
     public override readonly type: SystemType = SystemType.HECKERT_HOME_10;
     public override readonly id: SystemId = SystemId.HECKERT_HOME_10;

@@ -708,7 +708,8 @@
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
       "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
-      "PLACE_HOLDER": "Select option"
+      "PLACE_HOLDER": "Select option",
+      "NO_LIMITATION": "No limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",

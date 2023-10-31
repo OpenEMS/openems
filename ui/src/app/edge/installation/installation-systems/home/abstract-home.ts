@@ -109,6 +109,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public abstract readonly maxFeedInLimit: number;
   public abstract readonly homeAppId: string;
   public abstract readonly homeAppAlias: string;
+  public abstract readonly maxNumberOfTowers: number;
+  public abstract readonly maxNumberOfModulesPerTower: number;
 
   public override addPeakShavingData(peakShavingData: ComponentData[]) {
     return peakShavingData;
@@ -141,7 +143,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         type: 'number',
         label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_TOWERS'),
         min: 1,
-        max: 3,
+        max: this.maxNumberOfTowers,
         required: true
       },
       parsers: [Number],
@@ -155,7 +157,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         type: 'number',
         label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_MODULES_PER_TOWER'),
         min: 4,
-        max: 10,
+        max: this.maxNumberOfModulesPerTower,
         required: true
       },
       parsers: [Number],
@@ -667,7 +669,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     const home10AppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
-      ...(this.feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
+      ...(this.feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
       ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,

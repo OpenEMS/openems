@@ -709,7 +709,8 @@
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
-      "PLACE_HOLDER": "Wähle eine Option"
+      "PLACE_HOLDER": "Wähle eine Option",
+      "NO_LIMITATION": "Kein Einspeisemanagement"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",

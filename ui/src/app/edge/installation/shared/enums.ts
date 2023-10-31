@@ -54,6 +54,7 @@ export enum FeedInSetting {
 export enum FeedInType {
     DYNAMIC_LIMITATION = 'DYNAMIC_LIMITATION',
     EXTERNAL_LIMITATION = 'EXTERNAL_LIMITATION'
+    // NO_LIMITATION = 'NO_LIMITATION'
 }
 
 export enum WebLinks {
