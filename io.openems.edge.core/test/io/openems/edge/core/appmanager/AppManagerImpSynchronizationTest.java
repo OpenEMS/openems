@@ -28,7 +28,9 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.CheckablesBundle;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
+import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
+import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 
 public class AppManagerImpSynchronizationTest {
@@ -68,11 +70,17 @@ public class AppManagerImpSynchronizationTest {
 		final var appManagerUtil = new AppManagerUtilImpl(componentManager);
 		final var validator = new DummyValidator();
 
-		final var checkablesBundle = new CheckablesBundle(
+		final var checkablesBundle = new CheckablesBundle(//
 				new CheckCardinality(this.appManager, appManagerUtil,
 						AppManagerTestBundle.getComponentContext(CheckCardinality.COMPONENT_NAME)), //
 				new CheckRelayCount(componentUtil,
-						AppManagerTestBundle.getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
+						AppManagerTestBundle.getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
+				new CheckAppsNotInstalled(this.appManager,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME)), //
+				new CheckHome(this.appManager.componentManager,
+						AppManagerTestBundle.getComponentContext(CheckHome.COMPONENT_NAME),
+						new CheckAppsNotInstalled(this.appManager,
+								AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))) //
 		);
 
 		validator.setCheckables(checkablesBundle.all());

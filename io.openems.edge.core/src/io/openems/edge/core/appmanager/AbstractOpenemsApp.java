@@ -68,21 +68,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			AppConfiguration, //
 			OpenemsNamedException> appPropertyConfigurationFactory();
 
-	protected final void assertCheckables(ConfigurationTarget t, Checkable... checkables) throws OpenemsNamedException {
-		if (!t.isAddOrUpdate()) {
-			return;
-		}
-		final List<String> errors = new ArrayList<>();
-		for (Checkable checkable : checkables) {
-			if (!checkable.check()) {
-				errors.add(checkable.getErrorMessage(Language.DEFAULT));
-			}
-		}
-		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining(";")));
-		}
-	}
-
 	/**
 	 * Gets the {@link AppConfiguration} for the given properties.
 	 *
