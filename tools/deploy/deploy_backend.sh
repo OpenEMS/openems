@@ -22,7 +22,8 @@ git fetch --tags -f
 echo
 echo "Building Backend"
 echo
-./gradlew clean buildDependents export.BackendApp -x test
+./gradlew --build-cache build
+./gradlew buildBackend
 
 read -p "Press enter to continue"
 

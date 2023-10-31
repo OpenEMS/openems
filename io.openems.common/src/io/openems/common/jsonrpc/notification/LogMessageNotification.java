@@ -1,4 +1,4 @@
-package io.openems.backend.uiwebsocket.jsonrpc.notification;
+package io.openems.common.jsonrpc.notification;
 
 import java.lang.System.Logger.Level;
 
