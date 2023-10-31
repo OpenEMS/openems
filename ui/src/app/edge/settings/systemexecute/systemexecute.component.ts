@@ -91,9 +91,11 @@ export class SystemExecuteComponent implements OnInit {
           command = "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now";
           break;
         case "pagekite-log":
+          // TODO eventually update to fems-remote-service
           command = "journalctl -lu fems-pagekite --since=\"2 minutes ago\"";
           break;
         case "pagekite-restart":
+          // TODO eventually update to fems-remote-service
           command = "systemctl restart fems-pagekite";
           break;
       }
