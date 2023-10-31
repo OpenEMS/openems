@@ -13,6 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +36,7 @@ import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
@@ -57,9 +61,12 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+})
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		implements GoodWeBatteryInverter, GoodWe, HybridManagedSymmetricBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, EventHandler {
 
 	// Fenecon Home Battery Static module min voltage, used to calculate battery
 	// module number per tower
@@ -142,6 +149,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		super.handleEvent(event);
 	}
 
 	/**
@@ -522,5 +537,4 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	public boolean isOffGridPossible() {
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
-
 }
