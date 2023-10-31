@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -92,7 +93,11 @@ public class StromdaoCorrently extends AbstractEnumOpenemsApp<Property> implemen
 									.addProperty("zipcode", zipCode) //
 									.build())//
 			);
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(comp)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

@@ -36,6 +36,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -132,7 +133,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			if (!this.getBoolean(p, Property.ACTIVE)) {
-				return new AppConfiguration();
+				return AppConfiguration.empty();
 			}
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
 
@@ -142,7 +143,9 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

@@ -36,6 +36,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for KMtronic 8-Channel Relay.
@@ -127,16 +128,12 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 							.build())//
 			);
 
-			final var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							.addIp("Relay", "192.168.1.198/28") //
-			);
-
-			return new AppConfiguration(//
-					comp, //
-					null, //
-					ip.startsWith("192.168.1.") ? ips : null //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(comp)) //
+					.throwingOnlyIf(ip.startsWith("192.168.1."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									.addIp("Relay", "192.168.1.198/28")))) //
+					.build();
 		};
 	}
 

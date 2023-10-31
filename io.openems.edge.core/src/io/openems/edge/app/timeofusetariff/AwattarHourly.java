@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for AwattarHourly.
@@ -85,8 +86,11 @@ public class AwattarHourly extends AbstractEnumOpenemsApp<Property> implements O
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
-			return new AppConfiguration(components,
-					Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

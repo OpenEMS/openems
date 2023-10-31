@@ -24,6 +24,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for SolarEdge PV-Inverter.
@@ -81,7 +82,9 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 			var factoryIdInverter = "SolarEdge.PV-Inverter";
 			var components = this.getComponents(factoryIdInverter, pvInverterId, modbusId, alias, ip, port);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

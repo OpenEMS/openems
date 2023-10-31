@@ -44,6 +44,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -152,7 +153,9 @@ public class CombinedHeatAndPower
 
 			if (instanceIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(components);
+				return AppConfiguration.create() //
+						.addTask(Tasks.component(components)) //
+						.build();
 			}
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -165,7 +168,10 @@ public class CombinedHeatAndPower
 							.setSpecificInstanceId(instanceIdOfRelay) //
 							.build()));
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

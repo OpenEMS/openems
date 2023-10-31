@@ -18,6 +18,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
@@ -26,6 +27,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.CheckablesBundle;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
@@ -42,6 +44,8 @@ public class AppManagerImpSynchronizationTest {
 	@Before
 	public void before() throws Exception {
 		this.appManager = new AppManagerImpl();
+		ReflectionUtils.setAttribute(AppManagerImpl.class, this.appManager, "appValidateWorker",
+				new AppValidateWorker());
 		assertTrue(this.appManager.lockModifyingApps.tryLock());
 		this.appManager.lockModifyingApps.unlock();
 		assertFalse(this.appManager.waitingForModified);
@@ -84,11 +88,13 @@ public class AppManagerImpSynchronizationTest {
 		);
 
 		validator.setCheckables(checkablesBundle.all());
+
 		new ComponentTest(this.appManager) //
 				.addReference("cm", cm) //
 				.addReference("componentManager", componentManager) //
 				.addReference("csoAppManagerAppHelper",
-						DummyAppManagerAppHelper.cso(componentManager, componentUtil, validator, appManagerUtil)) //
+						AppManagerTestBundle.<AppManagerAppHelper>cso(new DummyAppManagerAppHelper(componentManager,
+								componentUtil, validator, appManagerUtil))) //
 				.addReference("validator", validator) //
 				.addReference("backendUtil", new DummyAppCenterBackendUtil()) //
 				.addReference("availableApps", Lists.newArrayList(//
