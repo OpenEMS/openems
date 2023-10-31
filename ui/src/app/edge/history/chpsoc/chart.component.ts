@@ -6,6 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import * as Chart from 'chart.js';
+import { formatNumber } from '@angular/common';
 
 @Component({
     selector: 'chpsocchart',
@@ -159,8 +160,11 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
+        // options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.label;
+            let value = tooltipItem.dataset[tooltipItem.dataIndex];
+            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
             // let label = data.datasets[tooltipItem.datasetIndex].label;
             // let value = tooltipItem.yLabel;
             // return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically

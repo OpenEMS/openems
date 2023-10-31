@@ -2,12 +2,13 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import * as Chart from 'chart.js';
+
 @Component({
     selector: 'consumptionOtherChart',
     templateUrl: '../abstracthistorychart.html'
@@ -136,8 +137,11 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
+        // options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.label;
+            let value = tooltipItem.dataset[tooltipItem.dataIndex];
+            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
             // let label = data.datasets[tooltipItem.datasetIndex].label;
             // let value = tooltipItem.yLabel;
             // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

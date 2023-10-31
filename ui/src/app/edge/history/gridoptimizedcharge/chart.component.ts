@@ -2,14 +2,14 @@ import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { DEFAULT_TIME_CHART_OPTIONS, Data, TooltipItem } from '../shared';
-import * as Chart from 'chart.js';
+import { Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
 
 @Component({
   selector: 'gridOptimizedChargeChart',
@@ -238,11 +238,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
     }
 
     //y-axis
-    options.scales.yAxes[0].id = "yAxis1";
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.scales.yAxes[0].scaleLabel.padding = -2;
-    options.scales.yAxes[0].scaleLabel.fontSize = 11;
-    options.scales.yAxes[0].ticks.padding = -5;
+    // options.scales.yAxes[0].id = "yAxis1";
+    // options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    // options.scales.yAxes[0].scaleLabel.padding = -2;
+    // options.scales.yAxes[0].scaleLabel.fontSize = 11;
+    // options.scales.yAxes[0].ticks.padding = -5;
     options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
       // let label = data.datasets[tooltipItem.datasetIndex].label;
       // if (label.split(" ").length > 1) {
