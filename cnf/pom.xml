@@ -42,19 +42,19 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>4.11.0</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>4.11.0</version>
+			<version>4.12.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
@@ -306,7 +306,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.16.1</version>
+			<version>1.16.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
