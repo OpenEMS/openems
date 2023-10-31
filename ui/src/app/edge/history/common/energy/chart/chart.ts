@@ -15,9 +15,9 @@ export class ChartComponent extends AbstractHistoryChart {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate);
   }
 
-  public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     let input: HistoryUtils.InputChannel[] =
-      config.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
+      config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
         let newObj = [];
         switch (key) {
 
@@ -143,7 +143,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Sell to grid
           {
-            name: translate.instant('General.gridSell'),
+            name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridSellActiveEnergy'];
             },
@@ -157,7 +157,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Buy from Grid
           {
-            name: translate.instant('General.gridBuy'),
+            name: translate.instant('General.gridBuyAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridBuyActiveEnergy'];
             },

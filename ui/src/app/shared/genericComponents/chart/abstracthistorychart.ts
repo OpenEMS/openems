@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
@@ -21,7 +21,7 @@ import { DateUtils } from '../../utils/dateutils/dateutils';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnChanges {
+export abstract class AbstractHistoryChart implements OnInit {
 
   /** Title for Chart, diplayed above the Chart */
   @Input() public chartTitle: string = "";
@@ -45,7 +45,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
-  public static readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
+  protected static phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
@@ -61,9 +61,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     });
   }
 
-  ngOnChanges(): void {
-    this.updateChart();
-  }
 
   ngOnInit() {
     this.startSpinner();
@@ -123,8 +120,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
       if (channelAddress?.toString() in result.data) {
         channelData.data[element.name] =
-          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(
-            result.data[channelAddress.toString()])
+          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])
             ?.map(value => {
               if (value == null) {
                 return null;
@@ -159,7 +155,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         let label = AbstractHistoryChart.getTooltipsLabelName(element.name, yAxis?.unit, nameSuffix);
         let data: number[] | null = element.converter();
 
-        if (data == null) {
+        if (data === null || data === undefined) {
           return;
         }
 
@@ -503,7 +499,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): ChartOptions {
-
 
     let tooltipsLabel: string | null = null;
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));

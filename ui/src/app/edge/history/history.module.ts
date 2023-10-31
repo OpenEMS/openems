@@ -7,11 +7,14 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common_Autarchy } from './common/autarchy/Autarchy';
-import { Common_Consumption } from './common/consumption/Consumption';
-import { CommonEnergyMonitor } from './common/energy/energy';
-import { Common_Production } from './common/production/Production';
-import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
+import { Common } from './common/common';
+import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
+import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
+import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
+import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
+import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
+import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
+import { ConsumptionComponent } from './consumption/widget.component';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -20,8 +23,6 @@ import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlec
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
 import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
 import { GridChartComponent } from './grid/chart.component';
-import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
-import { GridComponent } from './grid/widget.component';
 import { GridOptimizedChargeChartComponent } from './gridoptimizedcharge/chart.component';
 import { GridOptimizedChargeChartOverviewComponent } from './gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { SellToGridLimitChartComponent } from './gridoptimizedcharge/sellToGridLimitChart.component';
@@ -60,11 +61,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common_Autarchy,
-    Common_Consumption,
-    Common_Production,
-    Common_Selfconsumption,
-    CommonEnergyMonitor
+    Common
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -76,6 +73,13 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
+    ConsumptionChartOverviewComponent,
+    ConsumptionComponent,
+    ConsumptionEvcsChartComponent,
+    ConsumptionMeterChartComponent,
+    ConsumptionOtherChartComponent,
+    ConsumptionSingleChartComponent,
+    ConsumptionTotalChartComponent,
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,
@@ -84,8 +88,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     FixDigitalOutputTotalChartComponent,
     FixDigitalOutputWidgetComponent,
     GridChartComponent,
-    GridChartOverviewComponent,
-    GridComponent,
     GridOptimizedChargeChartComponent,
     GridOptimizedChargeChartOverviewComponent,
     GridOptimizedChargeWidgetComponent,

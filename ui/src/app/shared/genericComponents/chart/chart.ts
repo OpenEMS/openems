@@ -1,7 +1,8 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+
 import { ChartOptionsPopoverComponent } from "../../chartoptions/popover/popover.component";
 import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
@@ -10,18 +11,18 @@ import { Edge, Service } from "../../shared";
   selector: 'oe-chart',
   templateUrl: './chart.html'
 })
-export class ChartComponent implements OnInit, AfterViewChecked {
+export class ChartComponent implements OnInit, OnChanges {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';
   @Input() public showPhases: boolean | null = null;
   @Input() public showTotal: boolean | null = null;
-  @Output() public showTotalChange: EventEmitter<boolean> = new EventEmitter();
-  @Output() public showPhasesChange: EventEmitter<boolean> = new EventEmitter();
+  @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
+  @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
 
   // Manually trigger ChangeDetection through Inputchange
-  @Input() public period: DefaultTypes.PeriodString;
+  @Input() private period: DefaultTypes.PeriodString;
   protected showPopover: boolean = false;
 
   constructor(
@@ -37,9 +38,11 @@ export class ChartComponent implements OnInit, AfterViewChecked {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
+
   }
 
-  ngAfterViewChecked() {
+  /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
+  ngOnChanges() {
     this.ref.detectChanges();
     this.checkIfPopoverNeeded();
   }
@@ -48,8 +51,8 @@ export class ChartComponent implements OnInit, AfterViewChecked {
     if (this.isPopoverNeeded) {
       if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
         this.showPopover = false;
-        this.showPhasesChange.emit(false);
-        this.showTotalChange.emit(true);
+        this.setShowPhases.emit(false);
+        this.setShowTotal.emit(true);
       } else {
         this.showPopover = true;
       }
@@ -70,8 +73,9 @@ export class ChartComponent implements OnInit, AfterViewChecked {
     popover.onDidDismiss().then((data) => {
       this.showPhases = data.role == 'Phases' ? data.data : this.showPhases;
       this.showTotal = data.role == 'Total' ? data.data : this.showTotal;
-      this.showPhasesChange.emit(this.showPhases);
-      this.showTotalChange.emit(this.showTotal);
+      this.setShowPhases.emit(this.showPhases);
+      this.setShowTotal.emit(this.showTotal);
     });
+    await popover.present();
   }
 }

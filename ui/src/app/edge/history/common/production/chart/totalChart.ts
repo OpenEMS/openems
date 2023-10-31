@@ -12,7 +12,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
-    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+    let productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
@@ -78,7 +78,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
-          noStrokeThroughLegendIfHidden: false,
           stack: 2
         });
 

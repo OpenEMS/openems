@@ -1,16 +1,16 @@
 import { ChartDataSets } from "chart.js";
 import { ChartOptions } from "src/app/edge/history/shared";
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
+import { HistoryUtils } from "src/app/shared/service/utils";
+import { CurrentData } from "src/app/shared/shared";
+import { TestContext } from "src/app/shared/test/utils.spec";
 
-import { DummyConfig } from "../../edge/edgeconfig.spec";
-import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { HistoryUtils } from "../../service/utils";
-import { CurrentData } from "../../shared";
-import { TestContext } from "../../test/utils.spec";
-import { AbstractHistoryChart } from "../chart/abstracthistorychart";
-import { TextIndentation } from "../modal/modal-line/modal-line";
-import { Converter } from "./converter";
-import { OeFormlyField, OeFormlyView } from "./oe-formly-component";
+import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
+import { TextIndentation } from "../../modal/modal-line/modal-line";
+import { Converter } from "../converter";
+import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
+import { OeTester } from "./common";
 
 export class OeFormlyViewTester {
 
@@ -222,7 +222,7 @@ export namespace OeChartTester {
 
 export class OeChartTester {
 
-  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: DummyConfig.OeChannels, testContext: TestContext): OeChartTester.View {
+  public static apply(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, testContext: TestContext): OeChartTester.View {
 
     let channelData = OeChartTester.getChannelDataByCharttype(chartType, channels);
 
@@ -291,7 +291,7 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: DummyConfig.OeChannels): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels): OeChartTester.Dataset.Option {
 
     let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
     let displayValues = chartData.output(channelData.result.data);
@@ -309,7 +309,7 @@ export class OeChartTester {
     };
   }
 
-  private static getChannelDataByCharttype(chartType: 'line' | 'bar', channels: DummyConfig.OeChannels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
+  private static getChannelDataByCharttype(chartType: 'line' | 'bar', channels: OeTester.Types.Channels): QueryHistoricTimeseriesEnergyPerPeriodResponse | QueryHistoricTimeseriesDataResponse {
     switch (chartType) {
       case 'line':
         return channels.dataChannelWithValues;
