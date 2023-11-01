@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -28,7 +30,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -110,21 +112,20 @@ public class StromdaoCorrently extends
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
 
-			// TODO ess id may be changed
-			var comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
-							"Controller.Ess.Time-Of-Use-Tariff", JsonUtils.buildJsonObject() //
-									.addProperty("ess.id", "ess0") //
-									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Corrently",
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
-									.addProperty("zipcode", zipCode) //
+									.addProperty("ess.id", "ess0") //
+									.addPropertyIfNotNull("zipcode", zipCode) //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
+							JsonUtils.buildJsonObject() //
 									.build())//
 			);
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(comp)) //
-					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
 					.build();
 		};
 	}
