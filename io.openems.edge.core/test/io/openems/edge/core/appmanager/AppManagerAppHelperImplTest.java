@@ -3,6 +3,8 @@ package io.openems.edge.core.appmanager;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
@@ -19,7 +21,12 @@ import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTaskImpl;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
@@ -403,6 +410,32 @@ public class AppManagerAppHelperImplTest {
 	private OpenemsAppInstance getAppByAppId(String appId) {
 		return this.appManagerTestBundle.sut.getInstantiatedApps().stream().filter(i -> i.appId.equals(appId)).findAny()
 				.get();
+	}
+
+	@Test
+	public void testInsertAggregateTask() {
+		final var componentTask = new ComponentAggregateTaskImpl(null);
+		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, null);
+		final var networkTask = new StaticIpAggregateTaskImpl(null);
+
+		final var list = new ArrayList<AggregateTask<?>>();
+
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		assertEquals(List.of(componentTask, networkTask, schedulerTask), list);
+
+		list.clear();
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
+		
+		list.clear();
+		AppManagerAppHelperImpl.insert(list, schedulerTask);
+		AppManagerAppHelperImpl.insert(list, networkTask);
+		AppManagerAppHelperImpl.insert(list, componentTask);
+		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
 	}
 
 }

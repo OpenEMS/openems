@@ -503,6 +503,7 @@
     "soc": "Ladezustand",
     "state": "Zustand",
     "storageSystem": "Speichersystem",
+    "SYSTEM_STATE": "Systemstatus",
     "TOTAL": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",
@@ -559,7 +560,7 @@
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
     "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
-    "FIRST_SETUP_PROTOCOL": "Commissioning"
+    "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -690,7 +691,7 @@
       "CHOOSE": "Typ",
       "CONSTANT_VALUE": "Cos φ Festwert",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
-      "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung (z.B. 70% Abregelung)",
+      "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
       "EXTERNAL_CONTROLLER_CHECK": "Der Rundsteuerempfänger wurde lt. Anleitung ordnungsgemäß und vollständig installiert.",
       "EXTERNAL_LIMITATION_ACTIVATED": "Rundsteuerempfänger aktiviert?",
       "EXTERNAL_LIMITATION": "Rundsteuerempfänger (Externe Abregelung durch Netzbetreiber)",
@@ -702,7 +703,8 @@
       "QU_ENABLED_CURVE": "Blindleistungs-Spannungskennlinie Q(U)",
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger"
+      "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
+      "PLACE_HOLDER": "Wähle eine Option"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -737,7 +739,7 @@
         "WEST": "West"
       },
       "INSTALLED_POWER": "Installierte leistung [Wₚ]",
-      "MARKED_AS": " MPPT {{number}} (beschriftet mit \"PV{{ number}}\")",
+      "MARKED_AS": " MPPT {{ mppt }} (beschriftet mit \"PV{{ pv }}\")",
       "METER_TYPE_WITH_LABEL": "Zählertyp {{ label }}{{ number }}",
       "METER_TYPE": "Zählertyp",
       "MODBUS_SOCOMEC_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
@@ -761,11 +763,12 @@
       "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
       "AC_NOT_CREATED": "AC zähler nicht erstellt!",
-      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen."
+      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen.",
+      "DUPLICATE": " MPPT {{ mppt }} doppelt belegt (beschriftet mit \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
-      "BATTERY_TOWER": "Batterie Turm {{ towerNumber }}",
+      "BATTERY_TOWER": "Batterie Turm {{ number }}",
       "BESS_COMPONENTS": "Speichersystemkomponenten",
       "BMS_BOX": "BMS Box & Sockel",
       "CONFIRM": "speichern",

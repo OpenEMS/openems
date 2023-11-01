@@ -39,6 +39,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for a Socomec meter.
@@ -71,17 +72,17 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> {
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
+				.setRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> {
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.isRequired(true);
 				}).setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), //
-				def -> def.setAutoGenerateField(false) //
-						.setDefaultValue(7) //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false) //
+				.setDefaultValue(7))), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())));
 
@@ -140,7 +141,9 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

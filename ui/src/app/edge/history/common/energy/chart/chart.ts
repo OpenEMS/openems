@@ -15,9 +15,9 @@ export class ChartComponent extends AbstractHistoryChart {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate);
   }
 
-  public static getChartData(config: EdgeConfig, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig | null, chartType: 'line' | 'bar', translate: TranslateService): HistoryUtils.ChartData {
     let input: HistoryUtils.InputChannel[] =
-      config.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
+      config?.widgets.classes.reduce((arr: HistoryUtils.InputChannel[], key) => {
         let newObj = [];
         switch (key) {
 
@@ -97,11 +97,11 @@ export class ChartComponent extends AbstractHistoryChart {
           ...[chartType === 'bar' && {
             name: translate.instant('General.directConsumption'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionActiveEnergy'] - energyValues.result.data['_sum/GridSellActiveEnergy'] - energyValues.result.data['_sum/EssDcChargeEnergy'];
+              return Utils.subtractSafely(energyValues.result.data['_sum/ProductionActiveEnergy'], energyValues.result.data['_sum/GridSellActiveEnergy'], energyValues.result.data['_sum/EssDcChargeEnergy']);
             },
             converter: () =>
-              data['ProductionActivePower']?.map((value, index) =>
-                value - data['GridSell'][index] - data['EssCharge'][index])?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
+              data['ProductionActivePower']?.map((value, index) => Utils.subtractSafely(value, data['GridSell'][index], data['EssCharge'][index]))
+                ?.map(value => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
             color: 'rgb(244,164,96)',
             stack: [1, 2],
             order: 2
@@ -143,7 +143,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Sell to grid
           {
-            name: translate.instant('General.gridSell'),
+            name: translate.instant('General.gridSellAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridSellActiveEnergy'];
             },
@@ -157,7 +157,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
           // Buy from Grid
           {
-            name: translate.instant('General.gridBuy'),
+            name: translate.instant('General.gridBuyAdvanced'),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
               return energyValues.result.data['_sum/GridBuyActiveEnergy'];
             },

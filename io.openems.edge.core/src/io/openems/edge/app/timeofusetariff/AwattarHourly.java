@@ -1,6 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
-import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,11 +16,13 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.AwattarHourly.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -27,6 +30,9 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for AwattarHourly.
@@ -38,8 +44,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID": "ctrlEssTimeOfUseTariffDischarge0",
-    	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0"
+    	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
+    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
+    	"CONTROL_MODE": {@link ControlMode}
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -48,15 +55,37 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Awattar")
-public class AwattarHourly extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Property, Type.Parameter.BundleParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements Nameable {
-		// Component-IDs
-		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
-		TIME_OF_USE_TARIF_ID, //
+	public static enum Property implements Type<Property, AwattarHourly, Type.Parameter.BundleParameter>, Nameable {
+		// Components
+		CTRL_ESS_TIME_OF_USE_TARIFF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
+		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
+
 		// Properties
-		ALIAS, //
-		;
+		ALIAS(CommonProps.alias());
+
+		private final AppDef<? super AwattarHourly, ? super Property, ? super Type.Parameter.BundleParameter> def;
+
+		private Property(AppDef<? super AwattarHourly, ? super Property, ? super Type.Parameter.BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Property self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<? super AwattarHourly, ? super Property, ? super BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<AwattarHourly>, BundleParameter> getParamter() {
+			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
 	@Activate
@@ -66,34 +95,28 @@ public class AwattarHourly extends AbstractEnumOpenemsApp<Property> implements O
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
+			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
+			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
-			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var alias = this.getString(p, l, Property.ALIAS);
 
-			final var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p,
-					Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, "ctrlEssTimeOfUseTariffDischarge0");
-			final var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
-
-			// TODO ess id may be changed
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
-							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias,
+							"Controller.Ess.Time-Of-Use-Tariff", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Awattar",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Awattar",
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
-			return new AppConfiguration(components,
-					Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
-		};
-	}
 
-	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		return AppAssistant.create(this.getName(language)) //
-				.build();
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.build();
+		};
 	}
 
 	@Override
@@ -108,13 +131,18 @@ public class AwattarHourly extends AbstractEnumOpenemsApp<Property> implements O
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	@Override
+	protected AwattarHourly getApp() {
+		return this;
 	}
 
 }

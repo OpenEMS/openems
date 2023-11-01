@@ -93,4 +93,9 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 		return messageBuilder.toString();
 	}
 
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
+	}
+
 }

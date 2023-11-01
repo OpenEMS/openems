@@ -105,20 +105,25 @@ export class Utils {
   }
 
   /**
-   * Safely subtracts two - possibly 'null' - values: v1 - v2
+   *  Subtracts values from each other - possibly null values 
    * 
-   * @param v1 
-   * @param v2 
+   * @param values the values
+   * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(v1: number, v2: number): number {
-    if (v1 == null) {
-      return v2;
-    } else if (v2 == null) {
-      return v1;
-    } else {
-      return v1 - v2;
-    }
+  public static subtractSafely(...values: (number | null)[]): number {
+    return values
+      .filter(value => value !== null && value !== undefined)
+      .reduce((sum, curr) => {
+        if (sum == null) {
+          sum = curr;
+        } else {
+          sum -= curr;
+        }
+
+        return sum;
+      }, null);
   }
+
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
@@ -687,6 +692,13 @@ export namespace HistoryUtils {
         return null;
       } else {
         return Math.abs(Math.min(0, value));
+      }
+    };
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+      if (value < 0) {
+        return Math.abs(value);
+      } else {
+        return 0;
       }
     };
   }
