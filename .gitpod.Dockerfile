@@ -12,7 +12,7 @@ ENV TRIGGER_REBUILD 4
 RUN npm install -g @angular/cli 
 
 # Install odoo
-ENV ODOO_VERSION 15.0
+ENV ODOO_VERSION 16.0
 ENV ODOO_RELEASE latest
 RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
     && sudo apt-get update \
