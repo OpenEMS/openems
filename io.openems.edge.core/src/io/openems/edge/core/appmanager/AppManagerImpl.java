@@ -20,8 +20,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
@@ -77,12 +75,12 @@ import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 		property = { //
 				"enabled=true" //
 		})
-public class AppManagerImpl extends AbstractOpenemsComponent
-		implements AppManager, OpenemsComponent, JsonApi, ConfigurationListener {
+public class AppManagerImpl extends AbstractOpenemsComponent implements AppManager, OpenemsComponent, JsonApi {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final AppValidateWorker worker;
+	@Reference
+	private AppValidateWorker appValidateWorker;
 	private final AppInstallWorker appInstallWorker;
 	private final AppSynchronizeWorker appSynchronizeWorker;
 
@@ -124,7 +122,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				AppManager.ChannelId.values() //
 		);
-		this.worker = new AppValidateWorker(this);
 		this.appInstallWorker = new AppInstallWorker(this);
 		this.appSynchronizeWorker = new AppSynchronizeWorker(this);
 	}
@@ -134,7 +131,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.applyConfig(config);
 
-		this.worker.activate(this.id());
+		this.appValidateWorker.setConfig(new AppValidateWorker.Config(this::_setDefectiveApp));
 		this.appInstallWorker.activate(this.id());
 		this.appSynchronizeWorker.activate(this.id());
 
@@ -154,12 +151,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.applyConfig(config);
 
-		this.worker.modified(this.id());
 		this.appInstallWorker.modified(this.id());
 		this.appSynchronizeWorker.modified(this.id());
 
 		this.appInstallWorker.setKeyForFreeApps(config.keyForFreeApps());
-		this.worker.triggerNextRun();
+		this.appValidateWorker.triggerNextRun();
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
@@ -170,7 +166,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.worker.deactivate();
 		this.appInstallWorker.deactivate();
 		this.appSynchronizeWorker.deactivate();
 	}
@@ -302,11 +297,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	@Override
-	public void configurationEvent(ConfigurationEvent event) {
-		this.worker.configurationEvent(event);
-	}
-
 	/**
 	 * Gets a filter for excluding instances.
 	 *
@@ -420,7 +410,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		final var workerLog = this.worker.debugLog();
+		final var workerLog = this.appValidateWorker.debugLog();
 		if (workerLog == null && !this.waitingForModified) {
 			return null;
 		}
@@ -548,7 +538,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					// actually install the app
 					return appHelper.installApp(user, tmpInstance, openemsApp);
 				});
-				
+
 				instance = installedValues.rootInstance;
 
 				warnings.addAll(installedValues.warnings);

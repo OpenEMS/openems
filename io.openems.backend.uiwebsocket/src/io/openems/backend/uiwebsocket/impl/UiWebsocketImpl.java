@@ -41,7 +41,6 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.ThreadPoolUtils;
-import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -55,7 +54,7 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
 
 	private static final String EDGE_ID = "backend0";
-	private static final String COMPONENT_ID = "uiwebsocket";
+	private static final String COMPONENT_ID = "uiwebsocket0";
 
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -89,6 +88,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
 			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
+
+		if (this.metadata.isInitialized()) {
+			this.startServer();
+		}
 	}
 
 	@Deactivate
@@ -99,23 +102,23 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	/**
 	 * Create and start new server.
-	 *
-	 * @param port      the port
-	 * @param poolSize  number of threads dedicated to handle the tasks
-	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, "Ui.Websocket", port, poolSize, debugMode);
-		this.server.start();
+	private synchronized void startServer() {
+		if (this.server == null) {
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
+					this.config.debugMode());
+			this.server.start();
+		}
 	}
 
 	/**
 	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
-		if (this.server != null) {
-			this.server.stop();
+		if (this.server == null) {
+			return;
 		}
+		this.server.stop();
 	}
 
 	@Override
@@ -148,6 +151,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	@Override
 	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException {
+		if (this.server == null) {
+			return;
+		}
 		var wsDatas = this.getWsDatasForEdgeId(edgeId);
 		OpenemsNamedException exception = null;
 		for (WsData wsData : wsDatas) {
@@ -224,13 +230,16 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			this.startServer();
 			break;
 		}
 	}
 
 	@Override
 	public void sendSubscribedChannels(String edgeId, EdgeCache edgeCache) {
+		if (this.server == null) {
+			return;
+		}
 		var connections = this.server.getConnections();
 		for (var websocket : connections) {
 			WsData wsData = websocket.getAttachment();
@@ -249,7 +258,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException if User is not authenticated
 	 */
-	public User assertUser(WsData wsData, AbstractJsonrpcRequest request) throws OpenemsNamedException {
+	protected User assertUser(WsData wsData, AbstractJsonrpcRequest request) throws OpenemsNamedException {
 		var userIdOpt = wsData.getUserId();
 		if (!userIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
@@ -262,4 +271,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		}
 		return userOpt.get();
 	}
+
+	public String getId() {
+		return COMPONENT_ID;
+	}
+
 }

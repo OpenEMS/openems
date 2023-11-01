@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.dummy;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -322,7 +324,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 							Role.ADMIN, //
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
-							null, //
+							null, // firstSetupProtocol
 							Level.OK);
 				}).toList();
 	}
@@ -343,9 +345,18 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
 	}
 
 }

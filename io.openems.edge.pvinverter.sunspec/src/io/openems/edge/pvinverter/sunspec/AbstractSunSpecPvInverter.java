@@ -69,11 +69,20 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	private boolean readOnly;
 	private Phase phase;
 	private InverterType inverterType = null;
+	private final boolean calculateActiveProductionEnergyManually;
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+		this(activeModels, false, firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
+			boolean calculateActiveProductionEnergyManually,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
+		this.calculateActiveProductionEnergyManually = calculateActiveProductionEnergyManually;
 		this._setActiveConsumptionEnergy(0);
 
 		// Automatically calculate sum values from L1/L2/L3
@@ -228,10 +237,12 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		}
 		}
 
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				DIRECT_1_TO_1, //
-				S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
+		if (!this.calculateActiveProductionEnergyManually) {
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					DIRECT_1_TO_1, //
+					S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
+		}
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
 				DIRECT_1_TO_1, //

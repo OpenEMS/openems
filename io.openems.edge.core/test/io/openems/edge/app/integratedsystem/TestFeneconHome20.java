@@ -155,6 +155,7 @@ public class TestFeneconHome20 {
 				.filter(t -> t.appId.equals("App.FENECON.Home.20")).findAny().orElse(null);
 
 		assertNotNull(homeInstance);
+		this.appManagerTestBundle.assertNoValidationErrors();
 		return homeInstance;
 	}
 
