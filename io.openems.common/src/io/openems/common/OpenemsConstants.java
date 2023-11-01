@@ -58,6 +58,21 @@ public class OpenemsConstants {
 			OpenemsConstants.VERSION_STRING);
 
 	/**
+	 * The version development branch.
+	 */
+	public static final String VERSION_DEV_BRANCH = "";
+
+	/**
+	 * The version development commit hash.
+	 */
+	public static final String VERSION_DEV_COMMIT = "";
+
+	/**
+	 * The version development build time.
+	 */
+	public static final String VERSION_DEV_BUILD_TIME = "";
+
+	/**
 	 * The manufacturer of the device that is running OpenEMS.
 	 *
 	 * <p>
