@@ -29,6 +29,8 @@ import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.peakshaving.PeakShaving;
+import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
@@ -316,6 +318,28 @@ public class Apps {
 				(componentManager, componentContext, cm, componentUtil) -> new MicrocareSdm630Meter(componentManager,
 						componentContext, cm, componentUtil, t.appManagerUtil),
 				"App.Meter.Microcare.Sdm630");
+	}
+
+	// PeakShaving
+
+	/**
+	 * Test method for creating a {@link PeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PeakShaving peakShaving(AppManagerTestBundle t) {
+		return app(t, PeakShaving::new, "App.PeakShaving.PeakShaving");
+	}
+
+	/**
+	 * Test method for creating a {@link PhaseAccuratePeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PhaseAccuratePeakShaving phaseAccuratePeakShaving(AppManagerTestBundle t) {
+		return app(t, PhaseAccuratePeakShaving::new, "App.PeakShaving.PhaseAccuratePeakShaving");
 	}
 
 	// ess-controller

@@ -44,7 +44,9 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
+import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
+import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
@@ -209,7 +211,10 @@ public class AppManagerTestBundle {
 		this.checkablesBundle = new CheckablesBundle(
 				new CheckCardinality(this.sut, this.appManagerUtil,
 						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
-				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
+				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
+				new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME)), //
+				new CheckHome(this.componentManger, getComponentContext(CheckHome.COMPONENT_NAME),
+						new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))) //
 		);
 
 		var dummyValidator = new DummyValidator();
@@ -367,15 +372,12 @@ public class AppManagerTestBundle {
 		}
 	}
 
-	public static class CheckablesBundle {
-
-		public final CheckCardinality checkCardinality;
-		public final CheckRelayCount checkRelayCount;
-
-		public CheckablesBundle(CheckCardinality checkCardinality, CheckRelayCount checkRelayCount) {
-			this.checkCardinality = checkCardinality;
-			this.checkRelayCount = checkRelayCount;
-		}
+	public record CheckablesBundle(//
+			CheckCardinality checkCardinality, //
+			CheckRelayCount checkRelayCount, //
+			CheckAppsNotInstalled checkAppsNotInstalled, //
+			CheckHome checkHome //
+	) {
 
 		/**
 		 * Gets all {@link Checkable}.
@@ -383,8 +385,11 @@ public class AppManagerTestBundle {
 		 * @return the {@link Checkable}
 		 */
 		public final List<Checkable> all() {
-			return Lists.newArrayList(this.checkCardinality, //
-					this.checkRelayCount //
+			return Lists.newArrayList(//
+					this.checkCardinality(), //
+					this.checkRelayCount(), //
+					this.checkAppsNotInstalled(), //
+					this.checkHome() //
 			);
 		}
 	}
