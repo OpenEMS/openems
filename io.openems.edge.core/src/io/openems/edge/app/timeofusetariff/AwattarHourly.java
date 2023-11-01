@@ -28,8 +28,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.Type;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for AwattarHourly.
@@ -102,7 +101,21 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 			var components = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Awattar",
 					this.getName(l), timeOfUseTariffProviderId, null);
 
-			return new AppConfiguration(components, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			// TODO ess id may be changed
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
+							"Controller.Ess.Time-Of-Use-Tariff", JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Awattar",
+							JsonUtils.buildJsonObject() //
+									.build())//
+			);
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

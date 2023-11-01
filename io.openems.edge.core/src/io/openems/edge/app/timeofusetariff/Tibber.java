@@ -32,6 +32,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -120,7 +121,10 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 					this.getName(l), timeOfUseTariffProviderId,
 					b -> b.addPropertyIfNotNull("accessToken", accessToken));
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(comp)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

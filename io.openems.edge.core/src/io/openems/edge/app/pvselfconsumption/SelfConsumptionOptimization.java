@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -92,7 +93,9 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

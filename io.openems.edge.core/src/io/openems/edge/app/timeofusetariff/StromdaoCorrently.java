@@ -28,7 +28,8 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 
@@ -109,10 +110,22 @@ public class StromdaoCorrently extends
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
 
-			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Corrently",
-					this.getName(l), timeOfUseTariffProviderId, b -> b.addPropertyIfNotNull("zipcode", zipCode));
+			// TODO ess id may be changed
+			var comp = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
+							"Controller.Ess.Time-Of-Use-Tariff", JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Corrently",
+							JsonUtils.buildJsonObject() //
+									.addProperty("zipcode", zipCode) //
+									.build())//
+			);
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(comp)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

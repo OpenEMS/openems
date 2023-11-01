@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -48,6 +47,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Case;
 import io.openems.edge.core.appmanager.formly.DefaultValueOptions;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -274,19 +274,16 @@ public class AlpitronicEvcs extends
 
 			schedulerIds.add("ctrlBalancing0");
 
-			var ips = Lists.newArrayList(//
-					new InterfaceConfiguration("eth0") //
-							// range from 192.168.1.96 - 192.168.1.111
-							.addIp("Evcs", "192.168.1.97/28") //
-			);
-
-			return new AppConfiguration(//
-					components, //
-					schedulerIds, //
-					ip.startsWith("192.168.1.") ? ips : null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							addedEvcsIds.stream().toArray(String[]::new)) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerIds)) //
+					.throwingOnlyIf(ip.startsWith("192.168.1."),
+							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
+									// range from 192.168.1.96 - 192.168.1.111
+									.addIp("Evcs", "192.168.1.97/28")))) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, addedEvcsIds.stream().toArray(String[]::new))) //
+					.build();
 		};
 	}
 

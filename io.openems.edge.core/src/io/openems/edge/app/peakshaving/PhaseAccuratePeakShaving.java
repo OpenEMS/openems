@@ -36,6 +36,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.Checkables;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -167,7 +168,9 @@ public class PhaseAccuratePeakShaving
 									.addProperty("rechargePower", rechargePower) //
 									.build()));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
