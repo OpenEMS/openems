@@ -36,6 +36,7 @@ describe('History EnergyMonitor', () => {
           }
 
         });
+
     }
     {
 

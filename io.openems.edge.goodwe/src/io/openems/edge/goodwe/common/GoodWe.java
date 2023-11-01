@@ -100,6 +100,55 @@ public interface GoodWe extends OpenemsComponent {
 		TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
 
+		/*
+		 * Channels for multiple String charger in one MPPT. Channels only set and used
+		 * for GoodWe 20/30
+		 *
+		 * MPPT1
+		 */
+		TWO_S_MPPT1_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		TWO_S_MPPT1_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV1_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV2_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV2_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		/*
+		 * MPPT2
+		 */
+		TWO_S_MPPT2_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		TWO_S_MPPT2_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV3_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV4_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV4_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		/*
+		 * MPPT3
+		 */
+		TWO_S_MPPT3_P(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		TWO_S_MPPT3_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV5_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+		TWO_S_PV6_V(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT)), //
+		TWO_S_PV6_I(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE)), //
+
 		/**
 		 * Total Active Power Of Inverter.
 		 *

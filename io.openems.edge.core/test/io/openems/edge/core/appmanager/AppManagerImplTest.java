@@ -327,7 +327,7 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testCheckCardinalitySingle() throws Exception {
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.homeApp) //
 				.build());
@@ -341,7 +341,7 @@ public class AppManagerImplTest {
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
 		this.appManagerTestBundle.sut.instantiatedApps.add(new OpenemsAppInstance(this.kebaEvcsApp.getAppId(), "alias",
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.kebaEvcsApp) //
 				.build());
@@ -353,7 +353,7 @@ public class AppManagerImplTest {
 	public void testCheckCardinalitySingleInCategorie() throws Exception {
 		this.appManagerTestBundle.sut.instantiatedApps.add(new OpenemsAppInstance(this.awattarApp.getAppId(), "alias",
 				UUID.randomUUID(), JsonUtils.buildJsonObject().build(), null));
-		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality;
+		var checkable = this.appManagerTestBundle.checkablesBundle.checkCardinality();
 		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.stromdao) //
 				.build());

@@ -5,9 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.uiwebsocket.jsonrpc.notification.LogMessageNotification;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
+import io.openems.common.jsonrpc.notification.LogMessageNotification;
 
 public class OnNotification implements io.openems.common.websocket.OnNotification {
 
