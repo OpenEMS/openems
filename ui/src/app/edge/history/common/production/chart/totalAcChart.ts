@@ -57,7 +57,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               }
               return data['ProductionAcActivePowerL' + i] ?? null;
             },
-            color: 'rgb(' + this.phaseColors[i - 1] + ')'
+            color: 'rgb(' + AbstractHistoryChart.phaseColors[i - 1] + ')'
           });
         }
 

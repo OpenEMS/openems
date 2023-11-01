@@ -1,6 +1,6 @@
 import { CHANNEL_LINE, DummyConfig, EVCS_KEBA_KECONTACT, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, SOCOMEC_CONSUMPTION_METER, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/edge/edgeconfig.spec";
 import { TextIndentation } from "src/app/shared/genericComponents/modal/modal-line/modal-line";
-import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/tester";
+import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
 import { Role } from "src/app/shared/type/role";
 
