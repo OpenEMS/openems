@@ -61,7 +61,8 @@ public class ControllerApiRestReadWriteImplTest {
 						new DummyUser(INSTALLER, INSTALLER, Language.DEFAULT, Role.INSTALLER), //
 						new DummyUser(ADMIN, ADMIN, Language.DEFAULT, Role.ADMIN))) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addComponent(new DummyComponent(DUMMY_ID)) //
+				.addComponent(new DummyComponent(DUMMY_ID) //
+						.withReadChannel(1234)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setApiTimeout(60) //
@@ -182,7 +183,6 @@ public class ControllerApiRestReadWriteImplTest {
 		private static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			READ_CHANNEL(new IntegerDoc() //
 					.unit(Unit.WATT) //
-					.initialValue(1234) //
 					.text("This is a Read-Channel")), //
 			WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER) //
 					.accessMode(AccessMode.READ_WRITE)); //
@@ -210,5 +210,17 @@ public class ControllerApiRestReadWriteImplTest {
 		protected DummyComponent self() {
 			return this;
 		}
+
+		/**
+		 * Set {@link ChannelId#READ_CHANNEL}.
+		 *
+		 * @param value the value
+		 * @return myself
+		 */
+		public DummyComponent withReadChannel(Integer value) {
+			TestUtils.withValue(this, ChannelId.READ_CHANNEL, value);
+			return this.self();
+		}
+
 	}
 }
