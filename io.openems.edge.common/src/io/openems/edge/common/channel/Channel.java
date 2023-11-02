@@ -60,14 +60,14 @@ public interface Channel<T> {
 	 *
 	 * @return the ChannelId
 	 */
-	io.openems.edge.common.channel.ChannelId channelId();
+	public io.openems.edge.common.channel.ChannelId channelId();
 
 	/**
 	 * Gets the ChannelDoc of this Channel.
 	 *
 	 * @return the ChannelDoc
 	 */
-	default Doc channelDoc() {
+	public default Doc channelDoc() {
 		return this.channelId().doc();
 	}
 
@@ -76,27 +76,27 @@ public interface Channel<T> {
 	 *
 	 * @return the OpenemsComponent
 	 */
-	OpenemsComponent getComponent();
+	public OpenemsComponent getComponent();
 
 	/**
 	 * Gets the address of this Channel.
 	 *
 	 * @return the {@link ChannelAddress}
 	 */
-	ChannelAddress address();
+	public ChannelAddress address();
 
 	/**
 	 * Switches to the next process image, i.e. copies the "next"-value into
 	 * "current"-value.
 	 */
-	void nextProcessImage();
+	public void nextProcessImage();
 
 	/**
 	 * Gets the type of this Channel, e.g. INTEGER, BOOLEAN,..
 	 *
 	 * @return the {@link OpenemsType}
 	 */
-	OpenemsType getType();
+	public OpenemsType getType();
 
 	/**
 	 * Updates the 'next value' of Channel.
@@ -164,7 +164,7 @@ public interface Channel<T> {
 	 * @throws IllegalArgumentException if value cannot be accessed, e.g. because
 	 *                                  the Channel is Write-Only.
 	 */
-	Value<T> value() throws IllegalArgumentException;
+	public Value<T> value() throws IllegalArgumentException;
 
 	/**
 	 * Gets the past values for this Channel.
