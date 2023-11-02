@@ -10,7 +10,7 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 public class DummySum extends AbstractDummyOpenemsComponent<DummySum> implements Sum, OpenemsComponent {
 
 	public DummySum() {
-		super(Sum.SINGLETON_COMPONENT_ID, //
+		super(Sum.SINGLETON_COMPONENT_ID, Sum.SINGLETON_SERVICE_PID, //
 				OpenemsComponent.ChannelId.values(), //
 				Sum.ChannelId.values());
 	}
