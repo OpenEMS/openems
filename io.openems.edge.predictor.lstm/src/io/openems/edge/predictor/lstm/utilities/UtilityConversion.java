@@ -70,6 +70,27 @@ public class UtilityConversion {
 				.toArray();
 	}
 
+	/**
+	 * Convert {@link java.util.List} of double to double[].
+	 * 
+	 * @param data {@link java.util.List} of double
+	 * @return result converted double []
+	 */
+
+	public static double[] convert1DArrayListTo1DArray(List<Double> data) {
+		return data.stream() //
+				.mapToDouble(Double::doubleValue) //
+				.toArray();
+	}
+
+	/**
+	 * Converts an ArrayList of Double values to an array of Integer values.
+	 *
+	 * @param data The ArrayList of Double values to be converted.
+	 * @return An array of Integer values where each element represents the
+	 *         converted value from the input ArrayList.
+	 */
+
 	public static Integer[] convertDoubleToIntegerArray(ArrayList<Double> data) {
 		return data.stream() //
 				.mapToInt(d -> d.intValue())//
@@ -78,16 +99,13 @@ public class UtilityConversion {
 	}
 
 	/**
-	 * Convert {@link java.util.List} of double to double[].
-	 * 
-	 * @param data {@link java.util.List} of double
-	 * @return result converted double []
+	 * Converts a two-dimensional array of double values to a two-dimensional
+	 * ArrayList of Double values.
+	 *
+	 * @param data The two-dimensional array of double values to be converted.
+	 * @return A two-dimensional ArrayList of Double values representing the
+	 *         converted data.
 	 */
-	public static double[] convert1DArrayListTo1DArray(List<Double> data) {
-		return data.stream() //
-				.mapToDouble(Double::doubleValue) //
-				.toArray();
-	}
 
 	public static ArrayList<ArrayList<Double>> convert2DArrayTo2DArrayList(double[][] data) {
 		ArrayList<ArrayList<Double>> toReturn = new ArrayList<ArrayList<Double>>();
@@ -102,16 +120,23 @@ public class UtilityConversion {
 		return toReturn;
 
 	}
-	
+
+	/**
+	 * Converts a one-dimensional array of double values to an ArrayList of Double
+	 * values.
+	 *
+	 * @param data The one-dimensional array of double values to be converted.
+	 * @return An ArrayList of Double values representing the converted data.
+	 */
+
 	public static ArrayList<Double> convert1DArrayTo1DArrayList(double[] data) {
 		ArrayList<Double> toReturn = new ArrayList<Double>();
 		for (int i = 0; i < data.length; i++) {
-			
+
 			toReturn.add(data[i]);
 
-			}
-			
-		
+		}
+
 		return toReturn;
 
 	}

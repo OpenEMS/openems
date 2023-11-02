@@ -2,13 +2,13 @@ package io.openems.edge.predictor.lstm.preprocessing;
 
 public class TrainTestSplit {
 
-	public int trainIndexLower;
-	public int trainIndexHigher;
-	public int validateIndexLower;
-	public int validateIndexHigher;
-	public int testIndexLower;
-	public int testIndexHigher;
-	public int totalSize;
+	private int trainIndexLower;
+	private int trainIndexHigher;
+	private int validateIndexLower;
+	private int validateIndexHigher;
+	private int testIndexLower;
+	private int testIndexHigher;
+	private int totalSize;
 
 	public TrainTestSplit(int size, int windowSize, double percentage, double valSplit) {
 
@@ -17,11 +17,11 @@ public class TrainTestSplit {
 		this.trainIndexLower = 0;
 		this.trainIndexHigher = (int) (percentage * size);
 		
-		this.validateIndexLower =trainIndexHigher+1 ;
-		this.validateIndexHigher = validateIndexLower + (int) (valSplit * size);
+		this.validateIndexLower = this.trainIndexHigher + 1;
+		this.validateIndexHigher = this.validateIndexLower + (int) (valSplit * size);
 
-		this.testIndexLower = validateIndexLower ;
-		this.testIndexHigher = testIndexLower + (int) (valSplit * size);
+		this.testIndexLower = this.validateIndexLower;
+		this.testIndexHigher = this.testIndexLower + (int) (valSplit * size);
 		this.validateIndexHigher = this.testIndexHigher;// here we are ignoring the test data 
 
 
@@ -87,5 +87,30 @@ public class TrainTestSplit {
 
 		return sb.toString();
 	}
+	
+	public int getTrainLowerIndex() {
+		return this.trainIndexLower;
+	}
+	
+	public int getTrainUpperIndex() {
+		return this.trainIndexHigher;
+	}
+	
+	public int getTestLowerIndex() {
+		return this.testIndexLower;
+	}
+	
+	public int getTestUpperIndex() {
+		return this.testIndexHigher;
+	}
+	
+	public int getValidateLowerIndex() {
+		return this.validateIndexLower;
+	}
+	
+	public int getValidateUpperIndex() {
+		return this.validateIndexHigher;
+	}
+	
 
 }

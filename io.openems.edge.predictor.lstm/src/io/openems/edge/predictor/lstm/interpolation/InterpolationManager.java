@@ -4,25 +4,24 @@ import java.util.ArrayList;
 
 public class InterpolationManager {
 
-	
-	public ArrayList<Double> interpolated = new ArrayList<Double>();
+	private ArrayList<Double> interpolated = new ArrayList<Double>();
 
 	public InterpolationManager(ArrayList<Double> data) {
-		//System.out.println("Data" + data.size());
+		// System.out.println("Data" + data.size());
 
-		ArrayList<Double> dataDouble =replaceNullWitNan(data);
+		ArrayList<Double> dataDouble = replaceNullWitNan(data);
 		ArrayList<ArrayList<Double>> interpolatedGroupedData = new ArrayList<ArrayList<Double>>();
-		
+
 		double mean = calculateMean(dataDouble);
 
-		ArrayList<ArrayList<Double>> groupedData = group(dataDouble);
+		ArrayList<ArrayList<Double>> groupedData = this.group(dataDouble);
 
 		for (int i = 0; i < groupedData.size(); i++) {
 			ArrayList<Double> interpolatedTemp = new ArrayList<Double>();
 			ArrayList<Double> data1 = new ArrayList<Double>();
 			data1 = groupedData.get(i);
 
-			boolean interpolationNeeded = interpolationDecision(groupedData.get(i));
+			boolean interpolationNeeded = this.interpolationDecision(groupedData.get(i));
 			if (interpolationNeeded == true) {
 
 				if (Double.isNaN(data1.get(0))) {
@@ -33,31 +32,38 @@ public class InterpolationManager {
 				}
 
 				if (CubicalInterpolation.canInterpolate(data1) == false) {
-				
+
 					LinearInterpolation linear = new LinearInterpolation(data1);
-					interpolatedTemp = linear.Data;
-					
+					interpolatedTemp = linear.getData();
 
 				} else {
-				
-					interpolatedTemp = CubicalInterpolation.Interpolate(data1);
-				
+
+					interpolatedTemp = CubicalInterpolation.interpolate(data1);
 
 				}
 				interpolatedGroupedData.add(interpolatedTemp);
-				
+
 			} else {
-				
 
 				interpolatedGroupedData.add(data1);
 
 			}
 
 		}
-		interpolated = unGroup(interpolatedGroupedData);
+		this.interpolated = this.unGroup(interpolatedGroupedData);
 
 	}
 
+	/**
+	 * Groups a list of data into sublists of a specified size. This method takes a
+	 * list of data and groups it into sublists of a specified size. Each sublist
+	 * will contain up to `groupSize` elements, except for the last sublist, which
+	 * may contain fewer elements if the total number of elements is not a multiple
+	 * of `groupSize`.
+	 * 
+	 * @param data The list of data to be grouped.
+	 * @return A list of sublists, each containing up to `groupSize` elements.
+	 */
 	public ArrayList<ArrayList<Double>> group(ArrayList<Double> data) {
 		int groupSize = 96;
 		ArrayList<ArrayList<Double>> groupedData = new ArrayList<ArrayList<Double>>();
@@ -83,6 +89,15 @@ public class InterpolationManager {
 		return groupedData;
 	}
 
+	/**
+	 * Ungroups a list of sublists into a single list. This method takes a list of
+	 * sublists and combines them into a single list, preserving the order of
+	 * elements within the sublists.
+	 *
+	 * @param data The list of sublists to be ungrouped.
+	 * @return A single list containing all elements from the sublists.
+	 */
+
 	public ArrayList<Double> unGroup(ArrayList<ArrayList<Double>> data) {
 		ArrayList<Double> toReturn = new ArrayList<Double>();
 
@@ -96,16 +111,19 @@ public class InterpolationManager {
 		return toReturn;
 	}
 
-	static double calculateMean(ArrayList<Double> data) {
-		double sum = 0;
-		for (int i = 0; i < data.size(); i++) {
-			if (Double.isNaN(data.get(i))) {
+	/**
+	 * Calculates the mean (average) of a list of numeric values, excluding NaN
+	 * values. This method computes the mean of a list of numeric values, excluding
+	 * any NaN (Not-a-Number) values present in the list. If the input list is empty
+	 * or contains only NaN values, the result will be NaN.
+	 *
+	 * @param data The list of numeric values from which to calculate the mean.
+	 * @return The mean of the non-NaN numeric values in the input list.
+	 */
 
-			} else {
-				sum = sum + data.get(i);
-			}
+	public static double calculateMean(ArrayList<Double> data) {
+		double sum = data.stream().filter(value -> !Double.isNaN(value)).mapToDouble(Double::doubleValue).sum();
 
-		}
 		return sum / data.size();
 	}
 
@@ -131,6 +149,9 @@ public class InterpolationManager {
 		}
 		return false;
 	}
+
+	public ArrayList<Double> getInterpolatedData() {
+		return this.interpolated;
+
+	}
 }
-
-

@@ -11,14 +11,24 @@ public class ReadCsv {
 
 	public static final String FILENAME = "\\testResults\\Consumption_data_Fems_10005.csv";
 
-	public ArrayList<Double> data = new ArrayList<Double>();
-	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
+	private ArrayList<Double> data = new ArrayList<Double>();
+	private ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
 
 	public ReadCsv() {
-		getDataFromCSV();
+		this.getDataFromcsv();
 	}
 
-	public void getDataFromCSV() {
+	/**
+	 * Reads data from a CSV file and populates date and data lists. This method
+	 * reads data from a CSV file, where each line represents a timestamp and data
+	 * values separated by commas. It populates two lists: one for timestamps
+	 * (OffsetDateTime) and one for data values (Double). If a data value is missing
+	 * in the CSV (indicated by an empty string), it's set to Double.NaN. Note:
+	 * Ensure that the file path for the CSV is correctly specified before calling
+	 * this method.
+	 */
+
+	public void getDataFromcsv() {
 
 		try {
 			String filename = "\\testResults\\time_series_15min_singleindex_filtered.csv";
@@ -42,8 +52,8 @@ public class ReadCsv {
 					}
 				}
 
-				dates.add(date);
-				data.add(temp2);
+				this.dates.add(date);
+				this.data.add(temp2);
 
 				line = reader.readLine();
 			}

@@ -1,42 +1,38 @@
 package io.openems.edge.predictor.lstm.util;
 
 public class AdaptiveLearningRate {
+	/**
+	 * Adjusts the learning rate based on the given percentage.
+	 *
+	 * @param perc The percentage of the current iteration relative to the total
+	 *             iterations.
+	 * @return The adapted learning rate calculated using a cosine annealing
+	 *         strategy.
+	 */
 
 	public double scheduler(double perc) {
-
-		double learningRate = 1.0;
-
-		if (perc < 5) {
-
-			learningRate = learningRate / 10000;
-		} else if (5 < perc && perc < 30) {
-			learningRate = learningRate / 10000;
-		} else if (30 < perc && perc < 45) {
-			learningRate = learningRate / 10000;
-		} else if (45 < perc && perc < 60) {
-			learningRate = learningRate / 10000;
-		} else if (60 < perc && perc < 75) {                                                                                   
-			learningRate = learningRate / 10000;
-		} else {
-			learningRate = learningRate / 10000;
-		}
+		double maximum = 0.0001;
+		double minimum = 0.000001;
+		double tCurByTmax = perc;
+		double cosineValue = Math.cos(tCurByTmax * Math.PI);
+		double learningRate = (minimum + 0.5 * (maximum - minimum) * (1 + cosineValue));
 		return learningRate;
 
 	}
 
 	/**
-	 * The idea is to record all the gradients---------> sum the square of
-	 * gradients---> divide a global learning rate by square root of this sum Here,
-	 * we will not record the gradient but compute the squared sum of gradient by
-	 * dividing the global learning rate by previous local learning rate and square
-	 * this ratio. learning rate=globalLearningRate/(sqrt(i**2) for i in gradients)
-	 * we need current gradient, current learning rate,and global learning Rate
-	 * 
-	 * @param globalLearningRate
-	 * @param localLearningRate
-	 * @param gradient
-	 * @param i
-	 * @return
+	 * Performs the Adagrad optimization step to adjust the learning rate based on
+	 * the gradient information.
+	 *
+	 * @param globalLearningRate The global learning rate for the optimization
+	 *                           process.
+	 * @param localLearningRate  The local learning rate, which is dynamically
+	 *                           adjusted during the optimization.
+	 * @param gradient           The gradient value computed during the
+	 *                           optimization.
+	 * @param i                  The iteration number, used to determine if this is
+	 *                           the first iteration.
+	 * @return The adapted learning rate based on the Adagrad optimization strategy.
 	 */
 	double adagradOptimizer(double globalLearningRate, double localLearningRate, double gradient, int i) {
 
@@ -45,26 +41,27 @@ public class AdaptiveLearningRate {
 			if (Math.pow(Math.pow(gradient, 2), 0.5) == 0) {
 				// System.out.println("G");
 				return globalLearningRate;
+
 			}
 			// System.out.println("l");
 			return localLearningRate;
 
-		}
-
-		else {
+		} else {
 			double temp1 = globalLearningRate / localLearningRate;
 			double temp2 = Math.pow(temp1, 2);
 			double temp3 = temp2 + Math.pow(gradient, 2);
 			if (localLearningRate == 0) {
 				// System.out.println("G");
 
-				return globalLearningRate;
+				// return globalLearningRate;
+				return localLearningRate;
 
 			}
 			localLearningRate = globalLearningRate / Math.pow(temp3, 0.5);
 			if (temp3 < 0) {
 				// System.out.println("G");
 				return globalLearningRate;
+
 			}
 
 			// System.out.println("l");
@@ -72,4 +69,5 @@ public class AdaptiveLearningRate {
 		}
 
 	}
+
 }

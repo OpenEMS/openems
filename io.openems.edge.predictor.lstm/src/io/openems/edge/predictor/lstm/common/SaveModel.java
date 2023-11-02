@@ -7,7 +7,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SaveModel {
-	
+
+	/**
+	 * Save a 4D ArrayList of Double values to a text file. This method takes a 4D
+	 * ArrayList of Double values and a file name, and it saves the data to a text
+	 * file with the specified file name. Each value in the ArrayList is written to
+	 * the file, separated by spaces, with newlines between levels of the ArrayList.
+	 *
+	 * @param weightMatrix The 4D ArrayList of Double values to be saved.
+	 * @param fileName     The name of the file to which the data will be saved.
+	 */
 
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix, String fileName) {
 
@@ -36,6 +45,16 @@ public class SaveModel {
 		}
 
 	}
+
+	/**
+	 * Save a 4D ArrayList of Double values to a default text file. This method
+	 * takes a 4D ArrayList of Double values and saves the data to a default text
+	 * file named "SavedModel.txt" in the "TestFolder" directory. Each value in the
+	 * ArrayList is written to the file, separated by spaces, with newlines between
+	 * levels of the ArrayList.
+	 *
+	 * @param weightMatrix The 4D ArrayList of Double values to be saved.
+	 */
 
 	public static void saveModels(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix) {
 		try {

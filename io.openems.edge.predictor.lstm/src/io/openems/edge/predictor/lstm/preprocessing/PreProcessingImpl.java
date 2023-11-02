@@ -15,27 +15,24 @@ public class PreProcessingImpl {
 	public static final Function<double[], ArrayList<Double>> CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST = UtilityConversion::convertDoubleArrayToArrayListDouble;
 	public static final Function<List<List<Double>>, double[][]> CONVERT_2DDOUBLE_LIST_TO_2DDOUBLE_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
 
-	
 	private int windowSize = 7;
 
 	private ArrayList<Double> scaleDataList;
 
-	public TrainTestSplit trainTestSplit;
+	private TrainTestSplit trainTestSplit;
 
-	public double[][] trainData;
-	public double[][] validateData;
-	public double[][] testData;
+	private double[][] trainData;
+	private double[][] validateData;
+	private double[][] testData;
 
-	public double[] trainTarget;
-	public double[] validateTarget;
-	public double[] testTarget;
+	private double[] trainTarget;
+	private double[] validateTarget;
+	private double[] testTarget;
 
 	public PreProcessingImpl(List<Double> data, int windowSize) {
 		this.windowSize = windowSize;
-		scaleDataList = (ArrayList<Double>) data;
+		this.scaleDataList = (ArrayList<Double>) data;
 
-//		this.max = maxTraining;// Collections.max(this.dataList);
-//		this.min = minTraining;// Collections.min(this.dataList);
 		// TODO make percentage dynamic
 		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
 	}
@@ -87,38 +84,32 @@ public class PreProcessingImpl {
 		return subArr;
 	}
 
-	/**
-	 * Scale the Data with min and max values of the list.
-	 * 
-	 * @param minScaled minimum scale
-	 * @param maxScaled maximum scale
-	 */
-//	public void scale(double minScaled, double maxScaled) {
-//
-//		double scaleFactor = maxScaled - minScaled;
-//
-//		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
-//				.map(item -> (((item - min) / (max - min)) * (scaleFactor)) + minScaled) //
-//				.collect(Collectors.toList());
+	public double[][] getTrainData() {
+		return this.trainData;
 	}
 
-	/**
-	 * Reverse Scale the Data with min and max values of the list.
-	 * 
-	 * @param minScaled minimum scale
-	 * @param maxScaled maximum scale
-	 * @param data      list to be reverse scaled
-	 * @return result Integer array of reverse scaled data
-	 */
-//	public Integer[] reverseScale(double minScaled, double maxScaled, double[] data) {
-//
-//		double scaleFactor = maxScaled - minScaled;
-//
-//		return CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST.apply(data) //
-//				.stream() //
-//				.map(item -> (((item * (this.max - this.min)) / (scaleFactor)) + this.min)) //
-//				.map(p -> p.intValue()) //
-//				.toArray(Integer[]::new);
+	public double[][] getValidateData() {
+		return this.validateData;
+	}
 
-//	}
+	public double[][] getTestData() {
+		return this.testData;
+	}
 
+	public double[] getTrainTarget() {
+		return this.trainTarget;
+	}
+
+	public double[] getValidateTarget() {
+		return this.validateTarget;
+	}
+
+	public double[] getTestTarget() {
+		return this.testTarget;
+	}
+
+	public TrainTestSplit getTrainTestSplit() {
+		return this.trainTestSplit;
+
+	}
+}

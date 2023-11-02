@@ -9,8 +9,6 @@ import java.util.stream.IntStream;
 import io.openems.edge.predictor.lstm.util.Lstm.LstmBuilder;
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
 
-
-
 public class Engine implements EngineDriver {
 
 	private double[][] inputMatrix;
@@ -19,25 +17,25 @@ public class Engine implements EngineDriver {
 	private double[] validateTarget;
 	private int validatorCounter = 50;
 	private double learningRate;
-	public Lstm generalLstm;
+	// private Lstm generalLstm;
 
-	public ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
+	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 
-	public ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
+	private ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
 	/**
 	 * This method train the LSTM network. and Update the finalWeight matrix.
 	 * 
 	 * @param epochs Number of times the forward and backward propagation.
+	 * @param val    are the weights.
+	 * 
 	 */
 	public void fit(int epochs, ArrayList<ArrayList<Double>> val) {
 
-		ArrayList<ArrayList<Double>> wieghtMatrix = new ArrayList<ArrayList<Double>>();
-
 		AdaptiveLearningRate rate = new AdaptiveLearningRate();
 
-		double perc = ((double) (0 + 1) / inputMatrix.length) * 100.00;
+		double perc = ((double) (0 + 1) / this.inputMatrix.length) * 100.00;
 		this.learningRate = rate.scheduler(perc);
 
 		Lstm ls = new LstmBuilder(this.inputMatrix[0], this.targetVector[0])//
@@ -54,16 +52,16 @@ public class Engine implements EngineDriver {
 		ls.setRz(val);
 		ls.setCt(val);
 		ls.setYt(val);
-//	
 
-		wieghtMatrix = ls.train();
+		ArrayList<ArrayList<Double>> wieghtMatrix = ls.train();
 
 		this.weights.add(wieghtMatrix);
 
 		for (int i = 1; i < this.inputMatrix.length; i++) {
 
-			perc = ((double) (i + 1) / inputMatrix.length) * 100.00;
+			perc = ((double) (i + 1) / this.inputMatrix.length);
 			this.learningRate = rate.scheduler(perc);
+			// System.out.println(this.learningRate);
 
 			ls = new LstmBuilder(this.inputMatrix[i], this.targetVector[i])// double[] inputData, double outputData
 
@@ -73,8 +71,6 @@ public class Engine implements EngineDriver {
 					.build();
 
 			ls.initilizeCells();
-			generalLstm = ls;// ---------------------------------------------------------------------------------------------this
-								// was added to implement make multiple model
 
 			for (int j = 0; j < ls.cells.size(); j++) {
 
@@ -85,7 +81,7 @@ public class Engine implements EngineDriver {
 				ls.cells.get(j).setRo((wieghtMatrix.get(4)).get(j));
 				ls.cells.get(j).setRz((wieghtMatrix.get(5)).get(j));
 			}
-			ls.cells.get(0).yT = (wieghtMatrix.get(6)).get((wieghtMatrix.get(6).size() - 1));
+			ls.cells.get(0).setYt(wieghtMatrix.get(6).get((wieghtMatrix.get(6).size() - 1)));
 
 			wieghtMatrix = ls.train();
 			this.weights.add(wieghtMatrix);
@@ -108,18 +104,26 @@ public class Engine implements EngineDriver {
 		// this.finalWeight = this.bestWeights.get(ind);
 	}
 
-//	/**
-//	 * Do not need to go through entire data set to check the better weights, check
-//	 * once at the specified percentage.
-//	 * 
-//	 * @param percentage   stopping percentage
-//	 * @param weightMatrix actualWeight matrix
-//	 */
-//	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> weightMatrix) {
-//
-//		
-//
-//	}
+	@Override
+	public void fit(int epochs) {
+		// TODO Auto-generated method stub
+
+	}
+
+	// /**
+	// * Do not need to go through entire data set to check the better weights,
+	// check
+	// * once at the specified percentage.
+	// *
+	// * @param percentage stopping percentage
+	// * @param weightMatrix actualWeight matrix
+	// */
+	// private void earlyStop(int percentage, ArrayList<ArrayList<Double>>
+	// weightMatrix) {
+	//
+	//
+	//
+	// }
 
 	/**
 	 * Simple learning rate update based on the number of iterations.
@@ -129,24 +133,24 @@ public class Engine implements EngineDriver {
 	 * @param learningRate learning rate.
 	 * @return updated learning rate
 	 */
-//	private double updateLearningRate(int iterations, int length) {
-//		double learningRate = 1.0;
-//		double perc = 0.0;
-//		perc = ((double) (iterations + 1) / length) * 100.0;
-//
-//		if (perc < 15) {
-//			return learningRate / 10;
-//		} else if (15 < perc && perc < 30) {
-//			return learningRate / 100;
-//		} else if (30 < perc && perc < 60) {
-//			return learningRate / 1000;
-//		} else if (60 < perc && perc < 90) {
-//			return learningRate / 10000;
-//		} else {
-//			return learningRate / 100000;
-//		}
-//
-//	}
+	// private double updateLearningRate(int iterations, int length) {
+	// double learningRate = 1.0;
+	// double perc = 0.0;
+	// perc = ((double) (iterations + 1) / length) * 100.0;
+	//
+	// if (perc < 15) {
+	// return learningRate / 10;
+	// } else if (15 < perc && perc < 30) {
+	// return learningRate / 100;
+	// } else if (30 < perc && perc < 60) {
+	// return learningRate / 1000;
+	// } else if (60 < perc && perc < 90) {
+	// return learningRate / 10000;
+	// } else {
+	// return learningRate / 100000;
+	// }
+	//
+	// }
 
 	/**
 	 * Predict using the model and the input data.
@@ -232,7 +236,7 @@ public class Engine implements EngineDriver {
 	 */
 	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix) {
 
-		System.out.println("Validating...");
+		// System.out.println("Validating...");
 
 		double[] rms = new double[wightMatrix.size()];
 
@@ -242,7 +246,7 @@ public class Engine implements EngineDriver {
 			rms[k] = this.computeRms(this.validateTarget, pre);
 		}
 		int minInd = this.getMinIndex(rms);
-		System.out.println("Index : " + minInd);
+		// System.out.println("Index : " + minInd);
 		return minInd;
 	}
 
@@ -255,7 +259,7 @@ public class Engine implements EngineDriver {
 	public int getMinIndex(double[] arr) {
 		double min = Arrays.stream(arr).min().orElseThrow();
 		int iMin = Arrays.stream(arr).boxed().collect(Collectors.toList()).indexOf(min);
-		System.out.println("RMS error=" + arr[iMin]);
+		// System.out.println("RMS error=" + arr[iMin]);
 		return iMin;
 	}
 
@@ -288,12 +292,11 @@ public class Engine implements EngineDriver {
 
 	public static class EngineBuilder {
 
-		public double[][] inputMatrix;
-		public double[] targetVector;
-		public double[][] validateData;
-		public double[] validateTarget;
-		public int validatorCounter;
-		public int epoch = 100;
+		private double[][] inputMatrix;
+		private double[] targetVector;
+		private double[][] validateData;
+		private double[] validateTarget;
+		private int validatorCounter;
 
 		public EngineBuilder(double[][] inputMatrix, double[] targetVector, double[][] validateData,
 				double[] validateTarget, int validatorCounter) {
@@ -333,9 +336,9 @@ public class Engine implements EngineDriver {
 			return this;
 		}
 
-//		public EngineBuilder  setWi() {
-//			return this;
-//		}
+		// public EngineBuilder setWi() {
+		// return this;
+		// }
 
 		public Engine build() {
 			return new Engine(this);
@@ -343,9 +346,7 @@ public class Engine implements EngineDriver {
 
 	}
 
-	@Override
-	public void fit(int epochs) {
-		// TODO Auto-generated method stub
-
+	public ArrayList<ArrayList<ArrayList<Double>>> getWeights() {
+		return this.weights;
 	}
 }

@@ -6,7 +6,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 
-
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.predictor.lstm.common.DataModification;
@@ -14,46 +13,40 @@ import io.openems.edge.predictor.lstm.common.ReadModels;
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
 
-
 public class Prediction {
-	public ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
-	public ArrayList<Double> dataShouldBe = new ArrayList<Double>();
-	public ArrayList<Double> predicted = new ArrayList<Double>();
-	public double min = 0;
-	public double max = 0;
+	private ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
+	private ArrayList<Double> predicted = new ArrayList<Double>();
 
-	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date,double min,double max) {
+	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date, double min, double max, String path) {
 
 		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
-		ArrayList<Double> scaledData = new ArrayList<Double>();
 
 		ArrayList<Double> dataToPredict = data;
-		ArrayList<OffsetDateTime> dateToPredict = date;
+		final ArrayList<OffsetDateTime> dateToPredict = date;
 
-		 min = Collections.min(data);
-		 max = Collections.max(data);
+		min = Collections.min(data);
+		max = Collections.max(data);
 
 		// Interpolate
 		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict);
-		dataToPredict = interpolationManager.interpolated;
+		dataToPredict = interpolationManager.getInterpolatedData();
 
 		// Scaling
-		
-		
-		scaledData = DataModification.scale(dataToPredict, min, max);
+
+		ArrayList<Double> scaledData = DataModification.scale(dataToPredict, min, max);
 
 		// Grouping data by hour
 		GroupBy groupBy = new GroupBy(scaledData, dateToPredict);
 		groupBy.hour();
 
 		// Grouping data by minute
-		for (int i = 0; i < groupBy.groupedDataByHour.size(); i++) {
-			GroupBy gB = new GroupBy(groupBy.groupedDataByHour.get(i), groupBy.groupedDateByHour.get(i));
+		for (int i = 0; i < groupBy.getDateGroupedByHour().size(); i++) {
+			GroupBy gB = new GroupBy(groupBy.getDataGroupedByHour().get(i), groupBy.getDateGroupedByHour().get(i));
 			gB.minute();
-			dataGroupedByMinute.add(gB.groupedDataByMin);
-			dateGroupedByMinute.add(gB.groupedDateByMin);
+			dataGroupedByMinute.add(gB.getDataGroupedByMinute());
+			dateGroupedByMinute.add(gB.getDateGroupedByMinute());
 		}
 
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
@@ -62,15 +55,28 @@ public class Prediction {
 			}
 		}
 
-		ReadModels readModels = new ReadModels();
-
 		// Make prediction
-		predicted = Predictor.Predict(dataGroupedByMinute1, readModels.allModel.get(readModels.allModel.size() - 1));
+		ArrayList<ArrayList<ArrayList<Double>>> allModel = ReadModels.getModelForSeasonality(path).get(0);
+		this.predicted = Predictor.predictPre(dataGroupedByMinute1, allModel);
 
-		for (int i = 0; i < predicted.size(); i++) {
-			predictedAndScaledBack.add(DataModification.scaleBack(predicted.get(i), min, max));
+		for (int i = 0; i < this.predicted.size(); i++) {
+			this.predictedAndScaledBack.add(DataModification.scaleBack(this.predicted.get(i), min, max));
 		}
 	}
+
+	/**
+	 * Generate and save a plot to visualize predicted and actual values for a given
+	 * week. This method generates a plot to visualize predicted and actual values
+	 * for a specific week. The plot displays the actual and predicted values for
+	 * each 15-minute interval in a day.
+	 *
+	 * @param predictedValues An ArrayList of Double values representing the
+	 *                        predicted values.
+	 * @param orginal         An ArrayList of Double values representing the
+	 *                        original (actual) values.
+	 * @param weekNumber      An integer representing the week number for which the
+	 *                        plot is generated.
+	 */
 
 	public static void makePlot(ArrayList<Double> predictedValues, ArrayList<Double> orginal, int weekNumber) {
 		Plot.Data dataActualValues = Plot.data();
@@ -96,12 +102,19 @@ public class Prediction {
 						.color(Color.RED)); //
 
 		try {
-			String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstmmodel\\testResults";
+			// String path =
+			// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstmmodel\\TestFolder";
+			String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder";
+
 			plot.save(path + "/prediction", "png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	public ArrayList<Double> getPredictedValues() {
+		return this.predictedAndScaledBack;
 	}
 
 }

@@ -12,18 +12,30 @@ public class ReadCsv {
 
 	public static final String FILENAME = "\\TestFolder\\Consumption_data_Fems_10005.csv";
 
-	public ArrayList<Double> data = new ArrayList<Double>();
-	public ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
+	private ArrayList<Double> data = new ArrayList<Double>();
+	private ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
 
 	public ReadCsv(String path) {
-		
-		getDataFromCSV(path);
+
+		this.getDataFromCsv(path);
 	}
 
-	public void getDataFromCSV(String fileName) {
+	/**
+	 * Reads data from a CSV file and populates class fields with the data. This
+	 * method reads data from a CSV file specified by the provided file name. Each
+	 * line in the CSV file is expected to contain timestamped data points, where
+	 * the first column represents timestamps in the ISO-8601 format and subsequent
+	 * columns represent numeric data. The data is parsed, and the timestamps and
+	 * numeric values are stored in class fields for further processing.
+	 *
+	 * @param fileName The name of the CSV file to read data from.
+	 * @throws IOException if there are issues reading the file.
+	 */
+
+	public void getDataFromCsv(String fileName) {
 
 		try {
-			String filename = "\\TestFolder\\"+fileName;
+			String filename = "\\TestFolder\\" + fileName;
 			String path = new File(".").getCanonicalPath() + filename;
 
 			BufferedReader reader = new BufferedReader(new FileReader(path));
@@ -44,18 +56,26 @@ public class ReadCsv {
 					}
 				}
 
-				dates.add(date);
-				data.add(temp2);
-				
+				this.dates.add(date);
+				this.data.add(temp2);
 
 				line = reader.readLine();
 			}
 
 			reader.close();
-			System.out.println(Collections.min(data));
+			System.out.println(Collections.min(this.data));
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public ArrayList<Double> getData() {
+		return this.data;
+
+	}
+
+	public ArrayList<OffsetDateTime> getDates() {
+		return this.dates;
 	}
 }

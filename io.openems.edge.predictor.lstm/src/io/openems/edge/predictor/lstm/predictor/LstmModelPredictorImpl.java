@@ -34,11 +34,11 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 import io.openems.edge.predictor.lstm.common.DataModification;
 import io.openems.edge.predictor.lstm.common.ReadModels;
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.performance.PerformanceMatrix;
+import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -96,9 +96,15 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		ArrayList<Double> allPredicted = new ArrayList<Double>();
 		ArrayList<Double> allTarget = new ArrayList<Double>();
 		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
+		ArrayList<ArrayList<Double>> allPredictionFro20Days = new ArrayList<ArrayList<Double>>();
+		ArrayList<ArrayList<Double>> allTargetFro20Days = new ArrayList<ArrayList<Double>>();
+		for (int i = 0; i < 15; i++) {
+			
 
-		ZonedDateTime nowDate = ZonedDateTime.of(2023, 6, 11, 2, 0, 0, 0, ZonedDateTime.now().getZone());
-		// for (int i =0;i<1000;i++) {
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 6, 8, 18, 0, 0, 0, ZonedDateTime.now().getZone());
+		 nowDate = nowDate.plusDays(i);
+		 
+		 
 
 		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
 				nowDate.getHour(), getMinute(nowDate), 0, 0, nowDate.getZone());
@@ -113,15 +119,15 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 
 		try {
-			querryResult = timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(channelAddress),
+			querryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 
 			e.printStackTrace();
 		}
 
-		ArrayList<Double> data = this.getData(querryResult);
-		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
+		final ArrayList<Double> data = this.getData(querryResult);
+		final ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		ArrayList<Double> target = new ArrayList<Double>();
 		ArrayList<Double> sameDayLastWeek = new ArrayList<Double>();
 		ZonedDateTime targetFrom = until.plusMinutes(15);
@@ -129,7 +135,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		ZonedDateTime targetTo = targetFrom.plusHours(24);
 
 		try {
-			target = getData(timedata.queryHistoricData(null, targetFrom, targetTo, Sets.newHashSet(channelAddress),
+			target = this.getData(this.timedata.queryHistoricData(null, targetFrom, targetTo, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES)));
 			allTarget.addAll(target);
 		} catch (OpenemsNamedException e) {
@@ -138,7 +144,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 
 		}
 		try {
-			sameDayLastWeek = getData(timedata.queryHistoricData(null, fromDate.plusMinutes(15),
+			sameDayLastWeek = this.getData(this.timedata.queryHistoricData(null, fromDate.plusMinutes(15),
 					ZonedDateTime.of(fromDate.getYear(), fromDate.getMonthValue(), fromDate.getDayOfMonth() + 1, 0, 0,
 							0, 0, nowDate.getZone()),
 					Sets.newHashSet(channelAddress), new Resolution(15, ChronoUnit.MINUTES)));
@@ -148,29 +154,31 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 
 		}
 		try {
-			forTrendPrediction = getData(timedata.queryHistoricData(null, until.minusMinutes(105), until,
+			forTrendPrediction = this.getData(this.timedata.queryHistoricData(null, until.minusMinutes(105), until,
 					Sets.newHashSet(channelAddress), new Resolution(15, ChronoUnit.MINUTES)));
 
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
 
-		Prediction prediction = new Prediction(data, date,Collections.min(forTrendPrediction),Collections.max(forTrendPrediction));
-		double onePointPrediction = predictTrend(forTrendPrediction, until, Collections.min(data),
+		Prediction prediction = new Prediction(data, date, Collections.min(forTrendPrediction),
+				Collections.max(forTrendPrediction), path);
+		final double onePointPrediction = this.predictTrend(forTrendPrediction, until, Collections.min(data),
 				Collections.max(data));
 		predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute()),
-				prediction.predictedAndScaledBack);
+				prediction.getPredictedValues());
 		allPredicted.addAll(predicted);
 		// System.out.println(prediction.predicted);
-		System.out.println("");
+		System.out.println("data size" + data.size());
 		System.out.println("Target From = " + targetFrom);
 		System.out.println("Target to= " + targetTo);
 		System.out.println("Target = " + target);
 		System.out.println("");
 		System.out.println("Last week same day: " + sameDayLastWeek);
 		System.out.println("");
-		System.out.println("Predicted = " + prediction.predictedAndScaledBack);
+		System.out.println("Predicted = " + prediction.getPredictedValues());
 		System.out.println("");
 		System.out.println("forTrendfrom =" + until.minusMinutes(105));
 		System.out.println("forTrendto =" + until);
@@ -179,9 +187,12 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		System.out.println("");
 		System.out.println("Predicted Arranged= " + predicted);
 
-		System.out.println("Predicted size= " + prediction.predictedAndScaledBack.size());
+		System.out.println("Predicted size= " + prediction.getPredictedValues().size());
 		System.out.println("Target size = " + target.size());
 		System.out.println("");
+		
+		allTargetFro20Days.add(target);
+		 allPredictionFro20Days.add(predicted);
 
 		// nowDate = nowDate.plusMinutes(15);
 
@@ -191,12 +202,24 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		// Array_List_Double_To_Integer_Array.apply(prediction.predictedAndScaledBack);
 		System.out.println("all Predicted size= " + allPredicted.size());
 		System.out.println("all Target size= " + allTarget.size());
+		}
+		System.out.println("Target=" + allTargetFro20Days);
+		System.out.println("Predicted =" + allPredictionFro20Days);
 
 		PerformanceMatrix pm = new PerformanceMatrix(allTarget, allPredicted, 0.2);
 		pm.statusReport();
 
 		return new Prediction24Hours(Array_List_Double_To_Integer_Array.apply(predicted));
 	}
+	/**
+	 * Extract and convert data values from a SortedMap of query results.
+	 * This method extracts and converts data values from a SortedMap of query results, where each result contains a timestamped map of channel addresses and JSON elements.
+	 * The method processes the JSON elements, converting them to Double values, and stores them in an ArrayList.
+	 * If all data values are null, a warning message is printed.
+	 *
+	 * @param querryResult A SortedMap of ZonedDateTime and SortedMap of ChannelAddress and JsonElement representing query results.
+	 * @return An ArrayList of Double values containing the extracted data.
+	 */
 
 	public ArrayList<Double> getData(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult) {
 
@@ -210,11 +233,20 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 					return v.getAsDouble();
 				}).collect(Collectors.toList());
 
-		if (isAllNulls(data)) {
+		if (this.isAllNulls(data)) {
 			System.out.println("Data is all null, use different predictor");
 		}
 		return data;
 	}
+	
+	/**
+	 * Extract and convert data values from a SortedMap of query results.
+	 * This method extracts data values from a SortedMap of query results, which is a collection of timestamped data points.
+	 * It converts the extracted values into an ArrayList of Double values.
+	 *
+	 * @param querryResult A SortedMap of ZonedDateTime and SortedMap of ChannelAddress and JsonElement representing query results.
+	 * @return An ArrayList of Double values containing the extracted data.
+	 */
 
 	public ArrayList<OffsetDateTime> getDate(
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult) {
@@ -222,7 +254,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
 
 		querryResult.keySet()//
-				.stream()//
+				.stream()//offs
 				.forEach(zonedDateTime -> {
 					date.add(zonedDateTime.toOffsetDateTime());
 				});
@@ -234,7 +266,15 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 				.stream(array.spliterator(), true) //
 				.allMatch(o -> o == null);
 	}
+	
 
+	/**
+	 * Get the nearest 15-minute interval for a given ZonedDateTime.
+	 * This method calculates and returns the nearest 15-minute interval (0, 15, 30, or 45) for a given ZonedDateTime, based on the minute component of the timestamp.
+	 *
+	 * @param fromDate A ZonedDateTime representing the timestamp for which the nearest 15-minute interval is to be determined.
+	 * @return An Integer representing the nearest 15-minute interval (0, 15, 30, or 45) based on the minute component of the timestamp.
+	 */
 	public static Integer getMinute(ZonedDateTime fromDate) {
 
 		int nowMinute = fromDate.getMinute();
@@ -248,6 +288,16 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		}
 		return 45;
 	}
+	
+	/**
+	 * Rearrange the elements of an ArrayList into two groups and combine them.
+	 * This method rearranges the elements of a given ArrayList into two groups, where the elements before a specified split index form the first group,
+	 * and the elements after the split index form the second group. It then combines the two groups to produce a new ArrayList.
+	 *
+	 * @param splitIndex The index at which the ArrayList should be split into two groups.
+	 * @param singleArray An ArrayList of Double values to be rearranged and combined.
+	 * @return An ArrayList of Double values with elements arranged in the order of the second group followed by the first group.
+	 */
 
 	public static ArrayList<Double> getArranged(int splitIndex, ArrayList<Double> singleArray) {
 		ArrayList<Double> arranged = new ArrayList<Double>();
@@ -268,6 +318,16 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		return arranged;
 	}
 
+	/**
+	 * Get the index corresponding to a specific hour and minute in a 15-minute interval grid.
+	 * This method calculates and returns the index that corresponds to a specified hour and minute within a 15-minute interval grid.
+	 * The grid represents a day, divided into 15-minute intervals.
+	 *
+	 * @param hour An Integer representing the hour component.
+	 * @param minute An Integer representing the minute component.
+	 * @return An Integer representing the index in the 15-minute interval grid for the given hour and minute.
+	 */
+	
 	public static Integer getIndex(Integer hour, Integer minute) {
 
 		int k = 0;
@@ -275,8 +335,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 			for (int j = 0; j < 4; j++) {
 				int h = i;
 				int m = j * 15;
-				if (hour == h && minute == m) {
-					System.out.println(k);
+				if (hour == h && minute == m) {			
 
 					return k;
 				} else {
@@ -288,16 +347,26 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		return k;
 
 	}
+	/**
+	 * Predict a trend value for a given dataset using a trained model.
+	 * This method predicts a trend value for a given dataset using a trained model. The method reads the model data, performs data interpolation, scales the data, and uses the model to make the prediction. It then scales back the predicted value to the original range.
+	 *
+	 * @param data An ArrayList of Double representing the dataset for prediction.
+	 * @param until A ZonedDateTime representing the time until which the prediction is made.
+	 * @param min The minimum value used for data scaling.
+	 * @param max The maximum value used for data scaling.
+	 * @return A double representing the predicted trend value.
+	 */
 
 	public double predictTrend(ArrayList<Double> data, ZonedDateTime until, double min, double max) {
 		// read Model
 		String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\Trend.txt";
 		double pred = 0;
 		// ArrayList<Double>prediction = new ArrayList<Double>();
-		ReadModels models = new ReadModels(pathTrend);
-		ArrayList<ArrayList<Double>> val = models.dataList.get(0);
+		ArrayList<ArrayList<Double>> val = ReadModels.getModelForTrend(pathTrend).get(0);
+
 		InterpolationManager interpolationManager = new InterpolationManager(data);
-		data = interpolationManager.interpolated;
+		data = interpolationManager.getInterpolatedData();
 		ArrayList<Double> scaledData = DataModification.scale(data, min, max);
 		// readData
 

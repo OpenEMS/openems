@@ -46,7 +46,7 @@ public class LstmModelValidatorImpl extends AbstractPredictor24Hours
 
 	public LstmModelValidatorImpl() throws OpenemsNamedException {
 		super(//
-				OpenemsComponent.ChannelId.values(), //q
+				OpenemsComponent.ChannelId.values(), // q
 				Controller.ChannelId.values() //
 
 		);
@@ -72,56 +72,8 @@ public class LstmModelValidatorImpl extends AbstractPredictor24Hours
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-
-//		/// var nowDate = ZonedDateTime.now(this.componentManager.getClock());
-//		// From now time to Last 4 weeks
-//		// var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
-//
-//		// TODO change the logic for date range
-//
-//		// ZonedDateTime nowDate = ZonedDateTime.now();
-//		ZonedDateTime nowDate = ZonedDateTime.of(2023, 6, 24, 0, 0, 0, 0, ZonedDateTime.now().getZone());
-//		ZonedDateTime till = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), //
-//				nowDate.minusDays(1).getDayOfMonth(), 11, 45, 0, 0, nowDate.getZone());
-//		ZonedDateTime temp = till.minusDays(6);
-//		ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(), 0, 0, 0,
-//				0, //
-//				temp.getZone());
-//
-//		System.out.println("From : " + fromDate);
-//
-//		System.out.println("Till : " + till);
-//
-//		// TEMP
-//
-//		// Extract data
-//
-//		DataQuerry predictionData = new DataQuerry(fromDate, nowDate, 15, timedata);
-//
-//		// get date
-//
-//		System.out.println(predictionData.date.size());
-//
-//		// data conversion
-//		// make 96datepoint prediction
-//		int minOfTrainingData = 33246;
-//		int maxOfTrainingData = 73953495;
-//
-//		Validation obj = new Validation((ArrayList<Double>) predictionData.data, predictionData.date, minOfTrainingData,
-//				maxOfTrainingData);
-
 		return null;
 
 	}
-
-//	@Override
-//	  public void handleEvent(Event event) {
-//        if (!this.isEnabled()) {
-//            return;
-//        }
-//        switch (event.getTopic()) {
-//       
-//        }
-//    }
 
 }

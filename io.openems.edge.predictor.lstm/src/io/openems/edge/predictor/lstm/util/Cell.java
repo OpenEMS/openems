@@ -1,15 +1,10 @@
 package io.openems.edge.predictor.lstm.util;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Random;
 
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
 
 public class Cell {
-
-	public static final BiFunction<Double, Double, Double> MULTIPLY = (x, y) -> x * y;
-	public static final BiFunction<Double, Double, Double> ADD = (x, y) -> x + y;
-	public static final Function<Double, Double> SIGMOID = MathUtils::sigmoid;
 
 	private double error;
 	private double wI;
@@ -18,24 +13,24 @@ public class Cell {
 	private double rI;
 	private double rO;
 	private double rZ;
-	public double yT;
+	private double yT;
 
-	public double cT;
-	public double oT;
-	public double zT;
+	private double cT;
+	private double oT;
+	private double zT;
 
-	public double iT;
-	public double dlByDy;
-	public double dlByDo;
-	public double dlByDc;
-	public double dlByDi;
-	public double dlByDz;
-	public double delI;
-	public double delO;
-	public double delZ;
+	private double iT;
+	private double dlByDy;
+	private double dlByDo;
+	private double dlByDc;
+	private double dlByDi;
+	private double dlByDz;
+	private double delI;
+	private double delO;
+	private double delZ;
 
-	public double xT;
-	public double outputDataLoc;
+	private double xT;
+	private double outputDataLoc;
 
 	public enum PropagationType {
 		FORWARD, BACKWARD
@@ -50,7 +45,7 @@ public class Cell {
 		this.rI = 1;
 		this.rO = 1;
 		this.rZ = 1;
-		this.cT =0;
+		this.cT = 0;
 		this.oT = 0;
 		this.zT = 0;
 		this.yT = 0;
@@ -89,12 +84,27 @@ public class Cell {
 	 * Forward propagation.
 	 */
 	public void forwardPropogation() {
-		this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
-		this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
-		this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
-		this.cT = this.cT + this.iT * this.zT;
-		this.yT = this.oT * MathUtils.tanh(this.cT);
-		this.error = this.yT - this.outputDataLoc;
+
+		double dropOutProb;
+		// System.out.println(decisionDropout());
+		boolean decissionFlag = this.decisionDropout();
+
+		if (decissionFlag == true) {
+			dropOutProb = 0.02;
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
+			this.cT = this.cT + this.iT * this.zT * dropOutProb;
+			this.yT = this.yT * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
+			this.error = this.yT - this.outputDataLoc;
+		} else {
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
+			this.cT = this.cT + this.iT * this.zT;
+			this.yT = this.oT * MathUtils.tanh(this.cT);
+			this.error = this.yT - this.outputDataLoc;
+		}
 
 	}
 
@@ -110,6 +120,26 @@ public class Cell {
 		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wI + this.rI * this.yT);
 		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wO + this.rO * this.yT);
 		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ + this.rZ * this.yT);
+	}
+
+	/**
+	 * Generates a random decision with dropout probability. This method generates a
+	 * random boolean decision with a dropout probability of 10%. It uses a random
+	 * number generator to determine whether the decision is true or false. The
+	 * probability of returning true is 10%, and the probability of returning false
+	 * is 90%.
+	 *
+	 * @return true with a 10% probability, false with a 90% probability.
+	 */
+
+	public boolean decisionDropout() {
+
+		Random random = new Random();
+		int randomNumber = random.nextInt(10) + 1;
+		if (randomNumber > 9) {
+			return true;
+		}
+		return false;
 	}
 
 	public double getError() {
@@ -167,8 +197,106 @@ public class Cell {
 	public void setRz(double rz) {
 		this.rZ = rz;
 	}
+
 	public double getCt() {
 		return this.cT;
+	}
+
+	public void setCt(double ct) {
+		this.cT = ct;
+
+	}
+
+	public double getYt() {
+		return this.yT;
+	}
+
+	public void setYt(double yt) {
+		this.yT = yt;
+
+	}
+
+	public void setIt(double iT) {
+		this.iT = iT;
+	}
+
+	public double getIt() {
+		return this.iT;
+	}
+
+	public void setDlByDy(double dlByDy) {
+		this.dlByDy = dlByDy;
+	}
+
+	public double getDlByDy() {
+		return this.dlByDy;
+	}
+
+	public void setDlByDo(double dlByDo) {
+		this.dlByDo = dlByDo;
+	}
+
+	public double getDlByDo() {
+		return this.dlByDo;
+	}
+
+	public void setDlByDc(double dlByDc) {
+		this.dlByDc = dlByDc;
+
+	}
+
+	public double getDlByDc() {
+
+		return this.dlByDc;
+	}
+
+	public void setDlByDi(double dlByDi) {
+		this.dlByDi = dlByDi;
+	}
+
+	public double getDlByDi() {
+		return this.dlByDi;
+	}
+
+	public void setDlByDz(double dlByDz) {
+		this.dlByDz = dlByDz;
+	}
+
+	public double getDlByDz() {
+		return this.dlByDz;
+	}
+
+	public void setDelI(double delI) {
+		this.delI = delI;
+
+	}
+
+	public double getDelI() {
+		return this.delI;
+	}
+
+	public void setDelO(double delO) {
+		this.delO = delO;
+	}
+
+	public double getDelO() {
+		return this.delO;
+	}
+
+	public void setDelZ(double delZ) {
+		this.delZ = delZ;
+	}
+
+	public double getDelZ() {
+		return this.delZ;
+	}
+
+	public void setXt(double xt) {
+		this.xT = xt;
+	}
+
+	public double getXt() {
+		return this.xT;
 	}
 
 	/**

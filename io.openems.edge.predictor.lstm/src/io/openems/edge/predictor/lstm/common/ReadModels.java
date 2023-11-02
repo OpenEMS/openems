@@ -6,30 +6,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
-
 public class ReadModels {
-	public ArrayList<ArrayList<ArrayList<Double>>> dataList = new ArrayList<ArrayList<ArrayList<Double>>>();
-	public static  ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
-	public ReadModels() {
+	private static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
-		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
-
-		System.out.println(path);
-		String filePath = path;
-		dataList = readDataFile(filePath);
-		allModel = reshape();
-	}
-	
-	public ReadModels(String path) {		
-
-		System.out.println(path);
-		String filePath = path;
-		dataList = readDataFile(filePath);
-		allModel = reshape();
-	}
-
+	/**
+	 * Reads a data file and parses its content into a nested ArrayList structure.
+	 * This method reads the specified data file, where the data is organized into
+	 * nested lists using empty lines as separators. Each non-empty line consists of
+	 * space-separated values that are parsed into double-precision floating-point
+	 * numbers. The data is structured as a list of lists, where each inner list
+	 * represents a row of data, and each outer list groups multiple rows. The
+	 * method returns the parsed data in the form of a nested ArrayList structure.
+	 *
+	 * @param filename The name of the file to read the data from.
+	 * @return A nested ArrayList structure containing the parsed data.
+	 * @throws FileNotFoundException if the specified file is not found or cannot be
+	 *                               opened.
+	 */
 	public static ArrayList<ArrayList<ArrayList<Double>>> readDataFile(String filename) {
 		ArrayList<ArrayList<ArrayList<Double>>> dataList = new ArrayList<>();
 
@@ -70,7 +64,19 @@ public class ReadModels {
 		return dataList;
 	}
 
-	public ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape() {
+	/**
+	 * Reshapes a three-dimensional ArrayList into a four-dimensional ArrayList
+	 * structure. This method takes a three-dimensional ArrayList of data and
+	 * reshapes it into a four-dimensional ArrayList structure. The reshaping is
+	 * performed by dividing the original data into blocks of size 4x24. The
+	 * resulting four-dimensional ArrayList contains these blocks.
+	 *
+	 * @param dataList The three-dimensional ArrayList to be reshaped.
+	 * @return A four-dimensional ArrayList structure containing the reshaped data.
+	 */
+
+	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape(
+			ArrayList<ArrayList<ArrayList<Double>>> dataList) {
 
 		int m = 4 * 24;
 		int n = dataList.size() / m;
@@ -90,7 +96,22 @@ public class ReadModels {
 		return temp2;
 	}
 
-	public  void updateModel(List<List<Integer>> index,String FileName) {
+	/**
+	 * Updates a model based on selected indices and saves it to a file. This method
+	 * updates a model by selecting specific data from a four-dimensional ArrayList
+	 * and saving the updated model to a file. It takes a list of indices to specify
+	 * which data should be included in the updated model and saves it using the
+	 * provided file name.
+	 *
+	 * @param allModel The original four-dimensional ArrayList containing the model
+	 *                 data.
+	 * @param index    A list of indices specifying the data to be included in the
+	 *                 updated model.
+	 * @param fileName The name of the file to save the updated model.
+	 */
+
+	public static void updateModel(ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel,
+			List<List<Integer>> index, String fileName) {
 		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 
@@ -101,18 +122,62 @@ public class ReadModels {
 
 		}
 		finalWeight.add(optimumWeight);
-		SaveModel.saveModels(finalWeight,FileName);
+		SaveModel.saveModels(finalWeight, fileName);
 
-		//SaveModel.saveModels(finalWeight, "BestModels.txt");
+		// SaveModel.saveModels(finalWeight, "BestModels.txt");
 
 	}
 
-	public  void updateModel(Integer index) {
+	/**
+	 * Updates a model based on the provided index and saves it. This method updates
+	 * a model by selecting a specific set of data from a four-dimensional ArrayList
+	 * using the given index and saves it. The updated model is saved using the
+	 * "SaveModel" utility class without specifying a file name.
+	 *
+	 * @param index The index specifying the data to be included in the updated
+	 *              model.
+	 */
+
+	public void updateModel(Integer index) {
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> finalWeight = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		ArrayList<ArrayList<ArrayList<Double>>> optimumWeight = new ArrayList<ArrayList<ArrayList<Double>>>();
 		optimumWeight = allModel.get(index);
 		finalWeight.add(optimumWeight);
 		SaveModel.saveModels(finalWeight);
+
+	}
+
+	/**
+	 * Retrieves a three-dimensional model for trend analysis from a data file. This
+	 * method reads data from the specified file and returns it as a
+	 * three-dimensional ArrayList structure. The data is expected to be organized
+	 * in a specific format suitable for trend analysis.
+	 *
+	 * @param filePath The path to the data file containing the model data.
+	 * @return A three-dimensional ArrayList structure representing the model data.
+	 */
+	public static ArrayList<ArrayList<ArrayList<Double>>> getModelForTrend(String filePath) {
+		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filePath);
+
+		return dataList;
+
+	}
+
+	/**
+	 * Retrieves a four-dimensional model for seasonality analysis from a data file.
+	 * This method reads data from the specified file, reshapes it into a
+	 * four-dimensional ArrayList structure suitable for seasonality analysis, and
+	 * returns the reshaped model.
+	 *
+	 * @param filePath The path to the data file containing the model data.
+	 * @return A four-dimensional ArrayList structure representing the reshaped
+	 *         model data.
+	 */
+
+	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filePath) {
+		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filePath);
+		allModel = reshape(dataList);
+		return allModel;
 
 	}
 }

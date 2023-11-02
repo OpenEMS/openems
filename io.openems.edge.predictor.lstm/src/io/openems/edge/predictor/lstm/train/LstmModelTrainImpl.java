@@ -51,7 +51,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 	protected Config config;
 
 	@Reference
-	public ComponentManager componentManager;
+	private ComponentManager componentManager;
 
 	public LstmModelTrainImpl() throws OpenemsNamedException {
 		super(//
@@ -73,7 +73,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	protected void Train(ChannelAddress channelAddress) {
+	protected void train(ChannelAddress channelAddress) {
 
 		// This is reference date specific to fems
 		ZonedDateTime nowDate = ZonedDateTime.now();
@@ -101,7 +101,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
 
 		try {
-			querryResult = timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(channelAddress),
+			querryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 
@@ -111,9 +111,19 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
-		MakeModel obj = new MakeModel((ArrayList<Double>) data, date,1);
+		MakeModel obj = new MakeModel((ArrayList<Double>) data, date, 1);
 
 	}
+
+	/**
+	 * Extracts Double values from a sorted map of ZonedDateTime keys and associated
+	 * JsonElement values.
+	 *
+	 * @param querryResult A sorted map containing ZonedDateTime keys and associated
+	 *                     data in the form of JsonElement objects.
+	 * @return An ArrayList of Double values extracted from the JsonElement objects
+	 *         in querryResult.
+	 */
 
 	public ArrayList<Double> getData(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult) {
 
@@ -127,11 +137,20 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 					return v.getAsDouble();
 				}).collect(Collectors.toList());
 
-		if (isAllNulls(data)) {
+		if (this.isAllNulls(data)) {
 			System.out.println("Data is all null, use different predictor");
 		}
 		return data;
 	}
+
+	/**
+	 * Extracts OffsetDateTime objects from a sorted map of ZonedDateTime keys.
+	 *
+	 * @param querryResult A sorted map containing ZonedDateTime keys and associated
+	 *                     data.
+	 * @return An ArrayList of OffsetDateTime objects extracted from the keys of
+	 *         querryResult.
+	 */
 
 	public ArrayList<OffsetDateTime> getDate(
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult) {
