@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -94,7 +95,9 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
@@ -109,7 +112,8 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 								.build()) //
 						.add(JsonFormlyUtil.buildSelect(Property.MODBUS_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "communication.modbusId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "communication.modbusId.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "communication.modbusId.description")) //
 								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("modbus"),
 										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //

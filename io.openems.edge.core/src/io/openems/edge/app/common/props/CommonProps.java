@@ -40,7 +40,8 @@ public final class CommonProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("alias") //
 				.setDefaultValueToAppName() //
-				.setField(JsonFormlyUtil::buildInputFromNameable));
+				.setField(JsonFormlyUtil::buildInputFromNameable)) //
+				.setRequired(true);
 	}
 
 	/**

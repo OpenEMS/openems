@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -24,14 +23,13 @@ import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
-import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags;
 
 public abstract class AbstractOpenemsAppWithProps<//
 		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
 		PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
-		PARAMETER  //
+		PARAMETER //
 > extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
 
 	protected AbstractOpenemsAppWithProps(ComponentManager componentManager, ComponentContext componentContext,
@@ -200,17 +198,6 @@ public abstract class AbstractOpenemsAppWithProps<//
 				target, //
 				AbstractOpenemsApp.fillUpProperties(this, config), //
 				language //
-		);
-	}
-
-	@Override
-	protected List<String> getValidationErrors(//
-			final JsonObject jProperties, //
-			final List<Dependency> dependecies //
-	) {
-		return super.getValidationErrors(//
-				AbstractOpenemsApp.fillUpProperties(this, jProperties), //
-				dependecies //
 		);
 	}
 

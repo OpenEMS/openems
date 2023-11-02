@@ -4,18 +4,18 @@
     <svg:defs>
         <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1"
             [attr.x2]="energyFlow.gradient.x2" [attr.y2]="energyFlow.gradient.y2">
-            <svg:stop offset="0%" stop-color="var(--ion-background-color)" />
+            <svg:stop offset="0%" stop-color="var(--ion-color-background)" />
             <svg:stop offset="100%" stop-color="var(--ion-color-success)" />
         </svg:linearGradient>
     </svg:defs>
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
     <ng-container *ngIf="chargeAnimationTrigger">
         <svg:polygon [@Charge]="stateNameCharge" [attr.points]="energyFlow.animationPoints"
-            style="fill:var(--ion-background-color)" />
+            style="fill:var(--ion-color-background)" />
     </ng-container>
     <ng-container *ngIf="dischargeAnimationTrigger">
         <svg:polygon [@Discharge]="stateNameDischarge" [attr.points]="energyFlow.animationPoints"
-            style="fill:var(--ion-background-color)" />
+            style="fill:var(--ion-color-background)" />
     </ng-container>
 </svg:g>
 <svg:g *ngIf="isEnabled && squarePosition && square"

@@ -1,5 +1,7 @@
 package io.openems.edge.app.pvinverter;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -22,6 +24,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -31,6 +34,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -66,33 +70,27 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		MODBUS_ID(AppDef.of(SmaPvInverter.class) //
 				.setDefaultValue("modbus0")), //
 		// Properties
-		ALIAS(AppDef.of(SmaPvInverter.class) //
-				.setDefaultValueToAppName()), //
+		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommonPvInverterConfiguration.ip(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}))), //
+				.setRequired(true))), //
 		PORT(AppDef.copyOfGeneric(CommonPvInverterConfiguration.port(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}))), //
+				.setRequired(true))), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommonPvInverterConfiguration.modbusUnitId(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}))), //
+				.setRequired(true))), //
 		PHASE(AppDef.of(SmaPvInverter.class) //
 				.setTranslatedLabelWithAppPrefix(".phase.label") // )
 				.setTranslatedDescriptionWithAppPrefix(".phase.description") //
 				.setDefaultValue(Phase.ALL.name()) //
-				.bidirectional(PV_INVERTER_ID, "phase", a -> a.componentManager) //
-				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> //
-				field.setOptions(OptionsFactory.of(Phase.class), l) //
-						.isRequired(true)));
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(Phase.class), l);
+				}) //
+				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager));
 
-		private final AppDef<SmaPvInverter, Property, BundleParameter> def;
+		private final AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<SmaPvInverter, Property, BundleParameter> def) {
+		private Property(AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -102,7 +100,7 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 		}
 
 		@Override
-		public AppDef<SmaPvInverter, Property, BundleParameter> def() {
+		public AppDef<? super SmaPvInverter, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -136,7 +134,10 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 					b -> b.addProperty("modbusUnitId", modbusUnitId) //
 							.addProperty("phase", phase),
 					null);
-			return new AppConfiguration(components);
+
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

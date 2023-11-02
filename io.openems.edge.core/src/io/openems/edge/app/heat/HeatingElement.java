@@ -48,6 +48,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -104,20 +105,20 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedLabelWithAppPrefix(".powerPerPhase.label") //
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
 				.setDefaultValue(2000) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
 					field.setInputType(NUMBER) //
 							.setUnit(WATT, l) //
-							.isRequired(true) //
 							.setMin(0);
 				})), //
 		HYSTERESIS(AppDef.of(HeatingElement.class) //
 				.setTranslatedLabelWithAppPrefix(".hysteresis.label") //
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
 				.setDefaultValue(60) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> {
 					field.setInputType(NUMBER) //
 							.setUnit(SECONDS, l) //
-							.isRequired(true) //
 							.setMin(0);
 				}) //
 				.bidirectional(CTRL_IO_HEATING_ELEMENT_ID, "minimumSwitchingTime", //
@@ -190,7 +191,9 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(components);
+				return AppConfiguration.create() //
+						.addTask(Tasks.component(components)) //
+						.build();
 			}
 
 			final var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -204,7 +207,10 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.build()) //
 			);
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

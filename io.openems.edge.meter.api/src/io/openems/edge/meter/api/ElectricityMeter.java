@@ -1723,7 +1723,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 			var phase = TypeUtils.divide(value.get(), 3);
 			meter.getReactivePowerL1Channel().setNextValue(phase);
 			meter.getReactivePowerL2Channel().setNextValue(phase);
-			meter.getReactivePowerL2Channel().setNextValue(phase);
+			meter.getReactivePowerL3Channel().setNextValue(phase);
 		});
 	}
 

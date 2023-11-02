@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class TasksSupplierImplTest {
 

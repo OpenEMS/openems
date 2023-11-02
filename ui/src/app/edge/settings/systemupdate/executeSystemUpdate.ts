@@ -2,6 +2,7 @@ import { Subject, timer } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ExecuteSystemUpdateRequest } from "./executeSystemUpdateRequest";
 import { GetSystemUpdateStateRequest } from "./getSystemUpdateStateRequest";
@@ -51,7 +52,7 @@ export class ExecuteSystemUpdate {
         return new Promise<SystemUpdateState>((resolve, reject) => {
             // if the version is a SNAPSHOT always set the udpate state
             // to updated with the current SNAPSHOT version
-            if (this.edge.isSnapshot()) {
+            if (this.edge.isSnapshot() && !this.edge.roleIsAtLeast(Role.ADMIN)) {
                 let updateState = { updated: { version: this.edge.version } };
                 this.setSystemUpdateState(updateState);
                 this.stopRefreshSystemUpdateState();

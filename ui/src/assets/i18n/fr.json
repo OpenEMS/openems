@@ -58,7 +58,7 @@
     "soc": "état de charge",
     "state": "Etat",
     "storageSystem": "Système de stockage",
-    "systemState": "System state",
+    "SYSTEM_STATE": "État du système",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -108,9 +108,9 @@
     "connectionFailed": "Connection avec {{ value }} échouée.",
     "deviceOffline": "Ld'appareil n d'est pas connecté!",
     "isOffline": "OpenEMS est hors ligne!",
-    "loggedInAs": "Enregistré en tant que:",
+    "LOGGED_IN_AS": "Enregistré en tant que",
     "toEnergymonitor": "Vers le moniteur d'énergie...",
-    "type": "Type:"
+    "TYPE": "Type"
   },
   "Login": {
     "title": "Login",
