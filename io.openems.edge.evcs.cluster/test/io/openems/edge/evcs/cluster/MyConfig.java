@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.cluster;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,7 +12,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean debugMode = false;
 		private int hardwarePowerLimitPerPhase = 7000;
 		private String[] evcsIds = { "evcs0", "evcs1" };
-		private String evcsTarget = "(&(enabled=true)(!(service.pid=evcsCluster0))(|(id=\" + this.evcs_id() + \")))";
 		private String essId = "ess0";
 		private String meterId = "meter0";
 
@@ -35,11 +35,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEvcsIds(String[] evcsIds) {
 			this.evcsIds = evcsIds;
-			return this;
-		}
-
-		public Builder setEvcsTarget(String evcsTarget) {
-			this.evcsTarget = evcsTarget;
 			return this;
 		}
 
@@ -96,7 +91,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Evcs_target() {
-		return this.builder.evcsTarget;
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.evcs_ids());
 	}
 
 	@Override
