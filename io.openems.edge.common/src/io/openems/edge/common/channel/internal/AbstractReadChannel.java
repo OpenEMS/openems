@@ -74,12 +74,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		channelDoc.getOnInitCallbacks().forEach(callback -> {
 			callback.accept(this);
 		});
-		// set initial value
-		var initialValue = channelDoc.getInitialValue();
-		if (initialValue != null) {
-			this.setNextValue(initialValue);
-			this.nextProcessImage();
-		}
+		// set initial value - without nextProcessImage to avoid race conditions
+		this.setNextValue(channelDoc.getInitialValue());
 	}
 
 	@Override
@@ -128,7 +124,9 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			this.appendPastValue(newValue);
 
 		} catch (RuntimeException e) {
-			this.log.error("Error while updating process image for [" + this.address() + "]: " + e.getMessage());
+			var component = this.parent != null ? this.parent.id() : "";
+			this.log.error("Error while updating process image for [" + component + "/" + this.channelId().id() + "]: "
+					+ e.getMessage());
 			e.printStackTrace();
 		}
 	}
