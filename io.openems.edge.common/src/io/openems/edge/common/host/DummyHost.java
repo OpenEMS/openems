@@ -7,6 +7,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.common.user.User;
 
 /**
@@ -28,12 +29,11 @@ public class DummyHost extends AbstractDummyOpenemsComponent<DummyHost> implemen
 	/**
 	 * Sets and applies the {@link Host.ChannelId#HOSTNAME}.
 	 *
-	 * @param hostname the Hostname
+	 * @param value the value
 	 * @return myself
 	 */
-	public DummyHost withHostname(String hostname) {
-		this._setHostname(hostname);
-		this.getHostnameChannel().nextProcessImage();
+	public DummyHost withHostname(String value) {
+		TestUtils.withValue(this, Host.ChannelId.HOSTNAME, value);
 		return this;
 	}
 

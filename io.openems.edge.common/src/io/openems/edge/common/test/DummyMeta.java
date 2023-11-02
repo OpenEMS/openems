@@ -19,7 +19,7 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	/**
-	 * Set {@link Meta.ChannelId#CURRENCY}
+	 * Set {@link Meta.ChannelId#CURRENCY}.
 	 *
 	 * @param value the value
 	 * @return myself

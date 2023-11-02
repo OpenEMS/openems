@@ -56,8 +56,8 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	 */
 	public final SELF withMaxApparentPower(int value) {
 		super.withMaxApparentPower(value);
-		if (this.power instanceof DummyPower power) {
-			power.setMaxApparentPower(value);
+		if (this.power instanceof DummyPower p) {
+			p.setMaxApparentPower(value);
 		}
 		return this.self();
 	}
@@ -69,8 +69,7 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	 * @return myself
 	 */
 	public final SELF withAllowedChargePower(int value) {
-		this._setAllowedChargePower(value);
-		this.getAllowedChargePowerChannel().nextProcessImage();
+		TestUtils.withValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, value);
 		return this.self();
 	}
 
@@ -81,10 +80,7 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	 * @return myself
 	 */
 	public final SELF withAllowedDischargePower(int value) {
-		TestUtils.withValue(this, SymmetricEss.ChannelId.GRID_MODE, value);
-
-		this._setAllowedDischargePower(value);
-		this.getAllowedDischargePowerChannel().nextProcessImage();
+		TestUtils.withValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, value);
 		return this.self();
 	}
 

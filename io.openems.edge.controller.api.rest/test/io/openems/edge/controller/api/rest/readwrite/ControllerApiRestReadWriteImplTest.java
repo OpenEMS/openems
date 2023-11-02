@@ -26,12 +26,11 @@ import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.test.DummyUserService;
@@ -177,7 +176,8 @@ public class ControllerApiRestReadWriteImplTest {
 		}
 	}
 
-	private static class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+	private static class DummyComponent extends AbstractDummyOpenemsComponent<DummyComponent>
+			implements OpenemsComponent {
 
 		private static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 			READ_CHANNEL(new IntegerDoc() //
@@ -199,21 +199,16 @@ public class ControllerApiRestReadWriteImplTest {
 			}
 		}
 
-		protected DummyComponent(String id, String alias,
-				io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-				io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
-			super(firstInitialChannelIds, furtherInitialChannelIds);
-			for (Channel<?> channel : this.channels()) {
-				channel.nextProcessImage();
-			}
-			super.activate(null, id, alias, true);
-		}
-
 		public DummyComponent(String id) {
-			this(id, "", //
+			super(id, //
 					OpenemsComponent.ChannelId.values(), //
 					DummyComponent.ChannelId.values() //
 			);
+		}
+
+		@Override
+		protected DummyComponent self() {
+			return this;
 		}
 	}
 }
