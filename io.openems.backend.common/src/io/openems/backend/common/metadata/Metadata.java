@@ -396,4 +396,42 @@ public interface Metadata {
 	 */
 	public Optional<Level> getSumState(String edgeId);
 
+	public interface GenericSystemLog {
+
+		/**
+		 * Gets the edgeId of the target log.
+		 * 
+		 * @return the edgeId
+		 */
+		public String edgeId();
+
+		/**
+		 * Gets the user which triggered the log.
+		 * 
+		 * @return the user
+		 */
+		public User user();
+
+		/**
+		 * Gets a short string which represents the whole log.
+		 * 
+		 * @return the teaser string
+		 */
+		public String teaser();
+
+		/**
+		 * Gets a map of values of the log.
+		 * 
+		 * @return the map
+		 */
+		public Map<String, String> getValues();
+	}
+
+	/**
+	 * Handles a Systemlog-Message.
+	 * 
+	 * @param systemLog the log
+	 */
+	public void logGenericSystemLog(GenericSystemLog systemLog);
+
 }

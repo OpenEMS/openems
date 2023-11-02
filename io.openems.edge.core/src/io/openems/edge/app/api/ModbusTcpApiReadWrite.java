@@ -36,6 +36,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -188,7 +189,11 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsAppWithProps<ModbusTcp
 									.build()) //
 			);
 
-			return new AppConfiguration(components, schedulerIds, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerIds)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

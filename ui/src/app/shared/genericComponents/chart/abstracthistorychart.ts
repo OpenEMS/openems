@@ -8,6 +8,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
+import { startOfMonth } from 'date-fns';
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
@@ -45,7 +46,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
-  protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
+  protected static readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
@@ -271,6 +272,13 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
       ]).then(([energyPeriodResponse, energyResponse]) => {
+
+
+        // TODO after chartjs migration, look for config
+        if (unit === Unit.MONTHS) {
+          energyPeriodResponse.result.timestamps[0] = startOfMonth(DateUtils.stringToDate(energyPeriodResponse.result.timestamps[0]))?.toString() ?? energyPeriodResponse.result.timestamps[0];
+        }
+
         let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
         this.datasets = displayValues.datasets;
         this.colors = displayValues.colors;
@@ -499,7 +507,6 @@ export abstract class AbstractHistoryChart implements OnInit {
 
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }): ChartOptions {
-
 
     let tooltipsLabel: string | null = null;
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS));

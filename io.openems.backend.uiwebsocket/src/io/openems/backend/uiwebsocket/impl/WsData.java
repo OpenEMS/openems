@@ -28,8 +28,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private static class SubscribedChannels {
 
+		private static final Logger LOG = LoggerFactory.getLogger(SubscribedChannels.class);
+
 		private int lastRequestCount = Integer.MIN_VALUE;
 		private final Map<String, SortedSet<String>> subscribedChannels = new HashMap<>();
+
+		private Set<String> currentDataMissingChannelValues = Collections.emptySet();
 
 		/**
 		 * Applies a SubscribeChannelsRequest.
@@ -56,11 +60,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 				return Collections.emptyMap();
 			}
 
-			var result = new HashMap<String, JsonElement>(subscribedChannels.size());
-			for (var channel : subscribedChannels) {
-				result.put(channel, edgeCache.getChannelValue(channel));
+			var result = edgeCache.getChannelValues(subscribedChannels);
+			if (!result.b().isEmpty()) {
+				if (!result.b().equals(this.currentDataMissingChannelValues)) {
+					LOG.info("[" + edgeId + "] Channels missing in Current-Data: [" + String.join(", ", result.b())
+							+ "]");
+				}
+				this.currentDataMissingChannelValues = result.b();
 			}
-			return result;
+			return result.a();
 		}
 
 		protected void dispose() {

@@ -71,6 +71,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -278,7 +279,11 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
-			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

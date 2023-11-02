@@ -195,7 +195,8 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	protected void tryAddEdge(Edge edge) {
 		if (this.isValidEdge(edge)) {
 			var msg = this.getEdgeMessage(edge);
-			if (msg != null) {
+			var msgScheduler = this.msgScheduler;
+			if (msg != null && msgScheduler != null) {
 				this.msgScheduler.schedule(msg);
 			}
 		}

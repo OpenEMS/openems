@@ -416,7 +416,7 @@ public class JsonUtils {
 
 	}
 
-	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonArrayBuilder, JsonArray> {
 
 		@Override
 		public Set<Characteristics> characteristics() {
@@ -430,7 +430,7 @@ public class JsonUtils {
 
 		@Override
 		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
-			return JsonUtils.JsonArrayBuilder::add;
+			return JsonArrayBuilder::add;
 		}
 
 		@Override
@@ -1829,8 +1829,8 @@ public class JsonUtils {
 	 *
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
-	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
-		return new JsonUtils.JsonArrayCollector();
+	public static Collector<JsonElement, JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonArrayCollector();
 	}
 
 	private static JsonArray toJsonArray(JsonElement jElement) {

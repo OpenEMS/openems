@@ -36,7 +36,7 @@ public final class EventBuilder {
 	 * @throws SecurityException If the caller does not have
 	 *                           TopicPermission[topic,PUBLISH] for the topic
 	 *                           specified in the event.
-	 * @see org.osgi.service.event.EventAdmin#postEvent(Event)
+	 * @see EventAdmin#postEvent(Event)
 	 */
 	public static void post(EventAdmin eventAdmin, String eventTopic) {
 		eventAdmin.postEvent(new Event(eventTopic, Map.of()));
@@ -48,7 +48,7 @@ public final class EventBuilder {
 	 * @throws SecurityException If the caller does not have
 	 *                           TopicPermission[topic,PUBLISH] for the topic
 	 *                           specified in the event.
-	 * @see org.osgi.service.event.EventAdmin#postEvent(Event)
+	 * @see EventAdmin#postEvent(Event)
 	 */
 	public void post() throws SecurityException {
 		this.eventAdmin.postEvent(this.build());
@@ -62,7 +62,7 @@ public final class EventBuilder {
 	 * @throws SecurityException If the caller does not have
 	 *                           TopicPermission[topic,PUBLISH] for the topic
 	 *                           specified in the event.
-	 * @see org.osgi.service.event.EventAdmin#sendEvent(Event)
+	 * @see EventAdmin#sendEvent(Event)
 	 */
 	public static void send(EventAdmin eventAdmin, String eventTopic) {
 		eventAdmin.sendEvent(new Event(eventTopic, Map.of()));
@@ -74,12 +74,12 @@ public final class EventBuilder {
 	 * @throws SecurityException If the caller does not have
 	 *                           TopicPermission[topic,PUBLISH] for the topic
 	 *                           specified in the event.
-	 * @see org.osgi.service.event.EventAdmin#sendEvent(Event)
+	 * @see EventAdmin#sendEvent(Event)
 	 */
 	public void send() throws SecurityException {
 		this.eventAdmin.sendEvent(this.build());
 	}
-	
+
 	/**
 	 * Build event and return it.
 	 * 

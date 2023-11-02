@@ -67,6 +67,14 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.peakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.phaseAccuratePeakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));

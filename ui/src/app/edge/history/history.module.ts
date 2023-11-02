@@ -7,10 +7,7 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common_Autarchy } from './common/autarchy/Autarchy';
-import { CommonEnergyMonitor } from './common/energy/energy';
-import { Common_Production } from './common/production/Production';
-import { Common_Selfconsumption } from './common/selfconsumption/SelfConsumption';
+import { Common } from './common/common';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
@@ -26,8 +23,6 @@ import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlec
 import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
 import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
 import { GridChartComponent } from './grid/chart.component';
-import { GridChartOverviewComponent } from './grid/gridchartoverview/gridchartoverview.component';
-import { GridComponent } from './grid/widget.component';
 import { GridOptimizedChargeChartComponent } from './gridoptimizedcharge/chart.component';
 import { GridOptimizedChargeChartOverviewComponent } from './gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { SellToGridLimitChartComponent } from './gridoptimizedcharge/sellToGridLimitChart.component';
@@ -66,10 +61,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common_Autarchy,
-    Common_Production,
-    Common_Selfconsumption,
-    CommonEnergyMonitor
+    Common
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -96,8 +88,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     FixDigitalOutputTotalChartComponent,
     FixDigitalOutputWidgetComponent,
     GridChartComponent,
-    GridChartOverviewComponent,
-    GridComponent,
     GridOptimizedChargeChartComponent,
     GridOptimizedChargeChartOverviewComponent,
     GridOptimizedChargeWidgetComponent,

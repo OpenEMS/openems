@@ -1,4 +1,4 @@
-package io.openems.edge.core.appmanager.dependency;
+package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,22 +9,34 @@ import java.util.stream.Collectors;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
-@Component
-public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.ComponentAggregateTask {
+@Component(//
+		service = { //
+				AggregateTask.class, //
+				ComponentAggregateTask.class, //
+				ComponentAggregateTaskImpl.class //
+		}, //
+		scope = ServiceScope.SINGLETON //
+)
+public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 
 	private final ComponentManager componentManager;
 
@@ -48,17 +60,17 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 	}
 
 	@Override
-	public void aggregate(AppConfiguration config, AppConfiguration oldConfig) {
+	public void aggregate(ComponentConfiguration config, ComponentConfiguration oldConfig) {
 		if (config != null) {
 			// remove duplicated components
 			// TODO maybe error
-			this.components.removeIf(t -> config.components.stream().anyMatch(o -> t.getId().equals(o.getId())));
-			this.components.addAll(config.components);
+			this.components.removeIf(t -> config.components().stream().anyMatch(o -> t.getId().equals(o.getId())));
+			this.components.addAll(config.components());
 		}
 		if (oldConfig != null) {
-			var componentDiff = new ArrayList<>(oldConfig.components);
+			var componentDiff = new ArrayList<>(oldConfig.components());
 			if (config != null) {
-				componentDiff.removeIf(t -> config.components.stream().anyMatch(c -> c.getId().equals(t.getId())));
+				componentDiff.removeIf(t -> config.components().stream().anyMatch(c -> c.getId().equals(t.getId())));
 			}
 			this.components2Delete.addAll(componentDiff);
 		}
@@ -66,8 +78,11 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		if (!this.anyChanges()) {
+			return;
+		}
 		var errors = new LinkedList<String>();
-		var otherAppComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
+		var otherAppComponents = AppConfiguration.getComponentsFromConfigs(otherAppConfigurations);
 		// create components
 		for (var comp : ComponentUtilImpl.order(this.components)) {
 			/**
@@ -149,8 +164,11 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 	 */
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		if (!this.anyChanges()) {
+			return;
+		}
 		List<String> errors = new ArrayList<>();
-		var notMyComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
+		var notMyComponents = AppConfiguration.getComponentsFromConfigs(otherAppConfigurations);
 		for (var comp : this.components2Delete) {
 			if (notMyComponents.stream().anyMatch(t -> t.getId().equals(comp.getId()))) {
 				continue;
@@ -178,6 +196,49 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	@Override
+	public String getGeneralFailMessage(Language l) {
+		final var bundle = AppManagerAppHelperImpl.getTranslationBundle(l);
+		return TranslationUtil.getTranslation(bundle, "canNotUpdateComponents");
+	}
+
+	@Override
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final ComponentConfiguration config //
+	) {
+		var actualEdgeConfig = this.componentManager.getEdgeConfig();
+
+		var missingComponents = new ArrayList<String>();
+		for (var expectedComponent : config.components()) {
+			var componentId = expectedComponent.getId();
+
+			// Get Actual Component Configuration
+			EdgeConfig.Component actualComponent;
+			try {
+				actualComponent = actualEdgeConfig.getComponentOrError(componentId);
+			} catch (InvalidValueException e) {
+				missingComponents.add(componentId);
+				continue;
+			}
+			// ALIAS should not be validated because it can be different depending on the
+			// language
+			ComponentUtilImpl.isSameConfigurationWithoutAlias(errors, expectedComponent, actualComponent);
+		}
+
+		if (!missingComponents.isEmpty()) {
+			errors.add("Missing Component" //
+					+ (missingComponents.size() > 1 ? "s" : "") + ":" //
+					+ missingComponents.stream().collect(Collectors.joining(",")));
+		}
+	}
+
+	private final boolean anyChanges() {
+		return !this.components.isEmpty() //
+				|| !this.components2Delete.isEmpty();
 	}
 
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {

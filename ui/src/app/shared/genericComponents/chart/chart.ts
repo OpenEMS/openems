@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, O
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+
 import { ChartOptionsPopoverComponent } from "../../chartoptions/popover/popover.component";
 import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
@@ -14,8 +15,8 @@ export class ChartComponent implements OnInit, OnChanges {
 
   public edge: Edge | null = null;
   @Input() public title: string = '';
-  @Input() public showPhases: boolean;
-  @Input() public showTotal: boolean;
+  @Input() public showPhases: boolean | null = null;
+  @Input() public showTotal: boolean | null = null;
   @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
   @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
@@ -37,9 +38,12 @@ export class ChartComponent implements OnInit, OnChanges {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     });
+
   }
 
+  /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
   ngOnChanges() {
+    this.ref.detectChanges();
     this.checkIfPopoverNeeded();
   }
 

@@ -111,19 +111,17 @@ export class Utils {
    * @returns a number, if at least one value is not null, else null
    */
   public static subtractSafely(...values: (number | null)[]): number {
-    let result = null;
-
-    for (const value of values) {
-      if (value !== null) {
-        if (result === null) {
-          result = value;
+    return values
+      .filter(value => value !== null && value !== undefined)
+      .reduce((sum, curr) => {
+        if (sum == null) {
+          sum = curr;
         } else {
-          result -= value;
+          sum -= curr;
         }
-      }
-    }
 
-    return result;
+        return sum;
+      }, null);
   }
 
   /**
@@ -694,6 +692,13 @@ export namespace HistoryUtils {
         return null;
       } else {
         return Math.abs(Math.min(0, value));
+      }
+    };
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+      if (value < 0) {
+        return Math.abs(value);
+      } else {
+        return 0;
       }
     };
   }

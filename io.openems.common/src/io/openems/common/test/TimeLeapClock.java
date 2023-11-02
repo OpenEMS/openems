@@ -81,9 +81,9 @@ public class TimeLeapClock extends Clock {
 		return "TimeLeapClock[" + this.instant + ", " + this.zone + "]";
 	}
 
-	/** 
+	/**
 	 * Get current DateTime as {@link ZonedDateTime}.
-	 * 
+	 *
 	 * @return current date and time.
 	 */
 	public ZonedDateTime now() {

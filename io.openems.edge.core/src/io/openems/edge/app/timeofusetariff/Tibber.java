@@ -17,6 +17,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -32,6 +34,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -116,11 +119,21 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				throw new OpenemsException("Access Token is required!");
 			}
 
-			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Tibber",
-					this.getName(l), timeOfUseTariffProviderId,
-					b -> b.addPropertyIfNotNull("accessToken", accessToken));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.addPropertyIfNotNull("accessToken", accessToken) //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
+							JsonUtils.buildJsonObject() //
+									.build())//
+			);
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

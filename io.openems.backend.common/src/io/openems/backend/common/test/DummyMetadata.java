@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 import com.google.gson.JsonObject;
@@ -25,6 +28,21 @@ import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 
 public class DummyMetadata implements Metadata {
+
+	private final DummyEventAdmin eventAdmin;
+
+	public DummyMetadata() {
+		this.eventAdmin = null;
+	}
+
+	public DummyMetadata(Consumer<Event> event) {
+		this.eventAdmin = new DummyEventAdmin(event);
+	}
+
+	public DummyMetadata(Function<Event, Boolean> eventFilter, Consumer<Event> event) {
+		this.eventAdmin = new DummyEventAdmin(eventFilter, event);
+	}
+
 	@Override
 	public boolean isInitialized() {
 		return false;
@@ -137,7 +155,11 @@ public class DummyMetadata implements Metadata {
 
 	@Override
 	public EventAdmin getEventAdmin() {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		if (this.eventAdmin == null) {
+			throw new UnsupportedOperationException("Unsupported by Dummy Class");
+		} else {
+			return this.eventAdmin;
+		}
 	}
 
 	@Override
@@ -165,4 +187,9 @@ public class DummyMetadata implements Metadata {
 	public Optional<Level> getSumState(String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
+
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
 }
