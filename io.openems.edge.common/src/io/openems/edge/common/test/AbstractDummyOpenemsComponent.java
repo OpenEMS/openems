@@ -16,7 +16,7 @@ public abstract class AbstractDummyOpenemsComponent<SELF extends AbstractDummyOp
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
-		super.activate(null, id, alias, true);
+		super.activate(new DummyComponentContext(), id, alias, true);
 	}
 
 	protected abstract SELF self();
