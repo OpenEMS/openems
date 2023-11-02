@@ -75,7 +75,11 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			callback.accept(this);
 		});
 		// set initial value
-		this.setNextValue(channelDoc.getInitialValue());
+		var initialValue = channelDoc.getInitialValue();
+		if (initialValue != null) {
+			this.setNextValue(initialValue);
+			this.nextProcessImage();
+		}
 	}
 
 	@Override
