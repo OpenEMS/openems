@@ -20,7 +20,8 @@ import io.openems.edge.meter.test.DummyElectricityMeter;
 public class EvcsClusterPeakShavingImplTest {
 	// TODO: Add eventually something like DummyEvcsController
 
-	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0", 30000);
+	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0") //
+			.withMaxApparentPower(30000);
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER);
