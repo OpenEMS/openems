@@ -153,8 +153,8 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
-					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId)) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
 					.build();
 		};
 	}

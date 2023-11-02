@@ -158,7 +158,8 @@ public final class InputBuilder extends FormlyBuilder<InputBuilder> {
 	 * 
 	 * @return this
 	 * @throws IllegalArgumentException if this {@link InputBuilder} has not been
-	 *                                  set to a {@link InputType#NUMBER} input via the
+	 *                                  set to a {@link InputType#NUMBER} input via
+	 *                                  the
 	 *                                  {@link InputBuilder}{@link #setInputType(InputType)}
 	 *                                  method.
 	 */

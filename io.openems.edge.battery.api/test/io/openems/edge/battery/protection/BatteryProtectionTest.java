@@ -120,7 +120,7 @@ public class BatteryProtectionTest {
 
 	@Test
 	public void test() throws Exception {
-		final var battery = new DummyBattery(BATTERY_ID, BatteryProtection.ChannelId.values());
+		final var battery = new DummyBattery(BATTERY_ID);
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
 		final var sut = BatteryProtection.create(battery) //

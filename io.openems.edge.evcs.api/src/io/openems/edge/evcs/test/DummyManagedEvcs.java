@@ -20,12 +20,6 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	private int minimumHardwarePower = Evcs.DEFAULT_MINIMUM_HARDWARE_POWER;
 	private int maximumHardwarePower = Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param id        id
-	 * @param evcsPower evcs power
-	 */
 	public DummyManagedEvcs(String id, EvcsPower evcsPower) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -33,29 +27,6 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 				Evcs.ChannelId.values() //
 		);
 		this.evcsPower = evcsPower;
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		super.activate(null, id, "", true);
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param id                   id
-	 * @param evcsPower            evcs power
-	 * @param minimumHardwarePower minimum hardware power
-	 * @param maximumHardwarePower minimum hardware power
-	 */
-	public DummyManagedEvcs(String id, EvcsPower evcsPower, int minimumHardwarePower, int maximumHardwarePower) {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values(), //
-				Evcs.ChannelId.values() //
-		);
-		this.evcsPower = evcsPower;
-		this.minimumHardwarePower = minimumHardwarePower;
-		this.maximumHardwarePower = maximumHardwarePower;
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}

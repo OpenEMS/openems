@@ -9,19 +9,18 @@ import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Power;
 
 /**
- * Provides a simple, simulated ManagedAsymmetricEss component that can be used
- * together with the OpenEMS Component test framework.
+ * Provides a simple, simulated {@link ManagedAsymmetricEss} component that can
+ * be used together with the OpenEMS Component test framework.
  */
-public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss implements ManagedAsymmetricEss,
-		ManagedSymmetricEss, AsymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent {
+public class DummyManagedAsymmetricEss extends AbstractDummyManagedSymmetricEss<DummyManagedAsymmetricEss> implements
+		ManagedAsymmetricEss, ManagedSymmetricEss, AsymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent {
 
 	private Consumer<AsymmetricApplyPowerRecord> asymmetricApplyPowerCallback = null;
 
-	public DummyManagedAsymmetricEss(String id, Power power) {
-		super(id, power, //
+	public DummyManagedAsymmetricEss(String id) {
+		super(id, //
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
@@ -30,12 +29,13 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss implemen
 				StartStoppable.ChannelId.values());
 	}
 
-	public DummyManagedAsymmetricEss(String id) {
-		this(id, new DummyPower(MAX_APPARENT_POWER));
+	@Override
+	protected final DummyManagedAsymmetricEss self() {
+		return this;
 	}
 
 	@Override
-	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+	public final void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
 		if (this.asymmetricApplyPowerCallback != null) {
 			this.asymmetricApplyPowerCallback.accept(new AsymmetricApplyPowerRecord(activePowerL1, reactivePowerL1,
@@ -48,26 +48,12 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss implemen
 	 * 
 	 * @param callback the callback
 	 */
-	public void withAsymmetricApplyPowerCallback(Consumer<AsymmetricApplyPowerRecord> callback) {
+	public final void withAsymmetricApplyPowerCallback(Consumer<AsymmetricApplyPowerRecord> callback) {
 		this.asymmetricApplyPowerCallback = callback;
 	}
 
-	public static class AsymmetricApplyPowerRecord {
-		public final int activePowerL1;
-		public final int reactivePowerL1;
-		public final int activePowerL2;
-		public final int reactivePowerL2;
-		public final int activePowerL3;
-		public final int reactivePowerL3;
-
-		public AsymmetricApplyPowerRecord(int activePowerL1, int reactivePowerL1, int activePowerL2,
-				int reactivePowerL2, int activePowerL3, int reactivePowerL3) {
-			this.activePowerL1 = activePowerL1;
-			this.reactivePowerL1 = reactivePowerL1;
-			this.activePowerL2 = activePowerL2;
-			this.reactivePowerL2 = reactivePowerL2;
-			this.activePowerL3 = activePowerL3;
-			this.reactivePowerL3 = reactivePowerL3;
-		}
+	public record AsymmetricApplyPowerRecord(int activePowerL1, int reactivePowerL1, int activePowerL2,
+			int reactivePowerL2, int activePowerL3, int reactivePowerL3) {
 	}
+
 }
