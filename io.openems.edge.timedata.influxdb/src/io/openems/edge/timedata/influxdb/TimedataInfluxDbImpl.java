@@ -236,7 +236,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	                }
 	            }
 	        } catch (OpenemsNamedException e) {
-	            log.error("Error querying latest value for channel: " + channelAddress.toString(), e);
+	            this.log.error("Error querying latest value for channel: " + channelAddress.toString(), e);
 	        }
 	        return Optional.empty();
 	    });
