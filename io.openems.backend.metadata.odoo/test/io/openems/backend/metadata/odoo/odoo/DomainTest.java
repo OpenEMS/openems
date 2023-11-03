@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo.odoo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 
@@ -34,19 +35,30 @@ public class DomainTest {
 	};
 
 	@Test
+	public void testDummy() {
+		assertThrows(UnsupportedOperationException.class, TEST_FIELD::name);
+		assertThrows(UnsupportedOperationException.class, TEST_FIELD::index);
+		assertThrows(UnsupportedOperationException.class, TEST_FIELD::isQuery);
+	}
+
+	@Test
 	public void testConstructor() {
-		final var domain_1 = new Domain(TEST_FIELD, Operator.LIKE, "Lorem ipsum");
+		final var domain1 = new Domain(TEST_FIELD, Operator.LIKE, "Lorem ipsum");
 
-		assertEquals("like", domain_1.operator);
-		assertEquals("Lorem ipsum", domain_1.value);
-		assertEquals(TEST_FIELD.id(), domain_1.field);
+		assertEquals("like", domain1.operator);
+		assertEquals("Lorem ipsum", domain1.value);
+		assertEquals(TEST_FIELD.id(), domain1.field);
 
-		final var domain_3 = new Domain(new Field[] { TEST_FIELD, TEST_FIELD }, Operator.EQ, "Lorem ipsum");
-		final var domain_4 = new Domain(TEST_FIELD_ID + "." + TEST_FIELD_ID, Operator.EQ, "Lorem ipsum");
+		final var domain2 = new Domain(new Field[] { TEST_FIELD, TEST_FIELD }, Operator.EQ, "Lorem ipsum");
+		final var domain3 = new Domain(TEST_FIELD_ID + "." + TEST_FIELD_ID, Operator.EQ, "Lorem ipsum");
 
-		assertEquals(domain_3, domain_3);
-		assertEquals(domain_3, domain_4);
-		assertNotEquals(domain_3, null);
-		assertNotEquals(domain_3, 1);
+		assertNotEquals(domain1, domain3);
+		assertEquals(domain3, domain3);
+		assertEquals(domain2, domain3);
+		assertNotEquals(domain3, null);
+		assertNotEquals(domain3, 1);
+
+		assertEquals(domain3.hashCode(), domain2.hashCode());
+		assertNotEquals(domain1.hashCode(), domain2.hashCode());
 	}
 }

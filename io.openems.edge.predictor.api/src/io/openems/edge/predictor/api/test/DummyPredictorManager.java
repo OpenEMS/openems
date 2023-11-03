@@ -5,27 +5,28 @@ import java.util.Collections;
 import java.util.List;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
-public class DummyPredictorManager extends AbstractOpenemsComponent implements PredictorManager, OpenemsComponent {
+public class DummyPredictorManager extends AbstractDummyOpenemsComponent<DummyPredictorManager>
+		implements PredictorManager, OpenemsComponent {
 
 	private final List<Predictor24Hours> predictors = new ArrayList<>();
 
 	public DummyPredictorManager(Predictor24Hours... predictors) {
-		super(//
+		super(PredictorManager.SINGLETON_COMPONENT_ID, //
 				OpenemsComponent.ChannelId.values(), //
 				PredictorManager.ChannelId.values() //
 		);
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
 		Collections.addAll(this.predictors, predictors);
-		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, PredictorManager.SINGLETON_SERVICE_PID, true);
+	}
+
+	@Override
+	protected DummyPredictorManager self() {
+		return this;
 	}
 
 	/**

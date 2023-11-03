@@ -1,10 +1,13 @@
+import { SumState } from "src/app/index/shared/sumState";
+import { TextIndentation } from "../genericComponents/modal/modal-line/modal-line";
+import { OeFormlyViewTester } from "../genericComponents/shared/testing/tester";
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";
 
 export namespace DummyConfig {
 
-    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date());
+    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
     export function from(...components: Component[]): EdgeConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{
@@ -73,6 +76,17 @@ namespace Factory {
         ]
     };
 
+    export const EVCS_KEBA_KECONTACT = {
+        id: "Evcs.Keba.KeContact",
+        natureIds: [
+            "io.openems.edge.evcs.keba.kecontact.EvcsKebaKeContact",
+            "io.openems.edge.common.modbusslave.ModbusSlave",
+            "io.openems.edge.common.component.OpenemsComponent",
+            "io.openems.edge.evcs.api.ManagedEvcs",
+            "io.openems.edge.evcs.api.Evcs"
+        ]
+    };
+
     export const ESS_GENERIC_MANAGEDSYMMETRIC = {
         id: "Ess.Generic.ManagedSymmetric",
         natureIds: [
@@ -121,6 +135,30 @@ export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
     channels: {}
 });
 
+export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factory: Factory.METER_SOCOMEC_THREEPHASE,
+    factoryId: Factory.METER_SOCOMEC_THREEPHASE.id,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: "CONSUMPTION_METERED"
+    },
+    channels: {}
+});
+export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias,
+    factory: Factory.METER_GOODWE_GRID,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        type: "PRODUCTION"
+    },
+    channels: {}
+});
+
 export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
     id: id,
     alias: alias,
@@ -144,4 +182,78 @@ export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Compon
         modbusUnitId: 5
     },
     channels: {}
+});
+
+export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
+    id: id,
+    alias: alias ?? id,
+    factory: Factory.EVCS_KEBA_KECONTACT,
+    properties: {
+        invert: false,
+        modbusUnitId: 5,
+        // TODO
+        type: "CONSUMPTION_METERED"
+    },
+    channels: {}
+});
+
+
+export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+    type: "channel-line",
+    name: name,
+    ...(indentation && { indentation: indentation }),
+    value: value
+});
+
+export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+    type: "value-from-channels-line",
+    name: name,
+    ...(indentation && { indentation: indentation }),
+    value: value
+});
+
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
+    type: "children-line",
+    name: name,
+    indentation: TextIndentation.SINGLE,
+    children: [
+        {
+            type: "item",
+            value: voltage
+        },
+        {
+            type: "item",
+            value: current
+        },
+        {
+            type: "item",
+            value: power
+        }
+    ]
+});
+
+export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
+    type: "children-line",
+    name: name,
+    indentation: TextIndentation.SINGLE,
+    children: [
+        {
+            type: "item",
+            value: power
+        }
+    ]
+});
+
+export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
+    type: "horizontal-line"
+};
+
+export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
+    type: "info-line",
+    name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
+};
+
+export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
+    type: "info-line",
+    name: text
 });

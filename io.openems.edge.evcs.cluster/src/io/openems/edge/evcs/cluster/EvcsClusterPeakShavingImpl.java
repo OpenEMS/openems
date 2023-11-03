@@ -601,15 +601,15 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	
 	@Override
 	public void run() throws OpenemsNamedException {
+
 		
 			if (!this.config.ess_id().isEmpty()) {
-			// Read maximum ESS Discharge power at the current position in the Cycle
-			if (this.ess instanceof ManagedSymmetricEss) {
-				var e = (ManagedSymmetricEss) this.ess;
-				this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-
-			} else {
-				this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
+        // Read maximum ESS Discharge power at the current position in the Cycle
+        if (this.ess instanceof ManagedSymmetricEss) {
+          var e = (ManagedSymmetricEss) this.ess;
+          this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+        } else {
+          this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
 			}
 		}
 		 

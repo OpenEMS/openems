@@ -5,15 +5,7 @@ import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -36,8 +28,6 @@ import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
-import io.openems.edge.app.meter.KdkMeter;
-import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.component.ComponentManager;
@@ -55,6 +45,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -139,80 +130,6 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 		// Shadow management
 		SHADOW_MANAGEMENT_DISABLED, //
 		;
-	}
-
-	private static enum AcMeterType {
-		SOCOMEC("App.Meter.Socomec.Name", Parity.NONE, AcMeterType::socomecMeter), //
-		KDK("App.Meter.Kdk.Name", Parity.EVEN, AcMeterType::kdkMeter), //
-		;
-
-		private final String displayName;
-		private final Parity parity;
-		private final Function<String, DependencyDeclaration> dependencyFunction;
-
-		private AcMeterType(String displayName, Parity parity,
-				Function<String, DependencyDeclaration> dependencyFunction) {
-			this.displayName = Objects.requireNonNull(displayName);
-			this.parity = Objects.requireNonNull(parity);
-			this.dependencyFunction = Objects.requireNonNull(dependencyFunction);
-		}
-
-		public Parity getParity() {
-			return this.parity;
-		}
-
-		public String getDisplayName(ResourceBundle resourceBundle) {
-			return TranslationUtil.getTranslation(resourceBundle, this.displayName);
-		}
-
-		public final DependencyDeclaration getDependency(String modbusIdExternal) {
-			return this.dependencyFunction.apply(modbusIdExternal);
-		}
-
-		private static DependencyDeclaration meter(DependencyDeclaration.AppDependencyConfig config) {
-			return new DependencyDeclaration("AC_METER", //
-					DependencyDeclaration.CreatePolicy.ALWAYS, //
-					DependencyDeclaration.UpdatePolicy.ALWAYS, //
-					DependencyDeclaration.DeletePolicy.IF_MINE, //
-					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-					config);
-		}
-
-		private static DependencyDeclaration socomecMeter(String modbusIdExternal) {
-			return meter(DependencyDeclaration.AppDependencyConfig.create() //
-					.setAppId("App.Meter.Socomec") //
-					.setInitialProperties(JsonUtils.buildJsonObject() //
-							.addProperty(SocomecMeter.Property.TYPE.name(), "PRODUCTION") //
-							.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-							.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
-							.build())
-					.setProperties(JsonUtils.buildJsonObject() //
-							.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-							.build())
-					.build());
-		}
-
-		private static DependencyDeclaration kdkMeter(String modbusIdExternal) {
-			return meter(DependencyDeclaration.AppDependencyConfig.create() //
-					.setAppId("App.Meter.Kdk") //
-					.setInitialProperties(JsonUtils.buildJsonObject() //
-							.addProperty(KdkMeter.Property.TYPE.name(), "PRODUCTION") //
-							.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-							.addProperty(KdkMeter.Property.MODBUS_UNIT_ID.name(), 6) //
-							.build())
-					.setProperties(JsonUtils.buildJsonObject() //
-							.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-							.build())
-					.build());
-		}
-
-		public static final Set<Entry<String, String>> getMeterTypeOptions(ResourceBundle resourceBundle) {
-			return Stream.of(AcMeterType.values()) //
-					.map(t -> Map.entry(t.getDisplayName(resourceBundle), t.name())) //
-					.collect(Collectors.toSet());
-		}
-
 	}
 
 	@Activate
@@ -462,7 +379,11 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
-			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 
@@ -532,7 +453,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 						.add(JsonFormlyUtil.buildSelect(Property.AC_METER_TYPE) //
 								.setLabel(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".acMeterType.label")) //
-								.setOptions(AcMeterType.getMeterTypeOptions(bundle)) //
+								.setOptions(OptionsFactory.of(AcMeterType.values()), language) //
 								.onlyShowIf(Exp.currentModelValue(Property.HAS_AC_METER).notNull())
 								.setDefaultValue(AcMeterType.SOCOMEC.name()) //
 								.isRequired(true) //

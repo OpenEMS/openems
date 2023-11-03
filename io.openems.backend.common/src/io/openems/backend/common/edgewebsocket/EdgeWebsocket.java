@@ -2,6 +2,7 @@ package io.openems.backend.common.edgewebsocket;
 
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -45,15 +46,15 @@ public interface EdgeWebsocket {
 	/**
 	 * Handles a {@link SubscribeSystemLogRequest}.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param user    the {@link User}
-	 * @param token   the UI session token
-	 * @param request the {@link SubscribeSystemLogRequest}
+	 * @param edgeId      the Edge-ID
+	 * @param user        the {@link User}
+	 * @param websocketId the id of the UI websocket connection
+	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 * @throws OpenemsNamedException on error
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException;
+			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException;
 
 	/**
 	 * Gets the latest values for the given ChannelAddresses.

@@ -38,6 +38,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -75,15 +76,14 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 				.setTranslatedLabelWithAppPrefix(".chargepoint.label") //
 				.setTranslatedDescriptionWithAppPrefix(".chargepoint.description") //
 				.setDefaultValue("IES1") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
-				field.isRequired(true))), //
+				.setRequired(true)), //
 		OCCP_CONNECTOR_IDENTIFIER(AppDef.of(IesKeywattEvcs.class) //
 				.setTranslatedLabelWithAppPrefix(".connector.label") //
 				.setTranslatedDescriptionWithAppPrefix(".connector.description") //
 				.setDefaultValue(1) //
+				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
 				field.setInputType(NUMBER) //
-						.isRequired(true) //
 						.setMin(0))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
@@ -150,13 +150,12 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 							.build())//
 			);
 
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -66,7 +67,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
 
 	private static final String EDGE_ID = "backend0";
-	private static final String COMPONENT_ID = "edgewebsocket";
+	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 	private final SystemLogHandler systemLogHandler;
@@ -101,7 +102,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			var data = TreeBasedTable.<Long, String, JsonElement>create();
 			var now = Instant.now().toEpochMilli();
-			data.put(now, COMPONENT_ID + "/Connections",
+			data.put(now, this.getId() + "/Connections",
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
 			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
@@ -258,8 +259,8 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
+			UUID websocketId, SubscribeSystemLogRequest request) throws OpenemsNamedException {
+		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, websocketId, request);
 	}
 
 	/**
@@ -300,4 +301,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		}
 		return result;
 	}
+
+	public String getId() {
+		return COMPONENT_ID;
+	}
+
 }

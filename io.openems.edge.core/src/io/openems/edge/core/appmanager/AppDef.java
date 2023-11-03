@@ -170,6 +170,8 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> defaultValue;
 
+	private boolean required = false;
+
 	/**
 	 * Function to get the {@link FormlyBuilder} for the input.
 	 */
@@ -713,6 +715,11 @@ public class AppDef<APP extends OpenemsApp, //
 		return this.self();
 	}
 
+	public final AppDef<APP, PROPERTY, PARAMETER> setRequired(boolean required) {
+		this.required = required;
+		return this.self();
+	}
+
 	/**
 	 * Appends the given predicates and collections them into one which checks that
 	 * every predicate returns true to determine if the current field should be
@@ -904,6 +911,7 @@ public class AppDef<APP extends OpenemsApp, //
 			doIfPresent(app, property, l, parameter, this.label, field::setLabel);
 			doIfPresent(app, property, l, parameter, this.description, field::setDescription);
 			doIfPresent(app, property, l, parameter, this.defaultValue, field::setDefaultValue);
+			field.isRequired(this.required);
 			return field;
 		};
 	}

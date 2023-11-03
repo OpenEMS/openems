@@ -1,5 +1,7 @@
 import { TranslateService } from '@ngx-translate/core';
 import { endOfMonth, endOfYear, format, getDay, getMonth, getYear, isSameDay, isSameMonth, isSameYear, startOfMonth, startOfYear, subDays } from 'date-fns';
+import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { ChannelAddress } from '../shared';
 
 export module DefaultTypes {
 
@@ -91,6 +93,57 @@ export module DefaultTypes {
 
   export enum PeriodString { DAY = 'day', WEEK = 'week', MONTH = 'month', YEAR = 'year', CUSTOM = 'custom' };
 
+  export namespace History {
+
+    export enum YAxisTitle {
+      PERCENTAGE,
+      ENERGY
+    }
+    export type InputChannel = {
+
+      /** Must be unique, is used as identifier in {@link ChartData.input} */
+      name: string,
+      powerChannel: ChannelAddress,
+      energyChannel?: ChannelAddress
+
+      /** Choose between predefined converters */
+      converter?: (value: number) => number | null,
+    }
+    export type DisplayValues = {
+      name: string,
+      /** suffix to the name */
+      nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
+      /** Convert the values to be displayed in Chart */
+      converter: () => number[],
+      /** If dataset should be hidden on Init */
+      hiddenOnInit?: boolean,
+      /** default: true, stroke through label for hidden dataset */
+      noStrokeThroughLegendIfHidden?: boolean,
+      /** color in rgb-Format */
+      color: string,
+      /** the stack for barChart */
+      stack?: number,
+    }
+
+    export type ChannelData = {
+      [name: string]: number[]
+    }
+
+    export type ChartData = {
+      /** Input Channels that need to be queried from the database */
+      input: InputChannel[],
+      /** Output Channels that will be shown in the chart */
+      output: (data: ChannelData) => DisplayValues[],
+      tooltip: {
+        /** Format of Number displayed */
+        formatNumber: string,
+        afterTitle?: string
+      },
+      /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
+      unit: YAxisTitle,
+    }
+  }
+
   export class HistoryPeriod {
 
     constructor(
@@ -173,4 +226,9 @@ export module DefaultTypes {
       }
     }
   }
+}
+/** Generic Type for a key-value pair */
+export type TKeyValue<T> = {
+  key: string,
+  value: T
 }

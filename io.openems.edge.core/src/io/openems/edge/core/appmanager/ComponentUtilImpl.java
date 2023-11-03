@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -27,6 +29,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -639,19 +642,17 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 	@Override
 	public List<String> getSchedulerIds() throws OpenemsNamedException {
-		var schedulerComponent = this.getScheduler();
-		var controllerIdsElement = schedulerComponent.getProperty("controllers.ids").orElse(new JsonArray());
-		var controllerIdsJson = JsonUtils.getAsJsonArray(controllerIdsElement);
-
-		if (controllerIdsJson.size() >= 1
-				&& controllerIdsJson.get(controllerIdsJson.size() - 1).getAsString().isBlank()) {
-			controllerIdsJson.remove(controllerIdsJson.size() - 1);
+		try {
+			final var config = this.cm.getConfiguration(this.getScheduler().getPid(), null);
+			final var properties = config.getProperties();
+			if (properties == null) {
+				return emptyList();
+			}
+			final var ids = properties.get("controllers.ids");
+			return ids == null ? emptyList() : Lists.newArrayList((String[]) ids);
+		} catch (IOException e) {
+			throw new OpenemsException("Unable to get Scheduler configuration!", e);
 		}
-
-		var controllerIds = new ArrayList<String>(controllerIdsJson.size());
-		controllerIdsJson.forEach(t -> controllerIds.add(t.getAsString()));
-
-		return controllerIds;
 	}
 
 	@Override
@@ -692,6 +693,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return new ArrayList<>(insertOrder);
 		}
 		var order = new ArrayList<>(actualOrder);
+		insertOrder = new ArrayList<String>(insertOrder);
 
 		Collections.reverse(insertOrder);
 		var index = actualOrder.size();

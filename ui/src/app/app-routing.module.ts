@@ -6,12 +6,12 @@ import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
-import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
 import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
@@ -43,13 +43,20 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
-import { IndexComponent } from './index/index.component';
+import { LoginComponent } from './index/login.component';
+import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
+
 const routes: Routes = [
-  { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
+
+  // TODO should be removed in the future
+  { path: 'index', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+
+  { path: 'overview', component: OverViewComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
@@ -111,13 +118,12 @@ const routes: Routes = [
     ]
   },
 
-
-  { path: 'demo', component: IndexComponent }
+  { path: 'demo', component: LoginComponent },
+  // Fallback
+  { path: '**', pathMatch: 'full', redirectTo: 'login' }
 ];
 
-export const appRoutingProviders: any[] = [
-
-];
+export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [

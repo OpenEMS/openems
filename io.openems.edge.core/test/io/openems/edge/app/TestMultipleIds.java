@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Test app for testing dependencies.
@@ -97,7 +98,9 @@ public class TestMultipleIds extends AbstractEnumOpenemsApp<Property> implements
 						new JsonObject()));
 			}
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
