@@ -216,17 +216,42 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		return emptySortedMap();
 	}
 
+
+	
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO implement this method
-		return CompletableFuture.completedFuture(Optional.empty());
+	    return CompletableFuture.supplyAsync(() -> {
+	        try {
+	            SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = this.influxConnector.queryLastData(
+	                Optional.empty(), channelAddress, this.config.measurement());
+
+	            // Retrieve the latest value from the result
+	            if (!result.isEmpty()) {
+	                SortedMap<ChannelAddress, JsonElement> latestValues = result.get(result.lastKey());
+	                if (latestValues.containsKey(channelAddress)) {
+	                    JsonElement element = latestValues.get(channelAddress);
+	                    if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+	                    	return Optional.of(element.getAsLong());
+	                    }
+	                }
+	            }
+	        } catch (OpenemsNamedException e) {
+	            log.error("Error querying latest value for channel: " + channelAddress.toString(), e);
+	        }
+	        return Optional.empty();
+	    });
 	}
 
+	
 	@Override
 	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)
 			throws OpenemsNamedException {
 		// TODO implement this method
 		return new Timeranges();
 	}
+
+
+
+
 
 }

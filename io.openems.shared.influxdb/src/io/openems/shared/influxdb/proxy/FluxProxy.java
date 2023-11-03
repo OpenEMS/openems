@@ -1,5 +1,6 @@
 package io.openems.shared.influxdb.proxy;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -107,6 +108,51 @@ public class FluxProxy extends QueryProxy {
 		final var query = this.buildFetchAvailableSinceQuery(bucket);
 		final var queryResult = this.executeQuery(influxConnection, query);
 		return convertAvailableSinceQueryResult(queryResult);
+	}
+	
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
+	    InfluxConnection influxConnection, 
+	    String bucket, 
+	    String measurement, 
+	    Optional<Integer> influxEdgeId, 
+	    ChannelAddress channel
+	    ) throws OpenemsNamedException {
+	    
+	    // Create the Flux query string
+	    var query = buildLastDataFluxQuery(bucket, measurement, influxEdgeId, channel);
+	    
+	    var queryResult = this.executeQuery(influxConnection, query);
+
+	    return convertLastDataQueryResult(queryResult,channel);
+	}
+
+	protected String buildLastDataFluxQuery( // 			
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ChannelAddress channel//
+			) {
+		// prepare query
+		var builder = new StringBuilder() //
+				.append("data = from(bucket: \"").append(bucket).append("\")") //
+				.append(" |> range(start: -30d) ")
+				.append(" |> filter(fn: (r) => r._measurement == \"").append(measurement).append("\")");
+				
+
+		if (influxEdgeId.isPresent()) {
+			builder.append("|> filter(fn: (r) => r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\")");
+		}
+
+		builder //
+				.append("|> filter(fn : (r) => r._field == \"") //
+				.append(channel.toString()) //
+				.append("\")")
+				.append(" |> last() ")
+				.append(" |> yield() ");
+
+		return builder.toString();
+
 	}
 
 	@Override
@@ -283,6 +329,56 @@ public class FluxProxy extends QueryProxy {
 		return queryResult;
 	}
 
+	/**
+	 * Converts the QueryResult of a Last-Data query to a properly typed Table.
+	 *
+	 * @param queryResult the Query-Result
+	 * @param channel     the ChannelAddress
+	 * @return the latest data as Map
+	 * @throws OpenemsNamedException on error
+	 */
+	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertLastDataQueryResult(
+	        List<FluxTable> queryResult, ChannelAddress channel) throws OpenemsNamedException {
+	    SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+
+	    ZonedDateTime latestTimestamp = null;
+	    JsonElement latestValue = JsonNull.INSTANCE;
+
+	    for (FluxTable fluxTable : queryResult) {
+	        for (FluxRecord record : fluxTable.getRecords()) {
+	            var timestamp = ZonedDateTime.ofInstant(record.getTime(), ZoneId.systemDefault());
+
+	            // Extract value only for the specified channel
+	            if (channel.toString().equals(record.getField())) {
+	                var valueObj = record.getValue();
+	                final JsonElement value;
+	                if (valueObj == null) {
+	                    value = JsonNull.INSTANCE;
+	                } else if (valueObj instanceof Number) {
+	                    value = new JsonPrimitive((Number) valueObj);
+	                } else {
+	                    value = new JsonPrimitive(valueObj.toString());
+	                }
+
+	                // Keep track of the latest timestamp and value
+	                if (latestTimestamp == null || timestamp.isAfter(latestTimestamp)) {
+	                    latestTimestamp = timestamp;
+	                    latestValue = value;
+	                }
+	            }
+	        }
+	    }
+
+	    // Add the latest timestamp and value to the result table
+	    if (latestTimestamp != null) {
+	        SortedMap<ChannelAddress, JsonElement> row = new TreeMap<>();
+	        row.put(channel, latestValue);
+	        table.put(latestTimestamp, row);
+	    }
+
+	    return table;
+	}	
+	
 	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 *

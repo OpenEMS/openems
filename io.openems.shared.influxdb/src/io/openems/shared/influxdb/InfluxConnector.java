@@ -343,6 +343,19 @@ public class InfluxConnector {
 		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
 				fromDate, toDate, channels, resolution);
 	}
+	
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
+	        Optional<Integer> influxEdgeId, ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
+	    
+	    // Check if channelAddress is not null
+	    if (channelAddress == null) {
+	        return new TreeMap<>();
+	    }
+
+	    // Query the last data using the QueryProxy
+	    return this.queryProxy.queryLastData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId, channelAddress);
+	}
+
 
 	/**
 	 * Queries the first valid values before the given date.

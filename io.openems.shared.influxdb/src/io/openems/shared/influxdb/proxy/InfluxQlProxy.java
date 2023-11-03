@@ -1,6 +1,7 @@
 package io.openems.shared.influxdb.proxy;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -221,6 +222,49 @@ public class InfluxQlProxy extends QueryProxy {
 		return convertHistoricEnergyResultRaw(queryResult, influxEdgeId, channels);
 	}
 
+	protected String buildLastDataQuery(//
+			String bucket, //
+			String measurement, //
+			Optional<Integer> influxEdgeId, //
+			ChannelAddress channel//
+			) {
+	    // Prepare query string
+	    var b = new StringBuilder("SELECT LAST(\"") //
+	            .append(channel.toString()) //
+	            .append("\")  as \"" + channel + "\"")
+	            .append(" FROM ") //
+	            .append(measurement) //
+	            .append(" WHERE "); //
+	    		
+	    		if (influxEdgeId.isPresent()) {
+	    			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+	    		}
+	    		b //
+	    		.append("time > (now() -30d) ");
+
+	    return b.toString();
+	}	
+	
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
+		    InfluxConnection influxConnection, //
+		    String bucket, //
+		    String measurement, //
+		    Optional<Integer> influxEdgeId, //
+		    ChannelAddress channel//
+		    ) throws OpenemsNamedException {
+		    
+		    // Create the query string
+		    String query = this.buildLastDataQuery(bucket, measurement, influxEdgeId, channel);
+		    
+		    // Execute the query
+		    var queryResult = this.executeQuery(influxConnection, bucket, query);
+		    
+		    // Convert the query result to the desired format
+		    // This assumes that there's a method similar to convertHistoricDataQueryResult for the last data point.
+		    return convertLastDataQueryResult(queryResult, channel);
+		}	
+	
 	@Override
 	protected String buildHistoricDataQuery(//
 			String bucket, //
@@ -541,6 +585,36 @@ public class InfluxQlProxy extends QueryProxy {
 		return table;
 	}
 
+	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertLastDataQueryResult(
+	        InfluxQLQueryResult queryResult, ChannelAddress channel) throws OpenemsNamedException {
+	    if (queryResult == null) {
+	        return null;
+	    }
+
+	    final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+	    for (var result : queryResult.getResults()) {
+	        var seriess = result.getSeries();
+	        if (seriess != null) {
+	            for (var series : seriess) {
+	                // We expect only one data point as it's the last data
+	                var record = series.getValues().get(0);
+
+	                // Get timestamp
+	                var timestampInstant = Instant.ofEpochMilli(Long.parseLong((String) record.getValueByKey("time")));
+	                var timestamp = ZonedDateTime.ofInstant(timestampInstant, ZoneId.systemDefault());
+
+	                SortedMap<ChannelAddress, JsonElement> tableRow = new TreeMap<>();
+	                table.put(timestamp, tableRow);
+
+	                // Get value
+	                var value = convertToJsonElement(record.getValueByKey(channel.toString()));
+	                tableRow.put(channel, value);
+	            }
+	        }
+	    }
+	    return table;
+	}	
+	
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResultSingleValue(//
 			InfluxQLQueryResult queryResult, //
 			ZonedDateTime fromDate, //

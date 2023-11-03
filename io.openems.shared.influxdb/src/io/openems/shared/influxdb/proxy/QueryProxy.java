@@ -132,6 +132,16 @@ public abstract class QueryProxy {
 			Resolution resolution //
 	) throws OpenemsNamedException;
 
+	// ToDo: Kommentieren
+	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
+		    InfluxConnection influxConnection, //
+		    String bucket, //
+		    String measurement, 
+		    Optional<Integer> influxEdgeId, //
+		    ChannelAddress channel
+	) throws OpenemsNamedException;
+	
+	
 	/**
 	 * {@link CommonTimedataService#queryHistoricEnergyPerPeriod(String, ZonedDateTime, ZonedDateTime, Set, Resolution)}.
 	 * 
