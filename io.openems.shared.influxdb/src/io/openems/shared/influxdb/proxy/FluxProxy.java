@@ -109,47 +109,39 @@ public class FluxProxy extends QueryProxy {
 		final var queryResult = this.executeQuery(influxConnection, query);
 		return convertAvailableSinceQueryResult(queryResult);
 	}
-	
+
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
-	    InfluxConnection influxConnection, 
-	    String bucket, 
-	    String measurement, 
-	    Optional<Integer> influxEdgeId, 
-	    ChannelAddress channel
-	    ) throws OpenemsNamedException {
-	    
-	    // Create the Flux query string
-	    var query = buildLastDataFluxQuery(bucket, measurement, influxEdgeId, channel);
-	    
-	    var queryResult = this.executeQuery(influxConnection, query);
+			InfluxConnection influxConnection, String bucket, String measurement, Optional<Integer> influxEdgeId,
+			ChannelAddress channel) throws OpenemsNamedException {
 
-	    return convertLastDataQueryResult(queryResult,channel);
+		// Create the Flux query string
+		var query = this.buildLastDataFluxQuery(bucket, measurement, influxEdgeId, channel);
+
+		var queryResult = this.executeQuery(influxConnection, query);
+
+		return convertLastDataQueryResult(queryResult, channel);
 	}
 
-	protected String buildLastDataFluxQuery( // 			
+	protected String buildLastDataFluxQuery(//
 			String bucket, //
 			String measurement, //
 			Optional<Integer> influxEdgeId, //
-			ChannelAddress channel//
-			) {
+			ChannelAddress channel) {
 		// prepare query
 		var builder = new StringBuilder() //
 				.append("data = from(bucket: \"").append(bucket).append("\")") //
-				.append(" |> range(start: -30d) ")
-				.append(" |> filter(fn: (r) => r._measurement == \"").append(measurement).append("\")");
-				
+				.append(" |> range(start: -30d) ").append(" |> filter(fn: (r) => r._measurement == \"")
+				.append(measurement).append("\")");
 
 		if (influxEdgeId.isPresent()) {
 			builder.append("|> filter(fn: (r) => r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\")");
 		}
-		
+
 		builder //
 				.append("|> filter(fn : (r) => r._field == \"") //
 				.append(channel.toString()) //
-				.append("\")")
-				.append(" |> last() ")
-				.append(" |> yield() ");
+				.append("\")").append(" |> last() ").append(" |> yield() ");
 
 		return builder.toString();
 	}
@@ -337,47 +329,47 @@ public class FluxProxy extends QueryProxy {
 	 * @throws OpenemsNamedException on error
 	 */
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertLastDataQueryResult(
-	        List<FluxTable> queryResult, ChannelAddress channel) throws OpenemsNamedException {
-	    SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+			List<FluxTable> queryResult, ChannelAddress channel) throws OpenemsNamedException {
+		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 
-	    ZonedDateTime latestTimestamp = null;
-	    JsonElement latestValue = JsonNull.INSTANCE;
+		ZonedDateTime latestTimestamp = null;
+		JsonElement latestValue = JsonNull.INSTANCE;
 
-	    for (FluxTable fluxTable : queryResult) {
-	        for (FluxRecord record : fluxTable.getRecords()) {
-	            var timestamp = ZonedDateTime.ofInstant(record.getTime(), ZoneId.systemDefault());
+		for (FluxTable fluxTable : queryResult) {
+			for (FluxRecord record : fluxTable.getRecords()) {
+				var timestamp = ZonedDateTime.ofInstant(record.getTime(), ZoneId.systemDefault());
 
-	            // Extract value only for the specified channel
-	            if (channel.toString().equals(record.getField())) {
-	                var valueObj = record.getValue();
-	                final JsonElement value;
-	                if (valueObj == null) {
-	                    value = JsonNull.INSTANCE;
-	                } else if (valueObj instanceof Number) {
-	                    value = new JsonPrimitive((Number) valueObj);
-	                } else {
-	                    value = new JsonPrimitive(valueObj.toString());
-	                }
+				// Extract value only for the specified channel
+				if (channel.toString().equals(record.getField())) {
+					var valueObj = record.getValue();
+					final JsonElement value;
+					if (valueObj == null) {
+						value = JsonNull.INSTANCE;
+					} else if (valueObj instanceof Number) {
+						value = new JsonPrimitive((Number) valueObj);
+					} else {
+						value = new JsonPrimitive(valueObj.toString());
+					}
 
-	                // Keep track of the latest timestamp and value
-	                if (latestTimestamp == null || timestamp.isAfter(latestTimestamp)) {
-	                    latestTimestamp = timestamp;
-	                    latestValue = value;
-	                }
-	            }
-	        }
-	    }
+					// Keep track of the latest timestamp and value
+					if (latestTimestamp == null || timestamp.isAfter(latestTimestamp)) {
+						latestTimestamp = timestamp;
+						latestValue = value;
+					}
+				}
+			}
+		}
 
-	    // Add the latest timestamp and value to the result table
-	    if (latestTimestamp != null) {
-	        SortedMap<ChannelAddress, JsonElement> row = new TreeMap<>();
-	        row.put(channel, latestValue);
-	        table.put(latestTimestamp, row);
-	    }
+		// Add the latest timestamp and value to the result table
+		if (latestTimestamp != null) {
+			SortedMap<ChannelAddress, JsonElement> row = new TreeMap<>();
+			row.put(channel, latestValue);
+			table.put(latestTimestamp, row);
+		}
 
-	    return table;
-	}	
-	
+		return table;
+	}
+
 	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 *

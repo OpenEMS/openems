@@ -345,6 +345,15 @@ public class InfluxConnector {
 				fromDate, toDate, channels, resolution);
 	}
 	
+	/**
+	 * Queries the last value for given channel.
+	 * 
+	 * @param influxEdgeId 			the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param channelAddress     	the Channels to query
+	 * @param measurement  			the measurement
+	 * @return 						the values mapped to their channel
+	 * @throws 						OpenemsNamedException on error
+	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
 	        Optional<Integer> influxEdgeId, ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
 	    
