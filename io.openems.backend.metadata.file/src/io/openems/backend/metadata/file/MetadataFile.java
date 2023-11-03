@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.file;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -353,7 +355,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 							Role.ADMIN, //
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
-							null, //
+							null, // firstSetupProtocol
 							Level.OK);
 				}).toList();
 	}
@@ -374,9 +376,18 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				Role.ADMIN, //
 				edge.isOnline(), //
 				edge.getLastmessage(), //
-				null, //
+				null, // firstSetupProtocol
 				Level.OK //
 		);
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
 	}
 
 }

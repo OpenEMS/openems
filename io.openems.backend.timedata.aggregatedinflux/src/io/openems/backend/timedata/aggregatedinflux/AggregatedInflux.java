@@ -254,13 +254,18 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 
 			final var timestamp = dataEntry.getKey();
 			final var timestampSeconds = timestamp / 1_000;
-			record AddValuesToPoint(String channel, JsonElement value, long timestamp) {
+			record AddValuesToPoint(String channel, JsonElement value) {
 			}
 
+			// update available-since values
+			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).forEach(entry -> {
+				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds);
+			});
+			channelPerType.getOrDefault(ChannelType.MAX, emptyList()).forEach(entry -> {
+				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds - 86400 /* 1 day */);
+			});
+
 			BiConsumer<AddValuesToPoint, Point> addEntryToPoint = (entry, point) -> {
-				if (!this.hasAvailableSince(influxEdgeId, entry.channel())) {
-					this.setAvailableSince(influxEdgeId, entry.channel(), entry.timestamp());
-				}
 				AllowedChannels.addWithSpecificChannelType(point, entry.channel(), entry.value());
 			};
 
@@ -270,8 +275,8 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 					.time(timestampSeconds, WritePrecision.S);
 
 			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).stream() //
-					.forEach(entry -> addEntryToPoint
-							.accept(new AddValuesToPoint(entry.getKey(), entry.getValue(), timestampSeconds), point));
+					.forEach(entry -> addEntryToPoint.accept(new AddValuesToPoint(entry.getKey(), entry.getValue()),
+							point));
 			this.influxConnector.write(point, this.writeParametersAvgPoints);
 
 			for (final var measurementEntry : this.getDayChangeMeasurements(timestamp).entrySet()) {
@@ -286,11 +291,18 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 						.time(truncatedTimestamp, WritePrecision.S);
 
 				channelPerType.getOrDefault(ChannelType.MAX, emptyList()).stream() //
-						.forEach(entry -> addEntryToPoint.accept(
-								new AddValuesToPoint(entry.getKey(), entry.getValue(), truncatedTimestamp), maxPoint));
+						.forEach(entry -> addEntryToPoint.accept(new AddValuesToPoint(entry.getKey(), entry.getValue()),
+								maxPoint));
 				this.influxConnector.write(maxPoint, this.writeParametersMaxPoints);
 			}
 		}
+	}
+
+	private final void setMissingAvailableSince(int influxEdgeId, String channel, long timestmap) {
+		if (this.hasAvailableSince(influxEdgeId, channel)) {
+			return;
+		}
+		this.setAvailableSince(influxEdgeId, channel, timestmap);
 	}
 
 	private Map<ZoneId, String> getDayChangeMeasurements(long timestamp) {

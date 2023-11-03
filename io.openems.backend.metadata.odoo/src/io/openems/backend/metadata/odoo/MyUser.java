@@ -9,7 +9,7 @@ import io.openems.common.session.Role;
 public class MyUser extends User {
 
 	private final int odooId;
-	
+
 	public MyUser(int odooId, String login, String name, String token, Language language, Role globalRole,
 			NavigableMap<String, Role> roles, boolean hasMultipleEdges) {
 		super(login, name, token, language, globalRole, roles, hasMultipleEdges);

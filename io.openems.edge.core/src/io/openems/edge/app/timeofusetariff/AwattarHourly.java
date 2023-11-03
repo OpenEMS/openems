@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.AwattarHourly.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -30,6 +32,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for AwattarHourly.
@@ -99,10 +102,20 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 
-			var components = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Awattar",
-					this.getName(l), timeOfUseTariffProviderId, null);
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Awattar",
+							JsonUtils.buildJsonObject() //
+									.build())//
+			);
 
-			return new AppConfiguration(components, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.build();
 		};
 	}
 

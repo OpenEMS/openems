@@ -24,7 +24,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetEdgeResponse extends JsonrpcResponseSuccess {
 
-	private final EdgeMetadata edgeMetadata;
+	public final EdgeMetadata edgeMetadata;
 
 	public GetEdgeResponse(UUID id, EdgeMetadata edgeMetadata) {
 		super(id);

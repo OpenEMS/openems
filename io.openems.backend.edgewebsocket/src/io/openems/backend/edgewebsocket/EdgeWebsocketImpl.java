@@ -67,7 +67,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
 
 	private static final String EDGE_ID = "backend0";
-	private static final String COMPONENT_ID = "edgewebsocket";
+	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 	private final SystemLogHandler systemLogHandler;
@@ -102,7 +102,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			var data = TreeBasedTable.<Long, String, JsonElement>create();
 			var now = Instant.now().toEpochMilli();
-			data.put(now, COMPONENT_ID + "/Connections",
+			data.put(now, this.getId() + "/Connections",
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
 			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
@@ -301,4 +301,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		}
 		return result;
 	}
+
+	public String getId() {
+		return COMPONENT_ID;
+	}
+
 }

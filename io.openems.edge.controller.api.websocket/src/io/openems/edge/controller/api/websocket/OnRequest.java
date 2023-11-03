@@ -1,6 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -42,7 +41,6 @@ import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.GetEdgeResponse;
 import io.openems.common.jsonrpc.response.GetEdgesResponse;
-import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
@@ -89,10 +87,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 
 		case GetEdgesRequest.METHOD:
-			return this.handleGetEdgesRequest(user, GetEdgesRequest.from(request));
+			return handleGetEdgesRequest(user, GetEdgesRequest.from(request));
 
 		case GetEdgeRequest.METHOD:
-			return this.handleGetEdgeRequest(user, GetEdgeRequest.from(request));
+			return handleGetEdgeRequest(user, GetEdgeRequest.from(request));
 
 		case SubscribeEdgesRequest.METHOD:
 			return this.handleSubscribeEdgesReqeust(user, SubscribeEdgesRequest.from(request));
@@ -256,7 +254,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
 
 			return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, token, user,
-					Utils.getEdgeMetadata(user.getRole()), Language.DEFAULT));
+					List.of(Utils.getEdgeMetadata(user.getRole())), Language.DEFAULT));
 		}
 		wsData.unsetUser();
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -504,9 +502,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the {@link GetEdgesResponse} Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgesRequest(User user, GetEdgesRequest request) {
+	protected static CompletableFuture<GetEdgesResponse> handleGetEdgesRequest(User user, GetEdgesRequest request) {
 		return CompletableFuture.completedFuture(//
-				new GetEdgesResponse(request.getId(), Utils.getEdgeMetadata(user.getGlobalRole())));
+				new GetEdgesResponse(request.getId(), List.of(Utils.getEdgeMetadata(user.getGlobalRole()))));
 	}
 
 	/**
@@ -516,22 +514,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param request the {@link GetEdgeRequest}
 	 * @return the {@link GetEdgeResponse} Response Future
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeRequest(User user, GetEdgeRequest request) {
+	protected static CompletableFuture<GetEdgeResponse> handleGetEdgeRequest(User user, GetEdgeRequest request) {
 		return CompletableFuture.completedFuture(//
-				new GetEdgeResponse(request.id, //
-						new EdgeMetadata(//
-								ControllerApiWebsocket.EDGE_ID, //
-								ControllerApiWebsocket.EDGE_COMMENT, //
-								ControllerApiWebsocket.EDGE_PRODUCT_TYPE, //
-								OpenemsConstants.VERSION, //
-								user.getGlobalRole(), //
-								true, //
-								ZonedDateTime.now(), //
-								ZonedDateTime.now(), //
-								ControllerApiWebsocket.SUM_STATE //
-						) //
-				) //
-		);
+				new GetEdgeResponse(request.id, Utils.getEdgeMetadata(user.getGlobalRole())));
 	}
 
 	/**

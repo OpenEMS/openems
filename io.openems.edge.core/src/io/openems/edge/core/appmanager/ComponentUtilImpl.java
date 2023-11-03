@@ -693,6 +693,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return new ArrayList<>(insertOrder);
 		}
 		var order = new ArrayList<>(actualOrder);
+		insertOrder = new ArrayList<String>(insertOrder);
 
 		Collections.reverse(insertOrder);
 		var index = actualOrder.size();

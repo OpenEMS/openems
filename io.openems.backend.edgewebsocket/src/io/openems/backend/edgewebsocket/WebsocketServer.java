@@ -6,7 +6,12 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -20,6 +25,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SystemLog;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -40,7 +46,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			var data = TreeBasedTable.<Long, String, JsonElement>create();
 			var now = Instant.now().toEpochMilli();
 			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
-				data.put(now, "edgewebsocket/" + key, new JsonPrimitive(value));
+				data.put(now, parent.getId() + "/" + key, new JsonPrimitive(value));
 			});
 			parent.timedataManager.write("backend0", new TimestampedDataNotification(data));
 		});
@@ -149,4 +155,32 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	protected void logError(Logger log, String message) {
 		this.parent.logError(log, message);
 	}
+
+	/**
+	 * Gets the current cached date of the given edge and given channels.
+	 * 
+	 * @param edgeId   the id of the edge
+	 * @param channels the channels
+	 * @return the date
+	 */
+	public SortedMap<ChannelAddress, JsonElement> getCurrentDataFromEdgeCache(String edgeId,
+			Set<ChannelAddress> channels) {
+		record Pair<A, B>(A a, B b) {
+		}
+
+		return this.getConnections().stream() //
+				.map(WebSocket::getAttachment) //
+				.filter(Objects::nonNull) //
+				.map(WsData.class::cast) //
+				.filter(t -> t.getEdgeId().map(id -> id.equals(edgeId)).orElse(false)) //
+				.map(w -> w.edgeCache) //
+				.<Pair<ChannelAddress, JsonElement>>mapMulti((cache, consumer) -> {
+					channels.stream() //
+							.forEach(t -> {
+								consumer.accept(new Pair<>(t, cache.getChannelValue(t.toString())));
+							});
+				}) //
+				.collect(Collectors.toMap(Pair::a, Pair::b, (t, u) -> u, TreeMap::new));
+	}
+
 }
