@@ -258,7 +258,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(PV_ALIAS.apply(i)));
-				components.add(charger(chargerId, chargerAlias, batteryInverterId, modbusIdExternal, i));
+				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
 			}
 
 			List<String> schedulerExecutionOrder = new ArrayList<>();

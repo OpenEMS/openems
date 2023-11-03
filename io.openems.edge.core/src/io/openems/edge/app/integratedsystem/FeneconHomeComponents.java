@@ -315,7 +315,6 @@ public final class FeneconHomeComponents {
 	 * @param chargerId         the id of the charger
 	 * @param chargerAlias      the alias of the charger
 	 * @param batteryInverterId the id of the battery inverter
-	 * @param modbusIdExternal  the id of the external modbus bridge
 	 * @param i                 the index of the pv-port
 	 * @return the {@link Component}
 	 */
@@ -323,7 +322,6 @@ public final class FeneconHomeComponents {
 			final String chargerId, //
 			final String chargerAlias, //
 			final String batteryInverterId, //
-			final String modbusIdExternal, //
 			final int i //
 	) {
 		return new EdgeConfig.Component(chargerId, chargerAlias, //
@@ -331,8 +329,6 @@ public final class FeneconHomeComponents {
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
-						.addProperty("modbus.id", modbusIdExternal) //
-						.addProperty("modbusUnitId", 247) //
 						.addProperty("pvPort", "PV_" + (i + 1)) //
 						.build());
 	}
