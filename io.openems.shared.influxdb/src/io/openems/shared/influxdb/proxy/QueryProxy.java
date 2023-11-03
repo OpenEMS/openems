@@ -132,7 +132,18 @@ public abstract class QueryProxy {
 			Resolution resolution //
 	) throws OpenemsNamedException;
 
-	// ToDo: Kommentieren
+	/**
+	 * Queries the last value of a channel, e.g. an engerycounter.
+	 * 
+	 * @param influxConnection a Influx-Connection
+	 * @param bucket           the bucket name; 'database/retentionPolicy' for
+	 *                         InfluxDB v1
+	 * @param measurement      the influx measurement
+	 * @param influxEdgeId     the Edge-ID
+	 * @param channel          the {@link ChannelAddress}
+	 * @return the query result
+	 * @throws OpenemsNamedException on error
+	 */
 	public abstract SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
 		    InfluxConnection influxConnection, //
 		    String bucket, //

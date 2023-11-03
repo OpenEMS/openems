@@ -68,6 +68,7 @@ public class InfluxConnector {
 	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
 	private final AtomicInteger rejectedExecutionCount = new AtomicInteger();
 
+	
 	/**
 	 * The Constructor.
 	 *

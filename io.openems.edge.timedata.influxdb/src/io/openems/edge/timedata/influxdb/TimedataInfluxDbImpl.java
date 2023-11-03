@@ -251,7 +251,4 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	}
 
 
-
-
-
 }

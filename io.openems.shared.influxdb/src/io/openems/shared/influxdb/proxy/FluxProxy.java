@@ -143,7 +143,7 @@ public class FluxProxy extends QueryProxy {
 		if (influxEdgeId.isPresent()) {
 			builder.append("|> filter(fn: (r) => r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\")");
 		}
-
+		
 		builder //
 				.append("|> filter(fn : (r) => r._field == \"") //
 				.append(channel.toString()) //
@@ -152,7 +152,6 @@ public class FluxProxy extends QueryProxy {
 				.append(" |> yield() ");
 
 		return builder.toString();
-
 	}
 
 	@Override

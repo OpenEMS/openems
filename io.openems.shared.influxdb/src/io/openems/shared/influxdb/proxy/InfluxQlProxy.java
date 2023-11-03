@@ -889,4 +889,5 @@ public class InfluxQlProxy extends QueryProxy {
 			return new JsonPrimitive(number);
 		}
 	}
+	
 }
