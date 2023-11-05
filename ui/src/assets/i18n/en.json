@@ -255,7 +255,8 @@
         "REACHED_TARGET_SOC": "Ready for Capacity Extension",
         "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
         "SELECT_A_DATE": "Please select a date",
-        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature.",
+        "TARGET_TIME_SPECIFIED": "Capacity Extension will be performed on {{targetDate}} at {{targetTime}}"
       },
       "SYSTEMUPDATE": "System update"
     },
