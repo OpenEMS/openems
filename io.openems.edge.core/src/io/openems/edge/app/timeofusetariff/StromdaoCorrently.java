@@ -97,6 +97,7 @@ public class StromdaoCorrently extends AbstractEnumOpenemsApp<Property> implemen
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(comp)) //
 					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
 	}

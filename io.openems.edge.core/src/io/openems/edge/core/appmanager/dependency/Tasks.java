@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.dependency;
 
 import java.util.List;
+import java.util.Set;
 
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
@@ -8,6 +9,8 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTask;
@@ -73,6 +76,26 @@ public class Tasks {
 	 */
 	public static Task<SchedulerConfiguration> scheduler(String... componentOrder) {
 		return createTask(SchedulerAggregateTask.class, new SchedulerConfiguration(componentOrder));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link PersistencePredictorConfiguration}.
+	 * 
+	 * @param channels the channels that need to be in the predictor
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<PersistencePredictorConfiguration> persistencePredictor(Set<String> channels) {
+		return createTask(PersistencePredictorAggregateTask.class, new PersistencePredictorConfiguration(channels));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link PersistencePredictorConfiguration}.
+	 * 
+	 * @param channels the channels that need to be in the predictor
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<PersistencePredictorConfiguration> persistencePredictor(String... channels) {
+		return createTask(PersistencePredictorAggregateTask.class, new PersistencePredictorConfiguration(channels));
 	}
 
 	private static <C, T extends AggregateTask<C>> Task<C> createTask(Class<T> clazz, C configuration) {
