@@ -7,8 +7,6 @@ import io.openems.backend.alerting.Message;
  * Specifies classes able to generate a fitting {@link MessageScheduler} to a
  * {@link Handler} with the same generic {@link T}.
  *
- * @author kai.jeschek
- *
  */
 public interface MessageSchedulerService {
 	/**

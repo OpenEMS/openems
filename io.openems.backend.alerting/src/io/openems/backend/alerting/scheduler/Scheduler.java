@@ -12,8 +12,6 @@ import io.openems.backend.alerting.Message;
 /**
  * A {@link MessageSchedulerService} implementation using {@link MinuteTimer}.
  *
- * @author kai.jeschek
- *
  */
 public class Scheduler implements Runnable, MessageSchedulerService {
 
