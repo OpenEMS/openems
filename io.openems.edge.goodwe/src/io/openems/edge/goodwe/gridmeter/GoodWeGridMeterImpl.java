@@ -171,8 +171,9 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 											Integer version = TypeUtils.getAsType(OpenemsType.INTEGER,
 													serialNr.substring(2, 4));
 
+											// TODO: Handle GoodWe
 											// Handle GoodWe 20-30
-											if (version != null && version > 20) {
+											if (version != null && version >= 20) {
 												this.handleDspVersion4(protocol);
 											}
 
