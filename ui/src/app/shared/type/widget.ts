@@ -57,10 +57,22 @@ export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [{
-            name: 'EOY-Award',
-            title: 'EOY Award'
-        }];
+        let list: AdvertWidget[] = [];
+
+        //Temporarily removing from displaying this advertise.
+        /*
+        if (edge.producttype == ProductType.HOME) {
+            list.push({
+                name: 'FeneconHomeExtension',
+                title: 'FENECON Home Erweiterung'
+            })
+        }
+
+        list.push({
+            name: 'Alerting',
+            title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
+        })
+        */
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
