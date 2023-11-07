@@ -30,7 +30,7 @@
         "roboto-fontface": "^0.10.0",
         "rxjs": "~6.6.7",
         "tslib": "^2.5.0",
-        "uuid": "^9.0.0",
+        "uuid": "^9.0.1",
         "zone.js": "~0.13.0"
     },
     "devDependencies": {
@@ -47,7 +47,7 @@
         "@types/jasmine": "~4.3.2",
         "@types/jasminewd2": "~2.0.10",
         "@types/node": "^20.2.5",
-        "@types/uuid": "^9.0.2",
+        "@types/uuid": "^9.0.4",
         "@typescript-eslint/eslint-plugin": "^6.2.0",
         "@typescript-eslint/parser": "6.2.0",
         "eslint": "^8.41.0",
