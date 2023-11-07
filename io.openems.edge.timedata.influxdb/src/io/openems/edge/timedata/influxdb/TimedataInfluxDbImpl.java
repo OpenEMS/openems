@@ -215,26 +215,34 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		// TODO implement this method
 		return emptySortedMap();
 	}
-
-
 	
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 	    return CompletableFuture.supplyAsync(() -> {
 	        try {
-	            SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = this.influxConnector.queryLastData(
+	            var result = this.influxConnector.queryLastData(
 	                Optional.empty(), channelAddress, this.config.measurement());
 
-	            // Retrieve the latest value from the result
-	            if (!result.isEmpty()) {
-	                SortedMap<ChannelAddress, JsonElement> latestValues = result.get(result.lastKey());
-	                if (latestValues.containsKey(channelAddress)) {
-	                    JsonElement element = latestValues.get(channelAddress);
-	                    if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-	                    	return Optional.of(element.getAsLong());
-	                    }
-	                }
+	            // If there are no results, return empty immediately
+	            if (result.isEmpty()) {
+	                return Optional.empty();
 	            }
+	            
+	            var latestValues = result.get(result.lastKey());
+	            
+	            // If the channelAddress is not in the latest values, return empty
+	            if (!latestValues.containsKey(channelAddress)) {
+	                return Optional.empty();
+	            }
+	            
+	            // Retrieve the latest value from the result
+	            var element = latestValues.get(channelAddress);
+
+	            // If the element is a number, return its long value
+	            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+	                return Optional.of(element.getAsLong());
+	            }
+	            
 	        } catch (OpenemsNamedException e) {
 	            this.log.error("Error querying latest value for channel: " + channelAddress.toString(), e);
 	        }
