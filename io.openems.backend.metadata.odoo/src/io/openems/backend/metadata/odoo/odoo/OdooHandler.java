@@ -405,7 +405,8 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, "openems.report_openems_setup_protocol_template", setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials, "openems.report_openems_setup_protocol_template",
+				setupProtocolId);
 	}
 
 	/**

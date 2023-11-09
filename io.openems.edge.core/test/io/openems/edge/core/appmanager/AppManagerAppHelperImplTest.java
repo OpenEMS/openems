@@ -430,7 +430,7 @@ public class AppManagerAppHelperImplTest {
 		AppManagerAppHelperImpl.insert(list, componentTask);
 		AppManagerAppHelperImpl.insert(list, networkTask);
 		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
-		
+
 		list.clear();
 		AppManagerAppHelperImpl.insert(list, schedulerTask);
 		AppManagerAppHelperImpl.insert(list, networkTask);

@@ -96,7 +96,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>5.0.1</version>
+			<version>5.1.0</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -208,7 +208,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>5.1.2</version>
+			<version>5.1.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -295,7 +295,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.9.10</version>
+			<version>1.9.20</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>

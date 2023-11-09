@@ -38,9 +38,10 @@ public abstract class AbstractWorker {
 	/**
 	 * Initializes the worker and starts the worker thread.
 	 *
-	 * @param name               the name of the worker thread
-	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()} method
-	 *                           should get called immediately; if not false
+	 * @param name                    the name of the worker thread
+	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()}
+	 *                                method should get called immediately; if not
+	 *                                false
 	 */
 	public void activate(String name, boolean initiallyTriggerNextRun) {
 		this.startWorker(name, initiallyTriggerNextRun);
@@ -58,9 +59,10 @@ public abstract class AbstractWorker {
 	/**
 	 * Modifies the worker thread.
 	 * 
-	 * @param name               the name of the worker thread
-	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()} method
-	 *                           should get called immediately; if not false
+	 * @param name                    the name of the worker thread
+	 * @param initiallyTriggerNextRun true if the {@link AbstractWorker#forever()}
+	 *                                method should get called immediately; if not
+	 *                                false
 	 */
 	public void modified(String name, boolean initiallyTriggerNextRun) {
 		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {

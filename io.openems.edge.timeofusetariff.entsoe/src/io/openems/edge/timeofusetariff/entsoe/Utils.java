@@ -74,8 +74,8 @@ public class Utils {
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution, double exchangeRate)
-			throws ParserConfigurationException, SAXException, IOException {
+	protected static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String xml, String resolution,
+			double exchangeRate) throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
