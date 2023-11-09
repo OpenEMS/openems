@@ -436,9 +436,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		List<AlertingSetting> users;
 
 		if (userIsAdmin(user, edgeId)) {
-			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
-		} else {
 			users = this.parent.metadata.getUserAlertingSettings(edgeId);
+		} else {
+			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
 		}
 
 		return CompletableFuture.completedFuture(//
@@ -463,7 +463,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var containsOtherUsersSettings = userSettings.stream() //
 				.anyMatch(u -> !Objects.equals(u.getUserId(), userId));
 
-		if (containsOtherUsersSettings && userIsAdmin(user, edgeId)) {
+		if (containsOtherUsersSettings && !userIsAdmin(user, edgeId)) {
 			throw new OpenemsException(
 					"Not allowed to update/set alerting information for other users as user [" + userId + "]");
 		}
