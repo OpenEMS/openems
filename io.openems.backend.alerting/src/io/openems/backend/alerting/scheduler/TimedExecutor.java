@@ -22,10 +22,10 @@ public interface TimedExecutor {
 
 	/**
 	 * Execute the given task at the given dateTime.
-	 * 
-	 * @param at  time to execute at
+	 *
+	 * @param at   time to execute at
 	 * @param task task to execute
-	 * 
+	 *
 	 * @return reference to Task as {@link TimedTask} Can be used to cancel the
 	 *         task.
 	 */
@@ -41,7 +41,7 @@ public interface TimedExecutor {
 	/**
 	 * Get the Executors current {@link ZonedDateTime}. Should be used to calculate
 	 * execution time.
-	 * 
+	 *
 	 * @return current {@link ZonedDateTime}
 	 */
 	public ZonedDateTime now();

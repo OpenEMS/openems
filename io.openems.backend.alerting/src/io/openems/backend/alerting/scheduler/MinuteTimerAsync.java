@@ -11,35 +11,34 @@ import java.util.function.Consumer;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
- * Implementation of {@link MinuteTimer} using an {@link ScheduledExecutorService} and the 
- * systems default {@link Clock} for asynchronous execution.
- * 
- * @author kai.jeschek
+ * Implementation of {@link MinuteTimer} using an
+ * {@link ScheduledExecutorService} and the systems default {@link Clock} for
+ * asynchronous execution.
  *
  */
 public class MinuteTimerAsync extends MinuteTimer {
-	
+
 	private static MinuteTimer INSTANCE = new MinuteTimerAsync();
 	private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
 			.setNameFormat("Alerting-MinuteTimer-%d").build();
-	
+
 	public static MinuteTimer getInstance() {
 		return MinuteTimerAsync.INSTANCE;
 	}
-	
+
 	private ScheduledExecutorService scheduler;
-	
+
 	private MinuteTimerAsync() {
 		super(Clock.systemDefaultZone());
 	}
-	
+
 	@Override
 	protected void start() {
 		super.start();
 		this.scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
 		this.scheduler.scheduleAtFixedRate(this::cycle, 0, 1, TimeUnit.MINUTES);
 	}
-	
+
 	@Override
 	public void subscribe(Consumer<ZonedDateTime> sub) {
 		super.subscribe(sub);
@@ -47,7 +46,7 @@ public class MinuteTimerAsync extends MinuteTimer {
 			this.start();
 		}
 	}
-	
+
 	@Override
 	public void unsubscribe(Consumer<ZonedDateTime> sub) {
 		super.unsubscribe(sub);
@@ -55,7 +54,7 @@ public class MinuteTimerAsync extends MinuteTimer {
 			this.stop();
 		}
 	}
-	
+
 	@Override
 	protected void stop() {
 		super.stop();
@@ -63,5 +62,5 @@ public class MinuteTimerAsync extends MinuteTimer {
 			this.scheduler.shutdownNow();
 			this.scheduler = null;
 		}
-	}	
+	}
 }

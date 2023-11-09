@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
  * Executes subscriber every full Minute or once after a specified time of
  * Minutes. Starts and stops itself, depending on whether subscribers are
  * present.
- * 
- * @author kai.jeschek
- * 
+ *
  */
 public class MinuteTimer implements TimedExecutor {
 
@@ -32,7 +30,7 @@ public class MinuteTimer implements TimedExecutor {
 
 	/**
 	 * Create MinuteTimer with given clock.
-	 * 
+	 *
 	 * @param clock to use for timing
 	 */
 	public MinuteTimer(Clock clock) {
@@ -67,12 +65,13 @@ public class MinuteTimer implements TimedExecutor {
 
 	/**
 	 * Execute the given task at the given dateTime to the minute.
-	 * 
+	 *
 	 * @param at   time to execute at
 	 * @param task task to execute
-	 * 
+	 *
 	 * @return reference to Task. Can be used to cancel the task.
 	 */
+	@Override
 	public TimedTask schedule(ZonedDateTime at, Consumer<ZonedDateTime> task) {
 		var singleTask = new TimedTask(at, task);
 		this.singleTasks.add(singleTask);
@@ -84,6 +83,7 @@ public class MinuteTimer implements TimedExecutor {
 	 *
 	 * @param task to remove
 	 */
+	@Override
 	public void cancel(TimedTask task) {
 		if (task != null) {
 			this.singleTasks.remove(task);
@@ -100,10 +100,10 @@ public class MinuteTimer implements TimedExecutor {
 			this.isRunning = true;
 		}
 	}
-	
+
 	private void logDebugInfos() {
 		if (this.cycleCount % 5 == 0) {
-			this.log.debug("MinuteTimer[ Now:%s, Ticks:%s ]".formatted(now(), this.cycleCount));
+			this.log.debug("MinuteTimer[ Now:%s, Ticks:%s ]".formatted(this.now(), this.cycleCount));
 		}
 	}
 
@@ -160,9 +160,10 @@ public class MinuteTimer implements TimedExecutor {
 	/**
 	 * Get the current {@link ZonedDateTime} for the {@link Clock} this
 	 * {@link MinuteTimer} works with.
-	 * 
+	 *
 	 * @return {@link ZonedDateTime} now
 	 */
+	@Override
 	public ZonedDateTime now() {
 		return ZonedDateTime.now(this.clock);
 	}

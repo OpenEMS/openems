@@ -20,7 +20,8 @@ public class OfflineEdgeMessage extends Message {
 	private final ZonedDateTime offlineAt;
 	private final TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients;
 
-	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt, TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients) {
+	private OfflineEdgeMessage(String edgeId, ZonedDateTime offlineAt,
+			TreeMap<Integer, List<OfflineEdgeAlertingSetting>> recipients) {
 		super(edgeId);
 		this.offlineAt = offlineAt;
 		this.recipients = recipients;
@@ -87,6 +88,7 @@ public class OfflineEdgeMessage extends Message {
 		var rec = this.getCurrentRecipients().stream() //
 				.map(s -> String.valueOf(s.userLogin())) //
 				.collect(Collectors.joining(","));
-		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
+		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
+				+ this.getNotifyStamp() + "}";
 	}
 }

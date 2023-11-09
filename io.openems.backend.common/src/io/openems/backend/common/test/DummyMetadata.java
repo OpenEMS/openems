@@ -188,6 +188,7 @@ public class DummyMetadata implements Metadata {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
+	@Override
 	public void logGenericSystemLog(GenericSystemLog systemLog) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}

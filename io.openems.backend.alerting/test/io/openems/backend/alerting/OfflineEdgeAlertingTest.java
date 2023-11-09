@@ -41,12 +41,12 @@ public class OfflineEdgeAlertingTest {
 
 			this.timer = new TimeLeapMinuteTimer(instant);
 			final var now = this.timer.now();
-			
+
 			this.mailer = new MailerImpl();
 			this.meta = new AlertingMetadataImpl();
 
-			this.settings = new HashMap<String, List<OfflineEdgeAlertingSetting>>(5);
-			this.edges = new HashMap<String, Edge>(5);
+			this.settings = new HashMap<>(5);
+			this.edges = new HashMap<>(5);
 
 			this.createEdge("edge01", false, null);
 			this.createEdge("edge02", true, now);

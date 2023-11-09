@@ -87,7 +87,7 @@ public class Dummy {
 		private Collection<Edge> edges;
 		private Map<String, List<OfflineEdgeAlertingSetting>> offlineSettings;
 		private Map<String, List<SumStateAlertingSetting>> sumStateSettings;
-		private Map<String, Level> sumStates = new HashMap<String, Level>(10);
+		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
 		 * Initialize Metadata with test data for Offline-Alerting.
@@ -194,7 +194,7 @@ public class Dummy {
 
 		/**
 		 * Leap the given amount in minutes. executing cycle method every time.
-		 * 
+		 *
 		 * @param amount to leap in minutes
 		 */
 		public void leap(long amount) {
@@ -217,7 +217,7 @@ public class Dummy {
 		 * A return value <0 means, the clock has already advanced the given amount
 		 * above.
 		 * </p>
-		 * 
+		 *
 		 * @param point to advance to
 		 * @return difference
 		 */
@@ -231,7 +231,7 @@ public class Dummy {
 
 		/**
 		 * Get the amount this Timer has advanced since it was initialized.
-		 * 
+		 *
 		 * @return total leapt minutes.
 		 */
 		public int advanced() {

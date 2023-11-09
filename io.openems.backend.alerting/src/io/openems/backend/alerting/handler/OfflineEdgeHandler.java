@@ -178,15 +178,15 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	private boolean shouldReceiveMail(Edge edge, OfflineEdgeAlertingSetting setting) {
 		final var lastMailRecievedAt = setting.lastNotification();
 		final var edgeOfflineSince = edge.getLastmessage();
-		
+
 		var hasNotRecievedMailYet = true;
 		var neverRecievedAnyMail = lastMailRecievedAt == null;
-		
+
 		if (!neverRecievedAnyMail) {
 			var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
 			hasNotRecievedMailYet = nextMailRecieveAt.isAfter(lastMailRecievedAt);
 		}
-		
+
 		return neverRecievedAnyMail || hasNotRecievedMailYet;
 	}
 
@@ -207,7 +207,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	/**
 	 * Check Metadata for all OfflineEdges. Waits given in initialDelay, before
 	 * executing.
-	 * 
+	 *
 	 * @param event Event data
 	 */
 	private void handleMetadataAfterInitialize(EventReader event) {

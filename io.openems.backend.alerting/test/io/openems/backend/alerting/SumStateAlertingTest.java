@@ -43,8 +43,8 @@ public class SumStateAlertingTest {
 			this.mailer = new MailerImpl();
 			this.meta = new AlertingMetadataImpl();
 
-			this.settings = new HashMap<String, List<SumStateAlertingSetting>>(5);
-			this.edges = new HashMap<String, Edge>(5);
+			this.settings = new HashMap<>(5);
+			this.edges = new HashMap<>(5);
 
 			this.createEdge("edge01", true, null);
 			this.createEdge("edge02", true, this.timer.now());
@@ -137,7 +137,7 @@ public class SumStateAlertingTest {
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
-		
+
 		env.setState(Level.FAULT, "edge03", "edge04");
 
 		/* edge04[user01, uer02] */
@@ -150,22 +150,22 @@ public class SumStateAlertingTest {
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
 		/* edge04[user01] */
 		assertEquals(1, env.mailer.getMailsCount());
-		
+
 		env.setState(Level.FAULT, "edge05", "edge06");
-		
+
 		/* edge04[user02] edge05[user02, user03] edge06[user01] */
 		assertEquals(3, env.scheduler.getScheduledMsgsCount());
 		/* edge04[user01] */
 		assertEquals(1, env.mailer.getMailsCount());
-		
+
 		env.setOnline(false, "edge06");
 		env.timer.leap(31);
-		
+
 		/* edge05[user02, user03] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
 		/* edge04[user01], edge04[user02] */
 		assertEquals(2, env.mailer.getMailsCount());
-		
+
 		env.alerting.deactivate();
 
 		/* empty */

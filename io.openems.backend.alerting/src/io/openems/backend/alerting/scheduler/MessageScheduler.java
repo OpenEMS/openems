@@ -16,8 +16,6 @@ import io.openems.backend.alerting.Message;
  * After the specified time is reached, the scheduler sends the Messages to
  * their {@link Handler} and removes them from itself.
  * </p>
- * 
- * @author kai.jeschek
  *
  * @param <T> type of Message
  */
@@ -100,7 +98,7 @@ public class MessageScheduler<T extends Message> {
 
 	/**
 	 * Transfer the messages due to their handler.
-	 * 
+	 *
 	 * @param now TimeStamp on call
 	 */
 	public void handle(ZonedDateTime now) {
