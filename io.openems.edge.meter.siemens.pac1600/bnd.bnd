@@ -9,9 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-	io.openems.edge.meter.api;version=latest
-
+	io.openems.edge.meter.api;
+	
 -testpath: \
 	${testpath},\
-	io.openems.edge.meter.api
-Bundle-Description: Implements the Siemens PAC1600 tested by 7kt1665

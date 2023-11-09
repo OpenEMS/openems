@@ -1,7 +1,7 @@
 package io.openems.edge.meter.siemens.pac1600;
 
-import io.openems.common.utils.ConfigUtils;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.siemens.pac1600.MyConfig.Builder;
 

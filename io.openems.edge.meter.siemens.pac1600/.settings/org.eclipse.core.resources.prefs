@@ -1,8 +1,8 @@
 eclipse.preferences.version=1
 encoding//src/io/openems/edge/meter/siemens/pac1600/Config.java=UTF-8
-encoding//src/io/openems/edge/meter/siemens/pac1600/MeterSiemensPAC1600.java=UTF-8
-encoding//src/io/openems/edge/meter/siemens/pac1600/MeterSiemensPAC1600Impl.java=UTF-8
-encoding//test/io/openems/edge/meter/siemens/pac1600/MeterSiemensPAC1600ImplTest.java=UTF-8
+encoding//src/io/openems/edge/meter/siemens/pac1600/MeterSiemensPac1600.java=UTF-8
+encoding//src/io/openems/edge/meter/siemens/pac1600/MeterSiemensPac1600Impl.java=UTF-8
+encoding//test/io/openems/edge/meter/siemens/pac1600/MeterSiemensPac1600ImplTest.java=UTF-8
 encoding//test/io/openems/edge/meter/siemens/pac1600/MyConfig.java=UTF-8
 encoding/<project>=UTF-8
 encoding/bnd.bnd=UTF-8
