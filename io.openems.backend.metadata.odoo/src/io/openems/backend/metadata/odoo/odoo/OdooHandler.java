@@ -102,22 +102,6 @@ public class OdooHandler {
 	}
 
 	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param edge    the Edge
-	 * @param message the message
-	 */
-	public void addChatterMessage(MyEdge edge, String message) {
-		try {
-			OdooUtils.addChatterMessage(this.credentials, Field.EdgeDevice.ODOO_MODEL, edge.getOdooId(), message);
-		} catch (OpenemsException e) {
-			this.parent.logError(this.log, "Unable to add Chatter Message to Edge [" + edge.getId() + "] " //
-					+ "Message [" + message + "]" //
-					+ ": " + e.getMessage());
-		}
-	}
-
-	/**
 	 * Returns Edge by setupPassword, otherwise an empty {@link Optional}.
 	 *
 	 * @param setupPassword to find Edge

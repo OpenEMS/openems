@@ -427,28 +427,6 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       Odoo model (e.g. 'res.partner')
-	 * @param id          id of model
-	 * @param message     the message
-	 * @throws OpenemsException on error
-	 */
-	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
-			throws OpenemsException {
-		try {
-			// Execute XML request
-			var resultObj = executeKw(credentials, model, "message_post", new Object[] { id, message });
-			if (resultObj == null) {
-				throw new OpenemsException("Returned Null");
-			}
-		} catch (Throwable e) {
-			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
-		}
-	}
-
-	/**
 	 * Create a record in Odoo.
 	 *
 	 * @param credentials the Odoo credentials
