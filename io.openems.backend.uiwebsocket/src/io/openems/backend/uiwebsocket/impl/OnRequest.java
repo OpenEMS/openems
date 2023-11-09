@@ -473,7 +473,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	private static Boolean userIsAdmin(User user, String edgeId) {
+	private static boolean userIsAdmin(User user, String edgeId) {
 		return user.getRole(edgeId).map(role -> role.isAtLeast(Role.ADMIN)).orElse(false);
 	}
 
