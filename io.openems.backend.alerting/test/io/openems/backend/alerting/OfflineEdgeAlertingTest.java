@@ -37,8 +37,11 @@ public class OfflineEdgeAlertingTest {
 		private Map<String, List<OfflineEdgeAlertingSetting>> settings;
 
 		public TestEnvironment() {
-			var instant = Instant.ofEpochMilli(System.currentTimeMillis());
+			final var instant = Instant.now();
+
 			this.timer = new TimeLeapMinuteTimer(instant);
+			final var now = this.timer.now();
+			
 			this.mailer = new MailerImpl();
 			this.meta = new AlertingMetadataImpl();
 
@@ -46,19 +49,19 @@ public class OfflineEdgeAlertingTest {
 			this.edges = new HashMap<String, Edge>(5);
 
 			this.createEdge("edge01", false, null);
-			this.createEdge("edge02", true, this.timer.now());
-			this.createEdge("edge03", true, this.timer.now(), //
+			this.createEdge("edge02", true, now);
+			this.createEdge("edge03", true, now, //
 					new SimpleAlertingSetting("user01", 0), //
 					new SimpleAlertingSetting("user02", 0));
-			this.createEdge("edge04", true, this.timer.now(), //
+			this.createEdge("edge04", true, now, //
 					new SimpleAlertingSetting("user01", 30), //
 					new SimpleAlertingSetting("user02", 60));
-			this.createEdge("edge05", false, this.timer.now().minusHours(12), //
+			this.createEdge("edge05", false, now.minusHours(12), //
 					new SimpleAlertingSetting("user02", 60), //
 					new SimpleAlertingSetting("user03", 1440));
-			this.createEdge("edge06", false, this.timer.now().minusMonths(1), //
+			this.createEdge("edge06", false, now.minusMonths(1), //
 					new SimpleAlertingSetting("user01", 30));
-			this.createEdge("edge07", true, this.timer.now(), //
+			this.createEdge("edge07", true, now, //
 					new SimpleAlertingSetting("user04", 60));
 
 			this.meta.initializeOffline(this.edges.values(), this.settings);
@@ -106,7 +109,7 @@ public class OfflineEdgeAlertingTest {
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = new Dummy.Config(15, true, false);
+		var config = new Dummy.TestConfig(15, true, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
@@ -114,7 +117,7 @@ public class OfflineEdgeAlertingTest {
 
 		/* Wait long enough to trigger delayed Initialization. */
 		env.timer.leap(config.initialDelay);
-		env.timer.leap(2); /* inaccuracy + initial mails on next cycle */
+		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
 		/* edge05[user03] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
@@ -170,7 +173,7 @@ public class OfflineEdgeAlertingTest {
 	public void deactiveTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = new Dummy.Config(5, false, false);
+		var config = new Dummy.TestConfig(5, false, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());

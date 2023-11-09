@@ -176,16 +176,18 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	private boolean shouldReceiveMail(Edge edge, OfflineEdgeAlertingSetting setting) {
-		var lastMailRecievedAt = setting.lastNotification();
-		if (lastMailRecievedAt == null) {
-			return true;
+		final var lastMailRecievedAt = setting.lastNotification();
+		final var edgeOfflineSince = edge.getLastmessage();
+		
+		var hasNotRecievedMailYet = true;
+		var neverRecievedAnyMail = lastMailRecievedAt == null;
+		
+		if (!neverRecievedAnyMail) {
+			var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
+			hasNotRecievedMailYet = nextMailRecieveAt.isAfter(lastMailRecievedAt);
 		}
-		var edgeOfflineSince = edge.getLastmessage();
-		if (lastMailRecievedAt.isAfter(edgeOfflineSince)) {
-			return false;
-		}
-		var nextMailRecieveAt = edgeOfflineSince.plus(setting.delay(), ChronoUnit.MINUTES);
-		return nextMailRecieveAt.isAfter(lastMailRecievedAt);
+		
+		return neverRecievedAnyMail || hasNotRecievedMailYet;
 	}
 
 	protected void tryRemoveEdge(Edge edge) {

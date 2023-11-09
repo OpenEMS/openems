@@ -100,6 +100,12 @@ public class MinuteTimer implements TimedExecutor {
 			this.isRunning = true;
 		}
 	}
+	
+	private void logDebugInfos() {
+		if (this.cycleCount % 5 == 0) {
+			this.log.debug("MinuteTimer[ Now:%s, Ticks:%s ]".formatted(now(), this.cycleCount));
+		}
+	}
 
 	protected synchronized void cycle() {
 		if (!this.isRunning) {
@@ -107,11 +113,9 @@ public class MinuteTimer implements TimedExecutor {
 		}
 
 		this.cycleCount++;
-		if (this.cycleCount % 60 == 0) {
-			this.log.debug("CYCLE:" + this.cycleCount);
-		}
+		this.logDebugInfos();
 
-		var now = ZonedDateTime.now(this.clock);
+		var now = this.now();
 
 		this.callSubscriber(now);
 		this.callSingleTasks(now);

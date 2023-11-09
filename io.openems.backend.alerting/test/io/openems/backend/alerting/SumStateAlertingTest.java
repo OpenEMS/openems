@@ -124,7 +124,7 @@ public class SumStateAlertingTest {
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = new Dummy.Config(15, false, true);
+		var config = new Dummy.TestConfig(15, false, true);
 		env.alerting.activate(config);
 
 		env.setState(Level.OK, "edge01", "edge02", "edge03", "edge04", "edge05", "edge06", "edge07");
@@ -183,7 +183,7 @@ public class SumStateAlertingTest {
 	public void deactiveTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = new Dummy.Config(5, false, false);
+		var config = new Dummy.TestConfig(5, false, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());

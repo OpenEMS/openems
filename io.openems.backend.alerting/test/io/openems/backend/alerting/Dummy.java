@@ -240,12 +240,15 @@ public class Dummy {
 	}
 
 	@SuppressWarnings("all")
-	public static class Config implements io.openems.backend.alerting.Config {
+	private static interface Config extends io.openems.backend.alerting.Config {
+	}
+
+	public static class TestConfig implements Config {
 		public final boolean notifyOnOffline;
 		public final boolean notifyOnSumStateChange;
 		public final int initialDelay;
 
-		public Config(int initDelay, boolean onOffline, boolean onSumState) {
+		public TestConfig(int initDelay, boolean onOffline, boolean onSumState) {
 			this.notifyOnOffline = onOffline;
 			this.notifyOnSumStateChange = onSumState;
 			this.initialDelay = initDelay;
