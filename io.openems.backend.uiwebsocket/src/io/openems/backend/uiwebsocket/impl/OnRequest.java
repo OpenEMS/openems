@@ -495,7 +495,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a {@link GetUserAlertingConfigsRequest}.
 	 *
-	 * @param user    {@User} who called the request
+	 * @param user    {@link User} who called the request
 	 * @param request the {@link SetUserAlertingConfigsRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsException on error
@@ -505,10 +505,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var edgeId = request.getEdgeId();
 		List<AlertingSetting> users;
 
-		if (user.getRole(edgeId).orElse(Role.GUEST).isLessThan(Role.ADMIN)) {
-			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
-		} else {
+		if (userIsAdmin(user, edgeId)) {
 			users = this.parent.metadata.getUserAlertingSettings(edgeId);
+		} else {
+			users = List.of(this.parent.metadata.getUserAlertingSettings(edgeId, user.getId()));
 		}
 
 		return CompletableFuture.completedFuture(//
@@ -518,7 +518,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	/**
 	 * Handles a {@link SetUserAlertingConfigsRequest}.
 	 *
-	 * @param user    {@User} who called the request
+	 * @param user    {@link User} who called the request
 	 * @param request the {@link SetUserAlertingConfigsRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsException      on error
@@ -527,14 +527,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetUserAlertingConfigsRequest(User user,
 			SetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		var role = user.getRole(edgeId).orElse(Role.GUEST);
 		var userId = user.getId();
 		var userSettings = request.getUserSettings();
 
 		var containsOtherUsersSettings = userSettings.stream() //
 				.anyMatch(u -> !Objects.equals(u.getUserId(), userId));
 
-		if (containsOtherUsersSettings && role.isLessThan(Role.ADMIN)) {
+		if (containsOtherUsersSettings && !userIsAdmin(user, edgeId)) {
 			throw new OpenemsException(
 					"Not allowed to update/set alerting information for other users as user [" + userId + "]");
 		}
@@ -542,6 +541,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		this.parent.metadata.setUserAlertingSettings(user, edgeId, request.getUserSettings());
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	private static boolean userIsAdmin(User user, String edgeId) {
+		return user.getRole(edgeId).map(role -> role.isAtLeast(Role.ADMIN)).orElse(false);
 	}
 
 	/**
@@ -580,5 +583,4 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture //
 				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetadata));
 	}
-
 }
