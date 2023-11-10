@@ -13,41 +13,40 @@ public interface MeterSiemensPac1600 extends ElectricityMeter, ModbusComponent, 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		
 		VOLTAGE_L1L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.MILLIVOLT)),
 		
 		VOLTAGE_L2L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.MILLIVOLT)),
 		
 		VOLTAGE_L3L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),
+				.unit(Unit.MILLIVOLT)),
 		
 		VOLTAGE_LL(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)),		
+				.unit(Unit.MILLIVOLT)),		
 		
 		REACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		
 		REACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS)),
-		
+				.unit(Unit.CUMULATED_WATT_HOURS)),
 		;
 
 		private final Doc doc;
