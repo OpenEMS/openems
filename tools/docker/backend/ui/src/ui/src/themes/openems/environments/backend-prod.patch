@@ -1,0 +1,4 @@
+8c8
+<         url: "ws://" + location.hostname + ":8079",
+---
+>         url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket",

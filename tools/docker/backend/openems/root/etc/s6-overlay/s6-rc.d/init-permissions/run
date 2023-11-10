@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# permissions
+lsiown -R abc:abc \
+    /config \
+    /data \
+    /app

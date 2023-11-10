@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  openems-edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - openems-edge-conf:/config:rw
+      - openems-edge-data:/data:rw
+    ports:
+      - 8080:8080
+
+  openems-ui:
+    image: openems/edge-ui:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/config:rw
+      - openems-ui-log:/log:rw
+    ports:
+      - 80:80
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+  openems-ui-conf:
+  openems-ui-log:
