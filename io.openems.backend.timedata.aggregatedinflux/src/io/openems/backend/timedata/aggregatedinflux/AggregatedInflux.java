@@ -43,13 +43,13 @@ import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -75,6 +75,9 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 
 	// map from edgeId to channelName and availableSince time stamp
 	private final Map<Integer, Map<String, Long>> availableSinceForEdge = new ConcurrentHashMap<>();
+
+	@Reference
+	private OpenemsBackendOem oem;
 
 	@Reference(//
 			cardinality = ReferenceCardinality.OPTIONAL, //
@@ -107,8 +110,8 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 				config.org(), WritePrecision.S, WriteConsistency.ALL);
 
 		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
-				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(),
-				config.maxQueueSize(), //
+				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(),
+				config.poolSize(), config.maxQueueSize(), //
 				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
 							+ ": " + throwable.getMessage());
@@ -271,7 +274,7 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 
 			final var point = Point //
 					.measurement(this.config.measurementAvg()) //
-					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+					.addTag(this.oem.getInfluxdbTag(), String.valueOf(influxEdgeId)) //
 					.time(timestampSeconds, WritePrecision.S);
 
 			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).stream() //
@@ -287,7 +290,7 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 
 				final var maxPoint = Point //
 						.measurement(measurementEntry.getValue()) //
-						.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+						.addTag(this.oem.getInfluxdbTag(), String.valueOf(influxEdgeId)) //
 						.time(truncatedTimestamp, WritePrecision.S);
 
 				channelPerType.getOrDefault(ChannelType.MAX, emptyList()).stream() //
@@ -316,8 +319,8 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 	}
 
 	private void setAvailableSince(int influxEdgeId, String channelName, long availableSince) {
-		this.influxConnector
-				.write(InfluxConnector.buildUpdateAvailableSincePoint(influxEdgeId, channelName, availableSince));
+		this.influxConnector.write(InfluxConnector.buildUpdateAvailableSincePoint(this.oem.getInfluxdbTag(),
+				influxEdgeId, channelName, availableSince));
 		this.availableSinceForEdge.computeIfAbsent(influxEdgeId, key -> new ConcurrentHashMap<>()) //
 				.put(channelName, availableSince);
 	}

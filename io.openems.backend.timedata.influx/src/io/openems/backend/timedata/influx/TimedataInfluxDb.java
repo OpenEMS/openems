@@ -32,7 +32,6 @@ import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.Timedata;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -40,6 +39,7 @@ import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
@@ -58,6 +58,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 
 	private final Logger log = LoggerFactory.getLogger(TimedataInfluxDb.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
+
+	@Reference
+	private OpenemsBackendOem oem;
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -88,8 +91,8 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 				+ "]");
 
 		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
-				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(),
-				config.maxQueueSize(), //
+				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(),
+				config.poolSize(), config.maxQueueSize(), //
 				(e) -> {
 					this.fieldTypeConflictHandler.handleException(e);
 				});
@@ -212,7 +215,7 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			// this builds an InfluxDB record ("point") for a given timestamp
 			var point = Point //
 					.measurement(this.config.measurement()) //
-					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+					.addTag(this.oem.getInfluxdbTag(), String.valueOf(influxEdgeId)) //
 					.time(timestamp, WritePrecision.MS);
 			for (var channelEntry : channelEntries) {
 				if (!shouldWriteValue.apply(influxEdgeId, channelEntry.getKey())) {

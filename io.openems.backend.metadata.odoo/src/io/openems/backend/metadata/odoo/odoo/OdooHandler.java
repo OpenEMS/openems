@@ -35,7 +35,6 @@ import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.odoo.Domain.Operator;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -400,7 +399,7 @@ public class OdooHandler {
 		var userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
 		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
 		var installerJson = JsonUtils.getAsJsonObject(setupProtocolJson, "installer");
-		var oem = OpenemsOEM.Manufacturer.valueOf(JsonUtils.getAsString(setupProtocolJson, "oem").toUpperCase());
+		var oem = JsonUtils.getAsString(setupProtocolJson, "oem").toUpperCase();
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -516,8 +515,7 @@ public class OdooHandler {
 	 * @return the Odoo user id
 	 * @throws OpenemsNamedException on error
 	 */
-	private int createOdooUser(JsonObject userJson, String password, OpenemsOEM.Manufacturer oem)
-			throws OpenemsNamedException {
+	private int createOdooUser(JsonObject userJson, String password, String oem) throws OpenemsNamedException {
 		var customerFields = new HashMap<>(this.updateAddress(userJson));
 		customerFields.putAll(this.updateCompany(userJson));
 
@@ -760,8 +758,7 @@ public class OdooHandler {
 	 * @param oem        OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject, OdooUserRole role, OpenemsOEM.Manufacturer oem)
-			throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OdooUserRole role, String oem) throws OpenemsNamedException {
 		var emailOpt = JsonUtils.getAsOptionalString(jsonObject, "email");
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
@@ -802,7 +799,7 @@ public class OdooHandler {
 	 * @param oem        OEM name
 	 * @throws OpenemsNamedException error
 	 */
-	private void sendRegistrationMail(int odooUserId, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	private void sendRegistrationMail(int odooUserId, String oem) throws OpenemsNamedException {
 		this.sendRegistrationMail(odooUserId, null, oem);
 	}
 
@@ -813,7 +810,7 @@ public class OdooHandler {
 	 * @param password   password for the user
 	 * @param oem        OEM name
 	 */
-	private void sendRegistrationMail(int odooUserId, String password, OpenemsOEM.Manufacturer oem) {
+	private void sendRegistrationMail(int odooUserId, String password, String oem) {
 		try {
 			OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
 					JsonUtils.buildJsonObject() //
