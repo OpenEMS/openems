@@ -11,7 +11,7 @@ import { Service, Utils } from '../../shared';
 
 @Component({
     selector: 'pickdatepopover',
-    templateUrl: './popover.component.html'
+    templateUrl: './popover.component.html',
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -34,7 +34,7 @@ export class PickDatePopoverComponent implements OnInit {
                    border-bottom: 2px solid #2d8fab;
                    color: #2d8fab;
                 }
-             `
+             `,
         },
         calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
         dateFormat: 'dd.mm.yyyy',
@@ -44,13 +44,13 @@ export class PickDatePopoverComponent implements OnInit {
         inline: true,
         selectorHeight: '225px',
         selectorWidth: '251px',
-        showWeekNumbers: true
+        showWeekNumbers: true,
     };
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService
+        public translate: TranslateService,
     ) { }
 
     ngOnInit() {

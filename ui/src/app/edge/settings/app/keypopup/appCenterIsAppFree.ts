@@ -42,7 +42,7 @@ export namespace AppCenterIsAppFree {
         public constructor(
             public override readonly params: {
                 appId: string,
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -54,7 +54,7 @@ export namespace AppCenterIsAppFree {
             public override readonly id: string,
             public override readonly result: {
                 isAppFree: boolean
-            }
+            },
         ) {
             super(id, result);
         }

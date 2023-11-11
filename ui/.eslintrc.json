@@ -59,7 +59,7 @@
         "curly": "error",
         "comma-dangle": [
           "error",
-          "never"
+          "always-multiline"
         ],
         "eol-last": [
           "error",

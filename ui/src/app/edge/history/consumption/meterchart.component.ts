@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionMeterChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class ConsumptionMeterChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +25,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("consumption-meter-chart", service, translate);
     }
@@ -70,11 +70,11 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                     datasets.push({
                         label: this.translate.instant('General.consumption'),
                         data: activePowerData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)'
+                        borderColor: 'rgba(253,197,7,1)',
                     });
                 }
             });
@@ -92,7 +92,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower')
+                new ChannelAddress(this.componentId, 'ActivePower'),
             ];
             let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));

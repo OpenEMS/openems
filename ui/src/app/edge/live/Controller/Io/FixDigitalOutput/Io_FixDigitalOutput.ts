@@ -6,7 +6,7 @@ import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.comp
 
 @Component({
   selector: 'Controller_Io_FixDigitalOutput',
-  templateUrl: './Io_FixDigitalOutput.html'
+  templateUrl: './Io_FixDigitalOutput.html',
 })
 export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget {
 
@@ -37,8 +37,8 @@ export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget 
       component: Controller_Io_FixDigitalOutputModalComponent,
       componentProps: {
         component: this.component,
-        edge: this.edge
-      }
+        edge: this.edge,
+      },
     });
     return await modal.present();
   }

@@ -13,16 +13,16 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Consumption', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.6,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -35,7 +35,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     constructor(
         unitpipe: UnitvaluePipe,
         translate: TranslateService,
-        service: Service
+        service: Service,
     ) {
         super('General.consumption', "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
@@ -119,7 +119,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
+            middleRight: { x: r - v, y: 0 },
         };
         if (ratio > 0) {
             // towards right
@@ -141,7 +141,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
             bottomLeft: { x: v, y: v },
             topRight: { x: r, y: v * -1 },
             bottomRight: { x: r, y: v },
-            middleRight: { x: r - v, y: 0 }
+            middleRight: { x: r - v, y: 0 },
         };
         if (ratio > 0) {
             // towards right

@@ -6,7 +6,7 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 
 @Component({
     selector: 'timeslotpeakshaving-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
@@ -23,36 +23,36 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket
+        public websocket: Websocket,
     ) { }
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),
             slowChargeStartTime: new FormControl(this.component.properties.slowChargeStartTime, Validators.compose([
                 Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
-                Validators.required
+                Validators.required,
             ])),
             startDate: new FormControl(this.component.properties.startDate, Validators.compose([
                 Validators.pattern('^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)[0-9]{2}$'),
-                Validators.required
+                Validators.required,
             ])),
             startTime: new FormControl(this.component.properties.startTime, Validators.compose([
                 Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
-                Validators.required
+                Validators.required,
             ])),
             endDate: new FormControl(this.component.properties.endDate),
             endTime: new FormControl(this.component.properties.endTime, Validators.compose([
                 Validators.pattern('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'),
-                Validators.required
+                Validators.required,
             ])),
             monday: new FormControl(this.component.properties.monday),
             tuesday: new FormControl(this.component.properties.tuesday),
@@ -60,7 +60,7 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
             thursday: new FormControl(this.component.properties.thursday),
             friday: new FormControl(this.component.properties.friday),
             saturday: new FormControl(this.component.properties.saturday),
-            sunday: new FormControl(this.component.properties.sunday)
+            sunday: new FormControl(this.component.properties.sunday),
         });
     }
 

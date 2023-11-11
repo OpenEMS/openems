@@ -42,7 +42,7 @@ export namespace UpdateAppInstance {
                 instanceId: string,
                 alias: string,
                 properties: {}
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -56,7 +56,7 @@ export namespace UpdateAppInstance {
             public override readonly result: {
                 instance: GetAppInstances.AppInstance,
                 warnings: String[]
-            }
+            },
         ) {
             super(id, result);
         }
