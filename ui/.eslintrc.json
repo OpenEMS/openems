@@ -60,6 +60,10 @@
         "comma-dangle": [
           "error",
           "never"
+        ],
+        "eol-last": [
+          "error",
+          "always"
         ]
       }
     },
