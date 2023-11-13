@@ -77,7 +77,7 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
       new ChannelAddress(this.controller?.id, '_PropertyChargeMode'),
       new ChannelAddress(this.controller?.id, '_PropertyEnabledCharging'),
-      new ChannelAddress(this.controller?.id, '_PropertyDefaultChargeMinPower')
+      new ChannelAddress(this.controller?.id, '_PropertyDefaultChargeMinPower'),
     ];
   }
 
@@ -151,7 +151,7 @@ export class ModalComponent extends AbstractModal {
       energySessionLimit: new FormControl(this.controller?.properties.energySessionLimit),
       // EnergySessionLimit as kWh value, for ion-range
       energySessionLimitKwh: new FormControl(Math.round(this.controller?.properties.energySessionLimit / 1000)),
-      enabledCharging: new FormControl(this.isChargingEnabled)
+      enabledCharging: new FormControl(this.isChargingEnabled),
     });
   }
 
