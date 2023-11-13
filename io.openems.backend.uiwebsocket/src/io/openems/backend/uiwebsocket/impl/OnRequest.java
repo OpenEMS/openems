@@ -503,7 +503,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
 			GetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		List<AlertingSetting> users;
+		List<UserAlertingSettings> users;
 
 		if (userIsAdmin(user, edgeId)) {
 			users = this.parent.metadata.getUserAlertingSettings(edgeId);
