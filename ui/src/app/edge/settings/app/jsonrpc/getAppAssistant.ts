@@ -41,7 +41,7 @@ export namespace GetAppAssistant {
         public constructor(
             public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -51,7 +51,7 @@ export namespace GetAppAssistant {
 
         public constructor(
             public override readonly id: string,
-            public override readonly result: AppAssistant
+            public override readonly result: AppAssistant,
         ) {
             super(id, result);
         }

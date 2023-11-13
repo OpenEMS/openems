@@ -32,7 +32,7 @@ export class GetNetworkConfigResponse extends JsonrpcResponseSuccess {
             interfaces: {
                 [name: string]: NetworkInterface
             }
-        }
+        },
     ) {
         super(id, result);
     }

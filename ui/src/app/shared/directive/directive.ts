@@ -4,19 +4,19 @@ import { VarDirective } from './ngvar';
 
 @NgModule({
     imports: [
-        BrowserModule
+        BrowserModule,
     ],
     entryComponents: [
-        VarDirective
+        VarDirective,
     ],
     declarations: [
-        VarDirective
+        VarDirective,
     ],
     exports: [
-        VarDirective
+        VarDirective,
     ],
     providers: [
-        VarDirective
-    ]
+        VarDirective,
+    ],
 })
 export class DirectiveModule { }

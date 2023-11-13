@@ -7,7 +7,7 @@ import { Mode, WorkMode } from 'src/app/shared/type/general';
 
 @Component({
     selector: 'heatingelement-modal',
-    templateUrl: './modal.html'
+    templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
@@ -35,7 +35,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             outputChannelPhaseTwo,
             outputChannelPhaseThree,
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
-            new ChannelAddress(this.component.id, '_PropertyWorkMode')
+            new ChannelAddress(this.component.id, '_PropertyWorkMode'),
         ];
         return channelAddresses;
     }
@@ -68,7 +68,7 @@ export class ModalComponent extends AbstractModal implements OnInit {
             endTime: new FormControl(this.component.properties.endTime),
             workMode: new FormControl(this.component.properties.workMode),
             defaultLevel: new FormControl(this.component.properties.defaultLevel),
-            mode: new FormControl(this.mode)
+            mode: new FormControl(this.mode),
         });
     }
 

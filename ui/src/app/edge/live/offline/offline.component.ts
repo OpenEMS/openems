@@ -3,14 +3,14 @@ import { Edge, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: 'offline',
-    templateUrl: './offline.component.html'
+    templateUrl: './offline.component.html',
 })
 export class OfflineComponent implements OnInit {
 
     public edge: Edge | null = null;
 
     constructor(
-        public service: Service
+        public service: Service,
     ) { }
 
     ngOnInit() {

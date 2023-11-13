@@ -9,20 +9,20 @@ import { OverviewComponent } from './overview/overview';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule
+    SharedModule,
   ],
   entryComponents: [
-    FlatComponent
+    FlatComponent,
   ],
   declarations: [
     FlatComponent,
     ChartComponent,
-    OverviewComponent
+    OverviewComponent,
   ],
   exports: [
     FlatComponent,
     ChartComponent,
-    OverviewComponent
-  ]
+    OverviewComponent,
+  ],
 })
 export class Common_Grid { }

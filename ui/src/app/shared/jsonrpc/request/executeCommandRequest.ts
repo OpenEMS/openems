@@ -29,7 +29,7 @@ export class ExecuteSystemCommandRequest extends JsonrpcRequest {
             timeoutSeconds: number,
             username?: string,
             password?: string
-        }
+        },
     ) {
         super(ExecuteSystemCommandRequest.METHOD, params);
     }

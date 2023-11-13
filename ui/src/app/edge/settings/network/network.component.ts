@@ -20,7 +20,7 @@ export type InterfaceForm = {
 
 @Component({
   selector: NetworkComponent.SELECTOR,
-  templateUrl: './network.component.html'
+  templateUrl: './network.component.html',
 })
 export class NetworkComponent implements OnInit {
 
@@ -34,7 +34,7 @@ export class NetworkComponent implements OnInit {
     private translate: TranslateService,
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   public ngOnInit() {
@@ -88,7 +88,7 @@ export class NetworkComponent implements OnInit {
       addressJson.push({
         label: '', //TODO with specific labels with specific systems.
         address: ip[0],
-        subnetmask: subnetmask
+        subnetmask: subnetmask,
       });
     }
 
@@ -103,7 +103,7 @@ export class NetworkComponent implements OnInit {
       addressJson.push({
         label: 'static',
         address: iface.model.ip,
-        subnetmask: iface.model.subnetmask
+        subnetmask: iface.model.subnetmask,
       });
     }
 
@@ -111,7 +111,7 @@ export class NetworkComponent implements OnInit {
     iface.model.addresses = addressJson;
 
     let request = {
-      interfaces: {}
+      interfaces: {},
     };
     request.interfaces[iface.name] = iface.model;
     const interfaceName = iface.name === 'eth0' ? 'eth0' : iface.name;
@@ -119,7 +119,7 @@ export class NetworkComponent implements OnInit {
     // Sends the request to edge with the configuration.
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
-        componentId: '_host', payload: new SetNetworkConfigRequest(request)
+        componentId: '_host', payload: new SetNetworkConfigRequest(request),
       })).then(response => {
         this.service.toast(this.translate.instant('Edge.Network.successUpdate') + '[' + interfaceName + '].', 'success');
       }).catch(reason => {
@@ -191,7 +191,7 @@ export class NetworkComponent implements OnInit {
       name: name,
       fields: this.fillFields(addressArray),
       formGroup: new FormGroup({}),
-      model: source
+      model: source,
     });
   }
 
@@ -207,8 +207,8 @@ export class NetworkComponent implements OnInit {
         type: 'checkbox',
         defaultValue: true,
         templateOptions: {
-          label: 'DHCP'
-        }
+          label: 'DHCP',
+        },
       },
       {
         hideExpression: 'model.dhcp',
@@ -218,11 +218,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: this.translate.instant('Edge.Network.ipAddress'),
           placeholder: 'z.B. 192.168.0.50',
-          required: true
+          required: true,
         },
         validators: {
-          validation: ['ip']
-        }
+          validation: ['ip'],
+        },
       },
       {
         hideExpression: 'model.dhcp',
@@ -232,11 +232,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: this.translate.instant('Edge.Network.subnetmask'),
           placeholder: 'z.B. 255.255.255.0',
-          required: true
+          required: true,
         },
         validators: {
-          validation: ['subnetmask']
-        }
+          validation: ['subnetmask'],
+        },
       },
       {
         hideExpression: 'model.dhcp',
@@ -246,11 +246,11 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: 'Gateway',
           placeholder: 'z.B. 192.168.0.1',
-          required: true
+          required: true,
         },
         validators: {
-          validation: ['ip']
-        }
+          validation: ['ip'],
+        },
       },
       {
         hideExpression: 'model.dhcp',
@@ -260,20 +260,20 @@ export class NetworkComponent implements OnInit {
         templateOptions: {
           label: 'DNS-Server',
           placeholder: 'z.B. 192.168.0.1',
-          required: true
+          required: true,
         },
         validators: {
-          validation: ['ip']
-        }
+          validation: ['ip'],
+        },
       },
       {
         key: 'linkLocalAddressing',
         type: 'checkbox',
         resetOnHide: false,
         templateOptions: {
-          label: 'Link-Local Address (z. B. 169.254.XXX.XXX)'
+          label: 'Link-Local Address (z. B. 169.254.XXX.XXX)',
         },
-        hide: true
+        hide: true,
       },
       {
         hide: true,
@@ -282,13 +282,13 @@ export class NetworkComponent implements OnInit {
         resetOnHide: false,
         defaultValue: addressArray,
         templateOptions: {
-          label: this.translate.instant('Edge.Network.addIP')
+          label: this.translate.instant('Edge.Network.addIP'),
         },
         fieldArray: {
           type: 'input',
-          resetOnHide: false
-        }
-      }
+          resetOnHide: false,
+        },
+      },
     ];
 
     return fields;

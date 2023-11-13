@@ -58,7 +58,7 @@ export namespace AppCenterIsKeyApplicable {
             public override readonly params: {
                 key: string,
                 appId: string,
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -82,7 +82,7 @@ export namespace AppCenterIsKeyApplicable {
                         installedInstances: number
                     }[]
                 }
-            }
+            },
         ) {
             super(id, result);
         }

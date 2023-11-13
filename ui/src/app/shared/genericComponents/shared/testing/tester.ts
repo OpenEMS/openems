@@ -19,7 +19,7 @@ export class OeFormlyViewTester {
       title: view.title,
       lines: view.lines
         .map(line => OeFormlyViewTester.applyField(line, context))
-        .filter(line => line)
+        .filter(line => line),
     };
   };
 
@@ -34,7 +34,7 @@ export class OeFormlyViewTester {
         // Prepare result
         let result: OeFormlyViewTester.Field.ChildrenLine = {
           type: field.type,
-          name: tmp.value
+          name: tmp.value,
         };
 
         // Apply properties if available
@@ -68,7 +68,7 @@ export class OeFormlyViewTester {
         // Prepare result
         let result: OeFormlyViewTester.Field.ChannelLine = {
           type: field.type,
-          name: name
+          name: name,
         };
 
         // Apply properties if available
@@ -100,7 +100,7 @@ export class OeFormlyViewTester {
         // Prepare result
         let result: OeFormlyViewTester.Field.ValueLine = {
           type: field.type,
-          name: name
+          name: name,
         };
 
         // Apply properties if available
@@ -125,7 +125,7 @@ export class OeFormlyViewTester {
 
         return {
           type: field.type,
-          value: tmp.value
+          value: tmp.value,
         };
       }
 
@@ -135,7 +135,7 @@ export class OeFormlyViewTester {
       case "info-line": {
         return {
           type: field.type,
-          name: field.name
+          name: field.name,
         };
       }
 
@@ -144,7 +144,7 @@ export class OeFormlyViewTester {
        */
       case "horizontal-line": {
         return {
-          type: field.type
+          type: field.type,
         };
       }
     }
@@ -176,7 +176,7 @@ export class OeFormlyViewTester {
 
     return {
       rawValue: rawValue,
-      value: value
+      value: value,
     };
   }
 }
@@ -230,7 +230,7 @@ export class OeChartTester {
     testContext.service.historyPeriod.next({
       from: new Date(channelData.result.timestamps[0] ?? 0),
       to: new Date(channelData.result.timestamps.reverse()[0] ?? 0),
-      getText: () => testContext.service.historyPeriod.value.getText(testContext.translate)
+      getText: () => testContext.service.historyPeriod.value.getText(testContext.translate),
     });
 
     // Fill Data
@@ -243,8 +243,8 @@ export class OeChartTester {
       datasets: {
         data: data,
         labels: labels,
-        options: options
-      }
+        options: options,
+      },
     };
   };
 
@@ -257,7 +257,7 @@ export class OeChartTester {
   public static convertChartLabelsToLegendLabels(labels: Date[]): OeChartTester.Dataset.LegendLabel {
     return {
       type: 'label',
-      timestamps: labels
+      timestamps: labels,
     };
   }
 
@@ -275,7 +275,7 @@ export class OeChartTester {
         {
           type: 'data',
           label: dataset.label,
-          value: dataset.data as number[]
+          value: dataset.data as number[],
         });
     }
 
@@ -305,7 +305,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result)
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result),
     };
   }
 
@@ -391,7 +391,7 @@ export namespace OeFormlyViewTester {
 
     return {
       rawValue: rawValue,
-      value: value
+      value: value,
     };
   }
 
@@ -414,7 +414,7 @@ export namespace OeFormlyViewTester {
 
     return {
       rawValues: rawValues,
-      value: value
+      value: value,
     };
   }
 }

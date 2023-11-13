@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: GridOptimizedChargeChartOverviewComponent.SELECTOR,
-    templateUrl: './gridoptimizedchargechartoverview.component.html'
+    templateUrl: './gridoptimizedchargechartoverview.component.html',
 })
 export class GridOptimizedChargeChartOverviewComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class GridOptimizedChargeChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

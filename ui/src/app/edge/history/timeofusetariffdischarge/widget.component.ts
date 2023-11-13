@@ -7,7 +7,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: TimeOfUseTariffDischargeWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -23,7 +23,7 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super(service);
     }

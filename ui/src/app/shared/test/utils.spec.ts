@@ -14,18 +14,18 @@ export type TestContext = { translate: TranslateService, service: Service };
 export function sharedSetup(): TestContext {
     TestBed.configureTestingModule({
         imports: [
-            TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key })
+            TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key }),
         ],
         providers: [
             TranslateService,
             { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
-            Service
-        ]
+            Service,
+        ],
     }).compileComponents();
     registerLocaleData(localeDe, 'de', localeDeExtra);
     return {
         translate: TestBed.inject(TranslateService),
-        service: TestBed.inject(Service)
+        service: TestBed.inject(Service),
     };
 };
 
