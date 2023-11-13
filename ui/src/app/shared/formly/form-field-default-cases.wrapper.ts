@@ -4,7 +4,7 @@ import { FieldWrapper } from '@ngx-formly/core';
 
 @Component({
     selector: 'formly-wrapper-default-of-cases',
-    template: `<ng-container #fieldComponent ></ng-container>`
+    template: `<ng-container #fieldComponent ></ng-container>`,
 })
 export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper implements OnInit {
 

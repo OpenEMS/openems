@@ -9,7 +9,7 @@ import { StorageModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'storage',
-    templateUrl: './storage.component.html'
+    templateUrl: './storage.component.html',
 })
 export class StorageComponent extends AbstractFlatWidget {
 
@@ -34,7 +34,7 @@ export class StorageComponent extends AbstractFlatWidget {
             // TODO should be moved to Modal
             new ChannelAddress('_sum', 'EssActivePowerL1'),
             new ChannelAddress('_sum', 'EssActivePowerL2'),
-            new ChannelAddress('_sum', 'EssActivePowerL3')
+            new ChannelAddress('_sum', 'EssActivePowerL3'),
         ];
 
         this.prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
@@ -42,7 +42,7 @@ export class StorageComponent extends AbstractFlatWidget {
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties['ess.id']]: component
+                    [component.properties['ess.id']]: component,
                 };
             }, {});
 
@@ -52,7 +52,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
-                new ChannelAddress(controller.id, "_PropertyIsRunning")
+                new ChannelAddress(controller.id, "_PropertyIsRunning"),
             );
         }
 
@@ -63,14 +63,14 @@ export class StorageComponent extends AbstractFlatWidget {
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties['ess.id']]: component
+                    [component.properties['ess.id']]: component,
                 };
             }, {});
         for (let component of Object.values(this.emergencyReserveComponents)) {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, '_PropertyReserveSoc'),
-                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled')
+                new ChannelAddress(component.id, '_PropertyIsReserveSocEnabled'),
             );
         }
         // Get Chargers
@@ -80,7 +80,7 @@ export class StorageComponent extends AbstractFlatWidget {
             .filter(component => component.isEnabled);
         for (let component of this.chargerComponents) {
             channelAddresses.push(
-                new ChannelAddress(component.id, 'ActualPower')
+                new ChannelAddress(component.id, 'ActualPower'),
             );
         }
 
@@ -104,13 +104,13 @@ export class StorageComponent extends AbstractFlatWidget {
 
             channelAddresses.push(
                 new ChannelAddress(component.id, 'Soc'),
-                new ChannelAddress(component.id, 'Capacity')
+                new ChannelAddress(component.id, 'Capacity'),
             );
             if (this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.ess.api.AsymmetricEss")) {
                 channelAddresses.push(
                     new ChannelAddress(component.id, 'ActivePowerL1'),
                     new ChannelAddress(component.id, 'ActivePowerL2'),
-                    new ChannelAddress(component.id, 'ActivePowerL3')
+                    new ChannelAddress(component.id, 'ActivePowerL3'),
                 );
             }
         }
@@ -147,7 +147,7 @@ export class StorageComponent extends AbstractFlatWidget {
                     currentData.allComponents[controller.id + '/_PropertyIsRunning'] == 1,
                     currentData.allComponents[controller.id + '/CtrlIsBlockingEss'],
                     currentData.allComponents[controller.id + '/CtrlIsChargingEss'],
-                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss']
+                    currentData.allComponents[controller.id + '/CtrlIsDischargingEss'],
                 ));
         }
 
@@ -217,8 +217,8 @@ export class StorageComponent extends AbstractFlatWidget {
                 component: this.component,
                 essComponents: this.essComponents,
                 chargerComponents: this.chargerComponents,
-                singleComponent: this.component
-            }
+                singleComponent: this.component,
+            },
         });
         return await modal.present();
     }

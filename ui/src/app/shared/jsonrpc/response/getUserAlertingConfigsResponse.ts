@@ -38,7 +38,7 @@ export class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
         public override readonly id: string,
         public override readonly result: {
             userSettings: UserSettingResponse[]
-        }
+        },
     ) {
         super(id, result);
     }

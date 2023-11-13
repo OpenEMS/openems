@@ -31,7 +31,7 @@ export class GetEdgesRequest extends JsonrpcRequest {
             query?: string,
             limit?: number,
             searchParams?: {}
-        }
+        },
     ) {
         super(GetEdgesRequest.METHOD, params);
     }

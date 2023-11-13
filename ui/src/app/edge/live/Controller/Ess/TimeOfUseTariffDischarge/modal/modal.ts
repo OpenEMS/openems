@@ -4,7 +4,7 @@ import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractMo
 import { ChannelAddress, Currency, CurrentData } from 'src/app/shared/shared';
 
 @Component({
-    templateUrl: './modal.html'
+    templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal {
 
@@ -14,13 +14,13 @@ export class ModalComponent extends AbstractModal {
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
-            mode: new FormControl(this.component.properties.mode)
+            mode: new FormControl(this.component.properties.mode),
         });
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
-            new ChannelAddress(this.component.id, 'QuarterlyPrices')
+            new ChannelAddress(this.component.id, 'QuarterlyPrices'),
         ];
     }
 

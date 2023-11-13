@@ -446,7 +446,7 @@ export class Utils {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
     });
 
     saveAs(data, filename + '.xlsx');
@@ -496,7 +496,7 @@ export class Utils {
       } else {
         return /* min 0 */ Math.max(0,
         /* max 100 */ Math.min(100,
-          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
 
@@ -585,7 +585,7 @@ export namespace HistoryUtils {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
-      hidden: false
+      hidden: false,
     }];
   }
 

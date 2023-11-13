@@ -17,7 +17,7 @@ type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOpt
 
 @Component({
   selector: AlertingComponent.SELECTOR,
-  templateUrl: './alerting.component.html'
+  templateUrl: './alerting.component.html',
 })
 export class AlertingComponent implements OnInit {
   protected static readonly SELECTOR = "alerting";
@@ -39,7 +39,7 @@ export class AlertingComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
   ) { }
 
   public ngOnInit(): void {
@@ -88,19 +88,19 @@ export class AlertingComponent implements OnInit {
       formGroup: new FormGroup({}),
       options: {
         formState: {
-          awesomeIsForced: false
-        }
+          awesomeIsForced: false,
+        },
       },
       model: {
         isActivated: userSettings.offlineEdgeDelay > 0,
-        delayTime: userSettings.offlineEdgeDelay
+        delayTime: userSettings.offlineEdgeDelay,
       },
       fields: [{
         key: 'isActivated',
         type: 'checkbox',
         templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.activate')
-        }
+          label: this.translate.instant('Edge.Config.Alerting.activate'),
+        },
       },
       {
         key: 'delayTime',
@@ -109,11 +109,11 @@ export class AlertingComponent implements OnInit {
           label: this.translate.instant('Edge.Config.Alerting.delay'),
           type: 'number',
           required: true,
-          options: delays
+          options: delays,
         },
-        hideExpression: model => !model.isActivated
-      }
-      ]
+        hideExpression: model => !model.isActivated,
+      },
+      ],
     };
   }
 
@@ -169,11 +169,11 @@ export class AlertingComponent implements OnInit {
       offlineEdgeDelay: userSetting.offlineEdgeDelay,
       faultEdgeDelay: 0,
       warningEdgeDelay: 0,
-      options: this.getDelayOptions(delay)
+      options: this.getDelayOptions(delay),
     });
     roleSetting.form.addControl(userSetting.userLogin, this.formBuilder.group({
       isActivated: new FormControl(activated),
-      delayTime: new FormControl(delay)
+      delayTime: new FormControl(delay),
     }));
   }
 
@@ -246,7 +246,7 @@ export class AlertingComponent implements OnInit {
         userLogin: this.currentUserInformation.userLogin,
         offlineEdgeDelay: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
         faultEdgeDelay: 0,
-        warningEdgeDelay: 0
+        warningEdgeDelay: 0,
       });
     }
 
@@ -265,7 +265,7 @@ export class AlertingComponent implements OnInit {
                 userLogin: user.userLogin,
                 offlineEdgeDelay: isActivated ? delayTime : 0,
                 warningEdgeDelay: 0,
-                faultEdgeDelay: 0
+                faultEdgeDelay: 0,
               });
               userOptions.push(user);
             }

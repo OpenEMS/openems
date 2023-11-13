@@ -17,7 +17,7 @@ export class EdgeConfigNotification extends JsonrpcNotification {
     public static readonly METHOD: string = "edgeConfig";
 
     public constructor(
-        public override readonly params: EdgeConfig
+        public override readonly params: EdgeConfig,
     ) {
         super(EdgeConfigNotification.METHOD, params);
     }
