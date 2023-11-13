@@ -126,7 +126,8 @@ public class TestOfflineEdgeHandler {
 		final var edgeMeta = new Utility.ToManyEdgesMetadata();
 		final var edgeMsgsch = new MessageSchedulerServiceImpl();
 		final var edgeCount = new AtomicInteger();
-		edgeMeta.getAllOfflineEdges().stream().map(e -> edgeMeta.getUserAlertingSettings(e.getId()))
+		edgeMeta.getAllOfflineEdges().stream() //
+				.map(e -> edgeMeta.getUserAlertingSettings(e.getId())) //
 				.forEach(e -> {
 					edgeCount.getAndIncrement();
 				});
@@ -205,12 +206,12 @@ public class TestOfflineEdgeHandler {
 			private final ZonedDateTime now = ZonedDateTime.now();
 			private final ZonedDateTime yesterday = this.now.minusDays(1);
 
-			private List<AlertingSetting> userList = List.of(
-					new AlertingSetting(1, "user0", null, this.yesterday, 60),
-					new AlertingSetting(1, "user1", null, this.yesterday, 15),
-					new AlertingSetting(1, "user2", null, this.yesterday, 10),
-					new AlertingSetting(1, "user3", null, this.yesterday, 30),
-					new AlertingSetting(1, "user4", null, this.yesterday, 30),
+			private List<AlertingSetting> userList = List.of(//
+					new AlertingSetting(1, "user0", null, this.yesterday, 60), //
+					new AlertingSetting(1, "user1", null, this.yesterday, 15), //
+					new AlertingSetting(1, "user2", null, this.yesterday, 10), //
+					new AlertingSetting(1, "user3", null, this.yesterday, 30), //
+					new AlertingSetting(1, "user4", null, this.yesterday, 30), //
 					new AlertingSetting(1, "user5", null, this.yesterday, 1440));
 
 			@Override

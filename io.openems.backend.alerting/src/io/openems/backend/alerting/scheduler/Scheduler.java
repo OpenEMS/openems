@@ -27,7 +27,7 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 	}
 
 	public Scheduler() {
-		this(MinuteTimerAsync.getInstance());
+		this(new MinuteTimerAsync());
 	}
 
 	@Override

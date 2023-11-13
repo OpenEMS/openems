@@ -19,8 +19,8 @@ import com.google.gson.JsonElement;
 
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
-import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
+import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
@@ -111,7 +111,7 @@ public class Dummy {
 		public Collection<Edge> getAllOfflineEdges() {
 			return this.edges.stream().filter(Edge::isOffline).toList();
 		}
-		
+
 		@Override
 		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
 			return this.alertingSettings.get(edgeId);

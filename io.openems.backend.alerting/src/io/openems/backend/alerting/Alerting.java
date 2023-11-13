@@ -38,7 +38,6 @@ import io.openems.common.event.EventReader;
 )
 @EventTopics({ //
 		Edge.Events.ON_SET_ONLINE, //
-		Edge.Events.ON_SET_SUM_STATE, //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler {
@@ -77,7 +76,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	private final Scheduler scheduler;
 
-	protected final List<Handler<?>> handler = new ArrayList<>(2);
+	protected final List<Handler<?>> handler = new ArrayList<>(1);
 
 	protected Alerting(Scheduler scheduler, Executor executor) {
 		super("Alerting");

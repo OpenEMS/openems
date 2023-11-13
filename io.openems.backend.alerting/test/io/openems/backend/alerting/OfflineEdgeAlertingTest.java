@@ -51,18 +51,18 @@ public class OfflineEdgeAlertingTest {
 			this.createEdge(1, false, null);
 			this.createEdge(2, true, now);
 			this.createEdge(3, true, now, //
-					new SimpleAlertingSetting("user01", 0), //never
-					new SimpleAlertingSetting("user02", 0)); //never
+					new SimpleAlertingSetting("user01", 0), // never
+					new SimpleAlertingSetting("user02", 0)); // never
 			this.createEdge(4, true, now, //
-					new SimpleAlertingSetting("user01", 30), //30m after offline
-					new SimpleAlertingSetting("user02", 60)); //60m after offline
+					new SimpleAlertingSetting("user01", 30), // 30m after offline
+					new SimpleAlertingSetting("user02", 60)); // 60m after offline
 			this.createEdge(5, false, now.minusHours(12), //
-					new SimpleAlertingSetting("user02", 60), //after initialization
-					new SimpleAlertingSetting("user03", 1440));//12h after initialization
+					new SimpleAlertingSetting("user02", 60), // after initialization
+					new SimpleAlertingSetting("user03", 1440));// 12h after initialization
 			this.createEdge(6, false, now.minusMonths(1), //
-					new SimpleAlertingSetting("user01", 30)); //never (to long offline)
+					new SimpleAlertingSetting("user01", 30)); // never (to long offline)
 			this.createEdge(7, true, now, //
-					new SimpleAlertingSetting("user04", 60)); //60m after offline
+					new SimpleAlertingSetting("user04", 60)); // 60m after offline
 
 			this.meta.initialize(this.edges.values(), this.settings);
 			this.scheduler = new Scheduler(this.timer);
@@ -77,8 +77,7 @@ public class OfflineEdgeAlertingTest {
 			this.alerting.metadata = this.meta;
 		}
 
-		public void createEdge(int id, boolean online, ZonedDateTime lastMessage,
-				SimpleAlertingSetting... settings) {
+		public void createEdge(int id, boolean online, ZonedDateTime lastMessage, SimpleAlertingSetting... settings) {
 			var edgeName = "edge%d".formatted(id);
 			var edge = new Edge(this.meta, edgeName, null, null, null, lastMessage);
 			edge.setOnline(online);
@@ -188,7 +187,7 @@ public class OfflineEdgeAlertingTest {
 		assertEquals(1, env.mailer.getMailsCount());
 
 		env.alerting.deactivate();
-		
+
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(1, env.mailer.getMailsCount());
 	}

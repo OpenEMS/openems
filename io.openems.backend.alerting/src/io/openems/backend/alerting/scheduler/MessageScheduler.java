@@ -37,13 +37,14 @@ public class MessageScheduler<T extends Message> {
 	 * @param msg to add
 	 */
 	public void schedule(T msg) {
-		if (msg != null) {
-			synchronized (this) {
-				this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
-					this.queue.add(msg);
-					return msg;
-				});
-			}
+		if (msg == null) {
+			return;
+		}
+		synchronized (this) {
+			this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
+				this.queue.add(msg);
+				return msg;
+			});
 		}
 	}
 
@@ -53,12 +54,13 @@ public class MessageScheduler<T extends Message> {
 	 * @param msgId for message to remove
 	 */
 	public void remove(String msgId) {
-		if (msgId != null) {
-			synchronized (this) {
-				var msg = this.messageForId.remove(msgId);
-				if (msg != null) {
-					this.queue.remove(msg);
-				}
+		if (msgId == null) {
+			return;
+		}
+		synchronized (this) {
+			var msg = this.messageForId.remove(msgId);
+			if (msg != null) {
+				this.queue.remove(msg);
 			}
 		}
 	}
@@ -103,7 +105,7 @@ public class MessageScheduler<T extends Message> {
 	 */
 	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();
-		while (this.hasTimeElapsed(now, this.queue.peek())) {
+		while (this.hasTimeElapsed(now, this.peek())) {
 			msgs.add(this.poll());
 		}
 		if (!msgs.isEmpty()) {
@@ -122,6 +124,12 @@ public class MessageScheduler<T extends Message> {
 				this.messageForId.remove(msg.getId());
 			}
 			return msg;
+		}
+	}
+
+	private T peek() {
+		synchronized (this) {
+			return this.queue.peek();
 		}
 	}
 

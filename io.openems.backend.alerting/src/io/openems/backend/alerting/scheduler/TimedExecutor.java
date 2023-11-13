@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
 public interface TimedExecutor {
- 
+
 	public static class TimedTask implements Comparable<TimedTask> {
 		protected final ZonedDateTime executeAt;
 		protected final Consumer<ZonedDateTime> task;
