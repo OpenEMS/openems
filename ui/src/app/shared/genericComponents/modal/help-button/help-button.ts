@@ -4,7 +4,7 @@ import { environment } from 'src/environments';
 
 @Component({
     selector: 'oe-help-button',
-    templateUrl: './help-button.html'
+    templateUrl: './help-button.html',
 })
 export class HelpButtonComponent {
 

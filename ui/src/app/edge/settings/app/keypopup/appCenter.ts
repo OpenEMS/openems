@@ -33,7 +33,7 @@ export namespace AppCenter {
         public constructor(
             public override readonly params: {
                 payload: JsonrpcRequest
-            }
+            },
         ) {
             super(AppCenter.METHOD, params);
         }

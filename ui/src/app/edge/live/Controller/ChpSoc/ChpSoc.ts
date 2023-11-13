@@ -7,7 +7,7 @@ import { Controller_ChpSocModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'Controller_ChpSocComponent',
-    templateUrl: './ChpSoc.html'
+    templateUrl: './ChpSoc.html',
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
 
@@ -23,7 +23,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     public icon: Icon = {
         name: '',
         size: 'large',
-        color: 'primary'
+        color: 'primary',
     };
     private static PROPERTY_MODE: string = '_PropertyMode';
 
@@ -38,7 +38,7 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
             this.inputChannel,
             this.propertyModeChannel,
             new ChannelAddress(this.component.id, '_PropertyHighThreshold'),
-            new ChannelAddress(this.component.id, '_PropertyLowThreshold')
+            new ChannelAddress(this.component.id, '_PropertyLowThreshold'),
         ];
     }
 
@@ -81,8 +81,8 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 component: this.component,
                 edge: this.edge,
                 outputChannel: this.outputChannel,
-                inputChannel: this.inputChannel
-            }
+                inputChannel: this.inputChannel,
+            },
         });
         return await modal.present();
     }

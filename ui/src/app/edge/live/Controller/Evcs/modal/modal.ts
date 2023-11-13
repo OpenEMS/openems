@@ -11,7 +11,7 @@ import { PopoverComponent } from '../popover/popover';
 
 type ChargeMode = 'FORCE_CHARGE' | 'EXCESS_POWER';
 @Component({
-  templateUrl: './modal.html'
+  templateUrl: './modal.html',
 })
 export class ModalComponent extends AbstractModal {
 
@@ -180,7 +180,7 @@ export class ModalComponent extends AbstractModal {
         if (this.edge != null) {
           let newMinChargePower = maxAllowedChargePower;
           this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-            { name: 'forceChargeMinPower', value: newMinChargePower }
+            { name: 'forceChargeMinPower', value: newMinChargePower },
           ]).then(() => {
             this.controller.properties.forceChargeMinPower = newMinChargePower;
           }).catch(reason => {
@@ -241,8 +241,8 @@ export class ModalComponent extends AbstractModal {
     const popover = await this.popoverctrl.create({
       component: PopoverComponent,
       componentProps: {
-        chargeMode: this.formGroup.controls['chargeMode'].value
-      }
+        chargeMode: this.formGroup.controls['chargeMode'].value,
+      },
     });
     return await popover.present();
   }
@@ -252,8 +252,8 @@ export class ModalComponent extends AbstractModal {
       component: AdministrationComponent,
       componentProps: {
         evcsComponent: this.evcsComponent,
-        edge: this.edge
-      }
+        edge: this.edge,
+      },
     });
     modal.onDidDismiss().then(() => {
       this.updateRenaultZoeConfig();
