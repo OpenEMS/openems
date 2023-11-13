@@ -1,9 +1,13 @@
 package io.openems.backend.alerting;
 
+import java.lang.annotation.Annotation;
+import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,18 +20,28 @@ import com.google.gson.JsonElement;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.alerting.scheduler.MinuteTimer;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
+import io.openems.common.channel.Level;
+import io.openems.common.test.TimeLeapClock;
 
 public class Dummy {
 
 	public static class MailerImpl implements Mailer {
-		public final Map<ZonedDateTime, String> sentMails = new HashMap<>();
+		public record Mail(ZonedDateTime sentAt, String template) {
+		}
+
+		public final List<Mail> sentMails = new LinkedList<>();
 
 		@Override
-		public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-			this.sentMails.put(sendAt, template);
+		public synchronized void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
+			this.sentMails.add(new Mail(sendAt, template));
+		}
+
+		public int getMailsCount() {
+			return this.sentMails.size();
 		}
 	}
 
@@ -67,28 +81,25 @@ public class Dummy {
 		}
 	}
 
-	public static class MetadataImpl extends SimpleMetadataImpl {
-		private List<Edge> edges;
-		private Map<String, List<AlertingSetting>> settings;
+	public static class AlertingMetadataImpl extends SimpleMetadataImpl {
+		private Collection<Edge> edges;
+		private Map<String, List<AlertingSetting>> alertingSettings;
+		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
-		 * Initialize Metadata with test data.
+		 * Initialize Metadata with test data for Alerting.
 		 *
 		 * @param edges    to add
 		 * @param settings to add
 		 */
-		public void initialize(List<Edge> edges, Map<String, List<AlertingSetting>> settings) {
+		public void initialize(Collection<Edge> edges, Map<String, List<AlertingSetting>> settings) {
 			this.edges = edges;
-			this.settings = settings;
+			this.alertingSettings = settings;
 		}
 
 		@Override
 		public boolean isInitialized() {
 			return true;
-		}
-
-		public Map<String, List<AlertingSetting>> getSettings() {
-			return this.settings;
 		}
 
 		@Override
@@ -100,10 +111,22 @@ public class Dummy {
 		public Collection<Edge> getAllOfflineEdges() {
 			return this.edges.stream().filter(Edge::isOffline).toList();
 		}
-
+		
 		@Override
 		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
-			return this.settings.get(edgeId);
+			return this.alertingSettings.get(edgeId);
+		}
+
+		public void setSumState(String edgeId, Level sumState) {
+			this.sumStates.put(edgeId, sumState);
+		}
+
+		public Collection<Edge> getEdges() {
+			return this.edges;
+		}
+
+		public Map<String, List<AlertingSetting>> getAlertingSettings() {
+			return this.alertingSettings;
 		}
 	}
 
@@ -122,6 +145,98 @@ public class Dummy {
 		@Override
 		public void sendEvent(Event event) {
 			this.lastEvents.add(event);
+		}
+	}
+
+	public static class TimeLeapMinuteTimer extends MinuteTimer {
+
+		private final TimeLeapClock timeLeapClock;
+		private int advanced = 0;
+
+		public TimeLeapMinuteTimer(Instant instant) {
+			this(new TimeLeapClock(instant));
+		}
+
+		private TimeLeapMinuteTimer(TimeLeapClock clock) {
+			super(clock);
+			this.timeLeapClock = clock;
+		}
+
+		/**
+		 * Leap the given amount in minutes. executing cycle method every time.
+		 *
+		 * @param amount to leap in minutes
+		 */
+		public void leap(long amount) {
+			for (int i = 0; i < amount; i++) {
+				this.timeLeapClock.leap(1, ChronoUnit.MINUTES);
+				this.advanced += 1;
+				this.cycle();
+			}
+		}
+
+		/**
+		 * Try to advance the Clock to a specific amount of minutes after
+		 * initialization. If the given point is ahead, the time will leap by the
+		 * missing amount. If the given point is behind, nothing will happen.
+		 * <p>
+		 * A return value >=0 means, the clock has advanced the given amount in minutes
+		 * with this call.
+		 * </p>
+		 * <p>
+		 * A return value <0 means, the clock has already advanced the given amount
+		 * above.
+		 * </p>
+		 *
+		 * @param point to advance to
+		 * @return difference
+		 */
+		public long leapTo(long point) {
+			var advancement = point - this.advanced;
+			if (advancement > 0) {
+				this.leap(advancement);
+			}
+			return advancement;
+		}
+
+		/**
+		 * Get the amount this Timer has advanced since it was initialized.
+		 *
+		 * @return total leapt minutes.
+		 */
+		public int advanced() {
+			return this.advanced;
+		}
+	}
+
+	@SuppressWarnings("all")
+	private static interface Config extends io.openems.backend.alerting.Config {
+	}
+
+	public static class TestConfig implements Config {
+		public final boolean notifyOnOffline;
+		public final boolean notifyOnSumStateChange;
+		public final int initialDelay;
+
+		public TestConfig(int initDelay, boolean onOffline, boolean onSumState) {
+			this.notifyOnOffline = onOffline;
+			this.notifyOnSumStateChange = onSumState;
+			this.initialDelay = initDelay;
+		}
+
+		@Override
+		public Class<? extends Annotation> annotationType() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String webconsole_configurationFactory_nameHint() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int initialDelay() {
+			return this.initialDelay;
 		}
 	}
 }
