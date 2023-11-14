@@ -23,6 +23,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** Should be used to unsubscribe from all subscribed observables at once */
     protected subscription: Subscription = new Subscription();
 
     /** Enum for User Role */

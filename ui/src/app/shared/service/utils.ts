@@ -7,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
+import { ChannelAddress } from '../shared';
 
 export class Utils {
 
@@ -392,17 +392,13 @@ export class Utils {
    */
   public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
     return (value: any): string => {
-      switch (value) {
-        case -1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.notStarted');
+      switch (Math.round(value)) {
         case 0:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.delayed');
-        case 1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
-        case 2:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+        default: // Usually "1"
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
     };
   };
@@ -543,22 +539,8 @@ export class Utils {
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
-
-  /**
-   * Returns the label based on component factory id.
-   * 
-   * @param component The Component.
-   * @param translate The Translate
-   * @returns the label.
-   */
-  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
-    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
-    } else {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
-    }
-  }
 }
+
 export enum YAxisTitle {
   PERCENTAGE,
   ENERGY,

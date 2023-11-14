@@ -126,8 +126,8 @@ export class StorageComponent extends AbstractFlatWidget {
             return {
                 color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED', {
                     targetDate: DateUtils.toLocaleDateString(date),
-                    targetTime: date.toLocaleTimeString()
-                })
+                    targetTime: date.toLocaleTimeString(),
+                }),
             };
         }
 

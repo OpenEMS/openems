@@ -271,7 +271,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * given phase will be returned.
 	 * 
 	 * <p>
-	 * For example: 0x0124 means Phase R connect incorrectly,Phase S connect
+	 * For example: 0x0124 means Phase R connect incorrectly，Phase S connect
 	 * reverse, Phase T connect correctly
 	 * 
 	 * @param phase Phase
@@ -296,7 +296,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * Update the connect state of the given phase.
 	 * 
 	 * <p>
-	 * 1: connect correctly, 2: connect reverse(CT), 4:connect incorrectly,
+	 * 1: connect correctly, 2: connect reverse（CT）, 4:connect incorrectly,
 	 * 
 	 * @param correctlyChannel   correctlyChannel
 	 * @param incorrectlyChannel incorrectlyChannel
