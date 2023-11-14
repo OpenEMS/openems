@@ -18,6 +18,17 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
+
+                <ion-slide *ngSwitchCase="'eoy-winner'">
+                    <eoy-winner></eoy-winner>
+                </ion-slide>
+
+                <ion-slide *ngSwitchCase="'dynamic-electricity-tariff-new-customer'">
+                    <dynamic-electricity-tariff-new-customer></dynamic-electricity-tariff-new-customer>
+                </ion-slide>
+                <ion-slide *ngSwitchCase="'dynamic-electricity-tariff-existing-customer'">
+                    <dynamic-electricity-tariff-existing-customer></dynamic-electricity-tariff-existing-customer>
+                </ion-slide>
             </ng-container>
         </ion-slides>
     </ion-card-content>

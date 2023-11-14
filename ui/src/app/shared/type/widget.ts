@@ -74,6 +74,30 @@ export class AdvertWidgets {
         })
         */
 
+        list.push({
+            name: 'eoy-winner',
+            title: 'EOY Award',
+        });
+
+
+        // Home
+        if (edge?.producttype === ProductType.HOME) {
+
+            // Controller exist already
+            if (config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff.Discharge').length > 0
+                || config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff').length > 0) {
+                list.push({
+                    name: 'dynamic-electricity-tariff-existing-customer',
+                    title: 'Dynamischer Stromtarif',
+                });
+            } else {
+                list.push({
+                    name: 'dynamic-electricity-tariff-new-customer',
+                    title: 'Dynamischer Stromtarif',
+                });
+            }
+        }
+
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
     }
