@@ -209,7 +209,7 @@ public class Dummy {
 		}
 	}
 
-	public static Config testConfig(int initialDelay) {
+	protected static Config testConfig(int initialDelay) {
 		return new Config() {
 
 			@Override
