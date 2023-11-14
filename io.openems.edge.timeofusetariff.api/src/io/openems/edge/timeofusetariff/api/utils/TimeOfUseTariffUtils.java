@@ -77,7 +77,7 @@ public class TimeOfUseTariffUtils {
 		{
 			var p = tou.getPrices().getValues()[0];
 			if (p != null) {
-				result.append(String.format(Locale.ENGLISH, "%.2f", p));
+				result.append(String.format(Locale.ENGLISH, "%.4f", p / 1000));
 			} else {
 				result.append("-");
 			}

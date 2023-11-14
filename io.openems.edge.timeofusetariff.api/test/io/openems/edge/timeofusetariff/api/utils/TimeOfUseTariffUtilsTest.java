@@ -17,9 +17,10 @@ public class TimeOfUseTariffUtilsTest {
 		var now = ZonedDateTime.now();
 		var prices = DummyTimeOfUseTariffProvider.hourlyPrices(now, 123.4567F, 234.5678F, 345.6789F);
 
-		assertEquals("Price:123.46 €/kWh", generateDebugLog(prices, Currency.EUR));
+		assertEquals("Price:0.1235 EUR/kWh", generateDebugLog(prices, Currency.EUR));
+		assertEquals("Price:0.1235 SEK/kWh", generateDebugLog(prices, Currency.SEK));
 
-		assertEquals("Price:123.46", generateDebugLog(prices, Currency.UNDEFINED));
+		assertEquals("Price:0.1235", generateDebugLog(prices, Currency.UNDEFINED));
 
 		prices = DummyTimeOfUseTariffProvider.hourlyPrices(now);
 		assertEquals("Price:-", generateDebugLog(prices, Currency.UNDEFINED));
