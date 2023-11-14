@@ -23,7 +23,7 @@ export class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
-        public readonly result: Prediction
+        public readonly result: Prediction,
     ) {
         super(id, result);
     }

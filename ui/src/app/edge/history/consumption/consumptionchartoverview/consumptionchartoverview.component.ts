@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: ConsumptionChartOverviewComponent.SELECTOR,
-    templateUrl: './consumptionchartoverview.component.html'
+    templateUrl: './consumptionchartoverview.component.html',
 })
 export class ConsumptionChartOverviewComponent implements OnInit {
 
@@ -20,7 +20,7 @@ export class ConsumptionChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

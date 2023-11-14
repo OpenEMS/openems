@@ -8,7 +8,7 @@ export const environment: Environment = {
         url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket",
 
         production: true,
-        debugMode: false
-    }
+        debugMode: false,
+    },
 };
 

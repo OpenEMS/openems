@@ -10,7 +10,7 @@ import { System } from '../../shared/system';
 
 @Component({
   selector: CompletionComponent.SELECTOR,
-  templateUrl: './completion.component.html'
+  templateUrl: './completion.component.html',
 })
 export class CompletionComponent implements OnInit {
 
@@ -25,7 +25,7 @@ export class CompletionComponent implements OnInit {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit(): void {
@@ -53,7 +53,7 @@ export class CompletionComponent implements OnInit {
       }
 
       const data: Blob = new Blob([view], {
-        type: "application/pdf"
+        type: "application/pdf",
       });
 
       let fileName = "IBN-" + this.edge.id + "-" + format(new Date(), "dd.MM.yyyy") + ".pdf";

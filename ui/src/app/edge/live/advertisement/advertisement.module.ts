@@ -5,13 +5,13 @@ import { AdvertisementComponent } from './advertisement.component';
 
 @NgModule({
     imports: [
-        SharedModule
+        SharedModule,
     ],
     declarations: [
-        AdvertisementComponent
+        AdvertisementComponent,
     ],
     exports: [
-        AdvertisementComponent
-    ]
+        AdvertisementComponent,
+    ],
 })
 export class AdvertisementModule { }

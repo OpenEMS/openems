@@ -6,7 +6,7 @@ import { AdvertWidgets } from 'src/app/shared/type/widget';
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html'
+  templateUrl: './live.component.html',
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
@@ -20,7 +20,7 @@ export class LiveComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     public service: Service,
     protected utils: Utils,
-    protected websocket: Websocket
+    protected websocket: Websocket,
   ) { }
 
   public ngOnInit() {

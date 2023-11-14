@@ -26,7 +26,7 @@ export class AuthenticateWithPasswordRequest extends JsonrpcRequest {
         public override readonly params: {
             username?: string,
             password: string
-        }
+        },
     ) {
         super(AuthenticateWithPasswordRequest.METHOD, params);
     }

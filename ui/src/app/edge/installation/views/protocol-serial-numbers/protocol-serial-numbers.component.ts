@@ -8,7 +8,7 @@ import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
 
 @Component({
   selector: ProtocolSerialNumbersComponent.SELECTOR,
-  templateUrl: './protocol-serial-numbers.component.html'
+  templateUrl: './protocol-serial-numbers.component.html',
 })
 export class ProtocolSerialNumbersComponent implements OnInit {
   private static readonly SELECTOR = 'protocol-serial-numbers';
@@ -34,7 +34,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit() {
@@ -83,7 +83,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     this.ibn.serialNumbers = {
-      modules: []
+      modules: [],
     };
 
     for (const form of this.forms) {
@@ -195,7 +195,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
       serialNumbers.push({
         label: label,
-        value: value
+        value: value,
       });
     }
 

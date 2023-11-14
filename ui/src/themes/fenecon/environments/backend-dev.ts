@@ -8,6 +8,6 @@ export const environment: Environment = {
         url: "wss://portal.fenecon.de/openems-backend-ui2",
 
         production: false,
-        debugMode: true
-    }
+        debugMode: true,
+    },
 };

@@ -5,7 +5,7 @@ import { Edge, Service, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: PartnerComponent.SELECTOR,
-  templateUrl: './partner.component.html'
+  templateUrl: './partner.component.html',
 })
 export class PartnerComponent implements OnInit, OnDestroy {
 
@@ -17,7 +17,7 @@ export class PartnerComponent implements OnInit, OnDestroy {
     public service: Service,
     private websocket: Websocket,
     private route: ActivatedRoute,
-    public modalCtrl: ModalController
+    public modalCtrl: ModalController,
   ) { }
 
   ngOnInit() {

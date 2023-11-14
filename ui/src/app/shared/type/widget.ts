@@ -82,7 +82,7 @@ export class AdvertWidgets {
         /**
          * List of all Widgets.
          */
-        public readonly list: AdvertWidget[]
+        public readonly list: AdvertWidget[],
     ) { }
 }
 
@@ -173,7 +173,7 @@ export class Widgets {
         /**
          * List of Widget-Classes.
          */
-        public readonly classes: String[]
+        public readonly classes: String[],
     ) {
         // fill names
         for (let widget of list) {

@@ -12,7 +12,7 @@ import { View } from './shared/enums';
 
 @Component({
   selector: InstallationComponent.SELECTOR,
-  templateUrl: './installation.component.html'
+  templateUrl: './installation.component.html',
 })
 export class InstallationComponent implements OnInit {
   private static readonly SELECTOR = 'installation';
@@ -30,7 +30,7 @@ export class InstallationComponent implements OnInit {
     private router: Router,
     public websocket: Websocket,
     private translate: TranslateService,
-    private logger: Logger
+    private logger: Logger,
   ) { }
 
   public ngOnInit() {

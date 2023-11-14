@@ -8,7 +8,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: ProtocolCustomerComponent.SELECTOR,
-  templateUrl: './protocol-customer.component.html'
+  templateUrl: './protocol-customer.component.html',
 })
 export class ProtocolCustomerComponent implements OnInit {
 
@@ -31,7 +31,7 @@ export class ProtocolCustomerComponent implements OnInit {
     this.form = new FormGroup({});
     this.fields = this.getFields();
     this.model = this.ibn.customer ?? {
-      isCorporateClient: false
+      isCorporateClient: false,
     };
   }
 
@@ -55,8 +55,8 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'isCorporateClient',
       type: 'checkbox',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER')
-      }
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER'),
+      },
     });
 
     fields.push({
@@ -64,9 +64,9 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
-        required: true
+        required: true,
       },
-      hideExpression: model => !model.isCorporateClient
+      hideExpression: model => !model.isCorporateClient,
     });
 
     fields.push({
@@ -74,8 +74,8 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.LAST_NAME'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -83,8 +83,8 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.FIRST_NAME'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -92,8 +92,8 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -102,8 +102,8 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
         required: true,
-        pattern: '^[0-9]*$'
-      }
+        pattern: '^[0-9]*$',
+      },
     });
 
     fields.push({
@@ -111,8 +111,8 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -121,8 +121,8 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY'),
         required: true,
-        options: COUNTRY_OPTIONS(this.translate)
-      }
+        options: COUNTRY_OPTIONS(this.translate),
+      },
     });
 
     fields.push({
@@ -134,11 +134,11 @@ export class ProtocolCustomerComponent implements OnInit {
             type: 'email',
             label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
             description: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL_DESCRIPTION'),
-            required: true
+            required: true,
           },
           validators: {
-            validation: [Validators.email]
-          }
+            validation: [Validators.email],
+          },
         },
         {
           key: 'emailConfirm',
@@ -147,15 +147,15 @@ export class ProtocolCustomerComponent implements OnInit {
             type: 'email',
             label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
             description: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL_CONFIRMATION'),
-            required: true
-          }
-        }
+            required: true,
+          },
+        },
       ],
       validators: {
         validation: [
-          { name: 'emailMatch', options: { errorPath: 'emailConfirm' } }
-        ]
-      }
+          { name: 'emailMatch', options: { errorPath: 'emailConfirm' } },
+        ],
+      },
     });
 
     fields.push({
@@ -163,8 +163,8 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'input',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
-        required: true
-      }
+        required: true,
+      },
     });
     return fields;
   }

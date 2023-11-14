@@ -8,7 +8,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ConsumptionComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super(service);
     }
@@ -69,7 +69,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
         return new Promise((resolve) => {
 
             let channels: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
+                new ChannelAddress('_sum', 'ConsumptionActiveEnergy'),
             ];
 
             this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -79,7 +79,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy')
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
                 );
             }
 
@@ -87,7 +87,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'ActiveProductionEnergy')
+                    new ChannelAddress(component.id, 'ActiveProductionEnergy'),
                 );
             }
             resolve(channels);

@@ -5,7 +5,7 @@ import { ChannelAddress } from 'src/app/shared/shared';
 
 @Component({
   selector: 'cellVoltageChart',
-  templateUrl: '../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -15,11 +15,11 @@ export class ChartComponent extends AbstractHistoryChart {
       input:
         [{
           name: 'MinCellVoltage',
-          powerChannel: ChannelAddress.fromString('battery0/MinCellVoltage')
+          powerChannel: ChannelAddress.fromString('battery0/MinCellVoltage'),
         },
         {
           name: 'MaxCellVoltage',
-          powerChannel: ChannelAddress.fromString('battery0/MaxCellVoltage')
+          powerChannel: ChannelAddress.fromString('battery0/MaxCellVoltage'),
         }],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
@@ -27,14 +27,14 @@ export class ChartComponent extends AbstractHistoryChart {
           converter: () => {
             return data['MinCellVoltage'];
           },
-          color: 'rgb(127,255,0)'
+          color: 'rgb(127,255,0)',
         },
         {
           name: 'Maximale Zellspannung',
           converter: () => {
             return data['MaxCellVoltage'];
           },
-          color: 'rgb(0,0,255)'
+          color: 'rgb(0,0,255)',
         },
         {
           name: 'Obergrenze',
@@ -43,7 +43,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(237, 28, 35)',
           borderDash: [10, 10],
-          hideShadow: true
+          hideShadow: true,
         },
         {
           name: 'Untergrenze 1',
@@ -52,7 +52,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(178, 27, 69)',
           borderDash: [10, 10],
-          hideShadow: true
+          hideShadow: true,
         },
         {
           name: 'Untergrenze 2',
@@ -61,7 +61,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(119, 26, 102)',
           borderDash: [10, 10],
-          hideShadow: true
+          hideShadow: true,
         },
         {
           name: 'Untergrenze 3',
@@ -70,7 +70,7 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(59, 25, 136)',
           borderDash: [10, 10],
-          hideShadow: true
+          hideShadow: true,
 
         },
         {
@@ -80,18 +80,18 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(0, 24, 169)',
           borderDash: [10, 10],
-          hideShadow: true
-        }
+          hideShadow: true,
+        },
         ];
       },
       tooltip: {
-        formatNumber: '1.0-2'
+        formatNumber: '1.0-2',
       },
       yAxes: [{
         unit: YAxisTitle.VOLTAGE,
         position: 'left',
-        yAxisId: ChartAxis.LEFT
-      }]
+        yAxisId: ChartAxis.LEFT,
+      }],
     };
   }
 }

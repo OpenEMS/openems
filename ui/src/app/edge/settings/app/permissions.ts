@@ -3,7 +3,7 @@ import { Edge } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 const keyTestUsers: string[] = [
-    "seez@climacure.de"
+    "seez@climacure.de",
 ];
 
 function isTestUser(user: User): boolean {

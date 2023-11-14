@@ -7,7 +7,7 @@ import { AbstractCommercialIbn } from "../../installation-systems/commercial/abs
 
 @Component({
     selector: ConfigurationCommercialModbuBridgeComponent.SELECTOR,
-    templateUrl: './configuration-commercial-modbusbridge.html'
+    templateUrl: './configuration-commercial-modbusbridge.html',
 })
 export class ConfigurationCommercialModbuBridgeComponent implements OnInit {
 
@@ -47,13 +47,13 @@ export class ConfigurationCommercialModbuBridgeComponent implements OnInit {
             {
                 value: ModbusBridgeType.TCP_IP,
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT.TCP_IP_LABEL'),
-                url: 'assets/img/TCP-IP_6_Ports.png'
+                url: 'assets/img/TCP-IP_6_Ports.png',
             },
             {
                 value: ModbusBridgeType.RS485,
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT.RS485_LABEL'),
-                url: 'assets/img/RTU-4-Ports.png'
-            }
+                url: 'assets/img/RTU-4-Ports.png',
+            },
         ]);
 
         fields.push({
@@ -61,10 +61,10 @@ export class ConfigurationCommercialModbuBridgeComponent implements OnInit {
             type: "radio",
             props: {
                 required: true,
-                options: modbusBridgeLabel
+                options: modbusBridgeLabel,
             },
             defaultValue: ModbusBridgeType.TCP_IP,
-            wrappers: ['formly-field-radio-with-image']
+            wrappers: ['formly-field-radio-with-image'],
         });
         return fields;
     }

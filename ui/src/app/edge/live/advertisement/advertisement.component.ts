@@ -7,7 +7,7 @@ import { Edge, EdgeConfig, Service } from '../../../shared/shared';
 
 @Component({
   selector: 'advertisement',
-  templateUrl: './advertisement.component.html'
+  templateUrl: './advertisement.component.html',
 })
 
 export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDestroy {
@@ -32,14 +32,14 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
     initialSlide: 0,
     preventClicks: false,
     preventClicksPropagation: false,
-    speed: 5000
+    speed: 5000,
   };
 
   constructor(
     private route: ActivatedRoute,
     public modalCtrl: ModalController,
     public service: Service,
-    private cdref: ChangeDetectorRef
+    private cdref: ChangeDetectorRef,
   ) { }
 
   ngAfterContentChecked() {

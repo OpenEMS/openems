@@ -23,6 +23,7 @@ export const theme = {
         CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "fems-app/includes/FEMS_App_Manuelle_Relaissteuerung.html",
         CONTROLLER_IO_HEAT_PUMP_SG_READY: "fems-app/includes/FEMS_App_Waermepumpe_SG-Ready.html",
         CONTROLLER_IO_HEATING_ELEMENT: "fems-app/includes/FEMS_App_Heizstab.html",
+        CONTROLLER_ESS_TIME_OF_USE_TARIFF: "fems-app/OEM_App_TOU.html",
 
         CONTROLLER_API_MODBUSTCP_READ: "fems-app/FEMS_App_Modbus_TCP.html#_lesezugriff",
         CONTROLLER_API_MODBUSTCP_READWRITE: "fems-app/FEMS_App_Modbus_TCP.html#_schreibzugriff",
@@ -37,17 +38,17 @@ export const theme = {
         warranty: {
             home: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
-                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf"
+                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf",
             },
             commercial: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/08/V2022.03_EN_Warranty_conditions_for-FENECON-Commercial_30_50.pdf",
-                DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf"
-            }
+                DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf",
+            },
         },
 
         gtc: {
             EN: "https://fenecon.de/page/gtc/",
-            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/"
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
@@ -56,12 +57,12 @@ export const theme = {
         MANUALS: {
             HOME: {
                 EN: "https://fenecon.de/wp-content/uploads/2023/06/FENECON-HOME-10-Quick-Installation-Guide-EN.pdf",
-                DE: "https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577"
+                DE: "https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577",
             },
             COMMERCIAL: {
                 EN: "#",
-                DE: "#"
-            }
+                DE: "#",
+            },
         },
         APP_CENTER: {
             APP_IMAGE: (language: string, appId: string): string | null => {
@@ -73,8 +74,8 @@ export const theme = {
                     }
                 })();
                 return 'https://docs.fenecon.de/de/_/latest/_images/fenecon/apps/' + languageKey + '/' + appId + '.png';
-            }
-        }
+            },
+        },
     },
     PRODUCT_TYPES: (translate: TranslateService): Filter => (
         {
@@ -83,32 +84,32 @@ export const theme = {
             options: [
                 {
                     name: "Home 10",
-                    value: "home"
+                    value: "home",
                 },
                 {
                     name: "Home 20 & 30",
-                    value: "Home 20 & 30"
+                    value: "Home 20 & 30",
                 },
                 {
                     name: "Commercial 30",
-                    value: "Commercial 30-Serie"
+                    value: "Commercial 30-Serie",
                 },
                 {
                     name: "Commercial 50",
-                    value: "Commercial 50-Serie"
+                    value: "Commercial 50-Serie",
                 },
                 {
                     name: "Industrial S",
-                    value: "Industrial S"
+                    value: "Industrial S",
                 },
                 {
                     name: "Industrial M",
-                    value: "Industrial M"
+                    value: "Industrial M",
                 },
                 {
                     name: "Industrial L",
-                    value: "Industrial L"
-                }
-            ]
-        })
+                    value: "Industrial L",
+                },
+            ],
+        }),
 };

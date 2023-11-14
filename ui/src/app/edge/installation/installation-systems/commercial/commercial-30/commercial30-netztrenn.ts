@@ -31,7 +31,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             minValue: 15,
             value: 20,
             isReserveSocEnabled: false,
-            coupler: Coupler.WEIDMUELLER
+            coupler: Coupler.WEIDMUELLER,
         };
 
     constructor(translate: TranslateService) {
@@ -51,20 +51,20 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
     public override addCustomBatteryData(batteryData: ComponentData[]) {
         batteryData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
-            value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
+            value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
         });
 
         if (this.emergencyReserve.isEnabled) {
             batteryData.push({
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_VALUE'),
-                value: this.emergencyReserve.value
+                value: this.emergencyReserve.value,
             });
         }
         return batteryData;
@@ -75,18 +75,18 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         if (this.emergencyReserve.isEnabled) {
             this.requiredControllerIds.push({
                 componentId: "ctrlEmergencyCapacityReserve0"
-                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
             });
         }
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             this.requiredControllerIds.push({
                 componentId: "ctrlGridOptimizedCharge0"
-                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
             });
         }
         this.requiredControllerIds.push({
             componentId: "ctrlBalancing0"
-            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
         });
     }
 
@@ -107,9 +107,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'ip', value: '192.168.1.50' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+                { name: 'invalidateElementsAfterReadErrors', value: 3 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         }, 3);
 
         // Add ip address to network configuration to communicate with the Coupler.
@@ -127,9 +127,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     properties: [
                         { name: 'enabled', value: true },
                         { name: 'modbus.id', value: couplerComponentId },
-                        { name: 'modbusUnitId', value: 1 }
+                        { name: 'modbusUnitId', value: 1 },
                     ],
-                    mode: ConfigurationMode.RemoveAndConfigure
+                    mode: ConfigurationMode.RemoveAndConfigure,
                 }, 5);
 
                 // offGridSwitch0
@@ -143,9 +143,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                         { name: 'inputGroundingContactor', value: 'io1/DigitalInputM0C3' },
                         { name: 'inputMainContactor', value: 'io1/DigitalInputM0C1' },
                         { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
-                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
+                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' },
                     ],
-                    mode: ConfigurationMode.RemoveAndConfigure
+                    mode: ConfigurationMode.RemoveAndConfigure,
                 }, 6);
                 break;
             case Coupler.WAGO:
@@ -157,9 +157,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                         { name: 'enabled', value: true },
                         { name: 'modbus.id', value: couplerComponentId },
                         { name: 'username', value: 'admin' },
-                        { name: 'password', value: 'wago' }
+                        { name: 'password', value: 'wago' },
                     ],
-                    mode: ConfigurationMode.RemoveAndConfigure
+                    mode: ConfigurationMode.RemoveAndConfigure,
                 }, 5);
 
                 // offGridSwitch0
@@ -172,9 +172,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                         { name: 'inputGroundingContactor', value: 'io1/DigitalInputM1C3' },
                         { name: 'inputMainContactor', value: 'io1/DigitalInputM1C1' },
                         { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
-                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
+                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' },
                     ],
-                    mode: ConfigurationMode.RemoveAndConfigure
+                    mode: ConfigurationMode.RemoveAndConfigure,
                 }, 6);
                 break;
         }
@@ -189,9 +189,9 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'startStop', value: 'START' },
                 { name: 'batteryInverter.id', value: 'batteryInverter0' },
                 { name: 'offGridSwitch.id', value: 'offGridSwitch0' },
-                { name: 'battery.id', value: 'battery0' }
+                { name: 'battery.id', value: 'battery0' },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         }, 11);
 
         //Emergency reserve
@@ -205,12 +205,12 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'isReserveSocEnabled', value: this.emergencyReserve.isReserveSocEnabled },
                 {
                     name: 'reserveSoc',
-                    value: this.emergencyReserve.value ?? 5 /* minimum allowed value */
-                }
+                    value: this.emergencyReserve.value ?? 5, /* minimum allowed value */
+                },
             ],
             mode: this.emergencyReserve.isEnabled
                 ? ConfigurationMode.RemoveAndConfigure
-                : ConfigurationMode.RemoveOnly
+                : ConfigurationMode.RemoveOnly,
         }, 12);
 
         return componentConfigurator;
@@ -223,14 +223,14 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         protocol.items.push({
             category: Category.EMERGENCY_RESERVE,
             name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '?' }),
-            value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
+            value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
         });
 
         if (emergencyReserve.isEnabled) {
             protocol.items.push({
                 category: Category.EMERGENCY_RESERVE,
                 name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '[%]' }),
-                value: emergencyReserve.value ? emergencyReserve.value.toString() : ''
+                value: emergencyReserve.value ? emergencyReserve.value.toString() : '',
             });
         }
 
@@ -262,12 +262,12 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30'),
                     required: true,
-                    placeholder: 'xxxx'
+                    placeholder: 'xxxx',
                 },
                 validators: {
-                    validation: ['emsBoxNetztrennstelleSerialNumber']
+                    validation: ['emsBoxNetztrennstelleSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             };
 
             // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.
@@ -288,17 +288,17 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     {
                         label: Coupler.toLabelString(Coupler.WAGO, this.translate),
                         value: Coupler.WAGO,
-                        url: Coupler.toImageUrl(Coupler.WAGO)
+                        url: Coupler.toImageUrl(Coupler.WAGO),
                     },
                     {
                         label: Coupler.toLabelString(Coupler.WEIDMUELLER, this.translate),
                         value: Coupler.WEIDMUELLER,
-                        url: Coupler.toImageUrl(Coupler.WEIDMUELLER)
-                    }
-                ]
+                        url: Coupler.toImageUrl(Coupler.WEIDMUELLER),
+                    },
+                ],
             },
             wrappers: ['formly-field-radio-with-image'],
-            defaultValue: this.emergencyReserve.coupler
+            defaultValue: this.emergencyReserve.coupler,
         });
 
         return fields;

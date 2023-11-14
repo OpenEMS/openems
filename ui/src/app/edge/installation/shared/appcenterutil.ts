@@ -85,8 +85,8 @@ export class AppCenterUtil {
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new GetAppInstances.Request({
-                        appId: appId
-                    })
+                        appId: appId,
+                    }),
                 }))
                 .then(response => resolve(response as GetAppInstances.Response))
                 .catch(error => reject(error));
@@ -134,9 +134,9 @@ export class AppCenterUtil {
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new DeleteAppInstance.Request({
-                        instanceId: instanceId
-                    })
-                })
+                        instanceId: instanceId,
+                    }),
+                }),
             ));
         });
         return Promise.all(promises);
@@ -161,8 +161,8 @@ export class AppCenterUtil {
                     payload: new UpdateAppInstance.Request({
                         instanceId: instanceId,
                         alias: alias,
-                        properties: properties
-                    })
+                        properties: properties,
+                    }),
                 }))
                 .then(response => resolve(response as UpdateAppInstance.Response))
                 .catch(error => reject(error));
@@ -189,8 +189,8 @@ export class AppCenterUtil {
                         key: key,
                         appId: appId,
                         alias: alias,
-                        properties: properties
-                    })
+                        properties: properties,
+                    }),
                 }))
                 .then(response => resolve(response as AddAppInstance.Response))
                 .catch(error => reject(error));

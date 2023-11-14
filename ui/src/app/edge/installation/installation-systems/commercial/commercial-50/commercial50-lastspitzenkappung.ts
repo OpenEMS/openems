@@ -28,14 +28,14 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
     public setRequiredControllers() {
         this.requiredControllerIds = [{
             componentId: "ctrlPeakShaving0"
-            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
         }];
     }
 
@@ -72,9 +72,9 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'meter.id', value: 'meter0' },
                 { name: 'peakShavingPower', value: dischargeAbove },
-                { name: 'rechargePower', value: chargeBelow }
+                { name: 'rechargePower', value: chargeBelow },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         return componentConfigurator;

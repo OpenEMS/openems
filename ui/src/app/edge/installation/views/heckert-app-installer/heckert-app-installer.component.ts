@@ -23,7 +23,7 @@ export type EmsApp = {
 @Component({
   selector: HeckertAppInstallerComponent.SELECTOR,
   templateUrl: './heckert-app-installer.component.html',
-  styleUrls: ['./heckert-app-installer.scss']
+  styleUrls: ['./heckert-app-installer.scss'],
 })
 export class HeckertAppInstallerComponent implements OnInit {
   private static readonly SELECTOR = "heckert-app-installer";
@@ -47,7 +47,7 @@ export class HeckertAppInstallerComponent implements OnInit {
       { id: EmsAppId.Keba, alias: "KEBA Ladestation" },
       { id: EmsAppId.HeatingElement, alias: "Heizstab" },
       { id: EmsAppId.HeatPump, alias: "Wärmepumpe ''SG-Ready''" },
-      { id: EmsAppId.None, alias: "später" }
+      { id: EmsAppId.None, alias: "später" },
     ];
   }
 
@@ -110,15 +110,15 @@ export class HeckertAppInstallerComponent implements OnInit {
       message: isAppSelected ? this.translate.instant('INSTALLATION.ATTENTION_MESSAGE') : '',
       buttons: [{
         text: this.translate.instant('INSTALLATION.BACK'),
-        role: 'cancel'
+        role: 'cancel',
       },
       {
         text: this.translate.instant('INSTALLATION.FORWARD'),
         handler: () => {
           this.saveConfirmedApp();
-        }
+        },
       }],
-      cssClass: 'alertController'
+      cssClass: 'alertController',
     });
     (await alert).present();
   }

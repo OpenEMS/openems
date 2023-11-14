@@ -12,7 +12,7 @@ export type ComponentChannels = {
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
-  templateUrl: './channels.component.html'
+  templateUrl: './channels.component.html',
 })
 export class ChannelsComponent {
 
@@ -31,11 +31,11 @@ export class ChannelsComponent {
     private websocket: Websocket,
     private route: ActivatedRoute,
     private router: Router,
-    protected translate: TranslateService
+    protected translate: TranslateService,
   ) { }
 
   public customAlertOptions: any = {
-    cssClass: 'wide-alert'
+    cssClass: 'wide-alert',
   };
 
   ionViewWillEnter() {
@@ -107,8 +107,8 @@ export class ChannelsComponent {
         new SetChannelValueRequest({
           componentId: address.componentId,
           channelId: address.channelId,
-          value: channelValue
-        })
+          value: channelValue,
+        }),
       ).then(() => {
         this.service.toast("Successfully set " + address.toString() + " to [" + channelValue + "]", "success");
       }).catch(() => {

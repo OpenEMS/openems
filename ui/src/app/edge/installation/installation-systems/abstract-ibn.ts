@@ -122,7 +122,7 @@ export abstract class AbstractIbn {
   public manualLinks: {
     home: WebLinks;
   } = {
-      home: WebLinks.MANUAL_HOME
+      home: WebLinks.MANUAL_HOME,
     };
 
   //Controller-Id's
@@ -333,10 +333,10 @@ export abstract class AbstractIbn {
         { name: 'type', value: 'PRODUCTION' },
         { name: 'modbus.id', value: modbusId },
         { name: 'modbusUnitId', value: acModbusUnitId },
-        { name: 'invert', value: false }
+        { name: 'invert', value: false },
       ],
       mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
+      baseMode: baseMode,
     };
 
     return configurationObject;
@@ -360,10 +360,10 @@ export abstract class AbstractIbn {
         placeholder: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.PLACE_HOLDER'),
         options: [
           { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION },
         ],
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -374,11 +374,11 @@ export abstract class AbstractIbn {
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
         description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
         required: true,
-        max: 29999 // max feed in power limit value.
+        max: 29999, // max feed in power limit value.
       },
       parsers: [Number],
       defaultValue: totalPvPower,
-      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
+      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION,
     });
 
     return fields;
@@ -399,10 +399,10 @@ export abstract class AbstractIbn {
         options: [
           { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.QU_ENABLED_CURVE'), value: FeedInSetting.QuEnableCurve },
           { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.PU_ENABLED_CURVE'), value: FeedInSetting.PuEnableCurve },
-          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FIXED_POWER_FACTOR'), value: FeedInSetting.FixedPowerFactor }
+          { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.FIXED_POWER_FACTOR'), value: FeedInSetting.FixedPowerFactor },
         ],
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -411,9 +411,9 @@ export abstract class AbstractIbn {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
         options: FEED_IN_POWER_FACTOR_OPTIONS(),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor
+      hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor,
     });
 
     fields.push({
@@ -421,9 +421,9 @@ export abstract class AbstractIbn {
       type: "checkbox",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_CHECK'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.feedInType != FeedInType.EXTERNAL_LIMITATION
+      hideExpression: model => model.feedInType != FeedInType.EXTERNAL_LIMITATION,
     });
   }
 
@@ -450,11 +450,11 @@ export abstract class AbstractIbn {
           { label: "80 A", value: 80 },
           { label: "100 A", value: 100 },
           { label: "120 A", value: 120 },
-          { label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER'), value: -1 }
+          { label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER'), value: -1 },
         ],
-        required: true
+        required: true,
       },
-      parsers: [Number]
+      parsers: [Number],
     });
 
     fields.push({
@@ -464,13 +464,13 @@ export abstract class AbstractIbn {
         type: "number",
         label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.OTHER_VALUE'),
         min: 0,
-        required: true
+        required: true,
       },
       parsers: [Number],
       validators: {
-        validation: ["onlyPositiveInteger"]
+        validation: ["onlyPositiveInteger"],
       },
-      hideExpression: model => model.fixedValue !== -1
+      hideExpression: model => model.fixedValue !== -1,
     });
     return fields;
   }
@@ -489,7 +489,7 @@ export abstract class AbstractIbn {
 
     const installerObj: any = {
       firstname: installer.firstName,
-      lastname: installer.lastName
+      lastname: installer.lastName,
     };
 
     const customerObj: any = {
@@ -501,23 +501,23 @@ export abstract class AbstractIbn {
         street: customer.street,
         city: customer.city,
         zip: customer.zip,
-        country: customer.country
-      }
+        country: customer.country,
+      },
     };
 
     if (customer.isCorporateClient) {
       customerObj.company = {
-        name: customer.companyName
+        name: customer.companyName,
       };
     }
 
     const protocol: SetupProtocol = {
       fems: {
-        id: edge.id
+        id: edge.id,
       },
       installer: installerObj,
       customer: customerObj,
-      oem: environment.theme
+      oem: environment.theme,
     };
 
     // If location data is different to customer data, the location
@@ -533,11 +533,11 @@ export abstract class AbstractIbn {
           street: location.street,
           city: location.city,
           zip: location.zip,
-          country: location.country
+          country: location.country,
         },
         company: {
-          name: location.companyName
-        }
+          name: location.companyName,
+        },
       };
     }
 
@@ -553,7 +553,7 @@ export abstract class AbstractIbn {
     protocol.items.push({
       category: this.lineSideMeterFuse.category,
       name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
-      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ''
+      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
     });
 
     const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS;
@@ -566,24 +566,24 @@ export abstract class AbstractIbn {
         {
           category: additionalAcCategory,
           name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
-          value: element.alias
+          value: element.alias,
         },
         {
           category: additionalAcCategory,
           name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
-          value: element.value ? element.value.toString() : ''
+          value: element.value ? element.value.toString() : '',
         });
 
       element.orientation && protocol.items.push({
         category: additionalAcCategory,
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-        value: element.orientation
+        value: element.orientation,
       });
 
       element.moduleType && protocol.items.push({
         category: additionalAcCategory,
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: element.moduleType
+        value: element.moduleType,
       });
 
       element.modulesPerString && protocol.items.push({
@@ -591,13 +591,13 @@ export abstract class AbstractIbn {
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
         value: element.modulesPerString
           ? element.modulesPerString.toString()
-          : ''
+          : '',
       });
 
       element.meterType && protocol.items.push({
         category: additionalAcCategory,
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: Meter.toLabelString(element.meterType)
+        value: Meter.toLabelString(element.meterType),
       });
 
       element.modbusCommunicationAddress && protocol.items.push({
@@ -605,14 +605,14 @@ export abstract class AbstractIbn {
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
         value: element.modbusCommunicationAddress
           ? element.modbusCommunicationAddress.toString()
-          : ''
+          : '',
       });
     }
 
     protocol.items.push({
       category: Category.EMS_DETAILS,
       name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
-      value: edge.id
+      value: edge.id,
     });
 
     return protocol;
@@ -666,7 +666,7 @@ export abstract class AbstractIbn {
             protocol.lots.push({
               category: category,
               name: name,
-              serialNumber: serialNumber
+              serialNumber: serialNumber,
             });
 
             break;

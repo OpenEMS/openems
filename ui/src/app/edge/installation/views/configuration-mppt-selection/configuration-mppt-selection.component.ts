@@ -7,7 +7,7 @@ import { Home30FeneconIbn } from '../../installation-systems/home/home-30';
 
 @Component({
   selector: ConfigurationMpptSelectionComponent.SELECTOR,
-  templateUrl: './configuration-mppt-selection.component.html'
+  templateUrl: './configuration-mppt-selection.component.html',
 })
 export class ConfigurationMpptSelectionComponent implements OnInit {
   private static readonly SELECTOR = 'configuration-mppt-selection';
@@ -54,10 +54,10 @@ export class ConfigurationMpptSelectionComponent implements OnInit {
         key: key,
         props: {
           label: label,
-          url: 'assets/img/home-mppt/' + mppt + '.' + strings + '.png'
+          url: 'assets/img/home-mppt/' + mppt + '.' + strings + '.png',
         },
         defaultValue: defaultValue,
-        wrappers: ['formly-field-checkbox-with-image']
+        wrappers: ['formly-field-checkbox-with-image'],
       });
     }
 
@@ -69,9 +69,9 @@ export class ConfigurationMpptSelectionComponent implements OnInit {
         required: true,
         change: (field) => {
           this.isNextDisabled = !field.formControl.value;
-        }
+        },
       },
-      defaultValue: false
+      defaultValue: false,
     });
 
     return fields;

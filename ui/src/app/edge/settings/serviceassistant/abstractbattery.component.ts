@@ -22,7 +22,7 @@ export abstract class AbstractBattery {
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        public websocket: Websocket
+        public websocket: Websocket,
     ) {
         this.service.startSpinner(this._abstractBatterySpinner);
         this.importantWriteChannelDescriptions = this.getImportantWriteChannelDescriptions();
@@ -30,7 +30,7 @@ export abstract class AbstractBattery {
             { category: "Edge.Service.entireSystem", channels: this.getImportantSystemReadChannelDescriptions() },
             { category: "Edge.Service.Cell.voltages", channels: this.getImportantCellVoltageReadChannelDescriptions() },
             { category: "Edge.Service.Cell.temperatures", channels: this.getImportantCellTemperatureReadChannelDescriptions() },
-            { category: "Edge.Service.Cell.insulation", channels: this.getImportantInsulationReadChannelDescriptions() }
+            { category: "Edge.Service.Cell.insulation", channels: this.getImportantInsulationReadChannelDescriptions() },
         );
 
         this.getImportantAdditionalReadChannelDescriptions().forEach(categorizedChannelDescription => {
@@ -143,8 +143,8 @@ export abstract class AbstractBattery {
                 new SetChannelValueRequest({
                     componentId: address.componentId,
                     channelId: address.channelId,
-                    value: value
-                })
+                    value: value,
+                }),
             ).then(response => {
 
                 // The value should be only set once and not for the configured backend timout time - e.g. for system reset it would restart the battery very often till the timeout.

@@ -43,7 +43,7 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
@@ -65,14 +65,14 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 appId = "App.Evcs.Keba";
                 alias = "Ladestation";
                 properties = {
-                    IP: "192.168.25.11"
+                    IP: "192.168.25.11",
                 };
                 break;
             case EmsAppId.HardyBarthSingle:
                 appId = "App.Evcs.HardyBarth";
                 alias = "Ladestation";
                 properties = {
-                    IP: "192.168.25.30"
+                    IP: "192.168.25.30",
                 };
                 break;
             case EmsAppId.HardyBarthDouble:
@@ -83,7 +83,7 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 alias = "Wärmepumpe";
                 properties = {
                     OUTPUT_CHANNEL_1: "io0/Relay1",
-                    OUTPUT_CHANNEL_2: "io0/Relay2"
+                    OUTPUT_CHANNEL_2: "io0/Relay2",
                 };
                 break;
             case EmsAppId.HeatingElement:
@@ -92,7 +92,7 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 properties = {
                     OUTPUT_CHANNEL_PHASE_L1: "io0/Relay1",
                     OUTPUT_CHANNEL_PHASE_L2: "io0/Relay2",
-                    OUTPUT_CHANNEL_PHASE_L3: "io0/Relay3"
+                    OUTPUT_CHANNEL_PHASE_L3: "io0/Relay3",
                 };
                 break;
         }
@@ -136,7 +136,7 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
         const isAppEvcs: boolean = [
             EmsAppId.HardyBarthSingle,
             EmsAppId.HardyBarthDouble,
-            EmsAppId.Keba
+            EmsAppId.Keba,
         ].includes(freeAppId);
 
         // Add ip address to network configuration if HardyBarthDouble gets configured
@@ -158,10 +158,10 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'debugMode', value: false },
                 { name: 'ip', value: '192.168.25.30' },
                 { name: 'minHwCurrent', value: 6000 },
-                { name: 'maxHwCurrent', value: 32000 }
+                { name: 'maxHwCurrent', value: 32000 },
             ],
             mode: freeAppId === EmsAppId.HardyBarthSingle ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-            baseMode: baseMode
+            baseMode: baseMode,
         });
 
         componentConfigurator.add({
@@ -173,9 +173,9 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'debugMode', value: false },
                 { name: 'ip', value: '192.168.25.30' },
                 { name: 'minHwCurrent', value: 6000 },
-                { name: 'maxHwCurrent', value: 16000 }
+                { name: 'maxHwCurrent', value: 16000 },
             ],
-            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
         });
 
         componentConfigurator.add({
@@ -187,9 +187,9 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'debugMode', value: false },
                 { name: 'ip', value: '192.168.25.31' },
                 { name: 'minHwCurrent', value: 6000 },
-                { name: 'maxHwCurrent', value: 16000 }
+                { name: 'maxHwCurrent', value: 16000 },
             ],
-            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
         });
 
         componentConfigurator.add({
@@ -200,10 +200,10 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'enabled', value: true },
                 { name: 'debugMode', value: false },
                 { name: 'ip', value: '192.168.25.11' },
-                { name: 'minHwCurrent', value: 6000 }
+                { name: 'minHwCurrent', value: 6000 },
             ],
             mode: freeAppId === EmsAppId.Keba ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-            baseMode: baseMode
+            baseMode: baseMode,
         });
 
         componentConfigurator.add({
@@ -221,10 +221,10 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'workMode', value: 'TIME' },
                 { name: 'minTime', value: 1 },
                 { name: 'powerPerPhase', value: 2000 },
-                { name: 'minimumSwitchingTime', value: 60 }
+                { name: 'minimumSwitchingTime', value: 60 },
             ],
             mode: freeAppId === EmsAppId.HeatingElement ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-            baseMode: baseMode
+            baseMode: baseMode,
         });
 
         componentConfigurator.add({
@@ -246,10 +246,10 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'automaticLockCtrlEnabled', value: false },
                 { name: 'automaticLockGridBuyPower', value: 5000 },
                 { name: 'automaticLockSoc', value: 20 },
-                { name: 'minimumSwitchingTime', value: 60 }
+                { name: 'minimumSwitchingTime', value: 60 },
             ],
             mode: freeAppId === EmsAppId.HeatPump ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-            baseMode: baseMode
+            baseMode: baseMode,
         });
 
         // Add EVCS-Controller if selected app is an EVCS
@@ -267,10 +267,10 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'defaultChargeMinPower', value: 0 },
                 { name: 'priority', value: 'CAR' },
                 { name: 'ess.id', value: 'ess0' },
-                { name: 'energySessionLimit', value: 0 }
+                { name: 'energySessionLimit', value: 0 },
             ],
             mode: isAppEvcs ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-            baseMode: freeAppId === EmsAppId.HardyBarthDouble ? BaseMode.UI : baseMode
+            baseMode: freeAppId === EmsAppId.HardyBarthDouble ? BaseMode.UI : baseMode,
         });
 
         // Add second EVCS-Controller for HardyBarthDouble if selected
@@ -288,9 +288,9 @@ export class Home10HeckertIbn extends AbstractHomeIbn {
                 { name: 'defaultChargeMinPower', value: 0 },
                 { name: 'priority', value: 'CAR' },
                 { name: 'ess.id', value: 'ess0' },
-                { name: 'energySessionLimit', value: 0 }
+                { name: 'energySessionLimit', value: 0 },
             ],
-            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HardyBarthDouble ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
         });
         return componentConfigurator;
     }

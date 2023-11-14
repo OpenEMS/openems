@@ -9,7 +9,7 @@ import { Category } from '../../shared/category';
 
 @Component({
     selector: ConfigurationFeaturesStorageSystemComponent.SELECTOR,
-    templateUrl: './configuration-features-storage-system.component.html'
+    templateUrl: './configuration-features-storage-system.component.html',
 })
 export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
 
@@ -51,7 +51,7 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
         const label = [
             { value: Category.BALANCING, label: Category.toTranslatedString(Category.BALANCING, this.translate) },
             { value: Category.PEAK_SHAVING_SYMMETRIC, label: Category.toTranslatedString(Category.PEAK_SHAVING_SYMMETRIC, this.translate) },
-            { value: Category.PEAK_SHAVING_ASYMMETRIC, label: Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC, this.translate) }
+            { value: Category.PEAK_SHAVING_ASYMMETRIC, label: Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC, this.translate) },
         ];
 
         fields.push({
@@ -60,8 +60,8 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
             templateOptions: {
                 options: label,
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_FEATURES_STORAGE_SYSTEM.FEATURE_DESCRIPTION'),
-                required: true
-            }
+                required: true,
+            },
         });
         return fields;
     }

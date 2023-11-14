@@ -50,7 +50,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(ActivatedRoute) protected route: ActivatedRoute,
     @Inject(Service) protected service: Service,
     @Inject(ModalController) protected modalCtrl: ModalController,
-    @Inject(DataService) private dataService: DataService
+    @Inject(DataService) private dataService: DataService,
   ) { }
 
   public ngOnChanges() {

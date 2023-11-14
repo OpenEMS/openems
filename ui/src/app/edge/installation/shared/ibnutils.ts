@@ -39,7 +39,7 @@ export class IbnUtils {
 
         edge.sendRequest(
             websocket,
-            new ComponentJsonApiRequest({ componentId: '_host', payload: new GetNetworkConfigRequest() })
+            new ComponentJsonApiRequest({ componentId: '_host', payload: new GetNetworkConfigRequest() }),
         ).then((response) => {
             const result = (response as GetNetworkConfigResponse).result;
 
@@ -76,25 +76,25 @@ export class IbnUtils {
                 iface.model.addresses.push({
                     label: '',
                     address: address[0],
-                    subnetmask: this.getSubnetmaskAsString(address[1])
+                    subnetmask: this.getSubnetmaskAsString(address[1]),
                 });
 
             } else {
                 iface.model.addresses = new Array({
                     label: '',
                     address: address[0],
-                    subnetmask: this.getSubnetmaskAsString(address[1])
+                    subnetmask: this.getSubnetmaskAsString(address[1]),
                 });
             }
 
             const params = {
-                interfaces: {}
+                interfaces: {},
             };
             params.interfaces[iface.name] = iface.model;
 
             edge.sendRequest(
                 websocket,
-                new ComponentJsonApiRequest({ componentId: '_host', payload: new SetNetworkConfigRequest(params) })
+                new ComponentJsonApiRequest({ componentId: '_host', payload: new SetNetworkConfigRequest(params) }),
             ).then(() => true).catch((reason) => {
                 console.log(reason);
             });

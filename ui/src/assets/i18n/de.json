@@ -229,18 +229,22 @@
           "undefined": "Nicht definiert"
         },
         "TimeOfUseTariff": {
-          "currentTariff": "Aktueller Bezugsstrompreis",
           "delayedDischarge": "Entladung verzögert",
           "STORAGE_DISCHARGE": "Speicherentladung",
-          "State": {
-            "notStarted": "Noch nicht gestartet",
-            "delayed": "Verzögert",
-            "allowsDischarge": "Freigegeben",
-            "standby": "Standby",
-            "CHARGING": "Beladung"
-          },
-          "CHARGED": "Beladung",
+          "CHARGED": "Aktive Beladung",
           "STORAGE_STATUS": "Speicherstatus"
+        },
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": "Teilnahme am BETA-Test: Diese Funktion befindet sich noch in der aktiven Entwicklung und wird stetig weiter verbessert.<br/><br/>Durch die aktive Beladung der Batterie aus dem Netz in Zeiten mit niedrigen Strompreisen kann Netzbezug zu teuren Zeiten vermieden werden.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird."
+          },
+          "CHARGE_CONSUMPTION_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "PRICE": "Aktueller Bezugsstrompreis",
+          "STATE": {
+            "DELAY_DISCHARGE": "Entladung verzögert",
+            "BALANCING": "Eigenverbrauchsoptimierung",
+            "CHARGE": "Beladung aus dem Netz freigegeben"
+          }
         }
       },
       "RETROFITTING": {

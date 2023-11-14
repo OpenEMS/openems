@@ -12,8 +12,8 @@ import { LiveDataService } from '../../live/livedataservice';
   templateUrl: './homeassistent.html',
   providers: [{
     useClass: LiveDataService,
-    provide: DataService
-  }]
+    provide: DataService,
+  }],
 })
 export class HomeServiceAssistentComponent extends AbstractFlatWidget {
 
@@ -29,7 +29,7 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
       new ChannelAddress('battery0', 'MaxCellVoltage'),
       new ChannelAddress('battery0', 'MinCellVoltage'),
       new ChannelAddress('battery0', 'MinCellTemperature'),
-      new ChannelAddress('battery0', 'MinCellTemperature')
+      new ChannelAddress('battery0', 'MinCellTemperature'),
     ];
   }
 
@@ -53,7 +53,7 @@ export class HomeServiceAssistentComponent extends AbstractFlatWidget {
 
   protected AMPERE_IN_MILLI_AMPERE_TO_AMPERE_WITH_3_DECIMALS: Converter = (raw): string => {
     return Converter.IF_NUMBER(raw, value =>
-      formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-3') + " A"
+      formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-3') + " A",
     );
   };
 }

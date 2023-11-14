@@ -7,7 +7,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: ProtocolSystemComponent.SELECTOR,
-  templateUrl: './protocol-system.component.html'
+  templateUrl: './protocol-system.component.html',
 })
 export class ProtocolSystemComponent implements OnInit {
 
@@ -30,7 +30,7 @@ export class ProtocolSystemComponent implements OnInit {
     this.fields = this.generateFields();
     this.model = this.ibn.location ?? {
       isEqualToCustomerData: false,
-      isCorporateClient: false
+      isCorporateClient: false,
     };
 
   }
@@ -56,17 +56,17 @@ export class ProtocolSystemComponent implements OnInit {
       key: "isEqualToCustomerData",
       type: "checkbox",
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.LOCATION_SAME_AS_ADDRESS')
-      }
+        label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.LOCATION_SAME_AS_ADDRESS'),
+      },
     });
 
     fields.push({
       key: "isCorporateClient",
       type: "checkbox",
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER')
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER'),
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -74,9 +74,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData || !model.isCorporateClient
+      hideExpression: model => model.isEqualToCustomerData || !model.isCorporateClient,
     });
 
     fields.push({
@@ -84,9 +84,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.LAST_NAME'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -94,9 +94,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_SYSTEM.FIRSTNAME'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -104,9 +104,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -114,12 +114,12 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
-        required: true
+        required: true,
       },
       validators: {
-        validation: ["onlyPositiveInteger"]
+        validation: ["onlyPositiveInteger"],
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -127,9 +127,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -138,9 +138,9 @@ export class ProtocolSystemComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY'),
         required: true,
-        options: COUNTRY_OPTIONS(this.translate)
+        options: COUNTRY_OPTIONS(this.translate),
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -151,11 +151,11 @@ export class ProtocolSystemComponent implements OnInit {
           templateOptions: {
             type: "email",
             label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
-            required: true
+            required: true,
           },
           validators: {
-            validation: [Validators.email]
-          }
+            validation: [Validators.email],
+          },
         },
         {
           key: "emailConfirm",
@@ -164,16 +164,16 @@ export class ProtocolSystemComponent implements OnInit {
             type: "email",
             label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
             description: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL_CONFIRMATION'),
-            required: true
-          }
-        }
+            required: true,
+          },
+        },
       ],
       validators: {
         validation: [
-          { name: "emailMatch", options: { errorPath: "emailConfirm" } }
-        ]
+          { name: "emailMatch", options: { errorPath: "emailConfirm" } },
+        ],
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
 
     fields.push({
@@ -181,9 +181,9 @@ export class ProtocolSystemComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
-        required: true
+        required: true,
       },
-      hideExpression: model => model.isEqualToCustomerData
+      hideExpression: model => model.isEqualToCustomerData,
     });
     return fields;
   }

@@ -7,7 +7,7 @@ import { AbstractBattery, CategorizedChannelDescription, ChannelChartDescription
 
 @Component({
     selector: "soltaroVersionC",
-    templateUrl: './../abstractbattery.component.html'
+    templateUrl: './../abstractbattery.component.html',
 })
 export class SoltaroVersionCComponent extends AbstractBattery implements OnInit {
 
@@ -21,7 +21,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
         protected override service: Service,
         protected override translate: TranslateService,
         public override websocket: Websocket,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { super(service, translate, websocket); }
 
     ngOnInit() {
@@ -54,8 +54,8 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
                 category: "Modul-Details",
                 channels: [
                     { channelName: "AutoSetSlavesId", register: "0x2014", description: "Neuadressierung aller Zellspannungssensoren", requiredInput: "1" },
-                    { channelName: "AutoSetSlavesTemperatureId", register: "0x2019", description: "Neuadressierung aller Zelltemperatursensoren", requiredInput: "1" }
-                ]
+                    { channelName: "AutoSetSlavesTemperatureId", register: "0x2019", description: "Neuadressierung aller Zelltemperatursensoren", requiredInput: "1" },
+                ],
             },
             {
                 category: "Zell-Details",
@@ -71,8 +71,8 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
                     { channelName: "Level1CellVoltageDifferenceProtection", register: "0x2058", description: "Maximale Zellspannungsdifferenz Lvl. 1 (Protection)", requiredInput: "500", unit: "mV" },
                     { channelName: "Level1CellVoltageDifferenceProtectionRecover", register: "0x2059", description: "Maximale Zellspannungsdifferenz Lvl. 1 (Recover)", requiredInput: "500", unit: "mV" },
                     { channelName: "Level2CellVoltageDifferenceProtection", register: "0x2418", description: "Maximale Zellspannungsdifferenz Lvl. 2 (Protection)", requiredInput: "1000", unit: "mV" },
-                    { channelName: "Level2CellVoltageDifferenceProtectionRecover", register: "0x2419", description: "Maximale Zellspannungsdifferenz Lvl. 2 (Recover)", requiredInput: "1000", unit: "mV" }
-                ]
+                    { channelName: "Level2CellVoltageDifferenceProtectionRecover", register: "0x2419", description: "Maximale Zellspannungsdifferenz Lvl. 2 (Recover)", requiredInput: "1000", unit: "mV" },
+                ],
             },
             {
                 category: "Gesamtsystem",
@@ -84,8 +84,8 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
                     { channelName: "EmsCommunicationTimeout", register: "0x201C", description: "Watchdog (EMS timeout protection)", requiredInput: "90", unit: "sec" },
                     { channelName: "VoltageLowProtection", register: "0x201E", description: "Abschaltspannung der Batterie", requiredInput: "" },
                     { channelName: "EmsAddress", register: "0x201B", description: "Aktuell nur lesbar. Zukünftig Unit-ID setzen (Vorsicht: BMS danach nicht mehr erreichbar - In BMS Komponente ändern)", requiredInput: "" },
-                    { channelName: "Sleep", register: "0x201D", description: "Sleep", requiredInput: "" }
-                ]
+                    { channelName: "Sleep", register: "0x201D", description: "Sleep", requiredInput: "" },
+                ],
             },
             {
                 category: "Isolationsüberwachung",
@@ -93,9 +93,9 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
                     { channelName: "Level1InsulationProtection", register: "0x2056", description: "Isolationsüberwachung deaktivieren (Warnung Lvl 2)", requiredInput: "0" },
                     { channelName: "Level1InsulationProtectionRecover", register: "0x2057", description: "Isolationsüberwachung deaktivieren (Warnung Lvl 1)", requiredInput: "0" },
                     { channelName: "Level2InsulationProtection", register: "0x2416", description: "Isolationsüberwachung deaktivieren (Stop Lvl 2)", requiredInput: "0" },
-                    { channelName: "Level2InsulationProtectionRecover", register: "0x2417", description: "Isolationsüberwachung deaktivieren (Stop Lvl 1)", requiredInput: "0" }
-                ]
-            }
+                    { channelName: "Level2InsulationProtectionRecover", register: "0x2417", description: "Isolationsüberwachung deaktivieren (Stop Lvl 1)", requiredInput: "0" },
+                ],
+            },
         ];
     }
 
@@ -104,7 +104,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
             { channelName: "Soc", register: "0x2103", description: "Ladezustand", requiredInput: "", unit: "%" },
             { channelName: "WorkParameterPcsCommunicationRate", register: "0x20C1", description: "Anzahl der angeschlossenen Module", requiredInput: "", unit: "Module" },
             { channelName: "ChargeMaxCurrent", register: "", description: "Errechnete maximale Beladung", requiredInput: "", unit: "A" },
-            { channelName: "DischargeMaxCurrent", register: "", description: "Errechnete maximale Entladung", requiredInput: "", unit: "A" }
+            { channelName: "DischargeMaxCurrent", register: "", description: "Errechnete maximale Entladung", requiredInput: "", unit: "A" },
         ];
     }
 
@@ -118,7 +118,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
             { channelName: "Level1CellOverVoltageProtection", register: "0x2040", description: "Maximale Zellspannung Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1CellOverVoltageRecover", unit: "mV" }], unit: "mV" },
             { channelName: "Level2CellOverVoltageProtection", register: "0x2400", description: "Maximale Zellspannung Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellOverVoltageRecover", unit: "mV" }], unit: "mV" },
             { channelName: "Level1CellVoltageDifferenceProtection", register: "0x2058", description: "Maximale Zellspannungsdifferenz Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1CellVoltageDifferenceProtectionRecover", unit: "mV" }], unit: "mV" },
-            { channelName: "Level2CellVoltageDifferenceProtection", register: "0x2418", description: "Maximale Zellspannungsdifferenz Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellVoltageDifferenceProtectionRecover", unit: "mV" }], unit: "mV" }
+            { channelName: "Level2CellVoltageDifferenceProtection", register: "0x2418", description: "Maximale Zellspannungsdifferenz Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellVoltageDifferenceProtectionRecover", unit: "mV" }], unit: "mV" },
         ];
     }
     protected getImportantCellTemperatureReadChannelDescriptions(): ChannelDescription[] {
@@ -128,13 +128,13 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
             { channelName: "Level1CellUnderTemperatureProtection", register: "0x204E", description: "Minimale Zelltemperatur Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1CellUnderTemperatureRecover", unit: "mV" }], unit: "°C" },
             { channelName: "Level2CellUnderTemperatureProtection", register: "0x240E", description: "Minimale Zelltemperatur Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellUnderTemperatureRecover", unit: "mV" }], unit: "°C" },
             { channelName: "Level1CellOverTemperatureProtection", register: "0x204C", description: "Maximale Zelltemperatur Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1CellOverTemperatureRecover", unit: "mV" }], unit: "°C" },
-            { channelName: "Level2CellOverTemperatureProtection", register: "0x240C", description: "Maximale Zelltemperatur Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellOverTemperatureRecover", unit: "mV" }], unit: "°C" }
+            { channelName: "Level2CellOverTemperatureProtection", register: "0x240C", description: "Maximale Zelltemperatur Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellOverTemperatureRecover", unit: "mV" }], unit: "°C" },
         ];
     }
     protected getImportantInsulationReadChannelDescriptions(): ChannelDescription[] {
         return [
             { channelName: "Level1InsulationProtection", register: "0x2056", description: "Isolationsüberwachung Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1InsulationProtectionRecover" }] },
-            { channelName: "Level2InsulationProtection", register: "0x2416", description: "Isolationsüberwachung Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2InsulationProtectionRecover" }] }
+            { channelName: "Level2InsulationProtection", register: "0x2416", description: "Isolationsüberwachung Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2InsulationProtectionRecover" }] },
         ];
     }
 
@@ -155,7 +155,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
             { label: "Obere Abschaltspannungen Lvl. 1 (Recover)", channelName: "Level1CellOverVoltageRecover", datasets: [], colorRgb: '217, 149, 4' },
             { label: "Obere Abschaltspannungen Lvl. 1 (Protection)", channelName: "Level1CellOverVoltageProtection", datasets: [], colorRgb: '173, 24, 24' },
             { label: "Obere Abschaltspannungen Lvl. 2 (Recover)", channelName: "Level2CellOverVoltageRecover", datasets: [], colorRgb: '217, 149, 4' },
-            { label: "Obere Abschaltspannungen Lvl. 2 (Protection)", channelName: "Level2CellOverVoltageProtection", datasets: [], colorRgb: '173, 24, 24' }
+            { label: "Obere Abschaltspannungen Lvl. 2 (Protection)", channelName: "Level2CellOverVoltageProtection", datasets: [], colorRgb: '173, 24, 24' },
         ];
     }
 }

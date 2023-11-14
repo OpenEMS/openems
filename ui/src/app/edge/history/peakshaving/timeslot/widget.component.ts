@@ -5,7 +5,7 @@ import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: TimeslotPeakshavingWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class TimeslotPeakshavingWidgetComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class TimeslotPeakshavingWidgetComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

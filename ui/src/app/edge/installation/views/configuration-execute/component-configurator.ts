@@ -400,7 +400,7 @@ export class ComponentConfigurator {
 
             // Subscribe to the new channel
             let subscription: Subscription = this.edge.currentData.pipe(
-                filter(currentData => currentData !== null)
+                filter(currentData => currentData !== null),
             ).subscribe((currentData) => {
                 let channelAddress: ChannelAddress = channelMapping.channelAddress;
                 let channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
@@ -461,7 +461,7 @@ export class ComponentConfigurator {
                 // If scheduler doesn't exist, it gets created and configured as required
                 this.edge.createComponentConfig(this.websocket, "Scheduler.AllAlphabetically", [
                     { name: "id", value: "scheduler0" },
-                    { name: "controllers.ids", value: controllerIds }
+                    { name: "controllers.ids", value: controllerIds },
                 ])
                     .then(value => resolve(value))
                     .catch(error => reject(error));
@@ -483,7 +483,7 @@ export class ComponentConfigurator {
                 newControllerIds = existingControllerIds.concat(newControllerIds);
 
                 this.edge.updateComponentConfig(this.websocket, "scheduler0", [
-                    { name: "controllers.ids", value: newControllerIds }
+                    { name: "controllers.ids", value: newControllerIds },
                 ])
                     .then(value => resolve(value))
                     .catch(error => reject(error));

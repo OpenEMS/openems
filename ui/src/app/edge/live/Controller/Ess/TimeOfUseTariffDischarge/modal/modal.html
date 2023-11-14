@@ -1,12 +1,12 @@
-<oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
+<oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup"
+    helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF" *ngIf="isInitialized && formGroup">
 
     <!-- Discharge State -->
-    <oe-modal-line [name]="storageStatuslabel" [channelAddress]="component.id + '/StateMachine'"
-        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE">
-    </oe-modal-line>
+    <oe-modal-line [name]="'General.state' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
+        [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
 
     <!-- Price -->
-    <oe-modal-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
+    <oe-modal-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE' | translate"
         [value]="priceWithCurrency"></oe-modal-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -32,6 +32,26 @@
         <ion-card-content>
             <!-- TODO - show Some information -->
         </ion-card-content>
+    </ng-container>
+
+    <!-- Control Mode -->
+    <ng-container *ngIf="component.factoryId  === 'Controller.Ess.Time-Of-Use-Tariff'">
+
+        <oe-modal-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CHARGE_CONSUMPTION_ACTIVATE'| translate"
+            [formGroup]="formGroup" controlName="chargeConsumptionIsActive" [control]="{ type: 'TOGGLE' }"
+            leftColumnWidth="100">
+        </oe-modal-line>
+
+        <!-- Control-Mode description -->
+        <ng-container style="font-size: smaller">
+            <ng-container *ngIf="formGroup.value.chargeConsumptionIsActive">
+                <span
+                    [innerHtml]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CONTROL_MODE_DESCRIPTION.CHARGE_CONSUMPTION' | translate"></span>
+            </ng-container>
+        </ng-container>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
     </ng-container>
 
 </oe-modal>

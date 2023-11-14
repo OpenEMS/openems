@@ -8,7 +8,7 @@ import { Commercial30NetztrennIbn } from "../../installation-systems/commercial/
 
 @Component({
     selector: ConfigurationCommercialComponent.SELECTOR,
-    templateUrl: './configuration-commercial.component.html'
+    templateUrl: './configuration-commercial.component.html',
 })
 export class ConfigurationCommercialComponent implements OnInit {
 
@@ -44,11 +44,11 @@ export class ConfigurationCommercialComponent implements OnInit {
         const componentLabel = ([
             {
                 value: "Anschluss", label: `FEMS Anschlussbox
-                (Commercial 30 ohne Notstromversorgung)`
+                (Commercial 30 ohne Notstromversorgung)`,
             },
             {
                 value: "Netzstelle", label: `Netztrennstelle 
-            (Commercial 30 mit Notstromversorgung)` }
+            (Commercial 30 mit Notstromversorgung)` },
         ]);
 
         fields.push({
@@ -57,8 +57,8 @@ export class ConfigurationCommercialComponent implements OnInit {
             className: 'line-break',
             templateOptions: {
                 options: componentLabel,
-                required: true
-            }
+                required: true,
+            },
         });
         return fields;
     }

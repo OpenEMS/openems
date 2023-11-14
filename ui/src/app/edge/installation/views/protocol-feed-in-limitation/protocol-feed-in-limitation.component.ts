@@ -6,7 +6,7 @@ import { FeedInType } from '../../shared/enums';
 
 @Component({
   selector: ProtocolFeedInLimitationComponent.SELECTOR,
-  templateUrl: './protocol-feed-in-limitation.component.html'
+  templateUrl: './protocol-feed-in-limitation.component.html',
 })
 export class ProtocolFeedInLimitationComponent implements OnInit {
 

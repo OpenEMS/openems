@@ -33,6 +33,7 @@ export interface Environment {
         readonly CONTROLLER_IO_FIX_DIGITAL_OUTPUT: string,
         readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string,
         readonly CONTROLLER_IO_HEATING_ELEMENT: string,
+        readonly CONTROLLER_ESS_TIME_OF_USE_TARIFF: string,
 
         readonly CONTROLLER_API_MODBUSTCP_READ: string,
         readonly CONTROLLER_API_MODBUSTCP_READWRITE: string,

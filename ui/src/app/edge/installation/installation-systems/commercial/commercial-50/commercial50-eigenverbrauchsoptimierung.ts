@@ -28,7 +28,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
@@ -37,13 +37,13 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             this.requiredControllerIds.push({
                 componentId: "ctrlGridOptimizedCharge0",
-                behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+                behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
             });
         }
 
         this.requiredControllerIds.push({
             componentId: "ctrlBalancing0",
-            behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
         });
     }
 
@@ -66,15 +66,15 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
                     { name: 'sellToGridLimitEnabled', value: true },
                     {
                         name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower
+                        value: this.feedInLimitation.maximumFeedInPower,
                     },
                     { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
                     { name: 'mode', value: 'AUTOMATIC' },
                     { name: 'manualTargetTime', value: '17:00' },
                     { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 }
+                    { name: 'sellToGridLimitRampPercentage', value: 2 },
                 ],
-                mode: ConfigurationMode.RemoveAndConfigure
+                mode: ConfigurationMode.RemoveAndConfigure,
             });
         }
 
@@ -87,9 +87,9 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'meter.id', value: 'meter0' },
-                { name: 'targetGridSetpoint', value: 0 }
+                { name: 'targetGridSetpoint', value: 0 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         return componentConfigurator;

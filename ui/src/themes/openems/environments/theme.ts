@@ -21,6 +21,7 @@ export const theme = {
         CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "io.openems.edge.controller.io.fixdigitaloutput/readme.adoc",
         CONTROLLER_IO_HEAT_PUMP_SG_READY: "io.openems.edge.controller.io.heatpump.sgready/readme.adoc",
         CONTROLLER_IO_HEATING_ELEMENT: "io.openems.edge.controller.io.heatingelement/readme.adoc",
+        CONTROLLER_ESS_TIME_OF_USE_TARIFF: "io.openems.edge.controller.ess.timeofusetariff/readme.adoc",
 
         CONTROLLER_API_MODBUSTCP_READ: "io.openems.edge.controller.api.modbus/readme.adoc",
         CONTROLLER_API_MODBUSTCP_READWRITE: "io.openems.edge.controller.api.modbus/readme.adoc",
@@ -35,17 +36,17 @@ export const theme = {
         warranty: {
             home: {
                 EN: "#",
-                DE: "#"
+                DE: "#",
             },
             commercial: {
                 EN: "#",
-                DE: "#"
-            }
+                DE: "#",
+            },
         },
 
         gtc: {
             EN: "#",
-            DE: "#"
+            DE: "#",
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
@@ -54,18 +55,18 @@ export const theme = {
         MANUALS: {
             HOME: {
                 EN: "#",
-                DE: "#"
+                DE: "#",
             },
             COMMERCIAL: {
                 EN: "#",
-                DE: "#"
-            }
+                DE: "#",
+            },
         },
         APP_CENTER: {
             APP_IMAGE: (language: string, appId: string): string | null => {
                 return null;
-            }
-        }
+            },
+        },
     },
-    PRODUCT_TYPES: () => null
+    PRODUCT_TYPES: () => null,
 };

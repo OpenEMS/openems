@@ -147,7 +147,7 @@ export module DefaultTypes {
 
     constructor(
       public from: Date = new Date(),
-      public to: Date = new Date()
+      public to: Date = new Date(),
     ) { }
 
     public getText(translate: TranslateService): string {
@@ -163,7 +163,7 @@ export module DefaultTypes {
         } else {
           // Selected one single day
           return HistoryPeriod.getTranslatedDayString(translate, this.from) + ", " + translate.instant('Edge.History.selectedDay', {
-            value: format(this.from, translate.instant('General.dateFormat'))
+            value: format(this.from, translate.instant('General.dateFormat')),
           });
         }
 
@@ -179,7 +179,7 @@ export module DefaultTypes {
         return translate.instant(
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
-          value2: format(this.to, translate.instant('General.dateFormat'))
+          value2: format(this.to, translate.instant('General.dateFormat')),
         });
       }
     }
