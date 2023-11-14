@@ -109,14 +109,14 @@ public class OfflineEdgeAlertingTest {
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = new Dummy.TestConfig(15, true, false);
+		var config = Dummy.testConfig(15);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
 		/* Wait long enough to trigger delayed Initialization. */
-		env.timer.leap(config.initialDelay);
+		env.timer.leap(config.initialDelay());
 		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
 		/* edge05[user03] */
@@ -173,14 +173,14 @@ public class OfflineEdgeAlertingTest {
 	public void deactiveTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = new Dummy.TestConfig(5, false, false);
+		var config = Dummy.testConfig(5);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
 		/* Wait long enough to trigger delayed Initialization. */
-		env.timer.leap(config.initialDelay);
+		env.timer.leap(config.initialDelay());
 		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());

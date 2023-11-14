@@ -48,12 +48,12 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
 	private static final Executor createDefaultExecutorService() {
-		final var threadFacotry = new ThreadFactoryBuilder() //
+		final var threadFactory = new ThreadFactoryBuilder() //
 				.setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d") //
 				.build();
 		final var blockingQueue = new LinkedBlockingQueue<Runnable>();
 		final var alertingLog = LoggerFactory.getLogger(Alerting.class.getCanonicalName() + "::ThreadPoolExecutor");
-		return new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, blockingQueue, threadFacotry) {
+		return new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, blockingQueue, threadFactory) {
 			@Override
 			public void execute(Runnable command) {
 				super.execute(command);

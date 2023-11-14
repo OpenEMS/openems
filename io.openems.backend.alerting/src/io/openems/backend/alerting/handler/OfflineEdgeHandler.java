@@ -134,7 +134,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * Check if Edge is valid for Scheduling.
 	 *
 	 * @param edge to test
-	 * @return true if vald
+	 * @return true if valid
 	 */
 	private boolean isValidEdge(Edge edge) {
 		var invalid = edge.getLastmessage() == null // was never online
