@@ -539,6 +539,23 @@ export class Utils {
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
+
+  /**
+   * Converts a value in €/MWh to €Ct./kWh.
+   * 
+   * @param price the price value
+   * @returns  the converted price
+   */
+  public static formatPrice(price: number): number {
+    if (price == null || Number.isNaN(price)) {
+      return null;
+    } else if (price == 0) {
+      return 0;
+    } else {
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
+    }
+  }
 }
 
 export enum YAxisTitle {

@@ -366,17 +366,6 @@
           "normalOperationShort": "",
           "switchOnComShort": "",
           "switchOnRecShort": ""
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Huidige prijs",
-          "delayedDischarge": "Vertraagd ontslag",
-          "STORAGE_DISCHARGE": "Opslag ontlading",
-          "State": {
-            "notStarted": "De regelaar is nog niet gestart",
-            "delayed": "Vertraagd",
-            "allowsDischarge": "Vrijgegeven",
-            "standby": "Standby"
-          }
         }
       }
     },

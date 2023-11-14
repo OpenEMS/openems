@@ -479,6 +479,17 @@ export class EdgeConfig {
                 ],
             },
             {
+                category: { title: 'Cloud-Schnittstellen', icon: 'cloud-outline' },
+                factories: [
+                    this.getFactoriesByIdsPattern([
+                        /TimeOfUseTariff\.*/,
+                    ]),
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                    ]),
+                ],
+            },
+            {
                 category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
                 factories: [
                     this.getFactoriesByIds([
