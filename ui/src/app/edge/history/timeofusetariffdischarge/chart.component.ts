@@ -6,7 +6,7 @@ import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
 
@@ -19,9 +19,10 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
-  public component: EdgeConfig.Component = null;
+
   public override edge: Edge;
-  private currencyLabel: string; // Default
+  protected component: EdgeConfig.Component | null = null;
+  private currencyLabel: Currency.Label; // Default
 
   ngOnChanges() {
     this.edge = this.service.currentEdge.value;
@@ -83,7 +84,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
           let barBalancing = Array(size).fill(null);
 
           for (let index = 0; index < size; index++) {
-            let quarterlyPrice = this.formatPrice(result.data[quarterlyPrices][index]);
+            let quarterlyPrice = Utils.formatPrice(result.data[quarterlyPrices][index]);
             let state = result.data[timeOfUseTariffState][index];
 
             if (state !== null) {
@@ -124,14 +125,14 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             order: 3,
           });
           this.colors.push({
-            // Dark Blue
+            // Black
             backgroundColor: 'rgba(0,0,200,0.7)',
             borderColor: 'rgba(0,0,200,0.9)',
           });
 
           // Dataset for CHARGE
           // Show charge data only for the new controller.
-          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff' && !barCharge.every(v => v === 0)) {
+          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff' && !barCharge.every(v => v === null)) {
             datasets.push({
               type: 'bar',
               label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
@@ -188,23 +189,6 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
       this.initializeChart();
       return;
     });
-  }
-
-  /**
-   * Converts a value in €/MWh to €Ct./kWh.
-   * 
-   * @param price the price value
-   * @returns  the converted price
-   */
-  private formatPrice(price: number): number {
-    if (price == null || Number.isNaN(price)) {
-      return null;
-    } else if (price == 0) {
-      return 0;
-    } else {
-      price = (price / 10.0);
-      return Math.round(price * 10000) / 10000.0;
-    }
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

@@ -1,5 +1,5 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { Widgets } from '../type/widget';
+import { AdvertWidgets, Widgets } from '../type/widget';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {
@@ -79,6 +79,9 @@ export class EdgeConfig {
 
         // Initialize Widgets
         this.widgets = Widgets.parseWidgets(edge, this);
+
+        // Initialize Advertisement Widgets
+        this.advertWidgets = AdvertWidgets.parseAdvertWidgets(edge, this);
     }
 
     /**
@@ -100,6 +103,11 @@ export class EdgeConfig {
      * UI-Widgets.
      */
     public readonly widgets: Widgets;
+
+    /**
+     * UI-Advertisement-Widgets
+     */
+    public readonly advertWidgets: AdvertWidgets;
 
     public isValid(): boolean {
         return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
@@ -449,6 +457,17 @@ export class EdgeConfig {
                 ],
             },
             {
+                category: { title: 'Cloud-Schnittstellen', icon: 'cloud-outline' },
+                factories: [
+                    this.getFactoriesByIdsPattern([
+                        /TimeOfUseTariff\.*/,
+                    ]),
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                    ]),
+                ],
+            },
+            {
                 category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
                 factories: [
                     this.getFactoriesByIds([
@@ -456,6 +475,7 @@ export class EdgeConfig {
                         'Bridge.Onewire',
                         'Bridge.Modbus.Serial',
                         'Bridge.Modbus.Tcp',
+                        'Kaco.BlueplanetHybrid10.Core',
                     ]),
                 ],
             },
@@ -463,7 +483,6 @@ export class EdgeConfig {
                 category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend',
                         'Controller.Debug.Log',
                         'Controller.Debug.DetailedLog',
                     ]),

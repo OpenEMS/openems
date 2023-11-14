@@ -228,12 +228,6 @@
           "switchOnRecShort": "Empfehlung",
           "undefined": "Nicht definiert"
         },
-        "TimeOfUseTariff": {
-          "delayedDischarge": "Entladung verzögert",
-          "STORAGE_DISCHARGE": "Speicherentladung",
-          "CHARGED": "Aktive Beladung",
-          "STORAGE_STATUS": "Speicherstatus"
-        },
         "TIME_OF_USE_TARIFF": {
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
