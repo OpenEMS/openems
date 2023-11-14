@@ -41,7 +41,6 @@
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.fileinstall',\
 	bnd.identity;id='org.apache.felix.metatype',\
-	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
 	bnd.identity;id='io.openems.backend.b2brest',\
@@ -55,7 +54,6 @@
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
-	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
 
 -runbundles: \
@@ -64,7 +62,7 @@
 	com.google.guava;version='[32.1.3,32.1.4)',\
 	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
 	com.squareup.okio;version='[3.6.0,3.6.1)',\
-	com.zaxxer.HikariCP;version='[5.0.1,5.0.2)',\
+	com.zaxxer.HikariCP;version='[5.1.0,5.1.1)',\
 	io.openems.backend.alerting;version=snapshot,\
 	io.openems.backend.application;version=snapshot,\
 	io.openems.backend.b2brest;version=snapshot,\
@@ -78,7 +76,6 @@
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
-	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
@@ -93,7 +90,6 @@
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
 	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
-	io.openems.wrapper.pgbulkinsert;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
@@ -101,18 +97,18 @@
 	io.reactivex.rxjava3.rxjava;version='[3.1.8,3.1.9)',\
 	org.apache.commons.commons-csv;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-fileupload;version='[1.5.0,1.5.1)',\
-	org.apache.commons.commons-io;version='[2.14.0,2.14.1)',\
+	org.apache.commons.commons-io;version='[2.15.0,2.15.1)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.2,5.1.3)',\
+	org.apache.felix.http.jetty;version='[5.1.4,5.1.5)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.6,2.2.7)',\
 	org.apache.felix.webconsole;version='[4.9.6,4.9.7)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.9.10,1.9.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.9.20,1.9.21)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\

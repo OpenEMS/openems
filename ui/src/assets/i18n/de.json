@@ -228,19 +228,17 @@
           "switchOnRecShort": "Empfehlung",
           "undefined": "Nicht definiert"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Aktueller Bezugsstrompreis",
-          "delayedDischarge": "Entladung verzögert",
-          "STORAGE_DISCHARGE": "Speicherentladung",
-          "State": {
-            "notStarted": "Noch nicht gestartet",
-            "delayed": "Verzögert",
-            "allowsDischarge": "Freigegeben",
-            "standby": "Standby",
-            "CHARGING": "Beladung"
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": "Teilnahme am BETA-Test: Diese Funktion befindet sich noch in der aktiven Entwicklung und wird stetig weiter verbessert.<br/><br/>Durch die aktive Beladung der Batterie aus dem Netz in Zeiten mit niedrigen Strompreisen kann Netzbezug zu teuren Zeiten vermieden werden.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird."
           },
-          "CHARGED": "Beladung",
-          "STORAGE_STATUS": "Speicherstatus"
+          "CHARGE_CONSUMPTION_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren (BETA-Test)",
+          "PRICE": "Aktueller Bezugsstrompreis",
+          "STATE": {
+            "DELAY_DISCHARGE": "Entladung verzögert",
+            "BALANCING": "Eigenverbrauchsoptimierung",
+            "CHARGE": "Beladung aus dem Netz freigegeben"
+          }
         }
       },
       "RETROFITTING": {
@@ -254,7 +252,8 @@
         "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "PREPARING": "Kapazitätserweiterung wird vorbereitet",
         "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen."
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
+        "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt"
       },
       "SYSTEMUPDATE": "Systemupdate"
     },
@@ -560,7 +559,7 @@
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
     "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
-    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+    "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -709,7 +708,8 @@
       "SHADE_MANAGEMENT_DEACTIVATED": "Schattenmanagement deaktivert",
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECIEVER": "Rundsteuerempfänger",
-      "PLACE_HOLDER": "Wähle eine Option"
+      "PLACE_HOLDER": "Wähle eine Option",
+      "NO_LIMITATION": "Kein Einspeisemanagement"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",

@@ -24,6 +24,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for Kaco PV-Inverter.
@@ -80,7 +81,9 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 			var factoryIdInverter = "PV-Inverter.KACO.blueplanet";
 			var components = this.getComponents(factoryIdInverter, pvInverterId, modbusId, alias, ip, port);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

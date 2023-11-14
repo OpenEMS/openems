@@ -6,6 +6,8 @@ import { SystemId, SystemType } from '../../shared/system';
 import { AbstractHomeIbn } from './abstract-home';
 
 export class Home10FeneconIbn extends AbstractHomeIbn {
+    public override maxNumberOfTowers: number = 4;
+    public override maxNumberOfModulesPerTower: number = 10;
 
     public override readonly type: SystemType = SystemType.FENECON_HOME_10;
     public override readonly id: SystemId = SystemId.FENECON_HOME_10;
@@ -31,7 +33,7 @@ export class Home10FeneconIbn extends AbstractHomeIbn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 }

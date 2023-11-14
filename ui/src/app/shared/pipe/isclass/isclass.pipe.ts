@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  * Use like: *ngIf="bridge | isclass:'io.openems.impl.protocol.simulator.SimulatorBridge'"
  */
 @Pipe({
-  name: 'isclass'
+  name: 'isclass',
 })
 export class IsclassPipe implements PipeTransform {
   transform(object: any, classname: string): boolean {

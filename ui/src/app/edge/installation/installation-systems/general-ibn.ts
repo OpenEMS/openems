@@ -32,7 +32,7 @@ export class GeneralIbn extends AbstractIbn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 

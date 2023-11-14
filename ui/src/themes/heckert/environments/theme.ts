@@ -22,6 +22,7 @@ export const theme = {
         CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "fems-app/includes/FEMS_App_Manuelle_Relaissteuerung.html",
         CONTROLLER_IO_HEAT_PUMP_SG_READY: "fems-app/includes/FEMS_App_Waermepumpe_SG-Ready.html",
         CONTROLLER_IO_HEATING_ELEMENT: "fems-app/includes/FEMS_App_Heizstab.html",
+        CONTROLLER_ESS_TIME_OF_USE_TARIFF: "fems-app/OEM_App_TOU.html",
 
         CONTROLLER_API_MODBUSTCP_READ: "fems-app/OEM_App_Modbus_TCP.html#_lesezugriff",
         CONTROLLER_API_MODBUSTCP_READWRITE: "fems-app/OEM_App_Modbus_TCP.html#_schreibzugriff",
@@ -37,17 +38,17 @@ export const theme = {
         warranty: {
             home: {
                 EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
-                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf"
+                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf",
             },
             commercial: {
                 EN: "#",
-                DE: "#"
-            }
+                DE: "#",
+            },
         },
 
         gtc: {
             EN: "https://fenecon.de/page/gtc/",
-            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/"
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
         },
 
         // Currently the links are different with different prefixes. so adding whole url.
@@ -55,13 +56,25 @@ export const theme = {
         MANUALS: {
             HOME: {
                 EN: "#",
-                DE: "#"
+                DE: "#",
             },
             COMMERCIAL: {
                 EN: "#",
-                DE: "#"
-            }
-        }
+                DE: "#",
+            },
+        },
+        APP_CENTER: {
+            APP_IMAGE: (language: string, appId: string): string | null => {
+                const languageKey = (() => {
+                    switch (language) {
+                        case 'de': return 'de';
+                        case 'en': return 'en';
+                        default: return 'en';
+                    }
+                })();
+                return 'https://docs.fenecon.de/de/_/latest/_images/fenecon/apps/' + languageKey + '/' + appId + '.png';
+            },
+        },
     },
-    PRODUCT_TYPES: () => null
+    PRODUCT_TYPES: () => null,
 };

@@ -55,6 +55,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -158,7 +159,9 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

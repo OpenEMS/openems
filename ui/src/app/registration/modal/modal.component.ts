@@ -9,7 +9,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class RegistrationModalComponent implements OnInit {
 
@@ -22,7 +22,7 @@ export class RegistrationModalComponent implements OnInit {
     public modalCtrl: ModalController,
     private translate: TranslateService,
     private service: Service,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
@@ -75,18 +75,18 @@ export class RegistrationModalComponent implements OnInit {
           street: this.formGroup.value.street,
           zip: this.formGroup.value.zip,
           city: this.formGroup.value.city,
-          country: this.formGroup.value.country
+          country: this.formGroup.value.country,
         },
         subscribeNewsletter: this.formGroup.value.subscribeNewsletter,
-        role: this.activeSegment
+        role: this.activeSegment,
       },
-      oem: environment.theme
+      oem: environment.theme,
     });
 
     let companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
-        name: companyName
+        name: companyName,
       };
     }
 
@@ -122,7 +122,7 @@ export class RegistrationModalComponent implements OnInit {
         isElectrician: new FormControl(false, Validators.requiredTrue),
         acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
         acceptAgb: new FormControl(false, Validators.requiredTrue),
-        subscribeNewsletter: new FormControl(false)
+        subscribeNewsletter: new FormControl(false),
       });
     } else {
       return this.formBuilder.group({
@@ -139,7 +139,7 @@ export class RegistrationModalComponent implements OnInit {
         confirmPassword: new FormControl("", Validators.required),
         acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
         acceptAgb: new FormControl(false, Validators.requiredTrue),
-        subscribeNewsletter: new FormControl(false)
+        subscribeNewsletter: new FormControl(false),
       });
     }
   }

@@ -18,7 +18,7 @@ export interface InterfaceForm {
 
 @Component({
   selector: NetworkOldComponent.SELECTOR,
-  templateUrl: './network.old.component.html'
+  templateUrl: './network.old.component.html',
 })
 export class NetworkOldComponent implements OnInit {
 
@@ -30,7 +30,7 @@ export class NetworkOldComponent implements OnInit {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -58,13 +58,13 @@ export class NetworkOldComponent implements OnInit {
     }
 
     let request = {
-      interfaces: {}
+      interfaces: {},
     };
     request.interfaces[iface.name] = iface.model;
 
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
-        componentId: "_host", payload: new SetNetworkConfigRequest(request)
+        componentId: "_host", payload: new SetNetworkConfigRequest(request),
       })).then(response => {
         this.service.toast("Successfully updated network configuration for [" + iface.name + "].", 'success');
       }).catch(reason => {
@@ -83,8 +83,8 @@ export class NetworkOldComponent implements OnInit {
           key: 'dhcp',
           type: 'checkbox',
           templateOptions: {
-            label: 'DHCP'
-          }
+            label: 'DHCP',
+          },
         },
         {
           hideExpression: 'model.dhcp',
@@ -92,8 +92,8 @@ export class NetworkOldComponent implements OnInit {
           type: 'input',
           templateOptions: {
             label: 'Gateway',
-            placeholder: 'z.B. "192.168.0.1"'
-          }
+            placeholder: 'z.B. "192.168.0.1"',
+          },
         },
         {
           hideExpression: 'model.dhcp',
@@ -101,27 +101,27 @@ export class NetworkOldComponent implements OnInit {
           type: 'input',
           templateOptions: {
             label: 'DNS',
-            input: 'z.B. "192.168.0.1"'
-          }
+            input: 'z.B. "192.168.0.1"',
+          },
         },
         {
           key: 'linkLocalAddressing',
           type: 'checkbox',
           templateOptions: {
-            label: 'Link-Local Address (z. B. "169.254.XXX.XXX")'
-          }
+            label: 'Link-Local Address (z. B. "169.254.XXX.XXX")',
+          },
         },
         {
           key: 'addresses',
           type: 'repeat',
           templateOptions: {
-            label: 'Statische IP-Adresse hinzufügen'
+            label: 'Statische IP-Adresse hinzufügen',
           },
           fieldArray: {
-            type: 'input'
-          }
-        }
-      ]
+            type: 'input',
+          },
+        },
+      ],
     };
   }
 }

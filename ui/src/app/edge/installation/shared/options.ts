@@ -18,7 +18,7 @@ export const DIRECTIONS_OPTIONS = (translate: TranslateService) => {
         { label: east, value: east },
         { label: northWest, value: northWest },
         { label: northEast, value: northEast },
-        { label: north, value: north }
+        { label: north, value: north },
     ];
 };
 
@@ -66,6 +66,6 @@ export const FEED_IN_POWER_FACTOR_OPTIONS = () => {
         { label: '-0.96', value: FeedInSetting.Lagging_0_96 },
         { label: '-0.97', value: FeedInSetting.Lagging_0_97 },
         { label: '-0.98', value: FeedInSetting.Lagging_0_98 },
-        { label: '-0.99', value: FeedInSetting.Lagging_0_99 }
+        { label: '-0.99', value: FeedInSetting.Lagging_0_99 },
     ];
 };

@@ -17,7 +17,8 @@
                                             [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_AVAILABLE</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
-                                        <p translate>INSTALLATION.CLICK_RECOMMENDATION</p>
+                                        <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
+                                            INSTALLATION.CLICK_RECOMMENDATION</p>
                                     </ion-card-content>
                                 </ng-container>
                                 <ng-template #others>

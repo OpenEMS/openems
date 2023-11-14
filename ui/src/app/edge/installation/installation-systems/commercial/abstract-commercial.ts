@@ -25,13 +25,13 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         isEnabled: true,
         minValue: 15,
         value: 20,
-        isReserveSocEnabled: false
+        isReserveSocEnabled: false,
     };
 
     // protocol-dynamic-feed-in-limitation
     public override feedInLimitation?= {
         feedInType: FeedInType.EXTERNAL_LIMITATION,
-        maximumFeedInPower: 0
+        maximumFeedInPower: 0,
     };
 
     // Protocol line side meter fuse
@@ -42,7 +42,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         meterType: Meter;
     } = {
             category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL,
-            meterType: Meter.SOCOMEC
+            meterType: Meter.SOCOMEC,
         };
 
     public numberOfModulesPerTower: number;
@@ -58,7 +58,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         warrantyLink: WebLinks;
     } = {
             gtcLink: WebLinks.GTC_LINK,
-            warrantyLink: WebLinks.WARRANTY_LINK_COMMERCIAL
+            warrantyLink: WebLinks.WARRANTY_LINK_COMMERCIAL,
         };
 
     public override getLineSideMeterFuseFields() {
@@ -72,12 +72,12 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 type: 'number',
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.FIXED_VALUE_DESCRIPTION'),
                 min: 0,
-                required: true
+                required: true,
             },
             parsers: [Number],
             validators: {
-                validation: ["onlyPositiveInteger"]
-            }
+                validation: ["onlyPositiveInteger"],
+            },
         });
 
         fields.push({
@@ -88,10 +88,10 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 required: true,
                 options: [
                     { label: "SOCOMEC", value: Meter.SOCOMEC },
-                    { label: "KDK", value: Meter.KDK }
-                ]
+                    { label: "KDK", value: Meter.KDK },
+                ],
             },
-            defaultValue: Meter.SOCOMEC
+            defaultValue: Meter.SOCOMEC,
         });
         return fields;
     }
@@ -118,10 +118,10 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 placeholder: "Select Option",
                 options: [
                     { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
-                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
+                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION },
                 ],
-                required: true
-            }
+                required: true,
+            },
         });
 
         fields.push({
@@ -131,16 +131,16 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 type: 'number',
                 label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
-                required: true
+                required: true,
             },
             parsers: [Number],
             validators: {
-                validation: ["onlyPositiveInteger"]
+                validation: ["onlyPositiveInteger"],
             },
             // 10 is given as radix parameter.
             // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
             defaultValue: totalPvPower,
-            hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
+            hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION,
         });
         return fields;
     }
@@ -152,13 +152,13 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             ? batteryInverterData.push(
                 {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-                    value: feedInLimitation.maximumFeedInPower
-                }
+                    value: feedInLimitation.maximumFeedInPower,
+                },
             )
             : batteryInverterData.push(
                 {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
-                    value: this.translate.instant('General.yes')
+                    value: this.translate.instant('General.yes'),
                 });
 
         return batteryInverterData;
@@ -175,7 +175,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             // Edge-subscribe
             edge.subscribeChannels(websocket, 'commercial', [
                 new ChannelAddress('battery0', 'NumberOfTowers'),
-                new ChannelAddress('battery0', 'NumberOfModulesPerTower')
+                new ChannelAddress('battery0', 'NumberOfModulesPerTower'),
             ]);
 
             // Subject to stop the subscription to currentData
@@ -197,7 +197,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                             // 10 is given as radix parameter.
                             // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
                             numberOfTowers: parseInt(numberOfTowers, 10),
-                            numberOfModulesPerTower: parseInt(numberOfModulesPerTower, 10)
+                            numberOfModulesPerTower: parseInt(numberOfModulesPerTower, 10),
                         });
                     }
                 });
@@ -229,14 +229,14 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
                 value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
                     ? this.translate.instant('General.yes')
-                    : this.translate.instant('General.no')
+                    : this.translate.instant('General.no'),
             },
             {
                 category: Category.FEED_IN_MANAGEMENT,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'),
                 value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
                     ? this.translate.instant('General.yes')
-                    : this.translate.instant('General.no')
+                    : this.translate.instant('General.no'),
             });
 
         if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
@@ -245,7 +245,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
-                    : (0).toString()
+                    : (0).toString(),
             });
         }
 
@@ -292,9 +292,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                         { name: 'ip', value: '192.168.0.7' },
                         { name: 'port', value: '20108' },
                         { name: 'logVerbosity', value: 'NONE' },
-                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
                     ],
-                    mode: ConfigurationMode.RemoveAndConfigure
+                    mode: ConfigurationMode.RemoveAndConfigure,
                 });
 
                 // Add ip address to network configuration
@@ -325,9 +325,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: ioComponentId },
-                { name: 'modbusUnitId', value: 6 }
+                { name: 'modbusUnitId', value: 6 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         }, 3);
 
         return componentConfigurator;
@@ -354,9 +354,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         };
     }
 
@@ -392,7 +392,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             // Read data
             edge.currentData.pipe(
                 takeUntil(stopOnRequest),
-                filter(currentData => currentData != null)
+                filter(currentData => currentData != null),
             ).subscribe((currentData) => {
                 let anyNullorUndefined: boolean = false;
 

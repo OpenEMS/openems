@@ -61,7 +61,7 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     Controller_Io_HeatingElement,
     EnergymonitorModule,
     SharedModule,
-    Controller_Evcs
+    Controller_Evcs,
   ],
   entryComponents: [
     AdministrationComponent,
@@ -79,7 +79,7 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     Evcs_Api_ClusterModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
-    StorageModalComponent
+    StorageModalComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -110,7 +110,7 @@ import { Controller_Evcs } from './Controller/Evcs/Evcs';
     LiveComponent,
     OfflineComponent,
     StorageComponent,
-    StorageModalComponent
-  ]
+    StorageModalComponent,
+  ],
 })
 export class LiveModule { }

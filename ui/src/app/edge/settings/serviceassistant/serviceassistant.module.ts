@@ -7,7 +7,7 @@ import { SoltaroVersionCComponent } from "./soltarosingle/soltaroC.component";
 
 @NgModule({
     imports: [
-        SharedModule
+        SharedModule,
     ],
     entryComponents: [
     ],
@@ -15,8 +15,8 @@ import { SoltaroVersionCComponent } from "./soltarosingle/soltaroC.component";
         ServiceAssistantComponent,
         SoltaroCellChartComponent,
         SoltaroVersionBComponent,
-        SoltaroVersionCComponent
+        SoltaroVersionCComponent,
     ],
-    exports: [ServiceAssistantComponent]
+    exports: [ServiceAssistantComponent],
 })
 export class ServiceAssistantModule { }

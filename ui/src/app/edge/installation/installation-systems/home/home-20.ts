@@ -37,6 +37,8 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
     public override readonly maxFeedInLimit: number = 20000;
     public override readonly homeAppId: string = 'App.FENECON.Home.20';
     public override readonly homeAppAlias: string = 'FENECON Home 20';
+    public override readonly maxNumberOfTowers: number = 4;
+    public override readonly maxNumberOfModulesPerTower: number = 15;
 
     public override mppt: {
         connectionCheck: boolean,
@@ -49,7 +51,7 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
             mppt1pv1: false,
             mppt1pv2: false,
             mppt2pv3: false,
-            mppt2pv4: false
+            mppt2pv4: false,
         };
 
     constructor(public override translate: TranslateService) {
@@ -69,7 +71,7 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
@@ -103,7 +105,7 @@ export class Home20FeneconIbn extends AbstractHomeIbn {
             HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
             ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
             ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
-            ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
+            ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true }),
         };
 
         return Home20AppProperties;

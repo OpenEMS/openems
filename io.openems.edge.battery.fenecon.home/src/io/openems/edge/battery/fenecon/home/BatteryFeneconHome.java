@@ -656,7 +656,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		 * NOTE that Modbus Bit is inverted: 1: is-not-started; 0: is-started
 		 */
 		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN)),
-		
+
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //

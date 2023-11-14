@@ -229,19 +229,17 @@
           "switchOnRecShort": "Recommendation",
           "undefined": "Undefined"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Current price",
-          "delayedDischarge": "Delayed Discharge",
-          "STORAGE_DISCHARGE": "Storage Discharge",
-          "State": {
-            "notStarted": "Controller has not yet started",
-            "delayed": "Delayed",
-            "allowsDischarge": "Allows Discharge",
-            "standby": "Standby",
-            "CHARGING": "Charging"
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": "Participation in BETA-Test: This feature is under active development and will be continuously improved.<br/><br/>By actively charging the battery from grid in periods of low electricity prices, buying energy in periods with high price can be avoided.<br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: precondition for German \"Gesetz für den Ausbau erneuerbarer Energien (EEG)\" grant is, that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function, the battery is charged with energy from grid. This energy is, depending on the individual power-supply contract, probably made from fossil sources and/or nuclear power plants. Because of this we can not guarantee, that the battery is only charged with energy from renewable sources and/or pit gas."
           },
-          "CHARGED": "Charged",
-          "STORAGE_STATUS": "Storage status"
+          "CHARGE_CONSUMPTION_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "PRICE": "Current price",
+          "STATE": {
+            "DELAY_DISCHARGE": "Delayed discharge",
+            "BALANCING": "Self-Consumption optmization",
+            "CHARGE": "Charge from grid allowed"
+          }
         }
       },
       "RETROFITTING": {
@@ -255,7 +253,8 @@
         "REACHED_TARGET_SOC": "Ready for Capacity Extension",
         "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
         "SELECT_A_DATE": "Please select a date",
-        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature.",
+        "TARGET_TIME_SPECIFIED": "Capacity Extension will be performed on {{targetDate}} at {{targetTime}}"
       },
       "SYSTEMUPDATE": "System update"
     },
@@ -560,7 +559,7 @@
     "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
-    "FIRST_SETUP_PROTOCOL": "Commissioning"
+    "FIRST_SETUP_PROTOCOL": "Initial commissioning"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -708,7 +707,8 @@
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
       "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
-      "PLACE_HOLDER": "Select option"
+      "PLACE_HOLDER": "Select option",
+      "NO_LIMITATION": "No limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",

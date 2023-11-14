@@ -2,18 +2,22 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 import { AdvertisementComponent } from './advertisement.component';
-import { EOYAdvertComponent } from './eoy-award/eoy';
+import { EoYWinnerAdvertComponent } from './eoy-winner/eoy-winner';
+import { DynamicElectricityTarifAdvertForExistingCustomerComponent } from './dynamic-electricity-tariff/dynamic-electricity-tariff-existing-customer';
+import { DynamicElectricityTarifAdvertForNewCustomerComponent } from './dynamic-electricity-tariff/dynamic-electricity-tariff-new-customer';
 
 @NgModule({
     imports: [
-        SharedModule
+        SharedModule,
     ],
     declarations: [
         AdvertisementComponent,
-        EOYAdvertComponent
+        EoYWinnerAdvertComponent,
+        DynamicElectricityTarifAdvertForExistingCustomerComponent,
+        DynamicElectricityTarifAdvertForNewCustomerComponent,
     ],
     exports: [
-        AdvertisementComponent
-    ]
+        AdvertisementComponent,
+    ],
 })
 export class AdvertisementModule { }

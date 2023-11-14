@@ -126,7 +126,7 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
             return {
                 category: Category.toTranslatedString(element.category, translate),
                 name: element.name,
-                value: element.value
+                value: element.value,
             };
         });
 
@@ -141,7 +141,7 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
     private constructor(
         public override readonly params: {
             protocol: any
-        }
+        },
     ) {
         super(SubmitSetupProtocolRequest.METHOD, params);
     }

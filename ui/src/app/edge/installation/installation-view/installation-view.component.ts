@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: InstallationViewComponent.SELECTOR,
-  templateUrl: './installation-view.component.html'
+  templateUrl: './installation-view.component.html',
 })
 export class InstallationViewComponent implements OnChanges {
 
@@ -53,7 +53,7 @@ export class InstallationViewComponent implements OnChanges {
   private setLabelAndIcon(labelKey: string, icon: string) {
     this.labelToShow = {
       label: labelKey,
-      icon: icon
+      icon: icon,
     };
   }
 }

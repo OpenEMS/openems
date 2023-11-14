@@ -16,7 +16,7 @@ class Package {
 
   constructor(
     public readonly name: string,
-    public readonly description: string
+    public readonly description: string,
   ) {
   }
 
@@ -37,7 +37,7 @@ class Package {
 
 @Component({
   selector: SystemUpdateOldComponent.SELECTOR,
-  templateUrl: './systemupdate.old.component.html'
+  templateUrl: './systemupdate.old.component.html',
 })
 export class SystemUpdateOldComponent implements OnInit, OnDestroy {
 
@@ -64,7 +64,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
-    private service: Service
+    private service: Service,
   ) { }
 
   ngOnInit() {
@@ -74,7 +74,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
       // Update version information now and every minute
       const source = timer(0, 30000);
       source.pipe(
-        takeUntil(this.ngUnsubscribe)
+        takeUntil(this.ngUnsubscribe),
       ).subscribe(ignore => {
         this.updateVersions();
         this.readLog();
@@ -106,14 +106,14 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
           password: SystemUpdateOldComponent.PASSWORD,
           timeoutSeconds: 60,
           runInBackground: false,
-          command: command
-        })
+          command: command,
+        }),
       })).then(response => {
         let result = (response as ExecuteSystemCommandResponse).result;
         this.log("INFO", "Versionen gelesen: "
           + result.stdout.join(", ") + " | "
           + result.stderr.join(", ")
-            .replace("dpkg-query: no packages found matching fems", "veralteter Stand mit openems-core/openems-core-fems Paketen")
+            .replace("dpkg-query: no packages found matching fems", "veralteter Stand mit openems-core/openems-core-fems Paketen"),
         );
 
         if (result.stderr.length >= 1 && result.stderr[0].includes("dpkg-query: no packages found matching fems")) {
@@ -162,8 +162,8 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
           timeoutSeconds: 300,
           runInBackground: false,
           command: "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; "
-            + "echo 'wget http://fenecon.de/debian-test/update-fems.sh -O /tmp/update-fems.sh && chmod +x /tmp/update-fems.sh && /tmp/update-fems.sh' | at now"
-        })
+            + "echo 'wget http://fenecon.de/debian-test/update-fems.sh -O /tmp/update-fems.sh && chmod +x /tmp/update-fems.sh && /tmp/update-fems.sh' | at now",
+        }),
 
       })).catch(reason => {
         this.log("ERROR", reason.error.message);
@@ -180,8 +180,8 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
             password: SystemUpdateOldComponent.PASSWORD,
             timeoutSeconds: 300,
             runInBackground: false,
-            command: "tail -n 5 /proc/$(pgrep --full /tmp/update-fems.sh --oldest)/fd/1"
-          })
+            command: "tail -n 5 /proc/$(pgrep --full /tmp/update-fems.sh --oldest)/fd/1",
+          }),
 
         })).then(response => {
           let result = (response as ExecuteSystemCommandResponse).result;
@@ -215,7 +215,7 @@ export class SystemUpdateOldComponent implements OnInit, OnDestroy {
       color: this.getColor(level),
       level: level,
       source: "",
-      message: message
+      message: message,
     });
   }
 

@@ -57,10 +57,46 @@ export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [{
-            name: 'EOY-Award',
-            title: 'EOY Award'
-        }];
+        let list: AdvertWidget[] = [];
+
+        //Temporarily removing from displaying this advertise.
+        /*
+        if (edge.producttype == ProductType.HOME) {
+            list.push({
+                name: 'FeneconHomeExtension',
+                title: 'FENECON Home Erweiterung'
+            })
+        }
+
+        list.push({
+            name: 'Alerting',
+            title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
+        })
+        */
+
+        list.push({
+            name: 'eoy-winner',
+            title: 'EOY Award',
+        });
+
+
+        // Home
+        if (edge?.producttype === ProductType.HOME) {
+
+            // Controller exist already
+            if (config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff.Discharge').length > 0
+                || config.getComponentIdsByFactory('Controller.Ess.Time-Of-Use-Tariff').length > 0) {
+                list.push({
+                    name: 'dynamic-electricity-tariff-existing-customer',
+                    title: 'Dynamischer Stromtarif',
+                });
+            } else {
+                list.push({
+                    name: 'dynamic-electricity-tariff-new-customer',
+                    title: 'Dynamischer Stromtarif',
+                });
+            }
+        }
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
@@ -70,7 +106,7 @@ export class AdvertWidgets {
         /**
          * List of all Widgets.
          */
-        public readonly list: AdvertWidget[]
+        public readonly list: AdvertWidget[],
     ) { }
 }
 
@@ -161,7 +197,7 @@ export class Widgets {
         /**
          * List of Widget-Classes.
          */
-        public readonly classes: String[]
+        public readonly classes: String[],
     ) {
         // fill names
         for (let widget of list) {

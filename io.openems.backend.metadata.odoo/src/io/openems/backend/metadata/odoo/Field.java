@@ -514,7 +514,7 @@ public interface Field {
 		SERIAL_NUMBER("name", true), //
 		PRODUCT("product_id", true);
 
-		public static final String ODOO_MODEL = "stock.production.lot";
+		public static final String ODOO_MODEL = "stock.lot";
 		public static final String ODOO_TABLE = StockProductionLot.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -523,7 +523,6 @@ public interface Field {
 
 		private final int queryIndex;
 		private final String id;
-
 		/**
 		 * Holds information if this Field should be queried from and written to
 		 * Database.

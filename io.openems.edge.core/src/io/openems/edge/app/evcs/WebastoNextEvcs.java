@@ -41,6 +41,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a Webasto Next evcs App.
@@ -156,13 +157,12 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 									.build()) //
 			);
 
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 

@@ -7,7 +7,7 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/s
 
 @Component({
     selector: 'asymmetricpeakshaving-modal',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
@@ -23,19 +23,19 @@ export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
         public translate: TranslateService,
         public modalCtrl: ModalController,
         public formBuilder: FormBuilder,
-        public websocket: Websocket
+        public websocket: Websocket,
     ) { }
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
-            ]))
+                Validators.required,
+            ])),
         });
     }
 

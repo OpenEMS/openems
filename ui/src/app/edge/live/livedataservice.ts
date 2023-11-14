@@ -13,7 +13,7 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
-        @Inject(Service) protected service: Service
+        @Inject(Service) protected service: Service,
     ) {
         super();
     }

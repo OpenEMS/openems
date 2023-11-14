@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -147,7 +148,9 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as an app
-				return new AppConfiguration(components);
+				return AppConfiguration.create() //
+						.addTask(Tasks.component(components)) //
+						.build();
 			}
 
 			final var dependencies = List.of(new DependencyDeclaration("RELAY", //
@@ -160,7 +163,10 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 							.setSpecificInstanceId(appIdOfRelay) //
 							.build()));
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

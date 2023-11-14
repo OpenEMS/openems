@@ -223,6 +223,7 @@ public class TestFeneconHome30 {
 				.filter(t -> t.appId.equals("App.FENECON.Home.30")).findAny().orElse(null);
 
 		assertNotNull(homeInstance);
+		this.appManagerTestBundle.assertNoValidationErrors();
 
 		this.appManagerTestBundle.assertExactSchedulerOrder("Failed setting initial Home 30 Scheduler configuration",
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",

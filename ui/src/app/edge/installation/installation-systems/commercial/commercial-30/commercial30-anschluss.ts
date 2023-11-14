@@ -30,7 +30,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
-            View.Completion
+            View.Completion,
         ], translate);
     }
 
@@ -39,12 +39,12 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             this.requiredControllerIds.push({
                 componentId: "ctrlGridOptimizedCharge0"
-                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
             });
         }
         this.requiredControllerIds.push({
             componentId: "ctrlBalancing0"
-            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE,
         });
     }
 
@@ -61,9 +61,9 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'START' },
                 { name: 'batteryInverter.id', value: 'batteryInverter0' },
-                { name: 'battery.id', value: 'battery0' }
+                { name: 'battery.id', value: 'battery0' },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         }, 7);
 
         return componentConfigurator;
@@ -82,12 +82,12 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_CONNECTION_BOX_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
-                    placeholder: 'xxxxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxxxx',
                 },
                 validators: {
-                    validation: ['emsBoxSerialNumber']
+                    validation: ['emsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             };
 
             // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.

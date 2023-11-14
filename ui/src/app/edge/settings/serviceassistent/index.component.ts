@@ -5,7 +5,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../s
 
 @Component({
   selector: ServiceAssistentComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: './index.component.html',
 })
 export class ServiceAssistentComponent implements OnInit, OnDestroy {
 
@@ -34,7 +34,7 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
     { channelName: "WarnParameterInsulationAlarmRecover", register: "0x2097", description: "Isolationsüberwachung deaktivieren (Warnung Lvl 1)", requiredInputs: "0" },
     { channelName: "StopParameterInsulationProtection", register: "0x2056", description: "Isolationsüberwachung deaktivieren (Stop Lvl 2)", requiredInputs: "0" },
     { channelName: "StopParameterInsulationProtectionRecover", register: "0x2057", description: "Isolationsüberwachung deaktivieren (Stop Lvl 1)", requiredInputs: "0" },
-    { channelName: "EmsCommunicationTimeout", register: "0x201C", description: "Watchdog (EMS timeout protection) in sekunden", requiredInputs: "90" }
+    { channelName: "EmsCommunicationTimeout", register: "0x201C", description: "Watchdog (EMS timeout protection) in sekunden", requiredInputs: "90" },
   ];
 
   public batteries: EdgeConfig.Component[];
@@ -42,11 +42,11 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   public customAlertOptions: any = {
-    cssClass: 'wide-alert'
+    cssClass: 'wide-alert',
   };
 
   ngOnInit() {
@@ -113,8 +113,8 @@ export class ServiceAssistentComponent implements OnInit, OnDestroy {
         new SetChannelValueRequest({
           componentId: address.componentId,
           channelId: address.channelId,
-          value: value
-        })
+          value: value,
+        }),
       ).then(response => {
         this.service.toast("Successfully set " + address.toString() + " to [" + value + "]", "success");
       }).catch(reason => {

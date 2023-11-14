@@ -6,7 +6,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: ConfigurationEmergencyReserveComponent.SELECTOR,
-  templateUrl: './configuration-emergency-reserve.component.html'
+  templateUrl: './configuration-emergency-reserve.component.html',
 })
 export class ConfigurationEmergencyReserveComponent implements OnInit {
 
@@ -29,7 +29,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
     this.model = this.ibn.emergencyReserve ?? {
       isEnabled: true,
       value: 20,
-      isReserveSocEnabled: false
+      isReserveSocEnabled: false,
     };
   }
 
@@ -55,17 +55,17 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'isEnabled',
       type: 'checkbox',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ENABLED')
-      }
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ENABLED'),
+      },
     });
 
     fields.push({
       key: 'isReserveSocEnabled',
       type: 'toggle',
       templateOptions: {
-        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED')
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
       },
-      hideExpression: model => !model.isEnabled
+      hideExpression: model => !model.isEnabled,
     });
 
     fields.push({
@@ -78,12 +78,12 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         min: this.ibn.emergencyReserve.minValue,
         max: 100,
         attributes: {
-          pin: 'true'
+          pin: 'true',
         },
-        change: (field) => { field.props.description = this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.RECENT') + ' ' + field.formControl.value; }
+        change: (field) => { field.props.description = this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.RECENT') + ' ' + field.formControl.value; },
       },
       parsers: [Number],
-      hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled
+      hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled,
     });
 
     // Adds the fields only for Commercial-30 Netztrennstelle.

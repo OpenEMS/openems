@@ -9,7 +9,7 @@ import { ComponentConfigurator, ConfigurationObject, ConfigurationState, Functio
 
 @Component({
   selector: ConfigurationExecuteComponent.SELECTOR,
-  templateUrl: './configuration-execute.component.html'
+  templateUrl: './configuration-execute.component.html',
 })
 export class ConfigurationExecuteComponent implements OnInit {
 
@@ -28,7 +28,7 @@ export class ConfigurationExecuteComponent implements OnInit {
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit() {
@@ -36,7 +36,7 @@ export class ConfigurationExecuteComponent implements OnInit {
 
     this.edge.getConfig(this.websocket).pipe(
       takeUntil(stopOnRequest),
-      filter(config => config !== null)
+      filter(config => config !== null),
     ).subscribe((config) => {
       stopOnRequest.next();
       stopOnRequest.complete();

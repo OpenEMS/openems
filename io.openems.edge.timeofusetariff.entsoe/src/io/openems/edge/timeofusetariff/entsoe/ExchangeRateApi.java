@@ -1,7 +1,13 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.utils.JsonUtils.getAsDouble;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
+
 import java.io.IOException;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.currency.Currency;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -15,21 +21,27 @@ import okhttp3.Request;
  * <a href=
  * "https://exchangerate.host/#/docs">https://exchangerate.host/#/docs</a>
  */
+// TODO this should be extracted to a Exchange-Rate API + Provider
 public class ExchangeRateApi {
 
-	private static final String BASE_URL = "https://api.exchangerate.host/latest?base=%s";
+	private static final String BASE_URL = "http://api.exchangerate.host/live?access_key=%s&source=%s&currencies=%s";
+
 	private static final OkHttpClient client = new OkHttpClient();
-	private static final String URL = String.format(BASE_URL, "EUR");
 
 	/**
-	 * Fetches the exchange rates from base currency EUR.
+	 * Fetches the exchange rate from exchangerate.host.
 	 * 
-	 * @return the Response string.
-	 * @throws IOException on error.
+	 * @param accessKey personal API access key.
+	 * @param source    the source currency (e.g. EUR)
+	 * @param target    the target currency (e.g. SEK)
+	 * @return the exchange rate.
+	 * @throws IOException           on error.
+	 * @throws OpenemsNamedException on error
 	 */
-	protected static String getExchangeRates() throws IOException {
+	protected static double getExchangeRate(String accessKey, String source, Currency target)
+			throws IOException, OpenemsNamedException {
 		var request = new Request.Builder() //
-				.url(URL) //
+				.url(String.format(BASE_URL, accessKey, source, target.name())) //
 				.build();
 
 		try (var response = client.newCall(request).execute()) {
@@ -37,8 +49,25 @@ public class ExchangeRateApi {
 				throw new IOException("Failed to fetch exchange rate. HTTP status code: " + response.code());
 			}
 
-			return response.body().string();
+			return parseResponse(response.body().string(), source, target);
 		}
+	}
+
+	/**
+	 * Parses the response string from exchangerate.host.
+	 * 
+	 * @param response the response string
+	 * @param source   the source currency (e.g. EUR)
+	 * @param target   the target currency (e.g. SEK)
+	 * @return the exchange rate.
+	 * @throws OpenemsNamedException on error.
+	 */
+	protected static double parseResponse(String response, String source, Currency target)
+			throws OpenemsNamedException {
+		var json = parseToJsonObject(response);
+		var quotes = getAsJsonObject(json, "quotes");
+		var result = getAsDouble(quotes, source + target.name());
+		return result;
 	}
 
 }

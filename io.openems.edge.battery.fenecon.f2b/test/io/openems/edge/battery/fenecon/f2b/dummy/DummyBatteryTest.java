@@ -5,13 +5,13 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.fenecon.f2b.dummy.statemachine.StateMachine;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class DummyBatteryTest {
 	private static final String BATTERY_ID = "battery0";

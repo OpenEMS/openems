@@ -50,7 +50,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     isEnabled: true,
     minValue: 5,
     value: 20,
-    isReserveSocEnabled: false
+    isReserveSocEnabled: false,
   };
 
   // protocol-dynamic-feed-in-limitation
@@ -65,7 +65,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       maximumFeedInPower: 0,
       feedInSetting: FeedInSetting.QuEnableCurve,
       fixedPowerFactor: FeedInSetting.Undefined,
-      isManualProperlyFollowedAndRead: false
+      isManualProperlyFollowedAndRead: false,
     };
 
   // protocol-pv
@@ -80,7 +80,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     fixedValue?: number;
     otherValue?: number;
   } = {
-      category: Category.LINE_SIDE_METER_FUSE_HOME
+      category: Category.LINE_SIDE_METER_FUSE_HOME,
     };
 
   //Configuration Summary
@@ -89,12 +89,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     warrantyLink: WebLinks;
   } = {
       gtcLink: WebLinks.GTC_LINK,
-      warrantyLink: WebLinks.WARRANTY_LINK_HOME
+      warrantyLink: WebLinks.WARRANTY_LINK_HOME,
     };
 
   public mppt: {} = {
     mppt1pv1: true,
-    mppt2pv2: true
+    mppt2pv2: true,
   };
 
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
@@ -109,6 +109,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public abstract readonly maxFeedInLimit: number;
   public abstract readonly homeAppId: string;
   public abstract readonly homeAppAlias: string;
+  public abstract readonly maxNumberOfTowers: number;
+  public abstract readonly maxNumberOfModulesPerTower: number;
 
   public override addPeakShavingData(peakShavingData: ComponentData[]) {
     return peakShavingData;
@@ -125,7 +127,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         fieldSettings: this.getSerialNumberFields(i, numberOfModulesPerTower),
         model: models[i],
         formTower: new FormGroup({}),
-        header: i === 0 ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS') : (this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { number: i }))
+        header: i === 0 ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS') : (this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_TOWER', { number: i })),
       };
     }
     return forms;
@@ -141,11 +143,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         type: 'number',
         label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_TOWERS'),
         min: 1,
-        max: 3,
-        required: true
+        max: this.maxNumberOfTowers,
+        required: true,
       },
       parsers: [Number],
-      defaultValue: numberOfTowers
+      defaultValue: numberOfTowers,
     });
 
     fields.push({
@@ -155,11 +157,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         type: 'number',
         label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_MODULES_PER_TOWER'),
         min: 4,
-        max: 10,
-        required: true
+        max: this.maxNumberOfModulesPerTower,
+        required: true,
       },
       parsers: [Number],
-      defaultValue: numberOfModulesPerTower
+      defaultValue: numberOfModulesPerTower,
     });
 
     return fields;
@@ -177,12 +179,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           templateOptions: {
             label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.INVERTER'),
             required: true,
-            placeholder: 'xxxxxxxxxxxxxxxx'
+            placeholder: 'xxxxxxxxxxxxxxxx',
           },
           validators: {
-            validation: ['batteryInverterSerialNumber']
+            validation: ['batteryInverterSerialNumber'],
           },
-          wrappers: ['input-serial-number']
+          wrappers: ['input-serial-number'],
         });
         fields.push({
           key: 'emsBox',
@@ -190,13 +192,13 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           templateOptions: {
             label: Category.toTranslatedString(this.emsBoxLabel, this.translate),
             required: true,
-            placeholder: 'xxxxxxxxxx'
+            placeholder: 'xxxxxxxxxx',
           },
           defaultValue: emsBoxSerialNumber,
           validators: {
-            validation: ['emsBoxSerialNumber']
+            validation: ['emsBoxSerialNumber'],
           },
-          wrappers: ['input-serial-number']
+          wrappers: ['input-serial-number'],
         });
         break;
       case 1:
@@ -207,12 +209,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             label: 'Parallel Box',
             required: true,
             prefix: 'FHP',
-            placeholder: 'xxxxxxxxx'
+            placeholder: 'xxxxxxxxx',
           },
           validators: {
-            validation: ['boxSerialNumber']
+            validation: ['boxSerialNumber'],
           },
-          wrappers: ['input-serial-number']
+          wrappers: ['input-serial-number'],
         });
         break;
       case 2:
@@ -223,12 +225,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             label: 'Extension Box',
             required: true,
             prefix: 'FHE',
-            placeholder: 'xxxxxxxxx'
+            placeholder: 'xxxxxxxxx',
           },
           validators: {
-            validation: ['boxSerialNumber']
+            validation: ['boxSerialNumber'],
           },
-          wrappers: ['input-serial-number']
+          wrappers: ['input-serial-number'],
         });
         break;
     }
@@ -239,12 +241,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BMS_BOX'),
         required: true,
-        placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx'
+        placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx',
       },
       validators: {
-        validation: ['batteryAndBmsBoxSerialNumber']
+        validation: ['batteryAndBmsBoxSerialNumber'],
       },
-      wrappers: ['input-serial-number']
+      wrappers: ['input-serial-number'],
     });
 
     for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
@@ -254,12 +256,12 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         templateOptions: {
           label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
           required: true,
-          placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx'
+          placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxx',
         },
         validators: {
-          validation: ['batteryAndBmsBoxSerialNumber']
+          validation: ['batteryAndBmsBoxSerialNumber'],
         },
-        wrappers: ['input-serial-number']
+        wrappers: ['input-serial-number'],
       });
     }
 
@@ -290,7 +292,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       // Read data
       edge.currentData.pipe(
         takeUntil(stopOnRequest),
-        filter(currentData => currentData != null)
+        filter(currentData => currentData != null),
       ).subscribe((currentData) => {
         let anyNullOrUndefined: boolean = false;
         for (const key in channelAddresses) {
@@ -338,7 +340,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       // Edge-subscribe
       edge.subscribeChannels(websocket, '', [
         new ChannelAddress('battery0', 'NumberOfTowers'),
-        new ChannelAddress('battery0', 'NumberOfModulesPerTower')
+        new ChannelAddress('battery0', 'NumberOfModulesPerTower'),
       ]);
 
       // Subject to stop the subscription to currentData
@@ -347,7 +349,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       // Read tower and module numbers
       edge.currentData.pipe(
         takeUntil(stopOnRequest),
-        filter(currentData => currentData != null)
+        filter(currentData => currentData != null),
       ).subscribe((currentData) => {
         const numberOfTowers = currentData.channel['battery0/NumberOfTowers'];
         const numberOfModulesPerTower = currentData.channel['battery0/NumberOfModulesPerTower'];
@@ -423,35 +425,35 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     if (this.emergencyReserve.isEnabled) {
       this.requiredControllerIds.push({
         componentId: "ctrlEmergencyCapacityReserve0",
-        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER,
       });
     }
     this.requiredControllerIds.push(
       {
         componentId: "ctrlGridOptimizedCharge0",
-        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER,
       },
       {
         componentId: "ctrlEssSurplusFeedToGrid0",
-        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER,
       },
       {
         componentId: "ctrlBalancing0",
-        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
-      }
+        behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER,
+      },
     );
   }
 
   public override addCustomBatteryData(batteryData: ComponentData[]) {
     batteryData.push({
       label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
-      value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
+      value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
     });
 
     if (this.emergencyReserve.isEnabled) {
       batteryData.push({
         label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_VALUE'),
-        value: this.emergencyReserve.value
+        value: this.emergencyReserve.value,
       });
     }
     return batteryData;
@@ -464,28 +466,28 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ? batteryInverterData.push(
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
-          value: feedInLimitation.maximumFeedInPower
+          value: feedInLimitation.maximumFeedInPower,
         },
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
-          value: this.batteryInverter?.shadowManagementDisabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
+          value: this.batteryInverter?.shadowManagementDisabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
         },
         {
           label: this.translate.instant('Index.TYPE'),
-          value: feedInLimitation.feedInSetting ?? FeedInSetting.Undefined
-        }
+          value: feedInLimitation.feedInSetting ?? FeedInSetting.Undefined,
+        },
       )
       : batteryInverterData.push(
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.SHADE_MANAGEMENT_DEACTIVATED'),
-          value: this.translate.instant('General.yes')
-        }
+          value: this.translate.instant('General.yes'),
+        },
       );
 
     if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
       batteryInverterData.push({
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
-        value: feedInLimitation.fixedPowerFactor
+        value: feedInLimitation.fixedPowerFactor,
       });
     }
     return batteryInverterData;
@@ -499,28 +501,28 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         pvData = pvData.concat([
           {
             label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ALIAS_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
-            value: dc.alias
+            value: dc.alias,
           },
           {
             label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr, symbol: '' }),
-            value: dc.value
+            value: dc.value,
           }]);
         if (dc.orientation) {
           pvData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ORIENTATION_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
-            value: dc.orientation
+            value: dc.orientation,
           });
         }
         if (dc.moduleType) {
           pvData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.MODULE_TYPE_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
-            value: dc.moduleType
+            value: dc.moduleType,
           });
         }
         if (dc.modulesPerString) {
           pvData.push({
             label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.NUMBER_OF_MODULES_WITH_LABEL_HOME_DC', { mppt: mppt, pv: pvNr }),
-            value: dc.modulesPerString
+            value: dc.modulesPerString,
           });
         }
       }
@@ -538,14 +540,14 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     protocol.items.push({
       category: Category.EMERGENCY_RESERVE,
       name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_LABEL', { symbol: '?' }),
-      value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no')
+      value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
     });
 
     if (emergencyReserve.isEnabled) {
       protocol.items.push({
         category: Category.EMERGENCY_RESERVE,
         name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '[%]' }),
-        value: emergencyReserve.value ? emergencyReserve.value.toString() : ''
+        value: emergencyReserve.value ? emergencyReserve.value.toString() : '',
       });
     }
 
@@ -560,30 +562,30 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           {
             category: Category.DC_PV_INSTALLATION,
             name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: dcNr }),
-            value: dc.alias
+            value: dc.alias,
           },
           {
             category: Category.DC_PV_INSTALLATION,
             name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: dcNr, symbol: '[Wp]' }),
-            value: dc.value ? dc.value.toString() : ''
+            value: dc.value ? dc.value.toString() : '',
           });
 
         dc.orientation && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
           name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: dcNr }),
-          value: dc.orientation
+          value: dc.orientation,
         });
 
         dc.moduleType && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
           name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: dcNr }),
-          value: dc.moduleType
+          value: dc.moduleType,
         });
 
         dc.modulesPerString && protocol.items.push({
           category: Category.DC_PV_INSTALLATION,
           name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: dcNr }),
-          value: dc.modulesPerString ? dc.modulesPerString.toString() : ''
+          value: dc.modulesPerString ? dc.modulesPerString.toString() : '',
         });
       }
     }
@@ -593,7 +595,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION_ACTIVATED'),
       value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
         ? this.translate.instant('General.yes')
-        : this.translate.instant('General.no')
+        : this.translate.instant('General.no'),
     });
 
     protocol.items.push({
@@ -602,7 +604,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
       value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
         ? this.translate.instant('General.yes')
-        : this.translate.instant('General.no')
+        : this.translate.instant('General.no'),
     });
 
     if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
@@ -612,20 +614,20 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
           value: feedInLimitation.maximumFeedInPower
             ? feedInLimitation.maximumFeedInPower.toString()
-            : (0).toString()
+            : (0).toString(),
         },
         {
           category: Category.FEED_IN_MANAGEMENT,
           name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CHOOSE'),
-          value: feedInLimitation.feedInSetting
-        }
+          value: feedInLimitation.feedInSetting,
+        },
       );
 
       if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
         protocol.items.push({
           category: Category.FEED_IN_MANAGEMENT,
           name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.CONSTANT_VALUE'),
-          value: feedInLimitation.fixedPowerFactor
+          value: feedInLimitation.fixedPowerFactor,
         });
       }
     }
@@ -667,7 +669,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     const home10AppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
-      ...(this.feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
+      ...(this.feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
       ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,
@@ -679,7 +681,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
       ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
       ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
-      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
+      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true }),
     };
 
     return home10AppProperties;
@@ -761,10 +763,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'stopbits', value: 'ONE' },
         { name: 'parity', value: 'NONE' },
         { name: 'logVerbosity', value: 'NONE' },
-        { name: 'invalidateElementsAfterReadErrors', value: 1 }
+        { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // modbus0
@@ -780,10 +782,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'stopbits', value: 'ONE' },
         { name: 'parity', value: 'NONE' },
         { name: 'logVerbosity', value: 'NONE' },
-        { name: 'invalidateElementsAfterReadErrors', value: 1 }
+        { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // meter0
@@ -794,10 +796,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enabled', value: true },
         { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: 247 }
+        { name: 'modbusUnitId', value: 247 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // io0
@@ -808,10 +810,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enabled', value: true },
         { name: 'modbus.id', value: 'modbus0' },
-        { name: 'modbusUnitId', value: 2 }
+        { name: 'modbusUnitId', value: 2 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // battery0
@@ -823,10 +825,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'startStop', value: 'AUTO' },
         { name: 'modbus.id', value: 'modbus0' },
-        { name: 'modbusUnitId', value: 1 }
+        { name: 'modbusUnitId', value: 1 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // batteryInverter0
@@ -841,29 +843,29 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'safetyCountry', value: safetyCountry },
         {
           name: 'backupEnable',
-          value: this.emergencyReserve.isEnabled ? 'ENABLE' : 'DISABLE'
+          value: this.emergencyReserve.isEnabled ? 'ENABLE' : 'DISABLE',
         },
         { name: 'setfeedInPowerSettings', value: feedInSetting },
         {
           name: 'mpptForShadowEnable',
           value: this.batteryInverter?.shadowManagementDisabled
             ? 'DISABLE'
-            : 'ENABLE'
-        }
+            : 'ENABLE',
+        },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     };
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
       ? goodweconfig.properties.push({
         name: 'feedPowerPara',
-        value: feedInLimitation.maximumFeedInPower
+        value: feedInLimitation.maximumFeedInPower,
       },
-        { name: 'feedPowerEnable', value: 'ENABLE' }
+        { name: 'feedPowerEnable', value: 'ENABLE' },
       )
       : goodweconfig.properties.push(
-        { name: 'feedPowerEnable', value: 'DISABLE' }
+        { name: 'feedPowerEnable', value: 'DISABLE' },
       );
 
     componentConfigurator.add(goodweconfig);
@@ -882,10 +884,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'startStop', value: 'START' },
         { name: 'batteryInverter.id', value: 'batteryInverter0' },
-        { name: 'battery.id', value: 'battery0' }
+        { name: 'battery.id', value: 'battery0' },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // predictor0
@@ -897,11 +899,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         {
           name: 'channelAddresses',
-          value: ['_sum/ProductionActivePower', '_sum/ConsumptionActivePower']
-        }
+          value: ['_sum/ProductionActivePower', '_sum/ConsumptionActivePower'],
+        },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // ctrlGridOptimizedCharge0
@@ -916,22 +918,22 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
         { name: 'manualTargetTime', value: '17:00' },
         { name: 'debugMode', value: false },
-        { name: 'sellToGridLimitRampPercentage', value: 2 }
+        { name: 'sellToGridLimitRampPercentage', value: 2 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     };
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
       ? gridOptimizedCharge.properties.push(
         { name: 'maximumSellToGridPower', value: feedInLimitation.maximumFeedInPower },
         { name: "sellToGridLimitEnabled", value: true },
-        { name: 'mode', value: 'AUTOMATIC' }
+        { name: 'mode', value: 'AUTOMATIC' },
       )
       :
       gridOptimizedCharge.properties.push(
         { name: "sellToGridLimitEnabled", value: false },
-        { name: 'mode', value: 'OFF' }
+        { name: 'mode', value: 'OFF' },
       );
 
     componentConfigurator.add(gridOptimizedCharge);
@@ -943,10 +945,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SURPLUS_ENERGY_FEEDIN'),
       properties: [
         { name: 'enabled', value: true },
-        { name: 'ess.id', value: 'ess0' }
+        { name: 'ess.id', value: 'ess0' },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     // ctrlBalancing0
@@ -958,10 +960,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'ess.id', value: 'ess0' },
         { name: 'meter.id', value: 'meter0' },
-        { name: 'targetGridSetpoint', value: 0 }
+        { name: 'targetGridSetpoint', value: 0 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     componentConfigurator.add({
@@ -971,10 +973,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enabled', value: true },
         { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: 247 }
+        { name: 'modbusUnitId', value: 247 },
       ],
       mode: this.emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
     componentConfigurator.add({
       factoryId: 'Controller.Ess.EmergencyCapacityReserve',
@@ -986,11 +988,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'isReserveSocEnabled', value: this.emergencyReserve.isReserveSocEnabled },
         {
           name: 'reserveSoc',
-          value: this.emergencyReserve.value ?? 5 /* minimum allowed value */
-        }
+          value: this.emergencyReserve.value ?? 5, /* minimum allowed value */
+        },
       ],
       mode: this.emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     componentConfigurator.add({
@@ -998,10 +1000,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       componentId: '_power',
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.POWER'),
       properties: [
-        { name: 'enablePid', value: false }
+        { name: 'enablePid', value: false },
       ],
       mode: ConfigurationMode.UpdateOnly,
-      baseMode: baseMode
+      baseMode: baseMode,
     });
 
     return componentConfigurator;
@@ -1047,10 +1049,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             { name: 'enabled', value: true },
             { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
             { name: 'modbus.id', value: 'modbus1' },
-            { name: 'modbusUnitId', value: 247 }
+            { name: 'modbusUnitId', value: 247 },
           ],
           mode: dc.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-          baseMode: baseMode
+          baseMode: baseMode,
         });
       }
     }

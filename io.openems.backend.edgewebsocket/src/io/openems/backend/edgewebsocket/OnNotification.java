@@ -19,6 +19,7 @@ import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.jsonrpc.notification.LogMessageNotification;
 import io.openems.common.jsonrpc.notification.ResendDataNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
@@ -63,6 +64,8 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			this.handleResendDataNotification(ResendDataNotification.from(notification), wsData);
 		case SystemLogNotification.METHOD ->
 			this.handleSystemLogNotification(SystemLogNotification.from(notification), wsData);
+		case LogMessageNotification.METHOD ->
+			this.handleLogMessageNotification(LogMessageNotification.from(notification), wsData);
 		default -> this.parent.logWarn(this.log, edgeId, "Unhandled Notification: " + notification);
 		}
 	}
@@ -168,4 +171,18 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		var edgeId = wsData.assertEdgeId(message);
 		this.parent.handleSystemLogNotification(edgeId, message);
 	}
+
+	/**
+	 * Handles a {@link LogMessageNotification}. Logs given message from request.
+	 *
+	 * @param notification the {@link LogMessageNotification}
+	 * @param wsData       the WebSocket attachment
+	 */
+	private void handleLogMessageNotification(LogMessageNotification notification, WsData wsData)
+			throws OpenemsNamedException {
+		this.parent.logInfo(this.log, "Edge [" + wsData.getEdgeId().orElse("NOT AUTHENTICATED") + "] " //
+				+ notification.level.getName() + "-Message: " //
+				+ notification.msg);
+	}
+
 }

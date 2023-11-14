@@ -7,14 +7,14 @@ import { RegistrationComponent } from './registration.component';
 @NgModule({
   declarations: [
     RegistrationComponent,
-    RegistrationModalComponent
+    RegistrationModalComponent,
   ],
   imports: [
     CommonModule,
-    SharedModule
+    SharedModule,
   ],
   exports: [
-    RegistrationComponent
-  ]
+    RegistrationComponent,
+  ],
 })
 export class RegistrationModule { }

@@ -23,7 +23,7 @@ addIcons({
   'oe-grid-storage': 'assets/img/icon/gridStorage.svg',
   'oe-offgrid': 'assets/img/icon/offgrid.svg',
   'oe-production': 'assets/img/icon/production.svg',
-  'oe-storage': 'assets/img/icon/storage.svg'
+  'oe-storage': 'assets/img/icon/storage.svg',
 });
 
 export class UserPermission {
@@ -117,5 +117,5 @@ export enum EssStateMachine {
   STOP_BATTERY_INVERTER = 20, //
   STOP_BATTERY = 21, //
   STOPPED = 22, //
-  ERROR = 30
+  ERROR = 30,
 }

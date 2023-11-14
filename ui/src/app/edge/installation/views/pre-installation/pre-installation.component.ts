@@ -13,7 +13,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: PreInstallationComponent.SELECTOR,
-  templateUrl: './pre-installation.component.html'
+  templateUrl: './pre-installation.component.html',
 })
 export class PreInstallationComponent implements OnInit {
   private static readonly SELECTOR = 'pre-installation';
@@ -35,7 +35,7 @@ export class PreInstallationComponent implements OnInit {
   constructor(
     private service: Service,
     public websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit() {
@@ -61,7 +61,7 @@ export class PreInstallationComponent implements OnInit {
         // Test if edge is online
         if (!edge.online) {
           this.service.toast(
-            this.translate.instant('INSTALLATION.PRE_INSTALLATION.EDGE_OFFLINE', { edgeShortName: environment.edgeShortName }), 'danger'
+            this.translate.instant('INSTALLATION.PRE_INSTALLATION.EDGE_OFFLINE', { edgeShortName: environment.edgeShortName }), 'danger',
           );
           return;
         }
@@ -69,7 +69,7 @@ export class PreInstallationComponent implements OnInit {
         // TODO either add lastmessage and role to response or call getEdgeRequest 
         this.edge = new Edge(
           edge.id,
-          edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null, SumState.OK, null
+          edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null, SumState.OK, null,
         );
 
         // Get metadata
@@ -86,7 +86,7 @@ export class PreInstallationComponent implements OnInit {
         // Update metadata
         this.service.metadata.next({
           user: metadata.user,
-          edges: metadata.edges
+          edges: metadata.edges,
         });
 
         this.service.metadata
@@ -108,7 +108,7 @@ export class PreInstallationComponent implements OnInit {
         // Start installation process
         this.service.toast(
           this.translate.instant('INSTALLATION.PRE_INSTALLATION.INSTALLATION_SUCCESS', { edgeId: this.edge.id }),
-          'success'
+          'success',
         );
 
         this.edgeChange.emit(this.edge);

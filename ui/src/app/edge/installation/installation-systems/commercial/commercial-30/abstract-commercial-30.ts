@@ -28,7 +28,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 formTower: new FormGroup({}),
                 header: numberOfTowers === 1
                     ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
-                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) })
+                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) }),
             };
         }
         return forms;
@@ -46,10 +46,10 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 min: 1,
                 max: 2,
                 description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MINIMUM_AND_MAXIMUM_STRINGS', { min: 1, max: 2 }),
-                required: true
+                required: true,
             },
             parsers: [Number],
-            defaultValue: numberOfTowers
+            defaultValue: numberOfTowers,
         });
 
         fields.push({
@@ -61,10 +61,10 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 min: 9,
                 max: 17,
                 description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS', { min: 9, max: 17 }),
-                required: true
+                required: true,
             },
             parsers: [Number],
-            defaultValue: numberOfModulesPerTower
+            defaultValue: numberOfModulesPerTower,
         });
         return fields;
     }
@@ -107,12 +107,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.INVERTER'),
                     required: true,
                     prefix: 'PWS00',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxx',
                 },
                 validators: {
-                    validation: ['commercial30BatteryInverterSerialNumber']
+                    validation: ['commercial30BatteryInverterSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
 
             fields.push({
@@ -122,12 +122,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     label: 'BMS Box Master',
                     required: true,
                     prefix: 'WSDEM3822',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxx',
                 },
                 validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
+                    validation: ['commercialBmsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         } else {
             fields.push({
@@ -137,12 +137,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     label: 'BMS Box Submaster',
                     required: true,
                     prefix: 'WSDESM3822',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxx',
                 },
                 validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
+                    validation: ['commercialBmsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         }
 
@@ -156,12 +156,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     // Note: Edit also validator (substring 12) if removing prefix
                     prefix: 'WSDE...',
                     placeholder: 'xxxxxxxx',
-                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION')
+                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION'),
                 },
                 validators: {
-                    validation: ['commercialBatteryModuleSerialNumber']
+                    validation: ['commercialBatteryModuleSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         }
         return fields;
@@ -197,9 +197,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'ip', value: '192.168.1.11' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         //modbus2
@@ -215,9 +215,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // meter0
@@ -229,9 +229,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus2' },
                 { name: 'type', value: 'GRID' },
-                { name: 'modbusUnitId', value: 5 }
+                { name: 'modbusUnitId', value: 5 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // battery0
@@ -244,9 +244,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'startStop', value: 'AUTO' },
                 { name: 'modbus.id', value: 'modbus0' },
                 { name: 'batteryStartStopRelay', value: 'io0/Relay8' },
-                { name: 'modbusUnitId', value: 1 }
+                { name: 'modbusUnitId', value: 1 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // batteryInverter0
@@ -259,9 +259,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'modbus.id', value: 'modbus1' },
                 { name: 'countryCode', value: 'GERMANY' },
                 { name: 'startStop', value: 'AUTO' },
-                { name: 'emergencyPower', value: this.emergencyPower }
+                { name: 'emergencyPower', value: this.emergencyPower },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // PV Meter optional
@@ -280,15 +280,15 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     { name: 'sellToGridLimitEnabled', value: true },
                     {
                         name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower
+                        value: this.feedInLimitation.maximumFeedInPower,
                     },
                     { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
                     { name: 'mode', value: 'AUTOMATIC' },
                     { name: 'manualTargetTime', value: '17:00' },
                     { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 }
+                    { name: 'sellToGridLimitRampPercentage', value: 2 },
                 ],
-                mode: ConfigurationMode.RemoveAndConfigure
+                mode: ConfigurationMode.RemoveAndConfigure,
             });
         }
 
@@ -301,9 +301,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'meter.id', value: 'meter0' },
-                { name: 'targetGridSetpoint', value: 0 }
+                { name: 'targetGridSetpoint', value: 0 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         return componentConfigurator;

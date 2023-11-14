@@ -35,6 +35,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a symmetric peak shaving app.
@@ -164,8 +167,16 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 									.addProperty("rechargePower", rechargePower) //
 									.build()));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
+	}
+
+	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setCompatibleCheckableConfigs(Checkables.checkHome().invert());
 	}
 
 	@Override

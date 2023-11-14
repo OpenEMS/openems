@@ -8,21 +8,21 @@ import { PopoverComponent } from './popover/popover';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule
+    SharedModule,
   ],
   entryComponents: [
     FlatComponent,
     ModalComponent,
-    PopoverComponent
+    PopoverComponent,
   ],
   declarations: [
     FlatComponent,
     ModalComponent,
-    PopoverComponent
+    PopoverComponent,
   ],
   exports: [
-    FlatComponent
-  ]
+    FlatComponent,
+  ],
 })
 export class Controller_Evcs { }
 

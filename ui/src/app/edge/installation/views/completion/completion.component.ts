@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns/esm';
 import { saveAs } from 'file-saver-es';
@@ -6,12 +6,13 @@ import { GetSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/getSetup
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { System } from '../../shared/system';
 
 @Component({
   selector: CompletionComponent.SELECTOR,
-  templateUrl: './completion.component.html'
+  templateUrl: './completion.component.html',
 })
-export class CompletionComponent {
+export class CompletionComponent implements OnInit {
 
   private static readonly SELECTOR = "completion";
 
@@ -19,12 +20,17 @@ export class CompletionComponent {
   @Input() public edge: Edge;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
+  protected system: string | null = null;
 
   constructor(
     private service: Service,
     private websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
+
+  public ngOnInit(): void {
+    this.system = System.getSystemTypeLabel(this.ibn.type);
+  }
 
   public onPreviousClicked() {
     this.previousViewEvent.emit();
@@ -47,7 +53,7 @@ export class CompletionComponent {
       }
 
       const data: Blob = new Blob([view], {
-        type: "application/pdf"
+        type: "application/pdf",
       });
 
       let fileName = "IBN-" + this.edge.id + "-" + format(new Date(), "dd.MM.yyyy") + ".pdf";

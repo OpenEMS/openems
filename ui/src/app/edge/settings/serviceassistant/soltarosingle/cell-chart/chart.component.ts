@@ -11,7 +11,7 @@ import { ChannelChartDescription } from '../../abstractbattery.component';
 
 @Component({
     selector: 'soltarocellchart',
-    templateUrl: '../../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../history/abstracthistorychart.html',
 })
 export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -28,7 +28,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("soltarocell-chart", service, translate);
     }
@@ -73,11 +73,11 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
                     datasets.push({
                         label: channel.label,
                         data: channel.datasets,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(' + channel.colorRgb + ',0.05)',
-                        borderColor: 'rgba(' + channel.colorRgb + ',1)'
+                        borderColor: 'rgba(' + channel.colorRgb + ',1)',
                     });
                 }
             });

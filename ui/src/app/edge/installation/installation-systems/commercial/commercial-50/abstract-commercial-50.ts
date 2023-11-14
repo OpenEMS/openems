@@ -24,8 +24,8 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
     } = {
             // Initialization
             feature: {
-                type: Category.BALANCING
-            }
+                type: Category.BALANCING,
+            },
         };
 
     public override readonly type: SystemType = SystemType.COMMERCIAL_50;
@@ -37,11 +37,11 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             peakShavingData.push(
                 {
                     label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_LABEL'),
-                    value: this.commercial50Feature.feature.dischargeAbove
+                    value: this.commercial50Feature.feature.dischargeAbove,
                 },
                 {
                     label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_LABEL'),
-                    value: this.commercial50Feature.feature.chargeBelow
+                    value: this.commercial50Feature.feature.chargeBelow,
                 });
         }
         return peakShavingData;
@@ -71,7 +71,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         numberOfTowers: number,
         numberOfModulesPerTower: number,
         models: any,
-        forms: SerialNumberFormData[]
+        forms: SerialNumberFormData[],
     ) {
         this.numberOfModulesPerTower = numberOfModulesPerTower;
         for (let i = 0; i < numberOfTowers; i++) {
@@ -81,7 +81,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 formTower: new FormGroup({}),
                 header: numberOfTowers === 1
                     ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
-                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) })
+                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { number: (i + 1) }),
             };
         }
         return forms;
@@ -99,10 +99,10 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 min: 1,
                 max: 4,
                 description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MINIMUM_AND_MAXIMUM_STRINGS', { min: 1, max: 4 }),
-                required: true
+                required: true,
             },
             parsers: [Number],
-            defaultValue: numberOfTowers
+            defaultValue: numberOfTowers,
         });
 
         fields.push({
@@ -113,13 +113,13 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_MODULES_PER_STRINGS'),
                 max: 20,
                 description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MODULES_PER_STRINGS_DESCRIPTION', { number: 20 }),
-                required: true
+                required: true,
             },
             parsers: [Number],
             defaultValue: numberOfModulesPerTower, // Acts as minimum value through "defaultAsMinimumValue" validator
             validators: {
-                validation: ["defaultAsMinimumValue"]
-            }
+                validation: ["defaultAsMinimumValue"],
+            },
         });
         return fields;
     }
@@ -136,12 +136,12 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.INVERTER'),
                     required: true,
                     prefix: '50.0TL01S',
-                    placeholder: 'xxxxxx'
+                    placeholder: 'xxxxxx',
                 },
                 validators: {
-                    validation: ['commercial50BatteryInverterSerialNumber']
+                    validation: ['commercial50BatteryInverterSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
 
             fields.push({
@@ -150,12 +150,12 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 templateOptions: {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_COMMERCIAL', { edgeShortname: environment.edgeShortName }),
                     required: true,
-                    placeholder: 'xxxxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxxxx',
                 },
                 validators: {
-                    validation: ['emsBoxSerialNumber']
+                    validation: ['emsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
 
             fields.push({
@@ -165,13 +165,13 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: 'BMS Box Master',
                     required: true,
                     prefix: 'WSDEM3822',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxx',
                 },
                 // hideExpression: model => model.bmsComponent !== 'master',
                 validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
+                    validation: ['commercialBmsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         } else {
             fields.push({
@@ -181,13 +181,13 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: 'BMS Box Submaster',
                     required: true,
                     prefix: 'WSDESM3822',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxxxxxx',
                 },
                 // hideExpression: model => model.bmsComponent !== 'submaster',
                 validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
+                    validation: ['commercialBmsBoxSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         }
 
@@ -201,12 +201,12 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     // Note: Edit also validator (substring 12) if removing prefix
                     prefix: 'WSDE...',
                     placeholder: 'xxxxxxxx',
-                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION')
+                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION'),
                 },
                 validators: {
-                    validation: ['commercialBatteryModuleSerialNumber']
+                    validation: ['commercialBatteryModuleSerialNumber'],
                 },
-                wrappers: ['input-serial-number']
+                wrappers: ['input-serial-number'],
             });
         }
         return fields;
@@ -230,9 +230,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'ip', value: '10.4.0.10' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         //modbus2
@@ -248,9 +248,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // meter0
@@ -262,9 +262,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus2' },
                 { name: 'type', value: 'GRID' },
-                { name: 'modbusUnitId', value: 5 }
+                { name: 'modbusUnitId', value: 5 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // battery0
@@ -277,9 +277,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'startStop', value: 'AUTO' },
                 { name: 'modbus.id', value: 'modbus0' },
                 { name: 'batteryStartStopRelay', value: 'io0/Relay8' },
-                { name: 'modbusUnitId', value: 1 }
+                { name: 'modbusUnitId', value: 1 },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // TODO: Maybe we have to set a static IP in fems for Kaco
@@ -291,9 +291,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
-                { name: 'startStop', value: 'AUTO' }
+                { name: 'startStop', value: 'AUTO' },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // ess0
@@ -305,9 +305,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'START' },
                 { name: 'batteryInverter.id', value: 'batteryInverter0' },
-                { name: 'battery.id', value: 'battery0' }
+                { name: 'battery.id', value: 'battery0' },
             ],
-            mode: ConfigurationMode.RemoveAndConfigure
+            mode: ConfigurationMode.RemoveAndConfigure,
         });
 
         // PV Meter optional

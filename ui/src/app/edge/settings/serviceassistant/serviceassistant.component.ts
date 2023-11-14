@@ -8,7 +8,7 @@ interface MyEdgeConfigComponent extends EdgeConfig.Component {
 
 @Component({
   selector: ServiceAssistantComponent.SELECTOR,
-  templateUrl: './serviceassistant.component.html'
+  templateUrl: './serviceassistant.component.html',
 })
 export class ServiceAssistantComponent implements OnInit, OnDestroy {
 
@@ -24,7 +24,7 @@ export class ServiceAssistantComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     public service: Service,
-    public websocket: Websocket
+    public websocket: Websocket,
   ) { }
 
   ngOnInit() {

@@ -8,6 +8,8 @@ import { IndexComponent as ComponentInstallIndexComponent } from './component/in
 import { ComponentInstallComponent } from './component/install/install.component';
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
+import { ChartComponent } from './homeassistent/chart/chart';
+import { HomeServiceAssistentComponent } from './homeassistent/homeassistent';
 import { NetworkOldComponent } from './network.old/network.old.component';
 import { NetworkComponent } from './network/network.component';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
@@ -18,15 +20,13 @@ import { SystemExecuteComponent } from './systemexecute/systemexecute.component'
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
 import { OeSystemUpdateComponent } from './systemupdate/oe-system-update.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
-import { HomeServiceAssistentComponent } from './homeassistent/homeassistent';
-import { ChartComponent } from './homeassistent/chart/chart';
 
 @NgModule({
   imports: [
     AppModule,
     SharedModule,
     ServiceAssistantModule,
-    ChangelogModule
+    ChangelogModule,
   ],
   declarations: [
     AliasUpdateComponent,
@@ -45,12 +45,12 @@ import { ChartComponent } from './homeassistent/chart/chart';
     SystemUpdateOldComponent,
     AlertingComponent,
     HomeServiceAssistentComponent,
-    ChartComponent
+    ChartComponent,
   ],
   entryComponents: [
   ],
   exports: [
-    OeSystemUpdateComponent
-  ]
+    OeSystemUpdateComponent,
+  ],
 })
 export class SettingsModule { }

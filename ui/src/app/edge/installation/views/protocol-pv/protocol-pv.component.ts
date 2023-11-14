@@ -11,7 +11,7 @@ import { DIRECTIONS_OPTIONS } from '../../shared/options';
 
 @Component({
   selector: "protocol-pv",
-  templateUrl: './protocol-pv.component.html'
+  templateUrl: './protocol-pv.component.html',
 })
 export class ProtocolPvComponent implements OnInit {
 
@@ -33,7 +33,7 @@ export class ProtocolPvComponent implements OnInit {
       const form: dcForm = {
         formGroup: new FormGroup({}),
         fields: [],
-        model: {}
+        model: {},
       };
 
       this.forms.push(form);
@@ -41,12 +41,12 @@ export class ProtocolPvComponent implements OnInit {
       // form 0 is always for shadow management and later forms are for MPPT's.
       if (formNr === 0) {
         this.forms[formNr].model = this.ibn.batteryInverter ?? {
-          shadowManagementDisabled: false
+          shadowManagementDisabled: false,
         };
       } else {
         // forms[1], forms[2]... = dc[0], dc[1]...
         this.forms[formNr].model = this.ibn.pv.dc[formNr - 1] ?? {
-          isSelected: false
+          isSelected: false,
         };
       }
     }
@@ -77,7 +77,7 @@ export class ProtocolPvComponent implements OnInit {
           this.ibn.pv.dc.push(Utils.deepCopy(this.forms[formNr].model));
         } else {
           this.ibn.pv.dc.push({
-            isSelected: false
+            isSelected: false,
           });
         }
       }
@@ -92,8 +92,8 @@ export class ProtocolPvComponent implements OnInit {
       type: "checkbox",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION')
-      }
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION'),
+      },
     });
 
     //  For DC-PVs
@@ -130,13 +130,13 @@ export class ProtocolPvComponent implements OnInit {
                       this.forms[strings].fields.find(field => field.key == 'moduleType').formControl.setValue(moduleType);
                       this.forms[strings].fields.find(field => field.key == 'modulesPerString').formControl.setValue(modulesPerString);
                     }
-                  })
+                  }),
                 );
-              }
+              },
             },
             props: {
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { mppt: mppt, pv: strings })
-            }
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { mppt: mppt, pv: strings }),
+            },
           },
           {
             key: "alias",
@@ -144,9 +144,9 @@ export class ProtocolPvComponent implements OnInit {
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS'),
               description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS_DESCRIPTION_PV'),
-              required: true
+              required: true,
             },
-            hideExpression: model => !model.isSelected
+            hideExpression: model => !model.isSelected,
           },
           {
             key: "value",
@@ -155,40 +155,40 @@ export class ProtocolPvComponent implements OnInit {
             templateOptions: {
               type: "number",
               label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
-              required: true
+              required: true,
             },
             validators: {
-              validation: ["onlyPositiveInteger", "defaultAsMinimumValue"]
+              validation: ["onlyPositiveInteger", "defaultAsMinimumValue"],
             },
-            hideExpression: model => !model.isSelected
+            hideExpression: model => !model.isSelected,
           },
           {
             key: "orientation",
             type: "select",
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION'),
-              options: DIRECTIONS_OPTIONS(this.translate)
+              options: DIRECTIONS_OPTIONS(this.translate),
             },
-            hideExpression: model => !model.isSelected
+            hideExpression: model => !model.isSelected,
           },
           {
             key: "moduleType",
             type: "input",
             templateOptions: {
               label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
-              description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION')
+              description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
             },
-            hideExpression: model => !model.isSelected
+            hideExpression: model => !model.isSelected,
           },
           {
             key: "modulesPerString",
             type: "input",
             templateOptions: {
               type: "number",
-              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES')
+              label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
             },
             parsers: [Number],
-            hideExpression: model => !model.isSelected
+            hideExpression: model => !model.isSelected,
           });
       }
     }

@@ -8,7 +8,7 @@ import { App, Changelog, Library, OpenemsComponent, Product } from './changelog.
 
 @Component({
   selector: 'changelog',
-  templateUrl: './changelog.component.html'
+  templateUrl: './changelog.component.html',
 })
 export class ChangelogComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class ChangelogComponent implements OnInit {
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
@@ -37,20 +37,41 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.11.1',
+        changes: [
+          Changelog.openems('2023.11.0'),
+          Changelog.UI + "Fehlerbehebung historische Ansicht, Anzeige eingeplanter Batterieerweiterung",
+          Changelog.product(Product.HOME_20_30) + "Performance-Verbesserung beim Lesen der Erzeugungsdaten, Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.PV_INVERTER, App.KACO) + "Fehlerbehebung bei Darstellung der Energiewerte",
+          Changelog.app(App.TIME_OF_USE) + "Start BETA-Test für aktive Beladung aus dem Netz",
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Filter für Home 20 & 30 in der Übersichtsliste" },
+          { roleIsAtLeast: Role.ADMIN, change: "Entferne Unterstützung für TimescaleDB, Tesla Powerwall" },
+          { roleIsAtLeast: Role.ADMIN, change: "Deaktiviere alten FEMS Remote-Service" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserte Kompatibilitätsprüfung von Apps, Performance-Optimierung durch Laden der Bilder von FENECON Docs" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: einheitliche Berechnung des Gesamt-SoC unter Berücksichtigung der Kapazität" },
+          { roleIsAtLeast: Role.ADMIN, change: "Notstromreserve: Fehlerbehebung bei gemessener negativer Erzeugung" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 40: korrigierter Skalierungsfaktor für Strom und Spannung bei Notstromverbrauchern, zuverlässigere Identifikation des Wechselrichters" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 20 & 30: Fehlerbehebung beim Lesen der Seriennummern der Batterie, Reduzierung der Beladeleistung bei niedrigen Zellspannungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Dynamischer Stromtarif: nutze 'UnmanagedConsumption' für Vorhersage des Verbrauchs" },
+          { roleIsAtLeast: Role.ADMIN, change: "Ladestation KEBA/HardyBarth: bessere Meldung bei Kommunikationsfehler" },
+          Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.HIKARI_CP),
+        ],
+      },
+      {
         version: '2023.10.3',
         changes: [
           "Fehlerbehebung: lokales Monitoring",
           "Fehlerbehebung: historische Ansicht im Online-Monitoring",
           Changelog.product(Product.HOME_20_30) + "Fehlerbehebung bei der Inbetriebnahme",
           "Dynamischer Stromtarif ENTSO-E: Sicherstellen, dass Day-Ahead-Tarife beim Start abgerufen werden",
-          Changelog.library(Library.OKHTTP)
-        ]
+          Changelog.library(Library.OKHTTP),
+        ],
       },
       {
         version: '2023.10.2',
         changes: [
-          "Fehlerbehebung lokales Monitoring: die Abfrage historischer Daten war seit Version 2023.10.1 nur für den aktuellen Tag möglich"
-        ]
+          "Fehlerbehebung lokales Monitoring: die Abfrage historischer Daten war seit Version 2023.10.1 nur für den aktuellen Tag möglich",
+        ],
       },
       {
         version: '2023.10.1',
@@ -70,8 +91,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Release Candidates/SNAPSHOT-Branches: Update auf neuesten RC bzw. SNAPSHOT über System-Update-Funktion im UI" },
           { roleIsAtLeast: Role.ADMIN, change: "Phoenix Contact Zähler (EEM-MA370-24DC/EEM-MB370-24DC): Implementierung 'invert' Funktion" },
           { roleIsAtLeast: Role.ADMIN, change: "Neuer Zugang für FEMS Remote-Service: siehe Anleitung in FEMS Teams/Allgemein" },
-          Changelog.library(Library.GRADLE, Library.OKIO, Library.APACHE_FELIX_HTTP_JETTY, Library.BNDTOOLS, Library.APACHE_FELIX_WEBCONSOLE, Library.GUAVA)
-        ]
+          Changelog.library(Library.GRADLE, Library.OKIO, Library.APACHE_FELIX_HTTP_JETTY, Library.BNDTOOLS, Library.APACHE_FELIX_WEBCONSOLE, Library.GUAVA),
+        ],
       },
       {
         version: '2023.9.1',
@@ -98,8 +119,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix KACO50/92: Leistungs-Setpoints" },
           { roleIsAtLeast: Role.ADMIN, change: "Industrial S/L: enfasbms, F2B" },
           { roleIsAtLeast: Role.ADMIN, change: "Neue OpenEMS Apps für Webasto Next und Webasto Unite Ladesäulen. Info im OpenEMS Community-Forum folgt" },
-          Changelog.library(Library.OKIO, Library.RRD4J, Library.APACHE_FELIX_HTTP_JETTY, Library.GRADLE, Library.FASTEXCEL, Library.APACHE_FELIX_WEBCONSOLE)
-        ]
+          Changelog.library(Library.OKIO, Library.RRD4J, Library.APACHE_FELIX_HTTP_JETTY, Library.GRADLE, Library.FASTEXCEL, Library.APACHE_FELIX_WEBCONSOLE),
+        ],
       },
       {
         version: '2023.8.2',
@@ -115,8 +136,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Virtuelle Zähler: Fix für Berechnungsfehler bei Teilausfall" },
           { roleIsAtLeast: Role.ADMIN, change: "Core.Meta: Globale Konfiguration einer Währung" },
           { roleIsAtLeast: Role.ADMIN, change: "Industrial L: erste Version einer 'Industrial L Komponente'" },
-          Changelog.library(Library.GUAVA, Library.INFLUXDB)
-        ]
+          Changelog.library(Library.GUAVA, Library.INFLUXDB),
+        ],
       },
       {
         version: '2023.8.1',
@@ -138,14 +159,14 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Auch Service-/Admin-User können Keys einlösen" },
           { roleIsAtLeast: Role.ADMIN, change: "Edge: Verbesserung des Debug-Logs für Komponenten mit interner State-Machine" },
           { roleIsAtLeast: Role.ADMIN, change: "Edge: Fehlerbehebung bei der Energieberechnung für einzelne Phasen eines Zählers" },
-          Changelog.library(Library.FASTEXCEL, Library.GUAVA, Library.OKIO, Library.JAVA_WEBSOCKET)
-        ]
+          Changelog.library(Library.FASTEXCEL, Library.GUAVA, Library.OKIO, Library.JAVA_WEBSOCKET),
+        ],
       },
       {
         version: '2023.6.2',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2023.6.1',
@@ -161,14 +182,14 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Energiewerte werden, wenn sie einmal gesetzt waren, nicht mehr auf UNDEFINED gesetzt" },
           { roleIsAtLeast: Role.ADMIN, change: "KACO Blueplanet Hybrid 10 als PV-Wechselrichter: dreiphasige Darstellung von Spannung, Strom und Leistung" },
           { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Phoenix Contact EEM-MA370-24DC und EEM-MB370-24DC Zähler" },
-          Changelog.library(Library.D3, Library.INFLUXDB, Library.FASTEXCEL, Library.GUAVA)
-        ]
+          Changelog.library(Library.D3, Library.INFLUXDB, Library.FASTEXCEL, Library.GUAVA),
+        ],
       },
       {
         version: '2023.5.3',
         changes: [
-          Changelog.app(App.EVCS_AC, App.KEBA) + "Fehlerbehebung"
-        ]
+          Changelog.app(App.EVCS_AC, App.KEBA) + "Fehlerbehebung",
+        ],
       },
       {
         version: '2023.5.2',
@@ -181,8 +202,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.library(Library.D3, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.GUAVA),
           { roleIsAtLeast: Role.ADMIN, change: "UI: Übersetzungen; mehr Länder bei Benutzerregistrierung; Refactoring der History-Charts für Produktion" },
           { roleIsAtLeast: Role.ADMIN, change: "IBN-Commercial: Setzen der FEMS-IP-Adresse 192.168.0.9 für Verbindung zur Batterie; Verbesserung bei Validierung von Minimal-Werten; Auslesen der Seriennummern" },
-          { roleIsAtLeast: Role.ADMIN, change: "BETA-Test für 'OpenEMS Apps' (= (noch) nicht offizielle FEMS Apps): EVCS Dezony, Zähler SDM630" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "BETA-Test für 'OpenEMS Apps' (= (noch) nicht offizielle FEMS Apps): EVCS Dezony, Zähler SDM630" },
+        ],
       },
       {
         version: '2023.5.1',
@@ -193,14 +214,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.TIME_OF_USE) + "Anzeige der richtigen Währung in Schweden",
           Changelog.library(Library.OKHTTP, Library.DATE_FNS),
-          { roleIsAtLeast: Role.ADMIN, change: "Solar-Log: Fehlerbehebung bei Energiewerten" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Solar-Log: Fehlerbehebung bei Energiewerten" },
+        ],
       },
       {
         version: '2023.4.3',
         changes: [
-          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei automatischer Suche des Wechselrichters im Netzwerk"
-        ]
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei automatischer Suche des Wechselrichters im Netzwerk",
+        ],
       },
       {
         version: '2023.4.2',
@@ -215,27 +236,27 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Fix-ActivePower-Controller: erlaubt (nur via 'Komponenten Konfigurieren') auch Min-/Max-Vorgaben für Be-/Entladung und phasengenaue Ansteuerung; ersetzt Asymmetric Fix-ActivePower-Controller" },
           { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Bridge, KACO blueplanet 10: robusteres Verhalten wenn IP-Adressen mit führenden Leerzeichen konfiguriert werden" },
           { roleIsAtLeast: Role.ADMIN, change: "EVCS-Controller: funktioniert jetzt auch ohne konfigurierten (Dummy-)Speicher" },
-          Changelog.library(Library.FASTEXCEL)
-        ]
+          Changelog.library(Library.FASTEXCEL),
+        ],
       },
       {
         version: '2023.4.1',
         changes: [
           Changelog.openems('2023.4.0'),
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2023.3.8',
         changes: [
-          "App Center: Fehlerbehebung bei " + Changelog.app(App.EVCS_AC, App.HARDY_BARTH)
-        ]
+          "App Center: Fehlerbehebung bei " + Changelog.app(App.EVCS_AC, App.HARDY_BARTH),
+        ],
       },
       {
         version: '2023.3.7',
         changes: [
-          Changelog.app(App.TIME_OF_USE) + "Fehlerbehebung in der Live-Ansicht"
-        ]
+          Changelog.app(App.TIME_OF_USE) + "Fehlerbehebung in der Live-Ansicht",
+        ],
       },
       {
         version: '2023.3.6',
@@ -248,15 +269,15 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidget: FEMS App Center; Link zu Systemupdate bei Versionen < 2023.3.6" },
           { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmTotalVoltageHigh, TemperatureDifferenceTooBigPre-Alarm ausgeblendet" },
           { roleIsAtLeast: Role.ADMIN, change: "OEM Heckert: neues Logo" },
-          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Fehlerbehebungen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Fehlerbehebungen" },
+        ],
       },
       {
         version: '2023.3.5',
         changes: [
           "Aktualisierung der Java Runtime Environment auf Version 17 LTS",
-          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung bei Übersetzungen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung bei Übersetzungen" },
+        ],
       },
       {
         version: '2023.3.4',
@@ -268,14 +289,14 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Next Ladestation" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Optimierung Validierung kostenloser Apps, Verbesserung bei Default-Werten, Hardy-Barth mit zwei Ladepunkten" },
           { roleIsAtLeast: Role.ADMIN, change: "Backend: historische Abfragen auffüllen mit 'null'-Werten, retry by InfluxDB Schreibfehlern, bessere Logs" },
-          Changelog.library(Library.POSTGRESQL, Library.APACHE_FELIX_FILEINSTALL)
-        ]
+          Changelog.library(Library.POSTGRESQL, Library.APACHE_FELIX_FILEINSTALL),
+        ],
       },
       {
         version: '2023.3.3',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2023.3.2',
@@ -288,22 +309,22 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Umbenennung FEMS Relaisboard 8-Kanal TCP, Berechtigungsproblem bei Validierung von Keys im Backend, Auswahl der Phase bei SMA PV-Wechselrichter, Verbesserung handling kostenloser Apps" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: neues CI für Heckert" },
           { roleIsAtLeast: Role.ADMIN, change: "Alpha-Test für PWA Service-Worker" },
-          Changelog.library(Library.FASTEXCEL)
-        ]
+          Changelog.library(Library.FASTEXCEL),
+        ],
       },
       {
         version: '2023.3.1',
         changes: [
           Changelog.openems('2023.3.0'),
           "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
-          Changelog.library(Library.FASTEXCEL, Library.APACHE_FELIX_HTTP_JETTY)
-        ]
+          Changelog.library(Library.FASTEXCEL, Library.APACHE_FELIX_HTTP_JETTY),
+        ],
       },
       {
         version: '2023.2.11',
         changes: [
-          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend"
-        ]
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+        ],
       },
       {
         version: '2023.2.9',
@@ -314,8 +335,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "UI: Routing-Fehler, Blockieren auf Übersicht-Seite, Browser-Kompatibilität" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: Feldtest für neuen Time-Of-Use Controller" },
           { roleIsAtLeast: Role.ADMIN, change: "Backend: Handling von aggregierten Daten, InfluxDB adaptives Lese-/Schreib-Limit, Fehlerbehebung bei Logout" },
-          { roleIsAtLeast: Role.ADMIN, change: "FENECON Home-App: Länder Schweden, Tschechien und Niederlande" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "FENECON Home-App: Länder Schweden, Tschechien und Niederlande" },
+        ],
       },
       {
         version: '2023.2.6',
@@ -326,28 +347,28 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Alpitronic Hypercharger DC" },
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix Meter.Virtual.Symmetric.Add: Energiewerte" },
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix SolarEdge Grid-Meter (SunSpec Meter): Energie je Phase" },
-          { roleIsAtLeast: Role.ADMIN, change: "IBN-Assistent/Backend: Verbesserung der Fehlerhandlings" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "IBN-Assistent/Backend: Verbesserung der Fehlerhandlings" },
+        ],
       },
       {
         version: '2023.2.5',
         changes: [
           Changelog.UI,
-          "Netzwerkkonfiguration: Fehlerbehebung bei Benutzernamen mit Umlauten"
-        ]
+          "Netzwerkkonfiguration: Fehlerbehebung bei Benutzernamen mit Umlauten",
+        ],
       },
       {
         version: '2023.2.4',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "App Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" },
+        ],
       },
       {
         version: '2023.2.3',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2023.2.2',
@@ -357,8 +378,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Fehlerbehebungen bei mehreren registrierten Zählern",
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserungen an Keys, Navigation, Übersetzungen" },
           { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Änderung der Datums-Konfiguration, Automatische Installation auf Home-Systemen" },
-          Changelog.library(Library.POSTGRESQL, Library.FASTEXCEL)
-        ]
+          Changelog.library(Library.POSTGRESQL, Library.FASTEXCEL),
+        ],
       },
       {
         version: '2023.2.1',
@@ -366,23 +387,23 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2023.2.0'),
           Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.library(Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.D3)
-        ]
+          Changelog.library(Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.D3),
+        ],
       },
       {
         version: '2023.1.3',
         changes: [
           Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
-          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser"
-        ]
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
+        ],
       },
       {
         version: '2023.1.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Aktiviere App-Keys" },
-          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" },
+        ],
       },
       {
         version: '2023.1.1',
@@ -392,48 +413,48 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + "Verbesserung SMART-Mode bei Vorgabe einer maximalen Be-/Entladeleistung",
           Changelog.app(App.TIME_OF_USE) + "Historie-Chart: Skalierung der Preis-Achse",
           Changelog.library(Library.NGX_FORMLY, Library.IONIC, Library.JNA, Library.D3),
-          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" },
+        ],
       },
       {
         version: '2022.12.7',
         changes: [
-          "Inbetriebnahmeassistent: Fehlerbehebung"
-        ]
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+        ],
       },
       {
         version: '2022.12.6',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.12.5',
         changes: [
           Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung bei Kompatibilität mit älterer Firmware des GoodWe Wechselrichters",
-          { roleIsAtLeast: Role.ADMIN, change: "Besseres Logging von UI-Fehlern im Backend, z. B. für IBN" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Besseres Logging von UI-Fehlern im Backend, z. B. für IBN" },
+        ],
       },
       {
         version: '2022.12.4',
         changes: [
           Changelog.UI,
           "Inbetriebnahmeassistent: Fehlerbehebung",
-          Changelog.library(Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.NGX_COOKIE_SERVICE, Library.D3, Library.FASTEXCEL, Library.OSGI_UTIL_PROMISE)
-        ]
+          Changelog.library(Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.NGX_COOKIE_SERVICE, Library.D3, Library.FASTEXCEL, Library.OSGI_UTIL_PROMISE),
+        ],
       },
       {
         version: '2022.12.3',
         changes: [
           Changelog.UI,
-          "Inbetriebnahmeassistent: Fehlerbehebung"
-        ]
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+        ],
       },
       {
         version: '2022.12.2',
         changes: [
-          Changelog.app(App.METER, App.KDK) + "Implementierung KDK 420506PRO20-U (2PU CT)"
-        ]
+          Changelog.app(App.METER, App.KDK) + "Implementierung KDK 420506PRO20-U (2PU CT)",
+        ],
       },
       {
         version: '2022.12.1',
@@ -447,28 +468,28 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: Unterstützung für Start-Stop von mehreren ESS" },
           { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME_10) + "Korrektur bei Frequenzmessung des Netzzählers" },
           { roleIsAtLeast: Role.ADMIN, change: "Backend Alerting: Verhinderung von negativen Seiteneffekten beim Abarbeiten von Meldungen" },
-          { roleIsAtLeast: Role.ADMIN, change: "Aktualisierung/Bereinigung der Werbewidgets" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Aktualisierung/Bereinigung der Werbewidgets" },
+        ],
       },
       {
         version: '2022.11.7',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "Performance-Optimierungen am Backend" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Performance-Optimierungen am Backend" },
+        ],
       },
       {
         version: '2022.11.6',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen1-Batterie: Anpassung der Parameter für die Batterie-Protection" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen1-Batterie: Anpassung der Parameter für die Batterie-Protection" },
+        ],
       },
       {
         version: '2022.11.5',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.11.4',
@@ -476,15 +497,15 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung des Netzzählers" },
           { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME_10) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
-          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
+        ],
       },
       {
         version: '2022.11.3',
         changes: [
           "Fehlerbehebungen der Übersetzung",
-          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten"
-        ]
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+        ],
       },
       {
         version: '2022.11.2',
@@ -496,8 +517,8 @@ export class ChangelogComponent implements OnInit {
           "Verbesserungen bei automatischen E-Mail-Benachrichtungen",
           "Darstellung des Zeitpunkts der letzten Datenübertragung in der Übersicht",
           { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
-          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für KDK 2PU CT Zähler" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für KDK 2PU CT Zähler" },
+        ],
       },
       {
         version: '2022.11.1',
@@ -506,8 +527,8 @@ export class ChangelogComponent implements OnInit {
           "Fehlerbehebung bei der automatischem Reconnect mit dem Online-Monitoring nach Verbindungsausfall",
           Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.DATE_FNS, Library.MOSHI, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY),
           { roleIsAtLeast: Role.ADMIN, change: "KACO Blueplanet Hybrid 10: interne Architektur geändert" },
-          { roleIsAtLeast: Role.ADMIN, change: "Simulator Grid-Meter: Fehlerbehebung in Verbindung mit Ess-Cluster" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Simulator Grid-Meter: Fehlerbehebung in Verbindung mit Ess-Cluster" },
+        ],
       },
       {
         version: '2022.10.7',
@@ -517,8 +538,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.EVCS_AC) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Api-Kompatibilität für GoodWe Zähler" },
           { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Ziehl EFR4001IP Zähler" },
-          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Weidmüller Modbus/TCP Feldbuskoppler UR20-FBC-MOD-TCP-V2" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Weidmüller Modbus/TCP Feldbuskoppler UR20-FBC-MOD-TCP-V2" },
+        ],
       },
       {
         version: '2022.10.4',
@@ -531,15 +552,15 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Api-Kompatibilität für KACO 10 und GoodWe-ESS" },
           { roleIsAtLeast: Role.ADMIN, change: "Bereinigung der Werbewidgets" },
           { roleIsAtLeast: Role.ADMIN, change: "Verbesserung der Erstinitialisierung von OpenEMS Edge" },
-          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
+        ],
       },
       {
         version: '2022.10.3',
         changes: [
           Changelog.UI,
-          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten"
-        ]
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+        ],
       },
       {
         version: '2022.10.1',
@@ -549,15 +570,15 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Verbesserung der Einstellungsoberfläche für Benachrichtungen",
           Changelog.app(App.TIME_OF_USE) + "Allgemeine Verbesserungen",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
-          { roleIsAtLeast: Role.ADMIN, change: "Betatest Edge-2-Edge: https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.edge2edge/readme.adoc" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Betatest Edge-2-Edge: https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.edge2edge/readme.adoc" },
+        ],
       },
       {
         version: '2022.9.4',
         changes: [
           Changelog.UI + "Fehlerbehebung bei Übersetzungen",
-          Changelog.app(App.MODBUS_TCP_API) + "Schreibzugriff: Fehlerbehebung bei Registern für das Minimum und Maximum der verfügbaren Speicherleistung"
-        ]
+          Changelog.app(App.MODBUS_TCP_API) + "Schreibzugriff: Fehlerbehebung bei Registern für das Minimum und Maximum der verfügbaren Speicherleistung",
+        ],
       },
       {
         version: '2022.9.2',
@@ -573,8 +594,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Battery Soltaro.Single.C: entferne 'Cell Voltage Low Pre-Alarm'" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
           { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
-          { roleIsAtLeast: Role.ADMIN, change: "In 'Channels' können die gewählten Channels jetzt gespeichert werden" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "In 'Channels' können die gewählten Channels jetzt gespeichert werden" },
+        ],
       },
       {
         version: '2022.9.1',
@@ -584,16 +605,16 @@ export class ChangelogComponent implements OnInit {
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
           Changelog.app(App.MODBUS_TCP_API) + "Schreibzugriff: Zusätzliche Register für das Minimum und Maximum der verfügbaren Speicherleistung",
           { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Verbesserung der Codequalität" },
-          { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der PV-WR Abregelung um phasengenaues Detektieren (Vorerst für dreiphasige PV-WR)" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der PV-WR Abregelung um phasengenaues Detektieren (Vorerst für dreiphasige PV-WR)" },
+        ],
       },
       {
         version: '2022.8.5',
         changes: [
           Changelog.UI,
           Changelog.app(App.HOCHLASTZEITFENSTER) + Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung von Plexlog Datalogger als Zähler" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung von Plexlog Datalogger als Zähler" },
+        ],
       },
       {
         version: '2022.8.4',
@@ -603,14 +624,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.TIME_OF_USE) + "Überarbeitung des Widgets im Online-Monitoring",
           { roleIsAtLeast: Role.INSTALLER, change: Changelog.GENERAL_OPTIMIZATION + " für invertierte Produktionszähler" },
           { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + " Anzeige von Strom und Spannung für einzelne Erzeuger" },
-          { roleIsAtLeast: Role.ADMIN, change: "Strukturelle Änderungen am Online-Monitoring. Verbesserung der automatischen Tests." }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Strukturelle Änderungen am Online-Monitoring. Verbesserung der automatischen Tests." },
+        ],
       },
       {
         version: '2022.8.3',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.8.2',
@@ -621,8 +642,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung für Erzeuger" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: GLS Crowdfunding" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Info, wenn ein Update zur Verfügung steht" },
-          { roleIsAtLeast: Role.ADMIN, change: "Shelly: Anzeige als Stromzähler" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Shelly: Anzeige als Stromzähler" },
+        ],
       },
       {
         version: '2022.8.1',
@@ -632,14 +653,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.library(Library.NGX_FORMLY),
           { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für SMA Sunny Island 4.4 und 6" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserungen" },
-          { roleIsAtLeast: Role.ADMIN, change: "OCPP-Server für Ladesäulen: Fehlerbehebung" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "OCPP-Server für Ladesäulen: Fehlerbehebung" },
+        ],
       },
       {
         version: '2022.7.5',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.7.3',
@@ -648,8 +669,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + "Automatisches Update durch den Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "GoodWe/Home Charger: Channel CURRENT/VOLTAGE" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: App-Icons überarbeitet" },
-          { roleIsAtLeast: Role.ADMIN, change: "UI: generische Überarbeitung Live-Ansicht Verbrauch/Netz" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "UI: generische Überarbeitung Live-Ansicht Verbrauch/Netz" },
+        ],
       },
       {
         version: '2022.7.2',
@@ -659,8 +680,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an SMA ESS" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: fenecon.de/heizstab" },
-          { roleIsAtLeast: Role.ADMIN, change: "Excel-Export gesperrt für Zeiträume > 3 Monate" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Excel-Export gesperrt für Zeiträume > 3 Monate" },
+        ],
       },
       {
         version: '2022.7.1',
@@ -671,8 +692,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.library(Library.INFLUXDB, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.D3, Library.NGX_COOKIE_SERVICE,
             Library.NGX_SPINNER, Library.FASTEXCEL, Library.OKHTTP, Library.OKIO, Library.POSTGRESQL, Library.JNA),
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: Alerting" },
-          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei SunSpec 32-bit Registern" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei SunSpec 32-bit Registern" },
+        ],
       },
       {
         version: '2022.6.6',
@@ -681,8 +702,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Übernahme der FEMS-Nummer und Anpassung UI" },
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Installation/Deinstallation von Read-Write-/Read-Only-Apps" },
           { roleIsAtLeast: Role.ADMIN, change: "User-Registrierung: OEM-fähigkeit" },
-          { roleIsAtLeast: Role.ADMIN, change: "TimescaleDB: Weitere Entwicklungen; Test auf fems888" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "TimescaleDB: Weitere Entwicklungen; Test auf fems888" },
+        ],
       },
       {
         version: '2022.6.4',
@@ -696,21 +717,21 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Auslesen der FEMS-Nummber über die Modbus-TCP-Api" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung für via OCPP eingebundene Ladesäulen (ABL, IES KeyWatt)" },
           { roleIsAtLeast: Role.ADMIN, change: "Alpha-Tests für neue Zeitreihendatenbank TimescaleDB; diese wird InfluxDB ablösen" },
-          { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Anpassung der Benutzeroberfläche (Settings -> Alarmierung)" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Anpassung der Benutzeroberfläche (Settings -> Alarmierung)" },
+        ],
       },
       {
         version: '2022.6.3',
         changes: [
           Changelog.app(App.PV_INVERTER, App.SMA) + "Fehlerbehebung bei der Unterstützung für einphasige SMA-Wechselrichter via SunSpec",
-          { roleIsAtLeast: Role.ADMIN, change: "Der WebSocket Reconnect zum Backend hat jetzt ein weiteres Timeout. Evtl. löst das Probleme, dass sich manche FEMSe nicht mehr verbunden haben." }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Der WebSocket Reconnect zum Backend hat jetzt ein weiteres Timeout. Evtl. löst das Probleme, dass sich manche FEMSe nicht mehr verbunden haben." },
+        ],
       },
       {
         version: '2022.6.2',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.6.1',
@@ -726,14 +747,14 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Anpassungen am IBN-Assistent: Beschränke Eingabemöglichkeit auf positive Zahlen" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: Optimierung der netzdienlichen Beladung, Energiewende mit FEMS" },
           { roleIsAtLeast: Role.ADMIN, change: "Vorarbeiten am Backend für Fehler-/Status-Lognachrichten aus dem UI" },
-          { roleIsAtLeast: Role.ADMIN, change: "FENECON Pro 9-12: Ausblenden von unnötigen Statusmeldungen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "FENECON Pro 9-12: Ausblenden von unnötigen Statusmeldungen" },
+        ],
       },
       {
         version: '2022.5.6',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.5.5',
@@ -741,8 +762,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Verbesserung des lokalen Monitorings für historische Daten",
           Changelog.library(Library.APACHE_FELIX_WEBCONSOLE),
           { roleIsAtLeast: Role.ADMIN, change: "URL für 'Passwort zurücksetzen' geändert" },
-          { roleIsAtLeast: Role.ADMIN, change: "Backend-Änderungen für Alerting und IBN-Assistent" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Backend-Änderungen für Alerting und IBN-Assistent" },
+        ],
       },
       {
         version: '2022.5.4',
@@ -751,8 +772,8 @@ export class ChangelogComponent implements OnInit {
           "Verbesserte Darstellung des aktiven Zeitraums in der Historie",
           Changelog.library(Library.POSTGRESQL),
           { roleIsAtLeast: Role.ADMIN, change: "Refactoring des Component-Managers" },
-          { roleIsAtLeast: Role.ADMIN, change: "UI-Verbesserung am System-Update" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "UI-Verbesserung am System-Update" },
+        ],
       },
       {
         version: '2022.5.2',
@@ -765,8 +786,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Prüfung auf Apikey (/etc/fems und Controller.Api.Backend) -> neuer Channel ctrlBackend0/WrongApikeyConfiguration" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
           { roleIsAtLeast: Role.ADMIN, change: "FEMS-Authentifizierung am Backend: entferne Leerzeichen von Apikey" },
-          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE)
-        ]
+          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE),
+        ],
       },
       {
         version: '2022.5.1',
@@ -779,8 +800,8 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmCellVoltageHigh und PreAlarmTotalVoltageHigh ausgeblendet" },
           { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Warning, CommunicationStopCharging, CommunicationStopDischarging ausgeblendet" },
           { roleIsAtLeast: Role.ADMIN, change: "Verbesserung 'Virtual Subtract Meter'" },
-          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
+        ],
       },
       {
         version: '2022.4.1',
@@ -795,14 +816,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.openemsComponent(OpenemsComponent.SDM630_ZAEHLER, "Korrektur der Modbus-Register für Blindleistung"),
           { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App Center (Beta-Test)" },
           { roleIsAtLeast: Role.ADMIN, change: "Benachrichtigung bei Ausfall eines FEMS (Beta-Test)" },
-          { roleIsAtLeast: Role.ADMIN, change: "Neues Werbewidget für direkte Anbindung eines KOSTAL PV-Wechselrichter" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Neues Werbewidget für direkte Anbindung eines KOSTAL PV-Wechselrichter" },
+        ],
       },
       {
         version: '2022.3.6',
         changes: [
-          Changelog.library(Library.INFLUXDB)
-        ]
+          Changelog.library(Library.INFLUXDB),
+        ],
       },
       {
         version: '2022.3.3',
@@ -814,14 +835,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.PV_INVERTER, App.KOSTAL) + "Kompatibilität mit Kostal PV-Wechselrichtern. Getestet mit Kostal Plenticore 5.5 und Pico 5.5",
           Changelog.library(Library.INFLUXDB),
           { roleIsAtLeast: Role.ADMIN, change: "Zusammenlegung der FEMS System-Update Funktion, je nach installierter FEMS-Version" },
-          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App Center (Beta-Test)" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App Center (Beta-Test)" },
+        ],
       },
       {
         version: '2022.3.2',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.3.1',
@@ -833,29 +854,29 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.PRO_HYBRID_10) + "Kompatibilität mit KACO Firmware Version 8 (nur lesend)",
           Changelog.app(App.MODBUS_TCP_API) + "Auslesen On-Grid-/Off-Grid-Modus + Überarbeitung der Beschreibungen in der Excel-Datei",
           Changelog.app(App.PV_INVERTER, App.FRONIUS) + "Kompatibilität mit Fronius PV-Wechselrichtern. Getestet mit Fronius Symo",
-          Changelog.library(Library.SLF4J, Library.POSTGRESQL, Library.GSON, Library.GUAVA, Library.NGX_FORMLY)
-        ]
+          Changelog.library(Library.SLF4J, Library.POSTGRESQL, Library.GSON, Library.GUAVA, Library.NGX_FORMLY),
+        ],
       },
       {
         version: '2022.2.3',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2022.2.2',
         changes: [
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Dynamische Begrenzung der Netzeinspeiseleistung in Österreich",
-          Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Änderungen an der maximalen Netzeinspeiseleistung müssen durch erneutes Ausführen des Inbetriebnahmeassistenten gesetzt werden"
-        ]
+          Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Änderungen an der maximalen Netzeinspeiseleistung müssen durch erneutes Ausführen des Inbetriebnahmeassistenten gesetzt werden",
+        ],
       },
       {
         version: '2022.2.1',
         changes: [
           Changelog.openems('2022.2.0'),
           Changelog.app(App.TIME_OF_USE) + "Verbesserung der Einberechnung der Notstromvorhaltung und von DC-/Hybrid-Speichersystemen",
-          Changelog.library(Library.FASTEXCEL, Library.SLF4J, Library.D3, Library.NGX_FORMLY, Library.APACHE_FELIX_CONFIGADMIN)
-        ]
+          Changelog.library(Library.FASTEXCEL, Library.SLF4J, Library.D3, Library.NGX_FORMLY, Library.APACHE_FELIX_CONFIGADMIN),
+        ],
       },
       {
         version: '2022.1.3',
@@ -865,14 +886,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Möglichkeit zur Deaktivierung des MPP-Trackers bei externen Optimierern",
           Changelog.product(Product.HOME_10) + "Verbesserung des 'SMART'-Mode",
           { roleIsAtLeast: Role.ADMIN, change: "Verbesserung an FEMS System-Update Funktion" },
-          { roleIsAtLeast: Role.ADMIN, change: "Bugfix OCPP-Server mit Java 11" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix OCPP-Server mit Java 11" },
+        ],
       },
       {
         version: '2022.1.2',
         changes: [
-          Changelog.app(App.TIME_OF_USE) + "Verbesserung der historischen Darstellung über einen längeren Zeitraum"
-        ]
+          Changelog.app(App.TIME_OF_USE) + "Verbesserung der historischen Darstellung über einen längeren Zeitraum",
+        ],
       },
       {
         version: '2022.1.1',
@@ -882,8 +903,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.library(Library.RRD4J, Library.PAX_LOGGING, Library.GRADLE, Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.DATE_FNS, Library.FASTEXCEL, Library.HIKARI_CP),
           "Ab dem Jahr 2022 steht die zweite Zahl in der Versionsnummer für den Monat des Releases; 2022.1.1 wurde also im Januar 2022 veröffentlicht",
           { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + " Start Beta-Test App-Manager für FENECON Home" },
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.BACKEND + " Setze in Odoo Tag beim Partner, wenn dieser über IBN-Assistent angelegt wurde" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.BACKEND + " Setze in Odoo Tag beim Partner, wenn dieser über IBN-Assistent angelegt wurde" },
+        ],
       },
       {
         version: '2021.22.1',
@@ -894,36 +915,36 @@ export class ChangelogComponent implements OnInit {
           "Implementierung Siemens PAC2200/3200/4200 Zähler",
           Changelog.library(Library.APACHE_FELIX_WEBCONSOLE, Library.PAX_LOGGING),
           "Aktualisierung auf Log4j Version 2 mit aktualiserten Sicherheitspatches. Vorher wurde Log4j in Version 1 genutzt, die für die kritische Schwachstelle an Log4j (CVE-2021-44228) ebenfalls nicht anfällig war.",
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + " PV-Wechselrichter und DC-Laderegler können für Modbus/TCP-Slave-Api freigegeben werden" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + " PV-Wechselrichter und DC-Laderegler können für Modbus/TCP-Slave-Api freigegeben werden" },
+        ],
       },
       {
         version: '2021.21.5',
         changes: [
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.APACHE_FELIX_FRAMEWORK, Library.D3, Library.DATE_FNS),
-          { roleIsAtLeast: Role.ADMIN, change: "SimulatedESS: Modbus-Protokoll ist jetzt gleich wie GenericManagedSymmetricEss" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "SimulatedESS: Modbus-Protokoll ist jetzt gleich wie GenericManagedSymmetricEss" },
+        ],
       },
       {
         version: '2021.21.4',
         changes: [
-          Changelog.library(Library.PAX_LOGGING) + " (CVE-2021-44228)"
-        ]
+          Changelog.library(Library.PAX_LOGGING) + " (CVE-2021-44228)",
+        ],
       },
       {
         version: '2021.21.3',
         changes: [
           Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.product(Product.HOME_10) + "Fehlerbehebung 'Q von U' Kurve",
-          { roleIsAtLeast: Role.ADMIN, change: "Werbungswidgets im Monitoring werden nur noch für FENECON angezeigt, nicht für OEM (z. B. Heckert)" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Werbungswidgets im Monitoring werden nur noch für FENECON angezeigt, nicht für OEM (z. B. Heckert)" },
+        ],
       },
       {
         version: '2021.21.2',
         changes: [
-          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung für Java 11"
-        ]
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung für Java 11",
+        ],
       },
       {
         version: '2021.21.1',
@@ -933,8 +954,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.library(Library.JNA, Library.IONIC, Library.NGX_FORMLY, Library.DATE_FNS, Library.GRADLE),
           "Aktualisierung auf Java 11",
-          { roleIsAtLeast: Role.ADMIN, change: "InfluxDB: erhöhe Timeout für Abfragen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "InfluxDB: erhöhe Timeout für Abfragen" },
+        ],
       },
       {
         version: '2021.20.1',
@@ -943,34 +964,34 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.TIME_OF_USE, App.CORRENTLY) + "In Abstimmung mit STOMDAO können jetzt 15-Minuten Werte genutzt werden.",
           Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Release",
           Changelog.product(Product.DESS) + "Fehlerbehebung bei DC-PV-Leistung",
-          "Fehlerbehebung bei Berechnung der Kapazität in einem Cluster aus Speichersystemen"
-        ]
+          "Fehlerbehebung bei Berechnung der Kapazität in einem Cluster aus Speichersystemen",
+        ],
       },
       {
         version: '2021.19.6',
         changes: [
-          Changelog.product(Product.HOME_10) + "Erkennung für FENECON Batteriewechselrichter"
-        ]
+          Changelog.product(Product.HOME_10) + "Erkennung für FENECON Batteriewechselrichter",
+        ],
       },
       {
         version: '2021.19.5',
         changes: [
-          Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.19.3',
         changes: [
           Changelog.UI,
           Changelog.product(Product.HOME_10, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.app(App.EVCS_AC, App.KEBA) + "Kein Fehler, wenn IP-Adresse Leerzeichen am Anfang oder Ende enthält"
-        ]
+          Changelog.app(App.EVCS_AC, App.KEBA) + "Kein Fehler, wenn IP-Adresse Leerzeichen am Anfang oder Ende enthält",
+        ],
       },
       {
         version: '2021.19.2',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.19.1',
@@ -981,8 +1002,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (OEM)",
           Changelog.product(Product.COMMERCIAL_30) + " Überarbeitung der Implementierung für den Sinexcel Batteriewechselrichter",
           Changelog.library(Library.GSON, Library.POSTGRESQL, Library.OSGI_SERVICE_JDBC, Library.DATE_FNS, Library.D3, Library.INFLUXDB),
-          { roleIsAtLeast: Role.ADMIN, change: "Beta-Test für neue FEMS System-Update Funktion" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Test für neue FEMS System-Update Funktion" },
+        ],
       },
       {
         version: '2021.18.1',
@@ -993,8 +1014,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.TIME_OF_USE) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.openemsComponent(OpenemsComponent.PQ_PLUS_ZAEHLER, "Kompatibilität mit PQ Plus UMD96"),
           "Fehlerbehebung in der Datenaufzeichnung phasengenauer Blindleistung",
-          Changelog.library(Library.OSGI_UTIL_PROMISE, Library.OSGI_UTIL_FUNCTION, Library.POSTGRESQL, Library.GUAVA)
-        ]
+          Changelog.library(Library.OSGI_UTIL_PROMISE, Library.OSGI_UTIL_FUNCTION, Library.POSTGRESQL, Library.GUAVA),
+        ],
       },
       {
         version: '2021.17.1',
@@ -1007,8 +1028,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Konfiguration des minimalen Ladezustands im Off-Grid-Fall; "
           + "Aufzeichnung des notstromversorgten Energieverbrauchs",
-          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Single C')"
-        ]
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Single C')",
+        ],
       },
       {
         version: '2021.16.5',
@@ -1017,8 +1038,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.EDGE + Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "Implementierung ESS Cycle-Controller für Zyklus- und Kapazitätstests" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Implementierung ESS Cycle-Controller für Zyklus- und Kapazitätstests" },
+        ],
       },
       {
         version: '2021.16.4',
@@ -1026,10 +1047,10 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.COMMERCIAL_30) + "Umstellung der Software-Architektur",
           {
             roleIsAtLeast: Role.ADMIN, change: "Ab dieser Version muss der Sinexcel Wechselrichter als Battery-Inverter angelegt werden; "
-              + "je nach Anwendungsfall zusammen mit einem 'ESS Generic Off Grid' oder einem 'ESS Generic Managed Symmetric'"
+              + "je nach Anwendungsfall zusammen mit einem 'ESS Generic Off Grid' oder einem 'ESS Generic Managed Symmetric'",
           },
-          Changelog.EDGE + "Fehlermeldung bei Modbus-Kommunikationsabbruch wird bei dem Gerät und nicht mehr bei der Modbus-Bridge angezeigt"
-        ]
+          Changelog.EDGE + "Fehlermeldung bei Modbus-Kommunikationsabbruch wird bei dem Gerät und nicht mehr bei der Modbus-Bridge angezeigt",
+        ],
       },
       {
         version: '2021.16.3',
@@ -1039,14 +1060,14 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.PRO_HYBRID_10) + "Verbesserung der Fehleranalyse für die interne Eigenverbrauchsoptimierung",
           Changelog.app(App.SCHWELLWERTSTEUERUNG) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.HOME_10) + "Verbesserungen an der Notstromfunktion"
-        ]
+          Changelog.product(Product.HOME_10) + "Verbesserungen an der Notstromfunktion",
+        ],
       },
       {
         version: '2021.16.2',
         changes: [
-          Changelog.app(App.SCHWELLWERTSTEUERUNG) + "Parallele Ansteuerung mehrerer Relaisausgänge"
-        ]
+          Changelog.app(App.SCHWELLWERTSTEUERUNG) + "Parallele Ansteuerung mehrerer Relaisausgänge",
+        ],
       },
       {
         version: '2021.16.1',
@@ -1060,8 +1081,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + "Fehlerbehebung bei der Start-Prozedur",
           { roleIsAtLeast: Role.ADMIN, change: "Die 'openems.jar'-Datei für jeden Branch wird jetzt automatisch bei jedem 'push' gebaut. Download unter 'https://dev.intranet.fenecon.de/{branch}/openems.jar'" },
           { roleIsAtLeast: Role.ADMIN, change: "Mit einer Konfigurationseinstellungen in der 'Sum'-Komponente können jetzt Warnungen und Fehler des Gesamtsystems ignoriert/ausgeblendet werden" },
-          { roleIsAtLeast: Role.ADMIN, change: "Der Debug-Log-Controller kann so konfiguriert werden, dass er auch den Alias mit ausgibt" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Der Debug-Log-Controller kann so konfiguriert werden, dass er auch den Alias mit ausgibt" },
+        ],
       },
       {
         version: '2021.15.12',
@@ -1071,33 +1092,33 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + "Optimierung der Start-Prozedur und des Fehlerhandlings der Batterie",
           Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
           Changelog.EDGE + "Fehlerbehebung am lokalen Monitoring",
-          Changelog.library(Library.APACHE_FELIX_SCR, Library.FASTEXCEL)
-        ]
+          Changelog.library(Library.APACHE_FELIX_SCR, Library.FASTEXCEL),
+        ],
       },
       {
         version: '2021.15.11',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.15.10',
         changes: [
           Changelog.openems('2021.15.0'),
-          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
-        ]
+          Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist",
+        ],
       },
       {
         version: '2021.15.9',
         changes: [
-          Changelog.app(App.MODBUS_TCP_API) + "Verbessertes Fehlerhandling bei ungültigen Anfragen; neuer Fehlerzustand 'Fault in Process Image'"
-        ]
+          Changelog.app(App.MODBUS_TCP_API) + "Verbessertes Fehlerhandling bei ungültigen Anfragen; neuer Fehlerzustand 'Fault in Process Image'",
+        ],
       },
       {
         version: '2021.15.8',
         changes: [
-          Changelog.product(Product.HOME_10) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist"
-        ]
+          Changelog.product(Product.HOME_10) + "Prüfung im 'SMART'-Mode, ob das erforderliche GoodWe Smart-Meter verbunden ist",
+        ],
       },
       {
         version: '2021.15.7',
@@ -1108,8 +1129,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.INDUSTRIAL_M) + "Release ESS Standby-Controller",
           Changelog.EDGE + "Fehlerbehebung nach Update der Apache Felix Webconsole",
           Changelog.library(Library.APACHE_FELIX_HTTP_JETTY),
-          { roleIsAtLeast: Role.ADMIN, change: "Entfernen von KACO50.ESS aus dem Release" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Entfernen von KACO50.ESS aus dem Release" },
+        ],
       },
       {
         version: '2021.15.6',
@@ -1119,42 +1140,42 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.app(App.EVCS_AC, App.HARDY_BARTH) + "Verwende werkseitige Standard-IP 192.168.25.30",
           Changelog.product(Product.HOME_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE)
-        ]
+          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE),
+        ],
       },
       {
         version: '2021.15.5',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung für übersteuerte Systeme; setze standardmäßig auf 'INTERNAL'- anstelle von 'SMART'-Mode" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung für übersteuerte Systeme; setze standardmäßig auf 'INTERNAL'- anstelle von 'SMART'-Mode" },
+        ],
       },
       {
         version: '2021.15.4',
         changes: [
           { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung für übersteuerte Systeme" },
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + "Änderung der Berechtigung zum Setzen von Netzwerkeinstellungen auf 'owner'; notwendig für IBN-Assistent Heckert bei FEMS-Apps" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + "Änderung der Berechtigung zum Setzen von Netzwerkeinstellungen auf 'owner'; notwendig für IBN-Assistent Heckert bei FEMS-Apps" },
+        ],
       },
       {
         version: '2021.15.3',
         changes: [
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (Konfiguration AC-PV-Zähler)"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring (Konfiguration AC-PV-Zähler)",
+        ],
       },
       {
         version: '2021.15.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "Version übersprungen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Version übersprungen" },
+        ],
       },
       {
         version: '2021.15.1',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "Version übersprungen" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Version übersprungen" },
+        ],
       },
       {
         version: '2021.14.1',
@@ -1164,8 +1185,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Neustrukturierung des Anlagenprofils",
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.library(Library.CHARGETIME_OCPP, Library.GSON, Library.JNA, Library.PAX_LOGGING, Library.APACHE_FELIX_WEBCONSOLE),
-          { roleIsAtLeast: Role.ADMIN, change: "OEM-Version des Online-Monitorings für Heckert: " + Changelog.link("Link", 'https://symphon-e.heckert-solar.com/') }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "OEM-Version des Online-Monitorings für Heckert: " + Changelog.link("Link", 'https://symphon-e.heckert-solar.com/') },
+        ],
       },
       {
         version: '2021.13.10',
@@ -1173,8 +1194,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.EDGE + "Fehlerbehebung nach Update des OSGi-Frameworks",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei Prüfung auf fehlerhaftes, doppeltes Mapping von Modbus-Register zu Channel" },
-          { roleIsAtLeast: Role.ADMIN, change: "UI-Entwicklungen werden per Continuous Integration immer sofort unter https://dev.intranet.fenecon.de/feature/ui- ... zur Verfügung gestellt" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "UI-Entwicklungen werden per Continuous Integration immer sofort unter https://dev.intranet.fenecon.de/feature/ui- ... zur Verfügung gestellt" },
+        ],
       },
       {
         version: '2021.13.9',
@@ -1185,42 +1206,42 @@ export class ChangelogComponent implements OnInit {
           Changelog.EDGE + "Fehlerbehebung am lokalen Monitoring",
           Changelog.BACKEND + "Spracheinstellungen für Benutzer",
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei Prüfung auf fehlerhaftes, doppeltes Mapping von Modbus-Register zu Channel" },
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Werbungs-Widget: Ändere E-Mail zu partner@fenecon.de" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Werbungs-Widget: Ändere E-Mail zu partner@fenecon.de" },
+        ],
       },
       {
         version: '2021.13.8',
         changes: [
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+        ],
       },
       {
         version: '2021.13.7',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: Changelog.EDGE + "Ändere SystemUpdate zu neuem Paket 'fems'; 'openems-core' und 'openems-core-fems' sind obsolet" },
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Reaktivierung des Werbungs-Widgets" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Reaktivierung des Werbungs-Widgets" },
+        ],
       },
       {
         version: '2021.13.6',
         changes: [
           Changelog.app(App.EVCS_AC) + "Fehlerbehebung bei Limitierung der maximalen Energie eines Ladevorgangs",
           Changelog.UI + Changelog.GENERAL_OPTIMIZATION + "Jahresansicht in der Historie",
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+        ],
       },
       {
         version: '2021.13.5',
         changes: [
-          Changelog.UI + "Jahresansicht in der Historie"
-        ]
+          Changelog.UI + "Jahresansicht in der Historie",
+        ],
       },
       {
         version: '2021.13.4',
         changes: [
-          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei ungültiger Seriennummer oder Version des Wechselrichters"
-        ]
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei ungültiger Seriennummer oder Version des Wechselrichters",
+        ],
       },
       {
         version: '2021.13.3',
@@ -1229,16 +1250,16 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.ADMIN, change: "Refactoring von ESS Cluster: sofortige Übernahme von Channel-Werten, Berechnung gewichteter SoC anhand der Kapazität" },
-          { roleIsAtLeast: Role.ADMIN, change: "Switch zu Apache Felix Framework" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Switch zu Apache Felix Framework" },
+        ],
       },
       {
         version: '2021.13.2',
         changes: [
           Changelog.UI + "Übersetzungen",
           Changelog.UI + "Portal zur Registrierung als Benutzer",
-          Changelog.library(Library.SLF4J)
-        ]
+          Changelog.library(Library.SLF4J),
+        ],
       },
       {
         version: '2021.13.1',
@@ -1248,8 +1269,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION,
           Changelog.GENERAL_OPTIMIZATION + " an Beta-Version für go-e Charger Home",
           Changelog.EDGE + "Verarbeitung 'read-only' Modus von Speichersystemen",
-          Changelog.library(Library.DATE_FNS, Library.ANGULAR, Library.IONIC, Library.NGX_COOKIE_SERVICE, Library.RXJS)
-        ]
+          Changelog.library(Library.DATE_FNS, Library.ANGULAR, Library.IONIC, Library.NGX_COOKIE_SERVICE, Library.RXJS),
+        ],
       },
       {
         version: '2021.12.6',
@@ -1257,34 +1278,34 @@ export class ChangelogComponent implements OnInit {
           Changelog.BACKEND + "Spracheinstellungen für Benutzer",
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.app(App.EVCS_AC) + Changelog.GENERAL_OPTIMIZATION,
-          "Beta-Version für go-e Charger Home"
-        ]
+          "Beta-Version für go-e Charger Home",
+        ],
       },
       {
         version: '2021.12.5',
         changes: [
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
+        ],
       },
       {
         version: '2021.12.4',
         changes: [
-          Changelog.library(Library.CHARGETIME_OCPP)
-        ]
+          Changelog.library(Library.CHARGETIME_OCPP),
+        ],
       },
       {
         version: '2021.12.3',
         changes: [
-          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.12.2',
         changes: [
           Changelog.UI + "Portal zur Registrierung als Benutzer",
           Changelog.product(Product.HOME_10) + "Release Inbetriebnahmeassistent über das Online-Monitoring",
-          Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.app(App.METER, App.JANITZA) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.12.1',
@@ -1293,21 +1314,21 @@ export class ChangelogComponent implements OnInit {
           Changelog.BACKEND + "Inbetriebnahmeassistent",
           Changelog.app(App.PV_INVERTER, App.SMA) + "Kompatibilität mit SMA Sunny Tripower 8.0 und 10.0",
           { roleIsAtLeast: Role.ADMIN, change: "Prüfung auf fehlerhaftes, doppeltes Mapping von Modbus-Register zu Channel" },
-          Changelog.library(Library.POSTGRESQL, Library.UUID, Library.ECLIPSE_OSGI, Library.GSON, Library.NG2_CHARTS, Library.NGX_FORMLY, Library.MYDATEPICKER)
-        ]
+          Changelog.library(Library.POSTGRESQL, Library.UUID, Library.ECLIPSE_OSGI, Library.GSON, Library.NG2_CHARTS, Library.NGX_FORMLY, Library.MYDATEPICKER),
+        ],
       },
       {
         version: '2021.11.3',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "FixActivePower-Controller reagiert schneller auf Änderungen (via @Modified)" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "FixActivePower-Controller reagiert schneller auf Änderungen (via @Modified)" },
+        ],
       },
       {
         version: '2021.11.2',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.11.1',
@@ -1317,8 +1338,8 @@ export class ChangelogComponent implements OnInit {
             Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.D3, Library.DATE_FNS, Library.NGX_COOKIE_SERVICE, Library.NGX_SPINNER, Library.RXJS),
           { roleIsAtLeast: Role.ADMIN, change: "Möglichkeit zum Export aller aktuellen Channel-Werte als Excel-Datei. Link im Anlagenprofil unter der jeweiligen Komponente." },
           { roleIsAtLeast: Role.ADMIN, change: "Entfernen von Refu.ESS und Streetscooter.ESS aus dem Release" },
-          { roleIsAtLeast: Role.ADMIN, change: "Downgrade Soltaro Single A 'Connector Wire Fault' zu Level 'Warnung'" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Downgrade Soltaro Single A 'Connector Wire Fault' zu Level 'Warnung'" },
+        ],
       },
       {
         version: '2021.10.9',
@@ -1326,52 +1347,52 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Anpassungen für neue FENECON Corporate Identity",
           Changelog.EDGE + "Vereinheitlichung von AC, DC und Hybrid-Speichern",
           Changelog.app(App.MODBUS_TCP_API) + "Bereitstellung von DC-Leistung und -Energie für Hybrid-Speicher",
-          Changelog.library(Library.GRADLE, Library.APACHE_FELIX_HTTP_JETTY, Library.POSTGRESQL)
-        ]
+          Changelog.library(Library.GRADLE, Library.APACHE_FELIX_HTTP_JETTY, Library.POSTGRESQL),
+        ],
       },
       {
         version: '2021.10.8',
         changes: [
-          Changelog.product(Product.DESS) + "Erfassung Ladezustand"
-        ]
+          Changelog.product(Product.DESS) + "Erfassung Ladezustand",
+        ],
       },
       {
         version: '2021.10.7',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.10.6',
         changes: [
-          Changelog.BACKEND + "Inbetriebnahmeassistent"
-        ]
+          Changelog.BACKEND + "Inbetriebnahmeassistent",
+        ],
       },
       {
         version: '2021.10.5',
         changes: [
           Changelog.UI,
           Changelog.EDGE + "Datenkonvertierung von String-Werten",
-          "Simulator: Verbesserung der Ladezustandsberechnung"
-        ]
+          "Simulator: Verbesserung der Ladezustandsberechnung",
+        ],
       },
       {
         version: '2021.10.4',
         changes: [
-          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.10.3',
         changes: [
-          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.app(App.NETZDIENLICHE_BELADUNG) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.10.2',
         changes: [
-          Changelog.EDGE + "Datenkonvertierung von Boolean-Werten"
-        ]
+          Changelog.EDGE + "Datenkonvertierung von Boolean-Werten",
+        ],
       },
       {
         version: '2021.10.1',
@@ -1381,23 +1402,23 @@ export class ChangelogComponent implements OnInit {
           Changelog.EDGE,
           Changelog.library(Library.IONIC, Library.NGX_FORMLY, Library.MYDATEPICKER, Library.D3, Library.DATE_FNS, Library.NGX_SPINNER, Library.RXJS, Library.GRADLE),
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Release"
-        ]
+          Changelog.app(App.NETZDIENLICHE_BELADUNG) + "Release",
+        ],
       },
       {
         version: '2021.9.3',
         changes: [
           Changelog.UI,
           Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.library(Library.GRADLE)
-        ]
+          Changelog.library(Library.GRADLE),
+        ],
       },
       {
         version: '2021.9.2',
         changes: [
           Changelog.UI,
-          Changelog.EDGE + "Erfassung lokaler Hostname"
-        ]
+          Changelog.EDGE + "Erfassung lokaler Hostname",
+        ],
       },
       {
         version: '2021.9.1',
@@ -1405,61 +1426,61 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2021.9.0'),
           Changelog.EDGE + "lokale Netzwerkkonfiguration, verbesserte Zugriffskontrolle",
           Changelog.app(App.METER, App.SOCOMEC) + "Implementierung SOCOMEC Countis E34",
-          { roleIsAtLeast: Role.ADMIN, change: "Lokaler Login als 'admin' nur noch mit FEMS-spezifischem Passwort" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Lokaler Login als 'admin' nur noch mit FEMS-spezifischem Passwort" },
+        ],
       },
       {
         version: '2021.8.9',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.8.8',
         changes: [
           Changelog.UI,
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.8.7',
         changes: [
           Changelog.UI,
           Changelog.library(Library.PAX_LOGGING),
-          Changelog.GENERAL_OPTIMIZATION + " an Beta-Version für Anbindung an MQTT-Broker"
-        ]
+          Changelog.GENERAL_OPTIMIZATION + " an Beta-Version für Anbindung an MQTT-Broker",
+        ],
       },
       {
         version: '2021.8.6',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.8.5',
         changes: [
           Changelog.BACKEND + "Login und Session-Handling",
-          Changelog.library(Library.GUAVA, Library.RETROFIT, Library.POSTGRESQL, Library.FASTEXCEL)
-        ]
+          Changelog.library(Library.GUAVA, Library.RETROFIT, Library.POSTGRESQL, Library.FASTEXCEL),
+        ],
       },
       {
         version: '2021.8.4',
         changes: [
           "Beta-Version für Anbindung an MQTT-Broker",
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.8.3',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.8.2',
         changes: [
-          Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.8.1',
@@ -1467,54 +1488,54 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2021.8.0'),
           Changelog.EDGE,
           Changelog.UI,
-          Changelog.library(Library.GRADLE)
-        ]
+          Changelog.library(Library.GRADLE),
+        ],
       },
       {
         version: '2021.7.8',
         changes: [
-          Changelog.EDGE
-        ]
+          Changelog.EDGE,
+        ],
       },
       {
         version: '2021.7.7',
         changes: [
-          Changelog.UI + "Information zum Gesamtsystemstatus"
-        ]
+          Changelog.UI + "Information zum Gesamtsystemstatus",
+        ],
       },
       {
         version: '2021.7.6',
         changes: [
           Changelog.BACKEND,
-          Changelog.library(Library.NGX_COOKIE_SERVICE)
-        ]
+          Changelog.library(Library.NGX_COOKIE_SERVICE),
+        ],
       },
       {
         version: '2021.7.5',
         changes: [
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter-Implementierung (adaptive Berechnung maximalen AC-Leistung)"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter-Implementierung (adaptive Berechnung maximalen AC-Leistung)",
+        ],
       },
       {
         version: '2021.7.4',
         changes: [
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.7.3',
         changes: [
           Changelog.UI,
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
-          Changelog.GENERAL_OPTIMIZATION + " bei Konfigurationsänderungen über das Online-Monitoring"
-        ]
+          Changelog.GENERAL_OPTIMIZATION + " bei Konfigurationsänderungen über das Online-Monitoring",
+        ],
       },
       {
         version: '2021.7.2',
         changes: [
           Changelog.BACKEND,
-          Changelog.product(Product.HOME_10) + Changelog.BATTERY_PROTECTION
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.BATTERY_PROTECTION,
+        ],
       },
       {
         version: '2021.7.1',
@@ -1527,28 +1548,28 @@ export class ChangelogComponent implements OnInit {
           "Refactoring des ESS Linear Power Band Controller ('Controller.Ess.LinearPowerBand')",
           Changelog.BACKEND,
           Changelog.library(Library.ANGULAR, Library.IONIC, Library.DATE_FNS, Library.MYDATEPICKER, Library.D3, Library.NGX_FORMLY, Library.NG2_CHARTS, Library.NGX_SPINNER,
-            Library.HIKARI_CP, Library.ECLIPSE_OSGI, Library.APACHE_FELIX_HTTP_JETTY, Library.JNA, Library.MOSHI, Library.JAVA_WEBSOCKET)
-        ]
+            Library.HIKARI_CP, Library.ECLIPSE_OSGI, Library.APACHE_FELIX_HTTP_JETTY, Library.JNA, Library.MOSHI, Library.JAVA_WEBSOCKET),
+        ],
       },
       { //
         version: '2021.6.2',
         changes: [
-          "Online-Monitoring: Produktinformation über das " + Changelog.link("Heimatstrom", 'https://regionalwerke.com/pv/reststrom') + "-Angebot der Regionalwerke"
-        ]
+          "Online-Monitoring: Produktinformation über das " + Changelog.link("Heimatstrom", 'https://regionalwerke.com/pv/reststrom') + "-Angebot der Regionalwerke",
+        ],
       },
       {
         version: '2021.6.1',
         changes: [
-          Changelog.openems('2021.6.0')
-        ]
+          Changelog.openems('2021.6.0'),
+        ],
       },
       {
         version: '2021.5.2',
         changes: [
           Changelog.UI,
           Changelog.library(Library.FASTEXCEL),
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batterie-Implementierung (adaptive Berechnung der Kapazität)"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batterie-Implementierung (adaptive Berechnung der Kapazität)",
+        ],
       },
       {
         version: '2021.5.1',
@@ -1557,60 +1578,60 @@ export class ChangelogComponent implements OnInit {
           Changelog.BACKEND,
           Changelog.library(Library.ANGULAR, Library.IONIC),
           Changelog.GENERAL_OPTIMIZATION + " an OneWire-Implementierung",
-          "Optimierungen an der lokalen Zeitreihendatenbank ('RRD4j')"
-        ]
+          "Optimierungen an der lokalen Zeitreihendatenbank ('RRD4j')",
+        ],
       },
       {
         version: '2021.4.16',
         changes: [
-          "Performance-Optimierung am Backend für das Online-Monitoring"
-        ]
+          "Performance-Optimierung am Backend für das Online-Monitoring",
+        ],
       },
       {
         version: '2021.4.15',
         changes: [
-          "Performance-Optimierung am Backend für das Online-Monitoring"
-        ]
+          "Performance-Optimierung am Backend für das Online-Monitoring",
+        ],
       },
       {
         version: '2021.4.14',
         changes: [
-          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung"
-        ]
+          Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung",
+        ],
       },
       {
         version: '2021.4.13',
         changes: [
           "Implementierung des FEMS-Relais 4-Kanal",
           Changelog.product(Product.HOME_10) + Changelog.GENERAL_OPTIMIZATION + " an Batteriewechselrichter- und Batterie-Implementierung",
-          Changelog.GENERAL_OPTIMIZATION + " bei Konfigurationsänderungen über das Online-Monitoring"
-        ]
+          Changelog.GENERAL_OPTIMIZATION + " bei Konfigurationsänderungen über das Online-Monitoring",
+        ],
       },
       {
         version: '2021.4.12',
         changes: [
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Fehlerbehebung bei Aufzeichnung der Zelltemperaturen",
-          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')"
-        ]
+          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')",
+        ],
       },
       {
         version: '2021.4.11',
         changes: [
           Changelog.product(Product.PRO_HYBRID_10) + "Verbesserung der Fehlermeldung bei Kommunikationsabbruch",
-          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')"
-        ]
+          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')",
+        ],
       },
       {
         version: '2021.4.10',
         changes: [
-          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')"
-        ]
+          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')",
+        ],
       },
       {
         version: '2021.4.9',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.8',
@@ -1618,70 +1639,70 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI,
           Changelog.BACKEND,
           "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')",
-          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
-        ]
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+        ],
       },
       {
         version: '2021.4.7',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.6',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.5',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.4',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.3',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.4.2',
         changes: [
           "Optimierungen an der lokalen Zeitreihendatenbank ('RRD4j')",
-          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')"
-        ]
+          "Optimierung der Anbindung an den Backend-Server ('Controller.Backend.Api')",
+        ],
       },
       {
         version: '2021.4.1',
         changes: [
-          Changelog.openems('2021.4.0')
-        ]
+          Changelog.openems('2021.4.0'),
+        ],
       },
       {
         version: '2021.3.4',
         changes: [
-          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
-        ]
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+        ],
       },
       {
         version: '2021.3.3',
         changes: [
-          Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.3.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "Service-Assistent für Soltaro-Batterien Version C" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Service-Assistent für Soltaro-Batterien Version C" },
+        ],
       },
       {
         version: '2021.3.1',
@@ -1689,98 +1710,98 @@ export class ChangelogComponent implements OnInit {
           Changelog.openems('2021.3.0'),
           Changelog.product(Product.INDUSTRIAL_M) + Changelog.GENERAL_OPTIMIZATION + " für BMW i3-Batterien",
           Changelog.library(Library.FASTEXCEL, Library.ECLIPSE_OSGI, Library.APACHE_FELIX_METATYPE, Library.ANGULAR, Library.DATE_FNS),
-          "Kundeninformation über mögliches Update der BYD Battery Box Premium HVS"
-        ]
+          "Kundeninformation über mögliches Update der BYD Battery Box Premium HVS",
+        ],
       },
       {
         version: '2021.2.1',
         changes: [
           Changelog.openems('2021.2.0'),
           Changelog.library(Library.FASTEXCEL, Library.HIKARI_CP),
-          { roleIsAtLeast: Role.ADMIN, change: "Service-Assistent für Soltaro-Batterien" }
-        ]
+          { roleIsAtLeast: Role.ADMIN, change: "Service-Assistent für Soltaro-Batterien" },
+        ],
       },
       {
         version: '2021.1.13',
         changes: [
-          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
-        ]
+          Changelog.product(Product.HOME_10, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+        ],
       },
       {
         version: '2021.1.12',
         changes: [
-          Changelog.product(Product.COMMERCIAL_50) + "Stabilitätsverbesserung bei Kommunikationsabbruch"
-        ]
+          Changelog.product(Product.COMMERCIAL_50) + "Stabilitätsverbesserung bei Kommunikationsabbruch",
+        ],
       },
       {
         version: '2021.1.11',
         changes: [
           Changelog.app(App.PV_INVERTER, App.KACO) + "Korrektor von Rundungsfehlern bei der Vorgabe von Set-Points",
-          Changelog.product(Product.COMMERCIAL_50) + "Korrektor von Rundungsfehlern bei der Vorgabe von Set-Points"
-        ]
+          Changelog.product(Product.COMMERCIAL_50) + "Korrektor von Rundungsfehlern bei der Vorgabe von Set-Points",
+        ],
       },
       {
         version: '2021.1.10',
         changes: [
-          Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.1.9',
         changes: [
-          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION
-        ]
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION,
+        ],
       },
       {
         version: '2021.1.8',
         changes: [
-          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION
-        ]
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.BATTERY_PROTECTION,
+        ],
       },
       {
         version: '2021.1.7',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.1.6',
         changes: [
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Fehlerbehebung bei Aufzeichnung der Zelltemperaturen",
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.1.5',
         changes: [
           Changelog.product(Product.COMMERCIAL_50) + "Korrektur der Anzeige im Monitoring bei manuellem Stop des Batteriewechselrichters",
-          Changelog.UI
-        ]
+          Changelog.UI,
+        ],
       },
       {
         version: '2021.1.4',
         changes: [
-          Changelog.app(App.EVCS_AC, App.KEBA) + "Aufzeichnung der Energiedaten zur E-Auto-Beladung"
-        ]
+          Changelog.app(App.EVCS_AC, App.KEBA) + "Aufzeichnung der Energiedaten zur E-Auto-Beladung",
+        ],
       },
       {
         version: '2021.1.3',
         changes: [
-          "Stabilitätsverbesserung bei Kommunikationsabbruch zu Peripheriegeräten"
-        ]
+          "Stabilitätsverbesserung bei Kommunikationsabbruch zu Peripheriegeräten",
+        ],
       },
       {
         version: '2021.1.2',
         changes: [
-          Changelog.BACKEND
-        ]
+          Changelog.BACKEND,
+        ],
       },
       {
         version: '2021.1.1',
         changes: [
-          Changelog.openems('2021.1.0')
-        ]
-      }
+          Changelog.openems('2021.1.0'),
+        ],
+      },
     ];
 
 }

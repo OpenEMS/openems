@@ -1,8 +1,8 @@
 <installation-view iconName="checkmark-done-outline" header="{{ 'INSTALLATION.COMPLETION.TITLE' | translate }}"
   (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" isLastView="true">
 
-  <ion-textarea readonly auto-grow value="{{ 'INSTALLATION.COMPLETION.SUB_TITLE' | translate:
-  { value: ibn.type } }}">
+  <ion-textarea *ngIf="system" readonly auto-grow value="{{ 'INSTALLATION.COMPLETION.SUB_TITLE' | translate:
+  { value: system } }}">
   </ion-textarea>
 
   <ion-item>

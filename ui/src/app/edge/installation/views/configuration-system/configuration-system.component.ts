@@ -9,7 +9,7 @@ import { System, SystemType } from '../../shared/system';
 
 @Component({
   selector: ConfigurationSystemComponent.SELECTOR,
-  templateUrl: './configuration-system.component.html'
+  templateUrl: './configuration-system.component.html',
 })
 export class ConfigurationSystemComponent implements OnInit {
   private static readonly SELECTOR = 'configuration-system';
@@ -53,7 +53,7 @@ export class ConfigurationSystemComponent implements OnInit {
           { value: SystemType.FENECON_HOME_20, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_20) },
           { value: SystemType.FENECON_HOME_30, label: System.getSystemTypeLabel(SystemType.FENECON_HOME_30) },
           { value: SystemType.COMMERCIAL_30, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_30) },
-          { value: SystemType.COMMERCIAL_50, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_50) }
+          { value: SystemType.COMMERCIAL_50, label: System.getSystemTypeLabel(SystemType.COMMERCIAL_50) },
           ]);
         break;
     }
@@ -65,8 +65,8 @@ export class ConfigurationSystemComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SYSTEM.PRODUCT_NAME'),
         type: 'radio',
         options: label,
-        required: true
-      }
+        required: true,
+      },
     });
     return fields;
   }

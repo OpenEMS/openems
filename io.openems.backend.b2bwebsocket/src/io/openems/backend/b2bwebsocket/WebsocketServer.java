@@ -27,7 +27,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			var data = TreeBasedTable.<Long, String, JsonElement>create();
 			var now = Instant.now().toEpochMilli();
 			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
-				data.put(now, "b2bwebsocket/" + key, new JsonPrimitive(value));
+				data.put(now, parent.getId() + "/" + key, new JsonPrimitive(value));
 			});
 			parent.timedataManager.write("backend0", new TimestampedDataNotification(data));
 		});

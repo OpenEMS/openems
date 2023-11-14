@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.fenecon.f2b.cluster.common.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.f2b.dummy.BatteryFeneconF2bDummyImpl;
@@ -14,7 +15,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryFeneconF2bParallelClusterImplTest {
 	private static final String CLUSTER_ID = "battery0";

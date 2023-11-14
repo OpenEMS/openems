@@ -9,7 +9,7 @@ import { DIRECTIONS_OPTIONS } from '../../shared/options';
 
 @Component({
   selector: "protocol-additional-ac-producers",
-  templateUrl: './protocol-additional-ac-producers.component.html'
+  templateUrl: './protocol-additional-ac-producers.component.html',
 })
 export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
@@ -25,7 +25,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
   constructor(
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit() {
@@ -62,8 +62,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS'),
         description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS_DESCRIPTION_ADDITIONAL_AC'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     fields.push({
@@ -73,12 +73,12 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         type: "number",
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
-        required: true
+        required: true,
       },
       parsers: [Number],
       validators: {
-        validation: ["onlyPositiveInteger", "defaultAsMinimumValue"]
-      }
+        validation: ["onlyPositiveInteger", "defaultAsMinimumValue"],
+      },
     });
 
     fields.push({
@@ -86,8 +86,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "select",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION'),
-        options: DIRECTIONS_OPTIONS(this.translate)
-      }
+        options: DIRECTIONS_OPTIONS(this.translate),
+      },
     });
 
     fields.push({
@@ -95,8 +95,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION')
-      }
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
+      },
     });
 
     fields.push({
@@ -104,13 +104,13 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES')
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
       },
       parsers: [Number],
       validators: {
-        validation: ["onlyPositiveInteger"]
+        validation: ["onlyPositiveInteger"],
       },
-      defaultValue: 0
+      defaultValue: 0,
     });
 
     fields.push({
@@ -121,10 +121,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         required: true,
         options: [
           { label: "SOCOMEC", value: Meter.SOCOMEC },
-          { label: "KDK", value: Meter.KDK }
-        ]
+          { label: "KDK", value: Meter.KDK },
+        ],
       },
-      defaultValue: Meter.SOCOMEC
+      defaultValue: Meter.SOCOMEC,
     });
 
     fields.push({
@@ -134,11 +134,11 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         type: "number",
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS'),
         required: true,
-        min: 6
+        min: 6,
       },
       parsers: [Number],
       validators: {
-        validation: ["onlyPositiveInteger"]
+        validation: ["onlyPositiveInteger"],
       },
       defaultValue: 6,
       expressions: {
@@ -155,8 +155,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
           } else {
             return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION');
           }
-        }
-      }
+        },
+      },
     });
 
     return fields;

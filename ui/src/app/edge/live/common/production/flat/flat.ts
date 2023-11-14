@@ -5,7 +5,7 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Common_Production',
-    templateUrl: './flat.html'
+    templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -29,7 +29,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     async presentModal() {
         const modal = await this.modalController.create({
-            component: ModalComponent
+            component: ModalComponent,
         });
         return await modal.present();
     }

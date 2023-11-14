@@ -39,6 +39,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a fix active power app.
@@ -131,7 +132,7 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 					new EdgeConfig.Component(ctrlFixActivePowerId, alias, "Controller.Ess.FixActivePower", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
-									.addProperty("ess_id", essId) //
+									.addProperty("ess.id", essId) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("mode", "MANUAL_OFF") //
 													.addProperty("hybridEssMode", "TARGET_DC") //
@@ -148,8 +149,10 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 					"ctrlEmergencyCapacityReserve0", //
 					"ctrlGridOptimizedCharge0" //
 			);
-
-			return new AppConfiguration(components, schedulerIds);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerIds)) //
+					.build();
 		};
 	}
 

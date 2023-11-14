@@ -63,7 +63,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormsModule,
     IonicModule,
     NgxSpinnerModule.forRoot({
-      type: 'ball-clip-rotate-multiple'
+      type: 'ball-clip-rotate-multiple',
     }),
     ReactiveFormsModule,
     RouterModule,
@@ -77,24 +77,24 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: 'panel', component: PanelWrapperComponent },
         { name: 'formly-field-modal', component: FormlyFieldModalComponent },
-        { name: 'formly-field-checkbox-with-image', component: FormlyFieldCheckboxWithImageComponent }
+        { name: 'formly-field-checkbox-with-image', component: FormlyFieldCheckboxWithImageComponent },
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent }
+        { name: 'repeat', component: RepeatTypeComponent },
       ],
       validators: [
         { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator }
+        { name: 'subnetmask', validation: SubnetmaskValidator },
       ],
       validationMessages: [
         { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage }
-      ]
+        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
+      ],
     }),
     PipeModule,
     Generic_ComponentsModule,
-    TranslateModule
+    TranslateModule,
   ],
   declarations: [
     // components
@@ -115,7 +115,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyFieldModalComponent,
     PanelWrapperComponent,
     FormlyFieldWithLoadingAnimationComponent,
-    FormlyFieldCheckboxWithImageComponent
+    FormlyFieldCheckboxWithImageComponent,
   ],
   exports: [
     // modules
@@ -139,15 +139,15 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HeaderComponent,
     HistoryDataErrorComponent,
     PercentageBarComponent,
-    FormlyFieldWithLoadingAnimationComponent
+    FormlyFieldWithLoadingAnimationComponent,
   ],
   providers: [
     appRoutingProviders,
     Service,
     Utils,
     Websocket,
-    Logger
-  ]
+    Logger,
+  ],
 })
 
 export class SharedModule {

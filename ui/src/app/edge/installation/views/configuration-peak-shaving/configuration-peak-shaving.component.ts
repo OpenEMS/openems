@@ -8,7 +8,7 @@ import { Category } from '../../shared/category';
 
 @Component({
     selector: ConfigurationPeakShavingComponent.SELECTOR,
-    templateUrl: './configuration-peak-shaving.component.html'
+    templateUrl: './configuration-peak-shaving.component.html',
 })
 export class ConfigurationPeakShavingComponent implements OnInit {
 
@@ -59,8 +59,8 @@ export class ConfigurationPeakShavingComponent implements OnInit {
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_VALUE'),
                 type: 'number',
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_DESCRIPTION'),
-                required: true
-            }
+                required: true,
+            },
         });
 
         fields.push({
@@ -71,12 +71,12 @@ export class ConfigurationPeakShavingComponent implements OnInit {
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_VALUE'),
                 type: 'number',
                 description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_DESCRIPTION'),
-                required: true
+                required: true,
             },
             expressionProperties: {
                 // "chargeBelow" value cannot be greater than "dischargeAbove" value
-                'templateOptions.max': `parseInt(model.dischargeAbove)`
-            }
+                'templateOptions.max': `parseInt(model.dischargeAbove)`,
+            },
         });
 
         return fields;

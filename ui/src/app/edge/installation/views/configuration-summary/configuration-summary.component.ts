@@ -11,10 +11,11 @@ import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 import { Meter } from '../../shared/meter';
 import { WebLinks } from '../../shared/enums';
+import { System } from '../../shared/system';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
-  templateUrl: './configuration-summary.component.html'
+  templateUrl: './configuration-summary.component.html',
 })
 export class ConfigurationSummaryComponent implements OnInit {
 
@@ -32,7 +33,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
   constructor(
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) { }
 
   public ngOnInit(): void {
@@ -68,9 +69,9 @@ export class ConfigurationSummaryComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.GTC_ACCEPT'),
         required: true,
         description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.gtcLink)
+        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.gtcLink),
       },
-      wrappers: ['form-field-checkbox-hyperlink']
+      wrappers: ['form-field-checkbox-hyperlink'],
     });
 
     fields.push({
@@ -81,9 +82,9 @@ export class ConfigurationSummaryComponent implements OnInit {
         required: true,
         defaultValue: false,
         description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.warrantyLink)
+        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.warrantyLink),
       },
-      wrappers: ['form-field-checkbox-hyperlink']
+      wrappers: ['form-field-checkbox-hyperlink'],
     });
 
     fields.push({
@@ -91,8 +92,8 @@ export class ConfigurationSummaryComponent implements OnInit {
       type: 'checkbox',
       templateOptions: {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.DEVICE_ACTIVE_CHECKED'),
-        required: true
-      }
+        required: true,
+      },
     });
 
     return fields;
@@ -106,7 +107,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     const edgeData = this.edge.id;
     const generalData: ComponentData[] = [
       { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.TIME_OF_INSTALLATION'), value: (new Date()).toLocaleString() },
-      { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }), value: edgeData }
+      { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }), value: edgeData },
     ];
 
     const lineSideMeterFuseTitle: string = Category.toTranslatedString(this.ibn.lineSideMeterFuse.category, this.translate);
@@ -118,7 +119,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     tableData.push({
       header: Category.GENERAL,
-      rows: generalData
+      rows: generalData,
     });
 
     const installer = this.ibn.installer;
@@ -133,8 +134,8 @@ export class ConfigurationSummaryComponent implements OnInit {
         { label: this.translate.instant('Register.Form.city'), value: installer.city },
         { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(installer.country) },
         { label: this.translate.instant('Register.Form.email'), value: installer.email },
-        { label: this.translate.instant('Register.Form.phone'), value: installer.phone }
-      ]
+        { label: this.translate.instant('Register.Form.phone'), value: installer.phone },
+      ],
     });
 
     const customer = this.ibn.customer;
@@ -149,8 +150,8 @@ export class ConfigurationSummaryComponent implements OnInit {
         { label: this.translate.instant('Register.Form.city'), value: customer.city },
         { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(customer.country) },
         { label: this.translate.instant('Register.Form.email'), value: customer.email },
-        { label: this.translate.instant('Register.Form.phone'), value: customer.phone }
-      ])
+        { label: this.translate.instant('Register.Form.phone'), value: customer.phone },
+      ]),
     });
 
     const location = this.ibn.location;
@@ -166,19 +167,19 @@ export class ConfigurationSummaryComponent implements OnInit {
           { label: this.translate.instant('Register.Form.city'), value: location.city },
           { label: this.translate.instant('Register.Form.country'), value: this.getCountryLabel(location.country) },
           { label: this.translate.instant('Register.Form.email'), value: location.email },
-          { label: this.translate.instant('Register.Form.phone'), value: location.phone }
-        ])
+          { label: this.translate.instant('Register.Form.phone'), value: location.phone },
+        ]),
       });
     }
 
     const batteryData: ComponentData[] = [];
     batteryData.push(
-      { label: this.translate.instant('Index.TYPE'), value: this.ibn.type }
+      { label: this.translate.instant('Index.TYPE'), value: System.getSystemTypeLabel(this.ibn.type) },
     );
 
     tableData.push({
       header: Category.BATTERY,
-      rows: this.ibn.addCustomBatteryData(batteryData)
+      rows: this.ibn.addCustomBatteryData(batteryData),
     });
 
     let batteryInverterData: ComponentData[] = [];
@@ -193,7 +194,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     batteryInverterData.push({ label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.COUNTRY_SETTING'), value: this.getCountryLabel(safetyCountry) });
     tableData.push({
       header: Category.INVERTER,
-      rows: batteryInverterData
+      rows: batteryInverterData,
     });
 
     const pv = this.ibn.pv ?? {};
@@ -208,37 +209,37 @@ export class ConfigurationSummaryComponent implements OnInit {
     for (const ac of pv.ac) {
       pvData = pvData.concat([
         { label: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }), value: ac.alias },
-        { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_AC') + acNr, value: ac.value }
+        { label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.VALUE_AC') + acNr, value: ac.value },
       ]);
 
       if (ac.orientation) {
         pvData.push({
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.orientation
+          value: ac.orientation,
         });
       }
       if (ac.moduleType) {
         pvData.push({
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.moduleType
+          value: ac.moduleType,
         });
       }
       if (ac.modulesPerString) {
         pvData.push({
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.modulesPerString
+          value: ac.modulesPerString,
         });
       }
 
       pvData = pvData.concat([
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-          value: Meter.toLabelString(ac.meterType)
+          value: Meter.toLabelString(ac.meterType),
         },
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.modbusCommunicationAddress
-        }
+          value: ac.modbusCommunicationAddress,
+        },
       ]);
       acNr++;
     }
@@ -246,7 +247,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     if (pvData.length > 0) {
       tableData.push({
         header: Category.PRODUCER,
-        rows: pvData
+        rows: pvData,
       });
     }
 
@@ -256,7 +257,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     if (peakShavingData.length > 0) {
       tableData.push({
         header: Category.PEAK_SHAVING,
-        rows: peakShavingData
+        rows: peakShavingData,
       });
     }
 
@@ -266,7 +267,7 @@ export class ConfigurationSummaryComponent implements OnInit {
       if (selectedFreeApp.id !== EmsAppId.None) {
         tableData.push({
           header: Category.APPS,
-          rows: [{ label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.HECKERT'), value: selectedFreeApp.alias }]
+          rows: [{ label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.HECKERT'), value: selectedFreeApp.alias }],
         });
       }
     }
@@ -275,7 +276,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     this.tableData = tableData.map((element) => {
       return {
         header: Category.toTranslatedString(element.header, this.translate),
-        rows: element.rows
+        rows: element.rows,
       };
     });
   }

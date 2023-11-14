@@ -10,7 +10,7 @@ import { Service, Utils, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
-  templateUrl: './systemexecute.component.html'
+  templateUrl: './systemexecute.component.html',
 })
 export class SystemExecuteComponent implements OnInit {
 
@@ -23,7 +23,7 @@ export class SystemExecuteComponent implements OnInit {
   public fields: FormlyFieldConfig[] = [{
     key: 'predefined',
     type: 'radio',
-    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] }
+    templateOptions: { options: [{ value: 'ping', label: 'Ping device in network' }] },
   }, {
     key: 'ping',
     hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'ping',
@@ -31,14 +31,14 @@ export class SystemExecuteComponent implements OnInit {
       key: 'ip',
       type: 'input',
       templateOptions: {
-        label: 'IP-Address', placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/
+        label: 'IP-Address', placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/,
       },
       validation: {
         messages: {
-          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`
-        }
-      }
-    }]
+          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`,
+        },
+      },
+    }],
   }, {
     key: 'predefined',
     type: 'radio',
@@ -46,9 +46,9 @@ export class SystemExecuteComponent implements OnInit {
       options: [
         { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
         { value: 'pagekite-log', label: 'Show Pagekite log' },
-        { value: 'pagekite-restart', label: 'Restart Pagekite' }
-      ]
-    }
+        { value: 'pagekite-restart', label: 'Restart Pagekite' },
+      ],
+    },
   }];
 
   constructor(
@@ -57,7 +57,7 @@ export class SystemExecuteComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
   ) {
   }
 
@@ -68,7 +68,7 @@ export class SystemExecuteComponent implements OnInit {
       password: new FormControl(""),
       timeoutSeconds: new FormControl(5),
       runInBackground: new FormControl(false),
-      command: new FormControl("")
+      command: new FormControl(""),
     });
   }
 
@@ -91,9 +91,11 @@ export class SystemExecuteComponent implements OnInit {
           command = "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now";
           break;
         case "pagekite-log":
+          // TODO eventually update to fems-remote-service
           command = "journalctl -lu fems-pagekite --since=\"2 minutes ago\"";
           break;
         case "pagekite-restart":
+          // TODO eventually update to fems-remote-service
           command = "systemctl restart fems-pagekite";
           break;
       }
@@ -117,13 +119,13 @@ export class SystemExecuteComponent implements OnInit {
         password: password.value,
         timeoutSeconds: timeoutSeconds.value,
         runInBackground: runInBackground.value,
-        command: command.value
+        command: command.value,
       });
 
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: "_host",
-          payload: executeSystemCommandRequest
+          payload: executeSystemCommandRequest,
         })).then(response => {
           let result = (response as ExecuteSystemCommandResponse).result;
           this.loading = false;
