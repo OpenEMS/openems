@@ -6,7 +6,7 @@ import io.openems.edge.battery.protection.BatteryProtectionDefinition;
 public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 
 	BATTERY_52(52, "Fenecon Home Battery 52Ah", 2200, 42, 49, 14, 3, new FeneconHomeBatteryProtection52()), //
-	BATTERY_64(64, "Fenecon Home Battery 64,4Ah", 2650, 40.6f, 49.7f, 14, 5, new FeneconHomeBatteryProtection64()); //
+	BATTERY_64(64, "Fenecon Home Battery 64,4Ah", 2800, 40.6f, 49.7f, 14, 5, new FeneconHomeBatteryProtection64()); //
 
 	/**
 	 * Defaults to {@link #BATTERY_52} to avoid detection failure with old firmware

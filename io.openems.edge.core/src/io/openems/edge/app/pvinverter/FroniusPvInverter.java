@@ -26,6 +26,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for Fronius PV-Inverter.
@@ -87,7 +88,9 @@ public class FroniusPvInverter extends AbstractPvInverter<Property> implements O
 			var inverter = AbstractOpenemsApp.getComponentWithFactoryId(components, factoryIdInverter);
 			inverter.getProperties().put("modbusUnitId", new JsonPrimitive(modbusUnitId));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 

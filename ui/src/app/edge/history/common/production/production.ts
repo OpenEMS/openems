@@ -13,7 +13,7 @@ import { OverviewComponent } from './overview/overview';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule
+    SharedModule,
   ],
   entryComponents: [
     FlatComponent,
@@ -22,7 +22,7 @@ import { OverviewComponent } from './overview/overview';
     TotalDcChartComponent,
     TotalAcChartComponent,
     TotalChartComponent,
-    ChargerChartComponent
+    ChargerChartComponent,
   ],
   declarations: [
     FlatComponent,
@@ -31,7 +31,7 @@ import { OverviewComponent } from './overview/overview';
     TotalDcChartComponent,
     TotalAcChartComponent,
     TotalChartComponent,
-    ChargerChartComponent
+    ChargerChartComponent,
   ],
   exports: [
     FlatComponent,
@@ -40,7 +40,7 @@ import { OverviewComponent } from './overview/overview';
     TotalDcChartComponent,
     TotalAcChartComponent,
     TotalChartComponent,
-    ChargerChartComponent
-  ]
+    ChargerChartComponent,
+  ],
 })
 export class Common_Production { }

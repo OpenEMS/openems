@@ -87,7 +87,9 @@ public class TestBDependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 							.build()) //
 			);
 
-			return new AppConfiguration(null, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

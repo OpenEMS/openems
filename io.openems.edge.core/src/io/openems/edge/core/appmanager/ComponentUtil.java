@@ -249,8 +249,8 @@ public interface ComponentUtil {
 	 * 
 	 * @param ignoreIds            the ids of the components that should be ignored
 	 * @param cnt                  the number of the result number of relays
-	 * @param first                the first {@link PreferredRelay} to ensure
-	 *                             at least one
+	 * @param first                the first {@link PreferredRelay} to ensure at
+	 *                             least one
 	 * @param inputPreferredRelays the other {@link PreferredRelay} options
 	 * @return the first found preferred relays
 	 */

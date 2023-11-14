@@ -111,19 +111,17 @@ export class Utils {
    * @returns a number, if at least one value is not null, else null
    */
   public static subtractSafely(...values: (number | null)[]): number {
-    let result = null;
-
-    for (const value of values) {
-      if (value !== null) {
-        if (result === null) {
-          result = value;
+    return values
+      .filter(value => value !== null && value !== undefined)
+      .reduce((sum, curr) => {
+        if (sum == null) {
+          sum = curr;
         } else {
-          result -= value;
+          sum -= curr;
         }
-      }
-    }
 
-    return result;
+        return sum;
+      }, null);
   }
 
   /**
@@ -448,7 +446,7 @@ export class Utils {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
     });
 
     saveAs(data, filename + '.xlsx');
@@ -498,7 +496,7 @@ export class Utils {
       } else {
         return /* min 0 */ Math.max(0,
         /* max 100 */ Math.min(100,
-          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
 
@@ -587,7 +585,7 @@ export namespace HistoryUtils {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
-      hidden: false
+      hidden: false,
     }];
   }
 

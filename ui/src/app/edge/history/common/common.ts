@@ -12,14 +12,14 @@ import { Common_Selfconsumption } from './selfconsumption/SelfConsumption';
     CommonEnergyMonitor,
     Common_Grid,
     Common_Production,
-    Common_Selfconsumption
+    Common_Selfconsumption,
   ],
   exports: [
     Common_Autarchy,
     CommonEnergyMonitor,
     Common_Grid,
     Common_Production,
-    Common_Selfconsumption
-  ]
+    Common_Selfconsumption,
+  ],
 })
 export class Common { }

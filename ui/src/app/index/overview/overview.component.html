@@ -17,7 +17,8 @@
                                             [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_AVAILABLE</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
-                                        <p translate>INSTALLATION.CLICK_RECOMMENDATION</p>
+                                        <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
+                                            INSTALLATION.CLICK_RECOMMENDATION</p>
                                     </ion-card-content>
                                 </ng-container>
                                 <ng-template #others>
@@ -88,8 +89,7 @@
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
-                                            <ion-infinite-scroll-content loadingSpinner="bubbles"
-                                                loadingText="Loading more data...">
+                                            <ion-infinite-scroll-content [name]="'crescent'" ngClass="custom-spinner">
                                             </ion-infinite-scroll-content>
                                         </ion-infinite-scroll>
 
@@ -101,7 +101,7 @@
                 </ng-container>
 
                 <!-- Add-Button for desktop devices -->
-                <ion-fab style="position: fixed;" vertical="bottom" horizontal="center"
+                <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
                     *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
                     <ion-fab-button size="large">
                         <ion-icon name="add-outline"></ion-icon>

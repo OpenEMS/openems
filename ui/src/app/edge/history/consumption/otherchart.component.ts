@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionOtherChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class ConsumptionOtherChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("consumption-other-chart", service, translate);
     }
@@ -62,7 +62,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     .filter(component => !(
                         component.factoryId == 'Evcs.Cluster' ||
                         component.factoryId == 'Evcs.Cluster.PeakShaving' ||
-                        component.factoryId == 'Evcs.Cluster.SelfConsumption')
+                        component.factoryId == 'Evcs.Cluster.SelfConsumption'),
                     ).forEach(component => {
                         if (result.data[component.id + '/ChargePower']) {
                             totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
@@ -96,11 +96,11 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
                     datasets.push({
                         label: this.translate.instant('General.consumption'),
                         data: otherConsumption,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(253,197,7,0.05)',
-                        borderColor: 'rgba(253,197,7,1)'
+                        borderColor: 'rgba(253,197,7,1)',
                     });
                 }
                 this.datasets = datasets;
@@ -121,7 +121,7 @@ export class ConsumptionOtherChartComponent extends AbstractHistoryChart impleme
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'ConsumptionActivePower')
+                new ChannelAddress('_sum', 'ConsumptionActivePower'),
             ];
             config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster')).forEach(component => {
                 result.push(new ChannelAddress(component.id, 'ChargePower'));

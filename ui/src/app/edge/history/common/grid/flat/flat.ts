@@ -3,6 +3,6 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
 
 @Component({
   selector: 'gridWidget',
-  templateUrl: './flat.html'
+  templateUrl: './flat.html',
 })
 export class FlatComponent extends AbstractFlatWidget { }

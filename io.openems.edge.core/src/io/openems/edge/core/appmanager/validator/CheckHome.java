@@ -1,7 +1,5 @@
 package io.openems.edge.core.appmanager.validator;
 
-import java.util.TreeMap;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,9 +22,12 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 	private final Checkable checkAppsNotInstalled;
 
 	@Activate
-	public CheckHome(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public CheckHome(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
 			@Reference(target = "(" + OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME + "="
-					+ CheckAppsNotInstalled.COMPONENT_NAME + ")") Checkable checkAppsNotInstalled) {
+					+ CheckAppsNotInstalled.COMPONENT_NAME + ")") Checkable checkAppsNotInstalled //
+	) {
 		super(componentContext);
 		this.componentManager = componentManager;
 		this.checkAppsNotInstalled = checkAppsNotInstalled;
@@ -35,9 +36,12 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 	@Override
 	public boolean check() {
 		var batteries = this.componentManager.getEdgeConfig().getComponentsByFactory("Battery.Fenecon.Home");
-		this.checkAppsNotInstalled.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-				.put("appIds", new String[] { "App.FENECON.Home" }) //
-				.build());
+		this.checkAppsNotInstalled.setProperties(Checkables.checkAppsNotInstalled(//
+				"App.FENECON.Home", //
+				"App.FENECON.Home.20", //
+				"App.FENECON.Home.30" //
+		).properties());
+
 		// TODO remove check for batteries
 		// not every home has the home app installed but if a batterie of an home is
 		// installed its probably a home and so the app can be used.
@@ -50,6 +54,11 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 	@Override
 	public String getErrorMessage(Language language) {
 		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHome.Message");
+	}
+
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHome.Message.Inverted");
 	}
 
 }

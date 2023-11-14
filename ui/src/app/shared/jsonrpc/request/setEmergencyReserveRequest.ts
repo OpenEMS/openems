@@ -21,7 +21,7 @@ export class SetEmergencyReserveRequest extends JsonrpcRequest {
     public constructor(
         public readonly params: {
             value: number
-        }
+        },
     ) {
         super(SetEmergencyReserveRequest.METHOD, params);
     }

@@ -560,7 +560,7 @@
     "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle.",
     "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
-    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+    "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",

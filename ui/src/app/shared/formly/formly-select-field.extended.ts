@@ -5,14 +5,14 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
 
 @Component({
     selector: 'formly-select-extended-wrapper',
-    templateUrl: './formly-select-field.extended.html'
+    templateUrl: './formly-select-field.extended.html',
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
 
     // this wrapper is used to display a select which has more 
     // detailed information about an item when selecting them
     constructor(
-        private modalController: ModalController
+        private modalController: ModalController,
     ) {
         super();
 
@@ -31,9 +31,9 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
             componentProps: {
                 title: this.props.label,
                 options: this.props.options,
-                initialSelectedValue: this.formControl.value
+                initialSelectedValue: this.formControl.value,
             },
-            cssClass: ['auto-height', 'full-width']
+            cssClass: ['auto-height', 'full-width'],
         });
         modal.onDidDismiss().then(event => {
             if (!event.data) {

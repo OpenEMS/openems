@@ -4,7 +4,7 @@ import { FieldWrapper } from '@ngx-formly/core';
 @Component({
     selector: 'formly-field-radio-with-image',
     templateUrl: './formly-field-radio-with-image.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements OnInit {
 
