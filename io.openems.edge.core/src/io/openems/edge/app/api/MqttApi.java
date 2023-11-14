@@ -165,4 +165,11 @@ public class MqttApi extends AbstractEnumOpenemsApp<Property> implements Openems
 		return Property.class;
 	}
 
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create() //
+				.setCanSee(Role.ADMIN) //
+				.build();
+	}
+
 }
