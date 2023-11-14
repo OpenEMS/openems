@@ -1,8 +1,9 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeFromGridPower;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
-import static java.lang.Math.max;
+import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -13,7 +14,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.IntStream;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -26,8 +31,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
@@ -48,6 +51,11 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Period;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -63,22 +71,14 @@ import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, JsonApi {
 
-	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "UnmanagedConsumptionActivePower");
-	private static final int MINUTES_PER_PERIOD = 15;
-	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
-
-	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
-
-	/**
-	 * Delayed Time is aggregated also after restart of OpenEMS.
-	 */
+	/** Delayed Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.DELAYED_TIME);
 
-	/**
-	 * Charged Time is aggregated also after restart of OpenEMS.
-	 */
+	private final ScheduledExecutorService taskExecutor = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService triggerExecutor = Executors.newSingleThreadScheduledExecutor();
+
+	/** Charged Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
 			TimeOfUseTariffController.ChannelId.CHARGED_TIME);
 
@@ -98,8 +98,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	private Sum sum;
 
 	private Config config = null;
-	private Schedule schedule;
-	private ZonedDateTime nextQuarter = null;
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -107,15 +105,17 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(isReserveSocEnabled=true))")
-	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
+	private List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
-	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
+	private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
+
+	private Optimizer optimizer = null;
 
 	public TimeOfUseTariffControllerImpl() {
 		super(//
@@ -134,156 +134,93 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
+
+		/* Run Worker once now and afterwards every 15 minutes */
+		this.optimizer = new Optimizer(() -> new Utils.Parent(//
+				this.predictorManager, this.timeOfUseTariff, this.ess, //
+				this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, //
+				config.controlMode(), config.maxChargePowerFromGrid(), //
+				this.channel(TimeOfUseTariffController.ChannelId.SOLVE_DURATION)));
+		final AtomicReference<Future<?>> future = new AtomicReference<>();
+		future.set(this.taskExecutor.submit(this.optimizer));
+
+		var now = ZonedDateTime.now();
+		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(5);
+
+		this.triggerExecutor.scheduleAtFixedRate(() -> {
+			// Cancel previous run
+			future.get().cancel(true);
+			future.set(this.taskExecutor.submit(this.optimizer));
+		}, //
+
+				// Run 10 minutes before full 15 minutes
+				Duration.between(now, nextRun).toMillis(), //
+				// then execute every 15 minutes
+				Duration.of(15, ChronoUnit.MINUTES).toMillis(), TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		shutdownAndAwaitTermination(this.taskExecutor, 0);
+		shutdownAndAwaitTermination(this.triggerExecutor, 0);
 		super.deactivate();
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
-		// Current Date Time rounded off to NUMBER_OF_MINUTES.
-		var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), MINUTES_PER_PERIOD);
-
 		// Mode given from the configuration.
 		switch (this.config.mode()) {
-		case AUTOMATIC -> this.modeAutomatic(now);
+		case AUTOMATIC -> this.modeAutomatic();
 		case OFF -> this.modeOff();
 		}
 
 		this.updateVisualizationChannels();
 	}
 
-	/**
-	 * Apply the actual logic of calculating the battery energy, schedules it in
-	 * 15-minute intervals, and determines charge or delay discharge actions.
-	 *
-	 * @param now Current Date Time rounded off to NUMBER_OF_MINUTES.
-	 * @throws OpenemsNamedException on error
-	 */
-	private void modeAutomatic(ZonedDateTime now) throws OpenemsNamedException {
-
-		// Runs the logic every interval or when the schedule is not created due to
-		// unavailability of values.
-		if (!(this.nextQuarter == null || now.isEqual(this.nextQuarter) || this.schedule.periods.isEmpty())) {
-			// Sets the charge or discharge of the system based on the mode.
-			this.setChargeOrDischarge();
-			return;
+	private Period getCurrentPeriod() {
+		var optimizer = this.optimizer;
+		if (optimizer == null) {
+			return null;
 		}
-
-		// Prediction values
-		final var predictionProduction = this.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
-				.getValues();
-		final var predictionConsumption = this.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
-				.getValues();
-
-		// Prices contains the price values and the time it is retrieved.
-		final var prices = this.timeOfUseTariff.getPrices();
-
-		this.channel(TimeOfUseTariffController.ChannelId.QUARTERLY_PRICES_ARE_EMPTY).setNextValue(prices.isEmpty());
-		if (prices.isEmpty()) {
-			return;
+		final var period = optimizer.getCurrentPeriod();
+		if (period == null) {
+			return null;
 		}
-
-		// Ess information.
-		final var netEssCapacity = this.ess.getCapacity().getOrError();
-		final var soc = this.ess.getSoc().getOrError();
-
-		// Calculate available energy using "netCapacity" and "soc".
-		var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
-		this.channel(TimeOfUseTariffController.ChannelId.AVAILABLE_CAPACITY).setNextValue(currentAvailableEnergy);
-
-		final var reduceAbove = 10; // TODO make this configurable via Risk Level
-		final var reduceBelow = 10; // TODO make this configurable via Risk Level
-
-		// Calculate the net usable energy of the battery.
-		final var reduceAboveEnergy = netEssCapacity / 100 * reduceAbove;
-		final var limitEnergy = this.getLimitEnergy(netEssCapacity, reduceBelow) + reduceAboveEnergy;
-		final var netUsableEnergy = max(0, netEssCapacity - limitEnergy);
-
-		// Calculate current usable energy [Wh] in the battery.
-		currentAvailableEnergy = max(0, currentAvailableEnergy - limitEnergy);
-		this.channel(TimeOfUseTariffController.ChannelId.USABLE_CAPACITY).setNextValue(currentAvailableEnergy);
-
-		// Power Values for scheduling battery for individual periods.
-		var power = this.ess.getPower();
-		var dischargePower = max(1000 /* at least 1000 */, power.getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE));
-		var chargePower = Math.min(-1000 /* at least 1000 */, power.getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE));
-		var maxChargePowerFromGrid = this.config.maxChargePowerFromGrid();
-
-		// Generate Schedule.
-		this.schedule = Schedule.createSchedule(this.config.controlMode(), this.config.riskLevel(), netUsableEnergy,
-				currentAvailableEnergy, dischargePower, chargePower, prices.getValues(), predictionConsumption,
-				predictionProduction, this.config.maxChargePowerFromGrid());
-
-		// log the schedule
-		var scheduleString = new StringBuilder();
-		scheduleString.append("\n %s %d %s %d %s %d %s %d %s %d\n".formatted("netUsableEnergy:", netUsableEnergy,
-				" currentAvailableEnergy:", currentAvailableEnergy, " dischargePower:", dischargePower, " chargePower:",
-				chargePower, " maxChargePowerFromGrid:", maxChargePowerFromGrid));
-		scheduleString.append("%s".formatted(this.schedule.toString()));
-		this.logInfo(this.log, scheduleString.toString());
-
-		// Update next quarter.
-		this.nextQuarter = now.plus(TIME_PER_PERIOD);
-
-		// Sets the charge or discharge of the system based on the mode.
-		this.setChargeOrDischarge();
+		return period;
 	}
 
 	/**
-	 * Force charges or delays the discharge if the schedule is set for current
-	 * period.
-	 * 
-	 * @throws OpenemsNamedException on error.
+	 * Apply the Schedule.
+	 *
+	 * @throws OpenemsNamedException on error
 	 */
-	private void setChargeOrDischarge() throws OpenemsNamedException {
-		if (this.schedule.periods.isEmpty()) {
+	private void modeAutomatic() throws OpenemsNamedException {
+		final var period = this.getCurrentPeriod();
+		if (period == null) {
 			this.setDefaultValues();
 			return;
 		}
 
-		final var period = this.schedule.periods.get(0);
-		final var stateMachine = period.getStateMachine(this.config.controlMode());
-		this._setStateMachine(stateMachine);
+		this._setStateMachine(period.state());
 
 		// Update the timer.
-		this.calculateChargedTime.update(stateMachine == StateMachine.CHARGE_FROM_GRID);
-		this.calculateDelayedTime.update(stateMachine == StateMachine.DELAY_DISCHARGE);
+		this.calculateChargedTime.update(period.state() == CHARGE);
+		this.calculateDelayedTime.update(period.state() == DELAY_DISCHARGE);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
-		var activePower = switch (stateMachine) {
-		case CHARGE_FROM_GRID -> calculateChargeFromGridPower(period.chargeDischargeEnergy, this.ess, this.sum,
-				this.config.maxChargePowerFromGrid());
-		case DELAY_DISCHARGE -> calculateDelayDischargePower(period.chargeDischargeEnergy, this.ess);
-		case ALLOWS_DISCHARGE, CHARGE_FROM_PV -> null;
+		var activePower = switch (period.state()) {
+		case CHARGE -> Utils.calculateCharge100(this.ess, this.sum, this.config.maxChargePowerFromGrid());
+		case DELAY_DISCHARGE -> 0;
+		case BALANCING -> null;
 		};
 
 		if (activePower != null) {
 			this.ess.setActivePowerLessOrEquals(activePower);
 		}
-
 	}
 
 	/**
-	 * Returns the amount of energy that is not usable for scheduling.
-	 * 
-	 * @param netEssCapacity net capacity of the battery.
-	 * @param reduceBelow    The lower SoC limit.
-	 * @return the amount of energy that is limited.
-	 */
-	private int getLimitEnergy(int netEssCapacity, int reduceBelow) {
-
-		// Usable capacity based on minimum SoC from Limit total discharge and emergency
-		// reserve controllers.
-		var limitSoc = IntStream.concat(//
-				this.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
-				this.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
-				.max().orElse(0) + reduceBelow;
-		this.channel(TimeOfUseTariffController.ChannelId.MIN_SOC).setNextValue(limitSoc);
 	 * Apply the mode OFF logic.
 	 */
 	private void modeOff() {
@@ -299,7 +236,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		final Integer productionPrediction;
 		final Integer gridEnergy;
 		final Integer chargeDischargeEnergy;
-		if (this.schedule == null || this.schedule.periods.isEmpty()) {
+		var period = this.getCurrentPeriod();
+		if (period == null) {
 			// Values are not available.
 			quarterlyPrice = this.timeOfUseTariff.getPrices().getValues()[0];
 			consumptionPrediction = null;
@@ -309,13 +247,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		} else {
 			// First period is always the current period.
-			final var period = this.schedule.periods.get(0);
-
-			quarterlyPrice = period.price;
-			consumptionPrediction = period.consumptionPrediction;
-			productionPrediction = period.productionPrediction;
-			gridEnergy = period.gridEnergy();
-			chargeDischargeEnergy = period.chargeDischargeEnergy;
+			quarterlyPrice = period.price();
+			consumptionPrediction = period.consumption();
+			productionPrediction = period.production();
+			gridEnergy = period.grid();
+			chargeDischargeEnergy = period.essChargeDischarge();
 		}
 
 		// Set the channels
@@ -336,7 +272,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.calculateDelayedTime.update(false);
 
 		// Default State Machine.
-		this._setStateMachine(StateMachine.ALLOWS_DISCHARGE);
+		this._setStateMachine(null);
 	}
 
 	@Override
@@ -347,48 +283,43 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-
 		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
-
-		switch (request.getMethod()) {
-
-		case GetScheduleRequest.METHOD:
-			return this.handleGetScheduleRequest(user, GetScheduleRequest.from(request));
-
-		default:
-			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
-		}
+		return switch (request.getMethod()) {
+		case GetScheduleRequest.METHOD -> this.handleGetScheduleRequest(user, GetScheduleRequest.from(request));
+		default -> throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		};
 	}
 
 	/**
-	 * Handles a GetScheduleRequest.
+	 * Handles a {@link GetScheduleRequest}.
 	 *
-	 * @param user    the User0
+	 * @param user    the User
 	 * @param request the GetScheduleRequest
 	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetScheduleRequest(User user,
-			GetScheduleRequest request) {
-
+			GetScheduleRequest request) throws OpenemsNamedException {
 		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15);
 		final var fromDate = now.minusHours(3);
-		final var channeladdressPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
-		final var channeladdressStateMachine = new ChannelAddress(this.id(), "StateMachine");
+		final var channelQuarterlyPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
+		final var channelStateMachine = new ChannelAddress(this.id(), "StateMachine");
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult = new TreeMap<>();
 
 		// Query database for the last three hours, with 15-minute resolution.
-		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now,
-					Set.of(channeladdressPrices, channeladdressStateMachine), new Resolution(15, ChronoUnit.MINUTES));
-		} catch (OpenemsNamedException e) {
-			this.logError(this.log, e.getMessage());
-			e.printStackTrace();
+		queryResult = this.timedata.queryHistoricData(null, fromDate, now,
+				Set.of(channelQuarterlyPrices, channelStateMachine), new Resolution(15, ChronoUnit.MINUTES));
+		return CompletableFuture.completedFuture(Utils.handleGetScheduleRequest(this.optimizer, request.getId(),
+				queryResult, channelQuarterlyPrices, channelStateMachine));
+	}
+
+	@Override
+	public String debugLog() {
+		var period = this.getCurrentPeriod();
+		if (period == null) {
+			return "NONE";
 		}
-
-		var response = ScheduleUtils.handleGetScheduleRequest(this.schedule, this.config.controlMode(), request.getId(),
-				queryResult, channeladdressPrices, channeladdressStateMachine);
-
-		return CompletableFuture.completedFuture(response);
+		return period.state().toString();
 	}
 }

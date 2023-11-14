@@ -145,7 +145,6 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			final var exchangeRate = globalCurrency.name().equals(entsoeCurrency) //
 					? 1. // No need to fetch exchange rate from API.
 					: getExchangeRate(exchangerateAccesskey, entsoeCurrency, globalCurrency);
-			
 			// Parse the response for the prices
 			this.prices.set(parsePrices(result, "PT60M", exchangeRate));
 
