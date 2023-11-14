@@ -61,6 +61,18 @@ export const theme = {
                 EN: "#",
                 DE: "#"
             }
+        },
+        APP_CENTER: {
+            APP_IMAGE: (language: string, appId: string): string | null => {
+                const languageKey = (() => {
+                    switch (language) {
+                        case 'de': return 'de';
+                        case 'en': return 'en';
+                        default: return 'en';
+                    }
+                })();
+                return 'https://docs.fenecon.de/de/_/latest/_images/fenecon/apps/' + languageKey + '/' + appId + '.png';
+            }
         }
     },
     PRODUCT_TYPES: () => null

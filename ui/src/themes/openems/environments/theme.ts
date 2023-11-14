@@ -60,6 +60,11 @@ export const theme = {
                 EN: "#",
                 DE: "#"
             }
+        },
+        APP_CENTER: {
+            APP_IMAGE: (language: string, appId: string): string | null => {
+                return null;
+            }
         }
     },
     PRODUCT_TYPES: () => null

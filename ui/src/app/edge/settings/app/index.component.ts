@@ -107,7 +107,10 @@ export class IndexComponent implements OnInit, OnDestroy {
         })).then(response => {
 
           this.service.stopSpinner(this.spinnerId);
-          this.apps = (response as GetApps.Response).result.apps;
+          this.apps = (response as GetApps.Response).result.apps.map(app => {
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
+            return app;
+          });
 
           // init categories
           this.apps.forEach(a => {

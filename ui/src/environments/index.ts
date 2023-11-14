@@ -70,6 +70,19 @@ export interface Environment {
                 readonly EN: string,
                 readonly DE: string,
             }
+        },
+        APP_CENTER: {
+            /**
+             * Gets the image url of an OpenemsApp. 
+             * 
+             * The current order of the displayed image of an app is:
+             * Image from edge -> Image from Url -> No image just the app name
+             * 
+             * @param language the currently used language; can be obtained with {@link TranslateService#currentLang}
+             * @param appId    the appId of the image
+             * @returns the url of the image or null if not provided
+             */
+            APP_IMAGE: (language: string, appId: string) => string | null;
         }
     },
     readonly PRODUCT_TYPES: (translate: TranslateService) => Filter
