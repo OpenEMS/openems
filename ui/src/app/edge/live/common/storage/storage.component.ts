@@ -2,8 +2,8 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
-import { Role } from 'src/app/shared/type/role';
 
+import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { StorageModalComponent } from './modal/modal.component';
 
@@ -22,11 +22,8 @@ export class StorageComponent extends AbstractFlatWidget {
     public isEmergencyReserveEnabled: boolean[] = [];
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
-    protected isAtLeastInstaller: boolean = false;
 
     protected override getChannelAddresses() {
-
-        this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
 
         let channelAddresses: ChannelAddress[] = [
             new ChannelAddress('_sum', 'EssSoc'),
@@ -46,6 +43,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 };
             }, {});
 
+
         for (let essId in this.prepareBatteryExtensionCtrl) {
             let controller = this.prepareBatteryExtensionCtrl[essId];
             channelAddresses.push(
@@ -53,6 +51,8 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
                 new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                new ChannelAddress(controller.id, '_PropertyTargetTimeSpecified'),
+                new ChannelAddress(controller.id, '_PropertyTargetTime'),
             );
         }
 
@@ -117,7 +117,20 @@ export class StorageComponent extends AbstractFlatWidget {
         return channelAddresses;
     }
 
-    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number): { color: string, text: string } {
+    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
+
+        // Planned Expansion
+        if (targetTimeSpecified && targetDate) {
+
+            const date = DateUtils.stringToDate(targetDate.toString());
+            return {
+                color: 'green', text: this.translate.instant('Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED', {
+                    targetDate: DateUtils.toLocaleDateString(date),
+                    targetTime: date.toLocaleTimeString(),
+                }),
+            };
+        }
+
         if (!isRunning) {
             return null;
         }
@@ -140,7 +153,6 @@ export class StorageComponent extends AbstractFlatWidget {
         for (let essId in this.prepareBatteryExtensionCtrl) {
             let controller = this.prepareBatteryExtensionCtrl[essId];
 
-
             this.possibleBatteryExtensionMessage.set(
                 essId,
                 this.getBatteryCapacityExtensionStatus(
@@ -148,6 +160,8 @@ export class StorageComponent extends AbstractFlatWidget {
                     currentData.allComponents[controller.id + '/CtrlIsBlockingEss'],
                     currentData.allComponents[controller.id + '/CtrlIsChargingEss'],
                     currentData.allComponents[controller.id + '/CtrlIsDischargingEss'],
+                    currentData.allComponents[controller.id + '/_PropertyTargetTimeSpecified'],
+                    currentData.allComponents[controller.id + '/_PropertyTargetTime'],
                 ));
         }
 

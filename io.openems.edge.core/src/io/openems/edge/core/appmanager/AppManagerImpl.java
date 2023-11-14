@@ -513,6 +513,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		final var openemsApp = this.findAppByIdOrError(request.appId);
 
 		return this.lockModifyingApps(() -> {
+			// initial check if the app can even be installed
+			openemsApp.getAppConfiguration(ConfigurationTarget.ADD, request.properties, user.getLanguage());
+			this.validator.checkStatus(openemsApp, user.getLanguage());
+
 			List<String> warnings = new ArrayList<>();
 			var instance = new OpenemsAppInstance(openemsApp.getAppId(), request.alias, UUID.randomUUID(),
 					request.properties, null);
@@ -780,6 +784,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		return this.lockModifyingApps(() -> {
 			final var oldApp = this.findInstanceByIdOrError(request.instanceId);
 			final var app = this.findAppByIdOrError(oldApp.appId);
+			app.getAppConfiguration(ConfigurationTarget.UPDATE, request.properties, user.getLanguage());
 
 			final var updatedInstance = new OpenemsAppInstance(oldApp.appId, request.alias, oldApp.instanceId,
 					request.properties, oldApp.dependencies);

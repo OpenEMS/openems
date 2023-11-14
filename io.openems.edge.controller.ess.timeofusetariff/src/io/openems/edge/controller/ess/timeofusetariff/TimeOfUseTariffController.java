@@ -11,6 +11,8 @@ import io.openems.edge.controller.api.Controller;
 
 public interface TimeOfUseTariffController extends Controller, OpenemsComponent {
 
+	public static final int PERIODS_PER_HOUR = 4;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Current state of the Time of use tariff controller.
@@ -41,23 +43,16 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		/**
 		 * Channels for debugging.
 		 */
+		SOLVE_DURATION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLISECONDS)),
 		CHARGE_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Charge/Discharge energy calculated for the period.")), //
 		GRID_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Grid energy calculated for the period.")), //
-		QUARTERLY_PRICES_ARE_EMPTY(Doc.of(OpenemsType.BOOLEAN)//
-				.text("The list of quarterly prices retrieved are empty")),
-		AVAILABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.text("Available capcity in the battery during evening")), //
-		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.text("Usable capcity in the battery during after taking limit soc into consideration")), //
 		PREDICTED_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
 				.text("Predicted Production for the current quarterly hour")),
 		PREDICTED_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Predicted Consumption for the current quarterly hour")),
-		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
-				.text("Minimum SoC to avoid complete discharge")), //
-		;
+				.text("Predicted Consumption for the current quarterly hour")),;
 
 		private final Doc doc;
 

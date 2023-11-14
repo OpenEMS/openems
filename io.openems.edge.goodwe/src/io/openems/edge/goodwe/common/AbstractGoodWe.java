@@ -51,7 +51,6 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoString;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
-import io.openems.edge.goodwe.common.enums.GoodWeHardwareType;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -107,68 +106,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
-						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
-						m(GoodWe.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5), new ElementToChannelConverter(
-								// element -> channel
-								value -> {
-									// Evaluate GoodweType
-									final GoodWeType result;
-									if (value == null) {
-										result = GoodWeType.UNDEFINED;
-									} else {
-										String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
-										switch (stringValue) {
-										// TODO add identification for FENECON branded inverter
-										case "GW10K-BT":
-											result = GoodWeType.GOODWE_10K_BT;
-											break;
-										case "GW8K-BT":
-											result = GoodWeType.GOODWE_8K_BT;
-											break;
-										case "GW5K-BT":
-											result = GoodWeType.GOODWE_5K_BT;
-											break;
-										case "GW10K-ET":
-											result = GoodWeType.GOODWE_10K_ET;
-											break;
-										case "GW8K-ET":
-											result = GoodWeType.GOODWE_8K_ET;
-											break;
-										case "GW5K-ET":
-											result = GoodWeType.GOODWE_5K_ET;
-											break;
-										case "FHI-10-DAH":
-											result = GoodWeType.FENECON_FHI_10_DAH;
-											break;
-										default:
-											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
-											result = GoodWeType.UNDEFINED;
-											break;
-										}
-									}
-									// Log on first occurrence
-									if (result != this.getGoodweType()) {
-										switch (result) {
-										case GOODWE_10K_BT:
-										case GOODWE_8K_BT:
-										case GOODWE_5K_BT:
-										case GOODWE_10K_ET:
-										case GOODWE_8K_ET:
-										case GOODWE_5K_ET:
-										case FENECON_FHI_10_DAH:
-											this.logInfo(this.log, "Identified " + result.getName());
-											break;
-										case UNDEFINED:
-											break;
-										}
-									}
-									return result;
-								}, //
-
-								// channel -> element
-								value -> value))
-
-				), //
+						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)) //
+				),
 
 				new FC3ReadRegistersTask(35016, Priority.LOW, //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_MASTER, new UnsignedWordElement(35016)), //
@@ -1238,24 +1177,48 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				) //
 		);
 
-		// Handles different GoodWe Types
-		ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
-				.thenAccept(serialNr -> {
-					var hardwareType = getHardwareTypeFromSerialNr(serialNr);
+		/*
+		 * Handles different GoodWe Types.
+		 * 
+		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30)
+		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30)
+		 */
+		ModbusUtils.readELementOnce(protocol, new StringWordElement(35011, 5), true) //
+				.thenAccept(value -> {
 
+					/*
+					 * Evaluate GoodweType from GoodWe type register
+					 */
+					final var resultFromString = getGoodWeTypeFromStringValue(
+							TypeUtils.<String>getAsType(OpenemsType.STRING, value));
+
+					if (resultFromString != GoodWeType.UNDEFINED) {
+						this.logInfo(this.log, "Identified " + resultFromString.getName());
+						this._setGoodweType(resultFromString);
+						return;
+					}
+
+					/*
+					 * Evaluate GoodweType from serial number
+					 */
 					try {
-						switch (hardwareType) {
-						case GOODWE_20, GOODWE_29_9 -> this.handleMultipleStringChargers(protocol);
-						case GOODWE_10, UNDEFINED -> {
-						}
-						case OTHER ->
-							this.logWarn(this.log, "GoodWe Hardware Type not defined by Serial Nr.: " + serialNr);
-						}
+						ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
+								.thenAccept(serialNr -> {
+									final var hardwareType = getGoodWeTypeFromSerialNr(serialNr);
+									try {
+										this._setGoodweType(hardwareType);
+										if (hardwareType == GoodWeType.FENECON_FHI_20_DAH
+												|| hardwareType == GoodWeType.FENECON_FHI_29_9_DAH) {
+											this.handleMultipleStringChargers(protocol);
+										}
 
-						this._setGoodweHardwareType(hardwareType);
-
+									} catch (OpenemsException e) {
+										this.logError(this.log, "Unable to add charger tasks for modbus protocol");
+									}
+								});
 					} catch (OpenemsException e) {
-						this.logError(this.log, "Unable to add charger tasks for modbus protocol");
+						this.logError(this.log, "Unable to read element for serial number");
+						e.printStackTrace();
 					}
 				});
 
@@ -1303,18 +1266,41 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Get GoodWe hardware version by serial number.
+	 * Get GoodWe type from the GoodWe string representation.
+	 * 
+	 * @param stringValue GoodWe type as String
+	 * @return type as {@link GoodWeType}
+	 */
+	protected static GoodWeType getGoodWeTypeFromStringValue(String stringValue) {
+		if (stringValue == null || stringValue.isEmpty()) {
+			return GoodWeType.UNDEFINED;
+		}
+
+		return switch (stringValue) {
+		case "GW10K-BT" -> GoodWeType.GOODWE_10K_BT;
+		case "GW8K-BT" -> GoodWeType.GOODWE_8K_BT;
+		case "GW5K-BT" -> GoodWeType.GOODWE_5K_BT;
+		case "GW10K-ET" -> GoodWeType.GOODWE_10K_ET;
+		case "GW8K-ET" -> GoodWeType.GOODWE_8K_ET;
+		case "GW5K-ET" -> GoodWeType.GOODWE_5K_ET;
+		case "FHI-10-DAH" -> GoodWeType.FENECON_FHI_10_DAH;
+		default -> GoodWeType.UNDEFINED;
+		};
+	}
+
+	/**
+	 * Get GoodWe type from serial number.
 	 * 
 	 * @param serialNr Serial number
 	 * @return type as {@link GoodWeHardwareType}
 	 */
-	protected static GoodWeHardwareType getHardwareTypeFromSerialNr(String serialNr) {
-		if (serialNr.isEmpty()) {
-			return GoodWeHardwareType.UNDEFINED;
+	protected static GoodWeType getGoodWeTypeFromSerialNr(String serialNr) {
+		if (serialNr == null || serialNr.isEmpty()) {
+			return GoodWeType.UNDEFINED;
 		}
 
 		// Example serial numbers: default=9010KETT228W0004 float(29.9)=929K9ETT231W0159
-		return Stream.of(GoodWeHardwareType.values()) //
+		return Stream.of(GoodWeType.values()) //
 				.filter(t -> {
 					try {
 						return t.serialNrFilter.apply(serialNr);
@@ -1326,7 +1312,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					}
 				}) //
 				.findFirst() //
-				.orElse(GoodWeHardwareType.OTHER);
+				.orElse(GoodWeType.UNDEFINED);
 	}
 
 	/**
