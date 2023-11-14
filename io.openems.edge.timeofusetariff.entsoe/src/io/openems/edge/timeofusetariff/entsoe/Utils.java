@@ -19,10 +19,7 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.XmlUtils;
-import io.openems.edge.common.currency.Currency;
 
 public class Utils {
 
@@ -153,22 +150,6 @@ public class Utils {
 				.findFirst().get();
 
 		return result;
-	}
-
-	/**
-	 * Parses the response string from Exchange rate API.
-	 * 
-	 * @param response The Response string from ExcahngeRate API.
-	 * @param currency The {@link Currency} selected by User.
-	 * @return the exchange rate.
-	 * @throws OpenemsNamedException on error.
-	 */
-	protected static Double exchangeRateParser(String response, Currency currency) throws OpenemsNamedException {
-
-		var line = JsonUtils.parseToJsonObject(response);
-		var data = JsonUtils.getAsJsonObject(line, "rates");
-
-		return JsonUtils.getAsDouble(data, currency.toString());
 	}
 
 }

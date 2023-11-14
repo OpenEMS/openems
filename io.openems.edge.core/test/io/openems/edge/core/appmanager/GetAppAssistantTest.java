@@ -22,6 +22,7 @@ public class GetAppAssistantTest {
 			return Apps.of(t, //
 					Apps::feneconHome, //
 					Apps::awattarHourly, //
+					Apps::entsoE, //
 					Apps::stromdaoCorrently, //
 					Apps::tibber, //
 					Apps::modbusTcpApiReadOnly, //

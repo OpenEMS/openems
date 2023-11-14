@@ -1,5 +1,9 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeFromGridPower;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
+import static java.lang.Math.max;
+
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -38,17 +42,12 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
-import io.openems.edge.ess.api.HybridEss;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -65,8 +64,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariffController, Controller, OpenemsComponent, TimedataProvider, JsonApi {
 
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
-	private static final int PERIODS_PER_HOUR = 4;
+	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "UnmanagedConsumptionActivePower");
 	private static final int MINUTES_PER_PERIOD = 15;
 	private static final Duration TIME_PER_PERIOD = Duration.ofMinutes(MINUTES_PER_PERIOD);
 
@@ -95,6 +93,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private TimeOfUseTariff timeOfUseTariff;
+
+	@Reference
+	private Sum sum;
 
 	private Config config = null;
 	private Schedule schedule;
@@ -195,41 +196,36 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
 		this.channel(TimeOfUseTariffController.ChannelId.AVAILABLE_CAPACITY).setNextValue(currentAvailableEnergy);
 
+		final var reduceAbove = 10; // TODO make this configurable via Risk Level
+		final var reduceBelow = 10; // TODO make this configurable via Risk Level
+
 		// Calculate the net usable energy of the battery.
-		final var limitEnergy = this.getLimitEnergy(netEssCapacity);
-		final var netUsableEnergy = TypeUtils.max(0, netEssCapacity - limitEnergy);
+		final var reduceAboveEnergy = netEssCapacity / 100 * reduceAbove;
+		final var limitEnergy = this.getLimitEnergy(netEssCapacity, reduceBelow) + reduceAboveEnergy;
+		final var netUsableEnergy = max(0, netEssCapacity - limitEnergy);
 
 		// Calculate current usable energy [Wh] in the battery.
-		currentAvailableEnergy = TypeUtils.max(0, currentAvailableEnergy - limitEnergy);
+		currentAvailableEnergy = max(0, currentAvailableEnergy - limitEnergy);
 		this.channel(TimeOfUseTariffController.ChannelId.USABLE_CAPACITY).setNextValue(currentAvailableEnergy);
 
 		// Power Values for scheduling battery for individual periods.
 		var power = this.ess.getPower();
-		var dischargePower = power.getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		var chargePower = power.getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var dischargePower = max(1000 /* at least 1000 */, power.getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE));
+		var chargePower = Math.min(-1000 /* at least 1000 */, power.getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE));
+		var maxChargePowerFromGrid = this.config.maxChargePowerFromGrid();
 
-		// If both values are 0, its likely that components are not yet activated
-		// completely.
-		// TODO: Handle cases where max and min power are very low in beginning.
-		if (dischargePower == 0 && chargePower == 0) {
-			return;
-		}
-
-		// Power to Energy.
-		var dischargeEnergy = dischargePower / PERIODS_PER_HOUR;
-		var chargeEnergy = chargePower / PERIODS_PER_HOUR;
-		var allowedChargeEnergyFromGrid = this.config.maxChargePowerFromGrid() / PERIODS_PER_HOUR;
-
-		// Initialize Schedule
-		this.schedule = new Schedule(this.config.controlMode(), this.config.riskLevel(), netUsableEnergy,
-				currentAvailableEnergy, dischargeEnergy, chargeEnergy, prices.getValues(), predictionConsumption,
-				predictionProduction, allowedChargeEnergyFromGrid);
-
-		// Generate Final schedule.
-		this.schedule.createSchedule();
+		// Generate Schedule.
+		this.schedule = Schedule.createSchedule(this.config.controlMode(), this.config.riskLevel(), netUsableEnergy,
+				currentAvailableEnergy, dischargePower, chargePower, prices.getValues(), predictionConsumption,
+				predictionProduction, this.config.maxChargePowerFromGrid());
 
 		// log the schedule
-		this.logInfo(this.log, this.schedule.toString());
+		var scheduleString = new StringBuilder();
+		scheduleString.append("\n %s %d %s %d %s %d %s %d %s %d\n".formatted("netUsableEnergy:", netUsableEnergy,
+				" currentAvailableEnergy:", currentAvailableEnergy, " dischargePower:", dischargePower, " chargePower:",
+				chargePower, " maxChargePowerFromGrid:", maxChargePowerFromGrid));
+		scheduleString.append("%s".formatted(this.schedule.toString()));
+		this.logInfo(this.log, scheduleString.toString());
 
 		// Update next quarter.
 		this.nextQuarter = now.plus(TIME_PER_PERIOD);
@@ -244,7 +240,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * 
 	 * @throws OpenemsNamedException on error.
 	 */
-	private void setChargeOrDischarge() {
+	private void setChargeOrDischarge() throws OpenemsNamedException {
 		if (this.schedule.periods.isEmpty()) {
 			this.setDefaultValues();
 			return;
@@ -252,67 +248,42 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		final var period = this.schedule.periods.get(0);
 		final var stateMachine = period.getStateMachine(this.config.controlMode());
-		var charged = false;
-		var delayed = false;
-
-		var activePower = switch (stateMachine) {
-		case CHARGE_FROM_GRID -> {
-			charged = true;
-			yield period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
-		}
-		case DELAY_DISCHARGE -> {
-			delayed = true;
-			var value = period.chargeDischargeEnergy * PERIODS_PER_HOUR; // energy to power
-
-			if (this.ess instanceof HybridEss hybridEss) {
-				// DC or Hybrid system: limit AC export power to DC production power
-				value += TypeUtils.subtract(this.ess.getActivePower().get(), hybridEss.getDcDischargePower().get());
-			}
-
-			yield value;
-		}
-		// Do not set active power
-		case ALLOWS_DISCHARGE -> null;
-		case CHARGE_FROM_PV -> null;
-		};
-
-		if (activePower != null) {
-			try {
-				this.ess.setActivePowerLessOrEquals(activePower);
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
-				delayed = false;
-				charged = false;
-			}
-		}
-
 		this._setStateMachine(stateMachine);
 
 		// Update the timer.
-		this.calculateChargedTime.update(charged);
-		this.calculateDelayedTime.update(delayed);
+		this.calculateChargedTime.update(stateMachine == StateMachine.CHARGE_FROM_GRID);
+		this.calculateDelayedTime.update(stateMachine == StateMachine.DELAY_DISCHARGE);
+
+		// Get and apply ActivePower Less-or-Equals Set-Point
+		var activePower = switch (stateMachine) {
+		case CHARGE_FROM_GRID -> calculateChargeFromGridPower(period.chargeDischargeEnergy, this.ess, this.sum,
+				this.config.maxChargePowerFromGrid());
+		case DELAY_DISCHARGE -> calculateDelayDischargePower(period.chargeDischargeEnergy, this.ess);
+		case ALLOWS_DISCHARGE, CHARGE_FROM_PV -> null;
+		};
+
+		if (activePower != null) {
+			this.ess.setActivePowerLessOrEquals(activePower);
+		}
+
 	}
 
 	/**
 	 * Returns the amount of energy that is not usable for scheduling.
 	 * 
 	 * @param netEssCapacity net capacity of the battery.
+	 * @param reduceBelow    The lower SoC limit.
 	 * @return the amount of energy that is limited.
 	 */
-	private int getLimitEnergy(int netEssCapacity) {
+	private int getLimitEnergy(int netEssCapacity, int reduceBelow) {
 
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		var limitSoc = IntStream.concat(//
 				this.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
 				this.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
-				.max().orElse(0);
+				.max().orElse(0) + reduceBelow;
 		this.channel(TimeOfUseTariffController.ChannelId.MIN_SOC).setNextValue(limitSoc);
-
-		return netEssCapacity /* [Wh] */ / 100 * limitSoc;
-	}
-
-	/**
 	 * Apply the mode OFF logic.
 	 */
 	private void modeOff() {
@@ -323,22 +294,36 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	 * This is only to visualize data for better debugging.
 	 */
 	private void updateVisualizationChannels() {
-
+		final Float quarterlyPrice;
+		final Integer consumptionPrediction;
+		final Integer productionPrediction;
+		final Integer gridEnergy;
+		final Integer chargeDischargeEnergy;
 		if (this.schedule == null || this.schedule.periods.isEmpty()) {
-			// Values are not yet calculated.
-			this.setDefaultValues();
-			return;
+			// Values are not available.
+			quarterlyPrice = this.timeOfUseTariff.getPrices().getValues()[0];
+			consumptionPrediction = null;
+			productionPrediction = null;
+			gridEnergy = null;
+			chargeDischargeEnergy = null;
+
+		} else {
+			// First period is always the current period.
+			final var period = this.schedule.periods.get(0);
+
+			quarterlyPrice = period.price;
+			consumptionPrediction = period.consumptionPrediction;
+			productionPrediction = period.productionPrediction;
+			gridEnergy = period.gridEnergy();
+			chargeDischargeEnergy = period.chargeDischargeEnergy;
 		}
 
-		// First period is always the current period.
-		final var period = this.schedule.periods.get(0);
-
 		// Set the channels
-		this._setQuarterlyPrices(period.price);
-		this._setPredictedConsumption(period.consumptionPrediction);
-		this._setPredictedProduction(period.productionPrediction);
-		this._setGridEnergyChannel(period.gridEnergy);
-		this._setChargeDischargeEnergyChannel(period.chargeDischargeEnergy);
+		this._setQuarterlyPrices(quarterlyPrice);
+		this._setPredictedConsumption(consumptionPrediction);
+		this._setPredictedProduction(productionPrediction);
+		this._setGridEnergyChannel(gridEnergy);
+		this._setChargeDischargeEnergyChannel(chargeDischargeEnergy);
 	}
 
 	/**

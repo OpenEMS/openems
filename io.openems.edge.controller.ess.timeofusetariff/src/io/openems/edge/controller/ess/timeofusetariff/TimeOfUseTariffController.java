@@ -11,6 +11,8 @@ import io.openems.edge.controller.api.Controller;
 
 public interface TimeOfUseTariffController extends Controller, OpenemsComponent {
 
+	public static final int PERIODS_PER_HOUR = 4;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Current state of the Time of use tariff controller.

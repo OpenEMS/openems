@@ -113,7 +113,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 			final var ctrlEssTimeOfUseTariffId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIFF_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var accessToken = this.getString(p, l, Property.ACCESS_TOKEN);
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
@@ -125,14 +125,14 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 									.addProperty("ess.id", "ess0") //
 									.addPropertyIfNotNull("accessToken", accessToken) //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(comp)) //
-					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
