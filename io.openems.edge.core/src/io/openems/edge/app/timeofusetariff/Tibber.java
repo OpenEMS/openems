@@ -131,8 +131,9 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 			);
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.component(comp)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
 	}
