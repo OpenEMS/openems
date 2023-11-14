@@ -1,5 +1,5 @@
 import { ChannelAddress } from '../type/channeladdress';
-import { AdvertWidgets, Widgets } from '../type/widget';
+import { Widgets } from '../type/widget';
 import { Edge } from './edge';
 
 export interface CategorizedComponents {
@@ -79,9 +79,6 @@ export class EdgeConfig {
 
         // Initialize Widgets
         this.widgets = Widgets.parseWidgets(edge, this);
-
-        // Initialize Advertisement Widgets
-        this.advertWidgets = AdvertWidgets.parseAdvertWidgets(edge, this);
     }
 
     /**
@@ -103,11 +100,6 @@ export class EdgeConfig {
      * UI-Widgets.
      */
     public readonly widgets: Widgets;
-
-    /**
-     * UI-Advertisement-Widgets
-     */
-    public readonly advertWidgets: AdvertWidgets;
 
     public isValid(): boolean {
         return Object.keys(this.components).length > 0 && Object.keys(this.factories).length > 0;
