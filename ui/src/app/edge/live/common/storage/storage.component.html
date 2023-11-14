@@ -49,7 +49,7 @@
             </oe-flat-widget-line>
         </ng-template>
 
-        <ng-container *ngIf="isAtLeastInstaller && possibleBatteryExtensionMessage.get(component.id) as message">
+        <ng-container *ngIf="possibleBatteryExtensionMessage.get(component.id) as message">
             <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
             <oe-flat-widget-line [name]="message.text" leftColumnWidth="100"
                 [style.color]="message.color"></oe-flat-widget-line>
