@@ -131,7 +131,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
           // Dataset for CHARGE
           // Show charge data only for the new controller.
-          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff' && !barCharge.every(v => v === 0)) {
+          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff' && !barCharge.every(v => v === null)) {
             datasets.push({
               type: 'bar',
               label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
