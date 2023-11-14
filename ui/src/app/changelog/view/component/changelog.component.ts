@@ -37,6 +37,27 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.11.1',
+        changes: [
+          Changelog.openems('2023.11.0'),
+          Changelog.UI + "Fehlerbehebung historische Ansicht, Anzeige eingeplanter Batterieerweiterung",
+          Changelog.product(Product.HOME_20_30) + "Performance-Verbesserung beim Lesen der Erzeugungsdaten, Verbesserungen am Inbetriebnahmeassistent",
+          Changelog.app(App.PV_INVERTER, App.KACO) + "Fehlerbehebung bei Darstellung der Energiewerte",
+          Changelog.app(App.TIME_OF_USE) + "Start BETA-Test für aktive Beladung aus dem Netz",
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Filter für Home 20 & 30 in der Übersichtsliste" },
+          { roleIsAtLeast: Role.ADMIN, change: "Entferne Unterstützung für TimescaleDB, Tesla Powerwall" },
+          { roleIsAtLeast: Role.ADMIN, change: "Deaktiviere alten FEMS Remote-Service" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserte Kompatibilitätsprüfung von Apps, Performance-Optimierung durch Laden der Bilder von FENECON Docs" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: einheitliche Berechnung des Gesamt-SoC unter Berücksichtigung der Kapazität" },
+          { roleIsAtLeast: Role.ADMIN, change: "Notstromreserve: Fehlerbehebung bei gemessener negativer Erzeugung" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 40: korrigierter Skalierungsfaktor für Strom und Spannung bei Notstromverbrauchern, zuverlässigere Identifikation des Wechselrichters" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 20 & 30: Fehlerbehebung beim Lesen der Seriennummern der Batterie, Reduzierung der Beladeleistung bei niedrigen Zellspannungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Dynamischer Stromtarif: nutze 'UnmanagedConsumption' für Vorhersage des Verbrauchs" },
+          { roleIsAtLeast: Role.ADMIN, change: "Ladestation KEBA/HardyBarth: bessere Meldung bei Kommunikationsfehler" },
+          Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.HIKARI_CP),
+        ],
+      },
+      {
         version: '2023.10.3',
         changes: [
           "Fehlerbehebung: lokales Monitoring",
