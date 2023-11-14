@@ -2,7 +2,6 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
-import { Role } from 'src/app/shared/type/role';
 
 import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
@@ -23,11 +22,8 @@ export class StorageComponent extends AbstractFlatWidget {
     public isEmergencyReserveEnabled: boolean[] = [];
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
-    protected isAtLeastInstaller: boolean = false;
 
     protected override getChannelAddresses() {
-
-        this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
 
         let channelAddresses: ChannelAddress[] = [
             new ChannelAddress('_sum', 'EssSoc'),
