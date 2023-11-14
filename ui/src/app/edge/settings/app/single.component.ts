@@ -16,6 +16,8 @@ import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
 import { InstallAppComponent } from './install.component';
+import { TranslateService } from '@ngx-translate/core';
+import { environment } from 'src/environments';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,
@@ -57,6 +59,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private router: Router,
     protected utils: Utils,
     private websocket: Websocket,
+    private translate: TranslateService,
     private service: Service,
     private sanitizer: DomSanitizer,
     protected modalController: ModalController,
@@ -149,6 +152,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             payload: new GetApp.Request({ appId: appId }),
           })).then(response => {
             let app = (response as GetApp.Response).result.app;
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
             this.setApp(app);
           }).catch(reason => {
             console.error(reason.error);
