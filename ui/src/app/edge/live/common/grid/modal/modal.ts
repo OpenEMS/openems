@@ -9,7 +9,7 @@ import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html'
+  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html',
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
@@ -25,7 +25,7 @@ export class ModalComponent extends AbstractFormlyComponent {
       name: translate.instant("General.offGrid"),
       channel: '_sum/GridMode',
       filter: Filter.GRID_MODE_IS_OFF_GRID,
-      converter: Converter.HIDE_VALUE
+      converter: Converter.HIDE_VALUE,
     }];
 
     var gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
@@ -37,15 +37,15 @@ export class ModalComponent extends AbstractFormlyComponent {
           type: 'channel-line',
           name: translate.instant("General.gridSellAdvanced"),
           channel: '_sum/GridActivePower',
-          converter: Converter.GRID_SELL_POWER_OR_ZERO
+          converter: Converter.GRID_SELL_POWER_OR_ZERO,
         },
         {
           type: 'channel-line',
           name: translate.instant("General.gridBuyAdvanced"),
           channel: '_sum/GridActivePower',
-          converter: Converter.GRID_BUY_POWER_OR_ZERO
+          converter: Converter.GRID_BUY_POWER_OR_ZERO,
         }, {
-        type: 'horizontal-line'
+        type: 'horizontal-line',
       });
     }
 
@@ -58,13 +58,13 @@ export class ModalComponent extends AbstractFormlyComponent {
             type: 'channel-line',
             name: translate.instant("General.gridSellAdvanced"),
             channel: meter.id + '/ActivePower',
-            converter: Converter.GRID_SELL_POWER_OR_ZERO
+            converter: Converter.GRID_SELL_POWER_OR_ZERO,
           },
           {
             type: 'channel-line',
             name: translate.instant("General.gridBuyAdvanced"),
             channel: meter.id + '/ActivePower',
-            converter: Converter.GRID_BUY_POWER_OR_ZERO
+            converter: Converter.GRID_BUY_POWER_OR_ZERO,
           });
 
       } else {
@@ -73,7 +73,7 @@ export class ModalComponent extends AbstractFormlyComponent {
           type: 'channel-line',
           name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
           channel: meter.id + '/ActivePower',
-          converter: Converter.POWER_IN_WATT
+          converter: Converter.POWER_IN_WATT,
         });
       }
 
@@ -81,7 +81,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         // Individual phases: Voltage, Current and Power
         ...ModalComponent.generatePhasesView(meter, translate, role), {
         // Line separator
-        type: 'horizontal-line'
+        type: 'horizontal-line',
       });
     }
 
@@ -89,13 +89,13 @@ export class ModalComponent extends AbstractFormlyComponent {
       // Technical info
       lines.push({
         type: 'info-line',
-        name: translate.instant("Edge.Index.Widgets.phasesInfo")
+        name: translate.instant("Edge.Index.Widgets.phasesInfo"),
       });
     }
 
     return {
       title: translate.instant('General.grid'),
-      lines: lines
+      lines: lines,
     };
   }
 
@@ -105,10 +105,10 @@ export class ModalComponent extends AbstractFormlyComponent {
         type: 'children-line',
         name: {
           channel: ChannelAddress.fromString(component.id + '/ActivePower' + phase),
-          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase)
+          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant('General.phase') + " " + phase),
         },
         indentation: TextIndentation.SINGLE,
-        children: ModalComponent.generatePhasesLineItems(role, phase, component)
+        children: ModalComponent.generatePhasesLineItems(role, phase, component),
       });
   }
 
@@ -118,18 +118,18 @@ export class ModalComponent extends AbstractFormlyComponent {
       children.push({
         type: 'item',
         channel: component.id + '/Voltage' + phase,
-        converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT
+        converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT,
       }, {
         type: 'item',
         channel: component.id + '/Current' + phase,
-        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE
+        converter: Converter.CURRENT_IN_MILLIAMPERE_TO_AMPERE,
       });
     }
 
     children.push({
       type: 'item',
       channel: component.id + '/ActivePower' + phase,
-      converter: Converter.POSITIVE_POWER
+      converter: Converter.POSITIVE_POWER,
     });
 
     return children;

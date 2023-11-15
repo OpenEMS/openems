@@ -7,28 +7,44 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import io.openems.edge.goodwe.common.enums.GoodWeHardwareType;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 
 public class TestStatic {
 
 	@Test
 	public void testGetHardwareTypeFromSerialNr() {
-		assertEquals(GoodWeHardwareType.GOODWE_10, AbstractGoodWe.getHardwareTypeFromSerialNr("7010KETU22AW0901"));
-		assertNotEquals(GoodWeHardwareType.GOODWE_10, AbstractGoodWe.getHardwareTypeFromSerialNr("70000KETU22AW090"));
+		assertEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("7010KETU22AW0901"));
+		assertNotEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("70000KETU22AW090"));
 
-		assertEquals(GoodWeHardwareType.GOODWE_20, AbstractGoodWe.getHardwareTypeFromSerialNr("9020KETT22AW0004"));
-		assertNotEquals(GoodWeHardwareType.GOODWE_20, AbstractGoodWe.getHardwareTypeFromSerialNr("9010KETT22AW0004"));
+		assertEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT22AW0004"));
+		assertNotEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KETT22AW0004"));
 
-		assertEquals(GoodWeHardwareType.GOODWE_29_9, AbstractGoodWe.getHardwareTypeFromSerialNr("9030KETT228W0004"));
-		assertNotEquals(GoodWeHardwareType.GOODWE_29_9, AbstractGoodWe.getHardwareTypeFromSerialNr("9020KETT228W0004"));
-		assertEquals(GoodWeHardwareType.GOODWE_29_9, AbstractGoodWe.getHardwareTypeFromSerialNr("929K9ETT231W0159"));
-		assertNotEquals(GoodWeHardwareType.GOODWE_29_9, AbstractGoodWe.getHardwareTypeFromSerialNr("929KETT231W0159"));
-		assertNotEquals(GoodWeHardwareType.GOODWE_29_9, AbstractGoodWe.getHardwareTypeFromSerialNr("928K9ETT231W0159"));
+		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9030KETT228W0004"));
+		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT228W0004"));
+		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0159"));
+		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929KETT231W0159"));
+		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("928K9ETT231W0159"));
+		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929K9ETT231W0160"));
 
-		assertEquals(GoodWeHardwareType.OTHER, AbstractGoodWe.getHardwareTypeFromSerialNr("9040KETT228W0004"));
-		assertEquals(GoodWeHardwareType.OTHER, AbstractGoodWe.getHardwareTypeFromSerialNr("9000KETT228W0004"));
-		assertEquals(GoodWeHardwareType.OTHER, AbstractGoodWe.getHardwareTypeFromSerialNr("ET2"));
-		assertEquals(GoodWeHardwareType.UNDEFINED, AbstractGoodWe.getHardwareTypeFromSerialNr(""));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(""));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(null));
+	}
+
+	@Test
+	public void testGetHardwareTypeFromGoodWeString() {
+		assertEquals(GoodWeType.GOODWE_10K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-BT"));
+		assertEquals(GoodWeType.GOODWE_10K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-ET"));
+		assertEquals(GoodWeType.GOODWE_5K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-BT"));
+		assertEquals(GoodWeType.GOODWE_5K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-ET"));
+		assertEquals(GoodWeType.GOODWE_8K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-BT"));
+		assertEquals(GoodWeType.GOODWE_8K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-ET"));
+		assertEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromStringValue("FHI-10-DAH"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue("ET2"));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(""));
+		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(null));
 	}
 
 	@Test

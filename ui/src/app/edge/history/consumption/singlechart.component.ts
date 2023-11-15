@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionSingleChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class ConsumptionSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -26,7 +26,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("consumption-single-chart", service, translate);
     }
@@ -79,11 +79,11 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     datasets.push({
                                         label: this.translate.instant('General.consumption'),
                                         data: data,
-                                        hidden: false
+                                        hidden: false,
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(253,197,7,0.05)',
-                                        borderColor: 'rgba(253,197,7,1)'
+                                        borderColor: 'rgba(253,197,7,1)',
                                     });
                                 }
 
@@ -91,11 +91,11 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                 if (channelAddress.channelId == 'ActivePower') {
                                     datasets.push({
                                         label: component.alias,
-                                        data: data
+                                        data: data,
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(255,64,64,0.1)',
-                                        borderColor: 'rgba(255,64,64,1)'
+                                        borderColor: 'rgba(255,64,64,1)',
                                     });
                                 }
 
@@ -103,21 +103,21 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL2') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L2',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ConsumptionActivePowerL3') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L3',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push(this.phase3Color);
                                     }
@@ -126,31 +126,31 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                                     if (channelAddress.channelId == 'ActivePowerL1') {
                                         datasets.push({
                                             label: component.alias + ' Phase ' + 'L1',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(255,193,193,0.1)',
-                                            borderColor: 'rgba(139,35,35,1)'
+                                            borderColor: 'rgba(139,35,35,1)',
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
                                         datasets.push({
                                             label: component.alias + ' Phase ' + 'L2',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(198,226,255,0.1)',
-                                            borderColor: 'rgba(198,226,255,1)'
+                                            borderColor: 'rgba(198,226,255,1)',
                                         });
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
                                         datasets.push({
                                             label: component.alias + ' Phase ' + 'L3',
-                                            data: data
+                                            data: data,
                                         });
                                         this.colors.push({
                                             backgroundColor: 'rgba(121,205,205,0.1)',
-                                            borderColor: 'rgba(121,205,205,1)'
+                                            borderColor: 'rgba(121,205,205,1)',
                                         });
                                     }
                                 }
@@ -186,7 +186,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                 new ChannelAddress('_sum', 'ConsumptionActivePower'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL1'),
                 new ChannelAddress('_sum', 'ConsumptionActivePowerL2'),
-                new ChannelAddress('_sum', 'ConsumptionActivePowerL3')
+                new ChannelAddress('_sum', 'ConsumptionActivePowerL3'),
             ];
 
             let consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")

@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: ChannelthresholdChartOverviewComponent.SELECTOR,
-    templateUrl: './channelthresholdchartoverview.component.html'
+    templateUrl: './channelthresholdchartoverview.component.html',
 })
 export class ChannelthresholdChartOverviewComponent implements OnInit {
 
@@ -23,7 +23,7 @@ export class ChannelthresholdChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

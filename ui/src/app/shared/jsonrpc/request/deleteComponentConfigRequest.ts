@@ -21,7 +21,7 @@ export class DeleteComponentConfigRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             componentId: string
-        }
+        },
     ) {
         super(DeleteComponentConfigRequest.METHOD, params);
     }

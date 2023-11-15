@@ -1,22 +1,31 @@
 package io.openems.edge.common.test;
 
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
 
-public class DummyMeta extends AbstractOpenemsComponent implements Meta {
+public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implements Meta {
 
-	public DummyMeta(String id, Currency currency) {
-		super(//
+	public DummyMeta(String id) {
+		super(id, //
 				OpenemsComponent.ChannelId.values(), //
 				Meta.ChannelId.values() //
 		);
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		this._setCurrency(currency);
-		super.activate(null, id, "", true);
+	}
+
+	@Override
+	protected DummyMeta self() {
+		return this;
+	}
+
+	/**
+	 * Set {@link Meta.ChannelId#CURRENCY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyMeta withCurrency(Currency value) {
+		TestUtils.withValue(this, Meta.ChannelId.CURRENCY, value);
+		return this.self();
 	}
 }

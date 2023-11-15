@@ -14,7 +14,7 @@ import { ChosenFilter } from "../filter/filter.component";
 
 @Component({
     selector: 'overview',
-    templateUrl: './overview.component.html'
+    templateUrl: './overview.component.html',
 })
 export class OverViewComponent implements OnInit, OnDestroy {
     public environment = environment;
@@ -45,7 +45,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
         private router: Router,
         private route: ActivatedRoute,
         public translate: TranslateService,
-        public pagination: Pagination
+        public pagination: Pagination,
     ) { }
 
     ngOnInit() {
@@ -91,7 +91,7 @@ export class OverViewComponent implements OnInit, OnDestroy {
             this.service.metadata
                 .pipe(
                     filter(metadata => !!metadata),
-                    take(1)
+                    take(1),
                 )
                 .subscribe(metadata => {
 

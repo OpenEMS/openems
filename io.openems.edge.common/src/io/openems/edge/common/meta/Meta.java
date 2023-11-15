@@ -78,7 +78,7 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the Capacity in [Wh]. See {@link ChannelId#CURRENCY}.
+	 * Gets the Currency. See {@link ChannelId#CURRENCY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

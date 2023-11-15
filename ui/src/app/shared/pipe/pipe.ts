@@ -12,7 +12,7 @@ import { VersionPipe } from './version/version.pipe';
 
 @NgModule({
     imports: [
-        BrowserModule
+        BrowserModule,
     ],
     entryComponents: [
         UnitvaluePipe,
@@ -22,7 +22,7 @@ import { VersionPipe } from './version/version.pipe';
         IsclassPipe,
         ClassnamePipe,
         VersionPipe,
-        TypeofPipe
+        TypeofPipe,
     ],
     declarations: [
         UnitvaluePipe,
@@ -32,7 +32,7 @@ import { VersionPipe } from './version/version.pipe';
         IsclassPipe,
         ClassnamePipe,
         VersionPipe,
-        TypeofPipe
+        TypeofPipe,
     ],
     exports: [
         UnitvaluePipe,
@@ -42,13 +42,13 @@ import { VersionPipe } from './version/version.pipe';
         IsclassPipe,
         ClassnamePipe,
         VersionPipe,
-        TypeofPipe
+        TypeofPipe,
     ],
     providers: [
         DecimalPipe,
         FormatSecondsToDurationPipe,
         UnitvaluePipe,
-        TypeofPipe
-    ]
+        TypeofPipe,
+    ],
 })
 export class PipeModule { }

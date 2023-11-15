@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,20 +42,21 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
+import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoString;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
-import io.openems.edge.goodwe.common.enums.GoodWeHardwareType;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
-		implements GoodWe, OpenemsComponent, TimedataProvider {
+		implements GoodWe, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractGoodWe.class);
 	private static final Map<Integer, GoodWe.ChannelId> DIAG_STATUS_H_STATES = Map.of(//
@@ -103,68 +106,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
-						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
-						m(GoodWe.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5), new ElementToChannelConverter(
-								// element -> channel
-								value -> {
-									// Evaluate GoodweType
-									final GoodWeType result;
-									if (value == null) {
-										result = GoodWeType.UNDEFINED;
-									} else {
-										String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
-										switch (stringValue) {
-										// TODO add identification for FENECON branded inverter
-										case "GW10K-BT":
-											result = GoodWeType.GOODWE_10K_BT;
-											break;
-										case "GW8K-BT":
-											result = GoodWeType.GOODWE_8K_BT;
-											break;
-										case "GW5K-BT":
-											result = GoodWeType.GOODWE_5K_BT;
-											break;
-										case "GW10K-ET":
-											result = GoodWeType.GOODWE_10K_ET;
-											break;
-										case "GW8K-ET":
-											result = GoodWeType.GOODWE_8K_ET;
-											break;
-										case "GW5K-ET":
-											result = GoodWeType.GOODWE_5K_ET;
-											break;
-										case "FHI-10-DAH":
-											result = GoodWeType.FENECON_FHI_10_DAH;
-											break;
-										default:
-											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
-											result = GoodWeType.UNDEFINED;
-											break;
-										}
-									}
-									// Log on first occurrence
-									if (result != this.getGoodweType()) {
-										switch (result) {
-										case GOODWE_10K_BT:
-										case GOODWE_8K_BT:
-										case GOODWE_5K_BT:
-										case GOODWE_10K_ET:
-										case GOODWE_8K_ET:
-										case GOODWE_5K_ET:
-										case FENECON_FHI_10_DAH:
-											this.logInfo(this.log, "Identified " + result.getName());
-											break;
-										case UNDEFINED:
-											break;
-										}
-									}
-									return result;
-								}, //
-
-								// channel -> element
-								value -> value))
-
-				), //
+						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)) //
+				),
 
 				new FC3ReadRegistersTask(35016, Priority.LOW, //
 						m(GoodWe.ChannelId.DSP_FM_VERSION_MASTER, new UnsignedWordElement(35016)), //
@@ -1234,14 +1177,49 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				) //
 		);
 
-		// Handles different GoodWe Types
-		ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
-				.thenAccept(serialNr -> {
-					var hardwareType = getHardwareTypeFromSerialNr(serialNr);
-					if (hardwareType.equals(GoodWeHardwareType.OTHER)) {
-						this.logWarn(this.log, "GoodWe Hardware Type not defined by Serial Nr.: " + serialNr);
+		/*
+		 * Handles different GoodWe Types.
+		 * 
+		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30)
+		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30)
+		 */
+		ModbusUtils.readELementOnce(protocol, new StringWordElement(35011, 5), true) //
+				.thenAccept(value -> {
+
+					/*
+					 * Evaluate GoodweType from GoodWe type register
+					 */
+					final var resultFromString = getGoodWeTypeFromStringValue(
+							TypeUtils.<String>getAsType(OpenemsType.STRING, value));
+
+					if (resultFromString != GoodWeType.UNDEFINED) {
+						this.logInfo(this.log, "Identified " + resultFromString.getName());
+						this._setGoodweType(resultFromString);
+						return;
 					}
-					this._setGoodweHardwareType(hardwareType);
+
+					/*
+					 * Evaluate GoodweType from serial number
+					 */
+					try {
+						ModbusUtils.readELementOnce(protocol, new StringWordElement(35003, 8), true) //
+								.thenAccept(serialNr -> {
+									final var hardwareType = getGoodWeTypeFromSerialNr(serialNr);
+									try {
+										this._setGoodweType(hardwareType);
+										if (hardwareType == GoodWeType.FENECON_FHI_20_DAH
+												|| hardwareType == GoodWeType.FENECON_FHI_29_9_DAH) {
+											this.handleMultipleStringChargers(protocol);
+										}
+
+									} catch (OpenemsException e) {
+										this.logError(this.log, "Unable to add charger tasks for modbus protocol");
+									}
+								});
+					} catch (OpenemsException e) {
+						this.logError(this.log, "Unable to read element for serial number");
+						e.printStackTrace();
+					}
 				});
 
 		// Handles different DSP versions
@@ -1273,19 +1251,56 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		return protocol;
 	}
 
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+
+			// Set charger information for MPPTs having more than one PV e.g.
+			// GoodWeChargerTwoString.
+			this.setMultipleStringChannels();
+		}
+	}
+
 	/**
-	 * Get GoodWe hardware version by serial number.
+	 * Get GoodWe type from the GoodWe string representation.
+	 * 
+	 * @param stringValue GoodWe type as String
+	 * @return type as {@link GoodWeType}
+	 */
+	protected static GoodWeType getGoodWeTypeFromStringValue(String stringValue) {
+		if (stringValue == null || stringValue.isEmpty()) {
+			return GoodWeType.UNDEFINED;
+		}
+
+		return switch (stringValue) {
+		case "GW10K-BT" -> GoodWeType.GOODWE_10K_BT;
+		case "GW8K-BT" -> GoodWeType.GOODWE_8K_BT;
+		case "GW5K-BT" -> GoodWeType.GOODWE_5K_BT;
+		case "GW10K-ET" -> GoodWeType.GOODWE_10K_ET;
+		case "GW8K-ET" -> GoodWeType.GOODWE_8K_ET;
+		case "GW5K-ET" -> GoodWeType.GOODWE_5K_ET;
+		case "FHI-10-DAH" -> GoodWeType.FENECON_FHI_10_DAH;
+		default -> GoodWeType.UNDEFINED;
+		};
+	}
+
+	/**
+	 * Get GoodWe type from serial number.
 	 * 
 	 * @param serialNr Serial number
 	 * @return type as {@link GoodWeHardwareType}
 	 */
-	protected static GoodWeHardwareType getHardwareTypeFromSerialNr(String serialNr) {
-		if (serialNr.isEmpty()) {
-			return GoodWeHardwareType.UNDEFINED;
+	protected static GoodWeType getGoodWeTypeFromSerialNr(String serialNr) {
+		if (serialNr == null || serialNr.isEmpty()) {
+			return GoodWeType.UNDEFINED;
 		}
 
 		// Example serial numbers: default=9010KETT228W0004 float(29.9)=929K9ETT231W0159
-		return Stream.of(GoodWeHardwareType.values()) //
+		return Stream.of(GoodWeType.values()) //
 				.filter(t -> {
 					try {
 						return t.serialNrFilter.apply(serialNr);
@@ -1297,7 +1312,113 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					}
 				}) //
 				.findFirst() //
-				.orElse(GoodWeHardwareType.OTHER);
+				.orElse(GoodWeType.UNDEFINED);
+	}
+
+	/**
+	 * Handle multiple string chargers.
+	 * 
+	 * <p>
+	 * For MPPT connectors e.g. two string on one MPPT the power information is
+	 * spread over several registers that should be read as complete blocks.
+	 * 
+	 * @param protocol current protocol
+	 * @throws OpenemsException on error
+	 */
+	private void handleMultipleStringChargers(ModbusProtocol protocol) throws OpenemsException {
+		/*
+		 * For two string charger the registers the power information is spread over
+		 * several registers that should be read as complete blocks
+		 */
+		/*
+		 * Block 1: PV1 - PV4 voltage & current
+		 */
+		protocol.addTask(//
+
+				new FC3ReadRegistersTask(35103, Priority.HIGH, //
+						m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+
+						// Power having wrong values for two-string charger
+						new DummyRegisterElement(35105, 35106),
+
+						m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(35109, 35110),
+						m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(35113, 35114),
+						m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
+								ElementToChannelConverter.SCALE_FACTOR_2)) //
+		);
+
+		/*
+		 * Block 2: PV5 - PV6 voltage & current (would continue till PV16) and MPPT
+		 * total power and current values
+		 */
+		protocol.addTask(//
+				new FC3ReadRegistersTask(35304, Priority.HIGH, //
+						m(GoodWe.ChannelId.TWO_S_PV5_V, new UnsignedWordElement(35304),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV5_I, new UnsignedWordElement(35305),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV6_V, new UnsignedWordElement(35306),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV6_I, new UnsignedWordElement(35307),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						new DummyRegisterElement(35308, 35336),
+						m(GoodWe.ChannelId.TWO_S_MPPT1_P, new UnsignedWordElement(35337)),
+						m(GoodWe.ChannelId.TWO_S_MPPT2_P, new UnsignedWordElement(35338)),
+						m(GoodWe.ChannelId.TWO_S_MPPT3_P, new UnsignedWordElement(35339)),
+						new DummyRegisterElement(35340, 35344), // Power MPPT4 - MPPT8
+						m(GoodWe.ChannelId.TWO_S_MPPT1_I, new UnsignedWordElement(35345), //
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_MPPT2_I, new UnsignedWordElement(35346), //
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_MPPT3_I, new UnsignedWordElement(35347), //
+								ElementToChannelConverter.SCALE_FACTOR_2)) //
+		);
+	}
+
+	private void setMultipleStringChannels() {
+
+		this.chargers.stream() //
+				.filter(GoodWeChargerTwoString.class::isInstance) //
+				.map(GoodWeChargerTwoString.class::cast) //
+				.forEach(charger -> {
+					var pvPort = charger.pvPort();
+
+					// Get actual Channels
+					IntegerReadChannel totalMpptPowerChannel = this.channel(pvPort.mpptPowerChannelId);
+					IntegerReadChannel totalMpptCurrentChannel = this.channel(pvPort.mpptCurrentChannelId);
+					IntegerReadChannel stringCurrentChannel = this.channel(pvPort.pvCurrentId);
+					IntegerReadChannel stringVoltageChannel = this.channel(pvPort.pvVoltageId);
+
+					// Power value from the total MPPT power and current values
+					charger._setActualPower(//
+							GoodWeChargerTwoString.calculateByRuleOfThree(//
+									totalMpptPowerChannel.getNextValue().asOptional(), //
+									totalMpptCurrentChannel.getNextValue().asOptional(), //
+									stringCurrentChannel.getNextValue().asOptional()) //
+									// If at least one value was present, the result should not be null.
+									.orElse(0) //
+					);
+
+					/*
+					 * TODO: Could also be achieved by using listeners for onSetNextValue in
+					 * addCharger and removeCharger.
+					 */
+					charger._setCurrent(stringCurrentChannel.getNextValue().get());
+					charger._setVoltage(stringVoltageChannel.getNextValue().get());
+				});
 	}
 
 	private void handleDspVersion7(ModbusProtocol protocol) throws OpenemsException {

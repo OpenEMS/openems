@@ -28,7 +28,8 @@ public class ControllerEssFixStateOfChargeImplTest {
 	private static final String ESS_ID = "ess0";
 
 	// Components
-	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID, 10_000);
+	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID) //
+			.withMaxApparentPower(10_000);
 
 	// Defaults
 	private static final String DEFAULT_TARGET_TIME = "2022-10-27T10:30:00+01:00";

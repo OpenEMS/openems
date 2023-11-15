@@ -13,28 +13,28 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('GridBuy', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateX(17%)'
+                transform: 'translateX(17%)',
             })),
             transition('show => hide', animate('650ms')),
-            transition('hide => show', animate('0ms'))
+            transition('hide => show', animate('0ms')),
         ]),
         trigger('GridSell', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateX(0%)'
+                transform: 'translateX(0%)',
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateX(-17%)'
+                transform: 'translateX(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-in')),
+        ]),
+    ],
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -49,7 +49,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe
+        unitpipe: UnitvaluePipe,
     ) {
         super('General.grid', "left", "#1d1d1d", translate, service, "Grid");
         this.unitpipe = unitpipe;
@@ -180,7 +180,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
+            middleRight: { x: 0, y: 0 },
         };
         if (ratio > 0) {
             // towards left
@@ -202,7 +202,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             topRight: { x: v * -1, y: v * -1 },
             topLeft: { x: r * -1, y: v * -1 },
             middleLeft: { x: r * -1 + v, y: 0 },
-            middleRight: { x: 0, y: 0 }
+            middleRight: { x: 0, y: 0 },
         };
 
         if (ratio > 0) {

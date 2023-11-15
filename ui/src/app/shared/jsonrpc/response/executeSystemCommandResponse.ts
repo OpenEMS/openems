@@ -27,7 +27,7 @@ export class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
         public override readonly result: {
             stdout: string[],
             stderr: string[]
-        }
+        },
     ) {
         super(id, result);
     }
