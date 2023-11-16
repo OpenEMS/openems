@@ -14,7 +14,7 @@ import { Component } from "@angular/core";
       Erfahren Sie 
       <a target="_blank"
         href="https://fenecon.de/dynamische-stromtarife/">hier</a> 
-      mehr zum Beta-Test.
+      mehr!
     </ion-text>
   </ion-row>
 </ion-grid>
