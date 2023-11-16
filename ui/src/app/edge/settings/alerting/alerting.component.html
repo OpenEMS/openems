@@ -7,7 +7,7 @@
   <ion-grid *ngIf="!error; else error_view">
     <!-- Current User View -->
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="6" *ngIf="edge">
+      <ion-col size="12" size-md="6" *ngIf="currentUserInformation">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
@@ -16,7 +16,7 @@
             </ion-label>
             <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
-          <ion-card-content *ngIf="currentUserInformation">
+          <ion-card-content>
             <form>
               <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
                 [options]="currentUserForm.options" [form]="currentUserForm.formGroup">

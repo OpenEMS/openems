@@ -43,8 +43,6 @@ export class AlertingComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-    this.service.startSpinner(this.spinnerId);
-
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
       this.edge = edge;
 
@@ -62,8 +60,6 @@ export class AlertingComponent implements OnInit {
         }
       }).catch(error => {
         this.error = error.error;
-      }).finally(() => {
-        this.service.stopSpinner(this.spinnerId);
       });
     });
   }
@@ -293,7 +289,6 @@ export class AlertingComponent implements OnInit {
    * @returns @GetUserAlertingConfigsResponse containing logged in users data, as well as data other users, if user is admin
    */
   private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
-    this.service.startSpinner(this.spinnerId);
     this.sendRequest(request)
       .then(() => {
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -304,9 +299,6 @@ export class AlertingComponent implements OnInit {
       .catch((response) => {
         let error = response.error;
         this.errorToast(this.translate.instant('General.changeFailed'), error.message);
-      })
-      .finally(() => {
-        this.service.stopSpinner(this.spinnerId);
       });
   }
 
@@ -317,6 +309,7 @@ export class AlertingComponent implements OnInit {
    */
   private sendRequest(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest): Promise<GetUserAlertingConfigsResponse> {
     return new Promise((resolve, reject) => {
+      this.service.startSpinner(this.spinnerId);
       this.websocket.sendRequest(request).then(response => {
         resolve(response as GetUserAlertingConfigsResponse);
       }).catch(reason => {
@@ -324,6 +317,8 @@ export class AlertingComponent implements OnInit {
         console.error(error);
         this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
         reject(reason);
+      }).finally(() => {
+        this.service.stopSpinner(this.spinnerId);
       });
     });
   }
