@@ -11,6 +11,8 @@ import { ChannelAddress, Utils } from 'src/app/shared/shared';
 export class ChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
+
+
     this.spinnerId = 'autarchy-chart';
     return {
       input:

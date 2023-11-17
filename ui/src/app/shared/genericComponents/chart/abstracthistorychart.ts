@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { de } from 'date-fns/locale';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -18,9 +19,9 @@ import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/qu
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 import { ColorUtils } from '../../utils/color/color.utils';
+import { DateUtils } from '../../utils/dateutils/dateutils';
 
 import 'chartjs-adapter-date-fns';
-import { DateUtils } from '../../utils/dateutils/dateutils';
 
 // TODO
 // - fix x Axes last tick to be 00:00 not 23:00
@@ -543,7 +544,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       //     bar: {},
       //     line: {}
       //   },
-      //   plugins: {
+      //   plugins: { 
       //     colors: {
       //       enabled: false
       //     },
@@ -765,6 +766,32 @@ export abstract class AbstractHistoryChart implements OnInit {
       // We hid a dataset ... rerender the chart
       chart.update();
     };
+
+    options.plugins.zoom = {
+      pan: {
+        enabled: true,
+        mode: 'x'
+      },
+      zoom: {
+
+        // Select-window that will be zoomed in
+        drag: {
+          enabled: false,
+        },
+        // Mouse-wheel
+        wheel: {
+          speed: 0.1,
+          enabled: true
+        },
+        pinch: {
+          enabled: false
+        },
+        mode: 'x',
+      }
+    }
+
+    Chart.Chart.register(zoomPlugin);
+
     return options;
   }
 

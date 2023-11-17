@@ -1,14 +1,14 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as  Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChartAxis, Utils } from 'src/app/shared/service/utils';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import * as Chart from 'chart.js';
-import { formatNumber } from '@angular/common';
-import { calculateResolution } from '../shared';
+import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS } from '../shared';
 
 @Component({
   selector: 'channelthresholdSingleChart',
@@ -94,17 +94,35 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    options.scales['y'] = { title: { text: this.translate.instant('General.percentage') }, max: 100 };
-    options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
-    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-      let label = tooltipItem.label;
-      let value = tooltipItem.dataset[tooltipItem.dataIndex];
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+    let options: Chart.ChartOptions = Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+
+    // Can be ignored when refactored
+    options.scales['y'] = { display: false }
+
+    options.plugins.legend.title = {
+      text: 'test',
+      position: 'start'
+    }
+
+    options.scales[ChartAxis.LEFT] = {
+      max: 100,
+      min: 0,
+      position: 'left',
+      type: 'linear',
+      display: true,
+      title: {
+        text: this.translate.instant('General.percentage'),
+        display: true
+      },
+      ticks: {
+        padding: 5,
+        stepSize: 20
+      }
     };
+    console.log("🚀 ~ file: singlechart.component.ts:102 ~ ChannelthresholdSingleChartComponent ~ setLabel ~ options.scales:", options.scales)
 
-
-    // options.scales.yAxes[0].ticks.max = 100;
+    options.plugins.legend.display = true;
+    options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
     this.options = options;
   }
 

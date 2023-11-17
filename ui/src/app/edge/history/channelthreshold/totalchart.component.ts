@@ -116,16 +116,13 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
+    // options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
     options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
       let label = tooltipItem.label;
-      let value = tooltipItem.dataset[tooltipItem.dataIndex];
+      let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
       return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      // let label = data.datasets[tooltipItem.datasetIndex].label;
-      // let value = tooltipItem.yLabel;
-      // return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
     };
-    options.scales.yAxes[0].ticks.max = 100;
+    // options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 

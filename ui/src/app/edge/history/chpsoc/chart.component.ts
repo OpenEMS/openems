@@ -1,12 +1,12 @@
+import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import * as Chart from 'chart.js';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import * as Chart from 'chart.js';
-import { formatNumber } from '@angular/common';
 
 @Component({
     selector: 'chpsocchart',
@@ -28,7 +28,6 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     ) {
         super("chpsoc-chart", service, translate);
     }
-
 
     ngOnInit() {
         this.startSpinner();
@@ -165,9 +164,6 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
             let label = tooltipItem.label;
             let value = tooltipItem.dataset[tooltipItem.dataIndex];
             return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
         };
         options.scales.yAxes[0].ticks.max = 100;
         this.options = options;

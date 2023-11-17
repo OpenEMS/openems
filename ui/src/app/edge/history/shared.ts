@@ -1,10 +1,11 @@
 import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Service } from 'src/app/shared/shared';
-import { AbstractHistoryChart } from './abstracthistorychart';
 import { de } from 'date-fns/locale';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChartAxis } from 'src/app/shared/service/utils';
+import { ChannelAddress, Service } from 'src/app/shared/shared';
+
+import { AbstractHistoryChart } from './abstracthistorychart';
 
 export interface Dataset {
     label: string;
@@ -167,6 +168,7 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
         },
         legend: {
             display: true,
+
             position: 'bottom',
             labels: {
                 generateLabels: (chart: Chart.Chart) => { return null; }
@@ -219,7 +221,6 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
                 }
             }
         },
-        [ChartAxis.LEFT]: {}
     },
 };
 

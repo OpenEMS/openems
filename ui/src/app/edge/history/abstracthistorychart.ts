@@ -1,17 +1,16 @@
-import { Data } from '@angular/router';
+import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { differenceInDays, differenceInMonths } from 'date-fns';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
-
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
 import { HistoryUtils } from 'src/app/shared/service/utils';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
+
+import { calculateResolution, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, Unit } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -151,19 +150,25 @@ export abstract class AbstractHistoryChart {
     }
 
     /**
-     * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
-     * 
-     * @param fromDate the From-Date
-     * @param toDate the To-Date 
-     * @param date Date from TooltipItem
-     * @returns period for Tooltip Header
-     */
-    protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
-        if (this.service.periodString == 'year') {
+  * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
+  * 
+  * @param fromDate the From-Date
+  * @param toDate the To-Date 
+  * @param date Date from TooltipItem
+  * @returns period for Tooltip Header
+  */
+    protected static toTooltipTitle(fromDate: Date, toDate: Date, date: Date, service: Service): string {
+        let unit = calculateResolution(service, fromDate, toDate).resolution.unit;
+        if (unit == Unit.MONTHS) {
+            // Yearly view
             return date.toLocaleDateString('default', { month: 'long' });
-        } else if (this.service.periodString == 'month') {
+
+        } else if (unit == Unit.DAYS) {
+            // Monthly view
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
+
         } else {
+            // Default
             return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
         }
     }
@@ -178,18 +183,19 @@ export abstract class AbstractHistoryChart {
     protected createDefaultChartOptions(): Chart.ChartOptions {
         let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
-        options.scales['x'] = {
-            time: { unit: "hour" }
-        }
-
-
         // Overwrite TooltipsTitle
         options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
             let date = new Date(tooltipItems[0].label);
-            return this.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date);
+            return AbstractHistoryChart.toTooltipTitle(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, date, this.service);
         };
 
-        //x-axis
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+
+            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
+        };
+
         options.scales.x['time'].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
         return options;
     }
