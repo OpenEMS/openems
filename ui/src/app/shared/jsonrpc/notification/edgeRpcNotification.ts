@@ -22,7 +22,7 @@ export class EdgeRpcNotification extends JsonrpcNotification {
         public override readonly params: {
             edgeId: string,
             payload: JsonrpcNotification
-        },
+        }
     ) {
         super(EdgeRpcNotification.METHOD, params);
     }

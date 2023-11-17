@@ -36,11 +36,11 @@ import { UserModule } from './user/user.module';
     ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
     StatusSingleComponent,
-    SystemLogComponent,
+    SystemLogComponent
   ],
   entryComponents: [
     ChartOptionsPopoverComponent,
-    PickDatePopoverComponent,
+    PickDatePopoverComponent
   ],
   imports: [
     AngularMyDatePickerModule,
@@ -56,7 +56,7 @@ import { UserModule } from './user/user.module';
     SharedModule,
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
     UserModule,
-    RegistrationModule,
+    RegistrationModule
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -66,9 +66,9 @@ import { UserModule } from './user/user.module';
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     Pagination,
-    CheckForUpdateService,
+    CheckForUpdateService
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

@@ -24,7 +24,7 @@ export class GetEdgeRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             edgeId: string
-        },
+        }
     ) {
         super(GetEdgeRequest.METHOD, params);
     }

@@ -8,7 +8,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'history',
-  templateUrl: './history.component.html',
+  templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {
 
@@ -36,7 +36,7 @@ export class HistoryComponent implements OnInit {
   constructor(
     public service: Service,
     public translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -77,11 +77,11 @@ export class HistoryComponent implements OnInit {
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
     this.socChartHeight =
       /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref),
+      /* maximium size */ Math.min(200, ref)
     ) + "px";
     this.energyChartHeight =
       /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref),
+      /* maximium size */ Math.min(600, ref)
     ) + "px";
   }
 }

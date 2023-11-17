@@ -9,7 +9,7 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
     template: `
     <ion-content></ion-content>
          <ion-router-outlet id="content"></ion-router-outlet>
-    `,
+    `
 })
 export class EdgeComponent implements OnInit, OnDestroy {
 
@@ -19,7 +19,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private service: Service,
-        private websocket: Websocket,
+        private websocket: Websocket
     ) { }
 
     public ngOnInit(): void {
@@ -34,7 +34,7 @@ export class EdgeComponent implements OnInit, OnDestroy {
 
                         // Subscribe on these channels for the state in HeaderComponent
                         edge.subscribeChannels(this.websocket, '', [
-                            new ChannelAddress('_sum', 'State'),
+                            new ChannelAddress('_sum', 'State')
                         ]);
                     });
             }).catch(() => {

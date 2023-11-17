@@ -27,7 +27,7 @@ export class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
         public override readonly result: {
             timestamps: string[],
             data: { [channelAddress: string]: any[] }
-        },
+        }
     ) {
         super(id, result);
     }

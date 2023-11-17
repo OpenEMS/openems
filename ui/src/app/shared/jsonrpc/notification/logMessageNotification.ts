@@ -22,7 +22,7 @@ export class LogMessageNotification extends JsonrpcNotification {
         public override readonly params: {
             level: Level,
             msg: string
-        },
+        }
     ) {
         super(LogMessageNotification.METHOD, params);
     }

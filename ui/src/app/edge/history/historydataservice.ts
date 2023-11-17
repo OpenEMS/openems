@@ -14,7 +14,7 @@ export class HistoryDataService extends DataService {
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
-    @Inject(Service) protected service: Service,
+    @Inject(Service) protected service: Service
   ) {
     super();
   }

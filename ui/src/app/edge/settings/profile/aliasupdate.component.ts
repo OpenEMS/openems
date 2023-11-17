@@ -6,7 +6,7 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
     selector: 'aliasupdate',
-    templateUrl: './aliasupdate.component.html',
+    templateUrl: './aliasupdate.component.html'
 })
 export class AliasUpdateComponent implements OnInit {
 
@@ -22,7 +22,7 @@ export class AliasUpdateComponent implements OnInit {
         private route: ActivatedRoute,
         private websocket: Websocket,
         private translate: TranslateService,
-        private formBuilder: FormBuilder,
+        private formBuilder: FormBuilder
     ) { }
 
     ngOnInit() {
@@ -35,7 +35,7 @@ export class AliasUpdateComponent implements OnInit {
             this.factory = config.factories[this.component.factoryId];
             this.componentIcon = config.getFactoryIcon(this.factory);
             this.formGroup = this.formBuilder.group({
-                alias: new FormControl(this.component.alias),
+                alias: new FormControl(this.component.alias)
             });
         });
     }
@@ -47,7 +47,7 @@ export class AliasUpdateComponent implements OnInit {
                 this.service.toast(this.translate.instant('General.inputNotValid'), 'danger');
             } else {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                    { name: 'alias', value: newAlias },
+                    { name: 'alias', value: newAlias }
                 ]).then(() => {
                     this.formGroup.markAsPristine();
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');

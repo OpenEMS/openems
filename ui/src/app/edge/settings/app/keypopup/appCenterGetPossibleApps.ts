@@ -44,7 +44,7 @@ export namespace AppCenterGetPossibleApps {
         public constructor(
             public override readonly params: {
                 key: string
-            },
+            }
         ) {
             super(METHOD, params);
         }
@@ -56,7 +56,7 @@ export namespace AppCenterGetPossibleApps {
             public override readonly id: string,
             public override readonly result: {
                 bundles: (App[])[]
-            },
+            }
         ) {
             super(id, result);
         }

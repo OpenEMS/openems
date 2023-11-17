@@ -36,7 +36,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
-        private dataService: DataService,
+        private dataService: DataService
     ) {
     }
 

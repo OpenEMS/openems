@@ -9,7 +9,7 @@ export enum Mode {
 }
 
 @Component({
-    templateUrl: './modal.html',
+    templateUrl: './modal.html'
 })
 export class ModalComponent extends AbstractModal {
 
@@ -20,13 +20,13 @@ export class ModalComponent extends AbstractModal {
         return this.formBuilder.group({
             mode: new FormControl(this.component.properties.mode),
             controlMode: new FormControl(this.component.properties.controlMode),
-            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === Mode.CHARGE_CONSUMPTION ? true : false),
+            chargeConsumptionIsActive: new FormControl(this.component.properties.controlMode === Mode.CHARGE_CONSUMPTION ? true : false)
         });
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
-            new ChannelAddress(this.component.id, 'QuarterlyPrices'),
+            new ChannelAddress(this.component.id, 'QuarterlyPrices')
         ];
     }
 

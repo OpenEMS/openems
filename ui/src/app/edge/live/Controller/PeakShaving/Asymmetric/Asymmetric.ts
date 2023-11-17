@@ -7,7 +7,7 @@ import { Controller_Asymmetric_PeakShavingModalComponent } from './modal/modal.c
 
 @Component({
     selector: 'Controller_Asymmetric_PeakShaving',
-    templateUrl: './Asymmetric.html',
+    templateUrl: './Asymmetric.html'
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
 
@@ -23,7 +23,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             new ChannelAddress(this.meterId, 'ActivePower'),
             new ChannelAddress(this.meterId, 'ActivePowerL1'),
             new ChannelAddress(this.meterId, 'ActivePowerL2'),
-            new ChannelAddress(this.meterId, 'ActivePowerL3'),
+            new ChannelAddress(this.meterId, 'ActivePowerL3')
         ];
     }
 
@@ -32,7 +32,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
         let activePowerArray: number[] = [
             currentData.allComponents[this.meterId + '/ActivePowerL1'],
             currentData.allComponents[this.meterId + '/ActivePowerL2'],
-            currentData.allComponents[this.meterId + '/ActivePowerL3'],
+            currentData.allComponents[this.meterId + '/ActivePowerL3']
         ];
 
         let name: string[] = ['L1', 'L2', 'L3'];
@@ -41,7 +41,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
 
             // Show most stressed Phase
             name: name[activePowerArray.indexOf(Math.max(...activePowerArray))],
-            value: Math.max(...activePowerArray, 0),
+            value: Math.max(...activePowerArray, 0)
         });
 
         this.peakShavingPower = this.component.properties['peakShavingPower'];
@@ -54,8 +54,8 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             componentProps: {
                 component: this.component,
                 edge: this.edge,
-                mostStressedPhase: this.mostStressedPhase,
-            },
+                mostStressedPhase: this.mostStressedPhase
+            }
         });
         return await modal.present();
     }

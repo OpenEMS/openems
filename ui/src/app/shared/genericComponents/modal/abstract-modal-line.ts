@@ -93,7 +93,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         @Inject(ModalController) protected modalCtrl: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        private ref: ChangeDetectorRef,
+        private ref: ChangeDetectorRef
     ) {
         ref.detach();
         setInterval(() => {

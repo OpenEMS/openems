@@ -36,17 +36,17 @@ export const theme = {
         warranty: {
             home: {
                 EN: "#",
-                DE: "#",
+                DE: "#"
             },
             commercial: {
                 EN: "#",
-                DE: "#",
-            },
+                DE: "#"
+            }
         },
 
         gtc: {
             EN: "#",
-            DE: "#",
+            DE: "#"
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
@@ -55,18 +55,18 @@ export const theme = {
         MANUALS: {
             HOME: {
                 EN: "#",
-                DE: "#",
+                DE: "#"
             },
             COMMERCIAL: {
                 EN: "#",
-                DE: "#",
-            },
+                DE: "#"
+            }
         },
         APP_CENTER: {
             APP_IMAGE: (language: string, appId: string): string | null => {
                 return null;
-            },
-        },
+            }
+        }
     },
-    PRODUCT_TYPES: () => null,
+    PRODUCT_TYPES: () => null
 };

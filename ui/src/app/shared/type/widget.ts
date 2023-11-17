@@ -134,7 +134,7 @@ export class Widgets {
         /**
          * List of Widget-Classes.
          */
-        public readonly classes: String[],
+        public readonly classes: String[]
     ) {
         // fill names
         for (let widget of list) {

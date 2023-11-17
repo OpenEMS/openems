@@ -3,7 +3,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Role } from '../../type/role';
 
 @Pipe({
-    name: 'version',
+    name: 'version'
 })
 export class VersionPipe implements PipeTransform {
 

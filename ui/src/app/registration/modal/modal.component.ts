@@ -9,7 +9,7 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
-  templateUrl: './modal.component.html',
+  templateUrl: './modal.component.html'
 })
 export class RegistrationModalComponent implements OnInit {
 
@@ -22,7 +22,7 @@ export class RegistrationModalComponent implements OnInit {
     public modalCtrl: ModalController,
     private translate: TranslateService,
     private service: Service,
-    private websocket: Websocket,
+    private websocket: Websocket
   ) { }
 
   ngOnInit() {
@@ -75,17 +75,17 @@ export class RegistrationModalComponent implements OnInit {
           street: this.formGroup.value.street,
           zip: this.formGroup.value.zip,
           city: this.formGroup.value.city,
-          country: this.formGroup.value.country,
+          country: this.formGroup.value.country
         },
-        role: this.activeSegment,
+        role: this.activeSegment
       },
-      oem: environment.theme,
+      oem: environment.theme
     });
 
     let companyName = this.formGroup.value.companyName;
     if (companyName) {
       request.params.user.company = {
-        name: companyName,
+        name: companyName
       };
     }
 
@@ -117,7 +117,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     } else {
       return this.formBuilder.group({
@@ -131,7 +131,7 @@ export class RegistrationModalComponent implements OnInit {
         email: new FormControl("", [Validators.required, Validators.email]),
         confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+        confirmPassword: new FormControl("", Validators.required)
       });
     }
   }

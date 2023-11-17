@@ -27,7 +27,7 @@ export class GetScheduleResponse extends JsonrpcResponseSuccess {
                 price: number;
                 state: number;
             }]
-        },
+        }
     ) {
         super(id, result);
     }

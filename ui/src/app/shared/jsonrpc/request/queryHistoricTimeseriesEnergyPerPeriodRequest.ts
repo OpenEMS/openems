@@ -31,14 +31,14 @@ export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
         private fromDate: Date,
         private toDate: Date,
         private channels: ChannelAddress[],
-        private resolution: Resolution,
+        private resolution: Resolution
     ) {
         super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),
             channels: JsonRpcUtils.channelsToStringArray(channels),
-            resolution: resolution,
+            resolution: resolution
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.fromDate;

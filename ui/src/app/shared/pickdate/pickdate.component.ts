@@ -9,7 +9,7 @@ import { PickDatePopoverComponent } from './popover/popover.component';
 
 @Component({
     selector: 'pickdate',
-    templateUrl: './pickdate.component.html',
+    templateUrl: './pickdate.component.html'
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 
@@ -25,7 +25,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverCtrl: PopoverController,
+        public popoverCtrl: PopoverController
     ) { }
 
     public ngOnInit() {
@@ -334,8 +334,8 @@ export class PickDateComponent implements OnInit, OnDestroy {
             cssClass: 'pickdate-popover',
             componentProps: {
                 setDateRange: this.setDateRange,
-                edge: this.edge,
-            },
+                edge: this.edge
+            }
         });
         await popover.present();
         popover.onDidDismiss().then(() => {

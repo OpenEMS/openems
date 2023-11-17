@@ -19,7 +19,7 @@ export class Base64PayloadResponse extends JsonrpcResponseSuccess {
         public override readonly id: string,
         public override readonly result: {
             payload: string
-        },
+        }
     ) {
         super(id, result);
     }

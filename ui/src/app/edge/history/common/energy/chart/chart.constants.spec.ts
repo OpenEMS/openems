@@ -16,18 +16,18 @@ export function expectView(config: EdgeConfig, testContext: TestContext, chartTy
 export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.Dataset.LegendLabel, options: OeChartTester.Dataset.Option) => ({
   data: data,
   labels: labels,
-  options: options,
+  options: options
 });
 
 export const DATA = (name: string, value: number[]): OeChartTester.Dataset.Data => ({
   type: "data",
   label: name,
-  value: value,
+  value: value
 });
 
 export const LABELS = (timestamps: string[]): OeChartTester.Dataset.LegendLabel => ({
   type: "label",
-  timestamps: timestamps.map(element => new Date(element)),
+  timestamps: timestamps.map(element => new Date(element))
 });
 
 export const OPTIONS = (options: OeChartTester.Dataset.Option): OeChartTester.Dataset.Option => options;

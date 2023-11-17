@@ -1,4 +1,3 @@
-import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";

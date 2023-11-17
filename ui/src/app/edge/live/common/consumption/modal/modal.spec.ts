@@ -18,7 +18,7 @@ describe('Consumption - Modal', () => {
         '_sum/ConsumptionActivePower': -1000,
         '_sum/ConsumptionActivePowerL1': -1000,
         '_sum/ConsumptionActivePowerL2': 1000,
-        '_sum/ConsumptionActivePowerL3': -1000,
+        '_sum/ConsumptionActivePowerL3': -1000
       };
       const EMS = DummyConfig.from();
 
@@ -31,8 +31,8 @@ describe('Consumption - Modal', () => {
           CHANNEL_LINE("Phase L3", "0 W", TextIndentation.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
+          LINE_INFO_PHASES_DE
+        ]
       });
     }
 
@@ -43,7 +43,7 @@ describe('Consumption - Modal', () => {
         SOCOMEC_CONSUMPTION_METER("meter1", "Heizung"),
         EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
         EVCS_KEBA_KECONTACT("evcs1", "Evcs 2"),
-        EVCS_KEBA_KECONTACT("evcs2", "Evcs 3"),
+        EVCS_KEBA_KECONTACT("evcs2", "Evcs 3")
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
         '_sum/ConsumptionActivePower': 1000,
@@ -60,7 +60,7 @@ describe('Consumption - Modal', () => {
         'meter1/ActivePowerL3': null,
         'evcs0/ChargePower': 1000,
         'evcs1/ChargePower': -1000,
-        'evcs2/ChargePower': null,
+        'evcs2/ChargePower': null
       };
 
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
@@ -88,22 +88,22 @@ describe('Consumption - Modal', () => {
           CHANNEL_LINE("Phase L3", "-", TextIndentation.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
+          LINE_INFO_PHASES_DE
+        ]
       });
     }
 
     // No consumptionMeter, one evcs
     {
       const EMS = DummyConfig.from(
-        EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
+        EVCS_KEBA_KECONTACT("evcs0", "Evcs")
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
         '_sum/ConsumptionActivePower': 1000,
         '_sum/ConsumptionActivePowerL1': 300,
         '_sum/ConsumptionActivePowerL2': 350,
         '_sum/ConsumptionActivePowerL3': 350,
-        'evcs0/ChargePower': 1000,
+        'evcs0/ChargePower': 1000
       };
 
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
@@ -117,15 +117,15 @@ describe('Consumption - Modal', () => {
           CHANNEL_LINE("Evcs", "1.000 W"),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
+          LINE_INFO_PHASES_DE
+        ]
       });
     }
 
     // One consumptionMeter, no evcs
     {
       const EMS = DummyConfig.from(
-        SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
+        SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe")
       );
       const VIEW_CONTEXT: OeFormlyViewTester.Context = {
         '_sum/ConsumptionActivePower': 1000,
@@ -135,7 +135,7 @@ describe('Consumption - Modal', () => {
         'meter0/ActivePower': 1000,
         'meter0/ActivePowerL1': 1000,
         'meter0/ActivePowerL2': -1000,
-        'meter0/ActivePowerL3': 1000,
+        'meter0/ActivePowerL3': 1000
       };
 
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
@@ -152,8 +152,8 @@ describe('Consumption - Modal', () => {
           CHANNEL_LINE("Phase L3", "1.000 W", TextIndentation.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
+          LINE_INFO_PHASES_DE
+        ]
       });
     }
   });

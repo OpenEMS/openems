@@ -10,7 +10,7 @@ import * as Chart from 'chart.js';
 
 @Component({
   selector: EvcsChartComponent.SELECTOR,
-  templateUrl: './evcs.chart.html',
+  templateUrl: './evcs.chart.html'
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
@@ -30,7 +30,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
 
   constructor(
     protected translate: TranslateService,
-    public modalController: ModalController,
+    public modalController: ModalController
   ) { }
 
   ngOnInit() {
@@ -39,7 +39,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     this.options.scales.yAxes[0].ticks.max = this.getMaxPower();
     this.labels = ['Ladeleistung'];
     this.datasets = [
-      { data: [], label: '' },
+      { data: [], label: '' }
     ];
 
   }
@@ -63,7 +63,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
       if (this.datasets[index] == null) {
         this.datasets.push({
           label: alias,
-          data: [chargePowerKW != null ? chargePowerKW : 0],
+          data: [chargePowerKW != null ? chargePowerKW : 0]
         });
       } else if (alias == "") { //this.datasets[index].label
         this.datasets[index].label = evcsId;
@@ -92,38 +92,38 @@ export class EvcsChartComponent implements OnInit, OnChanges {
 export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
   maintainAspectRatio: false,
   legend: {
-    position: 'bottom',
+    position: 'bottom'
   },
   elements: {
     point: {
       radius: 0,
       hitRadius: 0,
-      hoverRadius: 0,
+      hoverRadius: 0
     },
     line: {
       borderWidth: 2,
-      tension: 0.1,
-    },
+      tension: 0.1
+    }
   },
   hover: {
     mode: 'point',
-    intersect: true,
+    intersect: true
   },
   scales: {
     xAxes: [{
-      stacked: true,
+      stacked: true
     }],
     yAxes: [{
       scaleLabel: {
         display: true,
-        labelString: "",
+        labelString: ""
       },
       ticks: {
         beginAtZero: true,
-        max: 50,
+        max: 50
       },
-      stacked: true,
-    }],
+      stacked: true
+    }]
   },
   tooltips: {
     mode: 'index',
@@ -136,8 +136,8 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
         value = parseFloat(value.toFixed(2));
         let label = data.datasets[tooltipItems.datasetIndex].label;
         return label + ": " + value.toLocaleString('de-DE') + " kW";
-      },
-    },
+      }
+    }
   },
   annotation: {
     annotations: [{
@@ -149,10 +149,10 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
       borderWidth: 4,
       label: {
         enabled: true,
-        content: 'Test label',
-      },
-    }],
-  },
+        content: 'Test label'
+      }
+    }]
+  }
 };
 
 export type BarChartOptions = {

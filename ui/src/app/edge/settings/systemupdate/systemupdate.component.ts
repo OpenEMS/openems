@@ -5,7 +5,7 @@ import { Edge, Service, Utils } from '../../../shared/shared';
 
 @Component({
   selector: SystemUpdateComponent.SELECTOR,
-  templateUrl: './systemupdate.component.html',
+  templateUrl: './systemupdate.component.html'
 })
 export class SystemUpdateComponent implements OnInit {
 
@@ -22,7 +22,7 @@ export class SystemUpdateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service,
+    private service: Service
   ) { }
 
   ngOnInit() {

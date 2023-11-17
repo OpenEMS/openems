@@ -24,7 +24,7 @@ export class AuthenticateWithTokenRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             token: string
-        },
+        }
     ) {
         super(AuthenticateWithTokenRequest.METHOD, params);
     }

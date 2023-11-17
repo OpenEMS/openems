@@ -19,7 +19,7 @@ export class AddEdgeToUserRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             setupPassword: string
-        },
+        }
     ) {
         super(AddEdgeToUserRequest.METHOD, params);
     }

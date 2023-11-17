@@ -7,7 +7,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'totalDcChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
 })
 export class TotalDcChartComponent extends AbstractHistoryChart {
 
@@ -19,8 +19,8 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
             name: 'ProductionDcActual',
             powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
             energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
-            converter: (data) => data != null ? data : null,
-          },
+            converter: (data) => data != null ? data : null
+          }
         ],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
@@ -32,17 +32,17 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
             return data['ProductionDcActual'] ?? null;
           },
           strokeThroughHiddingStyle: false,
-          color: 'rgb(0,152,204)',
+          color: 'rgb(0,152,204)'
         }];
       },
       tooltip: {
-        formatNumber: '1.1-2',
+        formatNumber: '1.1-2'
       },
       yAxes: [{
         unit: YAxisTitle.ENERGY,
         position: 'left',
-        yAxisId: ChartAxis.LEFT,
-      }],
+        yAxisId: ChartAxis.LEFT
+      }]
     };
   }
 }

@@ -6,7 +6,7 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Ess_TimeOfUseTariff_Discharge',
-    templateUrl: './flat.html',
+    templateUrl: './flat.html'
 })
 export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
@@ -18,15 +18,15 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
         const modal = await this.modalController.create({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
-            },
+                component: this.component
+            }
         });
         return await modal.present();
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
-            new ChannelAddress(this.component.id, 'QuarterlyPrices'),
+            new ChannelAddress(this.component.id, 'QuarterlyPrices')
         ];
     }
 

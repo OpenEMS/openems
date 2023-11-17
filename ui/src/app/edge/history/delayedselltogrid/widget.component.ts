@@ -5,7 +5,7 @@ import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
     selector: DelayedSellToGridWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: './widget.component.html'
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class DelayedSellToGridWidgetComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {

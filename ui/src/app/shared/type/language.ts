@@ -74,7 +74,7 @@ export class Language {
         public readonly key: string,
         public readonly i18nLocaleKey: string,
         public readonly json: any,
-        public readonly locale: any,
+        public readonly locale: any
     ) {
     }
 }

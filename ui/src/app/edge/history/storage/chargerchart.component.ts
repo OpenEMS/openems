@@ -10,7 +10,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageChargerChart',
-    templateUrl: '../abstracthistorychart.html',
+    templateUrl: '../abstracthistorychart.html'
 })
 export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -26,7 +26,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("storage-charger-chart", service, translate);
     }
@@ -70,11 +70,11 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
                     datasets.push({
                         label: this.translate.instant('General.chargePower'),
                         data: chargerData,
-                        hidden: false,
+                        hidden: false
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)',
+                        borderColor: 'rgba(0,223,0,1)'
                     });
                 }
             });
@@ -92,7 +92,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActualPower'),
+                new ChannelAddress(this.componentId, 'ActualPower')
             ];
             resolve(result);
         });

@@ -33,7 +33,7 @@ export namespace AppCenterInstallAppWithSuppliedKeyRequest {
         public constructor(
             public override readonly params: {
                 installRequest: JsonrpcRequest
-            },
+            }
         ) {
             super(METHOD, params);
         }

@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Language } from '../../type/language';
 
 @Pipe({
-    name: 'unitvalue',
+    name: 'unitvalue'
 })
 export class UnitvaluePipe implements PipeTransform {
 

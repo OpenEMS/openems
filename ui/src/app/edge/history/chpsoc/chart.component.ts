@@ -10,7 +10,7 @@ import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'chpsocchart',
-    templateUrl: '../abstracthistorychart.html',
+    templateUrl: '../abstracthistorychart.html'
 })
 export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("chpsoc-chart", service, translate);
     }
@@ -74,11 +74,11 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             });
                             datasets.push({
                                 label: address.channelId,
-                                data: data,
+                                data: data
                             });
                             this.colors.push({
                                 backgroundColor: 'rgba(0,191,255,0.05)',
-                                borderColor: 'rgba(0,191,255,1)',
+                                borderColor: 'rgba(0,191,255,1)'
                             });
                         } else {
                             let data = result.data[channel].map(value => {
@@ -93,33 +93,33 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                             if (channel == inputChannel) {
                                 datasets.push({
                                     label: this.translate.instant('General.soc'),
-                                    data: data,
+                                    data: data
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,223,0,1)',
+                                    borderColor: 'rgba(0,223,0,1)'
                                 });
                             }
                             if (channel == lowThreshold) {
                                 datasets.push({
                                     label: this.translate.instant('Edge.Index.Widgets.CHP.lowThreshold'),
                                     data: data,
-                                    borderDash: [3, 3],
+                                    borderDash: [3, 3]
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    borderColor: 'rgba(0,191,255,1)'
                                 });
                             }
                             if (channel == highThreshold) {
                                 datasets.push({
                                     label: this.translate.instant('Edge.Index.Widgets.CHP.highThreshold'),
                                     data: data,
-                                    borderDash: [3, 3],
+                                    borderDash: [3, 3]
                                 });
                                 this.colors.push({
                                     backgroundColor: 'rgba(0,0,0,0)',
-                                    borderColor: 'rgba(0,191,255,1)',
+                                    borderColor: 'rgba(0,191,255,1)'
                                 });
                             }
                         }
@@ -152,7 +152,7 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                 outputChannel,
                 inputChannel,
                 new ChannelAddress(this.componentId, '_PropertyHighThreshold'),
-                new ChannelAddress(this.componentId, '_PropertyLowThreshold'),
+                new ChannelAddress(this.componentId, '_PropertyLowThreshold')
             ];
             resolve(result);
         });

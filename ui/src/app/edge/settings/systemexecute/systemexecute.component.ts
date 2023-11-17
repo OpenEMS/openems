@@ -8,7 +8,7 @@ import { Service, Utils, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
-  templateUrl: './systemexecute.component.html',
+  templateUrl: './systemexecute.component.html'
 })
 export class SystemExecuteComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class SystemExecuteComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 
@@ -41,8 +41,8 @@ export class SystemExecuteComponent implements OnInit {
         new ComponentJsonApiRequest({
           componentId: "_host",
           payload: new ExecuteSystemCommandRequest(
-            { username: username, password: password, timeoutSeconds: timeout, runInBackground: background, command: command },
-          ),
+            { username: username, password: password, timeoutSeconds: timeout, runInBackground: background, command: command }
+          )
         })).then(response => {
           let result = (response as ExecuteSystemCommandResponse).result;
           this.loading = false;

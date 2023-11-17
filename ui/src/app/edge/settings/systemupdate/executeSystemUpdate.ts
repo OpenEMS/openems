@@ -22,7 +22,7 @@ export class ExecuteSystemUpdate {
 
     public constructor(
         private edge: Edge,
-        private websocket: Websocket,
+        private websocket: Websocket
     ) {
     }
 
@@ -61,7 +61,7 @@ export class ExecuteSystemUpdate {
                 this.edge.sendRequest(this.websocket,
                     new ComponentJsonApiRequest({
                         componentId: "_host",
-                        payload: new GetSystemUpdateStateRequest(),
+                        payload: new GetSystemUpdateStateRequest()
                     })).then(response => {
                         let result = (response as GetSystemUpdateStateResponse).result;
 
@@ -93,7 +93,7 @@ export class ExecuteSystemUpdate {
             this.edge.sendRequest(this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: "_host",
-                    payload: new ExecuteSystemUpdateRequest({ isDebug: environment.debugMode }),
+                    payload: new ExecuteSystemUpdateRequest({ isDebug: environment.debugMode })
                 })).then(response => {
                     // Finished System Update (without restart of OpenEMS Edge)
                     let systemUpdateState = (response as GetSystemUpdateStateResponse).result;
@@ -123,7 +123,7 @@ export class ExecuteSystemUpdate {
         return new Promise<SystemUpdateState>((resolve, reject) => {
             const source = timer(0, 15000);
             source.pipe(
-                takeUntil(this.ngUnsubscribe),
+                takeUntil(this.ngUnsubscribe)
             ).subscribe(ignore => {
                 if (!this.edge.isOnline) {
                     return;

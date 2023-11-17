@@ -10,7 +10,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageSingleChart',
-    templateUrl: '../abstracthistorychart.html',
+    templateUrl: '../abstracthistorychart.html'
 })
 export class StorageSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("storage-single-chart", service, translate);
     }
@@ -126,30 +126,30 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                 if (channelAddress.channelId == "EssActivePower") {
                                     datasets.push({
                                         label: this.translate.instant('General.chargeDischarge'),
-                                        data: totalData,
+                                        data: totalData
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if ('_sum/EssActivePowerL1' && '_sum/EssActivePowerL2' && '_sum/EssActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'EssActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',
-                                            data: totalDataL1,
+                                            data: totalDataL1
                                         });
                                         this.colors.push(this.phase1Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL2') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L2',
-                                            data: totalDataL2,
+                                            data: totalDataL2
                                         });
                                         this.colors.push(this.phase2Color);
                                     } if (channelAddress.channelId == 'EssActivePowerL3') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L3',
-                                            data: totalDataL3,
+                                            data: totalDataL3
                                         });
                                         this.colors.push(this.phase3Color);
                                     }
@@ -187,7 +187,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
                 new ChannelAddress('_sum', 'EssActivePowerL1'),
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
-                new ChannelAddress('_sum', 'EssActivePowerL3'),
+                new ChannelAddress('_sum', 'EssActivePowerL3')
             ];
             resolve(result);
         });

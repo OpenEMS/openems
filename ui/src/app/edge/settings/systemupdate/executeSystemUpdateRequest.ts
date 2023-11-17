@@ -21,7 +21,7 @@ export class ExecuteSystemUpdateRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             isDebug: boolean
-        },
+        }
     ) {
         super(ExecuteSystemUpdateRequest.METHOD, params);
     }

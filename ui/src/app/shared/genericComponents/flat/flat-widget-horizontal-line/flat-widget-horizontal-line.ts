@@ -5,7 +5,7 @@ import { Component, Input } from "@angular/core";
  */
 @Component({
     selector: 'oe-flat-widget-horizontal-line',
-    templateUrl: './flat-widget-horizontal-line.html',
+    templateUrl: './flat-widget-horizontal-line.html'
 })
 export class FlatWidgetHorizontalLineComponent {
     /** Components-Array to iterate over */

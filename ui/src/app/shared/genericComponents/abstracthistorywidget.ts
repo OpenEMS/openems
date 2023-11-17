@@ -33,7 +33,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
     @Inject(ActivatedRoute) protected route: ActivatedRoute,
     @Inject(Service) public service: Service,
     @Inject(ModalController) protected modalController: ModalController,
-    @Inject(TranslateService) protected translate: TranslateService,
+    @Inject(TranslateService) protected translate: TranslateService
   ) { }
 
   public ngOnInit() {

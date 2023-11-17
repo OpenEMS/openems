@@ -6,7 +6,7 @@ import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
   selector: 'fixdigitaloutput-modal',
-  templateUrl: './modal.component.html',
+  templateUrl: './modal.component.html'
 })
 export class Controller_Io_FixDigitalOutputModalComponent {
 
@@ -18,7 +18,7 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     protected translate: TranslateService,
     public modalCtrl: ModalController,
     public router: Router,
-    public websocket: Websocket,
+    public websocket: Websocket
   ) { }
 
   /**  
@@ -35,7 +35,7 @@ export class Controller_Io_FixDigitalOutputModalComponent {
     let newMode = (event.detail.value.toLowerCase() === 'true');
 
     this.edge.updateComponentConfig(this.websocket, this.component.id, [
-      { name: 'isOn', value: newMode },
+      { name: 'isOn', value: newMode }
     ]).then(() => {
       this.component.properties.isOn = newMode;
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');

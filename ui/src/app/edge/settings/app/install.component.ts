@@ -19,7 +19,7 @@ import { hasPredefinedKey } from './permissions';
 
 @Component({
   selector: InstallAppComponent.SELECTOR,
-  templateUrl: './install.component.html',
+  templateUrl: './install.component.html'
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 
@@ -49,7 +49,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private service: Service,
     private modalController: ModalController,
     private router: Router,
-    private translate: TranslateService,
+    private translate: TranslateService
   ) {
   }
 
@@ -73,9 +73,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       this.edge.sendRequest(this.websocket,
         new AppCenter.Request({
           payload: new AppCenterIsAppFree.Request({
-            appId: this.appId,
-          }),
-        }),
+            appId: this.appId
+          })
+        })
       ).then(response => {
         const result = (response as AppCenterIsAppFree.Response).result;
         this.isAppFree = result.isAppFree;
@@ -91,7 +91,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: '_appManager',
-          payload: new GetAppAssistant.Request({ appId: appId }),
+          payload: new GetAppAssistant.Request({ appId: appId })
         })).then(response => {
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
 
@@ -134,15 +134,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           appId: this.appId,
           alias: alias,
           properties: clonedFields,
-          ...(key && { key: key }),
-        }),
+          ...(key && { key: key })
+        })
       });
       // if key not set send request with supplied key
       if (!key) {
         request = new AppCenter.Request({
           payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
-            installRequest: request,
-          }),
+            installRequest: request
+          })
         });
       }
 
@@ -206,9 +206,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         edge: this.edge,
         appId: this.appId,
         behaviour: KeyValidationBehaviour.SELECT,
-        appName: this.appName,
+        appName: this.appName
       },
-      cssClass: 'auto-height',
+      cssClass: 'auto-height'
     });
 
     const selectKeyPromise = new Promise<string>((resolve, reject) => {

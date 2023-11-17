@@ -14,7 +14,7 @@ export abstract class AbstractHistoryWidget {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     constructor(
-        protected service: Service,
+        protected service: Service
     ) { }
 
     /**

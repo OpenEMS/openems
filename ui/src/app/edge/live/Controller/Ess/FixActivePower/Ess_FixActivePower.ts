@@ -7,18 +7,18 @@ import { ModalComponent } from './modal/modal';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule,
+    SharedModule
   ],
   entryComponents: [
     FlatComponent,
-    ModalComponent,
+    ModalComponent
   ],
   declarations: [
     FlatComponent,
-    ModalComponent,
+    ModalComponent
   ],
   exports: [
-    FlatComponent,
-  ],
+    FlatComponent
+  ]
 })
 export class Controller_Ess_FixActivePower { }

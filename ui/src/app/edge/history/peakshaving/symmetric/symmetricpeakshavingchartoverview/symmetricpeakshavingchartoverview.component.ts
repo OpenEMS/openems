@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../../shared/shared';
 
 @Component({
     selector: SymmetricPeakshavingChartOverviewComponent.SELECTOR,
-    templateUrl: './symmetricpeakshavingchartoverview.component.html',
+    templateUrl: './symmetricpeakshavingchartoverview.component.html'
 })
 export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class SymmetricPeakshavingChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {

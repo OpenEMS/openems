@@ -29,7 +29,7 @@ export class CreateComponentConfigRequest extends JsonrpcRequest {
                 name: string,
                 value: any
             }[]
-        },
+        }
     ) {
         super(CreateComponentConfigRequest.METHOD, params);
     }

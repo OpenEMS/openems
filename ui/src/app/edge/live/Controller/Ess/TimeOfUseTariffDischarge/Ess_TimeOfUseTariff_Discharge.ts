@@ -8,20 +8,20 @@ import { ScheduleChartComponent } from "./modal/scheduleChart";
 @NgModule({
     imports: [
         BrowserModule,
-        SharedModule,
+        SharedModule
     ],
     entryComponents: [
         FlatComponent,
         ModalComponent,
-        ScheduleChartComponent,
+        ScheduleChartComponent
     ],
     declarations: [
         FlatComponent,
         ModalComponent,
-        ScheduleChartComponent,
+        ScheduleChartComponent
     ],
     exports: [
-        FlatComponent,
-    ],
+        FlatComponent
+    ]
 })
 export class Controller_Ess_TimeOfUseTariff_Discharge { }

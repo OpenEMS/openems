@@ -31,7 +31,7 @@ export class GetModbusProtocolResponse extends JsonrpcResponseSuccess {
                 unit: string,
                 type: string
             }]
-        },
+        }
     ) {
         super(id, result);
     }

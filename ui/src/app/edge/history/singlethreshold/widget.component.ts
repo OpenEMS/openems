@@ -9,7 +9,7 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: SinglethresholdWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: './widget.component.html'
 })
 export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }

@@ -10,13 +10,13 @@ import { LoginComponent } from './login.component';
 @NgModule({
   imports: [
     SharedModule,
-    RegistrationModule,
+    RegistrationModule
   ],
   declarations: [
     FilterComponent,
     SumStateComponent,
     LoginComponent,
-    OverViewComponent,
-  ],
+    OverViewComponent
+  ]
 })
 export class IndexModule { }

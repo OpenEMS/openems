@@ -20,7 +20,7 @@ export class UpdateUserLanguageRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             language: string
-        },
+        }
     ) {
         super(UpdateUserLanguageRequest.METHOD, params);
     }

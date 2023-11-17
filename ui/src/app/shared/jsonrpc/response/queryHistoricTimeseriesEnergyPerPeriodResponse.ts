@@ -20,7 +20,7 @@ export class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
         public override readonly result: {
             timestamps: string[],
             data: { [channelAddress: string]: any[] }
-        },
+        }
     ) {
         super(id, result);
     }

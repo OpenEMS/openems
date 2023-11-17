@@ -5,7 +5,7 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'Common_Autarchy',
-  templateUrl: './flat.html',
+  templateUrl: './flat.html'
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -14,20 +14,20 @@ export class FlatComponent extends AbstractFlatWidget {
   protected override getChannelAddresses(): ChannelAddress[] {
     return [
       new ChannelAddress('_sum', 'GridActivePower'),
-      new ChannelAddress('_sum', 'ConsumptionActivePower'),
+      new ChannelAddress('_sum', 'ConsumptionActivePower')
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
     this.percentageValue = Utils.calculateAutarchy(
       currentData.allComponents['_sum/GridActivePower'],
-      currentData.allComponents['_sum/ConsumptionActivePower'],
+      currentData.allComponents['_sum/ConsumptionActivePower']
     );
   }
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: ModalComponent,
+      component: ModalComponent
     });
     return await modal.present();
   }

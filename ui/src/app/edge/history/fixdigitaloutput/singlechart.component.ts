@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'fixDigitalOutputSingleChart',
-  templateUrl: '../abstracthistorychart.html',
+  templateUrl: '../abstracthistorychart.html'
 })
 export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +25,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("fixdigitaloutput-single-chart", service, translate);
   }
@@ -66,11 +66,11 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
         });
         datasets.push({
           label: address.channelId,
-          data: data,
+          data: data
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
+          borderColor: 'rgba(0,191,255,1)'
         });
       }
       this.datasets = datasets;

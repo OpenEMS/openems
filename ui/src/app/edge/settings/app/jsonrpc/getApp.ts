@@ -49,7 +49,7 @@ export namespace GetApp {
         public constructor(
             public override readonly params: {
                 appId: string
-            },
+            }
         ) {
             super(METHOD, {});
         }
@@ -61,7 +61,7 @@ export namespace GetApp {
             public override readonly id: string,
             public override readonly result: {
                 app: GetApps.App
-            },
+            }
         ) {
             super(id, result);
         }

@@ -9,7 +9,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 
 @Component({
     selector: 'predictionChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html',
+    templateUrl: '../../../../../history/abstracthistorychart.html'
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -28,7 +28,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("prediction-chart", service, translate);
     }
@@ -173,22 +173,22 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     data: socData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
+                    position: 'right'
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right',
+                    position: 'right'
                 });
 
                 // Push the depending colors 
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)',
+                    borderColor: 'rgba(189, 195, 199,1)'
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)',
+                    borderColor: 'rgba(0,223,0,1)'
                 });
             }
 
@@ -207,7 +207,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc'),
+                new ChannelAddress('_sum', 'EssSoc')
             ];
             if (this.component != null && this.component.id) {
                 result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
@@ -236,17 +236,17 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     display: true,
                     labelString: "%",
                     padding: -2,
-                    fontSize: 11,
+                    fontSize: 11
                 },
                 gridLines: {
-                    display: true,
+                    display: true
                 },
                 ticks: {
                     beginAtZero: true,
                     max: 100,
                     padding: -5,
-                    stepSize: 20,
-                },
+                    stepSize: 20
+                }
             });
 
         options.layout = {
@@ -254,8 +254,8 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 left: 2,
                 right: 2,
                 top: 0,
-                bottom: 0,
-            },
+                bottom: 0
+            }
         };
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";

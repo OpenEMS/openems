@@ -6,7 +6,7 @@ import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Ess_GridOptimizedCharge',
-    templateUrl: './flat.html',
+    templateUrl: './flat.html'
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -25,7 +25,7 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.componentId, "SellToGridLimitState"),
             new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.componentId, "_PropertyMode"),
+            new ChannelAddress(this.componentId, "_PropertyMode")
         ];
     }
     protected override onCurrentData(currentData: CurrentData) {
@@ -75,8 +75,8 @@ export class FlatComponent extends AbstractFlatWidget {
         const modal = await this.modalController.create({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
-            },
+                component: this.component
+            }
         });
         return await modal.present();
     }

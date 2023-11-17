@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'channelthresholdSingleChart',
-  templateUrl: '../abstracthistorychart.html',
+  templateUrl: '../abstracthistorychart.html'
 })
 export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +25,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     super("channelthreshold-single-chart", service, translate);
   }
@@ -66,11 +66,11 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
         });
         datasets.push({
           label: address.channelId,
-          data: data,
+          data: data
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
-          borderColor: 'rgba(0,191,255,1)',
+          borderColor: 'rgba(0,191,255,1)'
         });
       }
       this.datasets = datasets;

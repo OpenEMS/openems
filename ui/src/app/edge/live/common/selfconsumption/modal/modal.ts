@@ -5,7 +5,7 @@ import { EdgeConfig } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-    templateUrl: '../../../../../shared/formly/formly-field-modal/template.html',
+    templateUrl: '../../../../../shared/formly/formly-field-modal/template.html'
 })
 export class ModalComponent extends AbstractFormlyComponent {
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
@@ -17,8 +17,8 @@ export class ModalComponent extends AbstractFormlyComponent {
             title: translate.instant('General.selfConsumption'),
             lines: [{
                 type: 'info-line',
-                name: translate.instant("Edge.Index.Widgets.selfconsumptionInfo"),
-            }],
+                name: translate.instant("Edge.Index.Widgets.selfconsumptionInfo")
+            }]
         };
     }
 }

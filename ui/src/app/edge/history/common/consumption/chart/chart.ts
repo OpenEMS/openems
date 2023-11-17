@@ -92,10 +92,11 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
+              console.log("🚀 ~ file: chart.ts:96 ~ ChartComponent ~ consumptionMeters.forEach ~ data[meter.id + '/ActivePower']:", meter.alias, data[meter.id + '/ActivePower']);
               return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
-            stack: 2
+            stack: 1
           });
         });
 
@@ -107,10 +108,11 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, consumptionMeters);
             },
             converter: () => {
+
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
-            color: 'rgb(0,223,0)',
-            stack: 3
+            color: 'rgb(0,0,0)',
+            stack: 1
           });
         }
 

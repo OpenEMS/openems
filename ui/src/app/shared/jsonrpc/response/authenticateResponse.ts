@@ -24,7 +24,7 @@ export class AuthenticateResponse extends JsonrpcResponseSuccess {
             token: string,
             user: User,
             edges: Edges
-        },
+        }
     ) {
         super(id, result);
     }

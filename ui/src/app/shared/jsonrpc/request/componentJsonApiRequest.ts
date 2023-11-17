@@ -23,7 +23,7 @@ export class ComponentJsonApiRequest extends JsonrpcRequest {
         public override readonly params: {
             componentId: string,
             payload: JsonrpcRequest
-        },
+        }
     ) {
         super(ComponentJsonApiRequest.METHOD, params);
     }

@@ -21,7 +21,7 @@ export class GetEdgeResponse extends JsonrpcResponseSuccess {
         public override readonly id: string,
         public override readonly result: {
             edge: Edge
-        },
+        }
     ) {
         super(id, result);
     }

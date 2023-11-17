@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chartOptions',
-    templateUrl: './chartoptions.component.html',
+    templateUrl: './chartoptions.component.html'
 })
 export class ChartOptionsComponent {
 
@@ -18,7 +18,7 @@ export class ChartOptionsComponent {
     constructor(
         public service: Service,
         public translate: TranslateService,
-        public popoverCtrl: PopoverController,
+        public popoverCtrl: PopoverController
     ) { }
 
     async presentPopover(ev: any) {
@@ -33,7 +33,7 @@ export class ChartOptionsComponent {
             component: ChartOptionsPopoverComponent,
             event: ev,
             translucent: false,
-            componentProps: componentProps,
+            componentProps: componentProps
         });
         await popover.present();
         popover.onDidDismiss().then((data) => {

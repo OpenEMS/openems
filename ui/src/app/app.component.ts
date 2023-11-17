@@ -13,7 +13,7 @@ import { Language } from './shared/type/language';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html',
+  templateUrl: 'app.component.html'
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     private globalRouteChangeHandler: GlobalRouteChangeHandler,
     private titleService: Title,
-    private meta: Meta,
+    private meta: Meta
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
@@ -60,9 +60,9 @@ export class AppComponent implements OnInit, OnDestroy {
         buttons: [
           {
             text: 'Ok',
-            role: 'cancel',
-          },
-        ],
+            role: 'cancel'
+          }
+        ]
       });
       toast.present();
     });
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
       // OEM colors exist only after ionic is initialized, so the notch color has to be set here
       const notchColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-background');
       this.meta.updateTag(
-        { name: 'theme-color', content: notchColor },
+        { name: 'theme-color', content: notchColor }
       );
       this.service.deviceHeight = this.platform.height();
       this.service.deviceWidth = this.platform.width();

@@ -11,7 +11,7 @@ import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/g
 
 @Component({
     selector: 'scheduleChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html',
+    templateUrl: '../../../../../history/abstracthistorychart.html'
 })
 export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -30,7 +30,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
         protected override service: Service,
         protected override translate: TranslateService,
         private route: ActivatedRoute,
-        private websocket: Websocket,
+        private websocket: Websocket
     ) {
         super("schedule-chart", service, translate);
     }
@@ -53,7 +53,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
 
         this.edge.sendRequest(
             this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
+            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() })
         ).then(response => {
             var result = (response as GetScheduleResponse).result;
             var length = result.schedule.length;
@@ -97,12 +97,12 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
                 type: 'bar',
                 label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
                 data: barBalancing,
-                order: 3,
+                order: 3
             });
             this.colors.push({
                 // Dark Green
                 backgroundColor: 'rgba(51,102,0,0.8)',
-                borderColor: 'rgba(51,102,0,1)',
+                borderColor: 'rgba(51,102,0,1)'
             });
 
             // Set dataset for Quarterly Prices being charged.
@@ -110,12 +110,12 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
                 type: 'bar',
                 label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
                 data: barCharge,
-                order: 3,
+                order: 3
             });
             this.colors.push({
                 // Sky blue
                 backgroundColor: 'rgba(0, 204, 204,0.5)',
-                borderColor: 'rgba(0, 204, 204,0.7)',
+                borderColor: 'rgba(0, 204, 204,0.7)'
             });
 
             // Set dataset for buy from grid
@@ -123,12 +123,12 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
                 type: 'bar',
                 label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
                 data: barDelayDischarge,
-                order: 3,
+                order: 3
             });
             this.colors.push({
                 // Black
                 backgroundColor: 'rgba(0,0,0,0.8)',
-                borderColor: 'rgba(0,0,0,0.9)',
+                borderColor: 'rgba(0,0,0,0.9)'
             });
 
             this.datasets = datasets;

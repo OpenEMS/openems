@@ -4,7 +4,7 @@ import { OptionGroup, OptionGroupConfig, Option } from "./optionGroupPickerConfi
 
 @Component({
     selector: 'formly-option-group-picker',
-    templateUrl: './formly-option-group-picker.component.html',
+    templateUrl: './formly-option-group-picker.component.html'
 })
 export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig> implements OnInit {
 
@@ -56,9 +56,9 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
                         return {
                             value: optionConfig.value,
                             title: optionConfig.expressions?.title?.(field) ?? optionConfig.title ?? optionConfig.value,
-                            disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false,
+                            disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false
                         };
-                    }),
+                    })
             };
         }).filter(group => {
             // Remove empty OptionGroups

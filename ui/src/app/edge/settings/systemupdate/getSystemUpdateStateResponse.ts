@@ -49,7 +49,7 @@ export class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public override readonly id: string,
-        public override readonly result: SystemUpdateState,
+        public override readonly result: SystemUpdateState
     ) {
         super(id, result);
     }

@@ -13,16 +13,16 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Production', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateY(0)',
+                transform: 'translateY(0)'
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(17%)',
+                transform: 'translateY(17%)'
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in')),
-        ]),
-    ],
+            transition('hide => show', animate('0ms ease-in'))
+        ])
+    ]
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -35,7 +35,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        unitpipe: UnitvaluePipe
     ) {
         super('General.production', "up", "#36aed1", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
@@ -121,7 +121,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             topRight: { x: v, y: r * -1 },
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1 + v },
+            middleTop: { x: 0, y: r * -1 + v }
         };
         if (ratio < 0) {
             // towards top
@@ -142,7 +142,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             topRight: { x: v, y: r * -1 },
             bottomRight: { x: v, y: v * -1 },
             middleBottom: { x: 0, y: 0 },
-            middleTop: { x: 0, y: r * -1 + v },
+            middleTop: { x: 0, y: r * -1 + v }
         };
         if (ratio > 0) {
             // towards bottom

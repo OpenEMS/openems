@@ -23,7 +23,7 @@ export class QueryHistoricTimeseriesEnergyResponse extends JsonrpcResponseSucces
         public override readonly id: string,
         public override readonly result: {
             data: Cumulated;
-        },
+        }
     ) {
         super(id, result);
     }

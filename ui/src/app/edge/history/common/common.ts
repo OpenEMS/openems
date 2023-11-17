@@ -14,7 +14,7 @@ import { Common_Consumption } from './consumption/Consumption';
     CommonEnergyMonitor,
     Common_Grid,
     Common_Production,
-    Common_Selfconsumption,
+    Common_Selfconsumption
   ],
   exports: [
     Common_Autarchy,
@@ -22,7 +22,7 @@ import { Common_Consumption } from './consumption/Consumption';
     CommonEnergyMonitor,
     Common_Grid,
     Common_Production,
-    Common_Selfconsumption,
-  ],
+    Common_Selfconsumption
+  ]
 })
 export class Common { }

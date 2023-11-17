@@ -7,7 +7,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridOptimizedChargeWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: './widget.component.html'
 })
 export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -27,7 +27,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super(service);
     }
@@ -79,7 +79,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
                 new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),
-                new ChannelAddress(this.componentId, 'NoLimitationTime'),
+                new ChannelAddress(this.componentId, 'NoLimitationTime')
             ];
             resolve(channeladdresses);
         });

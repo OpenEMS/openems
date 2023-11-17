@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'chartoptionspopover',
-    templateUrl: './popover.component.html',
+    templateUrl: './popover.component.html'
 })
 export class ChartOptionsPopoverComponent {
 
@@ -15,7 +15,7 @@ export class ChartOptionsPopoverComponent {
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService,
+        public translate: TranslateService
     ) { }
 
     public setPhases() {

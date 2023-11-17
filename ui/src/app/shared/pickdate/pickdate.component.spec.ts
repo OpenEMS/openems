@@ -15,7 +15,7 @@ describe('Pickdate', () => {
 
   let TEST_CONTEXT: TestContext;
   beforeEach(() =>
-    TEST_CONTEXT = sharedSetup(),
+    TEST_CONTEXT = sharedSetup()
   );
 
   it('#isPreviousPeriodAllowed && #isNextPeriodAllowed - Day-View: firstSetupProtocol = today', () => {

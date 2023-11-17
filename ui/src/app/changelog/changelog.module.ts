@@ -5,15 +5,15 @@ import { ChangelogViewComponent } from './view/view';
 
 @NgModule({
   imports: [
-    SharedModule,
+    SharedModule
   ],
   declarations: [
     ChangelogComponent,
-    ChangelogViewComponent,
+    ChangelogViewComponent
   ],
   exports: [
     ChangelogComponent,
-    ChangelogViewComponent,
-  ],
+    ChangelogViewComponent
+  ]
 })
 export class ChangelogModule { }

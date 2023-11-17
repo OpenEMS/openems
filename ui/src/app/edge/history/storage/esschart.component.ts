@@ -10,7 +10,7 @@ import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'storageESSChart',
-    templateUrl: '../abstracthistorychart.html',
+    templateUrl: '../abstracthistorychart.html'
 })
 export class StorageESSChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -28,7 +28,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         super("storage-ess-chart", service, translate);
     }
@@ -77,32 +77,32 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                     datasets.push({
                                         label: this.translate.instant('General.chargeDischarge'),
                                         data: data,
-                                        hidden: false,
+                                        hidden: false
                                     });
                                     this.colors.push({
                                         backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
+                                        borderColor: 'rgba(0,223,0,1)'
                                     });
                                 }
                                 if (this.componentId + '/ActivePowerL1' && this.componentId + '/ActivePowerL2' && this.componentId + '/ActivePowerL3' in result.data && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',
-                                            data: data,
+                                            data: data
                                         });
                                         this.colors.push(this.phase1Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL2') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L2',
-                                            data: data,
+                                            data: data
                                         });
                                         this.colors.push(this.phase2Color);
                                     }
                                     if (channelAddress.channelId == 'ActivePowerL3') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L3',
-                                            data: data,
+                                            data: data
                                         });
                                         this.colors.push(this.phase3Color);
                                     }
@@ -139,13 +139,13 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
         let factory = config.factories[factoryID];
         return new Promise((resolve, reject) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress(this.componentId, 'ActivePower'),
+                new ChannelAddress(this.componentId, 'ActivePower')
             ];
             if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
                 result.push(
                     new ChannelAddress(component.id, 'ActivePowerL1'),
                     new ChannelAddress(component.id, 'ActivePowerL2'),
-                    new ChannelAddress(component.id, 'ActivePowerL3'),
+                    new ChannelAddress(component.id, 'ActivePowerL3')
                 );
             }
             resolve(result);

@@ -7,7 +7,7 @@ import { OptionGroupConfig } from "../option-group-picker/optionGroupPickerConfi
 
 @Component({
     selector: 'formly-safe-input-wrapper',
-    templateUrl: './formly-safe-input.extended.html',
+    templateUrl: './formly-safe-input.extended.html'
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
@@ -15,7 +15,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     protected displayType: 'string' | 'boolean' | 'number' | 'optionGroup';
 
     constructor(
-        private modalController: ModalController,
+        private modalController: ModalController
     ) {
         super();
     }
@@ -39,9 +39,9 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             componentProps: {
                 title: this.props.label,
                 fields: this.getFields(),
-                model: this.model,
+                model: this.model
             },
-            cssClass: ['auto-height'],
+            cssClass: ['auto-height']
         });
         modal.onDidDismiss().then(event => {
             if (!event.data) {
