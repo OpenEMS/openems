@@ -50,9 +50,9 @@ public class ControllerEssStandbyImplTest {
 	private static ControllerTest tillDischarge() throws Exception {
 		// Initialize ESS
 		final var ess = new DummyManagedSymmetricEss(ESS_ID) //
-				.setGridMode(GridMode.ON_GRID) //
-				.setMaxApparentPower(MAX_APPARENT_POWER) //
-				.setSoc(70);
+				.withGridMode(GridMode.ON_GRID) //
+				.withMaxApparentPower(MAX_APPARENT_POWER) //
+				.withSoc(70);
 
 		return new ControllerTest(new ControllerEssStandbyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

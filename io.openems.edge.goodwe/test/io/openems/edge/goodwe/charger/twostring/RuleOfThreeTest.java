@@ -20,7 +20,7 @@ public class RuleOfThreeTest {
 		final var value1 = Optional.of(17);
 
 		Integer expectedResult1 = 1_063;
-		Integer result = GoodWeChargerTwoStringImpl.calculateByRuleOfThree(totalValue, divisor, value1).orElse(0);
+		Integer result = GoodWeChargerTwoString.calculateByRuleOfThree(totalValue, divisor, value1).orElse(0);
 		assertEquals(expectedResult1, result);
 
 		/*
@@ -37,7 +37,7 @@ public class RuleOfThreeTest {
 		 * other.
 		 */
 		Integer expectedResult2 = totalValue.get() - expectedResult1 + 1; //
-		Integer result2 = GoodWeChargerTwoStringImpl.calculateByRuleOfThree(totalValue, divisor, value2).orElse(0);
+		Integer result2 = GoodWeChargerTwoString.calculateByRuleOfThree(totalValue, divisor, value2).orElse(0);
 
 		assertEquals(expectedResult2, result2);
 
@@ -49,7 +49,7 @@ public class RuleOfThreeTest {
 		final var divisor = Optional.of(0);
 		final var value = Optional.of(10);
 
-		var resultIsPresent = GoodWeChargerTwoStringImpl.calculateByRuleOfThree(totalValue, divisor, value).isPresent();
+		var resultIsPresent = GoodWeChargerTwoString.calculateByRuleOfThree(totalValue, divisor, value).isPresent();
 
 		assertFalse(resultIsPresent);
 	}
@@ -61,7 +61,7 @@ public class RuleOfThreeTest {
 		final var value = Optional.of(40);
 
 		Integer expectedResult = 2000;
-		Integer result = GoodWeChargerTwoStringImpl.calculateByRuleOfThree(totalValue, divisor, value).orElse(0);
+		Integer result = GoodWeChargerTwoString.calculateByRuleOfThree(totalValue, divisor, value).orElse(0);
 
 		assertEquals(expectedResult, result);
 	}
@@ -73,7 +73,7 @@ public class RuleOfThreeTest {
 		final Optional<Integer> value = Optional.empty();
 
 		Integer expectedResult = 0;
-		Integer result = GoodWeChargerTwoStringImpl.calculateByRuleOfThree(totalValue, divisor, value).orElse(0);
+		Integer result = GoodWeChargerTwoString.calculateByRuleOfThree(totalValue, divisor, value).orElse(0);
 
 		assertEquals(expectedResult, result);
 	}

@@ -14,6 +14,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -29,6 +31,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 
@@ -109,10 +112,22 @@ public class StromdaoCorrently extends
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
 
-			var comp = TimeOfUseProps.getComponents(t, ctrlEssTimeOfUseTariffId, alias, "TimeOfUseTariff.Corrently",
-					this.getName(l), timeOfUseTariffProviderId, b -> b.addPropertyIfNotNull("zipcode", zipCode));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.addPropertyIfNotNull("zipcode", zipCode) //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
+							JsonUtils.buildJsonObject() //
+									.build())//
+			);
 
-			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffId, "ctrlBalancing0"));
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
+					.build();
 		};
 	}
 

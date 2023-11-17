@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
@@ -250,15 +252,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 									.addProperty("batteryInverter.id", "batteryInverter0") //
 									.addProperty("battery.id", "battery0") //
 									.build()),
-					new EdgeConfig.Component("predictor0",
-							TranslationUtil.getTranslation(bundle, this.getAppId() + ".predictor0.alias"),
-							"Predictor.PersistenceModel", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.add("channelAddresses", JsonUtils.buildJsonArray() //
-											.add("_sum/ProductionActivePower") //
-											.add("_sum/ConsumptionActivePower") //
-											.build()) //
-									.build()),
+					predictor(bundle, t), //
 					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0",
 							TranslationUtil.getTranslation(bundle,
 									this.getAppId() + ".ctrlEssSurplusFeedToGrid0.alias"),
@@ -378,7 +372,11 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
-			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

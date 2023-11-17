@@ -12,7 +12,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
 
 @Component({
   selector: 'gridOptimizedChargeChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -26,7 +26,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super("gridOptimizedCharge-chart", service, translate);
   }
@@ -76,11 +76,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
             data: delayChargeData,
             hidden: false,
-            borderDash: [3, 3]
+            borderDash: [3, 3],
           });
           this.colors.push({
             backgroundColor: 'rgba(253,197,7,0.05)',
-            borderColor: 'rgba(253,197,7,1)'
+            borderColor: 'rgba(253,197,7,1)',
           });
         }
 
@@ -101,11 +101,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
             data: sellToGridLimitData,
             hidden: false,
-            borderDash: [3, 3]
+            borderDash: [3, 3],
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)'
+            borderColor: 'rgba(200,0,0,1)',
           });
         }
 
@@ -137,11 +137,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
             data: chargeData,
             hidden: false,
             yAxisID: 'yAxis1',
-            position: 'left'
+            position: 'left',
           });
           this.colors.push({
             backgroundColor: 'rgba(0,223,0,0.05)',
-            borderColor: 'rgba(0,223,0,1)'
+            borderColor: 'rgba(0,223,0,1)',
           });
 
           // State of charge data
@@ -161,11 +161,11 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               hidden: false,
               yAxisID: 'yAxis2',
               position: 'right',
-              borderDash: [10, 10]
+              borderDash: [10, 10],
             });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
-              borderColor: 'rgba(189, 195, 199,1)'
+              borderColor: 'rgba(189, 195, 199,1)',
             });
           }
         }
@@ -192,7 +192,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
       let result: ChannelAddress[] = [
         new ChannelAddress('_sum', 'EssActivePower'),
         new ChannelAddress('_sum', 'ProductionDcActualPower'),
-        new ChannelAddress('_sum', 'EssSoc')
+        new ChannelAddress('_sum', 'EssSoc'),
       ];
       if (this.component != null && this.component.id) {
         result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
@@ -213,25 +213,25 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         display: true,
         labelString: "%",
         padding: -2,
-        fontSize: 11
+        fontSize: 11,
       },
       gridLines: {
-        display: false
+        display: false,
       },
       ticks: {
         beginAtZero: true,
         max: 100,
         padding: -5,
-        stepSize: 20
-      }
+        stepSize: 20,
+      },
     });
     options.layout = {
       padding: {
         left: 2,
         right: 2,
         top: 0,
-        bottom: 0
-      }
+        bottom: 0,
+      },
     };
     //x-axis
     if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {

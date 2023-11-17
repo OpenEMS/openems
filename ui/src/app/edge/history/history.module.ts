@@ -54,7 +54,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
-    Common
+    Common,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
@@ -104,7 +104,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     TimeslotPeakshavingChartComponent,
     TimeslotPeakshavingChartOverviewComponent,
     TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent
-  ]
+    HistoryParentComponent,
+  ],
 })
 export class HistoryModule { }

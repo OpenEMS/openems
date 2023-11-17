@@ -6,7 +6,7 @@ import { Role } from 'src/app/shared/type/role';
 
 @Component({
     templateUrl: './modal.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -34,7 +34,7 @@ export class ModalComponent extends AbstractModal {
             this.isAtLeastAdmin = true;
             if ('ess.id' in this.component.properties) {
                 channels.push(
-                    new ChannelAddress(this.component.properties['ess.id'], "Capacity")
+                    new ChannelAddress(this.component.properties['ess.id'], "Capacity"),
                 );
             }
         }
@@ -47,7 +47,7 @@ export class ModalComponent extends AbstractModal {
             new ChannelAddress(this.component.id, "TargetEpochSeconds"),
             new ChannelAddress(this.component.id, "TargetMinute"),
             new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
-            new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds")
+            new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds"),
         );
         return channels;
     }
@@ -61,7 +61,7 @@ export class ModalComponent extends AbstractModal {
                 currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.chargeLimit = {
                 name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
-                value: currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit']
+                value: currentData.allComponents[this.component.id + '/SellToGridLimitMinimumChargeLimit'],
             };
             this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided');
 
@@ -95,7 +95,7 @@ export class ModalComponent extends AbstractModal {
             if (currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'] != null) {
                 this.chargeLimit = {
                     name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
-                    value: currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit']
+                    value: currentData.allComponents[this.component.id + '/DelayChargeMaximumChargeLimit'],
                 };
             }
         }
@@ -119,10 +119,10 @@ export class ModalComponent extends AbstractModal {
             sellToGridLimitEnabled: new FormControl(this.component.properties.sellToGridLimitEnabled),
             maximumSellToGridPower: new FormControl(this.component.properties.maximumSellToGridPower, Validators.compose([
                 Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-                Validators.required
+                Validators.required,
             ])),
             delayChargeRiskLevel: new FormControl(this.component.properties.delayChargeRiskLevel),
-            manualTargetTime: new FormControl(this.component.properties.manualTargetTime)
+            manualTargetTime: new FormControl(this.component.properties.manualTargetTime),
         });
     }
 }

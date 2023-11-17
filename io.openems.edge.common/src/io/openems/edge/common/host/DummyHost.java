@@ -5,37 +5,35 @@ import java.util.concurrent.CompletableFuture;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.common.user.User;
 
 /**
  * Simulates a {@link Host} for the OpenEMS Component test framework.
  */
-public class DummyHost extends AbstractOpenemsComponent implements Host {
+public class DummyHost extends AbstractDummyOpenemsComponent<DummyHost> implements Host {
 
 	public DummyHost() {
-		super(//
+		super("_host", //
 				OpenemsComponent.ChannelId.values(), //
-				Host.ChannelId.values() //
-		);
-		for (Channel<?> channel : this.channels()) {
-			channel.nextProcessImage();
-		}
-		super.activate(null, "_host", "", true);
+				Host.ChannelId.values());
+	}
 
+	@Override
+	protected DummyHost self() {
+		return this;
 	}
 
 	/**
-	 * Sets and applies the {@link Host.ChannelId#HOSTNAME}.
+	 * Set {@link Host.ChannelId#HOSTNAME}.
 	 *
-	 * @param hostname the Hostname
+	 * @param value the value
 	 * @return myself
 	 */
-	public DummyHost withHostname(String hostname) {
-		this._setHostname(hostname);
-		this.getHostnameChannel().nextProcessImage();
+	public DummyHost withHostname(String value) {
+		TestUtils.withValue(this, Host.ChannelId.HOSTNAME, value);
 		return this;
 	}
 

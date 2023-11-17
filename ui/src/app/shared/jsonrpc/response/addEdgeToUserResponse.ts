@@ -33,7 +33,7 @@ export class AddEdgeToUserResponse extends JsonrpcResponseSuccess {
                 online: boolean
             },
             serialNumber: string
-        }
+        },
     ) {
         super(id, result);
     }

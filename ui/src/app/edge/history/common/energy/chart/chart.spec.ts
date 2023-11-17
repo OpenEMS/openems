@@ -1,19 +1,19 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
-import { ChartConfig, DATA, DummyConfig, LABELS } from "src/app/shared/edge/edgeconfig.spec";
+import { DummyConfig, ESS_GENERIC_MANAGEDSYMMETRIC, SOCOMEC_GRID_METER, SOLAR_EDGE_PV_INVERTER } from "src/app/shared/edge/edgeconfig.spec";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
-import { expectView } from "./chart.constants.spec";
+import { DATA, expectView, LABELS } from "./chart.constants.spec";
 
 describe('History EnergyMonitor', () => {
   const defaultEMS = DummyConfig.from(
-    DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-    DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
-    DummyConfig.Component.SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter")
+    SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+    ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
+    SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter"),
   );
 
   let TEST_CONTEXT: TestContext;
   beforeEach(() =>
-    TEST_CONTEXT = sharedSetup()
+    TEST_CONTEXT = sharedSetup(),
   );
 
   it('getChartData()', () => {
@@ -29,13 +29,14 @@ describe('History EnergyMonitor', () => {
               DATA('Einspeisung: 15,6 kWh', [null, null, null, 0, 0, 0.006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.004, 0, 0, 0, 0.004, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0.001, 0.002, null, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.001, 0.004, 0, 0.004, 0, 0, 0, 0, 0.005, 0.013, 0.006, 0.004, 0.017, 0.015, 0.017, 0.011, 0, 0, 0, 0, 0.029, 0.015, 0.013, 0.019, 0.014, 0.007, 0.016, 0, 0.018, 0.022, 0, 0.012, 0.011, 0.007, 0, 0.033, 0.007, 0.003, 0.004, 0.011, 0, 0.038, 0, 0, 0.019, 0, 0.016, 0.014, 0.018, 0, 1.119, 3.453, 3.608, 3.941, 4.392, 3.786, 4.805, 4.688, 3.095, 2.32, 2.851, 3.058, 4.044, 5.011, 2.789, 6.53, 5.029, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
               DATA('Bezug: 0,9 kWh', [null, null, null, 0.031, 0.018, 0, 0.02, 0.016, 0.015, 0.014, 0.009, 0.02, 0.025, 0.025, 0.025, 0.021, 0.012, 0.009, 0.01, 0.011, 0.005, 0.003, 0, 0.015, 0.018, 0.023, 0, 0, 0, 0.002, 0.002, 0.003, 0.015, 0.008, 0.022, 0.027, 0.016, 0.003, 0.002, 0, 0.028, 0.027, 0.017, 0.001, 0, 0, 0, null, null, null, null, 0.011, 0.01, 0.004, 0.006, 0.007, 0.018, 0.008, 0.012, 0.009, 0.004, 0.013, 0.015, 0.012, 0, 0, 0, 0.002, 0, 0.005, 0.001, 0.03, 0.062, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.005, 0.004, 0.007, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0, 0.021, 0, 0, 0, 0, 0, 0.003, 0, 0.004, 0, 0, 0.032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
               DATA('Verbrauch: 24,4 kWh', [null, null, null, 0.112, 0.262, 0.392, 0.24, 0.23, 0.229, 0.227, 0.317, 0.224, 0.133, 0.135, 0.133, 0.192, 0.209, 0.09, 0.095, 0.096, 0.164, 0.297, 0.184, 0.182, 0.183, 0.198, 0.333, 0.183, 0.093, 0.097, 0.098, 0.197, 0.266, 0.177, 0.144, 0.14, 0.173, 0.304, 0.305, 0.237, 0.232, 0.227, 0.283, 0.344, 0.135, 0.096, 0.095, null, null, null, null, 0.102, 0.129, 0.14, 0.301, 0.248, 0.267, 0.319, 0.31, 0.452, 0.451, 0.28, 0.234, 0.226, 0.249, 0.39, 0.242, 0.199, 0.179, 0.166, 0.28, 0.239, 0.192, 0.187, 0.187, 0.19, 0.303, 0.146, 0.062, 0.062, 0.064, 0.887, 1.119, 1.07, 1.057, 0.596, 0.138, 0.233, 0.152, 0.209, 0.192, 0.202, 0.308, 0.254, 0.175, 0.122, 0.108, 0.137, 0.216, 0.947, 0.599, 0.203, 0.232, 0.328, 0.299, 0.52, 1.213, 0.641, 1.03, 0.442, 0.374, 1.758, 0.249, 0.26, 0.346, 1.879, 0.23, 0.484, 1.26, 1.317, 1.488, 1.451, 1.892, 1.466, 1.332, 0.523, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
-              DATA('Ladezustand', History.DAY.dataChannelWithValues.result.data['_sum/EssSoc'])
+              DATA('Ladezustand', History.DAY.dataChannelWithValues.result.data['_sum/EssSoc']),
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-            options: History.LINE_CHART_OPTIONS('hour')
-          }
+            options: History.LINE_CHART_OPTIONS('hour'),
+          },
 
         });
+
     }
     {
 
@@ -50,11 +51,11 @@ describe('History EnergyMonitor', () => {
               DATA('Einspeisung: 119,7 kWh', [0.0023333333333333335, 0, 0, 0, 0, 0, 0, 0.014166666666666666, 0.02808333333333333, 0.9546666666666667, 4.150583333333333, 6.431333333333333, 5.737583333333333, 5.6714166666666666, 5.873333333333333, 5.049083333333333, 3.122, 1.0374166666666667, 0.22808333333333333, 0.02, 0, 0, 0, 0.008333333333333333, 0.0030833333333333333, 0.008333333333333333, 0, 0.007727272727272728, 0, 0, 0.00275, 0.013833333333333335, 0.017416666666666667, 0.006083333333333333, 0.5646666666666667, 2.2251666666666665, 2.03375, 3.99725, 4.990083333333333, 3.0128333333333335, 2.4844166666666667, 1.378, 0.65975, 0, 0.001, 0.006916666666666667, 0.008166666666666666, 0, 0, 0, 0, 0, 0, 0, 0.004083333333333333, 0.010583333333333333, 0.011166666666666667, 1.261, 5.308833333333333, 6.604, 6.321166666666667, 6.488333333333333, 6.78425, 6.052083333333333, 2.5839166666666666, 0.529, 0.01616666666666667, 0.0055, 0, 0.0006666666666666666, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0024166666666666664, 0.0125, 0.7065, 5.835416666666667, 4.77025, 6.03925, 6.8445833333333335, 5.370333333333333, 4.490166666666667, 2.3506666666666667, 0.7650833333333333, 0.08583333333333333, 0.011454545454545455, 0, 0, 0.005666666666666667, 0, 0, 0, 0, 0, 0, 0, 0.0033333333333333335, 0.004083333333333333, 0.02033333333333333, 0.02316666666666667, 1.4106666666666667, 0.8588333333333333, 0.0015833333333333333, 0.006583333333333333, 0.010083333333333335, 0.3410833333333333, 2.9290833333333337, 1.1175833333333332, 0.48583333333333334, 0, 0, 0, 0.0006666666666666666, 0.017916666666666668, 0.004, 0, 0, 0.001, 0, 0, 0, 0.02358333333333333, 0.006416666666666667, 0.008166666666666666, 0.0031666666666666666, 0.009916666666666666, 2.7254166666666664, 1.83725, 2.63225, 2.2170833333333335, 0.529, 0, 0, 0, 0, 0, 0.0003333333333333333, 0, 0, 0.011416666666666665, 0.011083333333333334, 0, 0, 0, 0, 0.008333333333333333, 0.008818181818181819, 0.015333333333333334, 0.018857142857142857, 0.024833333333333332, 0.010888888888888889, 2.2174, 3.9214166666666666, 1.6248181818181817, 1.937, 1.789, 0.0195, 0.0143, 0, 0, 0.009, 0.018875]),
               DATA('Bezug: 2,4 kWh', [0, 0.011916666666666666, 0.01633333333333333, 0.00609090909090909, 0.015333333333333334, 0.011666666666666665, 0.0024166666666666664, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.02425, 0.004416666666666667, 0.0035833333333333333, 0, 0, 0, 0.04441666666666667, 0, 0.013111111111111112, 0.001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0011666666666666668, 0, 0, 0, 0.0015833333333333333, 0.013333333333333334, 0.020416666666666666, 0.01125, 0.019727272727272725, 0.012444444444444445, 0.009583333333333334, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.007666666666666667, 0, 0.0023333333333333335, 0.0125, 0.01609090909090909, 0.02016666666666667, 0.014083333333333333, 0.006363636363636363, 0.01955555555555556, 0.04841666666666666, 0.011166666666666667, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.014222222222222221, 0.00225, 0, 0.0036666666666666666, 0.032916666666666664, 0.014666666666666666, 0.0135, 0.017363636363636362, 0.013333333333333334, 0.022083333333333333, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0009166666666666666, 0, 0.0021666666666666666, 0, 0, 0, 0.0005, 0.04841666666666666, 0, 0.005555555555555556, 0.02716666666666667, 0.017333333333333333, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0023333333333333335, 0.008333333333333333, 0.003, 0.015916666666666666, 0.00325, 0, 0.004333333333333333, 0.001, 0, 0, 0.019545454545454546, 0.0017777777777777776, 0.006416666666666667, 0.017666666666666667, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0058, 0.005625, 0, 0]),
               DATA('Verbrauch: 76,7 kWh', [0.16022222222222224, 0.16516666666666666, 0.14991666666666667, 0.24245454545454548, 0.24866666666666665, 0.2679166666666667, 0.19658333333333333, 0.15775, 0.5408333333333334, 0.7640833333333333, 1.9163333333333332, 0.6645833333333334, 2.0044166666666667, 2.1950833333333333, 1.63125, 0.7880833333333334, 0.24116666666666667, 0.1095, 0.3621666666666667, 0.14041666666666666, 0.9824166666666666, 0.4598333333333333, 0.31808333333333333, 0.8699166666666667, 0.157, 0.14616666666666667, 0.17258333333333334, 0.12590909090909091, 0.19444444444444445, 0.22383333333333336, 0.37725, 0.7250833333333334, 0.385, 1.39075, 0.26275, 0.19433333333333333, 0.10516666666666667, 0.201, 0.30775, 0.19716666666666666, 0.20083333333333334, 0.4910833333333333, 0.398, 0.42825, 0.75675, 0.3935, 0.16933333333333334, 0.24841666666666665, 0.3354166666666667, 0.22233333333333336, 0.1825, 0.1720909090909091, 0.179, 0.2568333333333333, 0.3364166666666667, 0.8403333333333334, 0.4155, 0.6171666666666666, 0.7785, 0.5746666666666667, 1.53875, 0.6193333333333334, 0.99225, 0.43191666666666667, 0.92975, 1.0189166666666667, 0.22433333333333333, 0.6004166666666666, 0.4410833333333333, 0.8973333333333333, 0.5895, 0.24541666666666664, 0.13836363636363638, 0.21366666666666664, 0.18075, 0.16654545454545452, 0.2578888888888889, 0.2514166666666667, 0.5236666666666666, 1.2431666666666668, 0.7379166666666667, 0.9735833333333334, 0.35125, 2.5838333333333336, 1.7480833333333332, 1.2421666666666666, 2.35675, 1.5921666666666667, 1.19375, 0.17808333333333334, 0.24683333333333335, 0.6248181818181818, 0.47044444444444444, 0.9619166666666666, 0.20433333333333334, 0.6376666666666666, 0.14958333333333335, 0.19125, 0.14783333333333334, 0.208, 0.22866666666666666, 0.24891666666666665, 0.1505, 0.6745, 0.7685, 0.5545833333333333, 0.50325, 0.5148333333333334, 1.9893333333333332, 1.2161666666666668, 0.6651666666666667, 0.15025, 0.12625, 0.05316666666666667, 0.4963333333333333, 2.54575, 1.3246666666666667, 2.115, 0.6698333333333334, 0.15458333333333335, 0.15975, 0.13916666666666666, 0.12266666666666667, 0.2029090909090909, 0.23122222222222222, 0.533, 0.15675, 0.13625, 2.067, 0.7903333333333333, 0.9883333333333334, 0.44608333333333333, 0.2790833333333333, 1.8005, 0.8198333333333334, 2.60525, 1.83225, 2.1533333333333333, 1.072, 1.2043333333333333, 0.6051666666666666, 1.13675, 0.3330833333333333, 0.3438333333333333, 0.6486666666666666, 0.48025, 0.17116666666666666, 0.15381818181818183, 0.19722222222222222, 0.22858333333333333, 0.22016666666666665, 0.16758333333333333, 1.3263636363636362, 0.9056666666666666, 0.5432857142857144, 0.8975, 2.457222222222222, 1.1668, 1.3920833333333333, 3.111909090909091, 0.6785, 0.451, 1.089, 0.1713, 0.6919, 0.444625, 0.5696, 0.1315]),
-              DATA('Ladezustand', History.WEEK.dataChannelWithValues.result.data['_sum/EssSoc'])
+              DATA('Ladezustand', History.WEEK.dataChannelWithValues.result.data['_sum/EssSoc']),
             ],
             labels: LABELS(History.WEEK.dataChannelWithValues.result.timestamps),
-            options: History.LINE_CHART_OPTIONS('day')
-          }
+            options: History.LINE_CHART_OPTIONS('day'),
+          },
         });
     }
     {
@@ -73,11 +74,11 @@ describe('History EnergyMonitor', () => {
               DATA('Entladung: 3.394,4 kWh', [112.818, 126.532, 139.622, 133.212, 169.24, 98.705, 109.367, null, 204.267, 118.504, 121.261, 74.97, 144.175, 89.897, 141.582, 111.261, 122.274, 106.232, 139.405, 132.225, 143.86, null, 235.044, 63.914, 123.844, null, 242.102, 130.546, 59.571, null]),
               DATA('Einspeisung: 12.738 kWh', [603, 590, 551, 572, 69, 236, 626, null, 1003, 261, 518, 698, 640, 388, 471, 373, 373, 677, 286, 406, 249, null, 446, 369, 558, null, 776, 425, 574, null]),
               DATA('Bezug: 773 kWh', [16, 6, 3, 3, 5, 48, 4, null, 5, 26, 17, 62, 8, 66, 13, 21, 4, 3, 18, 27, 29, null, 118, 85, 2, null, 72, 28, 84, null]),
-              DATA('Verbrauch: 9.976,1 kWh', [320.342, 346.615, 341.433, 333.054, 358.458, 347.872, 289.283, null, 556.51, 311.366, 314.722, 355.556, 381.671, 384.558, 366.19, 349.336, 303.696, 288.727, 357.434, 388.659, 402.625, null, 713.771, 320.238, 332.099, null, 756.429, 384.136, 371.322, null])
+              DATA('Verbrauch: 9.976,1 kWh', [320.342, 346.615, 341.433, 333.054, 358.458, 347.872, 289.283, null, 556.51, 311.366, 314.722, 355.556, 381.671, 384.558, 366.19, 349.336, 303.696, 288.727, 357.434, 388.659, 402.625, null, 713.771, 320.238, 332.099, null, 756.429, 384.136, 371.322, null]),
             ],
             labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-            options: ChartConfig.BAR_CHART_OPTIONS('day')
-          }
+            options: History.BAR_CHART_OPTIONS('day'),
+          },
         });
     }
     {
@@ -96,11 +97,11 @@ describe('History EnergyMonitor', () => {
               DATA('Entladung: 12.898,2 kWh', [208.491, 1339.036, 2911.126, 2555.138, 2123.751, 3394.43, 335.402, null, null, null, null, null]),
               DATA('Einspeisung: 30.703 kWh', [20, 86, 677, 3657, 12839, 12738, 627, null, null, null, null, null]),
               DATA('Bezug: 23.209 kWh', [9829, 4812, 2915, 2036, 2712, 773, 94, null, null, null, null, null]),
-              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null])
+              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month')
-          }
+            options: History.BAR_CHART_OPTIONS('month'),
+          },
         });
     }
     {
@@ -111,15 +112,15 @@ describe('History EnergyMonitor', () => {
           datasets: {
             data: [],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month')
-          }
+            options: History.BAR_CHART_OPTIONS('month'),
+          },
         });
     }
     {
       // Bar-Chart: no productionMeter
       const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
+        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -131,18 +132,18 @@ describe('History EnergyMonitor', () => {
               DATA('Entladung: 12.898,2 kWh', [208.491, 1339.036, 2911.126, 2555.138, 2123.751, 3394.43, 335.402, null, null, null, null, null]),
               DATA('Einspeisung: 30.703 kWh', [20, 86, 677, 3657, 12839, 12738, 627, null, null, null, null, null]),
               DATA('Bezug: 23.209 kWh', [9829, 4812, 2915, 2036, 2712, 773, 94, null, null, null, null, null]),
-              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null])
+              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month')
-          }
+            options: History.BAR_CHART_OPTIONS('month'),
+          },
         });
     }
     {
       // Bar-Chart: only gridMeter
 
       const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler")
+        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -151,18 +152,18 @@ describe('History EnergyMonitor', () => {
             data: [
               DATA('Einspeisung: 30.703 kWh', [20, 86, 677, 3657, 12839, 12738, 627, null, null, null, null, null]),
               DATA('Bezug: 23.209 kWh', [9829, 4812, 2915, 2036, 2712, 773, 94, null, null, null, null, null]),
-              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null])
+              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month')
-          }
+            options: History.BAR_CHART_OPTIONS('month'),
+          },
         });
     }
     {
       // Bar-Chart: only ess
 
       const EMS = DummyConfig.from(
-        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0")
+        ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -171,11 +172,11 @@ describe('History EnergyMonitor', () => {
             data: [
               DATA('Beladung: 15.296,8 kWh', [294.606, 1673.109, 3337.772, 3074.303, 2495.947, 3944.328, 372.595, null, null, null, null, null]),
               DATA('Entladung: 12.898,2 kWh', [208.491, 1339.036, 2911.126, 2555.138, 2123.751, 3394.43, 335.402, null, null, null, null, null]),
-              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null])
+              DATA('Verbrauch: 58.573,4 kWh', [11634.885, 8207.927, 8976.354, 8311.835, 10341.804, 9976.102, 975.807, null, null, null, null, null]),
             ],
             labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues.result.timestamps),
-            options: History.BAR_CHART_OPTIONS('month')
-          }
+            options: History.BAR_CHART_OPTIONS('month'),
+          },
         });
     }
   });

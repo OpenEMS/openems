@@ -21,7 +21,7 @@ export class ChannelExportXlsxRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             componentId: string
-        }
+        },
     ) {
         super(ChannelExportXlsxRequest.METHOD, params);
     }

@@ -16,6 +16,7 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.CalculateSoc;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
@@ -138,24 +139,14 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	private void calculateSoc(List<SymmetricEss> esss) {
 		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-			Integer socCapacity = null;
-			Integer totalCapacity = null;
-			for (SymmetricEss ess : esss) {
-				var capacity = ess.getCapacity();
-				var soc = ess.getSoc();
-				if (!capacity.isDefined() || !soc.isDefined()) {
-					continue;
-				}
-				socCapacity = TypeUtils.sum(socCapacity, soc.get() * capacity.get());
-				totalCapacity = TypeUtils.sum(totalCapacity, capacity.get());
-			}
-			if (socCapacity != null && totalCapacity != null) {
-				this.parent._setSoc(Math.round(socCapacity / Float.valueOf(totalCapacity)));
-			}
+			this.parent._setSoc(new CalculateSoc() //
+					.add(esss) //
+					.calculate());
 		};
 		this.addOnChangeListener(this.parent, SymmetricEss.ChannelId.CAPACITY, callback);
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.SOC, callback);
+			this.addOnChangeListener(ess, SymmetricEss.ChannelId.CAPACITY, callback);
 		}
 	}
 

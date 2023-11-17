@@ -6,7 +6,7 @@ import { EdgeConfig } from '../../edgeconfig';
 
 @Component({
     selector: 'oe-ess-charger',
-    templateUrl: './modal.component.html'
+    templateUrl: './modal.component.html',
 })
 export class EssChargerComponent {
     @Input() public component: EdgeConfig.Component;

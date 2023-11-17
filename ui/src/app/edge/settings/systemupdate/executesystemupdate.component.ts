@@ -6,7 +6,7 @@ import { SystemUpdateState } from './getSystemUpdateStateResponse';
 
 @Component({
   selector: ExecuteSystemUpdateComponent.SELECTOR,
-  templateUrl: './executesystemupdate.component.html'
+  templateUrl: './executesystemupdate.component.html',
 })
 export class ExecuteSystemUpdateComponent implements OnInit, OnDestroy {
 

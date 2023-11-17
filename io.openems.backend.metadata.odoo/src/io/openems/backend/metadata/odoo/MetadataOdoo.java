@@ -355,6 +355,18 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		}
 	}
 
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.executor.execute(() -> {
+			try {
+				final var edge = (MyEdge) this.getEdgeOrError(systemLog.edgeId());
+				this.postgresHandler.edge.insertGenericSystemLog(edge.getOdooId(), systemLog);
+			} catch (SQLException | OpenemsNamedException e) {
+				this.logWarn(this.log, "Unable to insert ");
+			}
+		});
+	}
+
 	private void onSetConfigEvent(EventReader reader) {
 		this.executor.execute(() -> {
 			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetConfig.EDGE);
@@ -372,7 +384,10 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			var diff = EdgeConfigDiff.diff(newConfig, oldConfig);
 			if (diff.isDifferent()) {
 				// Update "EdgeConfigUpdate"
-				this.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
+				var diffString = diff.toString();
+				if (!diffString.isBlank()) {
+					this.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
+				}
 
 				try {
 					this.postgresHandler.edge.insertEdgeConfigUpdate(edge.getOdooId(), diff);

@@ -13,28 +13,28 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         trigger('Discharge', [
             state('show', style({
                 opacity: 0.4,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.1,
-                transform: 'translateY(-17%)'
+                transform: 'translateY(-17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-in'))
+            transition('hide => show', animate('0ms ease-in')),
         ]),
         trigger('Charge', [
             state('show', style({
                 opacity: 0.1,
-                transform: 'translateY(0)'
+                transform: 'translateY(0)',
             })),
             state('hide', style({
                 opacity: 0.4,
-                transform: 'translateY(17%)'
+                transform: 'translateY(17%)',
             })),
             transition('show => hide', animate('650ms ease-out')),
-            transition('hide => show', animate('0ms ease-out'))
-        ])
-    ]
+            transition('hide => show', animate('0ms ease-out')),
+        ]),
+    ],
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
@@ -51,7 +51,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe
+        unitpipe: UnitvaluePipe,
     ) {
         super('Edge.Index.Energymonitor.storage', "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
@@ -176,7 +176,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
+            middleTop: { x: 0, y: 0 },
         };
         if (ratio > 0) {
             // towards bottom
@@ -198,7 +198,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
             topRight: { x: v, y: v },
             bottomRight: { x: v, y: r },
             middleBottom: { x: 0, y: r - v },
-            middleTop: { x: 0, y: 0 }
+            middleTop: { x: 0, y: 0 },
         };
         if (ratio < 0) {
             // towards top

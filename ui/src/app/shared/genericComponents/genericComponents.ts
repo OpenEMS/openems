@@ -30,7 +30,7 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         PipeModule,
         ReactiveFormsModule,
         RouterModule,
-        TranslateModule
+        TranslateModule,
     ],
     entryComponents: [
         PickDateComponent,
@@ -46,7 +46,7 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         ModalComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
     ],
     declarations: [
         PickDateComponent,
@@ -64,7 +64,7 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         ChartComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
     ],
     exports: [
         FlatWidgetComponent,
@@ -82,8 +82,9 @@ import { FlatWidgetLineItemComponent } from './flat/flat-widget-line/flat-widget
         PickDateComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ModalValueLineComponent
+        ModalValueLineComponent,
     ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+
 })
 export class Generic_ComponentsModule { }

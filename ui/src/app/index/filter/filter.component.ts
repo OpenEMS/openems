@@ -7,7 +7,7 @@ import { Utils } from "src/app/shared/shared";
 
 @Component({
   selector: 'oe-filter',
-  templateUrl: './filter.component.html'
+  templateUrl: './filter.component.html',
 })
 export class FilterComponent {
 

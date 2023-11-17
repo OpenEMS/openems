@@ -26,25 +26,25 @@ export namespace OeTester {
         "maintainAspectRatio": false,
         "legend": {
           "labels": {},
-          "position": "bottom"
+          "position": "bottom",
         },
         "elements": {
           "point": {
             "radius": 0,
             "hitRadius": 0,
-            "hoverRadius": 0
+            "hoverRadius": 0,
           },
           "line": {
             "borderWidth": 2,
-            "tension": 0.1
+            "tension": 0.1,
           },
           "rectangle": {
-            "borderWidth": 2
-          }
+            "borderWidth": 2,
+          },
         },
         "hover": {
           "mode": "point",
-          "intersect": true
+          "intersect": true,
         },
         "scales": {
           "yAxes": [
@@ -55,15 +55,15 @@ export namespace OeTester {
                 "display": true,
                 "labelString": title ?? "kW",
                 "padding": 5,
-                "fontSize": 11
+                "fontSize": 11,
               },
               "gridLines": {
-                "display": true
+                "display": true,
               },
               "ticks": {
-                "beginAtZero": false
-              }
-            }
+                "beginAtZero": false,
+              },
+            },
           ],
           "xAxes": [
             {
@@ -81,22 +81,22 @@ export namespace OeTester {
                   "week": "ll",
                   "month": "MM",
                   "quarter": "[Q]Q - YYYY",
-                  "year": "YYYY"
+                  "year": "YYYY",
                 },
-                "unit": period as TimeUnit
+                "unit": period as TimeUnit,
               },
-              "bounds": "ticks"
-            }
-          ]
+              "bounds": "ticks",
+            },
+          ],
         },
         "tooltips": {
           "mode": "index",
           "intersect": false,
           "axis": "x",
-          "callbacks": {}
+          "callbacks": {},
         },
-        "responsive": true
-      }
+        "responsive": true,
+      },
     });
     export const BAR_CHART_OPTIONS = (period: string, title?: string): OeChartTester.Dataset.Option => ({
       type: 'option',
@@ -104,25 +104,25 @@ export namespace OeTester {
         "maintainAspectRatio": false,
         "legend": {
           "labels": {},
-          "position": "bottom"
+          "position": "bottom",
         },
         "elements": {
           "point": {
             "radius": 0,
             "hitRadius": 0,
-            "hoverRadius": 0
+            "hoverRadius": 0,
           },
           "line": {
             "borderWidth": 2,
-            "tension": 0.1
+            "tension": 0.1,
           },
           "rectangle": {
-            "borderWidth": 2
-          }
+            "borderWidth": 2,
+          },
         },
         "hover": {
           "mode": "point",
-          "intersect": true
+          "intersect": true,
         },
         "scales": {
           "yAxes": [
@@ -133,22 +133,22 @@ export namespace OeTester {
                 "display": true,
                 "labelString": title ?? "kWh",
                 "padding": 5,
-                "fontSize": 11
+                "fontSize": 11,
               },
               "gridLines": {
-                "display": true
+                "display": true,
               },
               "ticks": {
-                "beginAtZero": false
+                "beginAtZero": false,
               },
-              "stacked": true
-            }
+              "stacked": true,
+            },
           ],
           "xAxes": [
             {
               "ticks": {
                 "maxTicksLimit": 12,
-                "source": "data"
+                "source": "data",
               },
               "stacked": true,
               "type": "time",
@@ -163,23 +163,23 @@ export namespace OeTester {
                   "week": "ll",
                   "month": "MM",
                   "quarter": "[Q]Q - YYYY",
-                  "year": "YYYY"
+                  "year": "YYYY",
                 },
-                "unit": period as TimeUnit
+                "unit": period as TimeUnit,
               },
               "offset": true,
-              "bounds": "ticks"
-            }
-          ]
+              "bounds": "ticks",
+            },
+          ],
         },
         "tooltips": {
           "mode": "x",
           "intersect": false,
           "axis": "x",
-          "callbacks": {}
+          "callbacks": {},
         },
-        "responsive": true
-      }
+        "responsive": true,
+      },
     });
   }
 
