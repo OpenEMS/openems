@@ -1,4 +1,5 @@
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
+import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -10,7 +11,7 @@ export namespace History {
    * 
    * {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
-  export const DAY: DummyConfig.OeChannels = ({
+  export const DAY: OeTester.Types.Channels = ({
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         "_sum/ConsumptionActiveEnergy": 92989,
@@ -37,7 +38,7 @@ export namespace History {
   /** 
    * up to 164 datapoints(1 hour values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
    * */
-  export const WEEK: DummyConfig.OeChannels = {
+  export const WEEK: OeTester.Types.Channels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         "_sum/ConsumptionActiveEnergy": 354079,
@@ -57,7 +58,7 @@ export namespace History {
 
   /** 
   * up to 31 datapoints(1 day values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const MONTH: DummyConfig.OeChannels = {
+  export const MONTH: OeTester.Types.Channels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/ConsumptionActiveEnergy': 1033427,
@@ -78,7 +79,7 @@ export namespace History {
 
   /** 
   * up to 12 datapoints(1 month values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const YEAR: DummyConfig.OeChannels = {
+  export const YEAR: OeTester.Types.Channels = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         '_sum/ConsumptionActiveEnergy': 14863655,
