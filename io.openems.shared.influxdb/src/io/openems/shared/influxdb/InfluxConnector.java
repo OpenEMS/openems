@@ -364,19 +364,18 @@ public class InfluxConnector {
 	        return new TreeMap<>();
 	    }
 
-	    // Erstellen eines Sets mit nur einem ChannelAddress
+	    // Create a set of ChannelAdresses thus we need only one
 	    Set<ChannelAddress> channels = Set.of(channelAddress);
 
-	    // Setzen der aktuellen Zeit
 	    ZonedDateTime now = ZonedDateTime.now();
 
-	    // Verwenden der aktuellen Zeit im queryFirstValueBefore-Aufruf
+	    // Use actual timestamp for queryFirstValueBefore-call
 	    return this.queryProxy.queryFirstValueBefore(//
 	            this.bucket, //
 	            this.getInfluxConnection(), //
 	            measurement, //
 	            influxEdgeId, //
-	            now, // Verwendung der aktuellen Zeit
+	            now, //
 	            channels//
 	    );
 	}
