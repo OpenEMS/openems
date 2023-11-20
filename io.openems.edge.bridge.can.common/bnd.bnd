@@ -16,7 +16,7 @@ Export-Package: \
 	${buildpath},\
 	com.ghgande.j2mod,\
 	io.openems.common,\
-	io.openems.edge.common
+	io.openems.edge.common,\
 	
 -testpath: \
 	${testpath}
