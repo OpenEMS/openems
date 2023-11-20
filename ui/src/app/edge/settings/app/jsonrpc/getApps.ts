@@ -58,7 +58,7 @@ export namespace GetApps {
             public override readonly id: string,
             public override readonly result: {
                 apps: App[]
-            }
+            },
         ) {
             super(id, result);
         }

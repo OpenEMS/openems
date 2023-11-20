@@ -11,7 +11,7 @@ interface MyCategorizedFactories extends CategorizedFactories {
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: './index.component.html',
 })
 export class IndexComponent implements OnInit {
 
@@ -24,7 +24,7 @@ export class IndexComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private service: Service,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
@@ -50,8 +50,8 @@ export class IndexComponent implements OnInit {
         Utils.matchAll(filters, [
           entry.id.toLowerCase(),
           entry.name.toLowerCase(),
-          entry.description.toLowerCase()
-        ])
+          entry.description.toLowerCase(),
+        ]),
       );
       countFilteredEntries += entry.filteredFactories.length;
     }

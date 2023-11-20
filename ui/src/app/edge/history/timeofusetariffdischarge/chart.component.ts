@@ -13,7 +13,7 @@ import { Data, TooltipItem, Unit } from '../shared';
 // TODO rename folder; remove 'Discharge'
 @Component({
   selector: 'timeOfUseTariffDischargeChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
 export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -33,7 +33,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super("timeOfUseTariffDischarge-chart", service, translate);
   }
@@ -109,12 +109,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             type: 'bar',
             label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
             data: barDelayDischarge,
-            order: 3
+            order: 3,
           });
           this.colors.push({
             // Dark Green
             backgroundColor: 'rgba(51,102,0,0.8)',
-            borderColor: 'rgba(51,102,0,1)'
+            borderColor: 'rgba(51,102,0,1)',
           });
 
           // Dataset for BALANCING
@@ -122,12 +122,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             type: 'bar',
             label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
             data: barBalancing,
-            order: 3
+            order: 3,
           });
           this.colors.push({
             // Black
             backgroundColor: 'rgba(0,0,200,0.7)',
-            borderColor: 'rgba(0,0,200,0.9)'
+            borderColor: 'rgba(0,0,200,0.9)',
           });
 
           // Dataset for CHARGE
@@ -137,12 +137,12 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
               type: 'bar',
               label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
               data: barCharge,
-              order: 3
+              order: 3,
             });
             this.colors.push({
               // Sky blue
               backgroundColor: 'rgba(0, 204, 204,0.5)',
-              borderColor: 'rgba(0, 204, 204,0.7)'
+              borderColor: 'rgba(0, 204, 204,0.7)',
             });
           }
         }
@@ -166,11 +166,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             yAxisID: 'yAxis2',
             position: 'right',
             borderDash: [10, 10],
-            order: 1
+            order: 1,
           });
           this.colors.push({
             backgroundColor: 'rgba(189, 195, 199,0.2)',
-            borderColor: 'rgba(189, 195, 199,1)'
+            borderColor: 'rgba(189, 195, 199,1)',
           });
         }
 
@@ -196,7 +196,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
       let channels: ChannelAddress[] = [
         new ChannelAddress(this.componentId, 'QuarterlyPrices'),
         new ChannelAddress(this.componentId, 'StateMachine'),
-        new ChannelAddress('_sum', 'EssSoc')
+        new ChannelAddress('_sum', 'EssSoc'),
       ];
 
       resolve(channels);
@@ -219,25 +219,25 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         display: true,
         labelString: "%",
         padding: -2,
-        fontSize: 11
+        fontSize: 11,
       },
       gridLines: {
-        display: false
+        display: false,
       },
       ticks: {
         beginAtZero: true,
         max: 100,
         padding: -5,
-        stepSize: 20
-      }
+        stepSize: 20,
+      },
     });
     options.layout = {
       padding: {
         left: 2,
         right: 2,
         top: 0,
-        bottom: 0
-      }
+        bottom: 0,
+      },
     };
 
     options.scales.xAxes[0].stacked = true;

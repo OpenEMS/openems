@@ -7,7 +7,7 @@ import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'consumptionchart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -20,7 +20,7 @@ export class ChartComponent extends AbstractHistoryChart {
     const inputChannel: HistoryUtils.InputChannel[] = [{
       name: 'ConsumptionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
-      energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy')
+      energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy'),
     }];
 
     const evcsComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -36,7 +36,7 @@ export class ChartComponent extends AbstractHistoryChart {
       inputChannel.push({
         name: component.id + '/ChargePower',
         powerChannel: ChannelAddress.fromString(component.id + '/ChargePower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActiveConsumptionEnergy')
+        energyChannel: ChannelAddress.fromString(component.id + '/ActiveConsumptionEnergy'),
       });
     });
 
@@ -44,14 +44,14 @@ export class ChartComponent extends AbstractHistoryChart {
       inputChannel.push({
         name: meter.id + '/ActivePower',
         powerChannel: ChannelAddress.fromString(meter.id + '/ActivePower'),
-        energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy')
+        energyChannel: ChannelAddress.fromString(meter.id + '/ActiveConsumptionEnergy'),
       });
     });
 
     return {
       input:
         [
-          ...inputChannel
+          ...inputChannel,
         ],
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValues[] = [];
@@ -66,7 +66,7 @@ export class ChartComponent extends AbstractHistoryChart {
           color: 'rgb(253,197,7)',
           stack: 0,
           hiddenOnInit: true,
-          noStrokeThroughLegendIfHidden: false
+          noStrokeThroughLegendIfHidden: false,
         });
 
         const evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];
@@ -80,7 +80,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return data[component.id + '/ChargePower'] ?? null;
             },
             color: evcsComponentColors[Math.min(index, (evcsComponentColors.length - 1))],
-            stack: 1
+            stack: 1,
           });
         });
 
@@ -95,7 +95,7 @@ export class ChartComponent extends AbstractHistoryChart {
               return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
-            stack: 1
+            stack: 1,
           });
         });
 
@@ -111,21 +111,21 @@ export class ChartComponent extends AbstractHistoryChart {
               return Utils.calculateOtherConsumption(data, evcsComponents, consumptionMeters);
             },
             color: 'rgb(0,0,0)',
-            stack: 1
+            stack: 1,
           });
         }
 
         return datasets;
       },
       tooltip: {
-        formatNumber: '1.0-2'
+        formatNumber: '1.0-2',
       },
       yAxes: [
         {
           unit: YAxisTitle.ENERGY,
           position: 'left',
-          yAxisId: ChartAxis.LEFT
-        }]
+          yAxisId: ChartAxis.LEFT,
+        }],
     };
   }
 }

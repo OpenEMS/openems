@@ -12,7 +12,7 @@ export namespace DummyConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig><unknown>{
             components: <unknown>components?.reduce((acc, c) => ({ ...acc, [c.id]: c }), {}),
-            factories: <unknown>components?.map(c => c.factory)
+            factories: <unknown>components?.map(c => c.factory),
         });
     };
 
@@ -31,14 +31,14 @@ export namespace DummyConfig {
                     id: component['factoryId'],
                     name: component['factoryId'],
                     natureIds: component['factory'].natureIds,
-                    properties: []
+                    properties: [],
                 };
             }
         });
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
             components: edgeConfig.components,
-            factories: factories
+            factories: factories,
         });
     }
 
@@ -52,8 +52,8 @@ export namespace DummyConfig {
                 "io.openems.edge.common.modbusslave.ModbusSlave",
                 "io.openems.edge.meter.api.ElectricityMeter",
                 "io.openems.edge.meter.socomec.SocomecMeter",
-                "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase"
-            ]
+                "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
+            ],
         };
 
         export const METER_GOODWE_GRID = {
@@ -64,8 +64,8 @@ export namespace DummyConfig {
                 "io.openems.edge.bridge.modbus.api.ModbusComponent",
                 "io.openems.edge.common.modbusslave.ModbusSlave",
                 "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.timedata.api.TimedataProvider"
-            ]
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
         };
 
         export const EVCS_KEBA_KECONTACT = {
@@ -75,8 +75,8 @@ export namespace DummyConfig {
                 "io.openems.edge.common.modbusslave.ModbusSlave",
                 "io.openems.edge.common.component.OpenemsComponent",
                 "io.openems.edge.evcs.api.ManagedEvcs",
-                "io.openems.edge.evcs.api.Evcs"
-            ]
+                "io.openems.edge.evcs.api.Evcs",
+            ],
         };
 
         export const ESS_GENERIC_MANAGEDSYMMETRIC = {
@@ -90,15 +90,15 @@ export namespace DummyConfig {
                 "io.openems.edge.ess.api.HybridEss",
                 "io.openems.edge.goodwe.ess.GoodWeEss",
                 "io.openems.edge.ess.api.ManagedSymmetricEss",
-                "io.openems.edge.timedata.api.TimedataProvider"
-            ]
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
         };
 
         export const SOLAR_EDGE_PV_INVERTER = {
             id: "SolarEdge.PV-Inverter",
             natureIds: [
-                "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter", "io.openems.edge.meter.api.AsymmetricMeter", "io.openems.edge.meter.api.SymmetricMeter", "io.openems.edge.bridge.modbus.api.ModbusComponent", "io.openems.edge.common.modbusslave.ModbusSlave", "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", "io.openems.edge.common.component.OpenemsComponent"
-            ]
+                "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter", "io.openems.edge.meter.api.AsymmetricMeter", "io.openems.edge.meter.api.SymmetricMeter", "io.openems.edge.bridge.modbus.api.ModbusComponent", "io.openems.edge.common.modbusslave.ModbusSlave", "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", "io.openems.edge.common.component.OpenemsComponent",
+            ],
         };
         export const EVCS_HARDY_BARTH = {
             id: "Evcs.HardyBarth",
@@ -106,8 +106,8 @@ export namespace DummyConfig {
                 "io.openems.edge.common.component.OpenemsComponent",
                 "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
                 "io.openems.edge.evcs.api.ManagedEvcs",
-                "io.openems.edge.evcs.api.Evcs"
-            ]
+                "io.openems.edge.evcs.api.Evcs",
+            ],
         };
     }
 
@@ -119,9 +119,9 @@ export namespace DummyConfig {
             factoryId: 'Evcs.HardyBarth',
             factory: Factory.EVCS_HARDY_BARTH,
             properties: {
-                enabled: "true"
+                enabled: "true",
             },
-            channels: {}
+            channels: {},
         });
 
         export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
@@ -132,9 +132,9 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
-                type: "GRID"
+                type: "GRID",
             },
-            channels: {}
+            channels: {},
         });
 
         export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
@@ -145,9 +145,9 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
-                type: "CONSUMPTION_METERED"
+                type: "CONSUMPTION_METERED",
             },
-            channels: {}
+            channels: {},
         });
         export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
@@ -156,9 +156,9 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
-                type: "PRODUCTION"
+                type: "PRODUCTION",
             },
-            channels: {}
+            channels: {},
         });
 
         export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
@@ -169,9 +169,9 @@ export namespace DummyConfig {
             properties: {
                 invert: false,
                 modbusUnitId: 5,
-                type: "PRODUCTION"
+                type: "PRODUCTION",
             },
-            channels: {}
+            channels: {},
         });
 
         export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
@@ -181,9 +181,9 @@ export namespace DummyConfig {
             factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
             properties: {
                 invert: false,
-                modbusUnitId: 5
+                modbusUnitId: 5,
             },
-            channels: {}
+            channels: {},
         });
 
         export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
@@ -194,9 +194,9 @@ export namespace DummyConfig {
                 invert: false,
                 modbusUnitId: 5,
                 // TODO
-                type: "CONSUMPTION_METERED"
+                type: "CONSUMPTION_METERED",
             },
-            channels: {}
+            channels: {},
         });
     }
 }
@@ -224,14 +224,14 @@ export const CHANNEL_LINE = (name: string, value: string, indentation?: TextInde
     type: "channel-line",
     name: name,
     ...(indentation && { indentation: indentation }),
-    value: value
+    value: value,
 });
 
 export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
     type: "value-from-channels-line",
     name: name,
     ...(indentation && { indentation: indentation }),
-    value: value
+    value: value,
 });
 
 export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
@@ -241,17 +241,17 @@ export const PHASE_ADMIN = (name: string, voltage: string, current: string, powe
     children: [
         {
             type: "item",
-            value: voltage
+            value: voltage,
         },
         {
             type: "item",
-            value: current
+            value: current,
         },
         {
             type: "item",
-            value: power
-        }
-    ]
+            value: power,
+        },
+    ],
 });
 
 export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
@@ -261,23 +261,23 @@ export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Fie
     children: [
         {
             type: "item",
-            value: power
-        }
-    ]
+            value: power,
+        },
+    ],
 });
 
 export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
-    type: "horizontal-line"
+    type: "horizontal-line",
 };
 
 export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
     type: "info-line",
-    name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen."
+    name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
 };
 
 export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
     type: "info-line",
-    name: text
+    name: text,
 });
 
 export namespace ChartConfig {

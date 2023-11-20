@@ -44,7 +44,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        public ref: ChangeDetectorRef
+        public ref: ChangeDetectorRef,
     ) {
         ref.detach();
         setInterval(() => {

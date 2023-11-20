@@ -22,8 +22,8 @@ describe('Autarchy - Modal', () => {
       expectView(TEST_CONTEXT, VIEW_CONTEXT, {
         title: "Autarkie",
         lines: [
-          LINE_INFO("Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.")
-        ]
+          LINE_INFO("Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird."),
+        ],
       });
     }
   });

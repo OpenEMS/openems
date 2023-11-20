@@ -21,7 +21,7 @@ import { InstallAppComponent } from './install.component';
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: './index.component.html',
 })
 export class IndexComponent implements OnInit, OnDestroy {
 
@@ -40,15 +40,15 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   public installedApps: AppList = {
     name: 'Edge.Config.App.installed', appCategories: []
-    , shouldBeShown: () => this.key === null // only show installed apps when the user is not currently selecting an app from a key
+    , shouldBeShown: () => this.key === null, // only show installed apps when the user is not currently selecting an app from a key
   };
   public availableApps: AppList = {
     name: 'Edge.Config.App.available', appCategories: []
-    , shouldBeShown: () => true // always show available apps
+    , shouldBeShown: () => true, // always show available apps
   };
   public incompatibleApps: AppList = {
     name: 'Edge.Config.App.incompatible', appCategories: []
-    , shouldBeShown: () => this.edge.roleIsAtLeast(Role.ADMIN) // only show incompatible apps for admins
+    , shouldBeShown: () => this.edge.roleIsAtLeast(Role.ADMIN), // only show incompatible apps for admins
   };
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
@@ -72,7 +72,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     private websocket: Websocket,
     private translate: TranslateService,
     private router: Router,
-    private modalController: ModalController
+    private modalController: ModalController,
   ) {
   }
 
@@ -91,7 +91,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     this.service.setCurrentComponent({
       languageKey: 'Edge.Config.App.NAME_WITH_EDGE_NAME',
-      interpolateParams: { edgeShortName: environment.edgeShortName }
+      interpolateParams: { edgeShortName: environment.edgeShortName },
     }, this.route).then(edge => {
       this.edge = edge;
 
@@ -103,7 +103,7 @@ export class IndexComponent implements OnInit, OnDestroy {
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: '_appManager',
-          payload: new GetApps.Request()
+          payload: new GetApps.Request(),
         })).then(response => {
 
           this.service.stopSpinner(this.spinnerId);
@@ -222,9 +222,9 @@ export class IndexComponent implements OnInit, OnDestroy {
       componentProps: {
         edge: this.edge,
         behaviour: KeyValidationBehaviour.SELECT,
-        knownApps: this.apps
+        knownApps: this.apps,
       },
-      cssClass: 'auto-height'
+      cssClass: 'auto-height',
     });
     modal.onDidDismiss().then(data => {
       if (!data.data) {
@@ -241,7 +241,7 @@ export class IndexComponent implements OnInit, OnDestroy {
             .filter(e => !Flags.getByType(e.flags, Flags.SHOW_AFTER_KEY_REDEEM))
             .map<App>(d => {
               return { id: 0, appId: d.appId };
-            })]
+            })],
         };
         this.useMasterKey = true;
         this.updateSelection();
@@ -253,8 +253,8 @@ export class IndexComponent implements OnInit, OnDestroy {
         // load bundles
         this.edge.sendRequest(this.websocket, new AppCenter.Request({
           payload: new AppCenterGetPossibleApps.Request({
-            key: this.key.keyId
-          })
+            key: this.key.keyId,
+          }),
         })).then(response => {
           const result = (response as AppCenterGetPossibleApps.Response).result;
           this.key.bundles = result.bundles;
@@ -290,9 +290,9 @@ export class IndexComponent implements OnInit, OnDestroy {
       component: KeyModalComponent,
       componentProps: {
         edge: this.edge,
-        behaviour: KeyValidationBehaviour.REGISTER
+        behaviour: KeyValidationBehaviour.REGISTER,
       },
-      cssClass: 'auto-height'
+      cssClass: 'auto-height',
     });
 
     return await modal.present();

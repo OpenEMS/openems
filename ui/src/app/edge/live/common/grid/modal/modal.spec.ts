@@ -14,7 +14,7 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
   "meter0/CurrentL1": 2170,
   "meter0/ActivePowerL1": -500,
   "meter0/ActivePowerL2": 1500,
-  ...properties
+  ...properties,
 });
 
 describe('Grid - Modal', () => {
@@ -29,14 +29,14 @@ describe('Grid - Modal', () => {
       expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
-        ]
+        ],
       });
     }
 
     {
       // Single Meter
       const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler")
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
       );
 
       // Admin and Installer
@@ -49,8 +49,8 @@ describe('Grid - Modal', () => {
           PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
           LINE_HORIZONTAL,
-          LINE_INFO_PHASES_DE
-        ]
+          LINE_INFO_PHASES_DE,
+        ],
       });
 
       // Owner and Guest
@@ -63,8 +63,8 @@ describe('Grid - Modal', () => {
           PHASE_GUEST("Phase L2 Bezug", "1.500 W"),
           PHASE_GUEST("Phase L3", "-"),
           LINE_HORIZONTAL,
-          LINE_INFO_PHASES_DE
-        ]
+          LINE_INFO_PHASES_DE,
+        ],
       });
 
       // Offgrid
@@ -74,7 +74,7 @@ describe('Grid - Modal', () => {
           {
             type: "channel-line",
             name: "Keine Netzverbindung!",
-            value: ""
+            value: "",
           },
           CHANNEL_LINE("Einspeisung", "1.000 W"),
           CHANNEL_LINE("Bezug", "0 W"),
@@ -82,8 +82,8 @@ describe('Grid - Modal', () => {
           PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
           LINE_HORIZONTAL,
-          LINE_INFO_PHASES_DE
-        ]
+          LINE_INFO_PHASES_DE,
+        ],
       });
     }
 
@@ -91,7 +91,7 @@ describe('Grid - Modal', () => {
       // Two Meters
       const EMS = DummyConfig.from(
         DummyConfig.Component.SOCOMEC_GRID_METER("meter10"),
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter11")
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter11"),
       );
 
       // Admin and Installer -> two meters
@@ -111,8 +111,8 @@ describe('Grid - Modal', () => {
           PHASE_ADMIN("Phase L2", "-", "-", "-"),
           PHASE_ADMIN("Phase L3", "-", "-", "-"),
           LINE_HORIZONTAL,
-          LINE_INFO_PHASES_DE
-        ]
+          LINE_INFO_PHASES_DE,
+        ],
       });
 
       // Owner and Guest -> two meters
@@ -132,8 +132,8 @@ describe('Grid - Modal', () => {
           PHASE_GUEST("Phase L2", "-"),
           PHASE_GUEST("Phase L3", "-"),
           LINE_HORIZONTAL,
-          LINE_INFO_PHASES_DE
-        ]
+          LINE_INFO_PHASES_DE,
+        ],
       });
     }
   });

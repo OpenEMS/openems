@@ -12,7 +12,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
             <span *ngSwitchCase="'TEMPORARY'" translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
         </ng-container>
     </ion-label>
-</ion-item>`
+</ion-item>`,
 })
 export class HistoryDataErrorComponent {
 

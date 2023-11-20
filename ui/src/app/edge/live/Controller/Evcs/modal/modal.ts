@@ -180,7 +180,7 @@ export class ModalComponent extends AbstractModal {
         if (this.edge != null) {
           let newMinChargePower = maxAllowedChargePower;
           this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-            { name: 'forceChargeMinPower', value: newMinChargePower }
+            { name: 'forceChargeMinPower', value: newMinChargePower },
           ]).then(() => {
             this.controller.properties.forceChargeMinPower = newMinChargePower;
           }).catch(reason => {

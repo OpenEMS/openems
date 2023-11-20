@@ -14,7 +14,7 @@ export namespace DateUtils {
     }
 
     return new Date(
-      Math.max(...dates.filter(date => !!date).map(Number))
+      Math.max(...dates.filter(date => !!date).map(Number)),
     );
   }
 
@@ -31,7 +31,7 @@ export namespace DateUtils {
     }
 
     return new Date(
-      Math.min(...dates.filter(date => !!date).map(Number))
+      Math.min(...dates.filter(date => !!date).map(Number)),
     );
   }
 
