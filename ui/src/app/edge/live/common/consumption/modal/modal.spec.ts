@@ -2,7 +2,6 @@ import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_
 import { TextIndentation } from "src/app/shared/genericComponents/modal/modal-line/modal-line";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { sharedSetup } from "src/app/shared/test/utils.spec";
-import { Role } from "src/app/shared/type/role";
 
 import { expectView } from "./modal.constants.spec";
 
