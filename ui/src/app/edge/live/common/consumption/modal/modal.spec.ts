@@ -22,7 +22,7 @@ describe('Consumption - Modal', () => {
       };
       const EMS = DummyConfig.from();
 
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
+      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "0 W"),
@@ -63,7 +63,7 @@ describe('Consumption - Modal', () => {
         'evcs2/ChargePower': null,
       };
 
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
+      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
@@ -106,7 +106,7 @@ describe('Consumption - Modal', () => {
         'evcs0/ChargePower': 1000,
       };
 
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
+      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
@@ -138,7 +138,7 @@ describe('Consumption - Modal', () => {
         'meter0/ActivePowerL3': 1000,
       };
 
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT, TEST_CONTEXT, {
+      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
