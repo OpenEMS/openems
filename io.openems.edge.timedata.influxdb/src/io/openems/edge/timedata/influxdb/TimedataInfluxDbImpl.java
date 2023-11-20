@@ -215,41 +215,32 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		// TODO implement this method
 		return emptySortedMap();
 	}
-	
+
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 	    return CompletableFuture.supplyAsync(() -> {
 	        try {
-	            var result = this.influxConnector.queryLastData(
-	                Optional.empty(), channelAddress, this.config.measurement());
+	            SortedMap<ChannelAddress, JsonElement> sortedMap = this.influxConnector.queryLastData(Optional.empty(), channelAddress, this.config.measurement());
 
-	            // If there are no results, return empty immediately
-	            if (result.isEmpty()) {
+	            if (sortedMap != null && !sortedMap.isEmpty() && sortedMap.containsKey(channelAddress)) {
+	                JsonElement latestValue = sortedMap.get(channelAddress);
+
+	                // Check if it´s a number and can be converted to long
+	                if (latestValue.isJsonPrimitive()) {
+	                	if (latestValue.getAsJsonPrimitive().isNumber()) {
+	                		return Optional.of(latestValue.getAsLong());
+	                	}
+	                }
+	            } else {
+	                // No data found
 	                return Optional.empty();
 	            }
-	            
-	            var latestValues = result.get(result.lastKey());
-	            
-	            // If the channelAddress is not in the latest values, return empty
-	            if (!latestValues.containsKey(channelAddress)) {
-	                return Optional.empty();
-	            }
-	            
-	            // Retrieve the latest value from the result
-	            var element = latestValues.get(channelAddress);
-
-	            // If the element is a number, return its long value
-	            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
-	                return Optional.of(element.getAsLong());
-	            }
-	            
-	        } catch (OpenemsNamedException e) {
-	            this.log.error("Error querying latest value for channel: " + channelAddress.toString(), e);
+	        } catch (Exception e) {
+	            this.log.error("Fehler beim Abrufen des neuesten Werts", e);
 	        }
 	        return Optional.empty();
 	    });
 	}
-
 	
 	@Override
 	public Timeranges getResendTimeranges(ChannelAddress notSendChannel, long lastResendTimestamp)

@@ -345,16 +345,18 @@ public class InfluxConnector {
 				fromDate, toDate, channels, resolution);
 	}
 	
+	
+	
 	/**
-	 * Queries the last value for given channel.
+	 * Queries the last value for given channel address from now to 100 days in the past.
 	 * 
-	 * @param influxEdgeId 			the unique, numeric Edge-ID; or Empty to query all Edges
-	 * @param channelAddress     	the Channels to query
-	 * @param measurement  			the measurement
-	 * @return 						the values mapped to their channel
-	 * @throws 						OpenemsNamedException on error
-	 */
-	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryLastData(
+	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
+	 * @param channelAddress     the Channels to query
+	 * @param measurement  the measurement
+	 * @return the values mapped to their channel
+	 * @throws OpenemsNamedException on error
+	 */	
+	public SortedMap<ChannelAddress, JsonElement> queryLastData(
 	        Optional<Integer> influxEdgeId, ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
 	    
 	    // Check if channelAddress is not null
@@ -362,8 +364,21 @@ public class InfluxConnector {
 	        return new TreeMap<>();
 	    }
 
-	    // Query the last data using the QueryProxy
-	    return this.queryProxy.queryLastData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId, channelAddress);
+	    // Erstellen eines Sets mit nur einem ChannelAddress
+	    Set<ChannelAddress> channels = Set.of(channelAddress);
+
+	    // Setzen der aktuellen Zeit
+	    ZonedDateTime now = ZonedDateTime.now();
+
+	    // Verwenden der aktuellen Zeit im queryFirstValueBefore-Aufruf
+	    return this.queryProxy.queryFirstValueBefore(//
+	            this.bucket, //
+	            this.getInfluxConnection(), //
+	            measurement, //
+	            influxEdgeId, //
+	            now, // Verwendung der aktuellen Zeit
+	            channels//
+	    );
 	}
 
 
