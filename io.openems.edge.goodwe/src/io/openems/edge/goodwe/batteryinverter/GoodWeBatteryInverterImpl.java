@@ -305,14 +305,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 
-		/*
-		 * Allow only valid combinations for FENECON Home Systems
-		 */
-		if (battery instanceof BatteryFeneconHome homeBattery) {
+		if (battery.isStarted() && battery instanceof BatteryFeneconHome homeBattery) {
 
 			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
 
-			// Check combination of GoodWe inverter and FENECON Home battery
+			/*
+			 * Check combination of GoodWe inverter and FENECON Home battery to avoid
+			 * invalid combinations for FENECON Home Systems
+			 */
 			if (this.getGoodweType().isInvalidBattery.test(homeBattery.getBatteryHardwareType())) {
 				this._setImpossibleFeneconHomeCombination(true);
 
@@ -330,6 +330,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 				|| bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin)
 				|| bmsOfflineSocUnderMin.isDefined()
 						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)) {
+			
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
 					+ " Voltages" //
@@ -360,6 +361,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		// TODO is writing WBMS_STRINGS still required with latest firmware?
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
+
 				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
