@@ -92,7 +92,6 @@ export class ChartComponent extends AbstractHistoryChart {
               return energyValues?.result.data[meter.id + '/ActiveConsumptionEnergy'];
             },
             converter: () => {
-              console.log("🚀 ~ file: chart.ts:96 ~ ChartComponent ~ consumptionMeters.forEach ~ data[meter.id + '/ActivePower']:", meter.alias, data[meter.id + '/ActivePower']);
               return data[meter.id + '/ActivePower'] ?? null;
             },
             color: consumptionMeterColors[Math.min(index, (consumptionMeterColors.length - 1))],
