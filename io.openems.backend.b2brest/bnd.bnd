@@ -12,4 +12,9 @@ Bundle-Version: 1.0.0.${tstamp}
 	org.apache.felix.http.servlet-api,\
 
 -testpath: \
-	${testpath}
+	${testpath}, \
+	assertj-core;version=3.24.2, \
+    org.mockito.mockito-core;version=5.7.0, \
+    net.bytebuddy.byte-buddy;version=1.12.21, \
+    net.bytebuddy.byte-buddy-agent;version=1.10.15, \
+    org.objenesis;version=3.1.0, \

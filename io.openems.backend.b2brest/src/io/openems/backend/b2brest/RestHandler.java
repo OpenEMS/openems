@@ -47,21 +47,33 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		try {
-			var user = this.authenticate(request);
+
+			if (target.isBlank()) {
+				throw new OpenemsException("Endpoint path was empty");
+			}
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
 							.split("/"));
 
-			if (targets.isEmpty()) {
-				throw new OpenemsException("Missing arguments to handle request");
+			var thisTarget = targets.get(0);
+
+			// Allow unauthenticated access to liveness probe
+			if (thisTarget.equalsIgnoreCase("live")) {
+				this.log.info("Received request on /live");
+				var messages = new JsonObject();
+				messages.addProperty("result", "OK");
+				this.sendOkResponse(baseRequest, response, messages);
+				return;
 			}
 
-			var thisTarget = targets.get(0);
-			switch (thisTarget) {
-			case "jsonrpc":
+			var user = this.authenticate(request);
+
+			if ("jsonrpc".equals(thisTarget)) {
+				this.log.info("Received request on /jsonrpc");
 				this.handleJsonRpc(user, baseRequest, request, response);
-				break;
+			} else {
+				throw new OpenemsException("Unknown endpoint " + target);
 			}
 		} catch (OpenemsNamedException e) {
 			throw new IOException(e.getMessage());
@@ -75,7 +87,7 @@ public class RestHandler extends AbstractHandler {
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
+	User authenticate(HttpServletRequest request) throws OpenemsNamedException {
 		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			var st = new StringTokenizer(authHeader);
@@ -101,7 +113,7 @@ public class RestHandler extends AbstractHandler {
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 	}
 
-	private void sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
+	void sendOkResponse(Request baseRequest, HttpServletResponse response, JsonObject data)
 			throws OpenemsException {
 		try {
 			response.setContentType("application/json");
@@ -163,7 +175,7 @@ public class RestHandler extends AbstractHandler {
 	 * @param httpRequest  the {@link HttpServletRequest}
 	 * @param httpResponse the {@link HttpServletResponse}
 	 */
-	private void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
+	void handleJsonRpc(User user, Request baseRequest, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
 		var requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
