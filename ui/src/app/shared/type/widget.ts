@@ -90,11 +90,6 @@ export class AdvertWidgets {
                     name: 'dynamic-electricity-tariff-existing-customer',
                     title: 'Dynamischer Stromtarif',
                 });
-            } else {
-                list.push({
-                    name: 'dynamic-electricity-tariff-new-customer',
-                    title: 'Dynamischer Stromtarif',
-                });
             }
         }
 
