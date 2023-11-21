@@ -13,12 +13,14 @@ import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.concat;
 
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -28,18 +30,12 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.ScheduleUtils;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.predictor.api.manager.PredictorManager;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public final class Utils {
 
@@ -47,36 +43,33 @@ public final class Utils {
 	}
 
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "UnmanagedConsumptionActivePower");
-
-	public record Parent(PredictorManager predictorManager, TimeOfUseTariff timeOfUseTariff, ManagedSymmetricEss ess,
-			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
-			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, ControlMode controlMode,
-			int maxChargePowerFromGrid, IntegerReadChannel solveDurationChannel) {
-	}
+	private static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
+			"UnmanagedConsumptionActivePower");
+	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
 	/**
 	 * Create Params for {@link Simulator}.
 	 * 
-	 * @param parent the {@link Parent} object
+	 * @param context the {@link Context} object
 	 * @return Params
 	 * @throws InvalidValueException on error
 	 */
-	public static Simulator.Params createSimulatorParams(Parent parent) throws InvalidValueException {
+	public static Params createSimulatorParams(Context context) throws InvalidValueException {
 		final var time = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15);
 
 		// Prediction values
-		final var predictionProduction = parent.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
-				.getValues();
-		final var predictionConsumption = parent.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
-				.getValues();
+		final var predictionProduction = context.predictorManager() //
+				.get24HoursPrediction(SUM_PRODUCTION).getValues();
+		final var predictionConsumption = joinConsumptionPredictions(4, //
+				context.predictorManager().get24HoursPrediction(SUM_CONSUMPTION).getValues(), //
+				context.predictorManager().get24HoursPrediction(SUM_UNMANAGED_CONSUMPTION).getValues());
 
 		// Prices contains the price values and the time it is retrieved.
-		final var prices = parent.timeOfUseTariff.getPrices();
+		final var prices = context.timeOfUseTariff().getPrices();
 
 		// Ess information.
-		final var netEssCapacity = parent.ess.getCapacity().getOrError();
-		final var soc = parent.ess.getSoc().getOrError();
+		final var netEssCapacity = context.ess().getCapacity().getOrError();
+		final var soc = context.ess().getSoc().getOrError();
 
 		// Calculate available energy using "netCapacity" and "soc".
 		var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
@@ -85,7 +78,7 @@ public final class Utils {
 
 		// Calculate the net usable energy of the battery.
 		final var reduceAboveEnergy = netEssCapacity / 100 * reduceAbove;
-		final var limitEnergy = getLimitEnergy(parent, netEssCapacity) + reduceAboveEnergy;
+		final var limitEnergy = getLimitEnergy(context, netEssCapacity) + reduceAboveEnergy;
 		final var netUsableEnergy = max(0, netEssCapacity - limitEnergy);
 
 		// Calculate current usable energy [Wh] in the battery.
@@ -93,22 +86,33 @@ public final class Utils {
 
 		// Power Values for scheduling battery for individual periods.
 		// TODO store max ever charge/dischare power
-		var power = parent.ess.getPower();
-		var dischargePower = max(5000 /* at least 5000 */, power.getMaxPower(parent.ess, Phase.ALL, Pwr.ACTIVE));
-		var chargePower = min(-5000 /* at least 5000 */, power.getMinPower(parent.ess, Phase.ALL, Pwr.ACTIVE));
+		var power = context.ess().getPower();
+		var dischargePower = max(5000 /* at least 5000 */, power.getMaxPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
+		var chargePower = min(-5000 /* at least 5000 */, power.getMinPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
 
-		var maxChargePowerFromGrid = parent.maxChargePowerFromGrid;
+		var maxChargePowerFromGrid = context.maxChargePowerFromGrid();
 
-		return new Simulator.Params(//
-				/* time */ time, //
-				/* essEnergy */ currentAvailableEnergy, //
-				/* essCapacity */ netUsableEnergy, //
-				/* essMaxEnergyPerPeriod */ toEnergy(max(dischargePower, abs(chargePower))), //
-				/* maxBuyFromGrid */ toEnergy(maxChargePowerFromGrid), //
-				stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray(),
-				stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray(),
-				/* prices */ interpolateArray(prices.getValues()), //
-				/* states */ parent.controlMode.states);
+		return Params.create() //
+				.time(time) //
+				.essAvailableEnergy(currentAvailableEnergy) //
+				.essCapacity(netUsableEnergy) //
+				.essMaxEnergyPerPeriod(toEnergy(max(dischargePower, abs(chargePower)))) //
+				.maxBuyFromGrid(toEnergy(maxChargePowerFromGrid)) //
+				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
+				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
+				.prices(interpolateArray(prices.getValues())) //
+				.states(context.controlMode().states) //
+				.build();
+	}
+
+	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
+			Integer[] unmanagedConsumption) {
+		return Streams.concat(//
+				Arrays.stream(totalConsumption) //
+						.limit(splitAfterIndex), //
+				Arrays.stream(unmanagedConsumption) //
+						.skip(splitAfterIndex)) //
+				.toArray(Integer[]::new);
 	}
 
 	protected static int toEnergy(int power) {
@@ -118,16 +122,16 @@ public final class Utils {
 	/**
 	 * Returns the amount of energy that is not usable for scheduling.
 	 * 
-	 * @param parent         the {@link Parent}
+	 * @param context        the {@link Context}
 	 * @param netEssCapacity net capacity of the battery.
 	 * @return the amount of energy that is limited.
 	 */
-	private static int getLimitEnergy(Parent parent, int netEssCapacity) {
+	private static int getLimitEnergy(Context context, int netEssCapacity) {
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		var limitSoc = concat(//
-				parent.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
-				parent.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
+				context.ctrlLimitTotalDischarges().stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
+				context.ctrlEmergencyCapacityReserves().stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
 				.max().orElse(0);
 
 		return netEssCapacity /* [Wh] */ / 100 * limitSoc;
@@ -147,13 +151,19 @@ public final class Utils {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
 				.findFirst();
-		var result = new float[values.length];
+		var lastNonNullIndex = IntStream.range(0, values.length) //
+				.filter(i -> values[i] != null) //
+				.reduce((first, second) -> second); //
+		if (lastNonNullIndex.isEmpty()) {
+			return new float[0];
+		}
+		var result = new float[lastNonNullIndex.getAsInt() + 1];
 		if (firstNonNull.isEmpty()) {
 			// all null
 			return result;
 		}
 		float last = firstNonNull.get();
-		for (var i = 0; i < values.length; i++) {
+		for (var i = 0; i < result.length; i++) {
 			float value = orElse(values[i], last);
 			result[i] = last = value;
 		}
@@ -174,13 +184,19 @@ public final class Utils {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
 				.findFirst();
-		var result = new int[values.length];
+		var lastNonNullIndex = IntStream.range(0, values.length) //
+				.filter(i -> values[i] != null) //
+				.reduce((first, second) -> second); //
+		if (lastNonNullIndex.isEmpty()) {
+			return new int[0];
+		}
+		var result = new int[lastNonNullIndex.getAsInt() + 1];
 		if (firstNonNull.isEmpty()) {
 			// all null
 			return result;
 		}
 		int last = firstNonNull.get();
-		for (var i = 0; i < values.length; i++) {
+		for (var i = 0; i < result.length; i++) {
 			int value = orElse(values[i], last);
 			result[i] = last = value;
 		}
@@ -201,7 +217,8 @@ public final class Utils {
 				sum.getGridActivePower().get(), /* current buy-from/sell-to grid */
 				ess.getActivePower().get() /* current charge/discharge Ess */);
 
-		return subtract(gridPower, maxChargePowerFromGrid); // apply maxChargePowerFromGrid
+		return min(0, // never positive, i.e. force discharge
+				subtract(gridPower, maxChargePowerFromGrid)); // apply maxChargePowerFromGrid
 	}
 
 	/**

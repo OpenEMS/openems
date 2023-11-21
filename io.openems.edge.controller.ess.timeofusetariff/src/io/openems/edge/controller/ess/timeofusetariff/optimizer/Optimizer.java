@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableList;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.Parent;
 
 /**
  * This task is executed once in the beginning and afterwards every full 15
@@ -26,11 +25,11 @@ public class Optimizer implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(Optimizer.class);
 
-	private final Supplier<Parent> parent;
+	private final Supplier<Context> context;
 	private final TreeMap<ZonedDateTime, Period> periods = new TreeMap<>();
 
-	public Optimizer(Supplier<Parent> parent) {
-		this.parent = parent;
+	public Optimizer(Supplier<Context> context) {
+		this.context = context;
 
 		/* Initialize 'Random' */
 		// Default RandomGenerator "L64X256MixRandom" might not be available. Choose
@@ -87,7 +86,7 @@ public class Optimizer implements Runnable {
 
 		// Measure time
 		var solveDuration = System.currentTimeMillis() - start;
-		this.parent.get().solveDurationChannel().setNextValue(solveDuration);
+		this.context.get().solveDurationChannel().setNextValue(solveDuration);
 		this.log.info("# Finished Optimizer after: " + (solveDuration) / 1000 + "s");
 	}
 
@@ -95,9 +94,9 @@ public class Optimizer implements Runnable {
 	// Capacity)
 	private int allowRetries = 10;
 
-	private Simulator.Params getParams() throws InvalidValueException, InterruptedException {
+	private Params getParams() throws InvalidValueException, InterruptedException {
 		try {
-			var result = createSimulatorParams(this.parent.get());
+			var result = createSimulatorParams(this.context.get());
 			this.allowRetries = 0;
 			return result;
 
