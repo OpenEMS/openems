@@ -35,7 +35,9 @@
         "InfoStorageForCharge": "Negative values correspond to storage charging",
         "InfoStorageForDischarge": "Positive values correspond to storage discharge",
         "Channeltreshold": {
-          "output": "Output"
+          "TITLE": "Channel threshold controller",
+          "output": "Output",
+          "ACTIVE_TIME_OVER_PERIOD": "Time"
         },
         "Singlethreshold": {
           "above": "Above",

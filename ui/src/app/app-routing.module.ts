@@ -3,11 +3,11 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { environment } from 'src/environments';
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
-import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
+import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -52,7 +52,6 @@ import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
-
 const routes: Routes = [
 
   // TODO should be removed in the future
@@ -84,7 +83,6 @@ const routes: Routes = [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
-          { path: ':componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
           { path: ':componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
           { path: ':componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
           { path: ':componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
@@ -100,6 +98,9 @@ const routes: Routes = [
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
           { path: 'storagechart', component: StorageChartOverviewComponent },
+
+          // Controllers
+          { path: 'channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
         ],
       },
 

@@ -29,12 +29,16 @@
         <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
           <autarchyWidget></autarchyWidget>
         </ion-col>
-      </ng-container>
-      <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.ChannelThreshold'">
-          <channelthresholdWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+
+        <!-- Non-Common but showing only one widget for all components -->
+        <ion-col *ngSwitchCase="'Controller_ChannelThreshold'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <channelthresholdWidget>
           </channelthresholdWidget>
         </ion-col>
+      </ng-container>
+
+      <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.FixDigitalOutput'">
           <fixDigitalOutputWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
           </fixDigitalOutputWidget>

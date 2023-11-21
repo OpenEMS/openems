@@ -237,7 +237,7 @@ export class OeChartTester {
     let configuration = AbstractHistoryChart.fillChart(chartType, chartData, channelData, channels.energyChannelWithValues);
     let data: OeChartTester.Dataset.Data[] = OeChartTester.convertChartDatasetsToDatasets(configuration.datasets);
     let labels: OeChartTester.Dataset.LegendLabel = OeChartTester.convertChartLabelsToLegendLabels(configuration.labels);
-    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels);
+    let options: OeChartTester.Dataset.Option = OeChartTester.convertChartDataToOptions(chartData, chartType, testContext, channels, testContext.translate.currentLang);
 
     return {
       datasets: {
@@ -291,7 +291,7 @@ export class OeChartTester {
    * @param channels the channels
    * @returns dataset options
    */
-  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels): OeChartTester.Dataset.Option {
+  public static convertChartDataToOptions(chartData: HistoryUtils.ChartData, chartType: 'line' | 'bar', testContext: TestContext, channels: OeTester.Types.Channels, locale: string): OeChartTester.Dataset.Option {
 
     let channelData: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse = OeChartTester.getChannelDataByCharttype(chartType, channels);
     let displayValues = chartData.output(channelData.result.data);
@@ -305,7 +305,7 @@ export class OeChartTester {
 
     return {
       type: 'option',
-      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result),
+      options: AbstractHistoryChart.getOptions(chartData, chartType, testContext.service, testContext.translate, legendOptions, channelData.result, locale),
     };
   }
 

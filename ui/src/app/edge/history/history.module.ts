@@ -1,10 +1,6 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from '../../shared/shared.module';
-import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
-import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
-import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
-import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common } from './common/common';
@@ -57,20 +53,18 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Controller } from './Controller/controller.module';
 
 @NgModule({
   imports: [
     SharedModule,
     Common,
+    Controller,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,
     AsymmetricPeakshavingWidgetComponent,
-    ChannelthresholdChartOverviewComponent,
-    ChannelthresholdSingleChartComponent,
-    ChannelthresholdTotalChartComponent,
-    ChannelthresholdWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
     ConsumptionChartOverviewComponent,
