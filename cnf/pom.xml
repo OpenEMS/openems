@@ -156,6 +156,13 @@
 			<artifactId>rxjava</artifactId>
 			<version>3.1.8</version>
 		</dependency>
+		<dependency>
+			<!-- Jenetics - Java Genetic Algorithm Library -->
+			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<version>7.2.0</version>
+		</dependency>
 		<!-- javax -->
 		<dependency>
 			<groupId>javax.jmdns</groupId>

@@ -1,12 +1,17 @@
 package io.openems.edge.core.appmanager.validator;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 
 public interface Validator {
@@ -79,5 +84,32 @@ public interface Validator {
 	 */
 	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
 			boolean returnImmediate);
+
+	/**
+	 * Checks the current status of an {@link OpenemsApp} and throws an exception if
+	 * the app can not be installed.
+	 * 
+	 * @param openemsApp the {@link OpenemsApp} to check
+	 * @param language   the current {@link Language}
+	 * @throws OpenemsNamedException on status error
+	 */
+	public default void checkStatus(OpenemsApp openemsApp, Language language) throws OpenemsNamedException {
+		var validatorConfig = openemsApp.getValidatorConfig();
+		var status = this.getStatus(validatorConfig);
+		switch (status) {
+		case INCOMPATIBLE:
+			throw new OpenemsException(
+					"App is not compatible! " + this.getErrorCompatibleMessages(validatorConfig, language).stream() //
+							.collect(joining(";")));
+		case COMPATIBLE:
+			throw new OpenemsException(
+					"App can not be installed! " + this.getErrorInstallableMessages(validatorConfig, language).stream() //
+							.collect(joining(";")));
+		case INSTALLABLE:
+			// app can be installed
+			return;
+		}
+		throw new OpenemsException("Status '" + status.name() + "' is not implemented.");
+	}
 
 }

@@ -132,7 +132,7 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 					new EdgeConfig.Component(ctrlFixActivePowerId, alias, "Controller.Ess.FixActivePower", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
-									.addProperty("ess_id", essId) //
+									.addProperty("ess.id", essId) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("mode", "MANUAL_OFF") //
 													.addProperty("hybridEssMode", "TARGET_DC") //

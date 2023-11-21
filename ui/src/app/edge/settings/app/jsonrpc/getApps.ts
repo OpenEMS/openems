@@ -70,7 +70,8 @@ export namespace GetApps {
         appId: string,
         name: string,
         shortName?: string,
-        image: string,
+        image?: string,
+        imageUrl?: string,
         status: Status,
         instanceIds: string[],
         flags: Flag[]

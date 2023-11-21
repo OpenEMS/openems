@@ -13,9 +13,9 @@ import io.openems.edge.core.appmanager.dependency.TemporaryApps;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.StaticIpAggregateTaskImpl;
-import io.openems.edge.core.appmanager.validator.Validator;
 
 public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 
@@ -26,14 +26,14 @@ public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 	public DummyAppManagerAppHelper(//
 			ComponentManager componentManager, //
 			ComponentUtil componentUtil, //
-			Validator validator, //
 			AppManagerUtil util //
 	) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		final var componentTask = new ComponentAggregateTaskImpl(componentManager);
 		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, componentUtil);
 		final var staticIpTask = new StaticIpAggregateTaskImpl(componentUtil);
-		this.tasks = List.of(staticIpTask, componentTask, schedulerTask);
-		this.impl = new AppManagerAppHelperImpl(componentManager, componentUtil, validator);
+		final var persistencePredictorTask = new PersistencePredictorAggregateTaskImpl(componentManager);
+		this.tasks = List.of(staticIpTask, componentTask, schedulerTask, persistencePredictorTask);
+		this.impl = new AppManagerAppHelperImpl(componentManager, componentUtil);
 
 		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "tasks", this.tasks);
 		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "appManagerUtil", util);

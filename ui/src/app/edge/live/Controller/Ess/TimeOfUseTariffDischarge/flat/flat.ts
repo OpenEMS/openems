@@ -12,7 +12,6 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
     protected readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
-    protected storageStatuslabel: string;
     protected priceWithCurrency: any;
 
     async presentModal() {
@@ -33,11 +32,7 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
     protected override onCurrentData(currentData: CurrentData): void {
         var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
-
         var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
-
-        // Since 'component' is empty during ngOninit. so assigning the labels through this method.
-        this.storageStatuslabel = Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

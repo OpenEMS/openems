@@ -261,7 +261,10 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		CHARGINGSTATION_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH)); //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Chargingstation Communication Failed " //
+						+ "| Keine Verbindung zur Ladestation " //
+						+ "| Bitte überprüfen Sie die Kommunikationsverbindung zu der Ladestation")); //
 
 		private final Doc doc;
 
