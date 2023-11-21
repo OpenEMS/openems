@@ -37,6 +37,15 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.11.2',
+        changes: [
+          Changelog.app(App.TIME_OF_USE) + "(BETA-Test): Verbesserungen am Algorithmus",
+          Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Fehlerbehebungen bei Übernahme des Authentifizierungs-Tokens",
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung beim Handling voneinander abhängiger Apps, Integrated System App für Industrial S" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 30: Verbesserung der Kompatibilitätsprüfung Wechselrichter+Batterie (State 'ImpossibleFeneconHomeCombination')" },
+        ],
+      },
+      {
         version: '2023.11.1',
         changes: [
           Changelog.openems('2023.11.0'),
@@ -50,7 +59,7 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserte Kompatibilitätsprüfung von Apps, Performance-Optimierung durch Laden der Bilder von FENECON Docs" },
           { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: einheitliche Berechnung des Gesamt-SoC unter Berücksichtigung der Kapazität" },
           { roleIsAtLeast: Role.ADMIN, change: "Notstromreserve: Fehlerbehebung bei gemessener negativer Erzeugung" },
-          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 40: korrigierter Skalierungsfaktor für Strom und Spannung bei Notstromverbrauchern, zuverlässigere Identifikation des Wechselrichters" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 30: korrigierter Skalierungsfaktor für Strom und Spannung bei Notstromverbrauchern, zuverlässigere Identifikation des Wechselrichters" },
           { roleIsAtLeast: Role.ADMIN, change: "Home 20 & 30: Fehlerbehebung beim Lesen der Seriennummern der Batterie, Reduzierung der Beladeleistung bei niedrigen Zellspannungen" },
           { roleIsAtLeast: Role.ADMIN, change: "Dynamischer Stromtarif: nutze 'UnmanagedConsumption' für Vorhersage des Verbrauchs" },
           { roleIsAtLeast: Role.ADMIN, change: "Ladestation KEBA/HardyBarth: bessere Meldung bei Kommunikationsfehler" },
