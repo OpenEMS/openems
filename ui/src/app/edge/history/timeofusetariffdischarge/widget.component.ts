@@ -5,6 +5,11 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
+export enum Mode {
+    CHARGE_CONSUMPTION = 'CHARGE_CONSUMPTION',
+    DELAY_DISCHARGE = 'DELAY_DISCHARGE'
+}
+
 @Component({
     selector: TimeOfUseTariffDischargeWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html',
@@ -16,10 +21,11 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
 
     private static readonly SELECTOR = "timeOfUseTariffDischargeWidget";
 
-    public delayedActiveTimeOverPeriod: number = null;
-    public chargedActiveTimeOverPeriod: number = null;
-    public edge: Edge = null;
-    public component: EdgeConfig.Component = null;
+    protected delayedActiveTimeOverPeriod: number | null = null;
+    protected chargedActiveTimeOverPeriod: number | null = null;
+    protected edge: Edge | null = null;
+    protected component: EdgeConfig.Component | null = null;
+    protected readonly MODE = Mode;
 
     constructor(
         public override service: Service,
@@ -28,17 +34,17 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
         super(service);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.service.setCurrentComponent('', this.route).then(response => {
             this.edge = response;
         });
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeWidgetRefresh();
     }
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateValues();
     };
 
@@ -63,10 +69,10 @@ export class TimeOfUseTariffDischargeWidgetComponent extends AbstractHistoryWidg
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         const result: ChannelAddress[] = [];
 
+        result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
+
         if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff') {
             result.push(new ChannelAddress(this.componentId, 'ChargedTime'));
-        } else {
-            result.push(new ChannelAddress(this.componentId, 'DelayedTime'));
         }
 
         return new Promise((resolve) => {

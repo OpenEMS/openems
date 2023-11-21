@@ -48,6 +48,7 @@ public class AppManagerAppHelperImplTest {
 					Apps.feneconHome(t), //
 					Apps.kebaEvcs(t), //
 					Apps.awattarHourly(t), //
+					Apps.entsoE(t), //
 					Apps.stromdaoCorrently(t), //
 
 					this.testAApp = Apps.testADependencyToC(t), //

@@ -57,7 +57,6 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
-import io.openems.edge.core.appmanager.validator.Validator;
 
 @Component(//
 		immediate = true, //
@@ -84,8 +83,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
 
-	private final Validator validator;
-
 	private final List<AggregateTask<?>> tasks = new ArrayList<>();
 
 	private TemporaryApps temporaryApps;
@@ -93,12 +90,10 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	@Activate
 	public AppManagerAppHelperImpl(//
 			@Reference ComponentManager componentManager, //
-			@Reference ComponentUtil componentUtil, //
-			@Reference Validator validator //
+			@Reference ComponentUtil componentUtil //
 	) {
 		this.componentManager = componentManager;
 		this.componentUtil = componentUtil;
-		this.validator = validator;
 	}
 
 	@Reference(//
@@ -196,8 +191,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		final var bundle = getTranslationBundle(language);
 		final var toCreateInstances = new ArrayList<OpenemsAppInstance>();
 		if (oldInstance == null) {
-			// TODO maybe check for all apps and its dependencies
-			this.checkStatus(app, language);
 			this.temporaryApps.currentlyCreatingApps().add(newInstance);
 			toCreateInstances.add(newInstance);
 		} else {
@@ -1008,23 +1001,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 		}
 		return true;
-	}
-
-	protected void checkStatus(OpenemsApp openemsApp, Language language) throws OpenemsNamedException {
-		var validatorConfig = openemsApp.getValidatorConfig();
-		var status = this.validator.getStatus(validatorConfig);
-		switch (status) {
-		case INCOMPATIBLE:
-			throw new OpenemsException("App is not compatible! " + this.validator
-					.getErrorCompatibleMessages(validatorConfig, language).stream().collect(Collectors.joining(";")));
-		case COMPATIBLE:
-			throw new OpenemsException("App can not be installed! " + this.validator
-					.getErrorInstallableMessages(validatorConfig, language).stream().collect(Collectors.joining(";")));
-		case INSTALLABLE:
-			// app can be installed
-			return;
-		}
-		throw new OpenemsException("Status '" + status.name() + "' is not implemented.");
 	}
 
 	/**

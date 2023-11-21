@@ -11,10 +11,20 @@
       </ion-item>
       <ion-card-content>
         <div>
-          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer"
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer;"
             (click)="onAppClicked(app)"
             [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
-            <img *ngIf="app.image" [src]="app.image" />
+            <img *ngIf="app.image; else noImage" [src]="app.image" />
+            <ng-template #noImage>
+              <img *ngIf="app.imageUrl; else noImageUrl" [src]="app.imageUrl" (error)="app.imageUrl = null" />
+              <ng-template #noImageUrl>
+                <div style="max-width: 100%;">
+                  <h1 style="text-align: center; white-space: initial;">
+                    {{app.name}}
+                  </h1>
+                </div>
+              </ng-template>
+            </ng-template>
           </div>
         </div>
         <p *ngIf="false">

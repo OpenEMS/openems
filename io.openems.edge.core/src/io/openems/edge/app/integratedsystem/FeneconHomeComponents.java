@@ -211,20 +211,23 @@ public final class FeneconHomeComponents {
 	 * Creates a default predictor component for a FENECON Home.
 	 * 
 	 * @param bundle the translation bundle
+	 * @param t      the current {@link ConfigurationTarget}
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component predictor(//
-			final ResourceBundle bundle //
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t //
 	) {
 		return new EdgeConfig.Component("predictor0",
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.predictor0.alias"),
 				"Predictor.PersistenceModel", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
-						.add("channelAddresses", JsonUtils.buildJsonArray() //
-								.add("_sum/ProductionActivePower") //
-								.add("_sum/ConsumptionActivePower") //
-								.build()) //
+						.onlyIf(t == ConfigurationTarget.ADD, b -> b//
+								.add("channelAddresses", JsonUtils.buildJsonArray() //
+										.add("_sum/ProductionActivePower") //
+										.add("_sum/ConsumptionActivePower") //
+										.build())) //
 						.build());
 	}
 
@@ -315,7 +318,6 @@ public final class FeneconHomeComponents {
 	 * @param chargerId         the id of the charger
 	 * @param chargerAlias      the alias of the charger
 	 * @param batteryInverterId the id of the battery inverter
-	 * @param modbusIdExternal  the id of the external modbus bridge
 	 * @param i                 the index of the pv-port
 	 * @return the {@link Component}
 	 */
@@ -323,7 +325,6 @@ public final class FeneconHomeComponents {
 			final String chargerId, //
 			final String chargerAlias, //
 			final String batteryInverterId, //
-			final String modbusIdExternal, //
 			final int i //
 	) {
 		return new EdgeConfig.Component(chargerId, chargerAlias, //
@@ -331,8 +332,6 @@ public final class FeneconHomeComponents {
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("essOrBatteryInverter.id", batteryInverterId) //
-						.addProperty("modbus.id", modbusIdExternal) //
-						.addProperty("modbusUnitId", 247) //
 						.addProperty("pvPort", "PV_" + (i + 1)) //
 						.build());
 	}
