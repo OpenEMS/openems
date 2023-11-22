@@ -41,6 +41,9 @@ public class DebugCycleExecutor implements Runnable {
 		this.debugCycleScheduledExecutor.scheduleAtFixedRate(this, 10, 10, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Deactivate method.
+	 */
 	@Deactivate
 	public void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugCycleScheduledExecutor, 0);
