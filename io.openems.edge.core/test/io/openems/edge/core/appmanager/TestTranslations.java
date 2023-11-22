@@ -35,6 +35,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("BIDDING_ZONE", "GERMANY") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.stromdaoCorrently(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
@@ -66,6 +69,14 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.peakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.phaseAccuratePeakShaving(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.addProperty("METER_ID", "meter0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //

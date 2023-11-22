@@ -5,7 +5,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
   selector: 'oe-modal-value-line',
-  templateUrl: './modal-value-line.html'
+  templateUrl: './modal-value-line.html',
 })
 export class ModalValueLineComponent extends AbstractModalLine {
 

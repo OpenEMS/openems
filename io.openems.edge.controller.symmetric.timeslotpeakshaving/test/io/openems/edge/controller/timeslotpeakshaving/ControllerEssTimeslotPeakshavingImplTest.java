@@ -34,7 +34,8 @@ public class ControllerEssTimeslotPeakshavingImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2020-02-03T08:30:00.00Z"), ZoneOffset.UTC);
 		new ControllerTest(new ControllerEssTimeslotPeakshavingImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1)) //
+				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
+						.setPower(new DummyPower(0.3, 0.3, 0.1)) //
 						.withGridMode(GridMode.ON_GRID)) //
 				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //

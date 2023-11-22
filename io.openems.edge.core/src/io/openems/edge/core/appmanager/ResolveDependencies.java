@@ -65,7 +65,7 @@ public class ResolveDependencies implements Runnable {
 						Language.DEFAULT);
 
 				// check if instance should have dependencies
-				if (configuration.dependencies == null || configuration.dependencies.isEmpty()) {
+				if (configuration.dependencies() == null || configuration.dependencies().isEmpty()) {
 					if (instance.dependencies != null && !instance.dependencies.isEmpty()) {
 						LOG.info(String.format("Instance %s has unnecessary dependencies!", instance.instanceId));
 					}
@@ -73,7 +73,7 @@ public class ResolveDependencies implements Runnable {
 				}
 
 				// remove satisfied dependencies
-				for (var dependency : configuration.dependencies) {
+				for (var dependency : configuration.dependencies()) {
 					// dependency exists
 					if (instance.dependencies != null && instance.dependencies.stream() //
 							.anyMatch(t -> t.key.equals(dependency.key))) {

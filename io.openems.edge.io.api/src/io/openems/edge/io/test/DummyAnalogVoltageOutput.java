@@ -1,51 +1,40 @@
 package io.openems.edge.io.test;
 
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.test.DummyComponentContext;
+import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.io.api.AnalogOutput;
 import io.openems.edge.io.api.AnalogVoltageOutput;
 
 /**
- * Provides a simple, simulated Analog Voltage Output component that can be used
- * together with the OpenEMS Component test framework.
+ * Provides a simple, simulated {@link AnalogVoltageOutput} component that can
+ * be used together with the OpenEMS Component test framework.
  */
-public class DummyAnalogVoltageOutput extends AbstractOpenemsComponent implements AnalogOutput, AnalogVoltageOutput {
+public class DummyAnalogVoltageOutput extends AbstractDummyOpenemsComponent<DummyAnalogVoltageOutput>
+		implements AnalogOutput, AnalogVoltageOutput {
 
-	private Range range;
-
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
+	private Range range = new Range(0, 100, 10000);
 
 	public DummyAnalogVoltageOutput(String id) {
-		this(id, new Range(0, 100, 10000));
-	}
-
-	public DummyAnalogVoltageOutput(String id, Range range) {
-		super(//
+		super(id, //
 				OpenemsComponent.ChannelId.values(), //
 				AnalogOutput.ChannelId.values(), //
 				AnalogVoltageOutput.ChannelId.values() //
 		);
-		super.activate(new DummyComponentContext(), id, "", true);
+	}
+
+	@Override
+	protected DummyAnalogVoltageOutput self() {
+		return this;
+	}
+
+	public DummyAnalogVoltageOutput setRange(Range range) {
 		this.range = range;
+		return this;
 	}
 
 	@Override
 	public Range range() {
 		return this.range;
 	}
+
 }

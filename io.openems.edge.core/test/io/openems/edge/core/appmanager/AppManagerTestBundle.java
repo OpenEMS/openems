@@ -14,9 +14,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
@@ -39,12 +41,17 @@ import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.DummyValidator.TestCheckable;
+import io.openems.edge.core.appmanager.dependency.AppConfigValidator;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
+import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
+import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
@@ -59,6 +66,8 @@ public class AppManagerTestBundle {
 	public final AppManagerImpl sut;
 	public final AppManagerUtil appManagerUtil;
 	public final AppCenterBackendUtil appCenterBackendUtil;
+
+	private final AppValidateWorker appValidateWorker;
 
 	public final CheckablesBundle checkablesBundle;
 
@@ -206,20 +215,35 @@ public class AppManagerTestBundle {
 
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
-		this.checkablesBundle = new CheckablesBundle(
+		this.checkablesBundle = new CheckablesBundle(//
+				new TestCheckable(), //
 				new CheckCardinality(this.sut, this.appManagerUtil,
 						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
-				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
+				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
+				new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME)), //
+				new CheckHome(this.componentManger, getComponentContext(CheckHome.COMPONENT_NAME),
+						new CheckAppsNotInstalled(this.sut, getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))) //
 		);
 
 		var dummyValidator = new DummyValidator();
 		dummyValidator.setCheckables(this.checkablesBundle.all());
 		this.validator = dummyValidator;
 
-		final var csoAppManagerAppHelper = DummyAppManagerAppHelper.cso(this.componentManger, this.componentUtil,
-				this.validator, this.appManagerUtil);
+		final var appManagerAppHelper = new DummyAppManagerAppHelper(this.componentManger, this.componentUtil,
+				this.appManagerUtil);
+		final var csoAppManagerAppHelper = cso((AppManagerAppHelper) appManagerAppHelper);
 
-		final var appManagerAppHelper = csoAppManagerAppHelper.getService();
+		this.appValidateWorker = new AppValidateWorker();
+		final var appConfigValidator = new AppConfigValidator();
+
+		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "appManagerUtil",
+				this.appManagerUtil);
+		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "validator", appConfigValidator);
+
+		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "appManagerUtil",
+				this.appManagerUtil);
+		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "tasks",
+				appManagerAppHelper.getTasks());
 
 		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
 		// the attribute can still be private
@@ -234,6 +258,7 @@ public class AppManagerTestBundle {
 				.addReference("componentManager", this.componentManger) //
 				.addReference("csoAppManagerAppHelper", csoAppManagerAppHelper) //
 				.addReference("validator", this.validator) //
+				.addReference("appValidateWorker", this.appValidateWorker) //
 				.addReference("backendUtil", this.appCenterBackendUtil) //
 				.addReference("availableApps", availableAppsSupplier.apply(this)) //
 				.activate(initialAppManagerConfig);
@@ -268,12 +293,11 @@ public class AppManagerTestBundle {
 	 * @throws Exception on error
 	 */
 	public void assertNoValidationErrors() throws Exception {
-		var worker = new AppValidateWorker(this.sut);
-		worker.validateApps();
+		this.appValidateWorker.validateApps();
 
 		// should not have found defective Apps
-		if (!worker.defectiveApps.isEmpty()) {
-			throw new Exception(worker.defectiveApps.entrySet().stream() //
+		if (!this.appValidateWorker.defectiveApps.isEmpty()) {
+			throw new Exception(this.appValidateWorker.defectiveApps.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
 					.collect(Collectors.joining("|")));
 		}
@@ -367,15 +391,13 @@ public class AppManagerTestBundle {
 		}
 	}
 
-	public static class CheckablesBundle {
-
-		public final CheckCardinality checkCardinality;
-		public final CheckRelayCount checkRelayCount;
-
-		public CheckablesBundle(CheckCardinality checkCardinality, CheckRelayCount checkRelayCount) {
-			this.checkCardinality = checkCardinality;
-			this.checkRelayCount = checkRelayCount;
-		}
+	public record CheckablesBundle(//
+			DummyValidator.TestCheckable checkTest, //
+			CheckCardinality checkCardinality, //
+			CheckRelayCount checkRelayCount, //
+			CheckAppsNotInstalled checkAppsNotInstalled, //
+			CheckHome checkHome //
+	) {
 
 		/**
 		 * Gets all {@link Checkable}.
@@ -383,8 +405,12 @@ public class AppManagerTestBundle {
 		 * @return the {@link Checkable}
 		 */
 		public final List<Checkable> all() {
-			return Lists.newArrayList(this.checkCardinality, //
-					this.checkRelayCount //
+			return Lists.newArrayList(//
+					this.checkTest(), //
+					this.checkCardinality(), //
+					this.checkRelayCount(), //
+					this.checkAppsNotInstalled(), //
+					this.checkHome() //
 			);
 		}
 	}
@@ -481,6 +507,35 @@ public class AppManagerTestBundle {
 			this.componentManager.setConfigurationAdmin(cm);
 		}
 
+	}
+
+	/**
+	 * Creates a {@link ComponentServiceObjects} of a service.
+	 * 
+	 * @param <T>     the type of the service
+	 * @param service the service
+	 * @return the {@link ComponentServiceObjects}
+	 */
+	public static <T> ComponentServiceObjects<T> cso(T service) {
+		return new ComponentServiceObjects<T>() {
+
+			@Override
+			public T getService() {
+				return service;
+			}
+
+			@Override
+			public void ungetService(T service) {
+				// empty for test
+			}
+
+			@Override
+			public ServiceReference<T> getServiceReference() {
+				// not needed for test
+				return null;
+			}
+
+		};
 	}
 
 }

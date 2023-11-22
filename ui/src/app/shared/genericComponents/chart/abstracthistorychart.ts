@@ -8,6 +8,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
+import { startOfMonth } from 'date-fns';
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
@@ -45,7 +46,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
-  protected static phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
+  protected static readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)'];
 
   private legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   private channelData: { data: { [name: string]: number[] } } = { data: {} };
@@ -54,7 +55,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     public service: Service,
     public cdRef: ChangeDetectorRef,
     protected translate: TranslateService,
-    protected route: ActivatedRoute
+    protected route: ActivatedRoute,
   ) {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
@@ -170,7 +171,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       datasets: datasets,
       colors: colors,
       labels: labels,
-      legendOptions: legendOptions
+      legendOptions: legendOptions,
     };
   }
 
@@ -196,7 +197,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     return {
       datasets: datasets,
       colors: colors,
-      legendOptions: legendOptions
+      legendOptions: legendOptions,
     };
   }
 
@@ -212,7 +213,7 @@ export abstract class AbstractHistoryChart implements OnInit {
     return {
       label: label,
       strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden,
-      hideLabelInLegend: element.hideLabelInLegend ?? false
+      hideLabelInLegend: element.hideLabelInLegend ?? false,
     };
   }
 
@@ -225,7 +226,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   public static getColors(color: string, chartType: 'line' | 'bar'): { backgroundColor: string, borderColor: string } {
     return {
       backgroundColor: 'rgba(' + (chartType == 'bar' ? color.split('(').pop().split(')')[0] + ',0.4)' : color.split('(').pop().split(')')[0] + ',0.05)'),
-      borderColor: 'rgba(' + color.split('(').pop().split(')')[0] + ',1)'
+      borderColor: 'rgba(' + color.split('(').pop().split(')')[0] + ',1)',
     };
   }
 
@@ -250,7 +251,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
       order: element.order ?? Number.MAX_VALUE,
-      ...(element.hideShadow && { fill: !element.hideShadow })
+      ...(element.hideShadow && { fill: !element.hideShadow }),
     };
     return dataset;
   }
@@ -269,8 +270,15 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ]).then(([energyPeriodResponse, energyResponse]) => {
+
+
+        // TODO after chartjs migration, look for config
+        if (unit === Unit.MONTHS) {
+          energyPeriodResponse.result.timestamps[0] = startOfMonth(DateUtils.stringToDate(energyPeriodResponse.result.timestamps[0]))?.toString() ?? energyPeriodResponse.result.timestamps[0];
+        }
+
         let displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
         this.datasets = displayValues.datasets;
         this.colors = displayValues.colors;
@@ -315,7 +323,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       // Shows Line-Chart
       Promise.all([
         this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
-        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to)
+        this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ])
         .then(([dataResponse, energyResponse]) => {
           this.chartType = 'line';
@@ -355,7 +363,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             } else {
               this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
               resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
-                timestamps: [null], data: { null: null }
+                timestamps: [null], data: { null: null },
               }));
             }
           }).catch((response) => {
@@ -405,7 +413,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               } else {
                 this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                 resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                  timestamps: [null], data: { null: null }
+                  timestamps: [null], data: { null: null },
                 }));
               }
             }).catch((response) => {
@@ -456,7 +464,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               } else {
                 this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                 resolve(new QueryHistoricTimeseriesEnergyResponse(response.id, {
-                  data: { null: null }
+                  data: { null: null },
                 }));
               }
             }).catch((response) => {
@@ -513,17 +521,17 @@ export abstract class AbstractHistoryChart implements OnInit {
             scaleLabel: {
               display: true,
               labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-              padding: 10
+              padding: 10,
             },
             gridLines: {
-              display: element.displayGrid ?? true
+              display: element.displayGrid ?? true,
             },
             ticks: {
               beginAtZero: true,
               max: 100,
               padding: 5,
-              stepSize: 20
-            }
+              stepSize: 20,
+            },
           });
           break;
 
@@ -536,14 +544,14 @@ export abstract class AbstractHistoryChart implements OnInit {
               display: true,
               labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
               padding: 5,
-              fontSize: 11
+              fontSize: 11,
             },
             gridLines: {
-              display: element.displayGrid ?? true
+              display: element.displayGrid ?? true,
             },
             ticks: {
-              beginAtZero: false
-            }
+              beginAtZero: false,
+            },
           });
           break;
       }
@@ -579,7 +587,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         }
 
         let afterTitle = typeof chartObject.tooltip?.afterTitle == 'function' ? chartObject.tooltip?.afterTitle(stack) : null;
-        let totalValue = items.filter(element => !element.label.includes(afterTitle
+        let totalValue = items.filter(element => !element.label.includes(afterTitle,
         )).reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
 
         if (afterTitle) {
@@ -643,7 +651,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
             lineWidth: 2,
             strokeStyle: dataset.borderColor.toString(),
-            lineDash: dataset.borderDash
+            lineDash: dataset.borderDash,
           });
         });
       });
@@ -704,7 +712,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       if (this.chartObject?.input) {
         resolve({
           powerChannels: this.chartObject.input.map(element => element.powerChannel),
-          energyChannels: this.chartObject.input.map(element => element.energyChannel)
+          energyChannels: this.chartObject.input.map(element => element.energyChannel),
         });
       }
     });
@@ -798,7 +806,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           }
         }
       }
-    }
+    },
   };
 
   /**

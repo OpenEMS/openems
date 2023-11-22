@@ -2,6 +2,6 @@ import { Component } from "@angular/core";
 
 @Component({
   selector: 'changelogViewComponent',
-  templateUrl: './view.html'
+  templateUrl: './view.html',
 })
 export class ChangelogViewComponent { }

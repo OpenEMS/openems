@@ -1,7 +1,10 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
+import static io.openems.edge.common.type.TypeUtils.max;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 
 public class ForceChargeHandler extends StateHandler<State, Context> {
@@ -11,8 +14,7 @@ public class ForceChargeHandler extends StateHandler<State, Context> {
 		var sum = context.sum;
 
 		// calculate target and ramp power
-		int acProduction = sum.getProductionAcActivePower().orElse(0);
-		context.setTargetPower(acProduction * -1);
+		context.setTargetPower(getAcPvProduction(sum) * -1);
 		context.setRampPower(context.maxApparentPower * 0.01);
 
 		var reserveSoc = context.reserveSoc;
@@ -24,6 +26,16 @@ public class ForceChargeHandler extends StateHandler<State, Context> {
 		}
 
 		return State.FORCE_CHARGE;
+	}
+
+	/**
+	 * Gets AC-PV Production.
+	 * 
+	 * @param sum the {@link Sum}
+	 * @return the AC-PV Production, always >= 0
+	 */
+	protected static int getAcPvProduction(Sum sum) {
+		return max(sum.getProductionAcActivePower().get(), 0);
 	}
 
 }

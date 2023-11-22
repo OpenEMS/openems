@@ -23,7 +23,7 @@ export class EdgeRpcRequest extends JsonrpcRequest {
         public override readonly params: {
             edgeId: string,
             payload: JsonrpcRequest
-        }
+        },
     ) {
         super(EdgeRpcRequest.METHOD, params);
     }

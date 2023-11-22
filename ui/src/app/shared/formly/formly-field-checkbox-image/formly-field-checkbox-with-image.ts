@@ -4,7 +4,7 @@ import { FieldWrapper } from '@ngx-formly/core';
 @Component({
     selector: 'formly-field-checkbox-with-image',
     templateUrl: './formly-field-checkbox-with-image.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implements OnInit {
 
