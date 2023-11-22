@@ -1,6 +1,7 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,7 +47,8 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 @EventTopics({ //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
-public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler, DebugLoggable {
+public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
+		implements UiWebsocket, EventHandler, DebugLoggable {
 
 	private static final String COMPONENT_ID = "uiwebsocket0";
 
@@ -256,17 +258,24 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		return userOpt.get();
 	}
 
-	@Override
-	public String id() {
+	public String getId() {
 		return COMPONENT_ID;
 	}
 
 	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.server.debugLog();
+	}
+
+	@Override
 	public Map<String, JsonElement> debugMetrics() {
-		return Map.of(//
-				COMPONENT_ID + "/Connections",
-				new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0) //
-		);
+		final var metrics = new HashMap<String, JsonElement>();
+
+		this.server.debugMetrics().forEach((key, value) -> {
+			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
+		});
+
+		return metrics;
 	}
 
 }

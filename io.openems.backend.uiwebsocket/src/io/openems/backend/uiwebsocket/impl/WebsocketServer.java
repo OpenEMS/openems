@@ -1,20 +1,12 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.time.Instant;
-
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
@@ -29,15 +21,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnClose onClose;
 
 	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
-		super(name, port, poolSize, debugMode, (executor) -> {
-			// Store Metrics
-			var data = TreeBasedTable.<Long, String, JsonElement>create();
-			var now = Instant.now().toEpochMilli();
-			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
-				data.put(now, parent.id() + "/" + key, new JsonPrimitive(value));
-			});
-			parent.timedataManager.write("backend0", new TimestampedDataNotification(data));
-		});
+		super(name, port, poolSize, debugMode);
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);

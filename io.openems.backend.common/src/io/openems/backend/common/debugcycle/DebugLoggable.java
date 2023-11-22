@@ -1,7 +1,5 @@
 package io.openems.backend.common.debugcycle;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.Map;
 
 import com.google.gson.JsonElement;
@@ -10,33 +8,19 @@ import io.openems.backend.common.timedata.Timedata;
 
 public interface DebugLoggable {
 
-	// TODO should be merged with OpenemsComponent
 	/**
-	 * Returns a unique ID for this OpenEMS component.
+	 * Gets some output that is suitable for a continuous Debug log.
 	 *
-	 * @return the unique ID
+	 * @return the debug log output; null for no log
 	 */
-	public String id();
-
-	/**
-	 * Gets some output that is suitable for a continuous Debug log. Returns 'null'
-	 * by default which causes no output.
-	 *
-	 * @return the debug log output
-	 */
-	public default String debugLog() {
-		return null;
-	}
+	public String debugLog();
 
 	/**
 	 * Gets some output that is suitable for a debug metrics to write down as
 	 * {@link Timedata}.
 	 * 
-	 * @return the key value entries to write to write down; null or emptyMap for no
-	 *         metrics
+	 * @return the key value entries to write down; null or emptyMap for no metrics
 	 */
-	public default Map<String, JsonElement> debugMetrics() {
-		return emptyMap();
-	}
+	public Map<String, JsonElement> debugMetrics();
 
 }

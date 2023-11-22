@@ -1,5 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -288,17 +289,24 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 		return result;
 	}
 
-	@Override
-	public String id() {
+	public String getId() {
 		return COMPONENT_ID;
 	}
 
 	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.server.debugLog();
+	}
+
+	@Override
 	public Map<String, JsonElement> debugMetrics() {
-		return Map.of(//
-				this.id() + "/Connections",
-				new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0) //
-		);
+		final var metrics = new HashMap<String, JsonElement>();
+
+		this.server.debugMetrics().forEach((key, value) -> {
+			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
+		});
+
+		return metrics;
 	}
 
 }

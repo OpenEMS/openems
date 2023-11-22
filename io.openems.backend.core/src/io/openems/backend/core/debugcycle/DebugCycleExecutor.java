@@ -68,7 +68,7 @@ public class DebugCycleExecutor implements Runnable {
 			try {
 				final var debugLog = debugCycle.debugLog();
 				if (debugLog != null) {
-					this.log.info("[" + debugCycle.id() + "] " + debugLog);
+					this.log.info(debugLog);
 				}
 			} catch (Exception e) {
 				this.log.warn("An Exception occured while getting debugLog from " + debugCycle, e);
