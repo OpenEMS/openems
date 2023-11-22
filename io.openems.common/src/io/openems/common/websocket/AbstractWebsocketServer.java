@@ -72,7 +72,6 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @param poolSize      number of threads dedicated to handle the tasks
 	 * @param debugMode     activate a regular debug log about the state of the
 	 *                      tasks
-	 * @param debugCallback additional callback on regular debug log
 	 */
 	protected AbstractWebsocketServer(String name, int port, int poolSize, DebugMode debugMode) {
 		super(name);
@@ -211,6 +210,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.debugMode = debugMode == null ? DebugMode.OFF : debugMode;
 	}
 
+	/**
+	 * Returns a debug log of the current websocket state.
+	 * 
+	 * @return the debug log string
+	 */
 	public String debugLog() {
 		var b = new StringBuilder("[monitor] ") //
 				.append("Connections: ").append(this.ws.getConnections().size()).append(", ") //
@@ -228,6 +232,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		return b.toString();
 	}
 
+	/**
+	 * Returns debug metrics of the current websocket state.
+	 * 
+	 * @return the debug metrics
+	 */
 	public Map<String, Number> debugMetrics() {
 		final var metrics = new HashMap<String, Number>();
 		metrics.putAll(ThreadPoolUtils.debugMetrics(this.executor));

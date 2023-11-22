@@ -151,6 +151,11 @@ public class InfluxConnector {
 		}
 	}
 
+	/**
+	 * Returns a debug log of the current influx connection state.
+	 * 
+	 * @return the debug log string
+	 */
 	public String debugLog() {
 		return new StringBuilder("[monitor] ") //
 				.append(ThreadPoolUtils.debugLog(this.executor)) //
