@@ -20,7 +20,8 @@ public class TouEntsoeTest {
 				.addReference("meta", dummyMeta)//
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
-						.setSecurityToken("foo-bar") //
+						.setSecurityToken("") //
+						.setExchangerateAccesskey("") //
 						.setBiddingZone(BiddingZone.GERMANY) //
 						.build());
 	}

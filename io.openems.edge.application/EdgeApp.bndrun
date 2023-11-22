@@ -359,6 +359,7 @@
 	io.openems.wrapper.influxdb-flux-dsl;version=snapshot,\
 	io.openems.wrapper.io.reactivex.rxjava3.rxjava;version=snapshot,\
 	io.openems.wrapper.javax.activation;version=snapshot,\
+	io.openems.wrapper.jenetics;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
 	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\

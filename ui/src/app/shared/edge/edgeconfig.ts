@@ -449,6 +449,17 @@ export class EdgeConfig {
                 ],
             },
             {
+                category: { title: 'Cloud-Schnittstellen', icon: 'cloud-outline' },
+                factories: [
+                    this.getFactoriesByIdsPattern([
+                        /TimeOfUseTariff\.*/,
+                    ]),
+                    this.getFactoriesByIds([
+                        'Controller.Api.Backend',
+                    ]),
+                ],
+            },
+            {
                 category: { title: 'Geräte-Schnittstellen', icon: 'swap-horizontal-outline' },
                 factories: [
                     this.getFactoriesByIds([
@@ -456,6 +467,7 @@ export class EdgeConfig {
                         'Bridge.Onewire',
                         'Bridge.Modbus.Serial',
                         'Bridge.Modbus.Tcp',
+                        'Kaco.BlueplanetHybrid10.Core',
                     ]),
                 ],
             },
@@ -463,7 +475,6 @@ export class EdgeConfig {
                 category: { title: 'Standard-Komponenten', icon: 'resize-outline' },
                 factories: [
                     this.getFactoriesByIds([
-                        'Controller.Api.Backend',
                         'Controller.Debug.Log',
                         'Controller.Debug.DetailedLog',
                     ]),

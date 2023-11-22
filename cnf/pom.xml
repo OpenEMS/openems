@@ -156,6 +156,13 @@
 			<artifactId>rxjava</artifactId>
 			<version>3.1.8</version>
 		</dependency>
+		<dependency>
+			<!-- Jenetics - Java Genetic Algorithm Library -->
+			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<version>7.2.0</version>
+		</dependency>
 		<!-- javax -->
 		<dependency>
 			<groupId>javax.jmdns</groupId>
@@ -259,7 +266,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.15.7</version>
+			<version>0.16.3</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -393,7 +400,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.6.0</version>
+			<version>42.7.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->

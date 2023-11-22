@@ -298,8 +298,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
-		var setChargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
-		var setDischargeMaxCurrent = this.getGoodweHardwareType().maxDcCurrent;
+		var setChargeMaxCurrent = this.getGoodweType().maxDcCurrent;
+		var setDischargeMaxCurrent = this.getGoodweType().maxDcCurrent;
 		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
 		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
@@ -312,9 +312,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
 
-			// TODO: Add relation in GoodweType enum
 			// Check combination of GoodWe inverter and FENECON Home battery
-			if (!this.getGoodweHardwareType().isValidHomeBattery.test(homeBattery.getBatteryHardwareType())) {
+			if (this.getGoodweType().isInvalidBattery.test(homeBattery.getBatteryHardwareType())) {
 				this._setImpossibleFeneconHomeCombination(true);
 
 				// Set zero limits to avoid charging and discharging
@@ -456,8 +455,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	@Override
 	public Integer getSurplusPower() {
 		var productionPower = this.calculatePvProduction();
-		return calculateSurplusPower(this.latestBatteryData, productionPower,
-				this.getGoodweHardwareType().maxDcCurrent);
+		return calculateSurplusPower(this.latestBatteryData, productionPower, this.getGoodweType().maxDcCurrent);
 
 	}
 
