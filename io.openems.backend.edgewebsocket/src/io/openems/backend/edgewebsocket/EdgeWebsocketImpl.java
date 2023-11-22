@@ -1,6 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
-import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -26,13 +26,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.debugcycle.DebugCycle;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
@@ -46,7 +45,6 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
@@ -62,9 +60,8 @@ import io.openems.common.types.ChannelAddress;
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
-		implements EdgeWebsocket, EventHandler, DebugCycle {
+		implements EdgeWebsocket, EventHandler, DebugLoggable {
 
-	private static final String EDGE_ID = "backend0";
 	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
@@ -291,17 +288,17 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 		return result;
 	}
 
-	public String getId() {
+	@Override
+	public String id() {
 		return COMPONENT_ID;
 	}
 
 	@Override
-	public void debugCycle() {
-		var data = TreeBasedTable.<Long, String, JsonElement>create();
-		var now = Instant.now().toEpochMilli();
-		data.put(now, this.getId() + "/Connections",
-				new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-		this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
+	public Map<String, JsonElement> debugMetrics() {
+		return Map.of(//
+				this.id() + "/Connections",
+				new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0) //
+		);
 	}
 
 }
