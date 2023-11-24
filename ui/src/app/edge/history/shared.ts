@@ -334,7 +334,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 }
 
 /**
-  * Returns true if Chart Label should be visible. Defaults to to true.
+  * Returns true if Chart Label should be visible. Defaults to true.
   * 
   * Compares only the first part of the label string - without a value or unit.
   * 
