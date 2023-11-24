@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core";
-import { OptionGroup, OptionGroupConfig, Option } from "./optionGroupPickerConfiguration";
+import { OptionGroup, OptionGroupConfig, Option, getTitleFromOptionConfig } from "./optionGroupPickerConfiguration";
 
 @Component({
     selector: 'formly-option-group-picker',
@@ -8,20 +8,45 @@ import { OptionGroup, OptionGroupConfig, Option } from "./optionGroupPickerConfi
 })
 export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig> implements OnInit {
 
+    protected multi: boolean = false;
     protected selectedGroup: OptionGroup | null = null;
     protected selectedIndex: number = 0;
-    protected selectedValue: string;
+    protected selectedValue: string | string[];
 
     protected optionGroups: OptionGroup[] = [];
 
     public ngOnInit(): void {
+        this.multi = this.props.isMulti ?? false;
+
+        // initialize the default value
         this.selectedValue = this.formControl.getRawValue();
+        if (this.multi && !Array.isArray(this.selectedValue)) {
+            this.selectedValue = [this.selectedValue as string];
+        }
         this.invalidateOptionGroups();
 
         this.optionGroups.forEach((group, i) => {
-            if (!group.options.some(o => o.value === this.selectedValue)) {
+            let anySelections = false;
+            for (const option of group.options) {
+                if (this.isMulti(this.selectedValue)) {
+                    if (!this.selectedValue.some(v => v === option.value)) {
+                        continue;
+                    }
+                    anySelections = true;
+                    option.selected = true;
+                } else {
+                    if (option.value !== this.selectedValue) {
+                        continue;
+                    }
+                    anySelections = true;
+                    option.selected = true;
+                }
+            }
+
+            if (!anySelections) {
                 return;
             }
+
             // Set option as selected
             this.selectedGroup = group;
             this.selectedIndex = i;
@@ -34,8 +59,26 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
         }
     }
 
+    private isMulti(selectedValue: string | string[]): selectedValue is string[] {
+        return this.multi;
+    }
+
     protected valueChange() {
         this.formControl.setValue(this.selectedValue);
+        this.form.markAsDirty();
+    }
+
+    protected valueChangeCheckbox(option: Option) {
+        if (!this.isMulti(this.selectedValue)) {
+            return;
+        }
+        option.selected = !option.selected;
+        if (this.selectedValue.includes(option.value)) {
+            this.selectedValue.splice(this.selectedValue.indexOf(option.value), 1);
+        } else {
+            this.selectedValue.push(option.value);
+        }
+        this.valueChange();
     }
 
     private invalidateOptionGroups() {
@@ -55,8 +98,9 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig>
                     .map<Option>(optionConfig => {
                         return {
                             value: optionConfig.value,
-                            title: optionConfig.expressions?.title?.(field) ?? optionConfig.title ?? optionConfig.value,
+                            title: getTitleFromOptionConfig(optionConfig, field),
                             disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false,
+                            selected: false,
                         };
                     }),
             };

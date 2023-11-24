@@ -23,10 +23,14 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
+import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.loadcontrol.ManualRelayControl;
+import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
@@ -316,6 +320,26 @@ public class Apps {
 		return app(t, HeatPump::new, "App.Heat.HeatPump");
 	}
 
+	/**
+	 * Test method for creating a {@link CombinedHeatAndPower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final CombinedHeatAndPower combinedHeatAndPower(AppManagerTestBundle t) {
+		return app(t, CombinedHeatAndPower::new, "App.Heat.CHP");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatingElement}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatingElement heatingElement(AppManagerTestBundle t) {
+		return app(t, HeatingElement::new, "App.Heat.HeatingElement");
+	}
+
 	// PvSelfConsumption
 
 	/**
@@ -338,6 +362,28 @@ public class Apps {
 		return app(t, SelfConsumptionOptimization::new, "App.PvSelfConsumption.SelfConsumptionOptimization");
 	}
 
+	// Load-Control
+
+	/**
+	 * Test method for creating a {@link ManualRelayControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ManualRelayControl manualRelayControl(AppManagerTestBundle t) {
+		return app(t, ManualRelayControl::new, "App.LoadControl.ManualRelayControl");
+	}
+
+	/**
+	 * Test method for creating a {@link ThresholdControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ThresholdControl thresholdControl(AppManagerTestBundle t) {
+		return app(t, ThresholdControl::new, "App.LoadControl.ThresholdControl");
+	}
+
 	// Meter
 
 	/**
@@ -347,8 +393,7 @@ public class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
-		return app(t, (componentManager, componentContext, cm, componentUtil) -> new SocomecMeter(componentManager,
-				componentContext, cm, componentUtil, t.appManagerUtil), "App.Meter.Socomec");
+		return app(t, SocomecMeter::new, "App.Meter.Socomec");
 	}
 
 	/**
@@ -358,10 +403,7 @@ public class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t,
-				(componentManager, componentContext, cm, componentUtil) -> new MicrocareSdm630Meter(componentManager,
-						componentContext, cm, componentUtil, t.appManagerUtil),
-				"App.Meter.Microcare.Sdm630");
+		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
 	}
 
 	// PeakShaving
@@ -413,10 +455,23 @@ public class Apps {
 				t.componentUtil);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtil<T> constructor,
+			String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil);
+	}
+
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil);
+
+	}
+
+	private static interface DefaultAppConstructorWithAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util);
 
 	}
 
