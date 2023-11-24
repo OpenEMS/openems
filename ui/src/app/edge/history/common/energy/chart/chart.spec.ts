@@ -1,14 +1,14 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
-import { DummyConfig, ESS_GENERIC_MANAGEDSYMMETRIC, SOCOMEC_GRID_METER, SOLAR_EDGE_PV_INVERTER } from "src/app/shared/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
 
 import { sharedSetup, TestContext } from "../../../../../shared/test/utils.spec";
 import { DATA, expectView, LABELS } from "./chart.constants.spec";
 
 describe('History EnergyMonitor', () => {
   const defaultEMS = DummyConfig.from(
-    SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-    ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
-    SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter"),
+    DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+    DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
+    DummyConfig.Component.SOLAR_EDGE_PV_INVERTER("meter1", "Pv inverter"),
   );
 
   let TEST_CONTEXT: TestContext;
@@ -119,8 +119,8 @@ describe('History EnergyMonitor', () => {
     {
       // Bar-Chart: no productionMeter
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-        ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -143,7 +143,7 @@ describe('History EnergyMonitor', () => {
       // Bar-Chart: only gridMeter
 
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
@@ -163,7 +163,7 @@ describe('History EnergyMonitor', () => {
       // Bar-Chart: only ess
 
       const EMS = DummyConfig.from(
-        ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
+        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess0"),
       );
 
       expectView(EMS, TEST_CONTEXT, 'bar', History.YEAR,
