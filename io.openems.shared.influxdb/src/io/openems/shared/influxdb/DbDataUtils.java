@@ -41,6 +41,10 @@ public final class DbDataUtils {
 			ZonedDateTime fromDate, //
 			ZonedDateTime toDate //
 	) {
+		if (table == null) {
+			return null;
+		}
+
 		// currently only works for days and months otherwise just return the table
 		if (resolution.getUnit() != ChronoUnit.DAYS //
 				&& resolution.getUnit() != ChronoUnit.MONTHS) {

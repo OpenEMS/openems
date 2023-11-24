@@ -7,43 +7,52 @@ import { ChannelAddress } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionTotalChart',
-  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html'
+  templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): HistoryUtils.ChartData {
-    let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+    let productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 
     let channels: HistoryUtils.InputChannel[] = [{
-      name: 'ProductionDcActualPower',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy')
-    },
-    {
-      name: 'ProductionAcActivePowerL1',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1')
-    },
-    {
-      name: 'ProductionAcActivePowerL2',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2')
-    },
-    {
-      name: 'ProductionAcActivePowerL3',
-      powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3')
-    },
-    {
       name: 'ProductionActivePower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-      energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy')
+      energyChannel: ChannelAddress.fromString('_sum/ProductionActiveEnergy'),
     }];
+
+    // If at least one charger
+    if (chargerComponents.length > 0) {
+      channels.push({
+        name: 'ProductionDcActualPower',
+        powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
+        energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
+      });
+    }
+
+    // If showPhases is true
+    if (this.showPhases) {
+      channels.push(
+        {
+          name: 'ProductionAcActivePowerL1',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
+        },
+        {
+          name: 'ProductionAcActivePowerL2',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
+        },
+        {
+          name: 'ProductionAcActivePowerL3',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
+        });
+    }
 
     for (let component of productionMeterComponents) {
       channels.push({
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActiveProductionEnergy')
+        energyChannel: ChannelAddress.fromString(component.id + '/ActiveProductionEnergy'),
       });
 
     }
@@ -51,7 +60,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       channels.push({
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActualPower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy')
+        energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy'),
       });
     }
 
@@ -69,8 +78,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
-          noStrokeThroughLegendIfHidden: false,
-          stack: 2
+          stack: 2,
         });
 
         if (!this.showTotal) {
@@ -99,8 +107,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
               }
               return effectiveProduction;
             },
-            color: 'rgb(' + this.phaseColors[i - 1] + ')',
-            stack: 3
+            color: 'rgb(' + AbstractHistoryChart.phaseColors[i - 1] + ')',
+            stack: 3,
           });
         }
 
@@ -117,7 +125,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return data[component.id] ?? null;
             },
             color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
-            stack: 1
+            stack: 1,
           });
         }
 
@@ -134,24 +142,23 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return data[component.id] ?? null;
             },
             color: chargerColors[Math.min(i, (chargerColors.length - 1))],
-            stack: 1
+            stack: 1,
           });
         }
         return datasets;
       },
       tooltip: {
         formatNumber: '1.1-2',
-        afterTitle: this.translate.instant('General.TOTAL')
+        afterTitle: this.translate.instant('General.TOTAL'),
       },
       yAxes: [{
         unit: YAxisTitle.ENERGY,
         position: 'left',
-        yAxisId: ChartAxis.LEFT
-      }]
+        yAxisId: ChartAxis.LEFT,
+      }],
     };
 
     return chartObject;
-
   }
 
   public override getChartHeight(): number {

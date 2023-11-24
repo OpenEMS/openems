@@ -1,0 +1,18 @@
+= Filipowski (F&F) Analog Output
+
+This bundle implements the MR-AO-1 analog output module, which has four possible analog outputs.
+
+Compatible with
+- https://www.fif.com.pl/en/io-extension-modules/408-analog-voltage-output-mr-ao-1.html[MR-AO-1]
+
+Implemented Natures
+- AnalogOutput
+
+Default Configuration
+ - Baud rate: 9600
+ - Data bits: 8
+ - Parity: NONE
+ - Start bits: 1
+ - *Stop bits: 2*
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.analog.filipowski.mr[Source Code icon:github[]]

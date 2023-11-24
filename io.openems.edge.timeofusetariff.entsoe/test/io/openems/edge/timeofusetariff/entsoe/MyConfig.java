@@ -1,7 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.common.currency.CurrencyConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String securityToken;
+		private String exchangerateAccesskey;
 		private BiddingZone biddingZone;
 
 		private Builder() {
@@ -21,6 +21,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setSecurityToken(String securityToken) {
 			this.securityToken = securityToken;
+			return this;
+		}
+
+		public Builder setExchangerateAccesskey(String exchangerateAccesskey) {
+			this.exchangerateAccesskey = exchangerateAccesskey;
 			return this;
 		}
 
@@ -53,6 +58,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String securityToken() {
 		return this.builder.securityToken;
+	}
+
+	@Override
+	public String exchangerateAccesskey() {
+		return this.builder.exchangerateAccesskey;
 	}
 
 	@Override

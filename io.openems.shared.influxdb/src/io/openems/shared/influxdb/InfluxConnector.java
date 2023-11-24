@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,7 +60,6 @@ public class InfluxConnector {
 	private final String bucket;
 	private final boolean isReadOnly;
 	private final boolean safeWrite;
-	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	private final WriteParameters defaultWriteParameters;
 	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
@@ -106,20 +103,6 @@ public class InfluxConnector {
 					// Custom RejectedExecutionHandler; avoid throwing a RejectedExecutionException
 					this.rejectedExecutionCount.incrementAndGet();
 				});
-
-		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
-					.append(componentId).append(" ") //
-					.append(ThreadPoolUtils.debugLog(this.executor)) //
-					.append(", MergePointsWorker[") //
-					.append(this.mergePointsWorkerByWriteParameters.values().stream().map(MergePointsWorker::debugLog)
-							.collect(Collectors.joining(", ")))
-					.append("], Limit:") //
-					.append(this.queryProxy.queryLimit) //
-					.append(", RejectedExecutions:") //
-					.append(this.rejectedExecutionCount.get()) //
-					.toString());
-		}, 10, 10, TimeUnit.SECONDS);
 
 		BiFunction<String, WriteParameters, MergePointsWorker> mergePointsWorkerFactory;
 		if (this.isSafeWrite()) {
@@ -168,6 +151,24 @@ public class InfluxConnector {
 		}
 	}
 
+	/**
+	 * Returns a debug log of the current influx connection state.
+	 * 
+	 * @return the debug log string
+	 */
+	public String debugLog() {
+		return new StringBuilder("[monitor] ") //
+				.append(ThreadPoolUtils.debugLog(this.executor)) //
+				.append(", MergePointsWorker[") //
+				.append(this.mergePointsWorkerByWriteParameters.values().stream().map(MergePointsWorker::debugLog)
+						.collect(Collectors.joining(", ")))
+				.append("], Limit:") //
+				.append(this.queryProxy.queryLimit) //
+				.append(", RejectedExecutions:") //
+				.append(this.rejectedExecutionCount.get()) //
+				.toString();
+	}
+
 	private InfluxConnection influxConnection = null;
 
 	/**
@@ -212,7 +213,6 @@ public class InfluxConnector {
 	 * Close current {@link InfluxDBClient}.
 	 */
 	public synchronized void deactivate() {
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		if (this.influxConnection != null) {
 			this.influxConnection.client.close();
 		}

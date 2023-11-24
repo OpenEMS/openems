@@ -6,6 +6,9 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
@@ -13,10 +16,10 @@ public interface OpenemsApp {
 	/**
 	 * Gets the {@link AppAssistant} for this {@link OpenemsApp}.
 	 *
-	 * @param language the language of the {@link AppAssistant}
+	 * @param user the {@link User}
 	 * @return the AppAssistant
 	 */
-	public AppAssistant getAppAssistant(Language language);
+	public AppAssistant getAppAssistant(User user);
 
 	/**
 	 * Gets the {@link AppConfiguration} needed for the {@link OpenemsApp}.
@@ -67,6 +70,14 @@ public interface OpenemsApp {
 	public String getName(Language language);
 
 	/**
+	 * Gets the short name of the {@link OpenemsApp}.
+	 * 
+	 * @param language the language of the name
+	 * @return a human readable short name; can be null
+	 */
+	public String getShortName(Language language);
+
+	/**
 	 * Gets the {@link OpenemsAppCardinality} of the {@link OpenemsApp}.
 	 *
 	 * @return the usage
@@ -97,11 +108,18 @@ public interface OpenemsApp {
 	public OpenemsAppPermissions getAppPermissions();
 
 	/**
-	 * Validate the {@link OpenemsApp}.
-	 *
-	 * @param instance the app instance
+	 * Gets {@link Flag Flags} for this {@link OpenemsApp}. A Flag could be anything
+	 * that would describe the app more.
+	 * 
+	 * <p>
+	 * Flags may be specific for Monitoring e. g. only show the app after a key was
+	 * entered ({@link Flags#SHOW_AFTER_KEY_REDEEM}).
+	 * 
+	 * @return an array of {@link Flag Flags}
 	 */
-	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException;
+	public default Flag[] flags() {
+		return new Flag[] {};
+	}
 
 	public static final String FALLBACK_IMAGE = """
 			data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY5\

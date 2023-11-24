@@ -8,14 +8,14 @@ import { TextIndentation } from "../modal-line/modal-line";
 @Component({
   /** If multiple items in line use this */
   selector: "oe-modal-meter-phases",
-  templateUrl: "./modal-phases.html"
+  templateUrl: "./modal-phases.html",
 })
 export class ModalPhasesComponent extends AbstractModalLine {
 
   protected readonly phases: { key: string, name: string }[] = [
     { key: "L1", name: "" },
     { key: "L2", name: "" },
-    { key: "L3", name: "" }
+    { key: "L3", name: "" },
   ];
   @Input() private setTranslatedName = (powerPerPhase: number) => { return ""; };
 
@@ -26,7 +26,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
 
     for (let phase of this.phases) {
       channelAddresses.push(
-        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key)
+        ChannelAddress.fromString(this.component.id + '/ActivePower' + phase.key),
       );
     }
     return channelAddresses;

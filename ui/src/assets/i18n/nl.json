@@ -53,7 +53,7 @@
     "soc": "Laadstatus",
     "state": "Staat",
     "storageSystem": "Batterij",
-    "systemState": "Systeemstatus",
+    "SYSTEM_STATE": "Systeemstatus",
     "TOTAL": "totale verbruik",
     "totalState": "Algemene staat",
     "warning": "Waarschuwing",
@@ -103,9 +103,9 @@
     "connectionSuccessful": "Succesvol verbonden met {{ value }}.",
     "deviceOffline": "Het apparaat is niet aangesloten!",
     "isOffline": "OpenEMS is offline!",
-    "loggedInAs": "Geregistreerd als:",
+    "LOGGED_IN_AS": "Geregistreerd als",
     "toEnergymonitor": "Naar Energiemonitor...",
-    "type": "Type:"
+    "TYPE": "Type"
   },
   "Login": {
     "title": "Login",
@@ -362,17 +362,6 @@
           "normalOperationShort": "",
           "switchOnComShort": "",
           "switchOnRecShort": ""
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Huidige prijs",
-          "delayedDischarge": "Vertraagd ontslag",
-          "STORAGE_DISCHARGE": "Opslag ontlading",
-          "State": {
-            "notStarted": "De regelaar is nog niet gestart",
-            "delayed": "Vertraagd",
-            "allowsDischarge": "Vrijgegeven",
-            "standby": "Standby"
-          }
         }
       }
     },

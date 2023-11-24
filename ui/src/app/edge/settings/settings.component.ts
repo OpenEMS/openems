@@ -6,7 +6,7 @@ import { canSeeAppCenter } from './app/permissions';
 
 @Component({
   selector: 'settings',
-  templateUrl: './settings.component.html'
+  templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
 
@@ -19,7 +19,7 @@ export class SettingsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service
+    private service: Service,
   ) {
   }
 

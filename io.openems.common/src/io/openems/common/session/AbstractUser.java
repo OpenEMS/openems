@@ -3,6 +3,7 @@ package io.openems.common.session;
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Represents a User; shared by OpenEMS Backend
@@ -34,7 +35,7 @@ public abstract class AbstractUser {
 	/**
 	 * Roles per Edge-ID.
 	 */
-	private final NavigableMap<String, Role> roles;
+	private final NavigableMap<String, Role> roles = new TreeMap<>();
 
 	protected AbstractUser(String id, String name, Language language, Role globalRole,
 			NavigableMap<String, Role> roles) {
@@ -42,7 +43,7 @@ public abstract class AbstractUser {
 		this.name = name;
 		this.language = language;
 		this.globalRole = globalRole;
-		this.roles = roles;
+		this.roles.putAll(roles);
 	}
 
 	public String getId() {
@@ -108,5 +109,12 @@ public abstract class AbstractUser {
 	public void setRole(String edgeId, Role role) {
 		this.roles.put(edgeId, role);
 	}
+
+	/**
+	 * Gets the Number of Devices, that the user is allowed to see.
+	 * 
+	 * @return the numberOfDevices
+	 */
+	public abstract boolean hasMultipleEdges();
 
 }

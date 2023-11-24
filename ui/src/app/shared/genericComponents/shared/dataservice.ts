@@ -19,5 +19,12 @@ export abstract class DataService {
    * @param edge the edge
    * @param componentId the componentId
    */
-  public abstract getValues(channelAddress: ChannelAddress[], edge: Edge, componentId?: string)
+  public abstract getValues(channelAddress: ChannelAddress[], edge: Edge, componentId?: string);
+
+  /**
+   * Unsubscribes from passed channels
+   * 
+   * @param channels the channels
+   */
+  public abstract unsubscribeFromChannels(channels: ChannelAddress[]);
 }

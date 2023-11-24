@@ -3,7 +3,6 @@ package io.openems.edge.meter.phoenixcontact;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.phoenixcontact.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		private int modbusUnitId;
 		private MeterType meterType;
+		private boolean invert = false;
 
 		private Builder() {
 		}
@@ -34,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMeterType(MeterType meterType) {
 			this.meterType = meterType;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 
@@ -76,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return this.builder.meterType;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 }

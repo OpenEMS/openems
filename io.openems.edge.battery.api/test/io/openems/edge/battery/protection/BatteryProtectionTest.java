@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Test;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.protection.currenthandler.ChargeMaxCurrentHandler;
@@ -21,7 +22,6 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class BatteryProtectionTest {
 
@@ -120,7 +120,7 @@ public class BatteryProtectionTest {
 
 	@Test
 	public void test() throws Exception {
-		final var battery = new DummyBattery(BATTERY_ID, BatteryProtection.ChannelId.values());
+		final var battery = new DummyBattery(BATTERY_ID);
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final var cm = new DummyComponentManager(clock);
 		final var sut = BatteryProtection.create(battery) //

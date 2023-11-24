@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.file;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,11 +40,13 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
+import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -92,12 +96,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	@Reference
 	private EventAdmin eventAdmin;
 
-	private User user;
+	private User user = this.generateUser();
 	private String path = "";
 
 	public MetadataFile() {
 		super("Metadata.File");
-		this.user = MetadataFile.generateUser();
 	}
 
 	@Activate
@@ -118,7 +121,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.user;
+		return this.user = this.generateUser();
 	}
 
 	@Override
@@ -131,7 +134,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public void logout(User user) {
-		this.user = MetadataFile.generateUser();
+		this.user = this.generateUser();
 	}
 
 	@Override
@@ -218,13 +221,21 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			for (MyEdge edge : edges) {
 				this.edges.put(edge.getId(), edge);
 			}
+
+			final var previousUser = this.user;
+			final var hasMultipleEdges = edges.size() > 1;
+			if (previousUser.hasMultipleEdges() != hasMultipleEdges) {
+				this.user = new User(previousUser.getId(), previousUser.getName(), previousUser.getToken(),
+						previousUser.getLanguage(), previousUser.getGlobalRole(), previousUser.getEdgeRoles(),
+						hasMultipleEdges);
+			}
 		}
 		this.setInitialized();
 	}
 
-	private static User generateUser() {
+	private User generateUser() {
 		return new User(MetadataFile.USER_ID, MetadataFile.USER_NAME, UUID.randomUUID().toString(),
-				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE);
+				MetadataFile.LANGUAGE, MetadataFile.USER_GLOBAL_ROLE, this.edges.size() > 1);
 	}
 
 	@Override
@@ -309,7 +320,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
 		var pagesStream = this.edges.values().stream();
 		final var query = paginationOptions.getQuery();
@@ -320,18 +331,63 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
 			);
 		}
+		final var searchParams = paginationOptions.getSearchParams();
+		if (searchParams != null) {
+			if (searchParams.searchIsOnline()) {
+				pagesStream = pagesStream.filter(edge -> edge.isOnline() == searchParams.isOnline());
+			}
+			if (searchParams.productTypes() != null) {
+				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
+			}
+			// TODO sum state filter
+		}
 		return pagesStream //
 				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
 				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
 				.limit(paginationOptions.getLimit()) //
 				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
-				.collect(Collectors.toMap(t -> t.getId(), t -> Role.ADMIN)); //
+				.map(myEdge -> {
+					return new EdgeMetadata(//
+							myEdge.getId(), //
+							myEdge.getComment(), //
+							myEdge.getProducttype(), //
+							myEdge.getVersion(), //
+							Role.ADMIN, //
+							myEdge.isOnline(), //
+							myEdge.getLastmessage(), //
+							null, // firstSetupProtocol
+							Level.OK);
+				}).toList();
 	}
 
 	@Override
-	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+		final var edge = this.edges.get(edgeId);
+		if (edge == null) {
+			return null;
+		}
 		user.setRole(edgeId, Role.ADMIN);
-		return Role.ADMIN;
+
+		return new EdgeMetadata(//
+				edge.getId(), //
+				edge.getComment(), //
+				edge.getProducttype(), //
+				edge.getVersion(), //
+				Role.ADMIN, //
+				edge.isOnline(), //
+				edge.getLastmessage(), //
+				null, // firstSetupProtocol
+				Level.OK //
+		);
+	}
+
+	@Override
+	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		this.logInfo(this.log,
+				"%s on %s executed %s [%s]".formatted(systemLog.user().getId(), systemLog.edgeId(), systemLog.teaser(),
+						systemLog.getValues().entrySet().stream() //
+								.map(t -> t.getKey() + "=" + t.getValue()) //
+								.collect(joining(", "))));
 	}
 
 }

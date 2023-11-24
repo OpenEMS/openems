@@ -26,13 +26,6 @@ public class FieldTypeConflictHandler {
 
 	public FieldTypeConflictHandler(TimedataInfluxDb parent) {
 		this.parent = parent;
-		this.initializePredefinedHandlers();
-	}
-
-	/**
-	 * Add some already known Handlers.
-	 */
-	private void initializePredefinedHandlers() {
 	}
 
 	/**

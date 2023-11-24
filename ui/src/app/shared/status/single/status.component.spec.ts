@@ -14,8 +14,8 @@ describe('StatusComponent', () => {
             category: "ENUM",
             type: "BOOLEAN",
             unit: "W",
-            level: "OK"
-        }
+            level: "OK",
+        },
     });
     let statusComponent: StatusSingleComponent;
     // initialize variables only in beforeEach, beforeAll
@@ -26,8 +26,8 @@ describe('StatusComponent', () => {
                 StatusSingleComponent,
                 { provide: ModalController, useClass: DummyModalController },
                 { provide: Service, useClass: DummyService },
-                { provide: Websocket, useClass: DummyWebsocket }
-            ]
+                { provide: Websocket, useClass: DummyWebsocket },
+            ],
         });
         statusComponent = TestBed.inject(StatusSingleComponent);
     }));

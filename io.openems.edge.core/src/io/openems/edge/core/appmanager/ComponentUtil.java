@@ -6,12 +6,72 @@ import java.util.Optional;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.cycle.Cycle;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.appmanager.ComponentUtilImpl.Relay;
 import io.openems.edge.core.host.NetworkInterface;
+import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public interface ComponentUtil {
+
+	public static final List<String> CORE_COMPONENT_IDS = List.of(//
+			AppManager.SINGLETON_COMPONENT_ID, //
+			ComponentManager.SINGLETON_COMPONENT_ID, //
+			Cycle.SINGLETON_COMPONENT_ID, //
+			Host.SINGLETON_COMPONENT_ID, //
+			Meta.SINGLETON_COMPONENT_ID, //
+			PredictorManager.SINGLETON_COMPONENT_ID, //
+			Sum.SINGLETON_COMPONENT_ID //
+	);
+
+	public record RelayInfo(//
+			String id, //
+			String alias, //
+			List<RelayContactInfo> channels //
+	) {
+
+		/**
+		 * Returns the alias if not blank otherwise return the id.
+		 * 
+		 * @return the string to display
+		 */
+		public String getDisplayName() {
+			return this.alias().isBlank() ? this.id() : this.alias();
+		}
+
+	}
+
+	public record RelayContactInfo(//
+			String channel, //
+			String alias, //
+			List<OpenemsComponent> usingComponents //
+	) {
+
+		/**
+		 * Returns the alias if not blank otherwise return the id.
+		 * 
+		 * @return the string to display
+		 */
+		public String getDisplayName() {
+			return this.alias().isBlank() ? this.channel() : this.alias();
+		}
+
+	}
+
+	public record PreferredRelay(//
+			int numberOfRelays, //
+			/**
+			 * Indices of the relay contacts.
+			 */
+			int[] preferredRelays //
+	) {
+
+	}
 
 	/**
 	 * Gets the interfaces of the currently active network settings.
@@ -31,52 +91,97 @@ public interface ComponentUtil {
 	public boolean anyComponentUses(String value, List<String> ignoreIds);
 
 	/**
-	 * Gets a list of current Relays. e. g. 'io0/Relay1'
-	 *
-	 * @return a list of Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @param ignoreIds the Component-IDs that should be ignored to check if they
+	 *                  use any relay
+	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public List<Relay> getAllRelays();
+	public List<RelayInfo> getAllRelayInfos(List<String> ignoreIds);
 
 	/**
-	 * Gets a list of currently available Relays of IOs which are not used by any
-	 * component. e. g. 'io0/Relay1'
-	 *
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @return a list of {@link RelayInfo RelayInfos}
+	 * @implNote calls {@link ComponentUtil#getAllRelayInfos(List)} with
+	 *           {@link ComponentUtil#CORE_COMPONENT_IDS} to ignore.
 	 */
-	public List<Relay> getAvailableRelays();
+	public default List<RelayInfo> getAllRelayInfos() {
+		return this.getAllRelayInfos(CORE_COMPONENT_IDS);
+	}
 
 	/**
-	 * Gets a list of currently available Relays of IOs which are not used by any
-	 * component. like 'io0/Relay1'
-	 *
-	 * @param ignoreIds the Component-IDs that should be ignored
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException on error
+	 * Gets a list of the current relays where every relay has atleast one available
+	 * relay contact.
+	 * 
+	 * @param ignoreIds the id s of components which configuration should be ignored
+	 * @return a list of the {@link RelayInfo RelayInfos}
 	 */
-	public List<Relay> getAvailableRelays(List<String> ignoreIds);
+	public default List<RelayInfo> getAvailableRelayInfos(List<String> ignoreIds) {
+		return this.getAllRelayInfos(ignoreIds).stream() //
+				.map(ri -> new RelayInfo(ri.id(), ri.alias(), ri.channels().stream()//
+						.filter(ci -> ci.usingComponents().isEmpty())//
+						.toList())) //
+				.filter(ri -> !ri.channels().isEmpty()) //
+				.toList();
+	}
 
 	/**
-	 * Gets a list of currently available Relays of given IO which are not used by
-	 * any component. like 'io0/Relay1'
-	 *
-	 * @param ioId the Component-ID of the DigitalOutput
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException if the io was not found
+	 * Gets a list of the current relays where every relay has atleast one available
+	 * relay contact.
+	 * 
+	 * @return a list of the {@link RelayInfo RelayInfos}
 	 */
-	public List<String> getAvailableRelays(String ioId) throws OpenemsNamedException;
+	public default List<RelayInfo> getAvailableRelayInfos() {
+		return this.getAvailableRelayInfos(CORE_COMPONENT_IDS);
+	}
 
 	/**
-	 * Gets a list of currently available Relays of given IO which are not used by
-	 * any component. e. g. 'io0/Relay1'
+	 * Gets a list of current available relay contacts of a relay.
 	 *
-	 * @param ioId      the Component-ID of the DigitalOutput
-	 * @param ignoreIds the Component-IDs that should be ignored
-	 * @return a list of available Relays
-	 * @throws OpenemsNamedException if the io was not found
+	 * @param ignoreIds the id s of components which configuration should be ignored
+	 * @param ioName    the id of the id
+	 * @return a list of the available {@link RelayContactInfo}
 	 */
-	public List<String> getAvailableRelays(String ioId, List<String> ignoreIds) throws OpenemsNamedException;
+	public default List<RelayContactInfo> getAvailableRelayContactInfos(List<String> ignoreIds, String ioName) {
+		return this.getAvailableRelayInfos(ignoreIds).stream() //
+				.filter(ri -> ri.id().equals(ioName)) //
+				.flatMap(ri -> ri.channels().stream()) //
+				.toList();
+	}
+
+	/**
+	 * Gets a list of current available relay contacts of a relay.
+	 *
+	 * @param ioName the id of the id
+	 * @return a list of the available {@link RelayContactInfo}
+	 */
+	public default List<RelayContactInfo> getAvailableRelayContactInfos(String ioName) {
+		return this.getAvailableRelayContactInfos(CORE_COMPONENT_IDS, ioName);
+	}
+
+	/**
+	 * Gets a list of current available relay contacts of all found relays.
+	 *
+	 * @param ignoreIds the id s of components which configuration should be ignored
+	 * @return a list of the available {@link RelayContactInfo}
+	 */
+	public default List<RelayContactInfo> getAvailableRelayContactInfos(List<String> ignoreIds) {
+		return this.getAvailableRelayInfos(ignoreIds).stream() //
+				.flatMap(ri -> ri.channels().stream()) //
+				.toList();
+	}
+
+	/**
+	 * Gets a list of current available relay contacts of all found relays.
+	 *
+	 * @return a list of the available {@link RelayContactInfo}
+	 */
+	public default List<RelayContactInfo> getAvailableRelayContactInfos() {
+		return this.getAvailableRelayContactInfos(CORE_COMPONENT_IDS);
+	}
 
 	/**
 	 * Searches a component with the given component configuration.
@@ -138,16 +243,45 @@ public interface ComponentUtil {
 	public String getNextAvailableId(String baseName, int startingNumber, List<String> componentIds);
 
 	/**
+	 * Gets the preferred relays. If the default ports are already taken the next
+	 * available in a row are taken. If not enough in a row are available the first
+	 * available relays of any relay are returned.
+	 * 
+	 * @param ignoreIds            the ids of the components that should be ignored
+	 * @param cnt                  the number of the result number of relays
+	 * @param first                the first {@link PreferredRelay} to ensure at
+	 *                             least one
+	 * @param inputPreferredRelays the other {@link PreferredRelay} options
+	 * @return the first found preferred relays
+	 */
+	public String[] getPreferredRelays(//
+			List<String> ignoreIds, //
+			int cnt, //
+			PreferredRelay first, //
+			PreferredRelay... inputPreferredRelays //
+	);
+
+	/**
 	 * Gets the preferred relays. If the default ports are are already taken the
 	 * next available in a row are taken. If not enough in a row are available the
-	 * first available relays of any relayboard are returned.
-	 *
-	 * @param ignoreIds      the ids of the components that should be ignored
-	 * @param relays4Channel the default ports on a 4-Channel Relay
-	 * @param relays8Channel the default ports on a 8-Channel Relay
-	 * @return the relays
+	 * first available relays of any relay are returned.
+	 * 
+	 * @param cnt                  the number of the result number of relays
+	 * @param first                the first {@link PreferredRelay} to ensure at
+	 *                             least one
+	 * @param inputPreferredRelays the other {@link PreferredRelay} options
+	 * @return the first found preferred relays
+	 * @implNote calls
+	 *           {@link ComponentUtil#getPreferredRelays(List, int, PreferredRelay, PreferredRelay...)}
+	 *           with {@link ComponentUtil#CORE_COMPONENT_IDS} to ignore.
 	 */
-	public String[] getPreferredRelays(List<String> ignoreIds, int[] relays4Channel, int[] relays8Channel);
+	public default String[] getPreferredRelays(//
+			int cnt, //
+			PreferredRelay first, //
+			PreferredRelay... inputPreferredRelays //
+	) {
+		return this.getPreferredRelays(CORE_COMPONENT_IDS, cnt, first, inputPreferredRelays);
+	}
 
 	/**
 	 * updates the interfaces in the Host configuration.
@@ -235,4 +369,14 @@ public interface ComponentUtil {
 	 * @return the optional component
 	 */
 	public Optional<EdgeConfig.Component> getComponent(String id, String factoryId);
+
+	/**
+	 * Gets an array of modbus unit ids which are already used by other components.
+	 * The result of this method may not contain all modbus unit ids.
+	 * 
+	 * @param modbusComponent the id of the modbus component
+	 * @return an array of used modbus unit ids
+	 */
+	public int[] getUsedModbusUnitIds(String modbusComponent);
+
 }

@@ -34,6 +34,8 @@ import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
+import { FormlyFieldWithLoadingAnimationComponent } from './formly/formly-skeleton-wrapper';
+import { FormlyFieldCheckboxWithImageComponent } from './formly/formly-field-checkbox-image/formly-field-checkbox-with-image';
 
 export function IpValidator(control: FormControl): ValidationErrors {
   return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
@@ -61,7 +63,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormsModule,
     IonicModule,
     NgxSpinnerModule.forRoot({
-      type: 'ball-clip-rotate-multiple'
+      type: 'ball-clip-rotate-multiple',
     }),
     ReactiveFormsModule,
     RouterModule,
@@ -74,24 +76,25 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
         { name: 'panel', component: PanelWrapperComponent },
-        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent },
+        { name: 'formly-field-checkbox-with-image', component: FormlyFieldCheckboxWithImageComponent },
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent }
+        { name: 'repeat', component: RepeatTypeComponent },
       ],
       validators: [
         { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator }
+        { name: 'subnetmask', validation: SubnetmaskValidator },
       ],
       validationMessages: [
         { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage }
-      ]
+        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
+      ],
     }),
     PipeModule,
     Generic_ComponentsModule,
-    TranslateModule
+    TranslateModule,
   ],
   declarations: [
     // components
@@ -110,7 +113,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyWrapperDefaultValueWithCasesComponent,
     FormlyFieldModalComponent,
-    PanelWrapperComponent
+    PanelWrapperComponent,
+    FormlyFieldWithLoadingAnimationComponent,
+    FormlyFieldCheckboxWithImageComponent,
   ],
   exports: [
     // modules
@@ -133,15 +138,16 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ChartOptionsComponent,
     HeaderComponent,
     HistoryDataErrorComponent,
-    PercentageBarComponent
+    PercentageBarComponent,
+    FormlyFieldWithLoadingAnimationComponent,
   ],
   providers: [
     appRoutingProviders,
     Service,
     Utils,
     Websocket,
-    Logger
-  ]
+    Logger,
+  ],
 })
 
 export class SharedModule {

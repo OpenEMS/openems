@@ -56,7 +56,7 @@
     "soc": "Cargo",
     "state": "Estado",
     "storageSystem": "Almacenamiento",
-    "systemState": "Estado del sistema",
+    "SYSTEM_STATE": "Estado del sistema",
     "TOTAL": "consumo total",
     "totalState": "Condición general",
     "warning": "Advertencia",
@@ -106,9 +106,9 @@
     "connectionSuccessful": "Conexión a {{ value }} hecho.",
     "deviceOffline": "El aparato no está conectado!",
     "isOffline": "OpenEMS está fuera de línea!",
-    "loggedInAs": "Conectado como:",
+    "LOGGED_IN_AS": "Conectado como",
     "toEnergymonitor": "Al monitor de energía...",
-    "type": "Tipo:"
+    "TYPE": "Tipo"
   },
   "Login": {
     "title": "Login",
@@ -367,17 +367,6 @@
           "normalOperationShort": "Normal",
           "switchOnComShort": "Mando",
           "switchOnRecShort": "Recomendación"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Precio actual",
-          "delayedDischarge": "Retraso en el alta",
-          "STORAGE_DISCHARGE": "Descarga de almacenamiento",
-          "State": {
-            "notStarted": "El controlador aún no se ha iniciado ",
-            "delayed": "Retraso",
-            "allowsDischarge": "Liberado",
-            "standby": "Standby"
-          }
         }
       }
     },

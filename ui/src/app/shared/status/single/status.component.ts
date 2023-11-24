@@ -7,7 +7,7 @@ import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
 
 @Component({
     selector: StatusSingleComponent.SELECTOR,
-    templateUrl: './status.component.html'
+    templateUrl: './status.component.html',
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
 
@@ -24,7 +24,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     constructor(
         public modalCtrl: ModalController,
         public service: Service,
-        private websocket: Websocket
+        private websocket: Websocket,
     ) { }
 
     ngOnInit() {
@@ -37,7 +37,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
                     // sets all arrow buttons to standard position (folded)
                     component['showProperties'] = false;
                     this.subscribedInfoChannels.push(
-                        new ChannelAddress(component.id, 'State')
+                        new ChannelAddress(component.id, 'State'),
                     );
                 });
             });

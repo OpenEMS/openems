@@ -6,8 +6,8 @@ public enum ZvrtConfig implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DISABLE(0, "Disable"), //
 	ONLY_LVRT_ENABLE(1, "Only LVRT enable"), //
-	ONLY_HVRT_ENABLE(1, "Only LVRT enable"), //
-	BOTH_ENABLE(1, "Only LVRT enable");//
+	ONLY_HVRT_ENABLE(2, "Only HVRT enable"), //
+	BOTH_ENABLE(3, "Both enable");//
 
 	private final int value;
 	private final String option;

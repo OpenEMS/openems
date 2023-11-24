@@ -1,7 +1,9 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,13 +28,22 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 	}
 
 	@Override
-	public OpenemsApp getAppById(String appId) throws NoSuchElementException {
-		return this.getAppManagerImpl().findAppById(appId);
+	public List<OpenemsAppInstance> getInstantiatedApps() {
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.map(AppManagerImpl::getInstantiatedApps) //
+				.orElse(emptyList());
 	}
 
 	@Override
-	public OpenemsAppInstance getInstanceById(UUID instanceId) throws NoSuchElementException {
-		return this.getAppManagerImpl().findInstanceById(instanceId);
+	public Optional<OpenemsApp> findAppById(String id) {
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findAppById(id));
+	}
+
+	@Override
+	public Optional<OpenemsAppInstance> findInstanceById(UUID id) {
+		return Optional.ofNullable(this.getAppManagerImpl()) //
+				.flatMap(t -> t.findInstanceById(id));
 	}
 
 	@Override

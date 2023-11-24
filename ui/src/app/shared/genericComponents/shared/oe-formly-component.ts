@@ -32,12 +32,12 @@ export abstract class AbstractFormlyComponent {
 
             templateOptions: {
               attributes: {
-                title: view.title
+                title: view.title,
               },
               required: true,
-              options: [{ lines: view.lines }]
+              options: [{ lines: view.lines }],
             },
-            wrappers: ['formly-field-modal']
+            wrappers: ['formly-field-modal'],
           }];
         });
     });
@@ -63,7 +63,8 @@ export type OeFormlyField =
   | OeFormlyField.Item
   | OeFormlyField.ChildrenLine
   | OeFormlyField.ChannelLine
-  | OeFormlyField.HorizontalLine;
+  | OeFormlyField.HorizontalLine
+  | OeFormlyField.ValueFromChannelsLine;
 
 export namespace OeFormlyField {
 
@@ -93,6 +94,15 @@ export namespace OeFormlyField {
     filter?: (value: number | null) => boolean,
     converter?: (value: number | null) => string
     indentation?: TextIndentation,
+  }
+
+  export type ValueFromChannelsLine = {
+    type: 'value-from-channels-line',
+    name: string,
+    value: Function,
+    channelsToSubscribe: ChannelAddress[],
+    indentation?: TextIndentation,
+    filter?: (value: number[] | null) => boolean,
   }
 
   export type HorizontalLine = {

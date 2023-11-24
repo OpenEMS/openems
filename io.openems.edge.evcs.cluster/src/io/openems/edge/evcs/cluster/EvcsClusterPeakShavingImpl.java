@@ -372,6 +372,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						} else {
 							managedEvcs.getChargeStateHandler()
 									.applyNewChargeState(ChargeState.WAITING_FOR_AVAILABLE_POWER);
+							managedEvcs.setDisplayText("Warte auf Leistung");
 							managedEvcs.setChargePowerLimit(0);
 						}
 
@@ -582,8 +583,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		// Read maximum ESS Discharge power at the current position in the Cycle
-		if (this.ess instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.ess;
+		if (this.ess instanceof ManagedSymmetricEss e) {
 			this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
 
 		} else {

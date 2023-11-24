@@ -25,12 +25,14 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -91,7 +93,9 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 									.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
@@ -106,8 +110,8 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.label")) //
@@ -115,8 +119,8 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.build())
 				.build();

@@ -19,7 +19,7 @@ import { hasPredefinedKey } from './permissions';
 
 @Component({
   selector: InstallAppComponent.SELECTOR,
-  templateUrl: './install.component.html'
+  templateUrl: './install.component.html',
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 
@@ -33,6 +33,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   protected model: any | null = null;
 
   private key: string | null = null;
+  private useMasterKey: boolean = false;
   private appId: string | null = null;
   protected appName: string | null = null;
   private edge: Edge | null = null;
@@ -48,15 +49,20 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private service: Service,
     private modalController: ModalController,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
   }
 
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     const state = history?.state;
-    if (state && 'appKey' in state) {
-      this.key = state['appKey'];
+    if (state) {
+      if ('appKey' in state) {
+        this.key = state['appKey'];
+      }
+      if ('useMasterKey' in state) {
+        this.useMasterKey = state['useMasterKey'];
+      }
     }
     let appId = this.route.snapshot.params['appId'];
     let appName = this.route.snapshot.queryParams['name'];
@@ -67,9 +73,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       this.edge.sendRequest(this.websocket,
         new AppCenter.Request({
           payload: new AppCenterIsAppFree.Request({
-            appId: this.appId
-          })
-        })
+            appId: this.appId,
+          }),
+        }),
       ).then(response => {
         const result = (response as AppCenterIsAppFree.Response).result;
         this.isAppFree = result.isAppFree;
@@ -85,7 +91,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: '_appManager',
-          payload: new GetAppAssistant.Request({ appId: appId })
+          payload: new GetAppAssistant.Request({ appId: appId }),
         })).then(response => {
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
 
@@ -94,10 +100,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           this.model = {};
           this.form = new FormGroup({});
 
-        }).catch(reason => {
-          console.error(reason.error);
-          this.service.toast("Error while receiving App Assistant for [" + appId + "]: " + reason.error.message, 'danger');
-        }).finally(() => {
+        })
+        .catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error))
+        .finally(() => {
           this.service.stopSpinner(this.spinnerId);
         });
     });
@@ -129,15 +134,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           appId: this.appId,
           alias: alias,
           properties: clonedFields,
-          ...(key && { key: key })
-        })
+          ...(key && { key: key }),
+        }),
       });
       // if key not set send request with supplied key
       if (!key) {
         request = new AppCenter.Request({
           payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
-            installRequest: request
-          })
+            installRequest: request,
+          }),
         });
       }
 
@@ -157,12 +162,12 @@ export class InstallAppComponent implements OnInit, OnDestroy {
 
         this.form.markAsPristine();
         this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
-      }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger');
-      }).finally(() => {
-        this.isInstalling = false;
-        this.service.stopSpinner(this.appId);
-      });
+      })
+        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant('Edge.Config.App.failInstall', { error: error })))
+        .finally(() => {
+          this.isInstalling = false;
+          this.service.stopSpinner(this.appId);
+        });
     }).catch(() => {
       // can not get key => dont install
     });
@@ -179,7 +184,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         resolve(this.key);
         return;
       }
-      if (this.hasPredefinedKey) {
+      if (this.useMasterKey) {
         resolve(null);
         return;
       }
@@ -201,9 +206,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         edge: this.edge,
         appId: this.appId,
         behaviour: KeyValidationBehaviour.SELECT,
-        appName: this.appName
+        appName: this.appName,
       },
-      cssClass: 'auto-height'
+      cssClass: 'auto-height',
     });
 
     const selectKeyPromise = new Promise<string>((resolve, reject) => {
@@ -212,7 +217,15 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           reject();
           return; // no key selected
         }
-        resolve(event.data.key["keyId"]);
+        if (event.data?.useMasterKey) {
+          resolve(null);
+          return;
+        }
+        if (event.data?.key?.keyId) {
+          resolve(event.data.key.keyId);
+          return;
+        }
+        reject();
       });
     });
 
@@ -220,5 +233,25 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     return selectKeyPromise;
   }
 
+  /**
+   * Displays a error toast with the string supplied from the messageBuilder.
+   * If the error is from a Jsonrpc call the error message gets extracted.
+   * 
+   * @param service the service to open the toast with
+   * @param messageBuilder the message supplier
+   * @returns a method to handle a catch from a promise
+   */
+  public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
+    return (reason) => {
+      if (reason.error) {
+        reason = reason.error;
+        if (reason.message) {
+          reason = reason.message;
+        }
+      }
+      console.error(reason);
+      service.toast(messageBuilder(reason), 'danger');
+    };
+  }
 
 }

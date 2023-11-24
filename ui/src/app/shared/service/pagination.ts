@@ -1,6 +1,5 @@
 import { Directive } from '@angular/core';
 import { Router } from '@angular/router';
-
 import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { ChannelAddress, Edge } from '../shared';
 import { Service } from './service';
@@ -12,7 +11,7 @@ export class Pagination {
 
   constructor(
     public service: Service,
-    private router: Router
+    private router: Router,
   ) { }
 
   getAndSubscribeEdge(edge: Edge): Promise<void> {
@@ -23,7 +22,7 @@ export class Pagination {
         this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }));
       }).then(() => {
         this.edge.subscribeChannels(this.service.websocket, '', [
-          new ChannelAddress('_sum', 'State')
+          new ChannelAddress('_sum', 'State'),
         ]);
       })
         .finally(resolve)

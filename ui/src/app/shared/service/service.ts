@@ -6,6 +6,7 @@ import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
+import { ChosenFilter } from 'src/app/index/filter/filter.component';
 import { environment } from 'src/environments';
 
 import { Edge } from '../edge/edge';
@@ -24,6 +25,7 @@ import { Role } from '../type/role';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
+import { DateUtils } from '../utils/dateutils/dateutils';
 
 @Injectable()
 export class Service extends AbstractService {
@@ -72,7 +74,7 @@ export class Service extends AbstractService {
     private router: Router,
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
-    public translate: TranslateService
+    public translate: TranslateService,
   ) {
     super();
     // add language
@@ -136,7 +138,7 @@ export class Service extends AbstractService {
         } else {
           // Translate from key
           this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
-            take(1)
+            take(1),
           ).subscribe(title => this.currentPageTitle = title);
         }
       }
@@ -153,7 +155,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve) => {
       this.currentEdge.pipe(
         filter(edge => edge != null),
-        first()
+        first(),
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);
@@ -166,7 +168,7 @@ export class Service extends AbstractService {
       this.getCurrentEdge().then(edge => {
         edge.getConfig(this.websocket).pipe(
           filter(config => config != null && config.isValid()),
-          first()
+          first(),
         ).toPromise()
           .then(config => resolve(config))
           .catch(reason => reject(reason));
@@ -178,7 +180,7 @@ export class Service extends AbstractService {
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
-    this.router.navigate(['/index']);
+    this.router.navigate(['/login']);
   }
 
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
@@ -197,7 +199,7 @@ export class Service extends AbstractService {
       promise.reject = reject;
     });
     this.queryEnergyQueue.push(
-      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] }
+      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] },
     );
     // try to merge requests within 100 ms
     if (this.queryEnergyTimeout == null) {
@@ -250,7 +252,7 @@ export class Service extends AbstractService {
               continue;
             }
 
-            let request = new QueryHistoricTimeseriesEnergyRequest(source.fromDate, source.toDate, source.channels);
+            let request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol), source.toDate, source.channels);
             edge.sendRequest(this.websocket, request).then(response => {
               let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
               if (Object.keys(result.data).length != 0) {
@@ -282,13 +284,14 @@ export class Service extends AbstractService {
    * @param limit the number of edges to be retrieved
    * @returns a Promise
    */
-  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter['value'] }): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
           ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit })
+          ...(limit && { limit: limit }),
+          ...(searchParamsObj && { searchParams: searchParamsObj }),
         })).then((response) => {
 
           const result = (response as GetEdgesResponse).result;
@@ -304,7 +307,9 @@ export class Service extends AbstractService {
               ("version" in edge) ? edge["version"] : "0.0.0",
               Role.getRole(edge.role.toString()),
               edge.isOnline,
-              edge.lastmessage
+              edge.lastmessage,
+              edge.sumState,
+              DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -342,9 +347,9 @@ export class Service extends AbstractService {
           ("version" in edgeData) ? edgeData["version"] : "0.0.0",
           Role.getRole(edgeData.role.toString()),
           edgeData.isOnline,
-          edgeData.lastmessage
-        );
-
+          edgeData.lastmessage,
+          edgeData.sumState,
+          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
         this.currentEdge.next(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);
@@ -364,7 +369,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0.8)",
       size: "medium",
-      color: "#fff"
+      color: "#fff",
     });
   }
 
@@ -374,7 +379,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0)",
       size: "medium",
-      color: "var(--ion-color-primary)"
+      color: "var(--ion-color-primary)",
     });
   }
 
@@ -387,7 +392,7 @@ export class Service extends AbstractService {
       message: message,
       color: level,
       duration: 2000,
-      cssClass: 'container'
+      cssClass: 'container',
     });
     toast.present();
   }

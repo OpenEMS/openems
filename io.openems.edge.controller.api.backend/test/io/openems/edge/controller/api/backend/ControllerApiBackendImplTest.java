@@ -7,12 +7,12 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.websocket.DummyWebsocketServer;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
-import io.openems.edge.common.test.TimeLeapClock;
 
 public class ControllerApiBackendImplTest {
 
@@ -38,6 +38,7 @@ public class ControllerApiBackendImplTest {
 			new ComponentTest(sut) //
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //
+					.addReference("resendHistoricDataWorker", new ResendHistoricDataWorker()) //
 					.addComponent(new DummySum()) //
 					.activate(MyConfig.create() //
 							.setId(CTRL_ID) //
@@ -45,7 +46,9 @@ public class ControllerApiBackendImplTest {
 							.setApikey("12345") //
 							.setProxyType(Type.DIRECT) //
 							.setProxyAddress("") //
-							.setPersistencePriority(PersistencePriority.VERY_LOW) //
+							.setPersistencePriority(PersistencePriority.HIGH) //
+							.setAggregationPriority(PersistencePriority.VERY_LOW) //
+							.setResendPriority(PersistencePriority.MEDIUM) //
 							.build());
 
 			// Stop connection

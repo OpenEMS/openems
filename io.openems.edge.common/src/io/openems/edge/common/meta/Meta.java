@@ -2,6 +2,7 @@ package io.openems.edge.common.meta;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
@@ -25,7 +26,8 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING)),
+		VERSION(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
 		 * Edge currency.
@@ -35,7 +37,8 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Currency
 		 * </ul>
 		 */
-		CURRENCY(Doc.of(Currency.values()));
+		CURRENCY(Doc.of(Currency.values()) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 
@@ -75,7 +78,7 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the Capacity in [Wh]. See {@link ChannelId#CURRENCY}.
+	 * Gets the Currency. See {@link ChannelId#CURRENCY}.
 	 *
 	 * @return the Channel {@link Value}
 	 */

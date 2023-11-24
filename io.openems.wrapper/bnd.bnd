@@ -4,12 +4,12 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 -sub: *.bnd
 -buildpath: \
 	com.github.rzymek:opczip;version='1.2.0',\
-	com.influxdb:influxdb-client-core;version='6.9.0',\
-	com.influxdb:influxdb-client-java;version='6.9.0',\
-	com.influxdb:influxdb-client-utils;version='6.9.0',\
-	com.influxdb:flux-dsl;version='6.9.0',\
-	com.squareup.okhttp3:logging-interceptor;version='4.11.0',\
-	com.squareup.okhttp3:okhttp;version='4.11.0',\
+	com.influxdb:influxdb-client-core;version='6.10.0',\
+	com.influxdb:influxdb-client-java;version='6.10.0',\
+	com.influxdb:influxdb-client-utils;version='6.10.0',\
+	com.influxdb:flux-dsl;version='6.10.0',\
+	com.squareup.okhttp3:logging-interceptor;version='4.12.0',\
+	com.squareup.okhttp3:okhttp;version='4.12.0',\
 	com.squareup.retrofit2:retrofit;version='2.9.0',\
 	com.squareup.retrofit2:converter-gson;version='2.9.0',\
 	com.squareup.retrofit2:converter-scalars;version='2.9.0',\
@@ -18,11 +18,12 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
 	eu.chargetime.ocpp:common;version='1.0.2',\
 	eu.chargetime.ocpp:v1_6;version='1.1.0',\
-	info.faljse:SDNotify;version='1.5',\
+	io.jenetics:jenetics;version='7.2.0',\
+	info.faljse:SDNotify;version='1.5.0',\
 	io.reactivex.rxjava3.rxjava;version='3.1.6',\
 	com.google.gson;version='2.10.1',\
-	de.bytefish:pgbulkinsert;version='8.1',\
-	fr.turri:aXMLRPC;version='1.12',\
-	org.dhatim:fastexcel;version='0.15.5',\
+	de.bytefish:pgbulkinsert;version='8.1.2',\
+	fr.turri:aXMLRPC;version='1.13.0',\
+	org.dhatim:fastexcel;version='0.16.3',\
 	org.eclipse.paho.mqttv5.client;version='1.2.5',\
-	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.6.4',\
+	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.7.3',\

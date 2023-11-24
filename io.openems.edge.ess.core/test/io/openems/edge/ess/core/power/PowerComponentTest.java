@@ -36,7 +36,8 @@ public class PowerComponentTest {
 	@Test
 	public void testSymmetricEss() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess0 = new DummyManagedSymmetricEss("ess0", powerComponent) //
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
@@ -64,8 +65,8 @@ public class PowerComponentTest {
 	@Test
 	public void testAsymmetricEss() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess0 = new DummyManagedAsymmetricEss("ess0", powerComponent); //
-		ess0 //
+		var ess0 = new DummyManagedAsymmetricEss("ess0") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(30000) //
@@ -97,8 +98,8 @@ public class PowerComponentTest {
 	@Test
 	public void testAsymmetricEssAllEqual() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess0 = new DummyManagedAsymmetricEss("ess0", powerComponent); //
-		ess0 //
+		var ess0 = new DummyManagedAsymmetricEss("ess0") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(30000) //
@@ -126,17 +127,20 @@ public class PowerComponentTest {
 	@Test
 	public void testCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess1 = new DummyManagedSymmetricEss("ess1", powerComponent) //
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(30);
-		var ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(60);
-		var ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2) //
+				.setPower(powerComponent); //
 
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
@@ -248,37 +252,44 @@ public class PowerComponentTest {
 	@Test
 	public void testStrSctr() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess1 = new DummyManagedSymmetricEss("ess1", powerComponent) //
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(30);
-		var ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(60);
-		var ess3 = new DummyManagedSymmetricEss("ess3", powerComponent) //
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(50);
-		var ess4 = new DummyManagedSymmetricEss("ess4", powerComponent) //
+		var ess4 = new DummyManagedSymmetricEss("ess4") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(10);
-		var ess5 = new DummyManagedSymmetricEss("ess5", powerComponent) //
+		var ess5 = new DummyManagedSymmetricEss("ess5") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(90);
-		var ess6 = new DummyManagedSymmetricEss("ess6", powerComponent) //
+		var ess6 = new DummyManagedSymmetricEss("ess6") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(12000) //
 				.withSoc(70);
-		var ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2, ess3, ess4, ess5, ess6); //
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2, ess3, ess4, ess5, ess6) //
+				.setPower(powerComponent);
 
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
@@ -357,15 +368,18 @@ public class PowerComponentTest {
 	@Test
 	public void testCommercial40Cluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess1 = new DummyManagedSymmetricEss("ess1", powerComponent) //
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
 				.withMaxApparentPower(40000) //
 				.withSoc(1) //
 				.withPowerPrecision(100);
-		var ess2 = new DummyManagedSymmetricEss("ess2", powerComponent) //
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
 				.withMaxApparentPower(40000) //
 				.withSoc(97) //
 				.withPowerPrecision(100);
-		var ess0 = new DummyMetaEss("ess0", powerComponent, ess1, ess2); //
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2) //
+				.setPower(powerComponent);
 
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
@@ -450,29 +464,36 @@ public class PowerComponentTest {
 	@Test
 	public void testMultilayerCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
-		var ess11 = new DummyManagedSymmetricEss("ess11", powerComponent) //
+		var ess11 = new DummyManagedSymmetricEss("ess11") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-70000) //
 				.withAllowedDischargePower(70000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(30);
-		var ess12 = new DummyManagedSymmetricEss("ess12", powerComponent) //
+		var ess12 = new DummyManagedSymmetricEss("ess12") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-70000) //
 				.withAllowedDischargePower(70000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(60);
-		var ess10 = new DummyMetaEss("ess10", powerComponent, ess11, ess12); //
-		var ess21 = new DummyManagedSymmetricEss("ess21", powerComponent) //
+		var ess10 = new DummyMetaEss("ess10", ess11, ess12) //
+				.setPower(powerComponent);
+		var ess21 = new DummyManagedSymmetricEss("ess21") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-70000) //
 				.withAllowedDischargePower(70000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(30);
-		var ess22 = new DummyManagedSymmetricEss("ess22", powerComponent) //
+		var ess22 = new DummyManagedSymmetricEss("ess22") //
+				.setPower(powerComponent) //
 				.withAllowedChargePower(-70000) //
 				.withAllowedDischargePower(70000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(60);
-		var ess20 = new DummyMetaEss("ess20", powerComponent, ess21, ess22); //
-		var ess0 = new DummyMetaEss("ess0", powerComponent, ess10, ess20); //
+		var ess20 = new DummyMetaEss("ess20", ess21, ess22) //
+				.setPower(powerComponent);
+		var ess0 = new DummyMetaEss("ess0", ess10, ess20) //
+				.setPower(powerComponent);
 
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
@@ -508,8 +529,8 @@ public class PowerComponentTest {
 		ess.withSymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
 			// System.out.println(description + " for " + ess.id() + ": " + activePower);
-			assertEquals(description + " for " + ess.id(), p, record.activePower);
-			assertEquals(description + " for " + ess.id(), q, record.reactivePower);
+			assertEquals(description + " for " + ess.id(), p, record.activePower());
+			assertEquals(description + " for " + ess.id(), q, record.reactivePower());
 		});
 	}
 
@@ -518,12 +539,12 @@ public class PowerComponentTest {
 		openCallbacks.incrementAndGet();
 		ess.withAsymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
-			assertEquals(description + " for " + ess.id(), pL1, record.activePowerL1);
-			assertEquals(description + " for " + ess.id(), qL1, record.reactivePowerL1);
-			assertEquals(description + " for " + ess.id(), pL2, record.activePowerL2);
-			assertEquals(description + " for " + ess.id(), qL2, record.reactivePowerL2);
-			assertEquals(description + " for " + ess.id(), pL3, record.activePowerL3);
-			assertEquals(description + " for " + ess.id(), qL3, record.reactivePowerL3);
+			assertEquals(description + " for " + ess.id(), pL1, record.activePowerL1());
+			assertEquals(description + " for " + ess.id(), qL1, record.reactivePowerL1());
+			assertEquals(description + " for " + ess.id(), pL2, record.activePowerL2());
+			assertEquals(description + " for " + ess.id(), qL2, record.reactivePowerL2());
+			assertEquals(description + " for " + ess.id(), pL3, record.activePowerL3());
+			assertEquals(description + " for " + ess.id(), qL3, record.reactivePowerL3());
 		});
 	}
 }

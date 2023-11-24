@@ -42,7 +42,7 @@ export namespace AppCenterAddRegisterKeyHistory {
             public override readonly params: {
                 key: string,
                 appId: string,
-            }
+            },
         ) {
             super(METHOD, params);
         }

@@ -154,8 +154,10 @@ public class TestFeneconHome {
 	private final OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig));
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig)).get();
+
+		assertEquals(4, response.instance.dependencies.size());
 
 		// make sure every dependency got installed
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);

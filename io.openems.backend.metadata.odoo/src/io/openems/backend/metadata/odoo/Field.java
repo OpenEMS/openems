@@ -62,7 +62,8 @@ public interface Field {
 		LASTMESSAGE("lastmessage", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
-		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false);
+		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false),
+		FIRST_SETUP_PROTOCOL("first_setup_protocol_date", false);
 
 		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
@@ -512,7 +513,7 @@ public interface Field {
 		SERIAL_NUMBER("name", true), //
 		PRODUCT("product_id", true);
 
-		public static final String ODOO_MODEL = "stock.production.lot";
+		public static final String ODOO_MODEL = "stock.lot";
 		public static final String ODOO_TABLE = StockProductionLot.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -521,7 +522,6 @@ public interface Field {
 
 		private final int queryIndex;
 		private final String id;
-
 		/**
 		 * Holds information if this Field should be queried from and written to
 		 * Database.

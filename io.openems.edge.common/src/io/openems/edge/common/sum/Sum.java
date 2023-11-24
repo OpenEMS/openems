@@ -443,6 +443,24 @@ public interface Sum extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
 		/**
+		 * Unmanaged Consumption: Active Power.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * <li>Note: this value represents the part of the Consumption that is not
+		 * actively managed by OpenEMS, i.e. it is calculated as
+		 * ({@link #CONSUMPTION_ACTIVE_POWER}) minus charge power for an electric
+		 * vehicle charging station, etc. This value is used for forecasting of
+		 * consumption.
+		 * </ul>
+		 */
+		UNMANAGED_CONSUMPTION_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.VERY_HIGH)), //
+		/**
 		 * Grid-Mode.
 		 *
 		 * <ul>
@@ -1600,6 +1618,35 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default void _setConsumptionActivePower(int value) {
 		this.getConsumptionActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getUnmanagedConsumptionActivePowerChannel() {
+		return this.channel(ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Unmanaged Consumption Active Power in [W]. See
+	 * {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getUnmanagedConsumptionActivePower() {
+		return this.getUnmanagedConsumptionActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#UNMANAGED_CONSUMPTION_ACTIVE_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setUnmanagedConsumptionActivePower(Integer value) {
+		this.getUnmanagedConsumptionActivePowerChannel().setNextValue(value);
 	}
 
 	/**

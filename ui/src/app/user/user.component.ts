@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Changelog } from 'src/app/changelog/view/component/changelog.constants';
 import { environment } from '../../environments';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
@@ -11,6 +11,7 @@ import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserIn
 import { Service, Websocket } from '../shared/shared';
 import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { Language } from '../shared/type/language';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 type UserInformation = {
   firstname: string,
@@ -23,35 +24,34 @@ type UserInformation = {
   country: string
 }
 @Component({
-  templateUrl: './user.component.html'
+  templateUrl: './user.component.html',
 })
 export class UserComponent implements OnInit {
 
   public environment = environment;
+  public uiVersion = Changelog.UI_VERSION;
 
   public readonly languages: Language[] = Language.ALL;
   public currentLanguage: Language;
   public isEditModeDisabled: boolean = true;
-  public form: { formGroup: FormGroup, fields: FormlyFieldConfig[], model: UserInformation };
+  public form: { formGroup: FormGroup, model: UserInformation };
   public showInformation: boolean = false;
 
   constructor(
     public translate: TranslateService,
     public service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
     // Set currentLanguage to 
     this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
-
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        fields: this.getFields(),
-        model: userInformation
+        model: userInformation,
       };
       this.showInformation = true;
     });
@@ -68,9 +68,9 @@ export class UserComponent implements OnInit {
           street: this.form.model.street,
           zip: this.form.model.zip,
           city: this.form.model.city,
-          country: this.form.model.country
-        }
-      }
+          country: this.form.model.country,
+        },
+      },
     };
     this.service.websocket.sendRequest(new SetUserInformationRequest(user)).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -86,8 +86,7 @@ export class UserComponent implements OnInit {
       this.getUserInformation().then((userInformation) => {
         this.form = {
           formGroup: new FormGroup({}),
-          fields: this.getFields(),
-          model: userInformation
+          model: userInformation,
         };
       });
     }
@@ -97,88 +96,81 @@ export class UserComponent implements OnInit {
 
   public enableAndDisableFormFields(): boolean {
     // Update Fields
-    this.form?.fields[0].fieldGroup.forEach(element => {
-      element.templateOptions.disabled = !element.templateOptions.disabled;
+    this.userInformationFields.forEach(element => {
+      element.props.disabled = !element.props.disabled;
     });
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
-
-  public getFields(): FormlyFieldConfig[] {
-
-    return [{
-      fieldGroup: [
-        {
-          key: "firstname",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.firstname"),
-            disabled: true
-          }
-        },
-        {
-          key: "lastname",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.lastname"),
-            disabled: true
-          }
-        },
-        {
-          key: "street",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.street"),
-            disabled: true
-          }
-        },
-        {
-          key: "zip",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.zip"),
-            disabled: true
-          }
-        },
-        {
-          key: "city",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.city"),
-            disabled: true
-          }
-        },
-        {
-          key: "country",
-          type: "select",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.country"),
-            options: COUNTRY_OPTIONS(this.translate),
-            disabled: true
-          }
-        },
-        {
-          key: "email",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.email"),
-            disabled: true
-          },
-          validators: {
-            validation: [Validators.email]
-          }
-        },
-        {
-          key: "phone",
-          type: "input",
-          templateOptions: {
-            label: this.translate.instant("Register.Form.phone"),
-            disabled: true
-          }
-        }
-      ]
-    }];
-  }
+  /** Needs to be predefined to make wrapper work with ion-skeleton */
+  protected userInformationFields: FormlyFieldConfig[] = [{
+    key: "firstname",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.firstname"),
+      disabled: true,
+    },
+  },
+  {
+    key: "lastname",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.lastname"),
+      disabled: true,
+    },
+  },
+  {
+    key: "street",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.street"),
+      disabled: true,
+    },
+  },
+  {
+    key: "zip",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.zip"),
+      disabled: true,
+    },
+  },
+  {
+    key: "city",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.city"),
+      disabled: true,
+    },
+  },
+  {
+    key: "country",
+    type: "select",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.country"),
+      options: COUNTRY_OPTIONS(this.translate),
+      disabled: true,
+    },
+  },
+  {
+    key: "email",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.email"),
+      disabled: true,
+    },
+    validators: {
+      validation: [Validators.email],
+    },
+  },
+  {
+    key: "phone",
+    type: "input",
+    templateOptions: {
+      label: this.translate.instant("Register.Form.phone"),
+      disabled: true,
+    },
+  }];
 
   public getUserInformation(): Promise<UserInformation> {
 
@@ -196,7 +188,7 @@ export class UserComponent implements OnInit {
               street: user.address.street,
               zip: user.address.zip,
               city: user.address.city,
-              country: user.address.country
+              country: user.address.country,
             });
           }).catch(() => {
             resolve({
@@ -207,7 +199,7 @@ export class UserComponent implements OnInit {
               street: "",
               zip: "",
               city: "",
-              country: ""
+              country: "",
             });
           });
           clearInterval(interval);
@@ -224,8 +216,7 @@ export class UserComponent implements OnInit {
   }
 
   public toggleDebugMode(event: CustomEvent) {
-
-    sessionStorage.setItem("DEBUGMODE", event.detail['checked']);
+    localStorage.setItem("DEBUGMODE", event.detail['checked']);
     this.environment.debugMode = event.detail['checked'];
   }
 

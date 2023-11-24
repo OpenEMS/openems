@@ -1,0 +1,20 @@
+Bundle-Name: OpenEMS Edge Controller Ess Time-Of-Use Tariff
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.ess.emergencycapacityreserve,\
+	io.openems.edge.controller.ess.limittotaldischarge,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.predictor.api,\
+	io.openems.edge.timedata.api,\
+	io.openems.edge.timeofusetariff.api,\
+	io.openems.wrapper.jenetics,\
+
+-testpath: \
+	${testpath}

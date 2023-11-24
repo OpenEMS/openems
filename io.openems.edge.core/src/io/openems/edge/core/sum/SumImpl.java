@@ -18,7 +18,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -30,10 +29,12 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
+import io.openems.edge.ess.api.CalculateSoc;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -125,7 +126,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	 */
 	private void calculateChannelValues() {
 		// Ess
-		final var essSoc = new CalculateAverage();
+		final var essSoc = new CalculateSoc();
 		final var essActivePower = new CalculateIntegerSum();
 		final var essActivePowerL1 = new CalculateIntegerSum();
 		final var essActivePowerL2 = new CalculateIntegerSum();
@@ -167,6 +168,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		// cabling errors, etc.
 		final var productionAcActiveEnergyNegative = new CalculateLongSum();
 
+		// Consumption
+		final var managedConsumptionActivePower = new CalculateIntegerSum();
+
 		for (OpenemsComponent component : this.componentManager.getEnabledComponents()) {
 			if (component instanceof SymmetricEss) {
 				/*
@@ -178,7 +182,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// ignore this Ess
 					continue;
 				}
-				essSoc.addValue(ess.getSocChannel());
+				essSoc.add(ess);
 				essActivePower.addValue(ess.getActivePowerChannel());
 				essReactivePower.addValue(ess.getReactivePowerChannel());
 				essMaxApparentPower.addValue(ess.getMaxApparentPowerChannel());
@@ -222,14 +226,17 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				switch (meter.getMeterType()) {
 				case PRODUCTION_AND_CONSUMPTION:
 					// TODO PRODUCTION_AND_CONSUMPTION
+					// Production Power is positive, Consumption is negative
 					break;
 
 				case CONSUMPTION_METERED:
 					// TODO CONSUMPTION_METERED
+					// Consumption is positive
 					break;
 
 				case CONSUMPTION_NOT_METERED:
 					// TODO CONSUMPTION_NOT_METERED
+					// Consumption is positive
 					break;
 
 				case GRID:
@@ -269,6 +276,12 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				productionDcActualPower.addValue(charger.getActualPowerChannel());
 				productionMaxDcActualPower.addValue(charger.getMaxActualPowerChannel());
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
+
+			} else if (component instanceof Evcs evcs) {
+				/*
+				 * Electric Vehicle Charging Station
+				 */
+				managedConsumptionActivePower.addValue(evcs.getChargePowerChannel());
 			}
 		}
 
@@ -356,8 +369,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				productionActiveEnergySum);
 
 		// Consumption
-		this._setConsumptionActivePower(TypeUtils.sum(//
-				essActivePowerSum, gridActivePowerSum, productionAcActivePowerSum));
+		var consumptionActivePower = TypeUtils.sum(//
+				essActivePowerSum, gridActivePowerSum, productionAcActivePowerSum);
+		this._setConsumptionActivePower(consumptionActivePower);
 		this._setConsumptionActivePowerL1(TypeUtils.sum(//
 				essActivePowerL1Sum, gridActivePowerL1Sum, productionAcActivePowerL1Sum));
 		this._setConsumptionActivePowerL2(TypeUtils.sum(//
@@ -366,6 +380,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActivePowerL3Sum, gridActivePowerL3Sum, productionAcActivePowerL3Sum));
 		this._setConsumptionMaxActivePower(TypeUtils.sum(//
 				essMaxApparentPowerSum, gridMaxActivePowerSum, productionMaxAcActivePowerSum));
+		this._setUnmanagedConsumptionActivePower(
+				TypeUtils.subtract(consumptionActivePower, managedConsumptionActivePower.calculate()));
 
 		var enterTheSystem = TypeUtils.sum(essActiveDischargeEnergySum, gridBuyActiveEnergySum,
 				productionAcActiveEnergySum);

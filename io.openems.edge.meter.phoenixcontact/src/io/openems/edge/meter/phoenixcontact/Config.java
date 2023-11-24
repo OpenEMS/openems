@@ -32,6 +32,9 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
 
+	@AttributeDefinition(name = "Invert measurement", description = "Inverts power and current, swaps production and consumption energy")
+	boolean invert() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Meter Phoenix Contact [{id}]";
 
 }

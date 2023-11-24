@@ -215,16 +215,7 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append(this.stateMachine.debugLog()) //
-				.append("|SoC:").append(this.getSoc()) //
-				.append("|Actual:").append(this.getVoltage()) //
-				.append(";").append(this.getCurrent()) //
-				.append("|Charge:").append(this.getChargeMaxVoltage()) //
-				.append(";").append(this.getChargeMaxCurrent()) //
-				.append("|Discharge:").append(this.getDischargeMinVoltage()) //
-				.append(";").append(this.getDischargeMaxCurrent()) //
-				.toString();
+		return Battery.generateDebugLog(this, this.stateMachine);
 	}
 
 	@Override
@@ -427,7 +418,6 @@ public class BatterySoltaroSingleRackVersionCImpl extends AbstractOpenemsModbusC
 								.bit(6, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
 								.bit(7, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_LOW) //
 								.bit(8, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_SOC_LOW) //
-								.bit(9, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_TEMP_DIFF_TOO_BIG) //
 								.bit(10, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_POWER_POLE_HIGH) //
 								.bit(11, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_DIFF_TOO_BIG) //
 								.bit(12, BatterySoltaroSingleRackVersionC.ChannelId.PRE_ALARM_INSULATION_FAIL) //

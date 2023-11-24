@@ -105,20 +105,25 @@ export class Utils {
   }
 
   /**
-   * Safely subtracts two - possibly 'null' - values: v1 - v2
+   *  Subtracts values from each other - possibly null values 
    * 
-   * @param v1 
-   * @param v2 
+   * @param values the values
+   * @returns a number, if at least one value is not null, else null
    */
-  public static subtractSafely(v1: number, v2: number): number {
-    if (v1 == null) {
-      return v2;
-    } else if (v2 == null) {
-      return v1;
-    } else {
-      return v1 - v2;
-    }
+  public static subtractSafely(...values: (number | null)[]): number {
+    return values
+      .filter(value => value !== null && value !== undefined)
+      .reduce((sum, curr) => {
+        if (sum == null) {
+          sum = curr;
+        } else {
+          sum -= curr;
+        }
+
+        return sum;
+      }, null);
   }
+
   /**
    * Safely divides two - possibly 'null' - values: v1 / v2
    * 
@@ -147,6 +152,25 @@ export class Utils {
     } else {
       return v1 * v2;
     }
+  }
+
+  /**
+   * Safely compares two arrays - possibly 'null'
+   * 
+   * @param v1
+   * @param v2 
+   * @returns 
+   */
+  public static compareArraysSafely(v1: any[], v2: any[]): boolean {
+    if (v1 == null || v2 == null) {
+      return null;
+    }
+
+    const set1 = new Set(v1);
+    const set2 = new Set(v2);
+
+    return v1.every(item => set2.has(item)) &&
+      v2.every(item => set1.has(item));
   }
 
   public static getRandomInteger(min: number, max: number) {
@@ -368,17 +392,13 @@ export class Utils {
    */
   public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
     return (value: any): string => {
-      switch (value) {
-        case -1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.notStarted');
+      switch (Math.round(value)) {
         case 0:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.delayed');
-        case 1:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
-        case 2:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE');
+        default: // Usually "1"
+          return translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING');
       }
     };
   };
@@ -422,7 +442,7 @@ export class Utils {
       view[i] = binary.charCodeAt(i);
     }
     const data: Blob = new Blob([view], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
     });
 
     saveAs(data, filename + '.xlsx');
@@ -472,7 +492,7 @@ export class Utils {
       } else {
         return /* min 0 */ Math.max(0,
         /* max 100 */ Math.min(100,
-          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
 
@@ -521,23 +541,95 @@ export class Utils {
   }
 
   /**
-   * Returns the label based on component factory id.
+   * Converts a value in €/MWh to €Ct./kWh.
    * 
-   * @param component The Component.
-   * @param translate The Translate
-   * @returns the label.
+   * @param price the price value
+   * @returns  the converted price
    */
-  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
-    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
+  public static formatPrice(price: number): number {
+    if (price == null || Number.isNaN(price)) {
+      return null;
+    } else if (price == 0) {
+      return 0;
     } else {
-      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
     }
   }
+
+  /**
+   * Calculates the total other consumption.
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
+   * 
+   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+
+    let totalEvcsConsumption: number = 0;
+    let totalMeteredConsumption: number = 0;
+    evcsComponents.forEach(component => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+    });
+
+    return Utils.roundSlightlyNegativeValues(
+      Utils.subtractSafely(
+        Utils.subtractSafely(
+          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
+        totalMeteredConsumption));
+  }
+
+  /**
+   * Calculates the other consumption.
+   * 
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+   * 
+   * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+
+    let totalEvcsConsumption: number[] = [];
+    let totalMeteredConsumption: number[] = [];
+
+    evcsComponents.forEach(component => {
+      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
+        totalEvcsConsumption[index] = value;
+      });
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
+        totalMeteredConsumption[index] = value;
+      });
+    });
+
+    return channelData['ConsumptionActivePower']?.map((value, index) => {
+
+      if (value == null) {
+        return null;
+      }
+      return Utils.roundSlightlyNegativeValues(
+        Utils.subtractSafely(
+          Utils.subtractSafely(
+            value, totalEvcsConsumption[index]),
+          totalMeteredConsumption[index]));
+    });
+  }
 }
+
 export enum YAxisTitle {
   PERCENTAGE,
-  ENERGY
+  ENERGY,
+  VOLTAGE
 }
 
 export enum ChartAxis {
@@ -560,7 +652,7 @@ export namespace HistoryUtils {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
-      hidden: false
+      hidden: false,
     }];
   }
 
@@ -592,6 +684,8 @@ export namespace HistoryUtils {
     hideLabelInLegend?: boolean,
     /** Borderstyle of label in legend */
     borderDash?: number[],
+    /** Hides shadow of chart lines, default false */
+    hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
     customUnit?: YAxisTitle,
@@ -665,6 +759,13 @@ export namespace HistoryUtils {
         return null;
       } else {
         return Math.abs(Math.min(0, value));
+      }
+    };
+    export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
+      if (value < 0) {
+        return Math.abs(value);
+      } else {
+        return 0;
       }
     };
   }

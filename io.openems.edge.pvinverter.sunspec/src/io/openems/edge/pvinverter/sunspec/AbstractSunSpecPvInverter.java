@@ -71,11 +71,20 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	private boolean readOnly;
 	private Phase phase;
 	private InverterType inverterType = null;
+	private final boolean calculateActiveProductionEnergyManually;
 
 	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
+		this(activeModels, false, firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	public AbstractSunSpecPvInverter(Map<SunSpecModel, Priority> activeModels,
+			boolean calculateActiveProductionEnergyManually,
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
+		this.calculateActiveProductionEnergyManually = calculateActiveProductionEnergyManually;
 		this._setActiveConsumptionEnergy(0);
 
 		// Automatically calculate sum values from L1/L2/L3
@@ -261,22 +270,24 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		}
 
 		// Energy
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				DIRECT_1_TO_1, //
-				S701.TOT_WH_INJ, S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
-				DIRECT_1_TO_1, //
-				S701.TOT_WH_INJ_L1);
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
-				DIRECT_1_TO_1, //
-				S701.TOT_WH_INJ_L2);
-		this.mapFirstPointToChannel(//
-				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
-				DIRECT_1_TO_1, //
-				S701.TOT_WH_INJ_L3);
+		if (!this.calculateActiveProductionEnergyManually) {
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ, S111.WH, S112.WH, S113.WH, S101.WH, S102.WH, S103.WH);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L1);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L2);
+			this.mapFirstPointToChannel(//
+					ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					DIRECT_1_TO_1, //
+					S701.TOT_WH_INJ_L3);
+		}
 
 		this.mapFirstPointToChannel(//
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //

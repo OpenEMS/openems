@@ -9,7 +9,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -59,18 +58,15 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 		try {
 			int availableRelays;
 			if (this.io != null) {
-				availableRelays = this.openemsAppUtil.getAvailableRelays(this.io).size();
+				availableRelays = this.openemsAppUtil.getAvailableRelayContactInfos(this.io).size();
 			} else {
-				availableRelays = this.openemsAppUtil.getAvailableRelays().stream() //
-						.mapToInt(t -> t.relays.size()) //
-						.max() //
-						.orElse(0);
+				availableRelays = this.openemsAppUtil.getAvailableRelayContactInfos().size();
 			}
 			this.availableRelays = availableRelays;
 			if (this.count <= availableRelays) {
 				return true;
 			}
-		} catch (OpenemsNamedException e) {
+		} catch (RuntimeException e) {
 			// io not found so there are none available
 			this.availableRelays = 0;
 		}
@@ -95,6 +91,11 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 			);
 		}
 		return messageBuilder.toString();
+	}
+
+	@Override
+	public String getInvertedErrorMessage(Language language) {
+		throw new UnsupportedOperationException();
 	}
 
 }

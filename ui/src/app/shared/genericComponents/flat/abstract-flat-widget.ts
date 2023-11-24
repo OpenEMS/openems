@@ -8,11 +8,13 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocke
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from "../shared/dataservice";
+import { Converter } from "../shared/converter";
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     public readonly Utils = Utils;
+    public readonly Converter = Converter;
 
     @Input()
     protected componentId: string;
@@ -34,7 +36,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
-        private dataService: DataService
+        private dataService: DataService,
     ) {
     }
 
@@ -55,7 +57,6 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 for (let channelId of channelIds) {
                     channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
-
                 this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
                 this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
                     this.onCurrentData(value);
@@ -65,8 +66,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     };
 
     public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.dataService.unsubscribeFromChannels(this.getChannelAddresses());
 
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
@@ -78,8 +78,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * 
      * @param currentData new data for the subscribed Channel-Addresses
      */
-    protected onCurrentData(currentData: CurrentData) {
-    }
+    protected onCurrentData(currentData: CurrentData) { }
 
     /**
      * Gets the ChannelAddresses that should be subscribed.

@@ -12,7 +12,7 @@ export interface Dataset {
 export const EMPTY_DATASET = [{
     label: "no Data available",
     data: [],
-    hidden: false
+    hidden: false,
 }];
 
 export type Data = {
@@ -136,43 +136,44 @@ export type ChartOptions = {
             afterTitle?(item: ChartTooltipItem[], data: Data): string | string[],
             footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
         }
-    }
+    },
+    legendCallback?(chart: Chart): string
 }
 
 export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     maintainAspectRatio: false,
     legend: {
         labels: {},
-        position: 'bottom'
+        position: 'bottom',
     },
     elements: {
         point: {
             radius: 0,
             hitRadius: 0,
-            hoverRadius: 0
+            hoverRadius: 0,
         },
         line: {
             borderWidth: 2,
-            tension: 0.1
+            tension: 0.1,
         },
         rectangle: {
-            borderWidth: 2
-        }
+            borderWidth: 2,
+        },
     },
     hover: {
         mode: 'point',
-        intersect: true
+        intersect: true,
     },
     scales: {
         yAxes: [{
             position: 'left',
             scaleLabel: {
                 display: true,
-                labelString: ""
+                labelString: "",
             },
             ticks: {
-                beginAtZero: true
-            }
+                beginAtZero: true,
+            },
         }],
         xAxes: [{
             ticks: {},
@@ -189,10 +190,10 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MM', // September
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY' // 2015,
-                }
-            }
-        }]
+                    year: 'YYYY', // 2015,
+                },
+            },
+        }],
     },
     tooltips: {
         mode: 'index',
@@ -202,34 +203,34 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             title(tooltipItems: TooltipItem[], data: Data): string {
                 let date = new Date(tooltipItems[0].xLabel);
                 return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-            }
-        }
-    }
+            },
+        },
+    },
 };
 
 export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {
     maintainAspectRatio: false,
     legend: {
         labels: {},
-        position: 'bottom'
+        position: 'bottom',
     },
     elements: {
         point: {
             radius: 0,
             hitRadius: 0,
-            hoverRadius: 0
+            hoverRadius: 0,
         },
         line: {
             borderWidth: 2,
-            tension: 0.1
+            tension: 0.1,
         },
         rectangle: {
-            borderWidth: 2
-        }
+            borderWidth: 2,
+        },
     },
     hover: {
         mode: 'point',
-        intersect: true
+        intersect: true,
     },
     scales: {
         yAxes: [],
@@ -248,10 +249,10 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MM', // September
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY' // 2015,
-                }
-            }
-        }]
+                    year: 'YYYY', // 2015,
+                },
+            },
+        }],
     },
     tooltips: {
         mode: 'index',
@@ -261,9 +262,9 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
             title(tooltipItems: TooltipItem[], data: Data): string {
                 let date = new Date(tooltipItems[0].xLabel);
                 return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-            }
-        }
-    }
+            },
+        },
+    },
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
@@ -333,7 +334,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 }
 
 /**
-  * Returns true if Chart Label should be visible. Defaults to to true.
+  * Returns true if Chart Label should be visible. Defaults to true.
   * 
   * Compares only the first part of the label string - without a value or unit.
   * 

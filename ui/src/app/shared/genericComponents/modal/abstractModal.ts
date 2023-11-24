@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +23,9 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** Should be used to unsubscribe from all subscribed observables at once */
+    protected subscription: Subscription = new Subscription();
+
     /** Enum for User Role */
     public readonly Role = Role;
 
@@ -41,7 +44,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(ModalController) public modalController: ModalController,
         @Inject(TranslateService) protected translate: TranslateService,
         @Inject(FormBuilder) public formBuilder: FormBuilder,
-        public ref: ChangeDetectorRef
+        public ref: ChangeDetectorRef,
     ) {
         ref.detach();
         setInterval(() => {
@@ -87,13 +90,17 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
                 // announce initialized
                 this.isInitialized = true;
+
+                this.onIsInitialized();
             });
         });
-    };
+    }
+    protected onIsInitialized() { };
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
         this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
