@@ -557,16 +557,15 @@ export class Utils {
     }
   }
 
-
   /**
-  * Calculates the total other consumption.
-  * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
-  * 
-  * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
-  * @param evcsComponents the evcsComponents
-  * @param consumptionMeterComponents the consumptionMeterComponents
-  * @returns the other consumption
-  */
+   * Calculates the total other consumption.
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
+   * 
+   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
   public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;

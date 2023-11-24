@@ -150,7 +150,7 @@ export class ModalComponent extends AbstractModal {
       // EnergySessionLimit as Wh value
       energySessionLimit: new FormControl(this.controller?.properties.energySessionLimit),
       // EnergySessionLimit as kWh value, for ion-range
-      energySessionLimitKwh: new FormControl(Math.round(this.controller.properties.energySessionLimit / 1000)),
+      energySessionLimitKwh: new FormControl(Math.round(this.controller?.properties.energySessionLimit / 1000)),
       enabledCharging: new FormControl(this.isChargingEnabled),
     });
   }
