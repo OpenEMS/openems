@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -67,12 +69,13 @@ public class OfflineEdgeAlertingTest {
 			this.meta.initialize(this.edges.values(), this.settings);
 			this.scheduler = new Scheduler(this.timer);
 
-			this.alerting = new Alerting(this.scheduler, new Executor() {
+			var executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
 				@Override
 				public void execute(Runnable command) {
 					command.run();
 				}
-			});
+			};
+			this.alerting = new Alerting(this.scheduler, executor);
 			this.alerting.mailer = this.mailer;
 			this.alerting.metadata = this.meta;
 		}
