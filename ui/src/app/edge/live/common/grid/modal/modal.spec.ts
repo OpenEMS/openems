@@ -1,4 +1,4 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, SOCOMEC_GRID_METER } from "src/app/shared/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST } from "src/app/shared/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/genericComponents/shared/testing/tester";
 import { GridMode } from "src/app/shared/shared";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
@@ -36,7 +36,7 @@ describe('Grid - Modal', () => {
     {
       // Single Meter
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
       );
 
       // Admin and Installer
@@ -90,8 +90,8 @@ describe('Grid - Modal', () => {
     {
       // Two Meters
       const EMS = DummyConfig.from(
-        SOCOMEC_GRID_METER("meter10"),
-        SOCOMEC_GRID_METER("meter11"),
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter10"),
+        DummyConfig.Component.SOCOMEC_GRID_METER("meter11"),
       );
 
       // Admin and Installer -> two meters

@@ -75,9 +75,9 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, 'MinimumHardwarePower'),
       new ChannelAddress(this.component.id, 'MaximumHardwarePower'),
       new ChannelAddress(this.component.id, 'SetChargePowerLimit'),
-      new ChannelAddress(this.controller.id, '_PropertyChargeMode'),
-      new ChannelAddress(this.controller.id, '_PropertyEnabledCharging'),
-      new ChannelAddress(this.controller.id, '_PropertyDefaultChargeMinPower'),
+      new ChannelAddress(this.controller?.id, '_PropertyChargeMode'),
+      new ChannelAddress(this.controller?.id, '_PropertyEnabledCharging'),
+      new ChannelAddress(this.controller?.id, '_PropertyDefaultChargeMinPower'),
     ];
   }
 
@@ -93,7 +93,7 @@ export class ModalComponent extends AbstractModal {
       this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + '/MinimumHardwarePower']);
       this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + '/MaximumHardwarePower']);
       this.numberOfPhases = currentData.allComponents[this.component.id + '/Phases'] ? currentData.allComponents[this.component.id + '/Phases'] : 3;
-      this.defaultChargeMinPower = currentData.allComponents[this.controller.id + '/_PropertyDefaultChargeMinPower'];
+      this.defaultChargeMinPower = currentData.allComponents[this.controller?.id + '/_PropertyDefaultChargeMinPower'];
     }
   }
 
@@ -141,16 +141,16 @@ export class ModalComponent extends AbstractModal {
 
   protected override getFormGroup(): FormGroup {
     return this.formBuilder.group({
-      chargeMode: new FormControl(this.controller.properties.enabledCharging == false ? 'OFF' : this.controller.properties.chargeMode),
-      energyLimit: new FormControl(this.controller.properties.energySessionLimit > 0),
-      minGuarantee: new FormControl(this.controller.properties.defaultChargeMinPower > 0),
-      defaultChargeMinPower: new FormControl(this.controller.properties.defaultChargeMinPower),
-      forceChargeMinPower: new FormControl(this.controller.properties.forceChargeMinPower),
-      priority: new FormControl(this.controller.properties.priority),
+      chargeMode: new FormControl(this.controller?.properties.enabledCharging == false ? 'OFF' : this.controller?.properties.chargeMode),
+      energyLimit: new FormControl(this.controller?.properties.energySessionLimit > 0),
+      minGuarantee: new FormControl(this.controller?.properties.defaultChargeMinPower > 0),
+      defaultChargeMinPower: new FormControl(this.controller?.properties.defaultChargeMinPower),
+      forceChargeMinPower: new FormControl(this.controller?.properties.forceChargeMinPower),
+      priority: new FormControl(this.controller?.properties.priority),
       // EnergySessionLimit as Wh value
-      energySessionLimit: new FormControl(this.controller.properties.energySessionLimit),
+      energySessionLimit: new FormControl(this.controller?.properties.energySessionLimit),
       // EnergySessionLimit as kWh value, for ion-range
-      energySessionLimitKwh: new FormControl(Math.round(this.controller.properties.energySessionLimit / 1000)),
+      energySessionLimitKwh: new FormControl(Math.round(this.controller?.properties.energySessionLimit / 1000)),
       enabledCharging: new FormControl(this.isChargingEnabled),
     });
   }
@@ -171,7 +171,7 @@ export class ModalComponent extends AbstractModal {
  * Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component
  */
   protected updateRenaultZoeConfig() {
-    if (this.evcsComponent.properties['minHwCurrent'] == 10000) {
+    if (this.controller && this.evcsComponent.properties['minHwCurrent'] == 10000) {
 
       let oldMinChargePower = this.controller.properties.forceChargeMinPower;
       let maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
@@ -200,10 +200,8 @@ export class ModalComponent extends AbstractModal {
   * 
   */
   private getState(state: number, plug: number): string {
-    if (this.controller != null) {
-      if (this.controller.properties.enabledCharging != null && this.controller.properties.enabledCharging == false) {
-        return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
-      }
+    if (this.controller?.properties.enabledCharging && this.controller.properties.enabledCharging == false) {
+      return this.translate.instant('Edge.Index.Widgets.EVCS.chargingStationDeactivated');
     }
 
     if (plug == null) {

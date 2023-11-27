@@ -1,13 +1,11 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,11 +18,11 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
@@ -39,8 +37,6 @@ import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -51,12 +47,10 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
-public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
+public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
+		implements UiWebsocket, EventHandler, DebugLoggable {
 
-	private static final String EDGE_ID = "backend0";
 	private static final String COMPONENT_ID = "uiwebsocket0";
-
-	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	protected WebsocketServer server = null;
 
@@ -81,13 +75,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			var data = TreeBasedTable.<Long, String, JsonElement>create();
-			var now = Instant.now().toEpochMilli();
-			data.put(now, COMPONENT_ID + "/Connections",
-					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
-		}, 10, 10, TimeUnit.SECONDS);
 
 		if (this.metadata.isInitialized()) {
 			this.startServer();
@@ -96,7 +83,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	@Deactivate
 	private void deactivate() {
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
 	}
 
@@ -274,6 +260,22 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	public String getId() {
 		return COMPONENT_ID;
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.server.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		final var metrics = new HashMap<String, JsonElement>();
+
+		this.server.debugMetrics().forEach((key, value) -> {
+			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
+		});
+
+		return metrics;
 	}
 
 }
