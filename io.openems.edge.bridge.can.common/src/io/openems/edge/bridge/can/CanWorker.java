@@ -25,12 +25,12 @@ import io.openems.edge.bridge.can.api.BridgeCan;
 import io.openems.edge.bridge.can.api.CanProtocol;
 import io.openems.edge.bridge.can.api.data.CanRxTxData;
 import io.openems.edge.bridge.can.api.element.CanChannelElement;
+import io.openems.edge.bridge.can.api.task.MetaTasksManager;
 import io.openems.edge.bridge.can.api.task.ReadTask;
 import io.openems.edge.bridge.can.api.task.Task;
 import io.openems.edge.bridge.can.api.task.WaitTask;
 import io.openems.edge.bridge.can.api.task.WriteTask;
 import io.openems.edge.bridge.can.io.hw.CanDeviceException;
-import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
