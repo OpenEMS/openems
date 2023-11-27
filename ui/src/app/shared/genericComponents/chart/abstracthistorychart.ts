@@ -711,7 +711,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
       // Show floating point number for values between 0 and 1
       // TODO find better workaround for legend labels
-      return label.split(":")[0] + ": " + AbstractHistoryChart.getToolTipsSuffix(tooltipsLabel, value, '', unit, chartType, locale, translate);
+      return label.split(":")[0] + ": " + AbstractHistoryChart.getToolTipsSuffix(tooltipsLabel, value, chartObject.tooltip.formatNumber, unit, chartType, locale, translate);
     };
 
     // Set Y-Axis Title
