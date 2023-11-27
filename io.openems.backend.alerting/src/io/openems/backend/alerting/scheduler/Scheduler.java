@@ -10,7 +10,8 @@ import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 
 /**
- * Scheduler for Messages.
+ * A {@link MessageSchedulerService} implementation using {@link MinuteTimer}.
+ *
  */
 public class Scheduler implements Runnable, MessageSchedulerService {
 

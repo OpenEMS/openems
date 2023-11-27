@@ -18,5 +18,7 @@
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/node_modules/**": true
-    }
+    },
+    "files.eol": "\n",
+    "files.insertFinalNewline": true
 }

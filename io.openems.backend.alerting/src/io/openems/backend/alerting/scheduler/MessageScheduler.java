@@ -9,6 +9,17 @@ import java.util.TreeMap;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 
+/**
+ * Schedules one or more {@link Message} for type {@link T} to a specific time.
+ * <p>
+ * After the specified time is reached, the scheduler sends the Messages to
+ * their {@link Handler} and removes them from itself.
+ * </p>
+ *
+ * @author kai.jeschek
+ *
+ * @param <T> type of Message
+ */
 public class MessageScheduler<T extends Message> {
 	private final Map<String, T> messageForId;
 	private final PriorityQueue<T> queue;
