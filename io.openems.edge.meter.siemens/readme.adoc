@@ -1,4 +1,5 @@
-= Siemens Meters PAC2200 / 3200 / 4200
+= Siemens Meters PAC1600 / 2200 / 3200 / 4200
+
 
 Implemented Natures:
 - ElectricityMeter

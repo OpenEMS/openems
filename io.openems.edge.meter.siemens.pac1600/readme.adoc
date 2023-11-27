@@ -1,6 +1,0 @@
-= Siemens Meter PAC1600
-
-Implemented Natures:
-- ElectricityMeter
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.siemens.pac1600[Source Code icon:github[]]
