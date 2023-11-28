@@ -2,43 +2,53 @@
 <ion-content>
   <ion-grid>
 
-    <!-- input command -->
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="6">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
-            <ion-label>System Execute</ion-label>
+            <ion-label>Predefined Commands</ion-label>
           </ion-item>
 
           <ion-card-content>
-            <form
-              (ngSubmit)="send(username.value, password.value, timeoutSeconds.value, runInBackground.checked, command.value)">
+            <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"
+              (modelChange)="updatePredefined()" class="hide-empty-list-header"></formly-form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
+            <ion-label>Manual System Execute</ion-label>
+          </ion-item>
+
+          <ion-card-content>
+            <form [formGroup]="form" (ngSubmit)="submit()">
               <ion-item>
                 <ion-label>Username</ion-label>
-                <ion-input type="text" placeholder="Username" value="root" #username></ion-input>
+                <ion-input formControlName="username" type="text">
+                </ion-input>
               </ion-item>
               <ion-item>
                 <ion-label>Password</ion-label>
-                <ion-input type="password" placeholder="Password" #password></ion-input>
+                <ion-input formControlName="password" type="password"></ion-input>
               </ion-item>
               <ion-item>
                 <ion-label>Timeout</ion-label>
-                <ion-input type="number" placeholder="Timeout" value="5" #timeoutSeconds></ion-input>
+                <ion-input formControlName="timeoutSeconds" type="number"></ion-input>
               </ion-item>
               <ion-item>
                 <ion-label>Run in background</ion-label>
-                <ion-toggle value="5" #runInBackground></ion-toggle>
+                <ion-toggle formControlName="runInBackground"></ion-toggle>
               </ion-item>
               <ion-item>
-                <ion-label>Command</ion-label>
-                <ion-input type="text" placeholder="Command" #command></ion-input>
+                <ion-label position="floating">Command</ion-label>
+                <ion-textarea class="command-textbox" auto-grow="true" formControlName="command"
+                  type="text"></ion-textarea>
               </ion-item>
-              <ion-item>
-                <ion-button type="submit" slot="end" color="light">
-                  <ion-icon slot="icon-only" name="send-outline"></ion-icon>
-                </ion-button>
-              </ion-item>
+              <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
             </form>
           </ion-card-content>
         </ion-card>
@@ -54,7 +64,7 @@
             <ion-label>Latest output</ion-label>
           </ion-item>
           <ion-card-content>
-            <ion-progress-bar *ngIf="loading" type="indeterminate"></ion-progress-bar>
+            <ngx-loading [show]="loading"></ngx-loading>
             <ng-container *ngIf="!loading">
               <ion-item-group *ngIf="stdout.length > 0">
                 <ion-item-divider>
@@ -80,7 +90,7 @@
 
     <!-- show command log -->
     <ion-row class="ion-justify-content-center" *ngIf="commandLogs.length > 0">
-      <ion-col size="12" size-md="6">
+      <ion-col size="12">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="code-working-outline" color="primary"></ion-icon>
@@ -88,30 +98,33 @@
           </ion-item>
 
           <ion-card-content>
-            <table class="full_width">
-              <tr style="text-align: left">
-                <th>Username</th>
-                <th>Password</th>
-                <th>Timeout</th>
-                <th>Run in background</th>
-                <th>Command</th>
-                <th></th>
-              </tr>
-              <tr *ngFor="let l of commandLogs">
-                <td>{{ l.username }}</td>
-                <td>{{ l.password }}</td>
-                <td>{{ l.timeoutSeconds }}</td>
-                <td>{{ l.runInBackground }}</td>
-                <td>{{ l.command }}</td>
-                <td>
-                  <button mat-raised-button
-                    (click)="username.value = l.username; password.value = l.password; timeoutSeconds.value = l.timeoutSeconds; runInBackground.value = l.runInBackground; command.value = l.command"
-                    class="btn btn-default">
-                    <span>Repeat</span>
-                  </button>
-                </td>
-              </tr>
-            </table>
+            <ion-grid>
+              <ion-row>
+                <ion-col size="1">
+                  <ion-label color="primary">Timeout</ion-label>
+                </ion-col>
+                <ion-col size="1">
+                  <ion-label color="primary">Run in background</ion-label>
+                </ion-col>
+                <ion-col size="9">
+                  <ion-label color="primary">Command</ion-label>
+                </ion-col>
+                <ion-col size="1"></ion-col>
+              </ion-row>
+              <ion-row *ngFor="let l of commandLogs">
+                <ion-col size="1">{{ l.params.timeoutSeconds }}</ion-col>
+                <ion-col size="1">{{ l.params.runInBackground }}</ion-col>
+                <ion-col size="9">{{ l.params.command }}</ion-col>
+                <ion-col size="1">
+                  <ion-button (click)="formGroup.controls.username.value = l.params.username;
+                formGroup.controls.password.value = l.params.password;
+                formGroup.controls.timeoutSeconds.value = l.params.timeoutSeconds;
+                formGroup.controls.runInBackground.value = l.params.runInBackground;
+                formGroup.controls.command.value = l.params.command">Repeat
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-card-content>
         </ion-card>
       </ion-col>

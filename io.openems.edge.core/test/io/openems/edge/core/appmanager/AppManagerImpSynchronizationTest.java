@@ -34,7 +34,7 @@ import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 
 public class AppManagerImpSynchronizationTest {
 

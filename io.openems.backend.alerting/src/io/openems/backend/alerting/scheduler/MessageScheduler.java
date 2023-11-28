@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
@@ -16,13 +17,12 @@ import io.openems.backend.alerting.Message;
  * their {@link Handler} and removes them from itself.
  * </p>
  *
- * @author kai.jeschek
- *
  * @param <T> type of Message
  */
 public class MessageScheduler<T extends Message> {
 	private final Map<String, T> messageForId;
 	private final PriorityQueue<T> queue;
+
 	private final Handler<T> handler;
 
 	public MessageScheduler(Handler<T> handler) {
@@ -76,6 +76,20 @@ public class MessageScheduler<T extends Message> {
 	}
 
 	/**
+	 * Get if a message fitting the {@link Predicate} is scheduled.
+	 *
+	 * @param find ;filter to use
+	 * @return true if is scheduled
+	 */
+	public boolean isScheduled(Predicate<T> find) {
+		return this.queue.stream().anyMatch(find);
+	}
+
+	public Class<T> getGeneric() {
+		return this.handler.getGeneric();
+	}
+
+	/**
 	 * Get amount of scheduled messages.
 	 *
 	 * @return size of message queue
@@ -86,30 +100,37 @@ public class MessageScheduler<T extends Message> {
 
 	/**
 	 * Transfer the messages due to their handler.
+	 *
+	 * @param now TimeStamp on call
 	 */
-	public void handle() {
-		var now = ZonedDateTime.now();
+	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();
-		while (!this.queue.isEmpty() && now.isAfter(this.queue.peek().getNotifyStamp())) {
-			var msg = this.poll();
-			if (msg != null) {
-				msgs.add(msg);
-			}
+		while (this.hasTimeElapsed(now, this.peek())) {
+			msgs.add(this.poll());
 		}
 		if (!msgs.isEmpty()) {
 			this.handler.send(now, msgs);
 		}
 	}
 
+	private boolean hasTimeElapsed(ZonedDateTime now, T msg) {
+		return msg != null && now.isAfter(msg.getNotifyStamp());
+	}
+
 	private T poll() {
-		T msg;
 		synchronized (this) {
-			msg = this.queue.poll();
+			var msg = this.queue.poll();
 			if (msg != null) {
 				this.messageForId.remove(msg.getId());
 			}
+			return msg;
 		}
-		return msg;
+	}
+
+	private T peek() {
+		synchronized (this) {
+			return this.queue.peek();
+		}
 	}
 
 	/**
