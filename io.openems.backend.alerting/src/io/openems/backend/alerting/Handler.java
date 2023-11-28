@@ -2,6 +2,7 @@ package io.openems.backend.alerting;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.openems.common.event.EventReader;
 
@@ -29,9 +30,9 @@ public interface Handler<T extends Message> {
 
 	/**
 	 * Handle given event.
-	 * 
-	 * @param event to handle
-	 * @return Runnable to be scheduled in executor
+	 *
+	 * @param eventTopic to handle
+	 * @return {@link Consumer} to be scheduled in executor
 	 */
-	public Runnable getEventHandler(EventReader event);
+	public Consumer<EventReader> getEventHandler(String eventTopic);
 }
