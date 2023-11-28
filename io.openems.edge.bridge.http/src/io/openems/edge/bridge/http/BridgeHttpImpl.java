@@ -24,9 +24,9 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeHttpImpl implements BridgeHttp {
 
 	private static class EndpointCountdown {
-		private int cycleCount;
+		private volatile int cycleCount;
 		public final Endpoint endpoint;
-		private boolean running = false;
+		private volatile boolean running = false;
 
 		public EndpointCountdown(Endpoint endpoint) {
 			super();

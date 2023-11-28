@@ -95,6 +95,44 @@ public interface BridgeHttp {
 	 * Subscribes to one http endpoint.
 	 * 
 	 * <p>
+	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
+	 * the next get request to the url gets send when the last was finished either
+	 * successfully or with an error.
+	 * 
+	 * @param url     the url of the enpoint
+	 * @param result  the consumer to call on every successful result
+	 * @param onError the consumer to call on a error
+	 */
+	public default void subscribeEveryCycle(//
+			final String url, //
+			final ThrowingConsumer<String, Exception> result, //
+			final Consumer<Throwable> onError //
+	) {
+		this.subscribe(1, url, result, onError);
+	}
+
+	/**
+	 * Subscribes to one http endpoint.
+	 * 
+	 * <p>
+	 * Tries to fetch data every cycle. If receiving data takes more than one cycle
+	 * the next get request to the url gets send when the last was finished either
+	 * successfully or with an error.
+	 * 
+	 * @param url    the url of the enpoint
+	 * @param result the consumer to call on every successful result
+	 */
+	public default void subscribeEveryCycle(//
+			final String url, //
+			final Consumer<String> result //
+	) {
+		this.subscribe(1, url, result);
+	}
+
+	/**
+	 * Subscribes to one http endpoint.
+	 * 
+	 * <p>
 	 * Tries to fetch data every n-cycle. If receiving data takes more than n-cycle
 	 * the next get request to the url gets send when the last was finished either
 	 * successfully or with an error.

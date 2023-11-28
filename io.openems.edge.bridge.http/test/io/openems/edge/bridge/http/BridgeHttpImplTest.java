@@ -51,8 +51,48 @@ public class BridgeHttpImplTest {
 		assertEquals(0, callCount.get());
 		this.nextCycle();
 		// TODO separate pool
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		assertEquals(1, callCount.get());
+	}
+
+	@Test
+	public void testNotRunningMultipleTimes() throws Exception {
+		final var callCount = new AtomicInteger(0);
+		final var lock = new Object();
+		this.bridgeHttp.subscribeEveryCycle("dummy", t -> {
+			assertEquals("success", t);
+			callCount.incrementAndGet();
+
+			synchronized (lock) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		});
+
+		assertEquals(0, callCount.get());
+		this.nextCycle();
+		Thread.sleep(100);
+		synchronized (lock) {
+			this.nextCycle();
+			Thread.sleep(100);
+			assertEquals(1, callCount.get());
+			this.nextCycle();
+			Thread.sleep(100);
+			assertEquals(1, callCount.get());
+
+			lock.notify();
+		}
+		Thread.sleep(100);
+
+		this.nextCycle();
+		Thread.sleep(100);
+		assertEquals(2, callCount.get());
+
 	}
 
 	private void nextCycle() {
