@@ -1,11 +1,18 @@
 package io.openems.edge.core.appmanager;
 
+import static java.util.Collections.emptyList;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
@@ -32,6 +39,7 @@ public interface ComponentUtil {
 	public record RelayInfo(//
 			String id, //
 			String alias, //
+			int numberOfChannels, //
 			List<RelayContactInfo> channels //
 	) {
 
@@ -49,7 +57,9 @@ public interface ComponentUtil {
 	public record RelayContactInfo(//
 			String channel, //
 			String alias, //
-			List<OpenemsComponent> usingComponents //
+			int position, //
+			List<OpenemsComponent> usingComponents, //
+			List<String> disabledReasons //
 	) {
 
 		/**
@@ -64,12 +74,24 @@ public interface ComponentUtil {
 	}
 
 	public record PreferredRelay(//
-			int numberOfRelays, //
+			Predicate<RelayInfo> matchesRelay, //
 			/**
 			 * Indices of the relay contacts.
 			 */
 			int[] preferredRelays //
 	) {
+
+		/**
+		 * Creates a {@link PreferredRelay} for a relay with the given amount of relay
+		 * contacts.
+		 * 
+		 * @param numberOfRelays  the number of relay contacts
+		 * @param preferredRelays the preferred relays
+		 * @return the {@link PreferredRelay}
+		 */
+		public static PreferredRelay of(int numberOfRelays, int[] preferredRelays) {
+			return new PreferredRelay(t -> t.numberOfChannels() == numberOfRelays, preferredRelays);
+		}
 
 	}
 
@@ -98,7 +120,37 @@ public interface ComponentUtil {
 	 *                  use any relay
 	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public List<RelayInfo> getAllRelayInfos(List<String> ignoreIds);
+	public default List<RelayInfo> getAllRelayInfos(List<String> ignoreIds) {
+		return this.getAllRelayInfos(ignoreIds, //
+				t -> true, //
+				c -> c.id(), //
+				(t, u) -> true, //
+				(t, u) -> u.address().toString(), //
+				(t, u) -> emptyList() //
+		);
+	}
+
+	/**
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
+	 * 
+	 * @param ignoreIds            the Component-IDs that should be ignored to check
+	 *                             if they use any relay
+	 * @param componentFilter      a {@link DigitalOutput} component filter
+	 * @param componentAliasMapper a {@link DigitalOutput} component alias mapper
+	 * @param channelFilter        a {@link DigitalOutput} channel filter
+	 * @param channelAliasMapper   a {@link DigitalOutput} channel alias mapper
+	 * @param disabledReasons      a {@link DigitalOutput} channel disabled function
+	 * @return a list of {@link RelayInfo RelayInfos}
+	 */
+	public List<RelayInfo> getAllRelayInfos(//
+			List<String> ignoreIds, //
+			Predicate<DigitalOutput> componentFilter, //
+			Function<DigitalOutput, String> componentAliasMapper, //
+			BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons //
+	);
 
 	/**
 	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
@@ -113,74 +165,26 @@ public interface ComponentUtil {
 	}
 
 	/**
-	 * Gets a list of the current relays where every relay has atleast one available
-	 * relay contact.
+	 * Gets all {@link RelayInfo RelayInfos} of all {@link DigitalOutput
+	 * DigitalOutputs}.
 	 * 
-	 * @param ignoreIds the id s of components which configuration should be ignored
-	 * @return a list of the {@link RelayInfo RelayInfos}
+	 * @param componentFilter a {@link DigitalOutput} component filter
+	 * @param channelFilter   a {@link DigitalOutput} channel filter
+	 * @param disabledReasons additional reasons why a channel is disabled
+	 * @return a list of {@link RelayInfo RelayInfos}
 	 */
-	public default List<RelayInfo> getAvailableRelayInfos(List<String> ignoreIds) {
-		return this.getAllRelayInfos(ignoreIds).stream() //
-				.map(ri -> new RelayInfo(ri.id(), ri.alias(), ri.channels().stream()//
-						.filter(ci -> ci.usingComponents().isEmpty())//
-						.toList())) //
-				.filter(ri -> !ri.channels().isEmpty()) //
-				.toList();
-	}
-
-	/**
-	 * Gets a list of the current relays where every relay has atleast one available
-	 * relay contact.
-	 * 
-	 * @return a list of the {@link RelayInfo RelayInfos}
-	 */
-	public default List<RelayInfo> getAvailableRelayInfos() {
-		return this.getAvailableRelayInfos(CORE_COMPONENT_IDS);
-	}
-
-	/**
-	 * Gets a list of current available relay contacts of a relay.
-	 *
-	 * @param ignoreIds the id s of components which configuration should be ignored
-	 * @param ioName    the id of the id
-	 * @return a list of the available {@link RelayContactInfo}
-	 */
-	public default List<RelayContactInfo> getAvailableRelayContactInfos(List<String> ignoreIds, String ioName) {
-		return this.getAvailableRelayInfos(ignoreIds).stream() //
-				.filter(ri -> ri.id().equals(ioName)) //
-				.flatMap(ri -> ri.channels().stream()) //
-				.toList();
-	}
-
-	/**
-	 * Gets a list of current available relay contacts of a relay.
-	 *
-	 * @param ioName the id of the id
-	 * @return a list of the available {@link RelayContactInfo}
-	 */
-	public default List<RelayContactInfo> getAvailableRelayContactInfos(String ioName) {
-		return this.getAvailableRelayContactInfos(CORE_COMPONENT_IDS, ioName);
-	}
-
-	/**
-	 * Gets a list of current available relay contacts of all found relays.
-	 *
-	 * @param ignoreIds the id s of components which configuration should be ignored
-	 * @return a list of the available {@link RelayContactInfo}
-	 */
-	public default List<RelayContactInfo> getAvailableRelayContactInfos(List<String> ignoreIds) {
-		return this.getAvailableRelayInfos(ignoreIds).stream() //
-				.flatMap(ri -> ri.channels().stream()) //
-				.toList();
-	}
-
-	/**
-	 * Gets a list of current available relay contacts of all found relays.
-	 *
-	 * @return a list of the available {@link RelayContactInfo}
-	 */
-	public default List<RelayContactInfo> getAvailableRelayContactInfos() {
-		return this.getAvailableRelayContactInfos(CORE_COMPONENT_IDS);
+	public default List<RelayInfo> getAllRelayInfos(//
+			Predicate<DigitalOutput> componentFilter, //
+			BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons //
+	) {
+		return this.getAllRelayInfos(CORE_COMPONENT_IDS, //
+				componentFilter, //
+				c -> c.id(), //
+				channelFilter, //
+				(t, u) -> u.address().toString(), //
+				disabledReasons //
+		);
 	}
 
 	/**
@@ -247,41 +251,17 @@ public interface ComponentUtil {
 	 * available in a row are taken. If not enough in a row are available the first
 	 * available relays of any relay are returned.
 	 * 
-	 * @param ignoreIds            the ids of the components that should be ignored
-	 * @param cnt                  the number of the result number of relays
-	 * @param first                the first {@link PreferredRelay} to ensure at
-	 *                             least one
-	 * @param inputPreferredRelays the other {@link PreferredRelay} options
+	 * @param relayInfos      the {@link RelayInfo RelayInfos} to search in for the
+	 *                        preferred relays
+	 * @param numberOfRelays  the number of the result number of relays
+	 * @param preferredRelays the {@link PreferredRelay} options
 	 * @return the first found preferred relays
 	 */
 	public String[] getPreferredRelays(//
-			List<String> ignoreIds, //
-			int cnt, //
-			PreferredRelay first, //
-			PreferredRelay... inputPreferredRelays //
+			List<RelayInfo> relayInfos, //
+			int numberOfRelays, //
+			List<PreferredRelay> preferredRelays //
 	);
-
-	/**
-	 * Gets the preferred relays. If the default ports are are already taken the
-	 * next available in a row are taken. If not enough in a row are available the
-	 * first available relays of any relay are returned.
-	 * 
-	 * @param cnt                  the number of the result number of relays
-	 * @param first                the first {@link PreferredRelay} to ensure at
-	 *                             least one
-	 * @param inputPreferredRelays the other {@link PreferredRelay} options
-	 * @return the first found preferred relays
-	 * @implNote calls
-	 *           {@link ComponentUtil#getPreferredRelays(List, int, PreferredRelay, PreferredRelay...)}
-	 *           with {@link ComponentUtil#CORE_COMPONENT_IDS} to ignore.
-	 */
-	public default String[] getPreferredRelays(//
-			int cnt, //
-			PreferredRelay first, //
-			PreferredRelay... inputPreferredRelays //
-	) {
-		return this.getPreferredRelays(CORE_COMPONENT_IDS, cnt, first, inputPreferredRelays);
-	}
 
 	/**
 	 * updates the interfaces in the Host configuration.

@@ -64,12 +64,26 @@ public class TestTranslations {
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.combinedHeatAndPower(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.heatingElement(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L1", "io0/Relay1") //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L2", "io0/Relay2") //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.gridOptimizedCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MAXIMUM_SELL_TO_GRID_POWER", 60) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.selfConsumptionOptimization(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.manualRelayControl(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.thresholdControl(t), false, JsonUtils.buildJsonObject() //
+					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
