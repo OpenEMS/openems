@@ -1,14 +1,29 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge100;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessPeriodState;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
+import static java.lang.Integer.MIN_VALUE;
+import static java.util.Arrays.stream;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class UtilsTest {
@@ -49,6 +64,23 @@ public class UtilsTest {
 	}
 
 	@Test
+	public void testCalculateStateChargeEnergy() {
+		assertEquals(0, calculateStateChargeEnergy(0, 0, 0, 0));
+
+		assertEquals(-1234, calculateStateChargeEnergy(//
+				2000 /* grid limit */, 1000 /* consumption */, 2000 /* production */, -1234));
+
+		assertEquals(-1100, calculateStateChargeEnergy(//
+				1000 /* grid limit */, 100 /* consumption */, 200 /* production */, MIN_VALUE /* no limit */));
+
+		// 'maxBuyFromGrid' is already completely consumed by predicted consumption
+		// (minus production). => simulate charge with 1 Wh to trigger optimizer to
+		// consider CHARGE instead of BALANCING mode
+		assertEquals(1, calculateStateChargeEnergy(//
+				5000 /* grid limit */, 20000 /* consumption */, 0 /* production */, -2500));
+	}
+
+	@Test
 	public void testCalculateCharge100() {
 		assertEquals(-2500, calculateCharge100(//
 				new DummyManagedSymmetricEss("ess0").withActivePower(-1000), //
@@ -62,4 +94,78 @@ public class UtilsTest {
 				/* maxChargePowerFromGrid */ 5000).intValue());
 	}
 
+	@Test
+	public void testPostprocessPeriodState() {
+		var p = Params.create() //
+				.time(TIME) //
+				.essAvailableEnergy(0) //
+				.essCapacity(22000) //
+				.essMaxEnergyPerPeriod(0) //
+				.maxBuyFromGrid(0) //
+				.productions(new int[0]) //
+				.consumptions(new int[0]) //
+				.prices(new float[] { 123F }) //
+				.states(new StateMachine[0]) //
+				.build();
+
+		assertEquals("BALANCING stays BALANCING", //
+				BALANCING, postprocessPeriodState(p, 0, 0, 0, 0, BALANCING));
+
+		assertEquals("DELAY_DISCHARGE and would discharge in balancing", //
+				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 0, 0, 0, DELAY_DISCHARGE));
+		assertEquals("DELAY_DISCHARGE and would charge from PV in balancing", //
+				BALANCING, postprocessPeriodState(p, 0, 0, 0, -1000, DELAY_DISCHARGE));
+		assertEquals("DELAY_DISCHARGE but price is the max price", //
+				BALANCING, postprocessPeriodState(p, 0, 0, 123F, 0, DELAY_DISCHARGE));
+		assertEquals("DELAY_DISCHARGE and price is NOT the max price", //
+				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 0, 122.9F, 0, DELAY_DISCHARGE));
+
+		assertEquals("CHARGE actually from grid", //
+				CHARGE, postprocessPeriodState(p, 0, 1, 0, 0, CHARGE));
+		assertEquals("CHARGE but fully supplied by excess PV", //
+				BALANCING, postprocessPeriodState(p, 0, -1000, 0, 0, CHARGE));
+		assertEquals("CHARGE but battery is full (>= 90 %)", //
+				DELAY_DISCHARGE, postprocessPeriodState(p, 19800, 1, 0, 0, CHARGE));
+		assertEquals("CHARGE and battery is NOT full (89 %)", //
+				CHARGE, postprocessPeriodState(p, 19799, 1, 0, 0, CHARGE));
+		assertEquals("CHARGE but price is close to max", //
+				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 1, 102.6F, 0, CHARGE));
+		assertEquals("CHARGE and price is NOT close to max", //
+				CHARGE, postprocessPeriodState(p, 0, 1, 102.5F, 0, CHARGE));
+	}
+
+	@Test
+	public void testBuildInitialPopulation() {
+		{
+			var gt = buildInitialPopulation(Params.create() //
+					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.states(BALANCING, DELAY_DISCHARGE, CHARGE) //
+					.existingSchedule(CHARGE, DELAY_DISCHARGE, CHARGE, DELAY_DISCHARGE, BALANCING) //
+					.build()).get(0);
+			assertEquals(2 /* CHARGE */, gt.get(0).get(0).intValue());
+			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
+			assertEquals(2 /* CHARGE */, gt.get(2).get(0).intValue());
+			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
+			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
+			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
+		}
+		{
+			var gt = buildInitialPopulation(Params.create() //
+					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
+					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
+					.states(BALANCING, DELAY_DISCHARGE) //
+					.existingSchedule(CHARGE, DELAY_DISCHARGE, CHARGE, DELAY_DISCHARGE, BALANCING) //
+					.build()).get(0);
+			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
+			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
+			assertEquals(0 /* fallback to BALANCING */, gt.get(2).get(0).intValue());
+			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
+			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
+			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
+		}
+
+	}
 }

@@ -154,7 +154,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		future.set(this.taskExecutor.submit(this.optimizer));
 
 		var now = ZonedDateTime.now();
-		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(5);
+		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(3);
 
 		this.triggerExecutor.scheduleAtFixedRate(() -> {
 			// Cancel previous run
@@ -162,7 +162,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			future.set(this.taskExecutor.submit(this.optimizer));
 		}, //
 
-				// Run 10 minutes before full 15 minutes
+				// Run 12 minutes before full 15 minutes
 				Duration.between(now, nextRun).toMillis(), //
 				// then execute every 15 minutes
 				Duration.of(15, ChronoUnit.MINUTES).toMillis(), TimeUnit.MILLISECONDS);
