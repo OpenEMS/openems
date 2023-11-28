@@ -17,6 +17,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrial;
 import io.openems.edge.common.test.DummyUser;
 
 public class TestTranslations {
@@ -34,6 +35,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome(t), true, TestFeneconHome.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk010(t), true, TestFeneconIndustrial.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk110(t), true, TestFeneconIndustrial.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk011(t), true, TestFeneconIndustrial.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //
