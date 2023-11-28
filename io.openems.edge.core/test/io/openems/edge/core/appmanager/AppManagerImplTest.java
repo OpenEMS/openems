@@ -130,8 +130,10 @@ public class AppManagerImplTest {
 								.addProperty("backupEnable", "DISABLE") //
 								.addProperty("feedPowerEnable", "ENABLE") //
 								.addProperty("feedPowerPara", 10000) //
+								.addProperty("controlMode", "SMART") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
 								.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
+								.addProperty("rcrEnable", "DISABLE") //
 								.build()) //
 						.build()) //
 				.add("predictor0", JsonUtils.buildJsonObject() //
