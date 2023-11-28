@@ -44,10 +44,10 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	@AttributeDefinition(name = "Enable/Disable Backup Power", description = "In case of Off-Grid case backup power will be activated")
 	EnableDisable backupEnable() default EnableDisable.ENABLE;
 
-	@AttributeDefinition(name = "Enable Feed In To Grid", description = "Enable-disable feed in to grid")
+	@AttributeDefinition(name = "Enable Dynamic Feed In To Grid Limit", description = "Enable-disable a feed in to grid limit at the grid meter (Dynamic limitation at the grid meter)")
 	EnableDisable feedPowerEnable() default EnableDisable.DISABLE;
 
-	@AttributeDefinition(name = "Feed In To Grid Power", description = "Fixed feed in to grid power (Only positive [0 - 10_000])")
+	@AttributeDefinition(name = "Feed In To Grid Power Limit", description = "Feed in to grid power limit (Only positive [0 - 29999])")
 	int feedPowerPara() default 0;
 
 	@AttributeDefinition(name = "Feed In Power Selection", description = "This is the selection of inverter power settings")
