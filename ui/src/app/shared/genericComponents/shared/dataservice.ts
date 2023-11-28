@@ -8,6 +8,7 @@ export abstract class DataService {
 
   protected edge: Edge | null = null;
   protected stopOnDestroy: Subject<void> = new Subject<void>();
+  protected timestamps: string[] = [];
 
   /** Used to retrieve values */
   public currentValue: BehaviorSubject<{ allComponents: {} }> = new BehaviorSubject({ allComponents: {} });

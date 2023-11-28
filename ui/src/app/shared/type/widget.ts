@@ -9,6 +9,7 @@ export enum WidgetClass {
     'Grid',
     'Common_Production',
     'Consumption',
+    'Controller_ChannelThreshold'
 }
 
 export enum WidgetNature {
@@ -75,6 +76,8 @@ export class Widgets {
                     case 'Common_Production':
                     case 'Common_Selfconsumption':
                         return config.hasProducer();
+                    case 'Controller_ChannelThreshold':
+                        return config.getComponentsImplementingNature('io.openems.edge.controller.channelthreshold.ControllerChannelThreshold')?.length > 0;
                 };
                 return false;
             }).map(clazz => clazz.toString());

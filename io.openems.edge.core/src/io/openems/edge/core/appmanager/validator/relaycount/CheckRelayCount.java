@@ -1,23 +1,34 @@
-package io.openems.edge.core.appmanager.validator;
+package io.openems.edge.core.appmanager.validator.relaycount;
 
+import static java.util.Collections.emptyList;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.validator.AbstractCheckable;
+import io.openems.edge.core.appmanager.validator.Checkable;
 
 @Component(//
 		name = CheckRelayCount.COMPONENT_NAME, //
 		scope = ServiceScope.PROTOTYPE //
 )
 public class CheckRelayCount extends AbstractCheckable implements Checkable {
+
+	private final Logger log = LoggerFactory.getLogger(CheckRelayCount.class);
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckRelayCount";
 
@@ -26,6 +37,7 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 
 	private String io;
 	private int count;
+	private List<InjectableComponentConfig> filter;
 
 	private int availableRelays;
 
@@ -41,26 +53,56 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 		this.relayApp = relayApp;
 	}
 
-	private void init(String io, int count) {
+	private void init(String io, int count, InjectableComponentConfig[] filter) {
 		this.io = io;
 		this.count = count;
+		this.filter = filter == null ? emptyList() : Arrays.asList(filter);
 	}
 
 	@Override
 	public void setProperties(Map<String, ?> properties) {
 		var io = (String) properties.get("io");
 		var count = (int) properties.get("count");
-		this.init(io, count);
+		var filter = (InjectableComponentConfig[]) properties.get("filter");
+		this.init(io, count, filter);
 	}
 
 	@Override
 	public boolean check() {
+		final var relayFilter = this.filter.stream() //
+				.map(t -> {
+					try {
+						return InjectableComponent.inject(this.componentContext.getBundleContext(),
+								CheckRelayCountFilter.class, t);
+					} catch (Exception e) {
+						this.log.error("Unable to inject " + t.name(), e);
+						return null;
+					}
+				}) //
+				.filter(Objects::nonNull) //
+				.toList();
+
+		final var relayInfos = this.openemsAppUtil.getAllRelayInfos(//
+				t -> relayFilter.stream().allMatch(c -> c.componentFilter().test(t)), //
+				(t, u) -> relayFilter.stream().allMatch(c -> c.channelFilter().test(t, u)), //
+				(t, u) -> relayFilter.stream().flatMap(c -> c.disabledReasons().apply(t, u).stream()).toList() //
+		);
+
 		try {
 			int availableRelays;
 			if (this.io != null) {
-				availableRelays = this.openemsAppUtil.getAvailableRelayContactInfos(this.io).size();
+				availableRelays = relayInfos.stream() //
+						.filter(t -> t.id().equals(this.io)) //
+						.flatMap(t -> t.channels().stream()) //
+						.filter(t -> t.usingComponents().isEmpty()) //
+						.filter(t -> t.disabledReasons().isEmpty()) //
+						.toList().size();
 			} else {
-				availableRelays = this.openemsAppUtil.getAvailableRelayContactInfos().size();
+				availableRelays = relayInfos.stream() //
+						.flatMap(t -> t.channels().stream()) //
+						.filter(t -> t.usingComponents().isEmpty()) //
+						.filter(t -> t.disabledReasons().isEmpty()) //
+						.toList().size();
 			}
 			this.availableRelays = availableRelays;
 			if (this.count <= availableRelays) {

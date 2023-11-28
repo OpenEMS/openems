@@ -11,9 +11,11 @@ import com.google.gson.JsonObject;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
@@ -35,7 +37,7 @@ public class TestFeneconHome {
 					Apps::socomecMeter, //
 					Apps::prepareBatteryExtension //
 			);
-		});
+		}, null, new PseudoComponentManagerFactory());
 	}
 
 	@Test
@@ -151,46 +153,89 @@ public class TestFeneconHome {
 
 	}
 
+	@Test
+	public void testFeedInTypeRippleControlReceiver() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", true);
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeDynamicLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeNoLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
 	private final OpenemsAppInstance createFullHome() throws Exception {
+		return createFullHome(this.appManagerTestBundle, this.user);
+	}
+
+	/**
+	 * Creates a full home and checks if everything got created correctly.
+	 * 
+	 * @param appManagerTestBundle the {@link AppManagerTestBundle}
+	 * @param user                 the {@link User}
+	 * @return the created {@link OpenemsAppInstance}
+	 * @throws Exception on error
+	 */
+	public static final OpenemsAppInstance createFullHome(AppManagerTestBundle appManagerTestBundle, User user)
+			throws Exception {
 		var fullConfig = fullSettings();
 
-		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig)).get();
 
 		assertEquals(4, response.instance.dependencies.size());
 
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+		assertEquals(appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
 
 		// check properties of created apps
-		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home":
-				expectedDependencies = 4;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			case "App.Meter.Socomec":
-				expectedDependencies = 0;
-				break;
-			case "App.Ess.PrepareBatteryExtension":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
+		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
+			final var expectedDependencies = switch (instance.appId) {
+			case "App.FENECON.Home" -> 4;
+			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
+			case "App.Meter.Socomec" -> 0;
+			case "App.Ess.PrepareBatteryExtension" -> 0;
+			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
 				continue;
 			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
 
-		var homeInstance = this.appManagerTestBundle.sut.getInstantiatedApps().stream()
+		var homeInstance = appManagerTestBundle.sut.getInstantiatedApps().stream()
 				.filter(t -> t.appId.equals("App.FENECON.Home")).findAny().orElse(null);
 
 		assertNotNull(homeInstance);

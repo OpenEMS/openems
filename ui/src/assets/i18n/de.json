@@ -35,7 +35,9 @@
         "InfoStorageForCharge": "Negative Werte entsprechen Speicher Beladung",
         "InfoStorageForDischarge": "Positive Werte entsprechen Speicher Entladung",
         "Channeltreshold": {
-          "output": "Ausgang"
+          "TITLE": "Schwellenwertcontroller",
+          "output": "Ausgang",
+          "ACTIVE_TIME_OVER_PERIOD": "Aktive Zeit"
         },
         "Singlethreshold": {
           "above": "Über",
