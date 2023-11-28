@@ -4,7 +4,7 @@ import { RegistrationModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'registration',
-  templateUrl: './registration.component.html'
+  templateUrl: './registration.component.html',
 })
 export class RegistrationComponent {
 
@@ -12,7 +12,7 @@ export class RegistrationComponent {
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: RegistrationModalComponent
+      component: RegistrationModalComponent,
     });
     return await modal.present();
   }

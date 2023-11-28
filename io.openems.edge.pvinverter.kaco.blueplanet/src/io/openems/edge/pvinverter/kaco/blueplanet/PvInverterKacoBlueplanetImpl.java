@@ -35,6 +35,9 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 import io.openems.edge.pvinverter.sunspec.Phase;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -45,11 +48,12 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 		implements PvInverterKacoBlueplanet, SunSpecPvInverter, ManagedSymmetricPvInverter, ModbusComponent,
-		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
@@ -73,8 +77,14 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -85,6 +95,7 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 	public PvInverterKacoBlueplanetImpl() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
+				true /* enable manuel calculation of ActiveProductionEnergy */, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
@@ -110,7 +121,14 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 
 	@Override
 	public void handleEvent(Event event) {
-		super.handleEvent(event);
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE ->
+			this.calculateProductionEnergy.update(this.getActivePower().get());
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> super.handleEvent(event);
+		}
 	}
 
 	@Override
@@ -120,4 +138,10 @@ public class PvInverterKacoBlueplanetImpl extends AbstractSunSpecPvInverter
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode));
 	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
 }

@@ -58,7 +58,7 @@
     "soc": "état de charge",
     "state": "Etat",
     "storageSystem": "Système de stockage",
-    "systemState": "System state",
+    "SYSTEM_STATE": "État du système",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -368,17 +368,6 @@
           "switchOnRec": "Recommandation de mise en marche",
           "switchOnRecShort": "Recommandation",
           "undefined": "Indéfinie"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Prix actuel",
-          "delayedDischarge": "Sortie retardée",
-          "STORAGE_DISCHARGE": "Décharge de stockage",
-          "State": {
-            "notStarted": "Le contrôleur n'a pas encore démarré",
-            "delayed": "Retardé",
-            "allowsDischarge": "Libéré",
-            "standby": "Standby"
-          }
         }
       }
     },

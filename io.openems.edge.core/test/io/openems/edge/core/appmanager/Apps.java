@@ -15,20 +15,26 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
+import io.openems.edge.app.evcs.WebastoNextEvcs;
+import io.openems.edge.app.evcs.WebastoUniteEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.peakshaving.PeakShaving;
+import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
+import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.app.timeofusetariff.Tibber;
 import io.openems.edge.common.component.ComponentManager;
@@ -97,6 +103,16 @@ public class Apps {
 	 */
 	public static final AwattarHourly awattarHourly(AppManagerTestBundle t) {
 		return app(t, AwattarHourly::new, "App.TimeOfUseTariff.Awattar");
+	}
+
+	/**
+	 * Test method for creating a {@link EntsoE}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final EntsoE entsoE(AppManagerTestBundle t) {
+		return app(t, EntsoE::new, "App.TimeOfUseTariff.ENTSO-E");
 	}
 
 	/**
@@ -226,6 +242,26 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link WebastoNextEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoNextEvcs webastoNext(AppManagerTestBundle t) {
+		return app(t, WebastoNextEvcs::new, "App.Evcs.Webasto.Next");
+	}
+
+	/**
+	 * Test method for creating a {@link WebastoUniteEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final WebastoUniteEvcs webastoUnite(AppManagerTestBundle t) {
+		return app(t, WebastoUniteEvcs::new, "App.Evcs.Webasto.Unite");
+	}
+
+	/**
 	 * Test method for creating a {@link EvcsCluster}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -295,7 +331,39 @@ public class Apps {
 				"App.Meter.Microcare.Sdm630");
 	}
 
+	// PeakShaving
+
+	/**
+	 * Test method for creating a {@link PeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PeakShaving peakShaving(AppManagerTestBundle t) {
+		return app(t, PeakShaving::new, "App.PeakShaving.PeakShaving");
+	}
+
+	/**
+	 * Test method for creating a {@link PhaseAccuratePeakShaving}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PhaseAccuratePeakShaving phaseAccuratePeakShaving(AppManagerTestBundle t) {
+		return app(t, PhaseAccuratePeakShaving::new, "App.PeakShaving.PhaseAccuratePeakShaving");
+	}
+
 	// ess-controller
+
+	/**
+	 * Test method for creating a {@link FixActivePower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixActivePower fixActivePower(AppManagerTestBundle t) {
+		return app(t, FixActivePower::new, "App.Ess.FixActivePower");
+	}
 
 	/**
 	 * Test method for creating a {@link PrepareBatteryExtension}.

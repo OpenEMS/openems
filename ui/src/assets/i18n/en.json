@@ -229,19 +229,17 @@
           "switchOnRecShort": "Recommendation",
           "undefined": "Undefined"
         },
-        "TimeOfUseTariff": {
-          "currentTariff": "Current price",
-          "delayedDischarge": "Delayed Discharge",
-          "STORAGE_DISCHARGE": "Storage Discharge",
-          "State": {
-            "notStarted": "Controller has not yet started",
-            "delayed": "Delayed",
-            "allowsDischarge": "Allows Discharge",
-            "standby": "Standby",
-            "CHARGING": "Charging"
+        "TIME_OF_USE_TARIFF": {
+          "CONTROL_MODE_DESCRIPTION": {
+            "CHARGE_CONSUMPTION": ""
           },
-          "CHARGED": "Charged",
-          "STORAGE_STATUS": "Storage status"
+          "CHARGE_CONSUMPTION_ACTIVATE": "Activate charge from the grid (BETA test)",
+          "PRICE": "Current price",
+          "STATE": {
+            "DELAY_DISCHARGE": "Delayed discharge",
+            "BALANCING": "Self-Consumption optmization",
+            "CHARGE": "Charge from grid allowed"
+          }
         }
       },
       "RETROFITTING": {
@@ -255,7 +253,8 @@
         "REACHED_TARGET_SOC": "Ready for Capacity Extension",
         "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
         "SELECT_A_DATE": "Please select a date",
-        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature.",
+        "TARGET_TIME_SPECIFIED": "Capacity Extension will be performed on {{targetDate}} at {{targetTime}}"
       },
       "SYSTEMUPDATE": "System update"
     },
@@ -503,6 +502,7 @@
     "soc": "State of charge",
     "state": "State",
     "storageSystem": "Storage System",
+    "SYSTEM_STATE": "System state",
     "TOTAL": "Total",
     "totalState": "Total state",
     "warning": "Warning",
@@ -559,7 +559,7 @@
     "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet.",
     "NO_EDGE_FOR_USER": "Sorry, no {{value}} has been associated with your account yet.",
     "VISIBLE_HERE_AFTER_INSTALLATION": "After your {{value}} has been commissioned by an installer, you will see it at this point.",
-    "FIRST_SETUP_PROTOCOL": "Inbetriebnahme"
+    "FIRST_SETUP_PROTOCOL": "Initial commissioning"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -655,7 +655,12 @@
       "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
       "HECKERT": "Your chosen free app",
-      "ACCEPT": "acceptation"
+      "ACCEPT": "acceptation",
+      "ALIAS_WITH_LABEL_HOME_DC": "Alias MPPT{{mppt}} PV{{pv}}",
+      "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} PV{{ pv }} {{ symbol }}",
+      "ORIENTATION_WITH_LABEL_HOME_DC": "MPPT{{ mppt }} PV{{ pv }} Orientation",
+      "MODULE_TYPE_WITH_LABEL_HOME_DC": "Type of modules MPPT{{ mppt }} PV{{ pv }}",
+      "NUMBER_OF_MODULES_WITH_LABEL_HOME_DC": "Numnber of PV modules MPPT{{ mppt }} PV{{ pv }}"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -689,7 +694,7 @@
       "CHOOSE": "Choose",
       "CONSTANT_VALUE": "Cos φ value",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
-      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in (e.g. 70% limit)",
+      "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
       "EXTERNAL_CONTROLLER_CHECK": "The external control reciever was installed properly and completely according to the instructions.",
       "EXTERNAL_LIMITATION_ACTIVATED": "External control reciever activated?",
       "EXTERNAL_LIMITATION": "External controller (External limitation by the DSO)",
@@ -701,7 +706,9 @@
       "QU_ENABLED_CURVE": "Reactive power - Q(U) characteristics",
       "SHADE_MANAGEMENT_DEACTIVATED": "Shade management disabled?",
       "TITLE": "Feed-In management",
-      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever"
+      "EXTERNAL_CONTROLLER_RECIEVER": "Ripple control reciever",
+      "PLACE_HOLDER": "Select option",
+      "NO_LIMITATION": "No limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -736,7 +743,7 @@
         "WEST": "West"
       },
       "INSTALLED_POWER": "Installed power[Wₚ]",
-      "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
+      "MARKED_AS": " MPPT {{ mppt }} (marked as \"PV{{ pv }}\")",
       "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
       "METER_TYPE": "Type of the sensor",
       "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
@@ -760,11 +767,12 @@
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
       "AC_NOT_CREATED": "AC Meter not created!",
-      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator.",
+      "DUPLICATE": " MPPT {{ mppt }} double occupied (marked as \"PV{{ pv }}\")"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
-      "BATTERY_TOWER": "Battery Tower {{ towerNumber }}",
+      "BATTERY_TOWER": "Battery Tower {{ number }}",
       "BESS_COMPONENTS": "BESS components",
       "BMS_BOX": "BMS Box & Base",
       "CONFIRM": "Confirm",

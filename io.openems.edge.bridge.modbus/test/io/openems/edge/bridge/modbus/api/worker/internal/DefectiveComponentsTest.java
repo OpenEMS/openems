@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.common.test.TimeLeapClock;
 
 public class DefectiveComponentsTest {
 

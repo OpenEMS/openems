@@ -8,12 +8,12 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.ess.fixstateofcharge.api.AbstractFixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.api.EndCondition;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine;
@@ -28,7 +28,8 @@ public class ControllerEssFixStateOfChargeImplTest {
 	private static final String ESS_ID = "ess0";
 
 	// Components
-	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID, 10_000);
+	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID) //
+			.withMaxApparentPower(10_000);
 
 	// Defaults
 	private static final String DEFAULT_TARGET_TIME = "2022-10-27T10:30:00+01:00";

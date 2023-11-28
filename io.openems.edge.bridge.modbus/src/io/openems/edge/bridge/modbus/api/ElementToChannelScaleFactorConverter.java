@@ -18,6 +18,16 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class ElementToChannelScaleFactorConverter extends ElementToChannelConverter {
 
+	private static int getValueOrError(OpenemsComponent component, ChannelId channelId)
+			throws InvalidValueException, IllegalArgumentException {
+		var channel = (IntegerReadChannel) component.channel(channelId);
+		var value = channel.getNextValue().orElse(null);
+		if (value != null) {
+			return value;
+		}
+		return channel.value().getOrError();
+	}
+
 	public ElementToChannelScaleFactorConverter(OpenemsComponent component, SunSpecPoint point,
 			ChannelId scaleFactorChannel) {
 		super(//
@@ -27,8 +37,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 						return null;
 					}
 					try {
-						return apply(value,
-								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError() * -1);
+						return apply(value, getValueOrError(component, scaleFactorChannel) * -1);
 					} catch (InvalidValueException | IllegalArgumentException e) {
 						return null;
 					}
@@ -37,8 +46,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 				// channel -> element
 				value -> {
 					try {
-						return apply(value,
-								((IntegerReadChannel) component.channel(scaleFactorChannel)).value().getOrError());
+						return apply(value, getValueOrError(component, scaleFactorChannel));
 					} catch (InvalidValueException | IllegalArgumentException e) {
 						return null;
 					}

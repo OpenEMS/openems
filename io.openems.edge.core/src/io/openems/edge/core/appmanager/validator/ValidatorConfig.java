@@ -60,6 +60,20 @@ public class ValidatorConfig {
 			this(checkableComponentName, false, properties);
 		}
 
+		/**
+		 * Creates a new {@link CheckableConfig} with the current
+		 * {@link CheckableConfig#invertResult} inverted.
+		 * 
+		 * @return the new {@link CheckableConfig}
+		 */
+		public CheckableConfig invert() {
+			return new CheckableConfig(//
+					this.checkableComponentName(), //
+					!this.invertResult(), //
+					this.properties() //
+			);
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {

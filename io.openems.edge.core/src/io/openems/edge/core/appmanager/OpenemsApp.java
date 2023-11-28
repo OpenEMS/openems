@@ -121,13 +121,6 @@ public interface OpenemsApp {
 		return new Flag[] {};
 	}
 
-	/**
-	 * Validate the {@link OpenemsApp}.
-	 *
-	 * @param instance the app instance
-	 */
-	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException;
-
 	public static final String FALLBACK_IMAGE = """
 			data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY5\
 			1AAABhWlDQ1BJQ0MgUHJvZmlsZQAAKM+VkT1Iw1AUhU9TpVIqgu0g4pChOlkQFXGUKBbBQmkrtOpg8tI/aNKQpLg4Cq4FB38Wqw\

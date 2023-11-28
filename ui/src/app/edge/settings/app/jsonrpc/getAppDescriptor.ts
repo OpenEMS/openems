@@ -38,7 +38,7 @@ export namespace GetAppDescriptor {
         public constructor(
             public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -48,7 +48,7 @@ export namespace GetAppDescriptor {
 
         public constructor(
             public override readonly id: string,
-            public override readonly result: AppDescriptor
+            public override readonly result: AppDescriptor,
         ) {
             super(id, result);
         }

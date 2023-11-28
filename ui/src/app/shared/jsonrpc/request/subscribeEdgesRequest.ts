@@ -19,7 +19,7 @@ export class SubscribeEdgesRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             edges: string[]
-        }
+        },
     ) {
         super(SubscribeEdgesRequest.METHOD, params);
     }

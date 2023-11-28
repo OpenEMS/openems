@@ -16,10 +16,12 @@ import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
 import { InstallAppComponent } from './install.component';
+import { TranslateService } from '@ngx-translate/core';
+import { environment } from 'src/environments';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,
-  templateUrl: './single.component.html'
+  templateUrl: './single.component.html',
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
 
@@ -57,9 +59,10 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private router: Router,
     protected utils: Utils,
     private websocket: Websocket,
+    private translate: TranslateService,
     private service: Service,
     private sanitizer: DomSanitizer,
-    protected modalController: ModalController
+    protected modalController: ModalController,
   ) {
   }
 
@@ -76,9 +79,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       this.edge.sendRequest(this.websocket,
         new AppCenter.Request({
           payload: new AppCenterIsAppFree.Request({
-            appId: this.appId
-          })
-        })
+            appId: this.appId,
+          }),
+        }),
       ).then(response => {
         const result = (response as AppCenterIsAppFree.Response).result;
         this.isFreeApp = result.isAppFree;
@@ -90,7 +93,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       if (hasKeyModel(this.edge)) {
         this.edge.getConfig(this.websocket).pipe(
           filter(config => config !== null),
-          takeUntil(this.stopOnDestroy)
+          takeUntil(this.stopOnDestroy),
         ).subscribe(next => {
           let appManager = next.getComponent("_appManager");
           let newKeyForFreeApps = appManager.properties["keyForFreeApps"];
@@ -105,8 +108,8 @@ export class SingleAppComponent implements OnInit, OnDestroy {
           // update free apps
           this.edge.sendRequest(this.websocket, new AppCenter.Request({
             payload: new AppCenterGetPossibleApps.Request({
-              key: this.keyForFreeApps
-            })
+              key: this.keyForFreeApps,
+            }),
           })).then(response => {
             const result = (response as AppCenterGetPossibleApps.Response).result;
             this.isPreInstalledApp = result.bundles.some(bundle => {
@@ -146,9 +149,10 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         edge.sendRequest(this.websocket,
           new ComponentJsonApiRequest({
             componentId: '_appManager',
-            payload: new GetApp.Request({ appId: appId })
+            payload: new GetApp.Request({ appId: appId }),
           })).then(response => {
             let app = (response as GetApp.Response).result.app;
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
             this.setApp(app);
           }).catch(reason => {
             console.error(reason.error);
@@ -159,7 +163,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: '_appManager',
-          payload: new GetAppDescriptor.Request({ appId: appId })
+          payload: new GetAppDescriptor.Request({ appId: appId }),
         })).then(response => {
           let descriptor = (response as GetAppDescriptor.Response).result;
           this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
@@ -187,7 +191,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   protected iFrameStyle() {
     let styles = {
-      'height': (this.isXL) ? '100%' : window.innerHeight + 'px'
+      'height': (this.isXL) ? '100%' : window.innerHeight + 'px',
     };
     return styles;
   }
@@ -214,9 +218,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         edge: this.edge,
         appId: appId,
         behaviour: behaviour,
-        appName: this.appName
+        appName: this.appName,
       },
-      cssClass: 'auto-height'
+      cssClass: 'auto-height',
     });
     return await modal.present();
   }

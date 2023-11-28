@@ -21,7 +21,7 @@ export class GetUserAlertingConfigsRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: {
             edgeId: string
-        }
+        },
     ) {
         super(GetUserAlertingConfigsRequest.METHOD, params);
     }

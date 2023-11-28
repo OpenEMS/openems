@@ -40,6 +40,7 @@ import com.influxdb.client.write.Point;
 import com.influxdb.client.write.WriteParameters;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
@@ -61,7 +62,7 @@ import io.openems.shared.influxdb.InfluxConnector;
 		name = "Timedata.AggregatedInfluxDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata {
+public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -254,13 +255,18 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 
 			final var timestamp = dataEntry.getKey();
 			final var timestampSeconds = timestamp / 1_000;
-			record AddValuesToPoint(String channel, JsonElement value, long timestamp) {
+			record AddValuesToPoint(String channel, JsonElement value) {
 			}
 
+			// update available-since values
+			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).forEach(entry -> {
+				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds);
+			});
+			channelPerType.getOrDefault(ChannelType.MAX, emptyList()).forEach(entry -> {
+				this.setMissingAvailableSince(influxEdgeId, entry.getKey(), timestampSeconds - 86400 /* 1 day */);
+			});
+
 			BiConsumer<AddValuesToPoint, Point> addEntryToPoint = (entry, point) -> {
-				if (!this.hasAvailableSince(influxEdgeId, entry.channel())) {
-					this.setAvailableSince(influxEdgeId, entry.channel(), entry.timestamp());
-				}
 				AllowedChannels.addWithSpecificChannelType(point, entry.channel(), entry.value());
 			};
 
@@ -270,8 +276,8 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 					.time(timestampSeconds, WritePrecision.S);
 
 			channelPerType.getOrDefault(ChannelType.AVG, emptyList()).stream() //
-					.forEach(entry -> addEntryToPoint
-							.accept(new AddValuesToPoint(entry.getKey(), entry.getValue(), timestampSeconds), point));
+					.forEach(entry -> addEntryToPoint.accept(new AddValuesToPoint(entry.getKey(), entry.getValue()),
+							point));
 			this.influxConnector.write(point, this.writeParametersAvgPoints);
 
 			for (final var measurementEntry : this.getDayChangeMeasurements(timestamp).entrySet()) {
@@ -286,11 +292,18 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 						.time(truncatedTimestamp, WritePrecision.S);
 
 				channelPerType.getOrDefault(ChannelType.MAX, emptyList()).stream() //
-						.forEach(entry -> addEntryToPoint.accept(
-								new AddValuesToPoint(entry.getKey(), entry.getValue(), truncatedTimestamp), maxPoint));
+						.forEach(entry -> addEntryToPoint.accept(new AddValuesToPoint(entry.getKey(), entry.getValue()),
+								maxPoint));
 				this.influxConnector.write(maxPoint, this.writeParametersMaxPoints);
 			}
 		}
+	}
+
+	private final void setMissingAvailableSince(int influxEdgeId, String channel, long timestmap) {
+		if (this.hasAvailableSince(influxEdgeId, channel)) {
+			return;
+		}
+		this.setAvailableSince(influxEdgeId, channel, timestmap);
 	}
 
 	private Map<ZoneId, String> getDayChangeMeasurements(long timestamp) {
@@ -394,6 +407,16 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 				.collect(toMap(//
 						parts -> ZoneId.of(parts[0]), //
 						parts -> parts[1]));
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.config.id() + " " + this.influxConnector.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		return null;
 	}
 
 }
