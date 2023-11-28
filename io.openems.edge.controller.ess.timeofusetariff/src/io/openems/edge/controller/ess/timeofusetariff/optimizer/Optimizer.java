@@ -96,7 +96,7 @@ public class Optimizer implements Runnable {
 
 	private Params getParams() throws InvalidValueException, InterruptedException {
 		try {
-			var result = createSimulatorParams(this.context.get());
+			var result = createSimulatorParams(this.context.get(), this.periods);
 			this.allowRetries = 0;
 			return result;
 
