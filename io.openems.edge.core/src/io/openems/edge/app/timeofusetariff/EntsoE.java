@@ -169,6 +169,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		SWEDEN_SE2("sweden_se2"), //
 		SWEDEN_SE3("sweden_se3"), //
 		SWEDEN_SE4("sweden_se4"), //
+		BELGIUM("belgium"), //
+		NETHERLANDS("netherlands"), //
 		;
 
 		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.biddingZone.option.";

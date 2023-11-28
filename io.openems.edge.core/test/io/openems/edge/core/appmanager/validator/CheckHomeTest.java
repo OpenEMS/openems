@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.edge.app.common.props.PropsUtil;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
@@ -45,6 +46,7 @@ public class CheckHomeTest {
 	public void testCheck() {
 		final var checkHome = this.appManagerTestBundle.checkablesBundle.checkHome();
 		assertFalse(checkHome.check());
+		assertFalse(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
 
 	@Test
@@ -56,6 +58,7 @@ public class CheckHomeTest {
 
 		assertTrue(response.warnings.isEmpty());
 		assertTrue(this.checkHome.check());
+		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
 
 	@Test
@@ -66,6 +69,7 @@ public class CheckHomeTest {
 
 		assertTrue(response.warnings.isEmpty());
 		assertTrue(this.checkHome.check());
+		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
 
 	@Test
@@ -76,6 +80,7 @@ public class CheckHomeTest {
 
 		assertTrue(response.warnings.isEmpty());
 		assertTrue(this.checkHome.check());
+		assertTrue(PropsUtil.isHomeInstalled(this.appManagerTestBundle.appManagerUtil));
 	}
 
 	@Test

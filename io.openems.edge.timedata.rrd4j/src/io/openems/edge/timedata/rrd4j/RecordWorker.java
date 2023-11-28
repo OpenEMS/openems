@@ -1,14 +1,20 @@
 package io.openems.edge.timedata.rrd4j;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import org.osgi.service.component.annotations.Activate;
@@ -19,6 +25,10 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
@@ -26,6 +36,8 @@ import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 
@@ -149,7 +161,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 					var channelStartTime = Optional.ofNullable(channel.getPastValues().floorKey(from)) //
 							.orElse(from);
 
-					final var value = channelAggregateFunction.apply(//
+					var value = channelAggregateFunction.apply(//
 							channel.getPastValues() //
 									.tailMap(channelStartTime, true) //
 									.entrySet().stream() //
@@ -159,6 +171,13 @@ public class RecordWorker extends AbstractImmediateWorker {
 									.filter(Objects::nonNull) //
 									.mapToDouble(channelMapFunction) // convert to double
 					);
+
+					if (channel.channelDoc() instanceof EnumDoc) {
+						final var enumChannelValue = aggregateEnumChannel(channel, channelStartTime, to);
+						if (!enumChannelValue.isJsonNull()) {
+							value = OptionalDouble.of(enumChannelValue.getAsDouble());
+						}
+					}
 
 					if (!value.isPresent()) {
 						// only available channels
@@ -239,6 +258,58 @@ public class RecordWorker extends AbstractImmediateWorker {
 		case DOUBLE -> MAP_DOUBLE_TO_DOUBLE;
 		case STRING -> MAP_TO_DOUBLE_NOT_SUPPORTED; // Strings are not supported by RRD4J
 		};
+	}
+
+	protected static JsonElement aggregateEnumChannel(//
+			Channel<?> channel, //
+			LocalDateTime channelStartTime, //
+			LocalDateTime endTime //
+	) {
+		final var doc = channel.channelDoc();
+		if (!(doc instanceof EnumDoc)) {
+			return JsonNull.INSTANCE;
+		}
+		final var numberOfValuesPerOption = channel.getPastValues() //
+				.tailMap(channelStartTime, true) //
+				.entrySet() //
+				.stream() //
+				.filter(e -> e.getKey().isBefore(endTime)) //
+				.filter(e -> e.getValue().isDefined()) //
+				.map(e -> (Integer) e.getValue().get()) //
+				.collect(groupingBy(Function.identity(), counting()));
+
+		final var values = numberOfValuesPerOption.entrySet().stream() //
+				.sorted((o1, o2) -> Long.compare(o2.getValue(), o1.getValue())) //
+				.toList();
+
+		final var maxValues = new ArrayList<Integer>();
+		var maxCount = -1L;
+		for (var entry : values) {
+			if (entry.getValue() < maxCount) {
+				break;
+			}
+			if (entry.getValue() == maxCount) {
+				maxValues.add(entry.getKey());
+				continue;
+			}
+			maxCount = entry.getValue();
+			maxValues.clear();
+			maxValues.add(entry.getKey());
+		}
+
+		// pick first value with most appearances
+		for (var entry : channel.getPastValues().descendingMap().entrySet()) {
+			for (var optionValue : maxValues) {
+				if (!entry.getValue().isDefined()) {
+					continue;
+				}
+				final var entryValue = entry.getValue().get();
+				if (((Integer) entryValue).intValue() == optionValue) {
+					return new JsonPrimitive(optionValue);
+				}
+			}
+		}
+		return JsonNull.INSTANCE;
 	}
 
 }

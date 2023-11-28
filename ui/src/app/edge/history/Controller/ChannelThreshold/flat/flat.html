@@ -1,0 +1,8 @@
+<oe-flat-widget *ngIf="isInitialized && controllers" [title]="'Edge.Index.Widgets.Channeltreshold.TITLE' | translate"
+  button routerLink="/device/{{edge.id}}/history/channelthresholdchart"
+  [icon]="{name:'radio-button-on-outline', color: 'primary', size: 'large'}">
+
+  <oe-flat-widget-line *ngFor="let controller of controllers" [name]="displayName.get(controller.id)"
+    [channelAddress]="controller.id + '/CumulatedActiveTime'"
+    [converter]="FORMAT_SECONDS_TO_DURATION"></oe-flat-widget-line>
+</oe-flat-widget>
