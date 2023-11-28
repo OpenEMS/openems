@@ -38,20 +38,23 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	@AttributeDefinition(name = "Country Setting", description = "Selection of feed in country")
 	SafetyCountry safetyCountry() default SafetyCountry.GERMANY;
 
-	@AttributeDefinition(name = "Mppt For Shadow Enable or Disable", description = "Selection the activation of Mppt tracker")
+	@AttributeDefinition(name = "Enable/disable MPPT Shadow Management", description = "Enable/disable shadow management of MTTP")
 	EnableDisable mpptForShadowEnable() default EnableDisable.ENABLE;
 
-	@AttributeDefinition(name = "Enable/Disable Backup Power", description = "In case of Off-Grid case backup power will be activated")
+	@AttributeDefinition(name = "Enable/disable Off-Grid outlet", description = "Enable/disable Off-Grid outlet")
 	EnableDisable backupEnable() default EnableDisable.ENABLE;
 
-	@AttributeDefinition(name = "Enable Dynamic Feed In To Grid Limit", description = "Enable-disable a feed in to grid limit at the grid meter (Dynamic limitation at the grid meter)")
+	@AttributeDefinition(name = "Enable/disable Dynamic Feed-To-Grid Limit", description = "Enable/disable a Feed-To-Grid limit for dynamic limitation at the grid meter")
 	EnableDisable feedPowerEnable() default EnableDisable.DISABLE;
 
-	@AttributeDefinition(name = "Feed In To Grid Power Limit", description = "Feed in to grid power limit (Only positive [0 - 29999])")
+	@AttributeDefinition(name = "Feed-To-Grid Power Limit", description = "Feed-To-Grid Power Limit (Only positive [0 - 29999])")
 	int feedPowerPara() default 0;
 
-	@AttributeDefinition(name = "Feed In Power Selection", description = "This is the selection of inverter power settings")
+	@AttributeDefinition(name = "Feed-To-Grid Settings", description = "This is the selection of inverter power settings")
 	FeedInPowerSettings setfeedInPowerSettings() default FeedInPowerSettings.UNDEFINED;
+
+	@AttributeDefinition(name = "Enable/disable Ripple Control Receiver", description = "Enable/disable Ripple Control Receiver (RCR) function")
+	EnableDisable rcrEnable() default EnableDisable.DISABLE;
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
 }

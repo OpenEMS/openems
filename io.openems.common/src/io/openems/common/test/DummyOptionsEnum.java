@@ -1,16 +1,16 @@
-package io.openems.edge.common.channel;
+package io.openems.common.test;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum TestOptions implements OptionsEnum {
+public enum DummyOptionsEnum implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	OPTION_1(1, "Option 1"), //
-	OPTION_2(2, "Option 2"); //
+	VALUE_1(1, "One"), //
+	;
 
 	private final int value;
 	private final String name;
 
-	private TestOptions(int value, String name) {
+	private DummyOptionsEnum(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
