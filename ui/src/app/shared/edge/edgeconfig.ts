@@ -180,7 +180,7 @@ export class EdgeConfig {
         for (let componentId of componentIds) {
             result.push(this.components[componentId]);
         }
-        return result;
+        return result.sort((c1, c2) => c1.alias.localeCompare(c2.alias));
     }
 
     /**
@@ -230,7 +230,7 @@ export class EdgeConfig {
                 result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
-        return result;
+        return result.sort((c1, c2) => c1.alias.localeCompare(c2.alias));
     }
 
     /**
