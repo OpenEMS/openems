@@ -15,7 +15,11 @@ public final class PropsUtil {
 	 * @return true if a {@link FeneconHome} is installed otherwise false
 	 */
 	public static boolean isHomeInstalled(AppManagerUtil util) {
-		return !util.getInstantiatedAppsOfApp("App.FENECON.Home").isEmpty();
+		return !util.getInstantiatedAppsOf(//
+				"App.FENECON.Home", //
+				"App.FENECON.Home.20", //
+				"App.FENECON.Home.30" //
+		).isEmpty();
 	}
 
 }

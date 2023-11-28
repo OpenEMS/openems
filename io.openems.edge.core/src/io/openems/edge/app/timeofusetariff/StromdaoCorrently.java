@@ -116,10 +116,10 @@ public class StromdaoCorrently extends
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addPropertyIfNotNull("zipcode", zipCode) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
 							JsonUtils.buildJsonObject() //
+									.addPropertyIfNotNull("zipcode", zipCode) //
 									.build())//
 			);
 

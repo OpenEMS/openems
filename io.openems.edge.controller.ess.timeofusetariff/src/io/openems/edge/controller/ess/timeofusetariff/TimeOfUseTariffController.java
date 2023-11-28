@@ -12,6 +12,7 @@ import io.openems.edge.controller.api.Controller;
 public interface TimeOfUseTariffController extends Controller, OpenemsComponent {
 
 	public static final int PERIODS_PER_HOUR = 4;
+	public static final int ESS_FULL_SOC_THRESHOLD = 90;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
