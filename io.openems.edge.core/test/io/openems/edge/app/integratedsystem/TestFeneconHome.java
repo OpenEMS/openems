@@ -11,9 +11,11 @@ import com.google.gson.JsonObject;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
@@ -35,7 +37,7 @@ public class TestFeneconHome {
 					Apps::socomecMeter, //
 					Apps::prepareBatteryExtension //
 			);
-		});
+		}, null, new PseudoComponentManagerFactory());
 	}
 
 	@Test
@@ -149,6 +151,48 @@ public class TestFeneconHome {
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
 
+	}
+
+	@Test
+	public void testFeedInTypeRippleControlReceiver() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", true);
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeDynamicLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeNoLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
 	}
 
 	private final OpenemsAppInstance createFullHome() throws Exception {

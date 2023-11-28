@@ -180,6 +180,48 @@ public class TestFeneconHome30 {
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 	}
 
+	@Test
+	public void testFeedInTypeRippleControlReceiver() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.EXTERNAL_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeDynamicLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeNoLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
 	private final OpenemsAppInstance createFullHome30() throws Exception {
 		return createFullHome30(this.appManagerTestBundle, this.user);
 	}
