@@ -33,6 +33,11 @@ public class DummyUrlFetcher implements UrlFetcher {
 		};
 	}
 
+	/**
+	 * Adds a static handler for a fetch request.
+	 * 
+	 * @param handler the handler
+	 */
 	public void addUrlHandler(ThrowingFunction<String, String, OpenemsNamedException> handler) {
 		this.urlHandler.add(handler);
 	}

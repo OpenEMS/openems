@@ -24,19 +24,35 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BridgeHttpImpl implements BridgeHttp {
 
 	private static class EndpointCountdown {
-		public int cnt;
+		private int cycleCount;
 		public final Endpoint endpoint;
-		public boolean isRunning = false;
+		private boolean running = false;
 
 		public EndpointCountdown(Endpoint endpoint) {
 			super();
-			this.cnt = endpoint.cycle();
+			this.cycleCount = endpoint.cycle();
 			this.endpoint = endpoint;
 		}
 
 		public EndpointCountdown reset() {
-			this.cnt = this.endpoint.cycle();
+			this.cycleCount = this.endpoint.cycle();
 			return this;
+		}
+
+		public int getCycleCount() {
+			return this.cycleCount;
+		}
+
+		public void decreaseCycleCount() {
+			this.cycleCount--;
+		}
+
+		public boolean isRunning() {
+			return this.running;
+		}
+
+		public void setRunning(boolean running) {
+			this.running = running;
 		}
 
 	}
@@ -53,7 +69,8 @@ public class BridgeHttpImpl implements BridgeHttp {
 	// TODO: Single pool for every http worker & avoid same endpoint in that pool
 	private final ExecutorService pool = Executors.newCachedThreadPool();
 
-	private final PriorityQueue<EndpointCountdown> endpoints = new PriorityQueue<>((e1, e2) -> e1.cnt - e2.cnt);
+	private final PriorityQueue<EndpointCountdown> endpoints = new PriorityQueue<>(
+			(e1, e2) -> e1.getCycleCount() - e2.getCycleCount());
 
 	/*
 	 * Default timeout values in ms
@@ -96,21 +113,21 @@ public class BridgeHttpImpl implements BridgeHttp {
 		// TODO: Execute before TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, like modbus bridge
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 
-			this.endpoints.forEach(t -> t.cnt--);
+			this.endpoints.forEach(EndpointCountdown::decreaseCycleCount);
 
 			if (this.endpoints.isEmpty()) {
 				return;
 			}
-			while (this.endpoints.peek().cnt == 0) {
+			while (this.endpoints.peek().getCycleCount() == 0) {
 				final var item = this.endpoints.poll();
 				synchronized (item) {
-					if (item.isRunning) {
+					if (item.isRunning()) {
 						this.log.info("Process for " + item.endpoint + " is still running.");
 						this.endpoints.add(item.reset());
 						return;
 					}
 
-					item.isRunning = true;
+					item.setRunning(true);
 				}
 				this.pool.execute(this.createTask(item));
 
@@ -131,7 +148,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 				endpointItem.endpoint.result().accept(t);
 			} finally {
 				synchronized (endpointItem) {
-					endpointItem.isRunning = false;
+					endpointItem.setRunning(false);
 				}
 			}
 		});

@@ -15,6 +15,7 @@ import io.openems.common.exceptions.OpenemsException;
 @Component
 public class UrlFetcherImpl implements UrlFetcher {
 
+	@Override
 	public Runnable createTask(//
 			final String urlString, //
 			final int connectTimeout, //
