@@ -612,8 +612,10 @@ export class Utils {
 
 export enum YAxisTitle {
   PERCENTAGE,
+  RELAY,
   ENERGY,
-  VOLTAGE
+  VOLTAGE,
+  TIME
 }
 
 export enum ChartAxis {
@@ -655,7 +657,7 @@ export namespace HistoryUtils {
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
     /** Convert the values to be displayed in Chart */
-    converter: () => number[],
+    converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
     /** default: true, stroke through label for hidden dataset */
@@ -672,6 +674,7 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
+    /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
