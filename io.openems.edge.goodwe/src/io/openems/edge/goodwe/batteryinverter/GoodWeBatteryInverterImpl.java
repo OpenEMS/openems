@@ -32,6 +32,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -184,8 +185,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE), config.safetyCountry());
 
 		// Mppt Shadow enable / disable
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE),
-				config.mpptForShadowEnable().booleanValue);
+		this.writeToChannel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, config.mpptForShadowEnable());
 
 		// Backup Power on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.BACK_UP_ENABLE), config.backupEnable().booleanValue);
@@ -426,6 +426,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			throws IllegalArgumentException, OpenemsNamedException {
 		EnumWriteChannel channel = this.channel(channelId);
 		channel.setNextWriteValue(value);
+	}
+
+	private void writeToChannel(GoodWe.ChannelId channelId, EnableDisable value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		BooleanWriteChannel channel = this.channel(channelId);
+		switch (value) {
+		case ENABLE:
+			channel.setNextWriteValue(true);
+			break;
+		case DISABLE:
+			channel.setNextWriteValue(false);
+			break;
+		}
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
