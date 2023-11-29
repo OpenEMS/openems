@@ -82,7 +82,7 @@ public final class EventBuilder {
 
 	/**
 	 * Build event and return it.
-	 * 
+	 *
 	 * @return built {@link Event}
 	 */
 	public Event build() {
