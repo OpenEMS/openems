@@ -2,10 +2,15 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.common.type.TypeUtils.subtract;
 import static io.openems.edge.common.type.TypeUtils.sum;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.EFFICIENCY_FACTOR;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -13,33 +18,35 @@ import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.concat;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.jenetics.Genotype;
+import io.jenetics.IntegerChromosome;
+import io.jenetics.IntegerGene;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.ScheduleUtils;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.predictor.api.manager.PredictorManager;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public final class Utils {
 
@@ -47,36 +54,36 @@ public final class Utils {
 	}
 
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "UnmanagedConsumptionActivePower");
-
-	public record Parent(PredictorManager predictorManager, TimeOfUseTariff timeOfUseTariff, ManagedSymmetricEss ess,
-			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
-			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, ControlMode controlMode,
-			int maxChargePowerFromGrid, IntegerReadChannel solveDurationChannel) {
-	}
+	private static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
+			"UnmanagedConsumptionActivePower");
+	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
 	/**
 	 * Create Params for {@link Simulator}.
 	 * 
-	 * @param parent the {@link Parent} object
-	 * @return Params
+	 * @param context          the {@link Context} object
+	 * @param existingSchedule the existing Schedule, i.e. result of previous
+	 *                         optimization
+	 * @return {@link Params}
 	 * @throws InvalidValueException on error
 	 */
-	public static Simulator.Params createSimulatorParams(Parent parent) throws InvalidValueException {
+	public static Params createSimulatorParams(Context context, TreeMap<ZonedDateTime, Period> existingSchedule)
+			throws InvalidValueException {
 		final var time = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15);
 
 		// Prediction values
-		final var predictionProduction = parent.predictorManager.get24HoursPrediction(SUM_PRODUCTION) //
-				.getValues();
-		final var predictionConsumption = parent.predictorManager.get24HoursPrediction(SUM_CONSUMPTION) //
-				.getValues();
+		final var predictionProduction = context.predictorManager() //
+				.get24HoursPrediction(SUM_PRODUCTION).getValues();
+		final var predictionConsumption = joinConsumptionPredictions(4, //
+				context.predictorManager().get24HoursPrediction(SUM_CONSUMPTION).getValues(), //
+				context.predictorManager().get24HoursPrediction(SUM_UNMANAGED_CONSUMPTION).getValues());
 
 		// Prices contains the price values and the time it is retrieved.
-		final var prices = parent.timeOfUseTariff.getPrices();
+		final var prices = context.timeOfUseTariff().getPrices();
 
 		// Ess information.
-		final var netEssCapacity = parent.ess.getCapacity().getOrError();
-		final var soc = parent.ess.getSoc().getOrError();
+		final var netEssCapacity = context.ess().getCapacity().getOrError();
+		final var soc = context.ess().getSoc().getOrError();
 
 		// Calculate available energy using "netCapacity" and "soc".
 		var currentAvailableEnergy = netEssCapacity /* [Wh] */ / 100 * soc;
@@ -85,7 +92,7 @@ public final class Utils {
 
 		// Calculate the net usable energy of the battery.
 		final var reduceAboveEnergy = netEssCapacity / 100 * reduceAbove;
-		final var limitEnergy = getLimitEnergy(parent, netEssCapacity) + reduceAboveEnergy;
+		final var limitEnergy = getLimitEnergy(context, netEssCapacity) + reduceAboveEnergy;
 		final var netUsableEnergy = max(0, netEssCapacity - limitEnergy);
 
 		// Calculate current usable energy [Wh] in the battery.
@@ -93,22 +100,34 @@ public final class Utils {
 
 		// Power Values for scheduling battery for individual periods.
 		// TODO store max ever charge/dischare power
-		var power = parent.ess.getPower();
-		var dischargePower = max(5000 /* at least 5000 */, power.getMaxPower(parent.ess, Phase.ALL, Pwr.ACTIVE));
-		var chargePower = min(-5000 /* at least 5000 */, power.getMinPower(parent.ess, Phase.ALL, Pwr.ACTIVE));
+		var power = context.ess().getPower();
+		var dischargePower = max(5000 /* at least 5000 */, power.getMaxPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
+		var chargePower = min(-5000 /* at least 5000 */, power.getMinPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
 
-		var maxChargePowerFromGrid = parent.maxChargePowerFromGrid;
+		var maxChargePowerFromGrid = context.maxChargePowerFromGrid();
 
-		return new Simulator.Params(//
-				/* time */ time, //
-				/* essEnergy */ currentAvailableEnergy, //
-				/* essCapacity */ netUsableEnergy, //
-				/* essMaxEnergyPerPeriod */ toEnergy(max(dischargePower, abs(chargePower))), //
-				/* maxBuyFromGrid */ toEnergy(maxChargePowerFromGrid), //
-				stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray(),
-				stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray(),
-				/* prices */ interpolateArray(prices.getValues()), //
-				/* states */ parent.controlMode.states);
+		return Params.create() //
+				.time(time) //
+				.essAvailableEnergy(currentAvailableEnergy) //
+				.essCapacity(netUsableEnergy) //
+				.essMaxEnergyPerPeriod(toEnergy(max(dischargePower, abs(chargePower)))) //
+				.maxBuyFromGrid(toEnergy(maxChargePowerFromGrid)) //
+				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
+				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
+				.prices(interpolateArray(prices.getValues())) //
+				.states(context.controlMode().states) //
+				.existingSchedule(existingSchedule) //
+				.build();
+	}
+
+	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
+			Integer[] unmanagedConsumption) {
+		return Streams.concat(//
+				Arrays.stream(totalConsumption) //
+						.limit(splitAfterIndex), //
+				Arrays.stream(unmanagedConsumption) //
+						.skip(splitAfterIndex)) //
+				.toArray(Integer[]::new);
 	}
 
 	protected static int toEnergy(int power) {
@@ -118,16 +137,16 @@ public final class Utils {
 	/**
 	 * Returns the amount of energy that is not usable for scheduling.
 	 * 
-	 * @param parent         the {@link Parent}
+	 * @param context        the {@link Context}
 	 * @param netEssCapacity net capacity of the battery.
 	 * @return the amount of energy that is limited.
 	 */
-	private static int getLimitEnergy(Parent parent, int netEssCapacity) {
+	private static int getLimitEnergy(Context context, int netEssCapacity) {
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		var limitSoc = concat(//
-				parent.ctrlLimitTotalDischarges.stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
-				parent.ctrlEmergencyCapacityReserves.stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
+				context.ctrlLimitTotalDischarges().stream().mapToInt(ctrl -> ctrl.getMinSoc().orElse(0)), //
+				context.ctrlEmergencyCapacityReserves().stream().mapToInt(ctrl -> ctrl.getActualReserveSoc().orElse(0))) //
 				.max().orElse(0);
 
 		return netEssCapacity /* [Wh] */ / 100 * limitSoc;
@@ -147,13 +166,19 @@ public final class Utils {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
 				.findFirst();
-		var result = new float[values.length];
+		var lastNonNullIndex = IntStream.range(0, values.length) //
+				.filter(i -> values[i] != null) //
+				.reduce((first, second) -> second); //
+		if (lastNonNullIndex.isEmpty()) {
+			return new float[0];
+		}
+		var result = new float[lastNonNullIndex.getAsInt() + 1];
 		if (firstNonNull.isEmpty()) {
 			// all null
 			return result;
 		}
 		float last = firstNonNull.get();
-		for (var i = 0; i < values.length; i++) {
+		for (var i = 0; i < result.length; i++) {
 			float value = orElse(values[i], last);
 			result[i] = last = value;
 		}
@@ -174,17 +199,46 @@ public final class Utils {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
 				.findFirst();
-		var result = new int[values.length];
+		var lastNonNullIndex = IntStream.range(0, values.length) //
+				.filter(i -> values[i] != null) //
+				.reduce((first, second) -> second); //
+		if (lastNonNullIndex.isEmpty()) {
+			return new int[0];
+		}
+		var result = new int[lastNonNullIndex.getAsInt() + 1];
 		if (firstNonNull.isEmpty()) {
 			// all null
 			return result;
 		}
 		int last = firstNonNull.get();
-		for (var i = 0; i < values.length; i++) {
+		for (var i = 0; i < result.length; i++) {
 			int value = orElse(values[i], last);
 			result[i] = last = value;
 		}
 		return result;
+	}
+
+	/**
+	 * Calculates the ESS charge energy for one period in
+	 * {@link StateMachine#CHARGE} state.
+	 * 
+	 * @param maxBuyFromGrid Max Buy-From-Grid Energy per Period [Wh]
+	 * @param consumption    Consumption prediction
+	 * @param production     Production prediction
+	 * @param essMaxCharge   the max ESS charge energy after constraints; always
+	 *                       negative
+	 * @return ESS charge energy
+	 */
+	protected static int calculateStateChargeEnergy(int maxBuyFromGrid, int consumption, int production,
+			int essMaxCharge) {
+		return max(//
+				min(//
+						/* max charge energy from grid */
+						-maxBuyFromGrid + consumption - production,
+						/* force positive */
+						1),
+				/* limit to max ESS charge energy */
+				essMaxCharge);
 	}
 
 	/**
@@ -201,7 +255,8 @@ public final class Utils {
 				sum.getGridActivePower().get(), /* current buy-from/sell-to grid */
 				ess.getActivePower().get() /* current charge/discharge Ess */);
 
-		return subtract(gridPower, maxChargePowerFromGrid); // apply maxChargePowerFromGrid
+		return min(0, // never positive, i.e. force discharge
+				subtract(gridPower, maxChargePowerFromGrid)); // apply maxChargePowerFromGrid
 	}
 
 	/**
@@ -279,4 +334,77 @@ public final class Utils {
 		return new GetScheduleResponse(requestId, result);
 	}
 
+	/**
+	 * Post-Process a state of a Period, i.e. replace with 'better' state with the
+	 * same behaviour.
+	 * 
+	 * <p>
+	 * NOTE: heavy computation is ok here, because this method is called only at the
+	 * end with the best Schedule.
+	 * 
+	 * @param p                        the {@link Params}
+	 * @param essInitial               the initial ESS energy in this period
+	 * @param gridEssCharge            grid-buy energy that is used to charge the
+	 *                                 ESS
+	 * @param price                    the price in this period
+	 * @param balancingChargeDischarge the ESS energy that would be required for
+	 *                                 BALANCING
+	 * @param state                    the initial state
+	 * @return the new state
+	 */
+	public static StateMachine postprocessPeriodState(Params p, int essInitial, int gridEssCharge, float price,
+			int balancingChargeDischarge, StateMachine state) {
+		var soc = essInitial * 100 / p.essCapacity();
+		return switch (state) {
+		case BALANCING -> BALANCING;
+
+		case DELAY_DISCHARGE -> {
+			// DELAY_DISCHARGE,...
+			if (balancingChargeDischarge < 0) {
+				// but actually charging from PV -> could have been BALANCING
+				yield BALANCING;
+			} else if (p.maxPrice() - price < 0.001F) {
+				// but price is high
+				yield BALANCING;
+			}
+			yield DELAY_DISCHARGE;
+		}
+
+		case CHARGE -> {
+			// CHARGE,...
+			if (gridEssCharge <= 0) {
+				// but actually charging from PV -> could have been BALANCING
+				yield BALANCING;
+			} else if (soc >= 90) {
+				// but battery was already > 90 % SoC -> too risky
+				yield DELAY_DISCHARGE;
+			} else if (p.maxPrice() / price < EFFICIENCY_FACTOR) {
+				// but price is high
+				yield DELAY_DISCHARGE;
+			}
+			yield CHARGE;
+		}
+		};
+	}
+
+	/**
+	 * Gets the current existingSchedule (i.e. the bestGenotype of last optimization
+	 * run) as {@link Genotype} to serve as initial population.
+	 * 
+	 * @param p the {@link Params}
+	 * @return the {@link Genotype}
+	 */
+	public static List<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
+		var states = List.of(p.states());
+		return List.of(//
+				Genotype.of(//
+						IntStream.range(0, p.numberOfPeriods()) //
+								// Map to state index; not-found maps to '-1', corrected to '0'
+								.map(i -> fitWithin(0, p.states().length, states.indexOf(//
+										p.existingSchedule().length > i ? p.existingSchedule()[i] //
+												: 0 // fill remaining with '0'
+								))) //
+								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
+								.toList()));
+	}
 }

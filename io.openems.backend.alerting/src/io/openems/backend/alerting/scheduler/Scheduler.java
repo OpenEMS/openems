@@ -13,6 +13,7 @@ import io.openems.backend.alerting.Message;
 
 /**
  * A {@link MessageSchedulerService} implementation using {@link MinuteTimer}.
+ *
  */
 public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerService, TimedExecutor {
 
@@ -27,7 +28,7 @@ public class Scheduler implements Consumer<ZonedDateTime>, MessageSchedulerServi
 	}
 
 	public Scheduler() {
-		this(MinuteTimerAsync.getInstance());
+		this(new MinuteTimerAsync());
 	}
 
 	@Override

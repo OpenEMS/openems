@@ -24,6 +24,6 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.google.gson;version='2.10.1',\
 	de.bytefish:pgbulkinsert;version='8.1.2',\
 	fr.turri:aXMLRPC;version='1.13.0',\
-	org.dhatim:fastexcel;version='0.15.7',\
+	org.dhatim:fastexcel;version='0.16.4',\
 	org.eclipse.paho.mqttv5.client;version='1.2.5',\
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.7.3',\

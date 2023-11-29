@@ -103,7 +103,7 @@ public class MessageScheduler<T extends Message> {
 	 */
 	public void handle(ZonedDateTime now) {
 		var msgs = new ArrayList<T>();
-		while (this.hasTimeElapsed(now, this.queue.peek())) {
+		while (this.hasTimeElapsed(now, this.peek())) {
 			msgs.add(this.poll());
 		}
 		if (!msgs.isEmpty()) {
@@ -122,6 +122,12 @@ public class MessageScheduler<T extends Message> {
 				this.messageForId.remove(msg.getId());
 			}
 			return msg;
+		}
+	}
+
+	private T peek() {
+		synchronized (this) {
+			return this.queue.peek();
 		}
 	}
 

@@ -18,17 +18,12 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class MinuteTimerAsync extends MinuteTimer {
 
-	private static MinuteTimer INSTANCE = new MinuteTimerAsync();
 	private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
 			.setNameFormat("Alerting-MinuteTimer-%d").build();
 
-	public static MinuteTimer getInstance() {
-		return MinuteTimerAsync.INSTANCE;
-	}
-
 	private ScheduledExecutorService scheduler;
 
-	private MinuteTimerAsync() {
+	public MinuteTimerAsync() {
 		super(Clock.systemDefaultZone());
 	}
 

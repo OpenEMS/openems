@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -67,12 +69,9 @@ public class OfflineEdgeAlertingTest {
 			this.meta.initializeOffline(this.edges.values(), this.settings);
 			this.scheduler = new Scheduler(this.timer);
 
-			this.alerting = new Alerting(this.scheduler, new Executor() {
-				@Override
-				public void execute(Runnable command) {
-					command.run();
-				}
-			});
+			var executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
+			};
+			this.alerting = new Alerting(this.scheduler, executor);
 			this.alerting.mailer = this.mailer;
 			this.alerting.metadata = this.meta;
 		}
@@ -109,14 +108,14 @@ public class OfflineEdgeAlertingTest {
 	public void integrationTest() {
 		var env = new TestEnvironment();
 
-		var config = new Dummy.TestConfig(15, true, false);
+		var config = Dummy.testConfig(15, true, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
 		/* Wait long enough to trigger delayed Initialization. */
-		env.timer.leap(config.initialDelay);
+		env.timer.leap(config.initialDelay());
 		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
 		/* edge05[user03] */
@@ -173,20 +172,23 @@ public class OfflineEdgeAlertingTest {
 	public void deactiveTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = new Dummy.TestConfig(5, false, false);
+		var config = Dummy.testConfig(5, false, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
 		/* Wait long enough to trigger delayed Initialization. */
-		env.timer.leap(config.initialDelay);
-		env.timer.leap(10);
+		env.timer.leap(config.initialDelay());
+		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
-		assertEquals(0, env.scheduler.getScheduledMsgsCount());
-		assertEquals(0, env.mailer.getMailsCount());
+		assertEquals(1, env.scheduler.getScheduledMsgsCount());
+		assertEquals(1, env.mailer.getMailsCount());
 
 		env.alerting.deactivate();
+
+		assertEquals(0, env.scheduler.getScheduledMsgsCount());
+		assertEquals(1, env.mailer.getMailsCount());
 	}
 
 }

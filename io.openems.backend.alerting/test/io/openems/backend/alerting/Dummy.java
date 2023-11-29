@@ -239,44 +239,35 @@ public class Dummy {
 		}
 	}
 
-	@SuppressWarnings("all")
-	private static interface Config extends io.openems.backend.alerting.Config {
-	}
 
-	public static class TestConfig implements Config {
-		public final boolean notifyOnOffline;
-		public final boolean notifyOnSumStateChange;
-		public final int initialDelay;
+	protected static Config testConfig(int initialDelay, boolean onOffline, boolean onSumState) {
+		return new Config() {
 
-		public TestConfig(int initDelay, boolean onOffline, boolean onSumState) {
-			this.notifyOnOffline = onOffline;
-			this.notifyOnSumStateChange = onSumState;
-			this.initialDelay = initDelay;
-		}
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return Config.class;
+			}
 
-		@Override
-		public Class<? extends Annotation> annotationType() {
-			throw new UnsupportedOperationException();
-		}
+			@Override
+			public String webconsole_configurationFactory_nameHint() {
+				return "Alerting";
+			}
+			
+			@Override
+			public boolean notifyOnSumStateChange() {
+				return onSumState;
+			}
 
-		@Override
-		public String webconsole_configurationFactory_nameHint() {
-			throw new UnsupportedOperationException();
-		}
+			@Override
+			public boolean notifyOnOffline() {
+				return onOffline;
+			}
 
-		@Override
-		public boolean notifyOnSumStateChange() {
-			return this.notifyOnSumStateChange;
-		}
 
-		@Override
-		public boolean notifyOnOffline() {
-			return this.notifyOnOffline;
-		}
-
-		@Override
-		public int initialDelay() {
-			return this.initialDelay;
-		}
+			@Override
+			public int initialDelay() {
+				return initialDelay;
+			}
+		};
 	}
 }

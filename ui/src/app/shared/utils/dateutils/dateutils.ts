@@ -45,6 +45,7 @@ export namespace DateUtils {
     return isNaN(new Date(date)?.getTime()) ? null : new Date(date);
   }
 
+
   /**
    * Converts a date into a local date string
    * @description should be used for mutating dates
