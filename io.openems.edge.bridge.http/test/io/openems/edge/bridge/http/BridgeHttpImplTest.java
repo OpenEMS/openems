@@ -70,11 +70,11 @@ public class BridgeHttpImplTest {
 		final var callCount = new AtomicInteger(0);
 		final var lock = new Object();
 		this.bridgeHttp.subscribeEveryCycle("dummy", t -> {
+			assertEquals("success", t);
+			callCount.incrementAndGet();
 			synchronized (lock) {
 				lock.notify();
 			}
-			assertEquals("success", t);
-			callCount.incrementAndGet();
 
 			synchronized (lock) {
 				try {
