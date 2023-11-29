@@ -575,7 +575,7 @@ export class Utils {
     });
 
     consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveProductionEnergy']);
     });
 
     return Utils.roundSlightlyNegativeValues(
