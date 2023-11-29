@@ -102,7 +102,8 @@ public class BridgeHttpImplTest {
 			lock.notify();
 		}
 
-		Thread.sleep(100);
+		// wait until last request is finished
+		this.bridgeHttp.request("dummy").get();
 		synchronized (lock) {
 			this.nextCycle();
 			lock.wait();
