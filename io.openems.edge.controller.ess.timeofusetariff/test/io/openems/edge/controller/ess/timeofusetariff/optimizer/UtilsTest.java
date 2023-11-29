@@ -4,6 +4,10 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANC
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_CONSUMPTION_PREDICTION;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_HOURLY_PRICES;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_PRODUCTION_PREDICTION;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
@@ -11,20 +15,30 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge100;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessPeriodState;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
+import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNowRoundedDownToMinutes;
 import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.stream;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.time.ZonedDateTime;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.timedata.test.DummyTimedata;
 
 public class UtilsTest {
 
@@ -92,6 +106,32 @@ public class UtilsTest {
 				new DummyManagedSymmetricEss("ess0").withActivePower(1000), //
 				new DummySum().withGridActivePower(9000), //
 				/* maxChargePowerFromGrid */ 5000).intValue());
+	}
+
+	@Test
+	@Ignore
+	public void testHandleScheduleRequest() throws OpenemsNamedException {
+		final var now = getNowRoundedDownToMinutes(ZonedDateTime.now(), 15);
+		final var fromDate = now.minusHours(3);
+		final var channeladdressPrices = new ChannelAddress("", "QuarterlyPrices");
+		final var channeladdressStateMachine = new ChannelAddress("", "StateMachine");
+		final var channelPredictedProduction = new ChannelAddress("", "PredictedProduction");
+		final var channelPredictedConsumption = new ChannelAddress("", "PredictedConsumption");
+
+		var timedata = new DummyTimedata("timedata0");
+
+		// past data is only for 3 hours. in total 12 quarters.
+		for (var i = 0; i < 12; i++) {
+			timedata.add(fromDate.plusMinutes(i * 15), channeladdressPrices, PAST_HOURLY_PRICES[i]);
+			timedata.add(fromDate.plusMinutes(i * 15), channeladdressStateMachine, PAST_STATES[i]);
+			timedata.add(fromDate.plusMinutes(i * 15), channelPredictedProduction, PAST_PRODUCTION_PREDICTION[i]);
+			timedata.add(fromDate.plusMinutes(i * 15), channelPredictedConsumption, PAST_CONSUMPTION_PREDICTION[i]);
+		}
+
+		// Testing only past data. For full data, optimizer has to be created as well.
+		var result = handleGetScheduleRequest(new Optimizer(null), randomUUID(), timedata, "", fromDate, now);
+
+		JsonUtils.prettyPrint(result.getResult());
 	}
 
 	@Test

@@ -51,9 +51,11 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		GRID_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.text("Grid energy calculated for the period.")), //
 		PREDICTED_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Predicted Production for the current quarterly hour")),
+				.text("Predicted Production for the current quarterly hour")
+				.persistencePriority(PersistencePriority.HIGH)), //
 		PREDICTED_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Predicted Consumption for the current quarterly hour")),;
+				.text("Predicted Consumption for the current quarterly hour")
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 

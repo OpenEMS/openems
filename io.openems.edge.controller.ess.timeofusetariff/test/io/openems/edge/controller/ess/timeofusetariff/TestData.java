@@ -132,12 +132,6 @@ public class TestData {
 			149.99f, 157.43f, 130.9f, 120.14f //
 	};
 
-	public static final Float[] PAST_HOURLY_PRICES = { //
-			158.95f, 160.98f, 171.95f, 174.96f, //
-			161.93f, 152f, 120.01f, 111.03f, //
-			105.04f, 105f, 74.23f, 73.28f, //
-	};
-
 	public static final Integer[] STATES = { //
 			1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, //
 			2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, //
@@ -153,5 +147,23 @@ public class TestData {
 			1, 1, 1, 1, //
 			1, 3, 3, 1, //
 			2, 1, 2, 2, //
+	};
+
+	public static final Integer[] PAST_HOURLY_PRICES = { //
+			158, 160, 171, 174, //
+			161, 152, 120, 111, //
+			105, 105, 74, 73, //
+	};
+
+	public static final Integer[] PAST_CONSUMPTION_PREDICTION = { //
+			1021, 1208, 713, 931, //
+			2847, 2551, 1558, 1234, //
+			433, 633, 1355, 606,//
+	};
+
+	public static final Integer[] PAST_PRODUCTION_PREDICTION = { //
+			913, 1399, 1838, 2261, //
+			2662, 3052, 3405, 3708, //
+			4011, 4270, 4458, 4630, //
 	};
 }
