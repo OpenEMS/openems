@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -49,7 +50,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 	private SinglePhase phase = null;
 	private String baseUrl;
 
-	@Reference
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private BridgeHttp httpBridge;
 
 	public IoShellyPlugImpl() {
@@ -81,6 +82,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			this._setSlaveCommunicationFailed(false);
 		}, t -> {
 			this.logDebug(this.log, t.getMessage());
+			this._setRelay(null);
 			this._setSlaveCommunicationFailed(true);
 		});
 	}

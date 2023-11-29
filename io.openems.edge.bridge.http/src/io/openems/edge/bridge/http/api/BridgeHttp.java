@@ -8,6 +8,35 @@ import com.google.gson.JsonElement;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * HttpBridge to handle request to a endpoint.
+ * 
+ * <p>
+ * If a request is scheduled every cycle and the request does take longer than
+ * one cycle it is not executed multiple times instead it waits until the last
+ * request is finished and will be executed with the next cycle.
+ * 
+ * <p>
+ * To get a reference to a bridge object include this in your component:
+ * 
+ * <pre>
+   <code>@Reference</code>(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+   private BridgeHttp httpBridge;
+ * </pre>
+ * A simple example to subscribe to an endpoint every cycle would be:
+ * 
+ * <pre>
+ * this.httpBridge.subscribeEveryCycle("http://127.0.0.1/status", t -> {
+ * 	// process data
+ * }, t -> {
+ * 	// handle error
+ * });
+ * </pre>
+ * If an enpoint does not require to be called every cycle it can also be
+ * configured with e. g. {@link BridgeHttp#subscribe(int, String, Consumer)}
+ * where the first value could be 5 then the request gets triggered every 5th
+ * cycle.
+ */
 public interface BridgeHttp {
 
 	/**
@@ -38,6 +67,12 @@ public interface BridgeHttp {
 			 */
 			Consumer<Throwable> onError //
 	) {
+
+		@Override
+		public String toString() {
+			return "Endpoint [cycle=" + this.cycle() + ", url=" + this.url() + "]";
+		}
+
 	}
 
 	/**

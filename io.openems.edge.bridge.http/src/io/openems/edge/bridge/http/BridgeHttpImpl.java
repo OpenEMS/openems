@@ -122,7 +122,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 				final var item = this.endpoints.poll();
 				synchronized (item) {
 					if (item.isRunning()) {
-						this.log.info("Process for " + item.endpoint + " is still running.");
+						this.log.info("Process for " + item.endpoint + " is still running. Task is not queued twice");
 						this.endpoints.add(item.reset());
 						return;
 					}
