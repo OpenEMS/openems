@@ -50,7 +50,7 @@ public class UrlFetcherImpl implements UrlFetcher {
 					future.complete(body);
 				} else {
 					throw new OpenemsException(
-							"Error while reading from Shelly API. Response code: " + status + ". " + body);
+							"Error while reading Endpoint " + urlString + ". Response code: " + status + ". " + body);
 				}
 			} catch (OpenemsNamedException | IOException e) {
 				future.completeExceptionally(e);

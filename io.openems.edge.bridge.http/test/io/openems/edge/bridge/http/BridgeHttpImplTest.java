@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -33,13 +34,14 @@ public class BridgeHttpImplTest {
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", this.cycleSubscriber);
 
 		this.fetcher = new DummyUrlFetcher();
-		fetcher.addUrlHandler(url -> {
+		this.fetcher.addUrlHandler(url -> {
 			return switch (url) {
 			case "dummy" -> "success";
+			case "error" -> throw new RuntimeException();
 			default -> null;
 			};
 		});
-		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "urlFetcher", fetcher);
+		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "urlFetcher", this.fetcher);
 
 		((BridgeHttpImpl) this.bridgeHttp).activate();
 	}
@@ -114,7 +116,17 @@ public class BridgeHttpImplTest {
 			lock.notify();
 		}
 		assertEquals(2, callCount.get());
+	}
 
+	@Test
+	public void testRequestFail() throws Exception {
+		final var error = new CompletableFuture<Throwable>();
+		this.bridgeHttp.subscribeEveryCycle("error", t -> {
+			// empty
+		}, error::complete);
+
+		this.nextCycle();
+		assertNotNull(error.get());
 	}
 
 	private void nextCycle() {
