@@ -22,6 +22,7 @@ public class BridgeHttpImplTest {
 	@Rule
 	public Timeout globalTimeout = Timeout.seconds(1);
 
+	private DummyUrlFetcher fetcher;
 	private CycleSubscriber cycleSubscriber;
 	private BridgeHttp bridgeHttp;
 
@@ -31,7 +32,7 @@ public class BridgeHttpImplTest {
 		this.bridgeHttp = new BridgeHttpImpl();
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "cycleSubscriber", this.cycleSubscriber);
 
-		final var fetcher = new DummyUrlFetcher();
+		this.fetcher = new DummyUrlFetcher();
 		fetcher.addUrlHandler(url -> {
 			return switch (url) {
 			case "dummy" -> "success";
@@ -83,9 +84,10 @@ public class BridgeHttpImplTest {
 					assertTrue(false);
 				}
 			}
-
 		});
 
+		final var completable = new CompletableFuture<Void>();
+		this.fetcher.setOnTaskFinished(() -> completable.complete(null));
 		synchronized (lock) {
 			assertEquals(0, callCount.get());
 			this.nextCycle();
@@ -103,7 +105,7 @@ public class BridgeHttpImplTest {
 		}
 
 		// wait until last request is finished
-		this.bridgeHttp.request("dummy").get();
+		completable.get();
 		synchronized (lock) {
 			this.nextCycle();
 			lock.wait();

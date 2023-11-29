@@ -9,7 +9,12 @@ import io.openems.common.function.ThrowingFunction;
 
 public class DummyUrlFetcher implements UrlFetcher {
 
+	private static final Runnable EMPTY_RUNNABLE = () -> {
+		// empty
+	};
+
 	private final List<ThrowingFunction<String, String, OpenemsNamedException>> urlHandler = new LinkedList<>();
+	private Runnable onTaskFinished = EMPTY_RUNNABLE;
 
 	@Override
 	public Runnable createTask(//
@@ -29,6 +34,8 @@ public class DummyUrlFetcher implements UrlFetcher {
 				}
 			} catch (Throwable e) {
 				future.completeExceptionally(e);
+			} finally {
+				this.onTaskFinished.run();
 			}
 		};
 	}
@@ -40,6 +47,10 @@ public class DummyUrlFetcher implements UrlFetcher {
 	 */
 	public void addUrlHandler(ThrowingFunction<String, String, OpenemsNamedException> handler) {
 		this.urlHandler.add(handler);
+	}
+
+	public void setOnTaskFinished(Runnable onTaskFinished) {
+		this.onTaskFinished = onTaskFinished == null ? EMPTY_RUNNABLE : onTaskFinished;
 	}
 
 }
