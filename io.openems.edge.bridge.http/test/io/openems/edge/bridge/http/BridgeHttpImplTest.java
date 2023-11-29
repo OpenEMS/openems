@@ -6,12 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 import org.osgi.service.event.Event;
 
 import io.openems.common.utils.ReflectionUtils;
@@ -19,9 +19,6 @@ import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 public class BridgeHttpImplTest {
-
-	@Rule
-	public Timeout globalTimeout = Timeout.seconds(1);
 
 	private DummyUrlFetcher fetcher;
 	private CycleSubscriber cycleSubscriber;
@@ -44,6 +41,11 @@ public class BridgeHttpImplTest {
 		ReflectionUtils.setAttribute(BridgeHttpImpl.class, this.bridgeHttp, "urlFetcher", this.fetcher);
 
 		((BridgeHttpImpl) this.bridgeHttp).activate();
+	}
+
+	@After
+	public void after() throws Exception {
+		((BridgeHttpImpl) this.bridgeHttp).deactivate();
 	}
 
 	@Test
@@ -72,24 +74,24 @@ public class BridgeHttpImplTest {
 	public void testNotRunningMultipleTimes() throws Exception {
 		final var callCount = new AtomicInteger(0);
 		final var lock = new Object();
+
+		final var waitUntilContinueHandler = new CompletableFuture<Void>();
 		this.bridgeHttp.subscribeEveryCycle("dummy", t -> {
 			assertEquals("success", t);
 			callCount.incrementAndGet();
 			synchronized (lock) {
 				lock.notify();
-			}
 
-			synchronized (lock) {
-				try {
-					lock.wait();
-				} catch (InterruptedException e) {
-					assertTrue(false);
-				}
+			}
+			try {
+				waitUntilContinueHandler.get();
+			} catch (InterruptedException | ExecutionException e) {
+				assertTrue(false);
 			}
 		});
 
-		final var completable = new CompletableFuture<Void>();
-		this.fetcher.setOnTaskFinished(() -> completable.complete(null));
+		final var waitForTaskFinish = new CompletableFuture<Void>();
+		this.fetcher.setOnTaskFinished(() -> waitForTaskFinish.complete(null));
 		synchronized (lock) {
 			assertEquals(0, callCount.get());
 			this.nextCycle();
@@ -102,18 +104,14 @@ public class BridgeHttpImplTest {
 			assertEquals(1, callCount.get());
 			this.nextCycle();
 			assertEquals(1, callCount.get());
-
-			lock.notify();
 		}
+		waitUntilContinueHandler.complete(null);
 
 		// wait until last request is finished
-		completable.get();
+		waitForTaskFinish.get();
 		synchronized (lock) {
 			this.nextCycle();
 			lock.wait();
-		}
-		synchronized (lock) {
-			lock.notify();
 		}
 		assertEquals(2, callCount.get());
 	}
