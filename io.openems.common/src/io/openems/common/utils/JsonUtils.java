@@ -1699,6 +1699,21 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Parses a string to a {@link Optional} {@link JsonElement}.
+	 * 
+	 * @param string to be parsed
+	 * @return the {@link Optional} of the result; {@link Optional#empty()} if the
+	 *         value can not be parsed
+	 */
+	public static Optional<JsonElement> parseOptional(String string) {
+		try {
+			return Optional.of(JsonParser.parseString(string));
+		} catch (JsonParseException e) {
+			return Optional.empty();
+		}
+	}
+
+	/**
 	 * Parses a string to a {@link JsonObject}.
 	 *
 	 * @param string the String

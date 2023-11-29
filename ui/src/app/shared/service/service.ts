@@ -66,6 +66,8 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
+  public currentUser: User | null = null;
+
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
