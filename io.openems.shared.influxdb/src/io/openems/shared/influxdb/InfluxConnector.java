@@ -68,7 +68,6 @@ public class InfluxConnector {
 	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
 	private final AtomicInteger rejectedExecutionCount = new AtomicInteger();
 
-	
 	/**
 	 * The Constructor.
 	 *
@@ -344,42 +343,41 @@ public class InfluxConnector {
 		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
 				fromDate, toDate, channels, resolution);
 	}
-	
-	
-	
+
 	/**
-	 * Queries the last value for given channel address from now to 100 days in the past.
+	 * Queries the last value for given channel address from now to 100 days in the
+	 * past.
 	 * 
-	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
-	 * @param channelAddress     the Channels to query
-	 * @param measurement  the measurement
+	 * @param influxEdgeId   the unique, numeric Edge-ID; or Empty to query all
+	 *                       Edges
+	 * @param channelAddress the Channels to query
+	 * @param measurement    the measurement
 	 * @return the values mapped to their channel
 	 * @throws OpenemsNamedException on error
-	 */	
-	public SortedMap<ChannelAddress, JsonElement> queryLastData(
-	        Optional<Integer> influxEdgeId, ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
-	    
-	    // Check if channelAddress is not null
-	    if (channelAddress == null) {
-	        return new TreeMap<>();
-	    }
+	 */
+	public SortedMap<ChannelAddress, JsonElement> queryLastData(Optional<Integer> influxEdgeId,
+			ChannelAddress channelAddress, String measurement) throws OpenemsNamedException {
 
-	    // Create a set of ChannelAdresses thus we need only one
-	    Set<ChannelAddress> channels = Set.of(channelAddress);
+		// Check if channelAddress is not null
+		if (channelAddress == null) {
+			return new TreeMap<>();
+		}
 
-	    ZonedDateTime now = ZonedDateTime.now();
+		// Create a set of ChannelAdresses thus we need only one
+		Set<ChannelAddress> channels = Set.of(channelAddress);
 
-	    // Use actual timestamp for queryFirstValueBefore-call
-	    return this.queryProxy.queryFirstValueBefore(//
-	            this.bucket, //
-	            this.getInfluxConnection(), //
-	            measurement, //
-	            influxEdgeId, //
-	            now, //
-	            channels//
-	    );
+		ZonedDateTime now = ZonedDateTime.now();
+
+		// Use actual timestamp for queryFirstValueBefore-call
+		return this.queryProxy.queryFirstValueBefore(//
+				this.bucket, //
+				this.getInfluxConnection(), //
+				measurement, //
+				influxEdgeId, //
+				now, //
+				channels//
+		);
 	}
-
 
 	/**
 	 * Queries the first valid values before the given date.

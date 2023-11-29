@@ -215,7 +215,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		// TODO implement this method
 		return emptySortedMap();
 	}
-
+	
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 	    return CompletableFuture.supplyAsync(() -> {
@@ -236,7 +236,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	                return Optional.empty();
 	            }
 	        } catch (Exception e) {
-	            this.log.error("Fehler beim Abrufen des neuesten Werts", e);
+	            this.log.error("Error getting latest value", e);
 	        }
 	        return Optional.empty();
 	    });
@@ -248,6 +248,4 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		// TODO implement this method
 		return new Timeranges();
 	}
-
-
 }
