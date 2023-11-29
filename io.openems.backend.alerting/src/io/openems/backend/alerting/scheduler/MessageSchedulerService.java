@@ -26,4 +26,5 @@ public interface MessageSchedulerService {
 	 * @param handler to unregister
 	 */
 	public <T extends Message> void unregister(Handler<T> handler);
+
 }

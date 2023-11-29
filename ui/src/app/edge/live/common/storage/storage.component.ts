@@ -2,8 +2,8 @@ import { formatNumber } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { CurrentData } from "src/app/shared/shared";
-
 import { DateUtils } from 'src/app/shared/utils/dateutils/dateutils';
+
 import { ChannelAddress, EdgeConfig, Utils } from '../../../../shared/shared';
 import { StorageModalComponent } from './modal/modal.component';
 
@@ -119,6 +119,9 @@ export class StorageComponent extends AbstractFlatWidget {
 
     private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
 
+        if (!isRunning) {
+            return null;
+        }
         // Planned Expansion
         if (targetTimeSpecified && targetDate) {
 
@@ -129,10 +132,6 @@ export class StorageComponent extends AbstractFlatWidget {
                     targetTime: date.toLocaleTimeString(),
                 }),
             };
-        }
-
-        if (!isRunning) {
-            return null;
         }
 
         if (essIsBlocking != null && essIsBlocking == 1) {

@@ -11,8 +11,8 @@ import com.google.gson.JsonObject;
 public abstract class Message implements Comparable<Message> {
 	private final String id;
 
-	public Message(String messageId) {
-		this.id = messageId;
+	protected Message(String id) {
+		this.id = id;
 	}
 
 	/**
@@ -22,10 +22,6 @@ public abstract class Message implements Comparable<Message> {
 	 */
 	public String getId() {
 		return this.id;
-	}
-
-	public boolean isValid() {
-		return this.id != null && this.getNotifyStamp() != null;
 	}
 
 	/**
@@ -44,19 +40,18 @@ public abstract class Message implements Comparable<Message> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.id);
+		return Objects.hash(this.getId());
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		}
-		if (obj == null || this.getClass() != obj.getClass()) {
+		} else if (obj instanceof Message other) {
+			return Objects.equals(this.getId(), other.getId());
+		} else {
 			return false;
 		}
-		var other = (Message) obj;
-		return Objects.equals(this.id, other.id);
 	}
 
 	@Override
