@@ -241,7 +241,8 @@
             "DELAY_DISCHARGE": "Delayed discharge",
             "BALANCING": "Self-Consumption optmization",
             "CHARGE": "Charge from grid allowed"
-          }
+          },
+          "CHART_TITLE": "Planned Schedule (visible only to admin users)"
         }
       },
       "RETROFITTING": {

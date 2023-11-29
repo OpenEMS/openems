@@ -783,9 +783,10 @@ export namespace TimeOfUseTariffUtils {
   }
 
   export enum TimeOfUseTariffState {
-    DelayDischarge = 0,
-    Balancing = 1,
-    Charge = 3,
+    DELAY_DISCHARGE = 0,
+    BALANCING = 1,
+    CHARGE = 3,
+    UNDEFINED = 2,
   }
 
   /**
@@ -829,18 +830,19 @@ export namespace TimeOfUseTariffUtils {
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
-      const state = states[index];
+      const state = Math.round(states[index]);
       labels.push(new Date(timestamps[index]));
 
       if (state !== null) {
         switch (state) {
-          case TimeOfUseTariffState.DelayDischarge:
+          case TimeOfUseTariffState.DELAY_DISCHARGE:
             barDelayDischarge[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.Balancing:
+          case TimeOfUseTariffState.BALANCING:
             barBalancing[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.Charge:
+          case TimeOfUseTariffState.CHARGE:
+          case TimeOfUseTariffState.UNDEFINED:
             barCharge[index] = quarterlyPrice;
             break;
         }

@@ -23,8 +23,12 @@
         <!-- AUTOMATIC Mode -->
         <ng-container *ngIf="formGroup.value.mode === 'AUTOMATIC' && edge.roleIsAtLeast('admin')">
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
-            <scheduleChart [refresh]="refreshChart" [component]="component" [edge]="edge">
-            </scheduleChart>
+            <oe-modal-info-line [info]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CHART_TITLE' | translate">
+            </oe-modal-info-line>
+            <statePriceChart [refresh]="refreshChart" [component]="component" [edge]="edge">
+            </statePriceChart>
+            <powerSocChart [refresh]="refreshChart" [component]="component" [edge]="edge">
+            </powerSocChart>
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
         </ng-container>
 
