@@ -37,6 +37,23 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.11.3',
+        changes: [
+          Changelog.UI,
+          "Energiewerte in der Historischen Detailansicht für Verbraucher",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Option zum Deaktivieren der Einspeise-Limitierung im Inbetriebnahmeassistent",
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Konfigurationsparameter für Rundsteuerempfänger",
+          Changelog.app(App.TIME_OF_USE) + "(BETA-Test): Verbesserungen der KI-Performance und am Algorithmus",
+          Changelog.app(App.PV_INVERTER, App.SMA) + "Kompatibilität mit neuen Modellen des SMA Sunny Tripower (SunSpec Model 7xx)",
+          "App Center: Verbesserte Auswahl von Relaisausgängen",
+          Changelog.library(Library.FASTEXCEL),
+          { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der vordefinierten Funktionen in System-Execute" },
+          { roleIsAtLeast: Role.ADMIN, change: "Modernisierung der historischen Ansicht für Channelthreshold-Controller" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 30/GoodWe Battery-Inverter: bessere Beschreibung der Konfigurationsparameter in \"Komponenten konfigurieren\"" },
+          { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 30: Ausblenden der Batterierweiterungsfunktion im UI wenn sie nicht aktiv ist" },
+        ],
+      },
+      {
         version: '2023.11.2',
         changes: [
           Changelog.app(App.TIME_OF_USE) + "(BETA-Test): Verbesserungen am Algorithmus",
