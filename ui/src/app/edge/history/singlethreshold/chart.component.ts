@@ -11,7 +11,7 @@ import { AbstractHistoryChart } from '../abstracthistorychart';
 
 @Component({
   selector: 'singlethresholdChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
 export class SinglethresholdChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +25,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super("singlethreshold-chart", service, translate);
   }
@@ -84,11 +84,11 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
               data: data,
               hidden: false,
               yAxisID: yAxisID,
-              position: 'right'
+              position: 'right',
             });
             this.colors.push({
               backgroundColor: 'rgba(0,191,255,0.05)',
-              borderColor: 'rgba(0,191,255,1)'
+              borderColor: 'rgba(0,191,255,1)',
             });
           }
           if (channel == inputChannel) {
@@ -142,12 +142,12 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 data: data,
                 hidden: false,
                 yAxisID: yAxisID,
-                position: 'right'
+                position: 'right',
               });
 
               this.colors.push({
                 backgroundColor: 'rgba(189, 195, 199,0.05)',
-                borderColor: 'rgba(189, 195, 199,1)'
+                borderColor: 'rgba(189, 195, 199,1)',
               });
             } else {
               datasets.push({
@@ -155,12 +155,12 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 data: data,
                 hidden: false,
                 yAxisID: 'yAxis1',
-                position: 'left'
+                position: 'left',
               });
 
               this.colors.push({
                 backgroundColor: 'rgba(0,0,0,0.05)',
-                borderColor: 'rgba(0,0,0,1)'
+                borderColor: 'rgba(0,0,0,1)',
               });
             }
           }
@@ -236,7 +236,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           padding: -5,
           stepSize: 20
         }
-      };
+      });
     }
     options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
       // let label = data.datasets[tooltipItem.datasetIndex].label;

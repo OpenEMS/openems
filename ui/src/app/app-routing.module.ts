@@ -4,14 +4,14 @@ import { environment } from 'src/environments';
 
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
-import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
+import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
+import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
+import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
-import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
-import { GridChartOverviewComponent } from './edge/history/grid/gridchartoverview/gridchartoverview.component';
 import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
 import { HeatingelementChartOverviewComponent } from './edge/history/heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
 import { HeatPumpChartOverviewComponent } from './edge/history/heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
@@ -48,7 +48,6 @@ import { OverViewComponent } from './index/overview/overview.component';
 import { DataService } from './shared/genericComponents/shared/dataservice';
 import { UserComponent } from './user/user.component';
 
-
 const routes: Routes = [
 
   // TODO should be removed in the future
@@ -68,18 +67,17 @@ const routes: Routes = [
       {
         path: 'live', data: { navbarTitle: environment.uiTitle }, providers: [{
           useClass: LiveDataService,
-          provide: DataService
-        }], component: EdgeLiveComponent
+          provide: DataService,
+        }], component: EdgeLiveComponent,
       },
       {
         path: 'history', providers: [{
           useClass: HistoryDataService,
-          provide: DataService
+          provide: DataService,
         }], component: HistoryParentComponent, children: [
           { path: '', component: EdgeHistoryComponent },
           // History Chart Pages
           { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
-          { path: ':componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
           { path: ':componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
           { path: ':componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
           { path: ':componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
@@ -94,8 +92,11 @@ const routes: Routes = [
           { path: 'gridchart', component: GridChartOverviewComponent },
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-          { path: 'storagechart', component: StorageChartOverviewComponent }
-        ]
+          { path: 'storagechart', component: StorageChartOverviewComponent },
+
+          // Controllers
+          { path: 'channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
+        ],
       },
 
       { path: 'settings', data: { navbarTitleToBeTranslated: 'Menu.edgeSettings' }, component: EdgeSettingsComponent },
@@ -114,21 +115,21 @@ const routes: Routes = [
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
-      { path: 'settings/alerting', component: EdgeSettingsAlerting }
-    ]
+      { path: 'settings/alerting', component: EdgeSettingsAlerting },
+    ],
   },
 
   { path: 'demo', component: LoginComponent },
   // Fallback
-  { path: '**', pathMatch: 'full', redirectTo: 'login' }
+  { path: '**', pathMatch: 'full', redirectTo: 'login' },
 ];
 
 export const appRoutingProviders: any[] = [];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
   ],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule { }

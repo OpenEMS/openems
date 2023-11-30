@@ -18,7 +18,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -30,6 +29,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
+import io.openems.edge.ess.api.CalculateSoc;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -126,7 +126,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	 */
 	private void calculateChannelValues() {
 		// Ess
-		final var essSoc = new CalculateAverage();
+		final var essSoc = new CalculateSoc();
 		final var essActivePower = new CalculateIntegerSum();
 		final var essActivePowerL1 = new CalculateIntegerSum();
 		final var essActivePowerL2 = new CalculateIntegerSum();
@@ -182,7 +182,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					// ignore this Ess
 					continue;
 				}
-				essSoc.addValue(ess.getSocChannel());
+				essSoc.add(ess);
 				essActivePower.addValue(ess.getActivePowerChannel());
 				essReactivePower.addValue(ess.getReactivePowerChannel());
 				essMaxApparentPower.addValue(ess.getMaxApparentPowerChannel());

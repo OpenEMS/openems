@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager.validator;
 
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +42,9 @@ public class ValidatorImpl implements Validator {
 	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
 			boolean returnImmediate) {
 		if (checkableConfigs.isEmpty()) {
-			return new ArrayList<>();
+			return emptyList();
 		}
-		var errorMessages = new ArrayList<String>(checkableConfigs.size());
+		final var errorMessages = new ArrayList<String>(checkableConfigs.size());
 
 		for (var config : checkableConfigs) {
 			// find the componentServiceObjects base on the given configuration name
@@ -71,9 +73,14 @@ public class ValidatorImpl implements Validator {
 				checkable.setProperties(config.properties());
 				var result = checkable.check();
 				if (result == config.invertResult()) {
-					var errorMessage = checkable.getErrorMessage(language);
-					if (config.invertResult()) {
-						errorMessage = "Invert[" + errorMessage + "]";
+					String errorMessage;
+					try {
+						errorMessage = config.invertResult() ? checkable.getInvertedErrorMessage(language)
+								: checkable.getErrorMessage(language);
+					} catch (UnsupportedOperationException e) {
+						LOG.error("Missing implementation for getting " + (config.invertResult() ? "inverted " : "")
+								+ "error message for check \"" + config.checkableComponentName() + "\"!", e);
+						errorMessage = "Check \"" + config.checkableComponentName() + "\" failed.";
 					}
 					errorMessages.add(errorMessage);
 					if (returnImmediate) {

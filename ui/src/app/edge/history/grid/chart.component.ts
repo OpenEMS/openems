@@ -10,7 +10,7 @@ import * as Chart from 'chart.js';
 
 @Component({
     selector: 'gridChart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class GridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("grid-chart", service, translate);
     }
@@ -70,11 +70,11 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 datasets.push({
                     label: this.translate.instant('General.grid'),
                     data: gridData,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,0,0,0.05)',
-                    borderColor: 'rgba(0,0,0,1)'
+                    borderColor: 'rgba(0,0,0,1)',
                 });
             }
 
@@ -95,7 +95,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L1',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase1Color);
                 }
@@ -115,7 +115,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L2',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase2Color);
                 }
@@ -135,7 +135,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                     datasets.push({
                         label: this.translate.instant('General.phase') + ' ' + 'L3',
                         data: gridData,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push(this.phase3Color);
                 }
@@ -157,7 +157,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
                 new ChannelAddress('_sum', 'GridActivePower'),
                 new ChannelAddress('_sum', 'GridActivePowerL1'),
                 new ChannelAddress('_sum', 'GridActivePowerL2'),
-                new ChannelAddress('_sum', 'GridActivePowerL3')
+                new ChannelAddress('_sum', 'GridActivePowerL3'),
             ];
             resolve(result);
         });

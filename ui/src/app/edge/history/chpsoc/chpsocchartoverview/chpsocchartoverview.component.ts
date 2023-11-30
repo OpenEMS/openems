@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: ChpSocChartOverviewComponent.SELECTOR,
-    templateUrl: './chpsocchartoverview.component.html'
+    templateUrl: './chpsocchartoverview.component.html',
 })
 export class ChpSocChartOverviewComponent implements OnInit {
 
@@ -17,7 +17,7 @@ export class ChpSocChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

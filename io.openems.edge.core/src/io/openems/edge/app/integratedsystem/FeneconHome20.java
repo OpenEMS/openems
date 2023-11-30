@@ -71,6 +71,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
@@ -219,7 +220,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
-			final var maxFeedInPower = this.getInt(p, Property.MAX_FEED_IN_POWER);
+			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
+					? this.getInt(p, Property.MAX_FEED_IN_POWER)
+					: 0;
 
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
@@ -239,7 +242,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					gridMeter(bundle, gridMeterId, modbusIdExternal), //
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
-					predictor(bundle), //
+					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
@@ -257,7 +260,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(PV_ALIAS.apply(i)));
-				components.add(charger(chargerId, chargerAlias, batteryInverterId, modbusIdExternal, i));
+				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
 			}
 
 			List<String> schedulerExecutionOrder = new ArrayList<>();
@@ -277,7 +280,11 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
-			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(schedulerExecutionOrder)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

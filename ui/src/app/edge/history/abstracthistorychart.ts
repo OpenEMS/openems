@@ -37,21 +37,21 @@ export abstract class AbstractHistoryChart {
     // Colors for Phase 1-3
     protected phase1Color = {
         backgroundColor: 'rgba(255,127,80,0.05)',
-        borderColor: 'rgba(255,127,80,1)'
+        borderColor: 'rgba(255,127,80,1)',
     };
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
-        borderColor: 'rgba(0,0,255,1)'
+        borderColor: 'rgba(0,0,255,1)',
     };
     protected phase3Color = {
         backgroundColor: 'rgba(128,128,0,0.1)',
-        borderColor: 'rgba(128,128,0,1)'
+        borderColor: 'rgba(128,128,0,1)',
     };
 
     constructor(
         public readonly spinnerId: string,
         protected service: Service,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
     }
 
@@ -91,7 +91,7 @@ export abstract class AbstractHistoryChart {
                         }).catch(error => {
                             this.errorResponse = error;
                             resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
-                                timestamps: [null], data: { null: null }
+                                timestamps: [null], data: { null: null },
                             }));
                         });
                     });
@@ -128,12 +128,12 @@ export abstract class AbstractHistoryChart {
                 this.service.getConfig().then(config => {
                     edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                            timestamps: [null], data: { null: null }
+                            timestamps: [null], data: { null: null },
                         }));
                     }).catch((response) => {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
-                            timestamps: [null], data: { null: null }
+                            timestamps: [null], data: { null: null },
                         }));
                     });
                 });

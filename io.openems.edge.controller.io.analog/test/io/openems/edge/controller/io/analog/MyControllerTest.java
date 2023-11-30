@@ -6,11 +6,11 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.api.AnalogOutput.Range;
 import io.openems.edge.io.test.DummyAnalogVoltageOutput;
@@ -58,7 +58,8 @@ public class MyControllerTest {
 	@Test
 	public void testOn() throws Exception {
 
-		final var analogOutput = new DummyAnalogVoltageOutput(IO_ID, new Range(0, 100, 10000));
+		final var analogOutput = new DummyAnalogVoltageOutput(IO_ID) //
+				.setRange(new Range(0, 100, 10000));
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

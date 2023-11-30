@@ -10,7 +10,7 @@ import * as Chart from 'chart.js';
 
 @Component({
   selector: 'heatingelementChart',
-  templateUrl: '../abstracthistorychart.html'
+  templateUrl: '../abstracthistorychart.html',
 })
 export class HeatingelementChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   constructor(
     protected override service: Service,
     protected override translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super("heatingelement-chart", service, translate);
   }
@@ -68,11 +68,11 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
           });
           datasets.push({
             label: 'Level',
-            data: levelData
+            data: levelData,
           });
           this.colors.push({
             backgroundColor: 'rgba(200,0,0,0.05)',
-            borderColor: 'rgba(200,0,0,1)'
+            borderColor: 'rgba(200,0,0,1)',
           });
         }
         this.datasets = datasets;

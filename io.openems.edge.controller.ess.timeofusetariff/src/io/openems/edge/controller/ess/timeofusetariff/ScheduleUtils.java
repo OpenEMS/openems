@@ -2,18 +2,11 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.SortedMap;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 
 public class ScheduleUtils {
 
@@ -56,75 +49,5 @@ public class ScheduleUtils {
 		}
 
 		return schedule.build();
-	}
-
-	/**
-	 * Utilizes the previous three hours' data and computes the next 21 hours data
-	 * from the {@link Schedule} provided, then concatenates them to generate a
-	 * 24-hour {@link Schedule}.
-	 * 
-	 * @param schedule                   The {@link Schedule}.
-	 * @param controlMode                The {@link ControlMode}.
-	 * @param requestId                  The JSON-RPC id.
-	 * @param queryResult                The historic data.
-	 * @param channeladdressPrices       The {@link ChannelAddress} for Quarterly
-	 *                                   prices.
-	 * @param channeladdressStateMachine The {@link ChannelAddress} for the state
-	 *                                   machine.
-	 * @return The {@link GetScheduleResponse}.
-	 */
-	public static GetScheduleResponse handleGetScheduleRequest(Schedule schedule, ControlMode controlMode,
-			UUID requestId, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult,
-			ChannelAddress channeladdressPrices, ChannelAddress channeladdressStateMachine) {
-
-		// Extract the price data
-		var priceValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channeladdressPrices)) //
-				// get as Array
-				.collect(JsonUtils.toJsonArray());
-
-		// Extract the State Machine data
-		var stateMachineValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channeladdressStateMachine)) //
-				// Mapping to absolute state machine values since query result gives average
-				// values.
-				.map(t -> {
-					if (t.isJsonPrimitive() && t.getAsJsonPrimitive().isNumber()) {
-						// 'double' to 'int' for appropriate state machine values.
-						return new JsonPrimitive(t.getAsInt());
-					}
-
-					return JsonNull.INSTANCE;
-				})
-				// get as Array
-				.collect(JsonUtils.toJsonArray());
-
-		final var stateMachineValuesFuture = new JsonArray();
-		final var priceValuesFuture = new JsonArray();
-
-		// Create StateMachine for future values based on schedule created.
-		schedule.periods.forEach(period -> {
-			priceValuesFuture.add(period.price);
-			stateMachineValuesFuture.add(period.getStateMachine(controlMode).getValue());
-		});
-
-		var prices = Stream.concat(//
-				JsonUtils.stream(priceValuesPast), // Last 3 hours data.
-				JsonUtils.stream(priceValuesFuture)) // Next 21 hours data.
-				.limit(96) //
-				.collect(JsonUtils.toJsonArray());
-
-		var states = Stream.concat(//
-				JsonUtils.stream(stateMachineValuesPast), // Last 3 hours data
-				JsonUtils.stream(stateMachineValuesFuture)) // Next 21 hours data.
-				.limit(96) //
-				.collect(JsonUtils.toJsonArray());
-
-		var timestamp = queryResult.firstKey();
-		var result = ScheduleUtils.createSchedule(prices, states, timestamp);
-
-		return new GetScheduleResponse(requestId, result);
 	}
 }

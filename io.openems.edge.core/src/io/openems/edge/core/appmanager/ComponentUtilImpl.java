@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -19,9 +18,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -361,14 +364,21 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return copy;
 	}
 
-	private List<OpenemsComponent> getComponentUseing(String value, List<String> ignoreIds) {
+	private List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
 				.filter(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {
-						var element = t.get(key).toString();
-						return element.contains(value);
+						var element = t.get(key);
+						if (element instanceof Object[] array) {
+							for (var arrayElement : array) {
+								if (arrayElement.toString().contains(value)) {
+									return true;
+								}
+							}
+						}
+						return element.toString().contains(value);
 					});
 				}).toList();
 	}
@@ -387,39 +397,35 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public List<RelayInfo> getAllRelayInfos(List<String> ignoreIds) {
+	public List<RelayInfo> getAllRelayInfos(//
+			List<String> ignoreIds, //
+			Predicate<DigitalOutput> componentFilter, //
+			Function<DigitalOutput, String> componentAliasMapper, //
+			BiPredicate<DigitalOutput, BooleanWriteChannel> channelFilter, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, String> channelAliasMapper, //
+			BiFunction<DigitalOutput, BooleanWriteChannel, List<String>> disabledReasons //
+	) {
 		return this.getEnabledComponentsOfType(DigitalOutput.class).stream() //
+				.filter(componentFilter) //
 				.map(digitalOutput -> {
-					return new RelayInfo(digitalOutput.id(), digitalOutput.alias(),
-							Arrays.stream(digitalOutput.digitalOutputChannels()) //
-									.map(t -> new RelayContactInfo(t.address().toString(), relayAliasMapper(t),
-											this.getComponentUseing(t.address().toString(), ignoreIds)))
+					final var outputChannels = digitalOutput.digitalOutputChannels();
+					return new RelayInfo(digitalOutput.id(), componentAliasMapper.apply(digitalOutput),
+							digitalOutput.digitalOutputChannels().length, //
+							IntStream.range(0, outputChannels.length) //
+									.filter(i -> channelFilter.test(digitalOutput, outputChannels[i])) //
+									.mapToObj(i -> {
+										final var outputChannel = outputChannels[i];
+										return new RelayContactInfo(//
+												outputChannel.address().toString(), //
+												channelAliasMapper.apply(digitalOutput, outputChannel), //
+												i, //
+												this.getComponentUsing(outputChannel.address().toString(), ignoreIds), //
+												disabledReasons.apply(digitalOutput, outputChannel));
+									}) //
 									.toList());
 				}) //
 				.sorted((o1, o2) -> o1.id().compareTo(o2.id())) //
 				.toList();
-	}
-
-	// TODO remove when channels have their own alias
-	private static String relayAliasMapper(BooleanWriteChannel booleanWriteChannel) {
-		// TODO add translation
-		for (final var iface : booleanWriteChannel.getComponent().getClass().getInterfaces()) {
-			var alias = switch (iface.getCanonicalName()) {
-			case "io.openems.edge.io.kmtronic.four.IoKmtronicRelay4Port" ->
-				switch (booleanWriteChannel.address().getChannelId()) {
-				case "Relay1" -> "Relais 1 (Pin 11/12)";
-				case "Relay2" -> "Relais 2 (Pin 13/14)";
-				case "Relay3" -> "Relais 3 (Pin 15/16)";
-				case "Relay4" -> "Relais 4";
-				default -> null;
-				};
-			default -> null;
-			};
-			if (alias != null) {
-				return alias;
-			}
-		}
-		return booleanWriteChannel.address().toString();
 	}
 
 	@Override
@@ -472,27 +478,21 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 	@Override
 	public String[] getPreferredRelays(//
-			List<String> ignoreIds, //
-			int cnt, //
-			PreferredRelay first, //
-			PreferredRelay... inputPreferredRelays //
+			final List<RelayInfo> relayInfos, //
+			final int numberOfRelays, //
+			final List<PreferredRelay> preferredRelaysDefinitions //
 	) {
-		final var combinedArray = new PreferredRelay[inputPreferredRelays.length + 1];
-		combinedArray[0] = first;
-		System.arraycopy(inputPreferredRelays, 0, combinedArray, 1, inputPreferredRelays.length);
-		return this.getPreferredRelays(ignoreIds, cnt, combinedArray);
-	}
-
-	private String[] getPreferredRelays(List<String> ignoreIds, int cnt, PreferredRelay... inputPreferredRelays) {
 		String[] fallBackInARowRelays = null;
-		var fallBackFirstAvailableRelays = new String[cnt];
+		var fallBackFirstAvailableRelays = new String[numberOfRelays];
 		var firstAvailableNextIndex = 0;
-		for (var relayInfo : this.getAllRelayInfos(ignoreIds)) {
-			var relays = Arrays.stream(inputPreferredRelays) //
-					.filter(t -> t.numberOfRelays() == relayInfo.channels().size()) //
-					.findAny().map(t -> t.preferredRelays()).orElse(null);
+		for (var relayInfo : relayInfos) {
+			final var relays = preferredRelaysDefinitions.stream() //
+					.filter(t -> t.matchesRelay().test(relayInfo)) //
+					.findAny()//
+					.map(PreferredRelay::preferredRelays) //
+					.orElse(null); //
 			var containsAllPreferredRelays = true && relays != null;
-			var preferredRelays = new String[cnt];
+			var preferredRelays = new String[numberOfRelays];
 			var count = 0;
 			if (relays != null) {
 				for (var number : relays) {
@@ -500,12 +500,16 @@ public class ComponentUtilImpl implements ComponentUtil {
 						containsAllPreferredRelays = false;
 						break;
 					}
-					if (number >= relayInfo.channels().size()) {
+					if (number > relayInfo.numberOfChannels()) {
 						containsAllPreferredRelays = false;
 						break;
 					}
-					final var channel = relayInfo.channels().get(number - 1);
-					if (!channel.usingComponents().isEmpty()) {
+					final var channel = relayInfo.channels().stream() //
+							.filter(r -> r.position() == number - 1) //
+							.findFirst().orElse(null);
+					if (channel == null //
+							|| !channel.usingComponents().isEmpty()//
+							|| !channel.disabledReasons().isEmpty()) {
 						containsAllPreferredRelays = false;
 						break;
 					}
@@ -514,9 +518,10 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			final var availableChannels = relayInfo.channels().stream() //
 					.filter(t -> t.usingComponents().isEmpty()) //
+					.filter(t -> t.disabledReasons().isEmpty()) //
 					.toList();
 			for (var availableChannel : availableChannels) {
-				if (firstAvailableNextIndex >= cnt) {
+				if (firstAvailableNextIndex >= numberOfRelays) {
 					break;
 				}
 				fallBackFirstAvailableRelays[firstAvailableNextIndex++] = availableChannel.channel();
@@ -528,16 +533,17 @@ public class ComponentUtilImpl implements ComponentUtil {
 				count = 0;
 				var startIndex = 1;
 				for (var channelInfo : relayInfo.channels()) {
-					if (!channelInfo.usingComponents().isEmpty()) {
+					if (!channelInfo.usingComponents().isEmpty() //
+							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
 						count = 1;
 					}
-					if (count >= cnt) {
+					if (count >= numberOfRelays) {
 						break;
 					}
 				}
-				if (count >= cnt) {
-					fallBackInARowRelays = new String[cnt];
+				if (count >= numberOfRelays) {
+					fallBackInARowRelays = new String[numberOfRelays];
 					for (var i = 0; i < fallBackInARowRelays.length; i++) {
 						fallBackInARowRelays[i] = relayInfo.channels().get(startIndex + i).channel();
 					}
@@ -693,6 +699,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return new ArrayList<>(insertOrder);
 		}
 		var order = new ArrayList<>(actualOrder);
+		insertOrder = new ArrayList<String>(insertOrder);
 
 		Collections.reverse(insertOrder);
 		var index = actualOrder.size();

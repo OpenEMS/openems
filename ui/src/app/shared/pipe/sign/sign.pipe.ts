@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'sign'
+    name: 'sign',
 })
 export class SignPipe implements PipeTransform {
     transform(value, args: string[]): any {

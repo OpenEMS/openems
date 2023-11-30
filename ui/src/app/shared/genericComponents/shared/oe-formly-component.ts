@@ -32,12 +32,12 @@ export abstract class AbstractFormlyComponent {
 
             templateOptions: {
               attributes: {
-                title: view.title
+                title: view.title,
               },
               required: true,
-              options: [{ lines: view.lines }]
+              options: [{ lines: view.lines }],
             },
-            wrappers: ['formly-field-modal']
+            wrappers: ['formly-field-modal'],
           }];
         });
     });

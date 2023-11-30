@@ -10,7 +10,7 @@ import * as Chart from 'chart.js';
 
 @Component({
     selector: 'asymmetricpeakshavingchart',
-    templateUrl: '../../abstracthistorychart.html'
+    templateUrl: '../../abstracthistorychart.html',
 })
 export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -24,7 +24,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("asymmetricpeakshaving-chart", service, translate);
     }
@@ -73,7 +73,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 datasets.push({
                     label: this.translate.instant('General.phase') + ' ' + 'L1',
                     data: data,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push(this.phase1Color);
             }
@@ -90,7 +90,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 datasets.push({
                     label: this.translate.instant('General.phase') + ' ' + 'L2',
                     data: data,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push(this.phase2Color);
             }
@@ -107,7 +107,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 datasets.push({
                     label: this.translate.instant('General.phase') + ' ' + 'L3',
                     data: data,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push(this.phase3Color);
             }
@@ -125,11 +125,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
                     data: data,
                     hidden: false,
-                    borderDash: [3, 3]
+                    borderDash: [3, 3],
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,0,0,0)',
-                    borderColor: 'rgba(0,223,0,1)'
+                    borderColor: 'rgba(0,223,0,1)',
                 });
             }
             if (peakshavingPower in result.data) {
@@ -146,11 +146,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                     label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
                     data: data,
                     hidden: false,
-                    borderDash: [3, 3]
+                    borderDash: [3, 3],
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,0,0,0)',
-                    borderColor: 'rgba(200,0,0,1)'
+                    borderColor: 'rgba(200,0,0,1)',
                 });
             }
             if ('_sum/EssActivePower' in result.data) {
@@ -176,11 +176,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 });
                 datasets.push({
                     label: this.translate.instant('General.chargePower'),
-                    data: chargeData
+                    data: chargeData,
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(0,223,0,0.05)',
-                    borderColor: 'rgba(0,223,0,1)'
+                    borderColor: 'rgba(0,223,0,1)',
                 });
                 /*
                  * Storage Discharge
@@ -196,11 +196,11 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 });
                 datasets.push({
                     label: this.translate.instant('General.dischargePower'),
-                    data: dischargeData
+                    data: dischargeData,
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
-                    borderColor: 'rgba(200,0,0,1)'
+                    borderColor: 'rgba(200,0,0,1)',
                 });
             }
             this.datasets = datasets;
@@ -223,7 +223,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
                 new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL2'),
                 new ChannelAddress(this.component.properties['meter.id'], 'ActivePowerL3'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'EssActivePower')
+                new ChannelAddress('_sum', 'EssActivePower'),
             ];
             resolve(result);
         });

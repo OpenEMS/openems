@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -30,11 +31,9 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.common.test.Plot.Data;
-import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
@@ -52,8 +51,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID);
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter(METER_ID);
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss(ESS_ID);
-	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID,
-			new DummyPower(0));
+	private static final DummyManagedSymmetricEss ESS_WITH_NONE_APPARENT_POWER = new DummyManagedSymmetricEss(ESS_ID) //
+			.withMaxApparentPower(0);
 
 	// Ess channels
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");

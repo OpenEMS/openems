@@ -6,11 +6,10 @@ import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart'
 import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
-import * as Chart from 'chart.js';
 
 @Component({
     selector: 'predictionChart',
-    templateUrl: '../../../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../../history/abstracthistorychart.html',
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -29,7 +28,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("prediction-chart", service, translate);
     }
@@ -174,22 +173,22 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     data: socData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right'
+                    position: 'right',
                 }, {
                     label: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc'),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: 'yAxis2',
-                    position: 'right'
+                    position: 'right',
                 });
 
                 // Push the depending colors 
                 this.colors.push({
                     backgroundColor: 'rgba(189, 195, 199,0.05)',
-                    borderColor: 'rgba(189, 195, 199,1)'
+                    borderColor: 'rgba(189, 195, 199,1)',
                 }, {
                     backgroundColor: 'rgba(0,223,0,0)',
-                    borderColor: 'rgba(0,223,0,1)'
+                    borderColor: 'rgba(0,223,0,1)',
                 });
             }
 
@@ -208,7 +207,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
-                new ChannelAddress('_sum', 'EssSoc')
+                new ChannelAddress('_sum', 'EssSoc'),
             ];
             if (this.component != null && this.component.id) {
                 result.push(new ChannelAddress(this.component.id, 'DelayChargeMaximumChargeLimit'));
@@ -223,41 +222,53 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
     protected setLabel() {
         let translate = this.translate;
-        let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+        let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
 
         // Remove left y axis for now
-        // options.scales.yAxes.shift();
+        options.scales.yAxes.shift();
 
         // adds second y-axis to chart
-        options.scales.yAxes =
-        {
-            position: 'right',
-            ticks: {
-                padding: -5,
-                stepSize: 20
-            }
-        };
+        options.scales.yAxes
+            .push({
+                id: 'yAxis2',
+                position: 'right',
+                scaleLabel: {
+                    display: true,
+                    labelString: "%",
+                    padding: -2,
+                    fontSize: 11,
+                },
+                gridLines: {
+                    display: true,
+                },
+                ticks: {
+                    beginAtZero: true,
+                    max: 100,
+                    padding: -5,
+                    stepSize: 20,
+                },
+            });
 
         options.layout = {
             padding: {
                 left: 2,
                 right: 2,
                 top: 0,
-                bottom: 0
-            }
+                bottom: 0,
+            },
         };
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";
 
         //y-axis
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
-            //     return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            // } else {
-            //     return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-            // }
+        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+            let label = data.datasets[tooltipItem.datasetIndex].label;
+            let value = tooltipItem.yLabel;
+            if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
+                return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+            } else {
+                return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+            }
         };
         this.options = options;
     }

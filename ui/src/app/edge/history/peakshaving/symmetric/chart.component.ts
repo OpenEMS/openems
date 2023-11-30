@@ -9,7 +9,7 @@ import * as Chart from 'chart.js';
 
 @Component({
     selector: 'symmetricpeakshavingchart',
-    templateUrl: '../../abstracthistorychart.html'
+    templateUrl: '../../abstracthistorychart.html',
 })
 export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -23,7 +23,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("symmetricpeakshaving-chart", service, translate);
     }
@@ -71,11 +71,11 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     datasets.push({
                         label: this.translate.instant('General.measuredValue'),
                         data: data,
-                        hidden: false
+                        hidden: false,
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0.05)',
-                        borderColor: 'rgba(0,0,0,1)'
+                        borderColor: 'rgba(0,0,0,1)',
                     });
                 }
                 if (rechargePower in result.data) {
@@ -92,11 +92,11 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         label: this.translate.instant('Edge.Index.Widgets.Peakshaving.rechargePower'),
                         data: data,
                         hidden: false,
-                        borderDash: [3, 3]
+                        borderDash: [3, 3],
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(0,223,0,1)'
+                        borderColor: 'rgba(0,223,0,1)',
                     });
                 }
                 if (peakshavingPower in result.data) {
@@ -113,11 +113,11 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                         label: this.translate.instant('Edge.Index.Widgets.Peakshaving.peakshavingPower'),
                         data: data,
                         hidden: false,
-                        borderDash: [3, 3]
+                        borderDash: [3, 3],
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,0,0,0)',
-                        borderColor: 'rgba(200,0,0,1)'
+                        borderColor: 'rgba(200,0,0,1)',
                     });
                 }
                 if ('_sum/EssActivePower' in result.data) {
@@ -144,11 +144,11 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     datasets.push({
                         label: this.translate.instant('General.chargePower'),
                         data: chargeData,
-                        borderDash: [10, 10]
+                        borderDash: [10, 10],
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(0,223,0,0.05)',
-                        borderColor: 'rgba(0,223,0,1)'
+                        borderColor: 'rgba(0,223,0,1)',
                     });
                     /*
                      * Storage Discharge
@@ -165,11 +165,11 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                     datasets.push({
                         label: this.translate.instant('General.dischargePower'),
                         data: dischargeData,
-                        borderDash: [10, 10]
+                        borderDash: [10, 10],
                     });
                     this.colors.push({
                         backgroundColor: 'rgba(200,0,0,0.05)',
-                        borderColor: 'rgba(200,0,0,1)'
+                        borderColor: 'rgba(200,0,0,1)',
                     });
                 }
                 this.datasets = datasets;
@@ -196,7 +196,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
                 new ChannelAddress(this.componentId, '_PropertyPeakShavingPower'),
                 new ChannelAddress(config.getComponent(this.componentId).properties['meter.id'], 'ActivePower'),
                 new ChannelAddress('_sum', 'ProductionDcActualPower'),
-                new ChannelAddress('_sum', 'EssActivePower')
+                new ChannelAddress('_sum', 'EssActivePower'),
             ];
             resolve(result);
         });

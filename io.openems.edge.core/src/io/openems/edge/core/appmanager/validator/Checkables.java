@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.TreeMap;
 
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.relaycount.InjectableComponentConfig;
 
 public final class Checkables {
 
@@ -21,15 +23,17 @@ public final class Checkables {
 	 * Creates a {@link CheckableConfig} which checks if the relay with the given
 	 * name has at least the given amount of ports available.
 	 * 
-	 * @param io    the name of the relay or null if any relay
-	 * @param count the number of available ports
+	 * @param io      the name of the relay or null if any relay
+	 * @param count   the number of available ports
+	 * @param filters additional relay filter
 	 * @return the {@link CheckableConfig}
 	 */
-	public static CheckableConfig checkRelayCount(String io, int count) {
+	public static CheckableConfig checkRelayCount(String io, int count, InjectableComponentConfig... filters) {
 		return new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
 				new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 						.onlyIf(io != null, t -> t.put("io", io)) //
 						.put("count", count) //
+						.onlyIf(filters.length != 0, t -> t.put("filter", filters)) //
 						.build());
 	}
 
@@ -38,10 +42,11 @@ public final class Checkables {
 	 * least the given amount of ports available.
 	 * 
 	 * @param count the number of available ports
+	 * @param filters additional relay filter
 	 * @return the {@link CheckableConfig}
 	 */
-	public static CheckableConfig checkRelayCount(int count) {
-		return checkRelayCount(null, count);
+	public static CheckableConfig checkRelayCount(int count, InjectableComponentConfig... filters) {
+		return checkRelayCount(null, count, filters);
 	}
 
 	/**

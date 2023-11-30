@@ -5,20 +5,19 @@ import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
 import { Phase } from 'src/app/shared/genericComponents/shared/phase';
-import { Role } from 'src/app/shared/type/role';
 
 import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
-  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html'
+  templateUrl: '../../../../../shared/formly/formly-field-modal/template.html',
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate);
+  protected override generateView(config: EdgeConfig): OeFormlyView {
+    return ModalComponent.generateView(config, this.translate);
   }
 
-  public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
+  public static generateView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
 
     const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
@@ -34,7 +33,7 @@ export class ModalComponent extends AbstractFormlyComponent {
       type: 'channel-line',
       name: translate.instant('General.TOTAL'),
       channel: '_sum/ConsumptionActivePower',
-      converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+      converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
     });
 
     Phase.THREE_PHASE.forEach(phase => {
@@ -43,13 +42,13 @@ export class ModalComponent extends AbstractFormlyComponent {
         name: translate.instant('General.phase') + ' ' + phase,
         indentation: TextIndentation.SINGLE,
         channel: '_sum/ConsumptionActivePower' + phase,
-        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
       });
     });
 
     if (evcss.length > 0) {
       lines.push({
-        type: 'horizontal-line'
+        type: 'horizontal-line',
       });
     }
 
@@ -59,7 +58,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         type: 'channel-line',
         name: Name.METER_ALIAS_OR_ID(evcs),
         channel: evcs.id + '/ChargePower',
-        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
       });
 
       if (index < (evcss.length - 1)) {
@@ -77,7 +76,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         type: 'channel-line',
         name: Name.METER_ALIAS_OR_ID(meter),
         channel: meter.id + '/ActivePower',
-        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+        converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
       });
       Phase.THREE_PHASE.forEach(phase => {
         lines.push({
@@ -85,13 +84,13 @@ export class ModalComponent extends AbstractFormlyComponent {
           name: 'Phase ' + phase,
           channel: meter.id + '/ActivePower' + phase,
           indentation: TextIndentation.SINGLE,
-          converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO
+          converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
         });
       });
 
       if (index < (consumptionMeters.length - 1)) {
         lines.push({
-          type: 'horizontal-line'
+          type: 'horizontal-line',
         });
       }
     });
@@ -110,17 +109,17 @@ export class ModalComponent extends AbstractFormlyComponent {
       type: 'value-from-channels-line',
       name: translate.instant('General.otherConsumption'),
       value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
-      channelsToSubscribe: channelsToSubscribe
+      channelsToSubscribe: channelsToSubscribe,
     });
 
     lines.push({
       type: 'info-line',
-      name: translate.instant('Edge.Index.Widgets.phasesInfo')
+      name: translate.instant('Edge.Index.Widgets.phasesInfo'),
     });
 
     return {
       title: translate.instant('General.consumption'),
-      lines: lines
+      lines: lines,
     };
   }
 }

@@ -9,7 +9,7 @@ import * as Chart from 'chart.js';
 
 @Component({
     selector: 'heatpumpchart',
-    templateUrl: '../abstracthistorychart.html'
+    templateUrl: '../abstracthistorychart.html',
 })
 export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -23,7 +23,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     constructor(
         protected override service: Service,
         protected override translate: TranslateService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super("heatpump-chart", service, translate);
     }
@@ -67,11 +67,11 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                 datasets.push({
                     label: this.translate.instant('General.state'),
                     data: stateTimeData,
-                    hidden: false
+                    hidden: false,
                 });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
-                    borderColor: 'rgba(200,0,0,1)'
+                    borderColor: 'rgba(200,0,0,1)',
                 });
             }
             this.datasets = datasets;

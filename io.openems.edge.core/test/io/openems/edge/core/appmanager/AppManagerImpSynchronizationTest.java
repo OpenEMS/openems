@@ -18,6 +18,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
@@ -26,10 +27,14 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.CheckablesBundle;
+import io.openems.edge.core.appmanager.DummyValidator.TestCheckable;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
+import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.CheckHome;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 
 public class AppManagerImpSynchronizationTest {
 
@@ -40,6 +45,8 @@ public class AppManagerImpSynchronizationTest {
 	@Before
 	public void before() throws Exception {
 		this.appManager = new AppManagerImpl();
+		ReflectionUtils.setAttribute(AppManagerImpl.class, this.appManager, "appValidateWorker",
+				new AppValidateWorker());
 		assertTrue(this.appManager.lockModifyingApps.tryLock());
 		this.appManager.lockModifyingApps.unlock();
 		assertFalse(this.appManager.waitingForModified);
@@ -68,19 +75,28 @@ public class AppManagerImpSynchronizationTest {
 		final var appManagerUtil = new AppManagerUtilImpl(componentManager);
 		final var validator = new DummyValidator();
 
-		final var checkablesBundle = new CheckablesBundle(
+		final var checkablesBundle = new CheckablesBundle(//
+				new TestCheckable(), //
 				new CheckCardinality(this.appManager, appManagerUtil,
 						AppManagerTestBundle.getComponentContext(CheckCardinality.COMPONENT_NAME)), //
 				new CheckRelayCount(componentUtil,
-						AppManagerTestBundle.getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
+						AppManagerTestBundle.getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
+				new CheckAppsNotInstalled(this.appManager,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME)), //
+				new CheckHome(this.appManager.componentManager,
+						AppManagerTestBundle.getComponentContext(CheckHome.COMPONENT_NAME),
+						new CheckAppsNotInstalled(this.appManager,
+								AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))) //
 		);
 
 		validator.setCheckables(checkablesBundle.all());
+
 		new ComponentTest(this.appManager) //
 				.addReference("cm", cm) //
 				.addReference("componentManager", componentManager) //
 				.addReference("csoAppManagerAppHelper",
-						DummyAppManagerAppHelper.cso(componentManager, componentUtil, validator, appManagerUtil)) //
+						AppManagerTestBundle.<AppManagerAppHelper>cso(
+								new DummyAppManagerAppHelper(componentManager, componentUtil, appManagerUtil))) //
 				.addReference("validator", validator) //
 				.addReference("backendUtil", new DummyAppCenterBackendUtil()) //
 				.addReference("availableApps", Lists.newArrayList(//

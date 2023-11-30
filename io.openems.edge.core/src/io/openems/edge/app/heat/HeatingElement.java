@@ -3,12 +3,14 @@ package io.openems.edge.app.heat;
 import static io.openems.common.channel.Unit.SECONDS;
 import static io.openems.common.channel.Unit.WATT;
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.heat.HeatProps.createPhaseInformation;
-import static io.openems.edge.app.heat.HeatProps.phaseGroup;
-import static io.openems.edge.app.heat.HeatProps.relayContactDef;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.common.props.RelayProps.createPhaseInformation;
+import static io.openems.edge.app.common.props.RelayProps.phaseGroup;
+import static io.openems.edge.app.common.props.RelayProps.relayContactDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Function;
@@ -27,8 +29,10 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.heat.HeatProps.RelayContactInformation;
-import io.openems.edge.app.heat.HeatProps.RelayContactInformationProvider;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.common.props.RelayProps;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformation;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformationProvider;
 import io.openems.edge.app.heat.HeatingElement.HeatingElementParameter;
 import io.openems.edge.app.heat.HeatingElement.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -36,6 +40,7 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
@@ -48,8 +53,10 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
 /**
  * Describes a App for a RTU Heating Element.
@@ -100,7 +107,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		OUTPUT_CHANNEL_PHASE_L3(heatingElementRelayContactDef(3)), //
 		OUTPUT_CHANNEL_PHASE_GROUP(phaseGroup(OUTPUT_CHANNEL_PHASE_L1, //
 				OUTPUT_CHANNEL_PHASE_L2, OUTPUT_CHANNEL_PHASE_L3)), //
-		POWER_PER_PHASE(AppDef.of(HeatingElement.class) //
+		POWER_PER_PHASE(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".powerPerPhase.label") //
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
 				.setDefaultValue(2000) //
@@ -109,8 +116,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 					field.setInputType(NUMBER) //
 							.setUnit(WATT, l) //
 							.setMin(0);
-				})), //
-		HYSTERESIS(AppDef.of(HeatingElement.class) //
+				}))), //
+		HYSTERESIS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".hysteresis.label") //
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
 				.setDefaultValue(60) //
@@ -121,7 +128,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.setMin(0);
 				}) //
 				.bidirectional(CTRL_IO_HEATING_ELEMENT_ID, "minimumSwitchingTime", //
-						ComponentManagerSupplier::getComponentManager)), //
+						ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super HeatingElement, ? super Property, ? super HeatingElementParameter> def;
@@ -143,21 +150,34 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		@Override
 		public Function<GetParameterValues<HeatingElement>, HeatingElementParameter> getParamter() {
 			return t -> {
+				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+
 				return new HeatingElementParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 3, //
-								new PreferredRelay(4, new int[] { 1, 2, 3 }), //
-								new PreferredRelay(8, new int[] { 4, 5, 6 })) //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled,
+										new int[] { 1, 2, 3 }), //
+										PreferredRelay.of(4, new int[] { 1, 2, 3 }), //
+										PreferredRelay.of(8, new int[] { 4, 5, 6 }))) //
 				);
 			};
 		}
 
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
-	public HeatingElement(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public HeatingElement(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference AppManagerUtil appManagerUtil //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
@@ -190,7 +210,9 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(components);
+				return AppConfiguration.create() //
+						.addTask(Tasks.component(components)) //
+						.build();
 			}
 
 			final var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -204,7 +226,10 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.build()) //
 			);
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 
@@ -222,12 +247,12 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(3));
+				.setInstallableCheckableConfigs(checkRelayCount(3, CheckRelayCountFilters.feneconHome(true)));
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	@Override
@@ -247,7 +272,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				b -> b //
 						.setTranslatedLabelWithAppPrefix(".outputChannelPhaseL" + contactPosition + ".label") //
 						.setTranslatedDescription("App.Heat.outputChannel.description") //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
+						.setRequired(true) //
 						.setAutoGenerateField(false));
 	}
 
