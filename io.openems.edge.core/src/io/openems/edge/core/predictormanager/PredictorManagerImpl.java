@@ -1,5 +1,7 @@
 package io.openems.edge.core.predictormanager;
 
+import static io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,8 +122,8 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
 			// This is a Sum-Channel. Try to get predictions for each source channel.
 			try {
-				return this.getPredictionSum(Sum.ChannelId.valueOf(
-						io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId())));
+				return this.getPredictionSum(//
+						Sum.ChannelId.valueOf(channelIdCamelToUpper(channelAddress.getChannelId())));
 
 			} catch (IllegalArgumentException e) {
 				this.logWarn(this.log, "Unable to find ChannelId for " + channelAddress);
