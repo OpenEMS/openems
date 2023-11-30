@@ -31,7 +31,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setMinHwCurrent(int minHwCurrent) {
 			this.minHwCurrent = minHwCurrent;
 			return this;

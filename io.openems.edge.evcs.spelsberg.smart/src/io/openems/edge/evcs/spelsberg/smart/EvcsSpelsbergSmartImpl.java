@@ -72,10 +72,10 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 
 	public EvcsSpelsbergSmartImpl() {
 		super(OpenemsComponent.ChannelId.values(), //
-			  ModbusComponent.ChannelId.values(), //
-			  Evcs.ChannelId.values(), //
-			  ManagedEvcs.ChannelId.values(), //
-			  EvcsSpelsbergSmart.ChannelId.values());
+				ModbusComponent.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
+				EvcsSpelsbergSmart.ChannelId.values());
 	}
 
 	@Activate
@@ -90,7 +90,7 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 		 * the fixed hardware limits used for charging
 		 */
 		Evcs.addCalculatePowerLimitListeners(this);
-		
+
 		this.applyConfig(config);
 	}
 
@@ -270,10 +270,9 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 			 */
 			switch (state) {
 			case CHARGING -> this._setStatus(Status.CHARGING);
-			case NO_PERMISSION, CHARGING_STATION_RESERVED -> this._setStatus(Status.CHARGING_REJECTED);
+			case NO_PERMISSION, CHARGING_STATION_RESERVED, CHARGING_PAUSED -> this._setStatus(Status.CHARGING_REJECTED);
 			case ERROR -> this._setStatus(Status.ERROR);
 			case NO_VEHICLE_ATTACHED -> this._setStatus(Status.NOT_READY_FOR_CHARGING);
-			case CHARGING_PAUSED -> this._setStatus(Status.CHARGING_REJECTED);
 			case UNDEFINED -> this._setStatus(Status.UNDEFINED);
 			default -> this._setStatus(Status.UNDEFINED);
 			}
