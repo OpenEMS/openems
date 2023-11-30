@@ -71,8 +71,11 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	public EvcsSpelsbergSmartImpl() {
-		super(OpenemsComponent.ChannelId.values(), ModbusComponent.ChannelId.values(), Evcs.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values(), EvcsSpelsbergSmart.ChannelId.values());
+		super(OpenemsComponent.ChannelId.values(), //
+			  ModbusComponent.ChannelId.values(), //
+			  Evcs.ChannelId.values(), //
+			  ManagedEvcs.ChannelId.values(), //
+			  EvcsSpelsbergSmart.ChannelId.values());
 	}
 
 	@Activate
@@ -87,6 +90,7 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 		 * the fixed hardware limits used for charging
 		 */
 		Evcs.addCalculatePowerLimitListeners(this);
+		
 		this.applyConfig(config);
 	}
 
@@ -301,12 +305,6 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent
 			}
 
 			this._setPhases(phases);
-
-			// Set full power range from 1,38kW to 11kW
-			this._setFixedMinimumHardwarePower(
-					Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.ONE_PHASE.getValue());
-			this._setFixedMaximumHardwarePower(
-					Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
 		};
 
 		this.getChargePowerTotalChannel().onUpdate(setPhasesCallback);

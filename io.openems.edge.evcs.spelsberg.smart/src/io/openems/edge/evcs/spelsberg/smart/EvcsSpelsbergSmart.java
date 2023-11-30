@@ -16,67 +16,88 @@ public interface EvcsSpelsbergSmart extends OpenemsComponent {
 
 		/* Integration of Modbus register set: TQ-DM100 */
 
-		EVSE_STATE(Doc.of(EvseState.values()).accessMode(AccessMode.READ_ONLY) //
+		EVSE_STATE(Doc.of(EvseState.values()) //
+				.accessMode(AccessMode.READ_ONLY) //
 				.text("State of the charging station")),
 		
-		CABLE_STATE(Doc.of(CableState.values()).accessMode(AccessMode.READ_ONLY) //
+		CABLE_STATE(Doc.of(CableState.values()) //
+				.accessMode(AccessMode.READ_ONLY) //
 				.text("State of the cable socket connection")),
 		
-		CHARGE_POINT_STATE(Doc.of(ChargePointState.values()).accessMode(AccessMode.READ_ONLY) //
+		CHARGE_POINT_STATE(Doc.of(ChargePointState.values()) //
+				.accessMode(AccessMode.READ_ONLY) //
 				.text("State of the charging device")),
 		
-		LIFE_BIT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE) //
+		LIFE_BIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_WRITE) //
 				.text("Heartbeat toggle bit")),
 
-		MIN_HARDWARE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY) //
+		MIN_HARDWARE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY) //
 				.text("Minimum charging current of the hardware")),
 		
-		MAX_HARDWARE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY) //
+		MAX_HARDWARE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY) //
 				.text("Maximal charging current of the hardware")),
 
-		CHARGE_SAVE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE) //
+		CHARGE_SAVE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE) //
 				.text("Maximum charging current under communication failure")),
 		
-		CHARGE_START_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY) //
+		CHARGE_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY) //
 				.text("Start time of charging process")),
 		
-		CHARGE_STOP_TIME(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)
+		CHARGE_STOP_TIME(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.NONE).accessMode(AccessMode.READ_ONLY) //
 				.text("Stop time of charging process")),
 		
-		CHARGE_DURATION_SESSION(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)  //
+		CHARGE_DURATION_SESSION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS)  //
 				.text("Duration of the current session in Wh")), 
 		
-		CHARGE_ENERGY_SESSION(Doc.of(OpenemsType.INTEGER).unit(Unit.CUMULATED_WATT_HOURS)  //
+		CHARGE_ENERGY_SESSION(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.CUMULATED_WATT_HOURS)  //
 				.text("Sum of charged energy for the current session in Wh")),
 		
-		CHARGE_SIGNALED_CURRENT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)  //
+		CHARGE_SIGNALED_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)  //
 				.text("Maximum current signaled to the EV for charging")),
 
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
 				.text("Current on L1")),
 		
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
 				.text("Current on L2")),
 		
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY) //
 				.text("Current on L3")),
 		
-		POWER_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
+		POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
 				.text("Charging power on L1")),
 		
-		POWER_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
+		POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
 				.text("Charging power on L2")),
 		
-		POWER_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
+		POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
 				.text("Charging power on L3")),
 		
-		POWER_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
+		POWER_TOTAL(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
 				.text("Sum of active charging power")),
 
-		APPLY_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.WRITE_ONLY) //
+		APPLY_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT).accessMode(AccessMode.WRITE_ONLY) //
 				.text("Maximum charging power limit")),
 		
-		APPLY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.WRITE_ONLY) //
+		APPLY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE).accessMode(AccessMode.WRITE_ONLY) //
 				.text("Maximum charging current limit")),;
 
 		private final Doc doc;
