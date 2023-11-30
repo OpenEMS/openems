@@ -28,6 +28,8 @@ public class Optimizer implements Runnable {
 	private final Supplier<Context> context;
 	private final TreeMap<ZonedDateTime, Period> periods = new TreeMap<>();
 
+	private Params params = null;
+
 	public Optimizer(Supplier<Context> context) {
 		this.context = context;
 
@@ -47,14 +49,14 @@ public class Optimizer implements Runnable {
 		this.log.info("# Start Optimizer");
 		var start = System.currentTimeMillis();
 		try {
-			var params = this.getParams();
+			this.params = this.createParams();
 
 			// Find best Schedule
-			var schedule = Simulator.getBestSchedule(params);
+			var schedule = Simulator.getBestSchedule(this.params);
 
 			// Re-Simulate and keep best Schedule
 			var periods = new TreeMap<ZonedDateTime, Period>();
-			calculateCost(params, schedule, period -> periods.put(period.time(), period));
+			calculateCost(this.params, schedule, period -> periods.put(period.time(), period));
 			synchronized (this.periods) {
 				var thisQuarter = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15);
 				// Do not overwrite the current quarter
@@ -94,9 +96,9 @@ public class Optimizer implements Runnable {
 	// Capacity)
 	private int allowRetries = 10;
 
-	private Params getParams() throws InvalidValueException, InterruptedException {
+	private Params createParams() throws InvalidValueException, InterruptedException {
 		try {
-			var result = createSimulatorParams(this.context.get());
+			var result = createSimulatorParams(this.context.get(), this.periods);
 			this.allowRetries = 0;
 			return result;
 
@@ -106,11 +108,20 @@ public class Optimizer implements Runnable {
 			if (this.allowRetries > 0) {
 				this.allowRetries--;
 				Thread.sleep(10_000);
-				return this.getParams();
+				return this.createParams();
 			} else {
 				throw e;
 			}
 		}
+	}
+
+	/**
+	 * Gets the current {@link Params}.
+	 * 
+	 * @return the {@link Params}
+	 */
+	public Params getParams() {
+		return this.params;
 	}
 
 	/**

@@ -4,6 +4,7 @@ import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
@@ -27,8 +28,12 @@ public record Params(//
 		int[] consumptions, //
 		/** Prices for one [MWh] per Period */
 		float[] prices, //
+		/** Max price */
+		Float maxPrice, //
 		/** Allowed Modes */
-		StateMachine[] states) {
+		StateMachine[] states, //
+		/** The existing Schedule, i.e. result of previous optimization */
+		StateMachine[] existingSchedule) {
 
 	public static class Builder {
 		private ZonedDateTime time;
@@ -40,6 +45,7 @@ public record Params(//
 		private int[] consumptions = new int[0];
 		private float[] prices = new float[0];
 		private StateMachine[] states = new StateMachine[0];
+		private StateMachine[] existingSchedule = new StateMachine[0];
 
 		protected Builder time(ZonedDateTime time) {
 			this.time = time;
@@ -86,20 +92,36 @@ public record Params(//
 			return this;
 		}
 
+		protected Builder existingSchedule(TreeMap<ZonedDateTime, Period> existingSchedule) {
+			return this.existingSchedule(existingSchedule //
+					.tailMap(this.time) // synchronize values with current time
+					.values().stream() //
+					.map(Period::state) //
+					.toArray(StateMachine[]::new));
+		}
+
+		protected Builder existingSchedule(StateMachine... existingSchedule) {
+			this.existingSchedule = existingSchedule;
+			return this;
+		}
+
 		public Params build() {
 			var numberOfPeriods = min(this.productions.length, min(this.consumptions.length, this.prices.length));
-			return new Params(numberOfPeriods, this.time, this.essAvailableEnergy, this.essCapacity,
-					this.essMaxEnergyPerPeriod, this.maxBuyFromGrid, this.productions, this.consumptions, this.prices,
-					this.states);
+			var maxPrice = IntStream.range(0, this.prices.length).mapToObj(i -> this.prices[i]).max(Float::compare)
+					.orElse(null);
+			return new Params(numberOfPeriods, //
+					this.time, //
+					this.essAvailableEnergy, this.essCapacity, this.essMaxEnergyPerPeriod, //
+					this.maxBuyFromGrid, //
+					this.productions, this.consumptions, //
+					this.prices, maxPrice, //
+					this.states, //
+					this.existingSchedule);
 		}
 	}
 
 	protected static Builder create() {
 		return new Params.Builder();
-	}
-
-	protected IntStream forEachIndex() {
-		return IntStream.range(0, min(this.productions.length, min(this.consumptions.length, this.prices.length)));
 	}
 
 	protected boolean predictionsAreEmpty() {

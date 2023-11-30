@@ -220,7 +220,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 
 			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
-			final var maxFeedInPower = this.getInt(p, Property.MAX_FEED_IN_POWER);
+			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
+					? this.getInt(p, Property.MAX_FEED_IN_POWER)
+					: 0;
 
 			final var hasAcMeter = this.getBoolean(p, Property.HAS_AC_METER);
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);

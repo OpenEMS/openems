@@ -35,7 +35,9 @@
         "InfoStorageForCharge": "Negative Werte entsprechen Speicher Beladung",
         "InfoStorageForDischarge": "Positive Werte entsprechen Speicher Entladung",
         "Channeltreshold": {
-          "output": "Ausgang"
+          "TITLE": "Schwellenwertcontroller",
+          "output": "Ausgang",
+          "ACTIVE_TIME_OVER_PERIOD": "Aktive Zeit"
         },
         "Singlethreshold": {
           "above": "Über",
@@ -238,7 +240,8 @@
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE": "Beladung aus dem Netz freigegeben"
-          }
+          },
+          "CHART_TITLE": "Fahrplan und Vorhersagen (nur sichtbar für Admins)"
         }
       },
       "RETROFITTING": {

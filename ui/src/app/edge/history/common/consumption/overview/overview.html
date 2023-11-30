@@ -1,0 +1,5 @@
+<oe-chart [title]="'General.consumption' | translate" [(showPhases)]="showPhases" [period]="service.historyPeriod.value"
+    *ngIf="isInitialized">
+    <consumptionchart [isOnlyChart]="true">
+    </consumptionchart>
+</oe-chart>

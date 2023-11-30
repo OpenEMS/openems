@@ -84,7 +84,7 @@ public interface Metadata {
 	 * @param apikey the API-Key
 	 * @return the Edge-ID or Empty
 	 */
-	public abstract Optional<String> getEdgeIdForApikey(String apikey);
+	public Optional<String> getEdgeIdForApikey(String apikey);
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
@@ -92,7 +92,7 @@ public interface Metadata {
 	 * @param edgeId the Edge-ID
 	 * @return the Edge as Optional
 	 */
-	public abstract Optional<Edge> getEdge(String edgeId);
+	public Optional<Edge> getEdge(String edgeId);
 
 	/**
 	 * Get an Edge by its unique Edge-ID. Throws an Exception if there is no Edge
@@ -116,7 +116,7 @@ public interface Metadata {
 	 * @param setupPassword to find Edge
 	 * @return Edge as a Optional
 	 */
-	public abstract Optional<Edge> getEdgeBySetupPassword(String setupPassword);
+	public Optional<Edge> getEdgeBySetupPassword(String setupPassword);
 
 	/**
 	 * Gets the User for the given User-ID.
@@ -124,14 +124,23 @@ public interface Metadata {
 	 * @param userId the User-ID
 	 * @return the {@link User}, or Empty
 	 */
-	public abstract Optional<User> getUser(String userId);
+	public Optional<User> getUser(String userId);
 
 	/**
 	 * Gets all Offline-Edges.
 	 *
 	 * @return collection of Edges.
 	 */
-	public abstract Collection<Edge> getAllOfflineEdges();
+	public Collection<Edge> getAllOfflineEdges();
+
+	/**
+	 * Updates the user settings.
+	 * 
+	 * @param user     the user
+	 * @param settings the user settings
+	 * @throws OpenemsNamedException on error
+	 */
+	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException;
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.

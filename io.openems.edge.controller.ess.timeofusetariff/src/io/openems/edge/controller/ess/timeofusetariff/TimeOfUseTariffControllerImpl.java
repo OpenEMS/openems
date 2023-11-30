@@ -11,9 +11,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -34,15 +31,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Role;
-import io.openems.common.timedata.Resolution;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -154,7 +147,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		future.set(this.taskExecutor.submit(this.optimizer));
 
 		var now = ZonedDateTime.now();
-		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(5);
+		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(3);
 
 		this.triggerExecutor.scheduleAtFixedRate(() -> {
 			// Cancel previous run
@@ -162,7 +155,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			future.set(this.taskExecutor.submit(this.optimizer));
 		}, //
 
-				// Run 10 minutes before full 15 minutes
+				// Run 12 minutes before full 15 minutes
 				Duration.between(now, nextRun).toMillis(), //
 				// then execute every 15 minutes
 				Duration.of(15, ChronoUnit.MINUTES).toMillis(), TimeUnit.MILLISECONDS);
@@ -319,16 +312,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			GetScheduleRequest request) throws OpenemsNamedException {
 		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15);
 		final var fromDate = now.minusHours(3);
-		final var channelQuarterlyPrices = new ChannelAddress(this.id(), "QuarterlyPrices");
-		final var channelStateMachine = new ChannelAddress(this.id(), "StateMachine");
-
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult = new TreeMap<>();
-
-		// Query database for the last three hours, with 15-minute resolution.
-		queryResult = this.timedata.queryHistoricData(null, fromDate, now,
-				Set.of(channelQuarterlyPrices, channelStateMachine), new Resolution(15, ChronoUnit.MINUTES));
+		
 		return CompletableFuture.completedFuture(Utils.handleGetScheduleRequest(this.optimizer, request.getId(),
-				queryResult, channelQuarterlyPrices, channelStateMachine));
+				this.timedata, this.id(), fromDate, now));
 	}
 
 	@Override

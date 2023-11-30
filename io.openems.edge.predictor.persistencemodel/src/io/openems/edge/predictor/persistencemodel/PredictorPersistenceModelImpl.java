@@ -136,7 +136,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
 		).toArray(Integer[]::new);
 
-		return new Prediction24Hours(result);
+		return Prediction24Hours.of(channelAddress, result);
 	}
 
 	/**

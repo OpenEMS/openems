@@ -98,6 +98,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   };
 
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
+  public readonly relayFactoryId: string = 'IO.KMtronic.4Port'; // Default 'Home10' factoryId.
 
   public override readonly showRundSteuerManual: boolean = true;
   public override showViewCount: boolean = true;
@@ -670,6 +671,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     const home10AppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
       ...(this.feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
+      ...(this.feedInLimitation.feedInType !== FeedInType.EXTERNAL_LIMITATION && { FEED_IN_TYPE: this.feedInLimitation.feedInType }),
       ...(this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: this.feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,
@@ -804,7 +806,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     // io0
     componentConfigurator.add({
-      factoryId: 'IO.KMtronic.4Port',
+      factoryId: this.relayFactoryId,
       componentId: 'io0',
       alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
       properties: [
@@ -852,12 +854,16 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             ? 'DISABLE'
             : 'ENABLE',
         },
+        {
+          name: 'rcrEnable',
+          value: feedInLimitation.feedInType === FeedInType.EXTERNAL_LIMITATION ? 'ENABLE' : 'DISABLE',
+        },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
       baseMode: baseMode,
     };
 
-    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+    feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION
       ? goodweconfig.properties.push({
         name: 'feedPowerPara',
         value: feedInLimitation.maximumFeedInPower,

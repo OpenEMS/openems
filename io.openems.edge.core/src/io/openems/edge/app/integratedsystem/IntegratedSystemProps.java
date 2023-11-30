@@ -5,6 +5,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import io.openems.edge.app.enums.FeedInType;
 import io.openems.edge.app.enums.OptionsFactory;
@@ -15,6 +16,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
 
@@ -34,14 +36,45 @@ public final class IntegratedSystemProps {
 	/**
 	 * Creates a {@link AppDef} for a feed in type.
 	 * 
+	 * @param exclude the {@link FeedInType FeedInTypes} to exclude
+	 * 
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> feedInType() {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> feedInType(FeedInType... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.feedInType.label") //
 				.setDefaultValue(FeedInType.DYNAMIC_LIMITATION) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(FeedInType.class), l);
+					field.setOptions(OptionsFactory.of(FeedInType.class, exclude), l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the max feed in power.
+	 * 
+	 * @param nameableToBeChecked  the {@link Nameable} to check if the field should
+	 *                             be shown. Used in combination with
+	 *                             {@link IntegratedSystemProps#feedInType()}. Can
+	 *                             be null.
+	 * @param additionalShowChecks additional checks if the field should be shown
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> maxFeedInPower(//
+			final Nameable nameableToBeChecked, //
+			final Function<BooleanExpression, BooleanExpression> additionalShowChecks //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.feedInLimit.label") //
+				.setDefaultValue(0) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER) //
+							.onlyPositiveNumbers() //
+							.setMin(0);
+					if (nameableToBeChecked != null) {
+						final var exp = Exp.currentModelValue(nameableToBeChecked) //
+								.equal(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION));
+						field.onlyShowIf(additionalShowChecks.apply(exp));
+					}
 				}));
 	}
 
@@ -57,17 +90,7 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> maxFeedInPower(//
 			final Nameable nameableToBeChecked //
 	) {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.feedInLimit.label") //
-				.setDefaultValue(0) //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.setInputType(NUMBER) //
-							.setMin(0);
-					if (nameableToBeChecked != null) {
-						field.onlyShowIf(Exp.currentModelValue(nameableToBeChecked) //
-								.equal(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION)));
-					}
-				}));
+		return maxFeedInPower(nameableToBeChecked, Function.identity());
 	}
 
 	/**
@@ -194,7 +217,6 @@ public final class IntegratedSystemProps {
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.acMeterType.label") //
-				.setDefaultValue(false) //
 				.setDefaultValue(AcMeterType.SOCOMEC.name()) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(AcMeterType.values()), l) //

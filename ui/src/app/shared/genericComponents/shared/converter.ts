@@ -1,6 +1,8 @@
 import { formatNumber } from "@angular/common";
 
+import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, EssStateMachine, Utils } from "../../shared";
+import { TimeUtils } from "../../utils/timeutils/timeutils";
 import { Formatter } from "./formatter";
 
 export type Converter = (value: number | string | null) => string;
@@ -209,5 +211,19 @@ export namespace Converter {
 
     return Utils.subtractSafely(activePowerTotal,
       Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
+  };
+
+  export const ON_OFF = (translate: TranslateService) => {
+    return (raw): string => {
+      return translate.instant(raw == 1 ? 'General.on' : 'General.off');
+    };
+  };
+
+  export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
+    return (raw): any => {
+      return IF_NUMBER(raw, value => {
+        return TimeUtils.formatSecondsToDuration(value, locale);
+      });
+    };
   };
 }

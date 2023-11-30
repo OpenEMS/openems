@@ -12,7 +12,7 @@
 
           <ion-card-content>
             <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"
-              (modelChange)="updatePredefined()"></formly-form>
+              (modelChange)="updatePredefined()" class="hide-empty-list-header"></formly-form>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -44,8 +44,9 @@
                 <ion-toggle formControlName="runInBackground"></ion-toggle>
               </ion-item>
               <ion-item>
-                <ion-label>Command</ion-label>
-                <ion-input formControlName="command" type="text"></ion-input>
+                <ion-label position="floating">Command</ion-label>
+                <ion-textarea class="command-textbox" auto-grow="true" formControlName="command"
+                  type="text"></ion-textarea>
               </ion-item>
               <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
             </form>

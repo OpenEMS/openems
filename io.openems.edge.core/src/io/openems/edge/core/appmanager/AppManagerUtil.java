@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 
@@ -32,6 +33,21 @@ public interface AppManagerUtil {
 		Objects.requireNonNull(appId);
 		return this.getInstantiatedApps().stream() //
 				.filter(instance -> appId.equals(instance.appId)) //
+				.toList();
+	}
+
+	/**
+	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance} which
+	 * match the given appIds.
+	 * 
+	 * @param appIds the appIds which should match with
+	 *               {@link OpenemsAppInstance#appId}
+	 * @return a {@link List} of {@link OpenemsAppInstance}
+	 */
+	public default List<OpenemsAppInstance> getInstantiatedAppsOf(String... appIds) {
+		return this.getInstantiatedApps().stream() //
+				.filter(instance -> Stream.of(appIds) //
+						.anyMatch(appId -> appId.equals(instance.appId))) //
 				.toList();
 	}
 

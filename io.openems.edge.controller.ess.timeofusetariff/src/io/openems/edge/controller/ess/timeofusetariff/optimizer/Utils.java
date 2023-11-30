@@ -1,22 +1,32 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
-import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.common.type.TypeUtils.subtract;
 import static io.openems.edge.common.type.TypeUtils.sum;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController.PERIODS_PER_HOUR;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.EFFICIENCY_FACTOR;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.concat;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.SortedMap;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,16 +36,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.jenetics.Genotype;
+import io.jenetics.IntegerChromosome;
+import io.jenetics.IntegerGene;
 import io.openems.common.exceptions.InvalidValueException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.ess.timeofusetariff.ScheduleUtils;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.timedata.api.Timedata;
 
 public final class Utils {
 
@@ -47,14 +63,21 @@ public final class Utils {
 			"UnmanagedConsumptionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
+	public record ScheduleData(JsonElement quarterlyPrice, JsonElement stateMachine, JsonElement production,
+			JsonElement consumption, JsonElement soc) {
+	}
+
 	/**
 	 * Create Params for {@link Simulator}.
 	 * 
-	 * @param context the {@link Context} object
-	 * @return Params
+	 * @param context          the {@link Context} object
+	 * @param existingSchedule the existing Schedule, i.e. result of previous
+	 *                         optimization
+	 * @return {@link Params}
 	 * @throws InvalidValueException on error
 	 */
-	public static Params createSimulatorParams(Context context) throws InvalidValueException {
+	public static Params createSimulatorParams(Context context, TreeMap<ZonedDateTime, Period> existingSchedule)
+			throws InvalidValueException {
 		final var time = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(), 15);
 
 		// Prediction values
@@ -102,6 +125,7 @@ public final class Utils {
 				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
 				.prices(interpolateArray(prices.getValues())) //
 				.states(context.controlMode().states) //
+				.existingSchedule(existingSchedule) //
 				.build();
 	}
 
@@ -204,6 +228,29 @@ public final class Utils {
 	}
 
 	/**
+	 * Calculates the ESS charge energy for one period in
+	 * {@link StateMachine#CHARGE} state.
+	 * 
+	 * @param maxBuyFromGrid Max Buy-From-Grid Energy per Period [Wh]
+	 * @param consumption    Consumption prediction
+	 * @param production     Production prediction
+	 * @param essMaxCharge   the max ESS charge energy after constraints; always
+	 *                       negative
+	 * @return ESS charge energy
+	 */
+	protected static int calculateStateChargeEnergy(int maxBuyFromGrid, int consumption, int production,
+			int essMaxCharge) {
+		return max(//
+				min(//
+						/* max charge energy from grid */
+						-maxBuyFromGrid + consumption - production,
+						/* force positive */
+						1),
+				/* limit to max ESS charge energy */
+				essMaxCharge);
+	}
+
+	/**
 	 * Calculates the ActivePower constraint for CHARGE state.
 	 * 
 	 * @param ess                    the {@link ManagedSymmetricEss}
@@ -226,74 +273,197 @@ public final class Utils {
 	 * from the {@link Optimizer} provided, then concatenates them to generate a
 	 * 24-hour {@link GetScheduleResponse}.
 	 * 
-	 * @param optimizer           the {@link Optimizer}
-	 * @param requestId           the JSON-RPC request-id
-	 * @param queryResult         the historic data.
-	 * @param channelPrices       the {@link ChannelAddress} for Quarterly prices.
-	 * @param channelStateMachine the {@link ChannelAddress} for the state machine.
+	 * @param optimizer   the {@link Optimizer}
+	 * @param requestId   the JSON-RPC request-id
+	 * @param timedata    the{@link Timedata}
+	 * @param componentId the Component-ID
+	 * @param fromDate    the From-Date
+	 * @param now         the To-Date
 	 * @return the {@link GetScheduleResponse}
-	 * @throws OpenemsException on error
+	 * @throws OpenemsNamedException on error
 	 */
-	public static GetScheduleResponse handleGetScheduleRequest(Optimizer optimizer, UUID requestId,
-			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult, ChannelAddress channelPrices,
-			ChannelAddress channelStateMachine) throws OpenemsException {
+	public static GetScheduleResponse handleGetScheduleRequest(Optimizer optimizer, UUID requestId, Timedata timedata,
+			String componentId, ZonedDateTime fromDate, ZonedDateTime now) throws OpenemsNamedException {
 		if (optimizer == null) {
 			throw new OpenemsException("Has no Schedule");
 		}
-		var periods = optimizer.getPeriods();
+		final var periods = optimizer.getPeriods();
 		if (periods == null) {
 			throw new OpenemsException("Has no scheduled Periods");
 		}
+		final var params = optimizer.getParams();
+		if (params == null) {
+			throw new OpenemsException("Has no Params");
+		}
 
-		// Extract the price data
-		var priceValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channelPrices)) //
-				// get as Array
-				.collect(toJsonArray());
+		final var essUsableCapacity = params.essCapacity();
 
-		// Extract the State Machine data
-		var stateMachineValuesPast = queryResult.values().stream() //
-				// Only specific channel address values.
-				.map(t -> t.get(channelStateMachine)) //
-				// Mapping to absolute state machine values since query result gives average
-				// values.
-				.map(t -> {
-					if (t.isJsonPrimitive() && t.getAsJsonPrimitive().isNumber()) {
-						// 'double' to 'int' for appropriate state machine values.
-						return new JsonPrimitive(t.getAsInt());
-					}
+		// Define channel addresses
+		final var channelQuarterlyPrices = new ChannelAddress(componentId, "QuarterlyPrices");
+		final var channelStateMachine = new ChannelAddress(componentId, "StateMachine");
+		final var channelPredictedProduction = new ChannelAddress(componentId, "PredictedProduction");
+		final var channelPredictedConsumption = new ChannelAddress(componentId, "PredictedConsumption");
 
-					return JsonNull.INSTANCE;
-				})
-				// get as Array
-				.collect(toJsonArray());
+		// Collect channels in a set
+		final var channels = Set.of(channelQuarterlyPrices, channelStateMachine, channelPredictedProduction,
+				channelPredictedConsumption);
 
-		final var stateMachineValues = new JsonArray();
-		final var priceValues = new JsonArray();
+		// Query historic data
+		final var queryResult = timedata.queryHistoricData(null, fromDate, now, channels,
+				new Resolution(15, ChronoUnit.MINUTES));
 
-		// Create StateMachine for future values based on schedule created.
-		periods.forEach(period -> {
-			priceValues.add(period.price());
-			stateMachineValues.add(period.state().getValue());
-		});
+		// Process past predictions
+		final var pastPredictions = queryResult.entrySet().stream()//
+				.map(entry -> {
+					var data = entry.getValue();
+					var production = Optional.ofNullable(data.get(channelPredictedProduction))
+							.orElse(JsonNull.INSTANCE);
+					var consumption = Optional.ofNullable(data.get(channelPredictedConsumption))
+							.orElse(JsonNull.INSTANCE);
+					var price = Optional.ofNullable(data.get(channelQuarterlyPrices))//
+							.orElse(JsonNull.INSTANCE);
+					var stateMachine = Optional.ofNullable(data.get(channelStateMachine))//
+							.orElse(JsonNull.INSTANCE);
 
-		var prices = Stream.concat(//
-				JsonUtils.stream(priceValuesPast), // Last 3 hours data.
-				JsonUtils.stream(priceValues)) // Next 21 hours data.
-				.limit(96) //
-				.collect(toJsonArray());
+					return new ScheduleData(price, stateMachine, production, consumption, JsonNull.INSTANCE);
+				}).collect(Collectors.toList());
 
-		var states = Stream.concat(//
-				JsonUtils.stream(stateMachineValuesPast), // Last 3 hours data
-				JsonUtils.stream(stateMachineValues)) // Next 21 hours data.
-				.limit(96) //
-				.collect(toJsonArray());
+		// Process future predictions
+		final var futurePredictions = periods.stream()//
+				.map(period -> {
+					// available energy -> soc.
+					var soc = (period.essInitial() * 100) / essUsableCapacity;
 
-		var timestamp = queryResult.firstKey();
-		var result = ScheduleUtils.createSchedule(prices, states, timestamp);
+					return new ScheduleData(//
+							new JsonPrimitive(period.price()), //
+							new JsonPrimitive(period.state().getValue()), //
+							new JsonPrimitive(period.production()), //
+							new JsonPrimitive(period.consumption()), //
+							new JsonPrimitive(soc));
+				}) //
+				.collect(Collectors.toList());
+
+		// Concatenate past and future predictions
+		final var predictions = Stream.concat(//
+				pastPredictions.stream(), // Last 3 hours data.
+				futurePredictions.stream()) // Future data.
+				.limit(96) // Limits the total data to 24 hours.
+				.collect(Collectors.toList());
+
+		// Create schedule and return GetScheduleResponse
+		var result = createSchedule(predictions, fromDate);
 
 		return new GetScheduleResponse(requestId, result);
 	}
 
+	/**
+	 * Generates a 24-hour schedule as a {@link JsonArray}. The resulting schedule
+	 * includes timestamped entries of predicted 'state', 'price', 'production',
+	 * 'consumption', 'soc' for each 15-minute interval.
+	 * 
+	 * @param datas     the list of {@link ScheduleData}s
+	 * @param timestamp the timestamp of the first entry in the schedule
+	 * @return the schedule data as a {@link JsonArray}
+	 */
+	public static JsonArray createSchedule(List<ScheduleData> datas, ZonedDateTime timestamp) {
+		var schedule = JsonUtils.buildJsonArray();
+
+		// Create the JSON object for each ScheduleData and add it to the schedule array
+		for (int index = 0; index < datas.size(); index++) {
+			var data = datas.get(index);
+			var price = data.quarterlyPrice();
+			var state = data.stateMachine();
+
+			if (price.isJsonNull() || state.isJsonNull()) {
+				continue;
+			}
+
+			// Add the JSON object to the schedule array.
+			schedule.add(JsonUtils.buildJsonObject() //
+					// Calculate the timestamp for the current entry, adding 15 minutes for each
+					.add("timestamp", new JsonPrimitive(timestamp.plusMinutes(15 * index).format(ISO_INSTANT))) //
+					.add("price", price) //
+					.add("state", state) //
+					.add("production", data.production()) //
+					.add("consumption", data.consumption()) //
+					.add("soc", data.soc()) //
+					.build());
+		}
+
+		return schedule.build();
+	}
+
+	/**
+	 * Post-Process a state of a Period, i.e. replace with 'better' state with the
+	 * same behaviour.
+	 * 
+	 * <p>
+	 * NOTE: heavy computation is ok here, because this method is called only at the
+	 * end with the best Schedule.
+	 * 
+	 * @param p                        the {@link Params}
+	 * @param essInitial               the initial ESS energy in this period
+	 * @param gridEssCharge            grid-buy energy that is used to charge the
+	 *                                 ESS
+	 * @param price                    the price in this period
+	 * @param balancingChargeDischarge the ESS energy that would be required for
+	 *                                 BALANCING
+	 * @param state                    the initial state
+	 * @return the new state
+	 */
+	public static StateMachine postprocessPeriodState(Params p, int essInitial, int gridEssCharge, float price,
+			int balancingChargeDischarge, StateMachine state) {
+		var soc = essInitial * 100 / p.essCapacity();
+		return switch (state) {
+		case BALANCING -> BALANCING;
+
+		case DELAY_DISCHARGE -> {
+			// DELAY_DISCHARGE,...
+			if (balancingChargeDischarge < 0) {
+				// but actually charging from PV -> could have been BALANCING
+				yield BALANCING;
+			} else if (p.maxPrice() - price < 0.001F) {
+				// but price is high
+				yield BALANCING;
+			}
+			yield DELAY_DISCHARGE;
+		}
+
+		case CHARGE -> {
+			// CHARGE,...
+			if (gridEssCharge <= 0) {
+				// but actually charging from PV -> could have been BALANCING
+				yield BALANCING;
+			} else if (soc >= 90) {
+				// but battery was already > 90 % SoC -> too risky
+				yield DELAY_DISCHARGE;
+			} else if (p.maxPrice() / price < EFFICIENCY_FACTOR) {
+				// but price is high
+				yield DELAY_DISCHARGE;
+			}
+			yield CHARGE;
+		}
+		};
+	}
+
+	/**
+	 * Gets the current existingSchedule (i.e. the bestGenotype of last optimization
+	 * run) as {@link Genotype} to serve as initial population.
+	 * 
+	 * @param p the {@link Params}
+	 * @return the {@link Genotype}
+	 */
+	public static List<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
+		var states = List.of(p.states());
+		return List.of(//
+				Genotype.of(//
+						IntStream.range(0, p.numberOfPeriods()) //
+								// Map to state index; not-found maps to '-1', corrected to '0'
+								.map(i -> fitWithin(0, p.states().length, states.indexOf(//
+										p.existingSchedule().length > i ? p.existingSchedule()[i] //
+												: 0 // fill remaining with '0'
+								))) //
+								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
+								.toList()));
+	}
 }

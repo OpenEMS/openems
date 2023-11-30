@@ -8,6 +8,17 @@ import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/exec
 import { ExecuteSystemCommandResponse } from 'src/app/shared/jsonrpc/response/executeSystemCommandResponse';
 import { Service, Utils, Websocket } from '../../../shared/shared';
 
+type CommandFunction = (...args: (string | boolean | number)[]) => string;
+
+const COMMANDS: { [key: string]: CommandFunction; } = {
+  'ping': (ip: string) => `ping -c4 ${ip}`,
+  'branch': (branch: string, force: boolean) => `echo "wget https://fenecon.de/fems-download/update-fems.sh -O /tmp/update-fems.sh --no-check-certificate && bash -x /tmp/update-fems.sh ${force ? '-f' : ''} ${!!branch ? '-b' : ' '} ${!!branch ? branch : ''} > /tmp/log 2>& 1" | at now`,
+  'query-status': () => "ps ax | grep /tmp/update-fems.sh; tail /tmp/log",
+  'openems-restart': () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
+  'pagekite-log': () => "journalctl -lu fems-pagekite --since=\"2 minutes ago\"",
+  'pagekite-restart': () => "systemctl restart fems-pagekite",
+};
+
 @Component({
   selector: SystemExecuteComponent.SELECTOR,
   templateUrl: './systemexecute.component.html',
@@ -39,6 +50,56 @@ export class SystemExecuteComponent implements OnInit {
         },
       },
     }],
+  }, {
+    key: 'predefined',
+    type: 'radio',
+    templateOptions: {
+      options: [
+        { value: 'branch', label: 'Update system from branch' },
+      ],
+    },
+  }, {
+    key: 'branch',
+    fieldGroup: [{
+      key: 'name',
+      type: 'select',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch',
+      templateOptions: {
+        label: 'Branch Predefined', placeholder: "main", required: true,
+        options: [
+          { label: 'main', value: 'main' },
+          { label: 'develop', value: 'develop' },
+          { label: 'Other branch...', value: 'other' },
+        ],
+      },
+    }, {
+      key: 'free',
+      type: 'input',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch' || this.model?.branch?.name !== 'other',
+      templateOptions: {
+        label: 'Branch', placeholder: "main", required: false,
+      },
+      validation: {
+        messages: {
+          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is too short.`,
+        },
+      },
+    }, {
+      key: 'force',
+      type: 'toggle',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch',
+      templateOptions: {
+        label: 'Force update?', placeholder: "main", required: false, default: false,
+      },
+    }],
+  }, {
+    key: 'predefined',
+    type: 'radio',
+    templateOptions: {
+      options: [
+        { value: 'query-status', label: 'Status Systemupdate abfragen' },
+      ],
+    },
   }, {
     key: 'predefined',
     type: 'radio',
@@ -83,21 +144,21 @@ export class SystemExecuteComponent implements OnInit {
       command = "";
     } else {
       let m = this.model;
+      let cmd = COMMANDS[m.predefined];
       switch (m.predefined) {
         case "ping":
-          command = "ping -c4 " + m.ping.ip;
+          command = cmd(m.ping.ip);
+          break;
+        case "branch":
+          let finalBranchName = m.branch.name === 'other' ? m.branch.free : m.branch.name;
+          command = cmd(finalBranchName, m.branch.force as boolean);
           break;
         case "openems-restart":
-          command = "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now";
-          break;
         case "pagekite-log":
-          // TODO eventually update to fems-remote-service
-          command = "journalctl -lu fems-pagekite --since=\"2 minutes ago\"";
-          break;
         case "pagekite-restart":
-          // TODO eventually update to fems-remote-service
-          command = "systemctl restart fems-pagekite";
-          break;
+        case "query-status":
+        default:
+          command = cmd();
       }
     }
     this.form.controls['command'].setValue(command);

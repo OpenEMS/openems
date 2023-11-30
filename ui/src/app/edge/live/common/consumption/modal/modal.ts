@@ -5,7 +5,6 @@ import { Converter } from 'src/app/shared/genericComponents/shared/converter';
 import { Name } from 'src/app/shared/genericComponents/shared/name';
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from 'src/app/shared/genericComponents/shared/oe-formly-component';
 import { Phase } from 'src/app/shared/genericComponents/shared/phase';
-import { Role } from 'src/app/shared/type/role';
 
 import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/shared';
 
@@ -14,11 +13,11 @@ import { ChannelAddress, CurrentData, EdgeConfig } from '../../../../../shared/s
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate);
+  protected override generateView(config: EdgeConfig): OeFormlyView {
+    return ModalComponent.generateView(config, this.translate);
   }
 
-  public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
+  public static generateView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
 
     const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
       .filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&

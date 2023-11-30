@@ -66,6 +66,8 @@ export class Service extends AbstractService {
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
 
+  public currentUser: User | null = null;
+
   /**
    * Holds reference to Websocket. This is set by Websocket in constructor.
    */
@@ -103,7 +105,7 @@ export class Service extends AbstractService {
   }
 
   public getDocsLang(): string {
-    return "de";
+      return "de";
 
     // TODO: Redo when translations for docs are available
     // if (this.translate.currentLang == "de") {
