@@ -4,41 +4,55 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANC
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_CONSUMPTION_PREDICTION;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_HOURLY_PRICES;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_PRODUCTION_PREDICTION;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_PREDICTION_QUARTERLY;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge100;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessPeriodState;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toPower;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNowRoundedDownToMinutes;
 import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleData;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
+import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class UtilsTest {
 
@@ -66,6 +80,12 @@ public class UtilsTest {
 
 		assertArrayEquals(new int[] { 123 }, //
 				interpolateArray(new Integer[] { 123, null }));
+	}
+
+	@Test
+	public void testToPower() {
+		assertEquals(2000, (int) toPower(500));
+		assertNull(toPower(null));
 	}
 
 	@Test
@@ -206,6 +226,43 @@ public class UtilsTest {
 			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
 			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
 		}
+	}
 
+	@Test
+	public void testCreateSchedule() {
+		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var timestamp = getNowRoundedDownToMinutes(ZonedDateTime.now(clock), 15).minusHours(3);
+
+		// Price provider
+		final var quarterlyPrices = DummyTimeOfUseTariffProvider
+				.quarterlyPrices(ZonedDateTime.now(clock), HOURLY_PRICES_SUMMER).getPrices().getValues();
+
+		var datas = new ArrayList<ScheduleData>();
+		var size = quarterlyPrices.length;
+		for (var i = 0; i < size; i++) {
+			datas.add(new ScheduleData(//
+					quarterlyPrices[i], //
+					STATES[i], //
+					PRODUCTION_PREDICTION_QUARTERLY[i], //
+					CONSUMPTION_PREDICTION_QUARTERLY[i], //
+					null));
+		}
+
+		final var result = createSchedule(datas, timestamp);
+
+		// Check if the consumption power is converted to energy.
+		assertEquals(//
+				(int) toPower(CONSUMPTION_PREDICTION_QUARTERLY[0]), //
+				result.get(0).getAsJsonObject().get("consumption").getAsInt());
+
+		// Check if the result is same size as prices.
+		assertEquals(size, result.size());
+
+		var expectedLastTimestamp = timestamp.plusDays(1).minusMinutes(15).format(DateTimeFormatter.ISO_INSTANT)
+				.toString();
+		var generatedLastTimestamp = result.get(95).getAsJsonObject().get("timestamp").getAsString();
+
+		// Check if the last timestamp is as expected.
+		assertEquals(expectedLastTimestamp, generatedLastTimestamp);
 	}
 }
