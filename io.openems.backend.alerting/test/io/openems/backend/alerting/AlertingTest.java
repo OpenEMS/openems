@@ -12,6 +12,8 @@ import io.openems.backend.common.test.DummyMetadata;
 
 public class AlertingTest {
 
+	private static final int HANDLER_COUNT = 1;
+
 	private static final Config testConf = new Config() {
 
 		@Override
@@ -55,7 +57,7 @@ public class AlertingTest {
 		// Activate
 		alerting.activate(conf);
 
-		assertEquals(1, alerting.handlerCount());
+		assertEquals(HANDLER_COUNT, alerting.handlerCount());
 
 		// Deactivate
 		alerting.deactivate();
@@ -86,10 +88,7 @@ public class AlertingTest {
 		}
 
 		private int handlerCount() {
-			if (super.handlers == null) {
-				return 0;
-			}
-			return super.handlers.length;
+			return super.handler.size();
 		}
 
 		@Override
