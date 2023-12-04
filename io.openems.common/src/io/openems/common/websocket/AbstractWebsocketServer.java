@@ -4,14 +4,13 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.java_websocket.WebSocket;
@@ -54,10 +53,6 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 */
 	private final ThreadPoolExecutor executor;
 
-	/*
-	 * This Executor is used if Debug-Mode is activated.
-	 */
-	private final ScheduledExecutorService debugLogExecutor;
 	private final ConcurrentHashMap<String, AtomicInteger> activeTasks = new ConcurrentHashMap<>(100);
 	private static final Function<String, AtomicInteger> ATOMIC_INTEGER_PROVIDER = (key) -> {
 		return new AtomicInteger(0);
@@ -77,10 +72,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @param poolSize      number of threads dedicated to handle the tasks
 	 * @param debugMode     activate a regular debug log about the state of the
 	 *                      tasks
-	 * @param debugCallback additional callback on regular debug log
 	 */
-	protected AbstractWebsocketServer(String name, int port, int poolSize, DebugMode debugMode,
-			Consumer<ThreadPoolExecutor> debugCallback) {
+	protected AbstractWebsocketServer(String name, int port, int poolSize, DebugMode debugMode) {
 		super(name);
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
@@ -215,33 +208,40 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 		// Debug-Mode
 		this.debugMode = debugMode == null ? DebugMode.OFF : debugMode;
+	}
 
-		if (this.debugMode.isAtLeast(DebugMode.SIMPLE)) {
-			this.debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
-			this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-				var b = new StringBuilder("[monitor] ") //
-						.append("Connections: ").append(this.ws.getConnections().size()).append(", ") //
-						.append(ThreadPoolUtils.debugLog(this.executor)); //
-				if (this.debugMode.isAtLeast(DebugMode.DETAILED) && this.executor.getActiveCount() > 0) {
-					b.append(", Tasks: ");
-					this.activeTasks.forEach((id, count) -> {
-						var cnt = count.get();
-						if (cnt > 0) {
-							b.append(id).append(':').append(cnt).append(", ");
-						}
-					});
+	/**
+	 * Returns a debug log of the current websocket state.
+	 * 
+	 * @return the debug log string
+	 */
+	public String debugLog() {
+		var b = new StringBuilder("[monitor] ") //
+				.append("Connections: ").append(this.ws.getConnections().size()).append(", ") //
+				.append(ThreadPoolUtils.debugLog(this.executor)); //
+		if (this.debugMode.isAtLeast(DebugMode.DETAILED) && this.executor.getActiveCount() > 0) {
+			b.append(", Tasks: ");
+			this.activeTasks.forEach((id, count) -> {
+				var cnt = count.get();
+				if (cnt > 0) {
+					b.append(id).append(':').append(cnt).append(", ");
 				}
-
-				this.logInfo(this.log, b.toString());
-
-				if (debugCallback != null) {
-					debugCallback.accept(this.executor);
-				}
-
-			}, 10, 10, TimeUnit.SECONDS);
-		} else {
-			this.debugLogExecutor = null;
+			});
 		}
+
+		return b.toString();
+	}
+
+	/**
+	 * Returns debug metrics of the current websocket state.
+	 * 
+	 * @return the debug metrics
+	 */
+	public Map<String, Number> debugMetrics() {
+		final var metrics = new HashMap<String, Number>();
+		metrics.putAll(ThreadPoolUtils.debugMetrics(this.executor));
+		metrics.put("Connections", this.connections.size());
+		return metrics;
 	}
 
 	@Override
@@ -352,7 +352,6 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	public void stop() {
 		// Shutdown executors
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 5);
 
 		var tries = 3;
 		while (tries-- > 0) {

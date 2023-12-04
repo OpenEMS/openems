@@ -103,8 +103,8 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 			final var alias = this.getString(p, l, Property.ALIAS);
 
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias,
-							"Controller.Ess.Time-Of-Use-Tariff", JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
+							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Awattar",
@@ -115,6 +115,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
 	}

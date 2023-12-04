@@ -74,7 +74,7 @@ export class Service extends AbstractService {
     private router: Router,
     private spinner: NgxSpinnerService,
     private toaster: ToastController,
-    public translate: TranslateService
+    public translate: TranslateService,
   ) {
     super();
     // add language
@@ -138,7 +138,7 @@ export class Service extends AbstractService {
         } else {
           // Translate from key
           this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
-            take(1)
+            take(1),
           ).subscribe(title => this.currentPageTitle = title);
         }
       }
@@ -155,7 +155,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve) => {
       this.currentEdge.pipe(
         filter(edge => edge != null),
-        first()
+        first(),
       ).toPromise().then(resolve);
       if (this.currentEdge.value) {
         resolve(this.currentEdge.value);
@@ -168,7 +168,7 @@ export class Service extends AbstractService {
       this.getCurrentEdge().then(edge => {
         edge.getConfig(this.websocket).pipe(
           filter(config => config != null && config.isValid()),
-          first()
+          first(),
         ).toPromise()
           .then(config => resolve(config))
           .catch(reason => reject(reason));
@@ -199,7 +199,7 @@ export class Service extends AbstractService {
       promise.reject = reject;
     });
     this.queryEnergyQueue.push(
-      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] }
+      { fromDate: fromDate, toDate: toDate, channels: channels, promises: [promise] },
     );
     // try to merge requests within 100 ms
     if (this.queryEnergyTimeout == null) {
@@ -291,7 +291,7 @@ export class Service extends AbstractService {
           page: page,
           ...(query && query != "" && { query: query }),
           ...(limit && { limit: limit }),
-          ...(searchParamsObj && { searchParams: searchParamsObj })
+          ...(searchParamsObj && { searchParams: searchParamsObj }),
         })).then((response) => {
 
           const result = (response as GetEdgesResponse).result;
@@ -309,7 +309,7 @@ export class Service extends AbstractService {
               edge.isOnline,
               edge.lastmessage,
               edge.sumState,
-              DateUtils.stringToDate(edge.firstSetupProtocol?.toString())
+              DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
             );
             value.edges[edge.id] = mappedEdge;
             mappedResult.push(mappedEdge);
@@ -369,7 +369,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0.8)",
       size: "medium",
-      color: "#fff"
+      color: "#fff",
     });
   }
 
@@ -379,7 +379,7 @@ export class Service extends AbstractService {
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0)",
       size: "medium",
-      color: "var(--ion-color-primary)"
+      color: "var(--ion-color-primary)",
     });
   }
 
@@ -392,7 +392,7 @@ export class Service extends AbstractService {
       message: message,
       color: level,
       duration: 2000,
-      cssClass: 'container'
+      cssClass: 'container',
     });
     toast.present();
   }

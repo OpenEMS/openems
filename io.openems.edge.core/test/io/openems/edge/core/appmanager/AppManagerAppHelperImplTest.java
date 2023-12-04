@@ -48,6 +48,7 @@ public class AppManagerAppHelperImplTest {
 					Apps.feneconHome(t), //
 					Apps.kebaEvcs(t), //
 					Apps.awattarHourly(t), //
+					Apps.entsoE(t), //
 					Apps.stromdaoCorrently(t), //
 
 					this.testAApp = Apps.testADependencyToC(t), //
@@ -430,7 +431,7 @@ public class AppManagerAppHelperImplTest {
 		AppManagerAppHelperImpl.insert(list, componentTask);
 		AppManagerAppHelperImpl.insert(list, networkTask);
 		assertEquals(List.of(componentTask, schedulerTask, networkTask), list);
-		
+
 		list.clear();
 		AppManagerAppHelperImpl.insert(list, schedulerTask);
 		AppManagerAppHelperImpl.insert(list, networkTask);

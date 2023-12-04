@@ -427,28 +427,6 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Adds a message in Odoo Chatter ('mail.thread').
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       Odoo model (e.g. 'res.partner')
-	 * @param id          id of model
-	 * @param message     the message
-	 * @throws OpenemsException on error
-	 */
-	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
-			throws OpenemsException {
-		try {
-			// Execute XML request
-			var resultObj = executeKw(credentials, model, "message_post", new Object[] { id, message });
-			if (resultObj == null) {
-				throw new OpenemsException("Returned Null");
-			}
-		} catch (Throwable e) {
-			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
-		}
-	}
-
-	/**
 	 * Create a record in Odoo.
 	 *
 	 * @param credentials the Odoo credentials
@@ -555,9 +533,7 @@ public class OdooUtils {
 	 * @return the odoo reference id or empty {@link Optional}
 	 */
 	protected static Optional<Integer> getOdooReferenceId(Object object) {
-		if (object instanceof Object[]) {
-			var odooReference = (Object[]) object;
-
+		if (object instanceof Object[] odooReference) {
 			if (odooReference.length > 0 && odooReference[0] instanceof Integer) {
 				return Optional.of((Integer) odooReference[0]);
 			}
@@ -600,6 +576,42 @@ public class OdooUtils {
 	}
 
 	/**
+	 * Odoo returns unset values as false. So this Method checks if the value is
+	 * meant to be null.
+	 *
+	 * @param <T>          type to be expected
+	 * @param entry        raw entry value
+	 * @param expectedType class instance of expected type
+	 * @return false if value is meant to be null.
+	 */
+	private static <T> boolean isUnset(Object entry, Class<T> expectedType) {
+		var entryType = entry.getClass();
+		if (entryType.isAssignableFrom(Boolean.class) && !expectedType.isAssignableFrom(Boolean.class)
+				&& !Boolean.class.cast(entry)) {
+			return true;
+		}
+		return false;
+	}
+
+	private static Object getRawValue(Field field, Map<String, ?> values) {
+		if (field == null || values == null) {
+			var warningMsg = new StringBuilder() //
+					.append("[getAsOrElse] missing parameter (") //
+					.append(field == null ? "field is null, " : "") //
+					.append(values == null ? "values is null, " : "") //
+					.toString();
+			log.warn(warningMsg);
+			return null;
+		}
+
+		if (!values.containsKey(field.id())) {
+			return null;
+		}
+
+		return values.get(field.id());
+	}
+
+	/**
 	 * Return Field value in values and cast it to type.
 	 *
 	 * @param <T>    expected type of value
@@ -623,29 +635,42 @@ public class OdooUtils {
 	 * @return value found in map casted to type or alternate on error
 	 */
 	public static <T> T getAsOrElse(Field field, Map<String, ?> values, Class<T> type, T alternate) {
-		if (field == null || values == null || type == null) {
-			var warningMsg = new StringBuilder().append("[getAsOrElse] missing parameter (")
-					.append(field == null ? "field is null, " : "").append(values == null ? "values is null, " : "")
-					.append(type == null ? "type is null, " : "").toString();
-			log.warn(warningMsg);
+		var entry = getRawValue(field, values);
+
+		if (entry == null || isUnset(entry, type)) {
 			return alternate;
-		}
-
-		if (!values.containsKey(field.id())) {
-			return alternate;
-		}
-
-		var entry = values.get(field.id());
-		var entryType = entry.getClass();
-
-		// Entry equals false if table value is null;
-		if (entryType.isAssignableFrom(Boolean.class) && !type.isAssignableFrom(Boolean.class)
-				&& !Boolean.class.cast(entry)) {
-			return null;
 		}
 
 		try {
+			if (type.equals(ZonedDateTime.class)) {
+				return type.cast(DateTime.stringToDateTime(entry.toString()));
+			}
 			return type.cast(entry);
+		} catch (Throwable t) {
+			log.warn(t.getMessage());
+			return alternate;
+		}
+	}
+
+	/**
+	 * Return Field value in values and cast it to value of type 'enumType'.
+	 *
+	 * @param <T>       expected type of value
+	 * @param field     to search for
+	 * @param values    map with values to search in
+	 * @param enumType  to cast into
+	 * @param alternate value to return
+	 * @return value found in map casted to type or alternate on error
+	 */
+	public static <T extends Enum<T>> T getAsEnum(Field field, Map<String, ?> values, Class<T> enumType, T alternate) {
+		var entry = getRawValue(field, values);
+
+		if (entry == null || isUnset(entry, enumType)) {
+			return alternate;
+		}
+
+		try {
+			return Enum.valueOf(enumType, entry.toString().toUpperCase());
 		} catch (Throwable t) {
 			log.warn(t.getMessage());
 			return alternate;

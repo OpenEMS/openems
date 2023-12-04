@@ -10,7 +10,7 @@ interface MyCategorizedComponents extends CategorizedComponents {
 
 @Component({
   selector: IndexComponent.SELECTOR,
-  templateUrl: './index.component.html'
+  templateUrl: './index.component.html',
 })
 export class IndexComponent implements OnInit {
 
@@ -23,7 +23,7 @@ export class IndexComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: Service
+    private service: Service,
   ) {
   }
 
@@ -51,8 +51,8 @@ export class IndexComponent implements OnInit {
         Utils.matchAll(filters, [
           entry.id.toLowerCase(),
           entry.alias.toLowerCase(),
-          entry.factoryId
-        ])
+          entry.factoryId,
+        ]),
       );
       countFilteredEntries += entry.filteredComponents.length;
     }

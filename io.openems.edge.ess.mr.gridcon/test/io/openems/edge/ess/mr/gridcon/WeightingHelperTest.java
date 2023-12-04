@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -18,7 +17,7 @@ public class WeightingHelperTest {
 	public static final double DELTA = 0.000001;
 
 	@Test
-	public final void testIsBatteryReady() {
+	public final void testIsBatteryReady() throws OpenemsNamedException {
 
 		Battery b = null;
 		// should return false if there is no battery
@@ -31,26 +30,18 @@ public class WeightingHelperTest {
 		assertFalse(result);
 
 		// should return true if battery is running
-		try {
-			b.start();
-		} catch (OpenemsNamedException e) {
-			fail(e.getMessage());
-		}
+		b.start();
 		result = WeightingHelper.isBatteryReady(b);
 		assertTrue(result);
 
 		// should return false if battery is stopped
-		try {
-			b.stop();
-		} catch (OpenemsNamedException e) {
-			fail(e.getMessage());
-		}
+		b.stop();
 		result = WeightingHelper.isBatteryReady(b);
 		assertFalse(result);
 	}
 
 	@Test
-	public final void testGetWeightingForCharge() {
+	public final void testGetWeightingForCharge() throws OpenemsNamedException {
 		Battery b = null;
 		// should be '0' is battery is not there or not working
 		double result = WeightingHelper.getWeightingForCharge(b);
@@ -60,28 +51,20 @@ public class WeightingHelperTest {
 		result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
 
-		try {
-			b.start();
-		} catch (OpenemsNamedException e1) {
-			fail(e1.getMessage());
-		}
+		b.start();
 		result = WeightingHelper.getWeightingForCharge(b);
 		double expected = DummyBattery.DEFAULT_MAX_CHARGE_CURRENT * DummyBattery.DEFAULT_VOLTAGE;
 
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		try {
-			b.stop();
-		} catch (OpenemsNamedException e) {
-			fail(e.getMessage());
-		}
+		b.stop();
 		result = WeightingHelper.getWeightingForCharge(b);
 		assertEquals(0, result, DELTA);
 	}
 
 	@Test
-	public final void testGetWeightingForDischarge() {
+	public final void testGetWeightingForDischarge() throws OpenemsNamedException {
 		Battery b = null;
 		// should be '0' is battery is not there or not working
 		double result = WeightingHelper.getWeightingForDischarge(b);
@@ -91,28 +74,20 @@ public class WeightingHelperTest {
 		result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
 
-		try {
-			b.start();
-		} catch (OpenemsNamedException e) {
-			fail(e.getMessage());
-		}
+		b.start();
 		result = WeightingHelper.getWeightingForDischarge(b);
 		double expected = DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT * DummyBattery.DEFAULT_VOLTAGE;
 
 		assertNotEquals(0, result, DELTA);
 		assertEquals(expected, result, DELTA);
 
-		try {
-			b.stop();
-		} catch (OpenemsNamedException e) {
-			fail(e.getMessage());
-		}
+		b.stop();
 		result = WeightingHelper.getWeightingForDischarge(b);
 		assertEquals(0, result, DELTA);
 	}
 
 	@Test
-	public final void testGetWeightingForNoPowerNoBatteryOrStoppedBatteries() {
+	public final void testGetWeightingForNoPowerNoBatteryOrStoppedBatteries() throws OpenemsNamedException {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
@@ -129,11 +104,7 @@ public class WeightingHelperTest {
 		assertArrayEquals(expected, actual);
 
 		// One battery running
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
@@ -145,51 +116,36 @@ public class WeightingHelperTest {
 		assertArrayEquals(expected, actual);
 
 		// Two batteries
-		b3.setVoltage(790);
-		try {
-			b3.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b3 //
+				.withVoltage(790) //
+				.start();
 		expected = new Float[] { 1f, 0f, 1f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		// Two batteries, one not running
-		try {
-			b1.stop();
-		} catch (OpenemsNamedException e1) {
-			fail("Battery could not be stopped");
-		}
+		b1.stop();
 		expected = new Float[] { 0f, 0f, 1f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		// Three batteries, one not running
-		b2 = new DummyBattery();
-		b2.setVoltage(810);
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2 = new DummyBattery() //
+				.withVoltage(810);
+		b2.start();
 		expected = new Float[] { 0f, 1f, 1f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		// Three batteries
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = new Float[] { 1f, 1f, 1f };
 		actual = WeightingHelper.getWeightingForNoPower(b1, b2, b3);
 		assertArrayEquals(expected, actual);
 	}
 
 	@Test
-	public final void testGetWeightingActivePowerZero() {
+	public final void testGetWeightingActivePowerZero() throws OpenemsNamedException {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
@@ -204,11 +160,7 @@ public class WeightingHelperTest {
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = new Float[] { 1f, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
@@ -218,48 +170,33 @@ public class WeightingHelperTest {
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
-		b3.setVoltage(790);
-		try {
-			b3.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b3 //
+				.withVoltage(790) //
+				.start();
 		expected = new Float[] { 1f, 0f, 1f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
-		try {
-			b1.stop();
-		} catch (OpenemsNamedException e1) {
-			fail("Battery could not be stopped");
-		}
+		b1.stop();
 		expected = new Float[] { 0f, 0f, 1f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
-		b2 = new DummyBattery();
-		b2.setVoltage(810);
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2 = new DummyBattery() //
+				.withVoltage(810);
+		b2.start();
 		expected = new Float[] { 0f, 1f, 1f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = new Float[] { 1f, 1f, 1f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 	}
 
 	@Test
-	public final void testGetWeightingActivePowerCharge() {
+	public final void testGetWeightingActivePowerCharge() throws OpenemsNamedException {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
@@ -278,11 +215,7 @@ public class WeightingHelperTest {
 
 		// one battery started
 		b1 = new DummyBattery();
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		float maxPower = DummyBattery.DEFAULT_VOLTAGE * DummyBattery.DEFAULT_MAX_CHARGE_CURRENT;
 		expected = new Float[] { maxPower, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
@@ -292,51 +225,33 @@ public class WeightingHelperTest {
 		b1 = new DummyBattery();
 		b2 = new DummyBattery();
 		b3 = new DummyBattery();
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2.start();
 		maxPower = DummyBattery.DEFAULT_VOLTAGE * DummyBattery.DEFAULT_MAX_CHARGE_CURRENT;
 		expected = new Float[] { 0f, maxPower, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		// three batteries all started different voltages and current
-		b1 = new DummyBattery();
-		b2 = new DummyBattery();
-		b3 = new DummyBattery();
+		final int b1Voltage = 650;
+		final int b1maxCurrent = 80;
+		final int b2Voltage = 700;
+		final int b2maxCurrent = 80;
+		final int b3Voltage = 800;
+		final int b3maxCurrent = 30;
 
-		int b1Voltage = 650;
-		int b1maxCurrent = 80;
-		b1.setVoltage(b1Voltage);
-		b1.setMaximalChargeCurrent(b1maxCurrent);
+		b1 = new DummyBattery() //
+				.withVoltage(b1Voltage) //
+				.withChargeMaxCurrent(b1maxCurrent);
+		b2 = new DummyBattery() //
+				.withVoltage(b2Voltage) //
+				.withChargeMaxCurrent(b2maxCurrent);
+		b3 = new DummyBattery() //
+				.withVoltage(b3Voltage) //
+				.withChargeMaxCurrent(b3maxCurrent);
 
-		int b2Voltage = 700;
-		int b2maxCurrent = 80;
-		b2.setVoltage(b2Voltage);
-		b2.setMaximalChargeCurrent(b2maxCurrent);
-
-		int b3Voltage = 800;
-		int b3maxCurrent = 30;
-		b3.setVoltage(b3Voltage);
-		b3.setMaximalChargeCurrent(b3maxCurrent);
-
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
-		try {
-			b3.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
+		b2.start();
+		b3.start();
 
 		float maxPower1 = b1Voltage * b1maxCurrent;
 		float maxPower2 = b2Voltage * b2maxCurrent;
@@ -347,7 +262,7 @@ public class WeightingHelperTest {
 	}
 
 	@Test
-	public final void testGetWeightingActivePowerDischarge() {
+	public final void testGetWeightingActivePowerDischarge() throws OpenemsNamedException {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
@@ -366,11 +281,7 @@ public class WeightingHelperTest {
 
 		// one battery started
 		b1 = new DummyBattery();
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		float maxPower = DummyBattery.DEFAULT_VOLTAGE * DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT;
 		expected = new Float[] { maxPower, 0f, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
@@ -380,51 +291,33 @@ public class WeightingHelperTest {
 		b1 = new DummyBattery();
 		b2 = new DummyBattery();
 		b3 = new DummyBattery();
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2.start();
 		maxPower = DummyBattery.DEFAULT_VOLTAGE * DummyBattery.DEFAULT_MAX_DISCHARGE_CURRENT;
 		expected = new Float[] { 0f, maxPower, 0f };
 		actual = WeightingHelper.getWeighting(activePower, b1, b2, b3);
 		assertArrayEquals(expected, actual);
 
 		// three batteries all started different voltages and current
-		b1 = new DummyBattery();
-		b2 = new DummyBattery();
-		b3 = new DummyBattery();
+		final int b1Voltage = 650;
+		final int b1maxCurrent = 80;
+		final int b2Voltage = 700;
+		final int b2maxCurrent = 80;
+		final int b3Voltage = 800;
+		final int b3maxCurrent = 30;
 
-		int b1Voltage = 650;
-		int b1maxCurrent = 80;
-		b1.setVoltage(b1Voltage);
-		b1.setMaximalDischargeCurrent(b1maxCurrent);
+		b1 = new DummyBattery() //
+				.withVoltage(b1Voltage) //
+				.withDischargeMaxCurrent(b1maxCurrent);
+		b2 = new DummyBattery() //
+				.withVoltage(b2Voltage) //
+				.withDischargeMaxCurrent(b2maxCurrent);
+		b3 = new DummyBattery() //
+				.withVoltage(b3Voltage) //
+				.withDischargeMaxCurrent(b3maxCurrent);
 
-		int b2Voltage = 700;
-		int b2maxCurrent = 80;
-		b2.setVoltage(b2Voltage);
-		b2.setMaximalDischargeCurrent(b2maxCurrent);
-
-		int b3Voltage = 800;
-		int b3maxCurrent = 30;
-		b3.setVoltage(b3Voltage);
-		b3.setMaximalDischargeCurrent(b3maxCurrent);
-
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
-		try {
-			b3.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
+		b2.start();
+		b3.start();
 
 		float maxPower1 = b1Voltage * b1maxCurrent;
 		float maxPower2 = b2Voltage * b2maxCurrent;
@@ -435,7 +328,7 @@ public class WeightingHelperTest {
 	}
 
 	@Test
-	public final void testGetStringControlMode() {
+	public final void testGetStringControlMode() throws OpenemsNamedException {
 		DummyBattery b1 = null;
 		DummyBattery b2 = null;
 		DummyBattery b3 = null;
@@ -448,20 +341,12 @@ public class WeightingHelperTest {
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2.start();
 		expected = 8;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b2.stop();
-		} catch (OpenemsNamedException e1) {
-			fail("Battery could not be stopped");
-		}
+		b2.stop();
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
@@ -471,71 +356,39 @@ public class WeightingHelperTest {
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = 1;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2.start();
 		expected = 9;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
 		b3 = new DummyBattery();
-		try {
-			b1.stop();
-		} catch (OpenemsNamedException e1) {
-			fail("Battery could not be stopped");
-		}
-		try {
-			b2.stop();
-		} catch (OpenemsNamedException e1) {
-			fail("Battery could not be stopped");
-		}
+		b1.stop();
+		b2.stop();
 		expected = 0;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b3.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b3.start();
 		expected = 64;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b1.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b1.start();
 		expected = 65;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b2.start();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be started");
-		}
+		b2.start();
 		expected = 73;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);
 
-		try {
-			b1.stop();
-		} catch (OpenemsNamedException e) {
-			fail("Battery could not be stopped");
-		}
+		b1.stop();
 		expected = 72;
 		actual = WeightingHelper.getStringControlMode(b1, b2, b3);
 		assertEquals(expected, actual);

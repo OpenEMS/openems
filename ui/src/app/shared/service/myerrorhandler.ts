@@ -5,7 +5,7 @@ import { Logger } from "./logger";
 @Injectable()
 export class MyErrorHandler implements ErrorHandler {
     constructor(
-        private injector: Injector
+        private injector: Injector,
     ) { }
 
     handleError(error: any) {
@@ -14,11 +14,11 @@ export class MyErrorHandler implements ErrorHandler {
         if (error.message) {
             let json = {
                 error: {
-                    message: error.message
+                    message: error.message,
                 },
                 metadata: {
-                    browser: navigator.userAgent
-                }
+                    browser: navigator.userAgent,
+                },
             };
 
             logger.error(JSON.stringify(json));

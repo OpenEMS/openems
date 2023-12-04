@@ -24,7 +24,7 @@ type UserInformation = {
   country: string
 }
 @Component({
-  templateUrl: './user.component.html'
+  templateUrl: './user.component.html',
 })
 export class UserComponent implements OnInit {
 
@@ -41,7 +41,7 @@ export class UserComponent implements OnInit {
     public translate: TranslateService,
     public service: Service,
     private route: ActivatedRoute,
-    private websocket: Websocket
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
@@ -51,7 +51,7 @@ export class UserComponent implements OnInit {
     this.getUserInformation().then((userInformation) => {
       this.form = {
         formGroup: new FormGroup({}),
-        model: userInformation
+        model: userInformation,
       };
       this.showInformation = true;
     });
@@ -68,9 +68,9 @@ export class UserComponent implements OnInit {
           street: this.form.model.street,
           zip: this.form.model.zip,
           city: this.form.model.city,
-          country: this.form.model.country
-        }
-      }
+          country: this.form.model.country,
+        },
+      },
     };
     this.service.websocket.sendRequest(new SetUserInformationRequest(user)).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
@@ -86,7 +86,7 @@ export class UserComponent implements OnInit {
       this.getUserInformation().then((userInformation) => {
         this.form = {
           formGroup: new FormGroup({}),
-          model: userInformation
+          model: userInformation,
         };
       });
     }
@@ -108,40 +108,40 @@ export class UserComponent implements OnInit {
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.firstname"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "lastname",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.lastname"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "street",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.street"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "zip",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.zip"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "city",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.city"),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "country",
@@ -149,27 +149,27 @@ export class UserComponent implements OnInit {
     templateOptions: {
       label: this.translate.instant("Register.Form.country"),
       options: COUNTRY_OPTIONS(this.translate),
-      disabled: true
-    }
+      disabled: true,
+    },
   },
   {
     key: "email",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.email"),
-      disabled: true
+      disabled: true,
     },
     validators: {
-      validation: [Validators.email]
-    }
+      validation: [Validators.email],
+    },
   },
   {
     key: "phone",
     type: "input",
     templateOptions: {
       label: this.translate.instant("Register.Form.phone"),
-      disabled: true
-    }
+      disabled: true,
+    },
   }];
 
   public getUserInformation(): Promise<UserInformation> {
@@ -188,7 +188,7 @@ export class UserComponent implements OnInit {
               street: user.address.street,
               zip: user.address.zip,
               city: user.address.city,
-              country: user.address.country
+              country: user.address.country,
             });
           }).catch(() => {
             resolve({
@@ -199,7 +199,7 @@ export class UserComponent implements OnInit {
               street: "",
               zip: "",
               city: "",
-              country: ""
+              country: "",
             });
           });
           clearInterval(interval);

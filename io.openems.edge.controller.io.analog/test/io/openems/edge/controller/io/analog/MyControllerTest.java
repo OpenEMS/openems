@@ -58,7 +58,8 @@ public class MyControllerTest {
 	@Test
 	public void testOn() throws Exception {
 
-		final var analogOutput = new DummyAnalogVoltageOutput(IO_ID, new Range(0, 100, 10000));
+		final var analogOutput = new DummyAnalogVoltageOutput(IO_ID) //
+				.setRange(new Range(0, 100, 10000));
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

@@ -27,13 +27,14 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.CheckablesBundle;
+import io.openems.edge.core.appmanager.DummyValidator.TestCheckable;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 
 public class AppManagerImpSynchronizationTest {
 
@@ -75,6 +76,7 @@ public class AppManagerImpSynchronizationTest {
 		final var validator = new DummyValidator();
 
 		final var checkablesBundle = new CheckablesBundle(//
+				new TestCheckable(), //
 				new CheckCardinality(this.appManager, appManagerUtil,
 						AppManagerTestBundle.getComponentContext(CheckCardinality.COMPONENT_NAME)), //
 				new CheckRelayCount(componentUtil,
@@ -93,8 +95,8 @@ public class AppManagerImpSynchronizationTest {
 				.addReference("cm", cm) //
 				.addReference("componentManager", componentManager) //
 				.addReference("csoAppManagerAppHelper",
-						AppManagerTestBundle.<AppManagerAppHelper>cso(new DummyAppManagerAppHelper(componentManager,
-								componentUtil, validator, appManagerUtil))) //
+						AppManagerTestBundle.<AppManagerAppHelper>cso(
+								new DummyAppManagerAppHelper(componentManager, componentUtil, appManagerUtil))) //
 				.addReference("validator", validator) //
 				.addReference("backendUtil", new DummyAppCenterBackendUtil()) //
 				.addReference("availableApps", Lists.newArrayList(//

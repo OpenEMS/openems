@@ -4,7 +4,7 @@ describe('DateUtils', () => {
 
   const dates: Date[] = [
     new Date(Date.parse("2023-01-01")),
-    new Date(Date.parse("2023-01-02"))
+    new Date(Date.parse("2023-01-02")),
   ];
 
   it('#minDate - smallest date', () => {

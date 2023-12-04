@@ -3,7 +3,7 @@ import { FieldArrayType } from '@ngx-formly/core';
 
 @Component({
     selector: 'formly-repeat-section',
-    templateUrl: './repeat.html'
+    templateUrl: './repeat.html',
 })
 export class RepeatTypeComponent extends FieldArrayType {
     // TODO: add explicit constructor

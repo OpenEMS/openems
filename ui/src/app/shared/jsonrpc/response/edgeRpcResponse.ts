@@ -19,7 +19,7 @@ export class EdgeRpcResponse extends JsonrpcResponseSuccess {
         public readonly id: string,
         public readonly params: {
             payload: JsonrpcRequest
-        }
+        },
     ) {
         super(id, params);
     }

@@ -4,30 +4,29 @@
     <ion-icon slot="start" color="primary" size="large" name="cloud-outline"></ion-icon>
     <ion-label>{{ component.alias }}</ion-label>
   </ion-item>
-  <ng-container *ngIf="component.factoryId  === 'Controller.Ess.Time-Of-Use-Tariff'; else discharge">
-    <ion-card-content>
-      <table class="full_width">
+
+  <ion-card-content>
+    <table class="full_width">
+      <tr>
+        <td style="width:65%" translate>
+          {{ 'Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE' | translate }}
+        </td>
+        <td style="width:35%" class="align_right">
+          {{ delayedActiveTimeOverPeriod | formatSecondsToDuration }}
+        </td>
+      </tr>
+      <!-- Rendering the CHARGE row based on the new or old controller -->
+      <ng-container *ngIf="component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff'">
         <tr>
           <td style="width:65%" translate>
-            Edge.Index.Widgets.TimeOfUseTariff.CHARGED</td>
+            {{ 'Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE' | translate }}
+          </td>
           <td style="width:35%" class="align_right">
             {{ chargedActiveTimeOverPeriod | formatSecondsToDuration }}
           </td>
         </tr>
-      </table>
-    </ion-card-content>
-  </ng-container>
-  <ng-template #discharge>
-    <ion-card-content>
-      <table class="full_width">
-        <tr>
-          <td style="width:65%" translate>
-            Edge.Index.Widgets.TimeOfUseTariff.delayedDischarge</td>
-          <td style="width:35%" class="align_right">
-            {{ delayedActiveTimeOverPeriod | formatSecondsToDuration }}
-          </td>
-        </tr>
-      </table>
-    </ion-card-content>
-  </ng-template>
+      </ng-container>
+    </table>
+  </ion-card-content>
+
 </ion-card>

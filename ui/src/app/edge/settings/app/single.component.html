@@ -11,7 +11,17 @@
           <ion-card>
             <ion-card-content>
               <div style="display: flex; align-items: center;justify-content: center;" class="ion-margin">
-                <img *ngIf="app.image" [src]="app.image" />
+                <img *ngIf="app.image; else noImage" [src]="app.image" />
+                <ng-template #noImage>
+                  <img *ngIf="app.imageUrl; else noImageUrl" [src]="app.imageUrl" (error)="app.imageUrl = null" />
+                  <ng-template #noImageUrl>
+                    <div style="max-width: 100%;">
+                      <h1 style="text-align: center; white-space: initial;">
+                        {{app.name}}
+                      </h1>
+                    </div>
+                  </ng-template>
+                </ng-template>
               </div>
               <!-- This button will be invisible until the feature gets implemented -->
               <div *ngIf="false">

@@ -1,5 +1,7 @@
 package io.openems.backend.b2bwebsocket;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -17,8 +19,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
@@ -34,7 +39,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
-public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent implements EventHandler {
+public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent implements EventHandler, DebugLoggable {
 
 	private static final String COMPONENT_ID = "b2bwebsocket0";
 
@@ -123,6 +128,22 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 
 	public String getId() {
 		return COMPONENT_ID;
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.server.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		final var metrics = new HashMap<String, JsonElement>();
+
+		this.server.debugMetrics().forEach((key, value) -> {
+			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
+		});
+
+		return metrics;
 	}
 
 }
