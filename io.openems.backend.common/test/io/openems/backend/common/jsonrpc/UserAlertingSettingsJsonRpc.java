@@ -16,7 +16,6 @@ import io.openems.backend.common.jsonrpc.request.SetUserAlertingConfigsRequest;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
 public class UserAlertingSettingsJsonRpc {
@@ -101,30 +100,28 @@ public class UserAlertingSettingsJsonRpc {
 
 	@Test
 	public void testGetUserAlertingConfigsResponse() {
-		var sett1 = new UserAlertingSettings("edge1", "user1", Role.GUEST, 0, 15, 30, null, null);
-		var sett2 = new UserAlertingSettings("edge2", "user2", Role.ADMIN, 10, 10, 10, null, null);
+		var sett1 = new UserAlertingSettings("edge1", "user1", 0, 15, 30, null, null);
+		var sett2 = new UserAlertingSettings("edge2", "user2", 10, 10, 10, null, null);
 
-		var settings = List.of(sett1, sett2);
 		var id = UUID.randomUUID();
 
-		var response = new GetUserAlertingConfigsResponse(id, settings);
+		var response = new GetUserAlertingConfigsResponse(id, sett1, List.of(sett2));
 
 		var sett1Json = JsonUtils.buildJsonObject() //
 				.addProperty("userLogin", sett1.userLogin()) //
-				.add("role", sett1.userRole().asJson()) //
 				.addProperty("offlineEdgeDelay", sett1.edgeOfflineDelay()) //
 				.addProperty("faultEdgeDelay", sett1.edgeFaultDelay()) //
 				.addProperty("warningEdgeDelay", sett1.edgeWarningDelay()) //
 				.build();
 		var sett2Json = JsonUtils.buildJsonObject() //
 				.addProperty("userLogin", sett2.userLogin()) //
-				.add("role", sett2.userRole().asJson()) //
 				.addProperty("offlineEdgeDelay", sett2.edgeOfflineDelay()) //
 				.addProperty("faultEdgeDelay", sett2.edgeFaultDelay()) //
 				.addProperty("warningEdgeDelay", sett2.edgeWarningDelay()) //
 				.build();
-		var settArrJson = JsonUtils.buildJsonObject().add("userSettings", //
-				JsonUtils.buildJsonArray().add(sett1Json).add(sett2Json).build()) //
+		var settArrJson = JsonUtils.buildJsonObject() //
+				.add("currentUserSettings", sett1Json)
+				.add("otherUsersSettings", JsonUtils.buildJsonArray().add(sett2Json).build()) //
 				.build();
 
 		var jsonObj = response.getResult();

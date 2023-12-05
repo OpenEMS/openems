@@ -2,12 +2,14 @@ package io.openems.backend.common.alerting;
 
 import java.time.ZonedDateTime;
 
-import io.openems.common.session.Role;
-
-public record UserAlertingSettings(String deviceId, String userLogin, Role userRole, //
+public record UserAlertingSettings(String deviceId, String userLogin, //
 		int edgeOfflineDelay, int edgeFaultDelay, int edgeWarningDelay, //
 		ZonedDateTime lastEdgeOfflineNotification, ZonedDateTime lastSumStateNotification) {
 	public UserAlertingSettings(String userLogin, int offlineEdgeDelay, int faultStateDelay, int warningStateDelay) {
-		this(null, userLogin, null, offlineEdgeDelay, faultStateDelay, warningStateDelay, null, null);
+		this(null, userLogin, offlineEdgeDelay, faultStateDelay, warningStateDelay, null, null);
+	}
+	
+	public static UserAlertingSettings getDefault(String deviceId, String userLogin) {
+		return new UserAlertingSettings(deviceId,userLogin, 1440, 1440, 1440, null, null);
 	}
 }

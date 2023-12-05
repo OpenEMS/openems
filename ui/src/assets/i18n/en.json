@@ -358,6 +358,9 @@
         "newDevice": "New device..."
       },
       "Alerting": {
+        "offlineAlerting": "Offline Notifications",
+        "faultAlerting": "Fault Notifications",
+        "warningDelay": "Warning Notifications",
         "activate": "Activate",
         "delay": "Delay",
         "save": "Save",

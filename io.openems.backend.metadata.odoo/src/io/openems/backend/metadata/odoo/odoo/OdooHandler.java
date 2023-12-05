@@ -1155,7 +1155,7 @@ public class OdooHandler {
 			var sumStateNotification = OdooUtils.getAsOrElse(AlertingSetting.SUM_STATE_LAST_NOTIFICATION, setting,
 					ZonedDateTime.class, null);
 
-			result.add(new UserAlertingSettings(deviceName, login, null, edgeOfflineDelay, edgeFaultDelay,
+			result.add(new UserAlertingSettings(deviceName, login, edgeOfflineDelay, edgeFaultDelay,
 					edgeWarningDelay, edgeOfflineNotification, sumStateNotification));
 		}
 
