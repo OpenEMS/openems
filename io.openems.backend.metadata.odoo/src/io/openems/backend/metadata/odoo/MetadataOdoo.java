@@ -202,8 +202,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return this.edgeCache.stream().filter(Edge::isOffline) //
-				.map(e -> (Edge) e).toList();
+		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).toList();
 	}
 
 	/**
