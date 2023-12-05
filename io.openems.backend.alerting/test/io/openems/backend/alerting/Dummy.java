@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -30,6 +33,20 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
 
 public class Dummy {
+
+	/**
+	 * Dummy ThreadPoolExecutor, that executes tasks in the caller Thread.
+	 * 
+	 * @return Dummy {@link ThreadPoolExecutor}
+	 */
+	public static ThreadPoolExecutor executor() {
+		return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
+			@Override
+			public void execute(Runnable command) {
+				command.run();
+			}
+		};
+	}
 
 	public static class MailerImpl implements Mailer {
 		public record Mail(ZonedDateTime sentAt, String template) {

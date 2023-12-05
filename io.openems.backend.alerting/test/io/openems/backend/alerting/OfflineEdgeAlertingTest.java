@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -69,9 +66,7 @@ public class OfflineEdgeAlertingTest {
 			this.meta.initializeOffline(this.edges.values(), this.settings);
 			this.scheduler = new Scheduler(this.timer);
 
-			var executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
-			};
-			this.alerting = new Alerting(this.scheduler, executor);
+			this.alerting = new Alerting(this.scheduler, Dummy.executor());
 			this.alerting.mailer = this.mailer;
 			this.alerting.metadata = this.meta;
 		}
@@ -172,7 +167,7 @@ public class OfflineEdgeAlertingTest {
 	public void deactiveTest() {
 		var env = new TestEnvironment();
 		/* All off */
-		var config = Dummy.testConfig(5, false, false);
+		var config = Dummy.testConfig(5, true, false);
 		env.alerting.activate(config);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
@@ -182,10 +177,14 @@ public class OfflineEdgeAlertingTest {
 		env.timer.leap(config.initialDelay());
 		env.timer.leap(3); /* inaccuracy + initial mails on next cycle */
 
+		/* edge05[user03] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
+		/* edge05[user02] */
 		assertEquals(1, env.mailer.getMailsCount());
 
 		env.alerting.deactivate();
+
+		env.timer.leap(1440);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(1, env.mailer.getMailsCount());
