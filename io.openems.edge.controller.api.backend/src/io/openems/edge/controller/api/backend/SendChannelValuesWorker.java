@@ -1,5 +1,8 @@
 package io.openems.edge.controller.api.backend;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,6 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collector;
 
 import org.slf4j.Logger;
@@ -33,6 +37,8 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -195,6 +201,12 @@ public class SendChannelValuesWorker {
 								.collect(aggregateCollector(channel.channelDoc().getUnit().isCumulated(), //
 										channel.getType()));
 
+						// TODO aggregation should be modifiable in Doc e. g. not every EnumDoc may want
+						// this behaviour
+						if (channel.channelDoc() instanceof EnumDoc) {
+							value = aggregateEnumChannel(channel, channelStartTime, endTime);
+						}
+
 						if (!sendAllChannels && value.isJsonNull()) {
 							return;
 						}
@@ -205,6 +217,59 @@ public class SendChannelValuesWorker {
 					}
 				});
 		return table;
+	}
+
+	// TODO aggregation should be moved to doc
+	protected static JsonElement aggregateEnumChannel(//
+			Channel<?> channel, //
+			LocalDateTime channelStartTime, //
+			LocalDateTime endTime //
+	) {
+		final var doc = channel.channelDoc();
+		if (!(doc instanceof EnumDoc)) {
+			return JsonNull.INSTANCE;
+		}
+		final var numberOfValuesPerOption = channel.getPastValues() //
+				.tailMap(channelStartTime, true) //
+				.entrySet() //
+				.stream() //
+				.filter(e -> e.getKey().isBefore(endTime)) //
+				.filter(e -> e.getValue().isDefined()) //
+				.map(e -> (Integer) e.getValue().get()) //
+				.collect(groupingBy(Function.identity(), counting()));
+
+		final var values = numberOfValuesPerOption.entrySet().stream() //
+				.sorted((o1, o2) -> Long.compare(o2.getValue(), o1.getValue())) //
+				.toList();
+
+		final var maxValues = new ArrayList<Integer>();
+		var maxCount = -1L;
+		for (var entry : values) {
+			if (entry.getValue() < maxCount) {
+				break;
+			}
+			if (entry.getValue() == maxCount) {
+				maxValues.add(entry.getKey());
+				continue;
+			}
+			maxCount = entry.getValue();
+			maxValues.clear();
+			maxValues.add(entry.getKey());
+		}
+
+		// pick first value with most appearances
+		for (var entry : channel.getPastValues().descendingMap().entrySet()) {
+			for (var optionValue : maxValues) {
+				if (!entry.getValue().isDefined()) {
+					continue;
+				}
+				final var entryValue = entry.getValue().get();
+				if (((Integer) entryValue).intValue() == optionValue) {
+					return new JsonPrimitive(optionValue);
+				}
+			}
+		}
+		return JsonNull.INSTANCE;
 	}
 
 	protected static Collector<Object, ?, JsonElement> aggregateCollector(//

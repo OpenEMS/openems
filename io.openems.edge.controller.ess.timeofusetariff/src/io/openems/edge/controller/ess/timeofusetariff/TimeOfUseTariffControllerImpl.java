@@ -2,8 +2,10 @@ package io.openems.edge.controller.ess.timeofusetariff;
 
 import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge100;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -51,6 +53,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleRequest;
+import io.openems.edge.controller.ess.timeofusetariff.optimizer.Context;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Optimizer;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Period;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils;
@@ -136,16 +139,22 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		}
 
 		/* Run Worker once now and afterwards every 15 minutes */
-		this.optimizer = new Optimizer(() -> new Utils.Parent(//
-				this.predictorManager, this.timeOfUseTariff, this.ess, //
-				this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, //
-				config.controlMode(), config.maxChargePowerFromGrid(), //
-				this.channel(TimeOfUseTariffController.ChannelId.SOLVE_DURATION)));
+		this.optimizer = new Optimizer(() -> Context.create() //
+				.predictorManager(this.predictorManager) //
+				.timeOfUseTariff(this.timeOfUseTariff) //
+				.ess(this.ess) //
+				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
+				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
+				.controlMode(config.controlMode()) //
+				.maxChargePowerFromGrid(config.maxChargePowerFromGrid()) //
+				.maxChargePowerFromGrid(config.maxChargePowerFromGrid()) //
+				.solveDurationChannel(this.channel(TimeOfUseTariffController.ChannelId.SOLVE_DURATION)) //
+				.build());
 		final AtomicReference<Future<?>> future = new AtomicReference<>();
 		future.set(this.taskExecutor.submit(this.optimizer));
 
 		var now = ZonedDateTime.now();
-		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(5);
+		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(3);
 
 		this.triggerExecutor.scheduleAtFixedRate(() -> {
 			// Cancel previous run
@@ -153,7 +162,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			future.set(this.taskExecutor.submit(this.optimizer));
 		}, //
 
-				// Run 10 minutes before full 15 minutes
+				// Run 12 minutes before full 15 minutes
 				Duration.between(now, nextRun).toMillis(), //
 				// then execute every 15 minutes
 				Duration.of(15, ChronoUnit.MINUTES).toMillis(), TimeUnit.MILLISECONDS);
@@ -202,15 +211,23 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		// Handle StateMachine
+		var state = period.state();
 		this._setStateMachine(period.state());
 
+		// Battery full? Always BALANCING.
+		var soc = this.ess.getSoc().get();
+		if (soc != null && soc > ESS_FULL_SOC_THRESHOLD) {
+			state = BALANCING;
+		}
+
 		// Update the timer.
-		this.calculateChargedTime.update(period.state() == CHARGE);
-		this.calculateDelayedTime.update(period.state() == DELAY_DISCHARGE);
+		this.calculateChargedTime.update(state == CHARGE);
+		this.calculateDelayedTime.update(state == DELAY_DISCHARGE);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (period.state()) {
-		case CHARGE -> Utils.calculateCharge100(this.ess, this.sum, this.config.maxChargePowerFromGrid());
+		case CHARGE -> calculateCharge100(this.ess, this.sum, this.config.maxChargePowerFromGrid());
 		case DELAY_DISCHARGE -> 0;
 		case BALANCING -> null;
 		};

@@ -1796,7 +1796,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.DRED_CMD, new UnsignedWordElement(47007)), //
 						new DummyRegisterElement(47008), //
 						m(GoodWe.ChannelId.WIFI_OR_LAN_SWITCH, new UnsignedWordElement(47009)), //
-						new DummyRegisterElement(47010, 47011), //
+						m(GoodWe.ChannelId.RIPPLE_CONTROL_RECEIVER_ENABLE, new UnsignedWordElement(47010)), //
+						new DummyRegisterElement(47011), //
 						m(GoodWe.ChannelId.LED_BLINK_TIME, new UnsignedWordElement(47012)), //
 						m(GoodWe.ChannelId.WIFI_LED_STATE, new UnsignedWordElement(47013)), //
 						m(GoodWe.ChannelId.COM_LED_STATE, new UnsignedWordElement(47014)), //
@@ -1839,7 +1840,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(47008), //
 						// For wifi+Lan module, to switch to LAN or WiFi communicaiton
 						m(GoodWe.ChannelId.WIFI_OR_LAN_SWITCH, new UnsignedWordElement(47009)), //
-						new DummyRegisterElement(47010, 47011), //
+						// Ripple Control Receiver on/off
+						m(GoodWe.ChannelId.RIPPLE_CONTROL_RECEIVER_ENABLE, new UnsignedWordElement(47010)), //
+						new DummyRegisterElement(47011), //
 						m(GoodWe.ChannelId.LED_BLINK_TIME, new UnsignedWordElement(47012)), //
 						// 1: off, 2: on, 3: flash 1x, 4: flash 2x, 5: flash 4x
 						m(GoodWe.ChannelId.WIFI_LED_STATE, new UnsignedWordElement(47013)), //

@@ -7,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress } from '../shared';
+import { ChannelAddress, EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -540,28 +540,82 @@ export class Utils {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
+
   /**
-   * Converts a value in €/MWh to €Ct./kWh.
+   * Calculates the total other consumption.
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
    * 
-   * @param price the price value
-   * @returns  the converted price
+   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
    */
-  public static formatPrice(price: number): number {
-    if (price == null || Number.isNaN(price)) {
-      return null;
-    } else if (price == 0) {
-      return 0;
-    } else {
-      price = (price / 10.0);
-      return Math.round(price * 10000) / 10000.0;
-    }
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+
+    let totalEvcsConsumption: number = 0;
+    let totalMeteredConsumption: number = 0;
+    evcsComponents.forEach(component => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+    });
+
+    return Utils.roundSlightlyNegativeValues(
+      Utils.subtractSafely(
+        Utils.subtractSafely(
+          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
+        totalMeteredConsumption));
+  }
+
+  /**
+   * Calculates the other consumption.
+   * 
+   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
+   * 
+   * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
+   * @param evcsComponents the evcsComponents
+   * @param consumptionMeterComponents the consumptionMeterComponents
+   * @returns the other consumption
+   */
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+
+    let totalEvcsConsumption: number[] = [];
+    let totalMeteredConsumption: number[] = [];
+
+    evcsComponents.forEach(component => {
+      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
+        totalEvcsConsumption[index] = value;
+      });
+    });
+
+    consumptionMeterComponents.forEach(meter => {
+      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
+        totalMeteredConsumption[index] = value;
+      });
+    });
+
+    return channelData['ConsumptionActivePower']?.map((value, index) => {
+
+      if (value == null) {
+        return null;
+      }
+      return Utils.roundSlightlyNegativeValues(
+        Utils.subtractSafely(
+          Utils.subtractSafely(
+            value, totalEvcsConsumption[index]),
+          totalMeteredConsumption[index]));
+    });
   }
 }
 
 export enum YAxisTitle {
   PERCENTAGE,
+  RELAY,
   ENERGY,
-  VOLTAGE
+  VOLTAGE,
+  TIME
 }
 
 export enum ChartAxis {
@@ -603,7 +657,7 @@ export namespace HistoryUtils {
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
     /** Convert the values to be displayed in Chart */
-    converter: () => number[],
+    converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
     /** default: true, stroke through label for hidden dataset */
@@ -620,6 +674,7 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
+    /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
@@ -700,5 +755,129 @@ export namespace HistoryUtils {
         return 0;
       }
     };
+  }
+}
+
+export namespace TimeOfUseTariffUtils {
+
+  export type ScheduleChartData = {
+    datasets: ChartDataSets[],
+    colors: any[],
+    labels: Date[]
+  }
+
+  export enum TimeOfUseTariffState {
+    DelayDischarge = 0,
+    Balancing = 1,
+    Charge = 3,
+  }
+
+  /**
+   * Converts a value in €/MWh to €Ct./kWh.
+   * 
+   * @param price the price value
+   * @returns  the converted price
+   */
+  export function formatPrice(price: number): number {
+    if (price === null || Number.isNaN(price)) {
+      return null;
+    } else if (price === 0) {
+      return 0;
+    } else {
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
+    }
+  }
+
+  /**
+   * Gets the schedule chart data containing datasets, colors and labels.
+   * 
+   * @param size The length of the dataset
+   * @param prices The Time-of-Use-Tariff quarterly price array
+   * @param states The Time-of-Use-Tariff state array
+   * @param timestamps The Time-of-Use-Tariff timestamps array
+   * @param translate The Translate service
+   * @param factoryId The factory id of the component
+   * @returns The ScheduleChartData.
+   */
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
+    let scheduleChartData: ScheduleChartData;
+    let datasets: ChartDataSets[] = [];
+    let colors: any[] = [];
+    let labels: Date[] = [];
+
+    // Initializing States.
+    var barCharge = Array(size).fill(null);
+    var barBalancing = Array(size).fill(null);
+    var barDelayDischarge = Array(size).fill(null);
+
+    for (let index = 0; index < size; index++) {
+      const quarterlyPrice = formatPrice(prices[index]);
+      const state = states[index];
+      labels.push(new Date(timestamps[index]));
+
+      if (state !== null) {
+        switch (state) {
+          case TimeOfUseTariffState.DelayDischarge:
+            barDelayDischarge[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.Balancing:
+            barBalancing[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.Charge:
+            barCharge[index] = quarterlyPrice;
+            break;
+        }
+      }
+    }
+
+    // Set datasets
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+      data: barBalancing,
+      order: 3,
+    });
+    colors.push({
+      // Dark Green
+      backgroundColor: 'rgba(51,102,0,0.8)',
+      borderColor: 'rgba(51,102,0,1)',
+    });
+
+    // Set dataset for Quarterly Prices being charged.
+    if (!barCharge.every(v => v === null)) {
+      datasets.push({
+        type: 'bar',
+        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+        data: barCharge,
+        order: 3,
+      });
+      colors.push({
+        // Sky blue
+        backgroundColor: 'rgba(0, 204, 204,0.5)',
+        borderColor: 'rgba(0, 204, 204,0.7)',
+      });
+    }
+
+    // Set dataset for buy from grid
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+      data: barDelayDischarge,
+      order: 3,
+    });
+    colors.push({
+      // Black
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      borderColor: 'rgba(0,0,0,0.9)',
+    });
+
+    scheduleChartData = {
+      colors: colors,
+      datasets: datasets,
+      labels: labels,
+    };
+
+    return scheduleChartData;
   }
 }
