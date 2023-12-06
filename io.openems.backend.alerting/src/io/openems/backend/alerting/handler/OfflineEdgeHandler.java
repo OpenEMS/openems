@@ -175,7 +175,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return null;
 	}
 
-	private boolean shouldReceiveMail(Edge edge, AlertingSetting setting) {
+	private boolean shouldReceiveMail(Edge edge, UserAlertingSettings setting) {
 		final var lastMailRecievedAt = setting.getLastNotification();
 		final var edgeOfflineSince = edge.getLastmessage();
 

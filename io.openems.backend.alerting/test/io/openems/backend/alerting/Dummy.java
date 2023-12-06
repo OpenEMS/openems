@@ -83,7 +83,7 @@ public class Dummy {
 
 	public static class AlertingMetadataImpl extends SimpleMetadataImpl {
 		private Collection<Edge> edges;
-		private Map<String, List<UserAlertingSettings>> settings;
+		private Map<String, List<UserAlertingSettings>> alertingSettings;
 		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
@@ -100,10 +100,6 @@ public class Dummy {
 		@Override
 		public boolean isInitialized() {
 			return true;
-		}
-
-		public Map<String, List<UserAlertingSettings>> getSettings() {
-			return this.settings;
 		}
 
 		@Override
@@ -129,7 +125,7 @@ public class Dummy {
 			return this.edges;
 		}
 
-		public Map<String, List<AlertingSetting>> getAlertingSettings() {
+		public Map<String, List<UserAlertingSettings>> getAlertingSettings() {
 			return this.alertingSettings;
 		}
 	}
