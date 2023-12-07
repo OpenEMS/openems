@@ -360,7 +360,8 @@
       "Alerting": {
         "offlineAlerting": "Offline Notifications",
         "faultAlerting": "Fault Notifications",
-        "warningDelay": "Warning Notifications",
+        "warningAlerting": "Warning Notifications",
+        "deactivated": "Deactivated",
         "activate": "Activate",
         "delay": "Delay",
         "save": "Save",

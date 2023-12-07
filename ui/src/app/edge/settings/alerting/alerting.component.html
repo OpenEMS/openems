@@ -1,3 +1,11 @@
+<style>
+  ion-select {
+    max-width: 100% !important;
+    margin: auto;
+    padding: 0;
+    vertical-align: middle;
+  }
+</style>
 <header></header>
 <ion-content>
   <!-- Loading Spinner -->
@@ -7,7 +15,7 @@
   <ion-grid *ngIf="!error; else error_view">
     <!-- Current User View -->
     <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="6" *ngIf="currentUserInformation">
+      <ion-col size="12" size-md="8" *ngIf="currentUserInformation as cuser">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
@@ -17,10 +25,95 @@
             <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
           <ion-card-content>
-            <form>
-              <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
-                [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
-              </formly-form>
+            <form [formGroup]="currentUserForm">
+              <ion-item>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="6">
+                      <ion-label>
+                        <span translate>Edge.Config.Alerting.deactivated</span>
+                      </ion-label>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-label>
+                        <span translate>Edge.Config.Alerting.delay</span>
+                      </ion-label>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-item>
+              <ion-item>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="12">
+                      <ion-label class="wrap-text" style="opacity: 0.7;">
+                        <span translate>Edge.Config.Alerting.offlineAlerting</span>
+                      </ion-label>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-checkbox></ion-checkbox>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-select class="custom-options" interface="popover" formControlName="offlineEdgeDelay">
+                        <ion-select-option *ngFor="let option of defaultValues[AlertingType.offline]"
+                          [value]="option.value">
+                          {{option.label}}
+                        </ion-select-option>
+                        <ion-select-option *ngIf="cuser.offlineAlerting
+                            && isInvalidDelay(AlertingType.offline, cuser.offlineAlerting)"
+                          [value]="cuser.offlineAlerting">
+                          {{getLabelToDelay(cuser.offlineAlerting)}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <ion-label class="wrap-text" style="opacity: 0.7;">
+                        <span translate>Edge.Config.Alerting.faultAlerting</span>
+                      </ion-label>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-checkbox></ion-checkbox>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-select class="custom-options" interface="popover" formControlName="faultEdgeDelay">
+                        <ion-select-option *ngFor="let option of defaultValues[AlertingType.fault]"
+                          [value]="option.value">
+                          {{option.label}}
+                        </ion-select-option>
+                        <ion-select-option *ngIf="cuser.faultAlerting
+                            && isInvalidDelay(AlertingType.fault, cuser.faultAlerting)" [value]="cuser.faultAlerting">
+                          {{getLabelToDelay(cuser.faultAlerting)}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <ion-label class="wrap-text" style="opacity: 0.7;">
+                        <span translate>Edge.Config.Alerting.warningAlerting</span>
+                      </ion-label>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-checkbox></ion-checkbox>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-select class="custom-options" interface="popover" formControlName="warningEdgeDelay">
+                        <ion-select-option *ngFor="let option of defaultValues[AlertingType.warning]"
+                          [value]="option.value">
+                          {{option.label}}
+                        </ion-select-option>
+                        <ion-select-option *ngIf="cuser.warningAlerting
+                            && isInvalidDelay(AlertingType.warning, cuser.warningAlerting)"
+                          [value]="cuser.warningAlerting">
+                          {{getLabelToDelay(cuser.warningAlerting)}}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-item>
             </form>
           </ion-card-content>
         </ion-card>
@@ -30,7 +123,7 @@
     <!-- Other Users View -->
     <ng-container *ngIf="otherUserInformation">
       <ion-row class="ion-justify-content-center">
-        <ion-col size="12" size-md="6">
+        <ion-col size="12" size-md="8">
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
@@ -44,24 +137,24 @@
                 <ion-item>
                   <ion-grid>
                     <ion-row>
-                      <ion-col size="6">
+                      <ion-col size="4.5">
                         <ion-label class="wrap-text">
                           <span translate>Menu.user</span>
                         </ion-label>
                       </ion-col>
-                      <ion-col size="2">
+                      <ion-col size="2.5">
                         <ion-label class="wrap-text">
-                          <span translate>Edge.Config.Alerting.delay</span>
+                          <span translate>Edge.Config.Alerting.offlineAlerting</span>
                         </ion-label>
                       </ion-col>
-                      <ion-col size="2">
+                      <ion-col size="2.5">
                         <ion-label class="wrap-text">
-                          <span translate>Edge.Config.Alerting.delay</span>
+                          <span translate>Edge.Config.Alerting.faultAlerting</span>
                         </ion-label>
                       </ion-col>
-                      <ion-col size="2">
+                      <ion-col size="2.5">
                         <ion-label class="wrap-text">
-                          <span translate>Edge.Config.Alerting.delay</span>
+                          <span translate>Edge.Config.Alerting.warningAlerting</span>
                         </ion-label>
                       </ion-col>
                     </ion-row>
@@ -71,32 +164,56 @@
                   <ion-grid>
                     <ion-row *ngFor="let user of otherUserInformation; let i = index;" [formGroupName]="user.userLogin"
                       style="align-items: center;" [ngClass]="(i % 2 === 0) ? '' : 'even-row'">
-                      <ion-col size="6">
+                      <ion-col size="4.5">
                         <ion-label>
                           {{user.userLogin}}
                         </ion-label>
                       </ion-col>
-                      <ion-col size="2">
-                        <ion-select class="custom-options" interface="popover" formControlName="offlineDelay"
-                          style="max-width: 100% !important; margin: 0; padding: 0;">
-                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
+                      <ion-col size="2.5">
+                        <ion-select class="custom-options" interface="popover" formControlName="offlineEdgeDelay">
+                          <ion-select-option [value]="0">
+                            <span translate>Edge.Config.Alerting.deactivated</span>
+                          </ion-select-option>
+                          <ion-select-option *ngFor="let option of defaultValues[AlertingType.offline]"
+                            [value]="option.value">
                             {{option.label}}
+                          </ion-select-option>
+                          <ion-select-option
+                            *ngIf="user.offlineAlerting && isInvalidDelay(AlertingType.offline, user.offlineAlerting)"
+                            [value]="user.offlineAlerting">
+                            {{getLabelToDelay(user.offlineAlerting)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>
-                      <ion-col size="2">
-                        <ion-select class="custom-options" interface="popover" formControlName="errorDelay"
-                          style="max-width: 100% !important; margin: 0; padding: 0;">
-                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
+                      <ion-col size="2.5">
+                        <ion-select class="custom-options" interface="popover" formControlName="faultEdgeDelay">
+                          <ion-select-option [value]="0">
+                            <span translate>Edge.Config.Alerting.deactivated</span>
+                          </ion-select-option>
+                          <ion-select-option *ngFor="let option of defaultValues[AlertingType.fault]"
+                            [value]="option.value">
                             {{option.label}}
+                          </ion-select-option>
+                          <ion-select-option
+                            *ngIf="user.faultAlerting && isInvalidDelay(AlertingType.fault, user.faultAlerting)"
+                            [value]="user.faultAlerting">
+                            {{getLabelToDelay(user.faultAlerting)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>
-                      <ion-col size="2">
-                        <ion-select class="custom-options" interface="popover" formControlName="warningDelay"
-                          style="max-width: 100% !important; margin: 0; padding: 0;">
-                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
+                      <ion-col size="2.5">
+                        <ion-select class="custom-options" interface="popover" formControlName="warningEdgeDelay">
+                          <ion-select-option [value]="0">
+                            <span translate>Edge.Config.Alerting.deactivated</span>
+                          </ion-select-option>
+                          <ion-select-option *ngFor="let option of defaultValues[AlertingType.warning]"
+                            [value]="option.value">
                             {{option.label}}
+                          </ion-select-option>
+                          <ion-select-option
+                            *ngIf="user.warningAlerting && isInvalidDelay(AlertingType.warning, user.warningAlerting)"
+                            [value]="user.warningAlerting">
+                            {{getLabelToDelay(user.warningAlerting)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>

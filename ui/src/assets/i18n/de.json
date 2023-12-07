@@ -359,7 +359,8 @@
       "Alerting": {
         "offlineAlerting": "Offline Benachrichtigung",
         "faultAlerting": "Fehler Benachrichtigung",
-        "warningDelay": "Warnungs Benachrichtigung",
+        "warningAlerting": "Warnungs Benachrichtigung",
+        "deactivated": "Deaktiviert",
         "activate": "Aktivieren",
         "delay": "Verzögerung",
         "save": "Speichern",

@@ -2,46 +2,40 @@ import { User } from 'src/app/shared/jsonrpc/shared';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SetUserAlertingConfigsRequest, UserSettingRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
 import { GetUserAlertingConfigsResponse, AlertingSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
 import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 
-enum AlertingType {
-  offline = "O",
-  fault = "F",
-  warning = "W"
+export enum AlertingType {
+  offline = 0,
+  fault = 1,
+  warning = 2
 };
 
-type DefaultDelayValue = { type: AlertingType, values: number[] };
-
-type Delay = { value: number, label: string }
-type DelayOption = { type: AlertingType, values: Delay[] }
-
-type AlertingSetting = AlertingSettingResponse & { options: DelayOption[] }
+type DefaultValues = { [K in AlertingType]: Delay[]; };
+type Delay = { value: number, label: string };
+type AlertingSetting = AlertingSettingResponse;
 
 @Component({
   selector: AlertingComponent.SELECTOR,
   templateUrl: './alerting.component.html',
 })
 export class AlertingComponent implements OnInit {
+  protected AlertingType = AlertingType;
+
   protected static readonly SELECTOR = "alerting";
   public readonly spinnerId: string = AlertingComponent.SELECTOR;
 
-  protected static readonly DEFAULT_DELAYS: DefaultDelayValue[] = [
-    { type: AlertingType.offline, values: [15, 60, 1440]},
-    { type: AlertingType.fault, values: [15, 60, 1440]},
-    { type: AlertingType.warning, values: [15, 60, 1440]},
-  ];
+  protected readonly defaultValues: DefaultValues;
 
   protected edge: Edge;
   protected user: User;
   protected error: Error;
 
   protected currentUserInformation: AlertingSetting;
-  protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
+  protected currentUserForm: FormGroup;
 
   protected otherUserInformation: AlertingSetting[];
   protected otherUserForm: FormGroup;
@@ -53,7 +47,13 @@ export class AlertingComponent implements OnInit {
     private service: Service,
     private translate: TranslateService,
     public formBuilder: FormBuilder,
-  ) { }
+  ) {
+    this.defaultValues = {
+      [AlertingType.offline]: this.asDelayOptions([15, 60, 1440]),
+      [AlertingType.fault]: this.asDelayOptions([15, 60, 1440]),
+      [AlertingType.warning]: this.asDelayOptions([15, 60, 1440]),
+    };
+  }
 
   public ngOnInit(): void {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
@@ -68,7 +68,7 @@ export class AlertingComponent implements OnInit {
       this.sendRequest(request).then(response => {
         const result = response.result;
 
-        this.currentUserInformation = this.combine(result.currentUserSettings, this.getDelayOptions(result.currentUserSettings));
+        this.currentUserInformation = result.currentUserSettings;
         this.currentUserForm = this.generateFormFor(this.currentUserInformation);
 
         if (result.otherUsersSettings) {
@@ -80,65 +80,20 @@ export class AlertingComponent implements OnInit {
     });
   }
 
-  private combine(response: AlertingSettingResponse, options: DelayOption[]): AlertingSetting {
-    return Object.assign({}, response, { options: options });
+  private generateFormFor(userSettings: AlertingSetting): FormGroup {
+    return this.formBuilder.group({
+      offlineEdgeDelay: new FormControl(userSettings.offlineEdgeDelay),
+      faultEdgeDelay: new FormControl(userSettings.faultEdgeDelay),
+      warningEdgeDelay: new FormControl(userSettings.warningEdgeDelay),
+    });
   }
 
-  private getSetting(userSetting: AlertingSettingResponse, type: AlertingType): number {
-    switch(type) {
-      case AlertingType.offline: return userSetting.offlineEdgeDelay;
-      case AlertingType.fault: return userSetting.faultEdgeDelay;
-      case AlertingType.warning: return userSetting.warningEdgeDelay;
+  private withOption(type: AlertingType, value: number) {
+    if (this.isInvalidDelay(type, value)) {
+      return this.defaultValues[type].concat(this.asDelayOption(value));
+    } else {
+      return this.defaultValues[type];
     }
-  }
-
-  private generateFormFor(userSettings: AlertingSettingResponse): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
-    let delays: DelayOption[] = this.getDelayOptions(userSettings);
-    return {
-      formGroup: new FormGroup({}),
-      options: {
-        formState: {
-          awesomeIsForced: false,
-        },
-      },
-      model: {
-        faultAlerting: userSettings.faultEdgeDelay,
-        warnAlerting: userSettings.warningEdgeDelay,
-        offlineAlerting: userSettings.offlineEdgeDelay,
-      },
-      fields: [
-      {
-        key: 'offlineAlerting',
-        type: 'radio',
-        templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.delay'),
-          type: 'number',
-          required: true,
-          options: delays[AlertingType.offline],
-        },
-      },
-      {
-        key: 'faultAlerting',
-        type: 'radio',
-        templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.delay'),
-          type: 'number',
-          required: true,
-          options: delays[AlertingType.fault],
-        },
-      },
-      {
-        key: 'warnAlerting',
-        type: 'radio',
-        templateOptions: {
-          label: this.translate.instant('Edge.Config.Alerting.delay'),
-          type: 'number',
-          required: true,
-          options: delays[AlertingType.warning],
-        },
-      },
-      ],
-    };
   }
 
   private generateSettings(response: AlertingSettingResponse[]): [AlertingSetting[], FormGroup] {
@@ -147,21 +102,23 @@ export class AlertingComponent implements OnInit {
 
     var sorted = this.sortedAlphabetically(response);
 
-    sorted.forEach((s) => {
-      settings.push({
-        userLogin: s.userLogin,
-        offlineEdgeDelay: s.offlineEdgeDelay,
-        faultEdgeDelay: s.faultEdgeDelay,
-        warningEdgeDelay: s.warningEdgeDelay,
-        options: this.getDelayOptions(s),
-      });
+    sorted.forEach((r) => {
+      var setting: AlertingSetting = {
+        userLogin: r.userLogin,
+        offlineEdgeDelay: r.offlineEdgeDelay,
+        faultEdgeDelay: r.faultEdgeDelay,
+        warningEdgeDelay: r.warningEdgeDelay,
+      };
 
-      form.addControl(s.userLogin, this.formBuilder.group({
-        offlineDelay: new FormControl(s.offlineEdgeDelay),
-        errorDelay: new FormControl(s.faultEdgeDelay),
-        warningDelay: new FormControl(s.warningEdgeDelay)
-      }));
-    })
+      settings.push(setting);
+
+      form.addControl(setting.userLogin, //
+        this.formBuilder.group({
+          offlineEdgeDelay: new FormControl(setting.offlineEdgeDelay),
+          faultEdgeDelay: new FormControl(setting.faultEdgeDelay),
+          warningEdgeDelay: new FormControl(setting.warningEdgeDelay),
+        }));
+    });
 
     return [settings, form];
   }
@@ -172,47 +129,22 @@ export class AlertingComponent implements OnInit {
     });
   }
 
-  private getDelayOptions(settings: AlertingSettingResponse): DelayOption[] {
-    let delayOptions: DelayOption[] = this.Delays;
+  private asDelayOptions(settings: number[]): Delay[] {
+    return settings.map(v => this.asDelayOption(v));
+  }
 
-    delayOptions.forEach((option) => {
-      option.values.push({value: 0, label: 'Deaktiviert'});
-      let value = this.getSetting(settings, option.type)
-      if (this.isInvalidDelay(option.type, value)) {
-        option.values.push({ value: value, label: this.getLabelToDelay(value) });
-      }
-    });
-    return delayOptions;
+  private asDelayOption(setting: number): Delay {
+    return { value: setting, label: this.getLabelToDelay(setting) };
   }
 
   /**
    * get if given delay is valid
    */
   protected isInvalidDelay(type: AlertingType, delay: number): boolean {
-    if (delay === 0) {
+    if (delay <= 0) {
       return false;
     }
-    return !AlertingComponent.DEFAULT_DELAYS[type].includes(delay);
-  }
-
-  /**
-   * get list of delays with translated labels.
-   */
-  protected get Delays() : DelayOption[] {
-    let options: DelayOption[] = []
-
-    Object.values(AlertingType).forEach((type: AlertingType) => {
-      var delayValues: number[] = AlertingComponent.DEFAULT_DELAYS.find(t => t.type == type).values;
-
-      var delay: Delay[] = [];
-      delayValues.forEach((v) => {
-        delay.push({ value: v, label: this.getLabelToDelay(v) })
-      });
-
-      options[type] = delay;
-    });
-    
-    return options
+    return this.defaultValues[type].findIndex(e => e.value === delay) === -1;
   }
 
   /**
@@ -222,7 +154,10 @@ export class AlertingComponent implements OnInit {
    * @param delay to generate label for
    * @returns label as string
    */
-  private getLabelToDelay(delay: number): string {
+  protected getLabelToDelay(delay: number): string {
+    if (delay <= 0) {
+      return this.translate.instant("Edge.Config.Alerting.deactivated");
+    }
     if (delay >= 1440) {
       delay = delay / 1440;
       return delay + ' ' + (delay == 1
@@ -246,14 +181,19 @@ export class AlertingComponent implements OnInit {
     let dirtyformGroups: FormGroup<any>[] = [];
     let changedUserSettings: UserSettingRequest[] = [];
 
-    if (this.currentUserForm.formGroup.dirty) {
-      dirtyformGroups.push(this.currentUserForm.formGroup);
+    if (this.currentUserForm.dirty) {
+      var formGroup = this.currentUserForm;
+      dirtyformGroups.push(formGroup);
+
+      let offlineEdgeDelay = formGroup.controls['offlineEdgeDelay']?.value ?? 0;
+      let faultEdgeDelay = formGroup.controls['faultEdgeDelay']?.value ?? 0;
+      let warningEdgeDelay = formGroup.controls['warningEdgeDelay']?.value ?? 0;
 
       changedUserSettings.push({
         userLogin: this.currentUserInformation.userLogin,
-        offlineEdgeDelay: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
-        faultEdgeDelay: 0,
-        warningEdgeDelay: 0,
+        offlineEdgeDelay: offlineEdgeDelay,
+        warningEdgeDelay: warningEdgeDelay,
+        faultEdgeDelay: faultEdgeDelay,
       });
     }
 
@@ -265,19 +205,23 @@ export class AlertingComponent implements OnInit {
         for (let user of this.otherUserInformation) {
           let control = this.otherUserForm.controls[user.userLogin];
           if (control.dirty) {
-            let delayTime = control.value['delayTime'];
-            let isActivated = control.value['isActivated'];
+            let offlineEdgeDelay = control.value['offlineEdgeDelay'];
+            let faultEdgeDelay = control.value['faultEdgeDelay'];
+            let warningEdgeDelay = control.value['warningEdgeDelay'];
+            //let isActivated = control.value['isActivated'];
             changedUserSettings.push({
               userLogin: user.userLogin,
-              offlineEdgeDelay: isActivated ? delayTime : 0,
-              warningEdgeDelay: 0,
-              faultEdgeDelay: 0,
+              offlineEdgeDelay: offlineEdgeDelay,
+              warningEdgeDelay: warningEdgeDelay,
+              faultEdgeDelay: faultEdgeDelay,
             });
             userOptions.push(user);
           }
         }
       }
     }
+
+    console.log(changedUserSettings);
 
     let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
     this.sendRequestAndUpdate(request, dirtyformGroups);
@@ -344,6 +288,6 @@ export class AlertingComponent implements OnInit {
     if (this.error || !this.currentUserForm) {
       return false;
     }
-    return this.currentUserForm?.formGroup.dirty || this.otherUserForm?.dirty;
+    return this.currentUserForm?.dirty || this.otherUserForm?.dirty;
   }
 }
