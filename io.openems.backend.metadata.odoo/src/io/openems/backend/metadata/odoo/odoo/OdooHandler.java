@@ -1117,7 +1117,7 @@ public class OdooHandler {
 	 *
 	 * @param edgeId ID of Edge
 	 * @param userId ID of User
-	 * @return {@link AlertingSetting} or {@link null} if no settings are stored
+	 * @return {@link UserAlertingSettings} or {@link null} if no settings are stored
 	 * @throws OpenemsException on error
 	 */
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {

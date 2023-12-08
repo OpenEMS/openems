@@ -308,7 +308,7 @@ public interface Metadata {
 	 *
 	 *
 	 * @param edgeId the Edge ID
-	 * @return List of {@link AlertingSetting}
+	 * @return List of {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException;
