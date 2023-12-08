@@ -69,7 +69,11 @@ export class AlertingComponent implements OnInit {
         const result = response.result;
 
         this.currentUserInformation = result.currentUserSettings;
-        this.currentUserForm = this.generateFormFor(this.currentUserInformation);
+        this.currentUserForm = this.formBuilder.group({
+          offlineEdgeDelay: new FormControl(this.currentUserInformation.offlineEdgeDelay),
+          faultEdgeDelay: new FormControl(this.currentUserInformation.faultEdgeDelay),
+          warningEdgeDelay: new FormControl(this.currentUserInformation.warningEdgeDelay),
+        });
 
         if (result.otherUsersSettings) {
           [this.otherUserInformation, this.otherUserForm] = this.generateSettings(result.otherUsersSettings);
@@ -78,22 +82,6 @@ export class AlertingComponent implements OnInit {
         this.error = error.error;
       });
     });
-  }
-
-  private generateFormFor(userSettings: AlertingSetting): FormGroup {
-    return this.formBuilder.group({
-      offlineEdgeDelay: new FormControl(userSettings.offlineEdgeDelay),
-      faultEdgeDelay: new FormControl(userSettings.faultEdgeDelay),
-      warningEdgeDelay: new FormControl(userSettings.warningEdgeDelay),
-    });
-  }
-
-  private withOption(type: AlertingType, value: number) {
-    if (this.isInvalidDelay(type, value)) {
-      return this.defaultValues[type].concat(this.asDelayOption(value));
-    } else {
-      return this.defaultValues[type];
-    }
   }
 
   private generateSettings(response: AlertingSettingResponse[]): [AlertingSetting[], FormGroup] {

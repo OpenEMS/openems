@@ -1,7 +1,5 @@
 import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 
-import { Role } from "../../type/role";
-
 export interface AlertingSettingResponse {
     userLogin: string,
     offlineEdgeDelay: number,

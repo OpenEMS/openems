@@ -59,10 +59,9 @@
                           [value]="option.value">
                           {{option.label}}
                         </ion-select-option>
-                        <ion-select-option *ngIf="cuser.offlineAlerting
-                            && isInvalidDelay(AlertingType.offline, cuser.offlineAlerting)"
-                          [value]="cuser.offlineAlerting">
-                          {{getLabelToDelay(cuser.offlineAlerting)}}
+                        <ion-select-option *ngIf="isInvalidDelay(AlertingType.offline, cuser.offlineEdgeDelay)"
+                          [value]="cuser.offlineEdgeDelay">
+                          {{getLabelToDelay(cuser.offlineEdgeDelay)}}
                         </ion-select-option>
                       </ion-select>
                     </ion-col>
@@ -82,9 +81,9 @@
                           [value]="option.value">
                           {{option.label}}
                         </ion-select-option>
-                        <ion-select-option *ngIf="cuser.faultAlerting
-                            && isInvalidDelay(AlertingType.fault, cuser.faultAlerting)" [value]="cuser.faultAlerting">
-                          {{getLabelToDelay(cuser.faultAlerting)}}
+                        <ion-select-option *ngIf="isInvalidDelay(AlertingType.fault, cuser.faultEdgeDelay)"
+                          [value]="cuser.faultEdgeDelay">
+                          {{getLabelToDelay(cuser.faultEdgeDelay)}}
                         </ion-select-option>
                       </ion-select>
                     </ion-col>
@@ -96,7 +95,8 @@
                       </ion-label>
                     </ion-col>
                     <ion-col size="6">
-                      <ion-checkbox></ion-checkbox>
+                      <ion-checkbox formControlName="warningActive">
+                      </ion-checkbox>
                     </ion-col>
                     <ion-col size="6">
                       <ion-select class="custom-options" interface="popover" formControlName="warningEdgeDelay">
@@ -104,10 +104,9 @@
                           [value]="option.value">
                           {{option.label}}
                         </ion-select-option>
-                        <ion-select-option *ngIf="cuser.warningAlerting
-                            && isInvalidDelay(AlertingType.warning, cuser.warningAlerting)"
-                          [value]="cuser.warningAlerting">
-                          {{getLabelToDelay(cuser.warningAlerting)}}
+                        <ion-select-option *ngIf="isInvalidDelay(AlertingType.warning, cuser.warningEdgeDelay)"
+                          [value]="cuser.warningEdgeDelay">
+                          {{getLabelToDelay(cuser.warningEdgeDelay)}}
                         </ion-select-option>
                       </ion-select>
                     </ion-col>
@@ -178,10 +177,9 @@
                             [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
-                          <ion-select-option
-                            *ngIf="user.offlineAlerting && isInvalidDelay(AlertingType.offline, user.offlineAlerting)"
-                            [value]="user.offlineAlerting">
-                            {{getLabelToDelay(user.offlineAlerting)}}
+                          <ion-select-option *ngIf="isInvalidDelay(AlertingType.offline, user.offlineEdgeDelay)"
+                            [value]="user.offlineEdgeDelay">
+                            {{getLabelToDelay(user.offlineEdgeDelay)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>
@@ -194,10 +192,9 @@
                             [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
-                          <ion-select-option
-                            *ngIf="user.faultAlerting && isInvalidDelay(AlertingType.fault, user.faultAlerting)"
-                            [value]="user.faultAlerting">
-                            {{getLabelToDelay(user.faultAlerting)}}
+                          <ion-select-option *ngIf="isInvalidDelay(AlertingType.fault, user.faultEdgeDelay)"
+                            [value]="user.faultEdgeDelay">
+                            {{getLabelToDelay(user.faultEdgeDelay)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>
@@ -210,10 +207,9 @@
                             [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
-                          <ion-select-option
-                            *ngIf="user.warningAlerting && isInvalidDelay(AlertingType.warning, user.warningAlerting)"
-                            [value]="user.warningAlerting">
-                            {{getLabelToDelay(user.warningAlerting)}}
+                          <ion-select-option *ngIf="isInvalidDelay(AlertingType.warning, user.warningEdgeDelay)"
+                            [value]="user.warningEdgeDelay">
+                            {{getLabelToDelay(user.warningEdgeDelay)}}
                           </ion-select-option>
                         </ion-select>
                       </ion-col>
