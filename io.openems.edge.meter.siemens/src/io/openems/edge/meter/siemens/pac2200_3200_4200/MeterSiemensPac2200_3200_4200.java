@@ -6,7 +6,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface MeterSiemensPac2200_3200_4200 extends ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public interface MeterSiemensPac2200_3200_4200
+		extends ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
