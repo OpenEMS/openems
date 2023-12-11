@@ -18,7 +18,7 @@ import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
 import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
 import io.openems.backend.alerting.scheduler.Scheduler;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.common.event.EventBuilder;
 
@@ -36,7 +36,7 @@ public class OfflineEdgeAlertingTest {
 		private Scheduler scheduler;
 
 		private HashMap<Integer, Edge> edges;
-		private Map<String, List<AlertingSetting>> settings;
+		private Map<String, List<UserAlertingSettings>> settings;
 
 		public TestEnvironment() {
 			final var instant = Instant.now();
@@ -86,9 +86,9 @@ public class OfflineEdgeAlertingTest {
 			edge.setOnline(online);
 			this.edges.put(id, edge);
 
-			var list = new ArrayList<AlertingSetting>(5);
+			var list = new ArrayList<UserAlertingSettings>(5);
 			for (var set : settings) {
-				list.add(new AlertingSetting(id, set.user, null, lastMessage, set.delay));
+				list.add(new UserAlertingSettings(id, set.user, null, lastMessage, set.delay));
 			}
 
 			this.settings.put(edge.getId(), list);
