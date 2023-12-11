@@ -15,6 +15,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -28,11 +31,15 @@ import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,13 +47,24 @@ import io.openems.edge.meter.api.MeterType;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
-		implements MeterMicrocareSdm630, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
+public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent implements MeterMicrocareSdm630,
+		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
+
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -160,19 +178,12 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								DIRECT_1_TO_1),
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new FloatDoublewordElement(30073 - offset).wordOrder(WordOrder.MSWLSW)
-										.byteOrder(ByteOrder.BIG_ENDIAN),
-								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new FloatDoublewordElement(30075 - offset).wordOrder(WordOrder.MSWLSW)
-										.byteOrder(ByteOrder.BIG_ENDIAN),
-								SCALE_FACTOR_3),
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
+						new DummyRegisterElement(30073 - offset, 30076 - offset), //
+						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30077 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
+						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30079 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3)));
@@ -189,5 +200,38 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		}
+	}
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		final var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower >= 0) {
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(-activePower);
+		}
 	}
 }

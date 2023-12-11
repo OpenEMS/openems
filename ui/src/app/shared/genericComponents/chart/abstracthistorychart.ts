@@ -70,6 +70,7 @@ export abstract class AbstractHistoryChart implements OnInit {
         this.config = config;
 
       }).then(() => {
+
         this.chartObject = this.getChartData();
         this.loadChart();
       });
@@ -247,7 +248,8 @@ export abstract class AbstractHistoryChart implements OnInit {
       maxBarThickness: 100,
       ...(element.borderDash != null && { borderDash: element.borderDash }),
       yAxisID: element.yAxisId != null ? element.yAxisId : chartObject.yAxes.find(element => element.yAxisId == ChartAxis.LEFT)?.yAxisId,
-      order: element.order ?? Number.MAX_VALUE
+      order: element.order ?? Number.MAX_VALUE,
+      ...(element.hideShadow && { fill: !element.hideShadow })
     };
     return dataset;
   }
@@ -443,7 +445,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
 
-          let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
+          let channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
           let request = new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses);
           if (channelAddresses.length > 0) {
             edge.sendRequest(this.service.websocket, request).then(response => {
@@ -460,6 +462,8 @@ export abstract class AbstractHistoryChart implements OnInit {
               this.errorResponse = response;
               this.initializeChart();
             });
+          } else {
+            resolve(null);
           }
         });
       });
@@ -524,6 +528,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           break;
 
         case YAxisTitle.ENERGY:
+        case YAxisTitle.VOLTAGE:
           options.scales.yAxes.push({
             id: element.yAxisId,
             position: element.position,
@@ -715,6 +720,8 @@ export abstract class AbstractHistoryChart implements OnInit {
         } else {
           return 'kW';
         }
+      case YAxisTitle.VOLTAGE:
+        return 'Voltage';
       default:
         return 'kW';
     }
@@ -730,6 +737,8 @@ export abstract class AbstractHistoryChart implements OnInit {
     switch (title) {
       case YAxisTitle.PERCENTAGE:
         return '%';
+      case YAxisTitle.VOLTAGE:
+        return 'V';
       case YAxisTitle.ENERGY:
         if (chartType == 'bar') {
           return 'kWh';

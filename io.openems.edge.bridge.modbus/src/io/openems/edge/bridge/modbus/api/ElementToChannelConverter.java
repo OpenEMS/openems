@@ -2,7 +2,9 @@ package io.openems.edge.bridge.modbus.api;
 
 import java.util.function.Function;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.converter.StaticConverters;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Provides Functions to convert from Element to Channel and back. Also has some
@@ -268,6 +270,26 @@ public class ElementToChannelConverter {
 			return INVERT;
 		}
 		return DIRECT_1_TO_1;
+	}
+
+	/**
+	 * Sets the null value for given {@link Integer} value.
+	 * 
+	 * @param defaultValue to ignore {@link Integer}
+	 * @return null if actual value is equal to default value.
+	 */
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SET_NULL_FOR_DEFAULT(int defaultValue) {
+		// CHECKSTYLE:ON
+		return new ElementToChannelConverter(value -> {
+			var v = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+
+			if (v == null || v == defaultValue) {
+				return null;
+			}
+
+			return v;
+		});
 	}
 
 	/**

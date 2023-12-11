@@ -1,7 +1,7 @@
 import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SumState } from 'src/app/index/shared/sumState';
 
+import { SumState } from 'src/app/index/shared/sumState';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';

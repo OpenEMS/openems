@@ -3,7 +3,7 @@ package io.openems.common.utils;
 public class IntUtils {
 
 	public enum Round {
-		AWAY_FROM_ZERO, TOWARDS_ZERO
+		AWAY_FROM_ZERO, TOWARDS_ZERO, HALF_UP
 	}
 
 	/**
@@ -20,6 +20,10 @@ public class IntUtils {
 	public static int roundToPrecision(double value, Round round, int precision) {
 		if ((value == 0) || (value % precision == 0)) {
 			return (int) value;
+		}
+
+		if (round.equals(Round.HALF_UP)) {
+			return (int) Math.round(value / precision) * precision;
 		}
 
 		if (value < 0 && round == Round.AWAY_FROM_ZERO || value > 0 && round == Round.TOWARDS_ZERO) {

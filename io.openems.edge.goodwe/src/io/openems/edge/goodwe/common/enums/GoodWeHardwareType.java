@@ -1,9 +1,11 @@
 package io.openems.edge.goodwe.common.enums;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType;
 
 /**
  * Defines the GoodWe hardware type.
@@ -14,16 +16,20 @@ import io.openems.common.types.OptionsEnum;
  * Register for {@link GoodWeType} is not supported for GoodWe 15, 20 & 29.9.
  */
 public enum GoodWeHardwareType implements OptionsEnum {
-	UNDEFINED(-1, "Undefined", (t) -> false, 0), //
-	OTHER(0, "Other", (t) -> false, 25), //
-	GOODWE_10(1, "GoodWe 10kW", Position2Filter.of("10"), 25), //
-	GOODWE_20(2, "GoodWe 20kW", Position2Filter.of("20"), 50), //
-	GOODWE_29_9(3, "GoodWe 29,9kW", Home30Filter.of("29K9", "30"), 50); //
+	UNDEFINED(-1, "Undefined", (t) -> false, 0, (t) -> true), //
+	OTHER(0, "Other", (t) -> false, 25, (t) -> true), //
+	GOODWE_10(1, "GoodWe 10kW", Position2Filter.of("10"), 25,
+			(battery) -> battery.equals(BatteryFeneconHomeHardwareType.BATTERY_52)), //
+	GOODWE_20(2, "GoodWe 20kW", Position2Filter.of("20"), 50,
+			(battery) -> battery.equals(BatteryFeneconHomeHardwareType.BATTERY_64)), //
+	GOODWE_29_9(3, "GoodWe 29,9kW", Home30Filter.of("29K9", "30"), 50,
+			(battery) -> battery.equals(BatteryFeneconHomeHardwareType.BATTERY_64)); //
 
 	public final int value;
 	public final String type;
 	public final ThrowingFunction<String, Boolean, Exception> serialNrFilter;
 	public final int maxDcCurrent; // [A]
+	public final Predicate<BatteryFeneconHomeHardwareType> isValidHomeBattery;
 
 	private static class Position2Filter implements ThrowingFunction<String, Boolean, Exception> {
 		private final String match;
@@ -62,11 +68,12 @@ public enum GoodWeHardwareType implements OptionsEnum {
 	}
 
 	private GoodWeHardwareType(int value, String type, ThrowingFunction<String, Boolean, Exception> serialNrFilter,
-			int maxDcCurrent) {
+			int maxDcCurrent, Predicate<BatteryFeneconHomeHardwareType> isValidHomeBattery) {
 		this.value = value;
 		this.type = type;
 		this.serialNrFilter = serialNrFilter;
 		this.maxDcCurrent = maxDcCurrent;
+		this.isValidHomeBattery = isValidHomeBattery;
 	}
 
 	@Override
