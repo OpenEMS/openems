@@ -34,6 +34,10 @@ export class ChartComponent extends AbstractHistoryChart {
             return Utils.calculateAutarchy(energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null, energyValues?.result.data['_sum/ConsumptionActiveEnergy'] ?? null);
           },
           converter: () => {
+            console.log("test", data['Consumption']
+              ?.map((value, index) =>
+                Utils.calculateAutarchy(data['GridBuy'][index], value),
+              ))
             return data['Consumption']
               ?.map((value, index) =>
                 Utils.calculateAutarchy(data['GridBuy'][index], value),

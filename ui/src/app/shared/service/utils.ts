@@ -448,7 +448,7 @@ export class Utils {
     saveAs(data, filename + '.xlsx');
   }
 
-  /*
+  /**
   * Calculate the Self-Consumption rate.
   * 
   * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
@@ -478,7 +478,7 @@ export class Utils {
   }
 
   /**
-   * Calculate the Autarchy Rate
+   * Calculates the Autarchy Rate
    * 
    * @param buyFromGrid the Buy-From-Grid power (GridActivePower)
    * @param consumptionActivePower the Consumption Power (ConsumptionActivePower)
@@ -495,7 +495,6 @@ export class Utils {
           /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
-
     } else {
       return null;
     }
@@ -552,6 +551,7 @@ export class Utils {
     } else {
       return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
     }
+  }
 
   /**
    * Calculates the total other consumption.
@@ -646,7 +646,7 @@ export namespace HistoryUtils {
  * @param translate the TranslateService
  * @returns a dataset
  */
-  export function createEmptyDataset(translate: TranslateService): Chart.ChartDataset[] {
+  export function createEmptyDataset(translate: TranslateService): Chart.ChartDataset<any>[] {
     return [{
       label: translate.instant("Edge.History.noData"),
       data: [],
@@ -773,7 +773,7 @@ export namespace HistoryUtils {
 export namespace TimeOfUseTariffUtils {
 
   export type ScheduleChartData = {
-    datasets: ChartDataSets[],
+    datasets: Chart.ChartDataset[],
     colors: any[],
     labels: Date[]
   }
@@ -814,7 +814,7 @@ export namespace TimeOfUseTariffUtils {
    */
   export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
     let scheduleChartData: ScheduleChartData;
-    let datasets: ChartDataSets[] = [];
+    let datasets: Chart.ChartDataset[] = [];
     let colors: any[] = [];
     let labels: Date[] = [];
 

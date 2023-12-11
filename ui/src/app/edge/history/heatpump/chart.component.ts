@@ -6,6 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import * as Chart from 'chart.js';
+import { ChartAxis } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'heatpumpchart',
@@ -82,6 +83,9 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(() => {
+            this.setOptions(this.options);
+            this.extendOptions(this.options);
         });
     }
 
@@ -91,12 +95,10 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         });
     }
 
-    protected setLabel() {
-        let options = this.createDefaultChartOptions();
+    private extendOptions(options: Chart.ChartOptions) {
         let translate = this.translate;
-        options.scales.yAxes[0].id = 'yAxis1';
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');
-        options.scales.yAxes[0].ticks.callback = function (label, index, labels) {
+        options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
+        options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
             switch (label) {
                 case -1:
                     return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
@@ -110,8 +112,64 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
         };
-        options.scales.yAxes[0].ticks.max = 3;
-        options.scales.yAxes[0].ticks.stepSize = 1;
+
+
+
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            let toolTipValue;
+            switch (value) {
+                case -1:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+                    break;
+                case 0:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
+                    break;
+
+                case 1:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
+                    break;
+                case 2:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
+                    break;
+                case 3:
+                    toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
+                    break;
+                default:
+                    toolTipValue = '';
+                    break;
+            }
+            return label + ": " + toolTipValue; // TODO get locale dynamically
+        };
+
+        options.scales[ChartAxis.LEFT].max = 3;
+
+        options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
+
+        this.options = options;
+    }
+
+    protected setLabel() {
+        let options = this.createDefaultChartOptions();
+        let translate = this.translate;
+        // options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
+        // options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
+        //     switch (label) {
+        //         case -1:
+        //             return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
+        //         case 0:
+        //             return translate.instant('Edge.Index.Widgets.HeatPump.lock');
+        //         case 1:
+        //             return translate.instant('Edge.Index.Widgets.HeatPump.normalOperationShort');
+        //         case 2:
+        //             return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRecShort');
+        //         case 3:
+        //             return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
+        //     }
+        // };
+        // options.scales[ChartAxis.LEFT].ticks.max = 3;
+        // options.scales[ChartAxis.LEFT].ticks.stepSize = 1;
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
             // let label = data.datasets[tooltipItem.datasetIndex].label;
             // let value = tooltipItem.yLabel;

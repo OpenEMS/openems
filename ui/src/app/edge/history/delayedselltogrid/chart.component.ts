@@ -187,6 +187,8 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(() => {
+            this.setOptions(this.options);
         });
     }
 

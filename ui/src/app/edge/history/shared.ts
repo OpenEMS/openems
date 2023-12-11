@@ -149,10 +149,6 @@ export type ChartOptions = {
 export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    legend: {
-        labels: {},
-        position: 'bottom'
-    },
     elements: {
         point: {
             radius: 0,
@@ -163,9 +159,6 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
             stepped: false,
             fill: true
         },
-        rectangle: {
-            borderWidth: 2
-        }
     },
     datasets: {
         bar: {},
@@ -187,10 +180,14 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
         tooltip: {
             intersect: false,
             mode: 'index',
+            filter: function (item, data, test, some) {
+                const value = item.dataset.data[item.dataIndex] as number;
+                return !isNaN(value) && value !== null;
+            },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]): string => {
-                    return null;
+                title: (tooltipItems: Chart.TooltipItem<any>[]) => {
+                    // return null;
                     // let date = new Date(Date.parse(tooltipItems[0].label));
                     // return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
                 },
@@ -202,12 +199,13 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
     scales: {
         x: {
             stacked: true,
-            // offset: false,
+            offset: false,
             type: 'time',
             ticks: {
-                source: 'data'
+
             },
-            bounds: 'ticks',
+
+            bounds: 'data',
             adapters: {
                 date: {
                     locale: de,

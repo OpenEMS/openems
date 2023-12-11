@@ -228,49 +228,49 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         options.scales.yAxes.shift();
 
         // adds second y-axis to chart
-        options.scales.yAxes
-            .push({
-                id: 'yAxis2',
-                position: 'right',
-                scaleLabel: {
-                    display: true,
-                    labelString: "%",
-                    padding: -2,
-                    fontSize: 11,
-                },
-                gridLines: {
-                    display: true,
-                },
-                ticks: {
-                    beginAtZero: true,
-                    max: 100,
-                    padding: -5,
-                    stepSize: 20,
-                },
-            });
+        // options.scales.yAxes
+        //     .push({
+        //         id: 'yAxis2',
+        //         position: 'right',
+        //         scaleLabel: {
+        //             display: true,
+        //             labelString: "%",
+        //             padding: -2,
+        //             fontSize: 11,
+        //         },
+        //         gridLines: {
+        //             display: true,
+        //         },
+        //         ticks: {
+        //             beginAtZero: true,
+        //             max: 100,
+        //             padding: -5,
+        //             stepSize: 20,
+        //         },
+        //     });
 
-        options.layout = {
-            padding: {
-                left: 2,
-                right: 2,
-                top: 0,
-                bottom: 0,
-            },
-        };
-        //x-axis
-        options.scales.xAxes[0].time.unit = "hour";
+        // options.layout = {
+        //     padding: {
+        //         left: 2,
+        //         right: 2,
+        //         top: 0,
+        //         bottom: 0,
+        //     },
+        // };
+        // //x-axis
+        // options.scales.xAxes[0].time.unit = "hour";
 
-        //y-axis
-        options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-            let label = data.datasets[tooltipItem.datasetIndex].label;
-            let value = tooltipItem.yLabel;
-            if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
-                return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            } else {
-                return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-            }
-        };
-        this.options = options;
+        // //y-axis
+        // options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+        //     let label = data.datasets[tooltipItem.datasetIndex].label;
+        //     let value = tooltipItem.yLabel;
+        //     if (label == translate.instant('General.soc') || label == translate.instant('Edge.Index.Widgets.GridOptimizedCharge.expectedSoc')) {
+        //         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+        //     } else {
+        //         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        //     }
+        // };
+        // this.options = options;
     }
 
 }

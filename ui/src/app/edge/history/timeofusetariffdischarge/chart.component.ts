@@ -139,65 +139,65 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     const currencyLabel: string = this.currencyLabel;
 
     // Scale prices y-axis between min-/max-values, not from zero
-    options.scales.yAxes[0].ticks.beginAtZero = false;
+    // options.scales.yAxes[0].ticks.beginAtZero = false;
 
-    // Adds second y-axis to chart
-    options.scales.yAxes.push({
-      id: 'yAxis2',
-      position: 'right',
-      scaleLabel: {
-        display: true,
-        labelString: "%",
-        padding: -2,
-        fontSize: 11,
-      },
-      gridLines: {
-        display: false,
-      },
-      ticks: {
-        beginAtZero: true,
-        max: 100,
-        padding: -5,
-        stepSize: 20,
-      },
-    });
-    options.layout = {
-      padding: {
-        left: 2,
-        right: 2,
-        top: 0,
-        bottom: 0,
-      },
-    };
+    // // Adds second y-axis to chart
+    // options.scales.yAxes.push({
+    //   id: 'yAxis2',
+    //   position: 'right',
+    //   scaleLabel: {
+    //     display: true,
+    //     labelString: "%",
+    //     padding: -2,
+    //     fontSize: 11,
+    //   },
+    //   gridLines: {
+    //     display: false,
+    //   },
+    //   ticks: {
+    //     beginAtZero: true,
+    //     max: 100,
+    //     padding: -5,
+    //     stepSize: 20,
+    //   },
+    // });
+    // options.layout = {
+    //   padding: {
+    //     left: 2,
+    //     right: 2,
+    //     top: 0,
+    //     bottom: 0,
+    //   },
+    // };
 
-    options.scales.xAxes[0].stacked = true;
+    // options.scales.xAxes[0].stacked = true;
 
-    //x-axis
-    if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
-      options.scales.xAxes[0].time.unit = "day";
-    } else {
-      options.scales.xAxes[0].time.unit = "hour";
-    }
+    // //x-axis
+    // if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
+    //   options.scales.xAxes[0].time.unit = "day";
+    // } else {
+    //   options.scales.xAxes[0].time.unit = "hour";
+    // }
 
-    //y-axis
-    options.scales.yAxes[0].id = "yAxis1";
-    options.scales.yAxes[0].scaleLabel.labelString = currencyLabel;
-    options.scales.yAxes[0].scaleLabel.padding = -2;
-    options.scales.yAxes[0].scaleLabel.fontSize = 11;
-    options.scales.yAxes[0].ticks.padding = -5;
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
+    // //y-axis
+    // options.scales.yAxes[0].id = "yAxis1";
+    // options.scales.yAxes[0].scaleLabel.labelString = currencyLabel;
+    // options.scales.yAxes[0].scaleLabel.padding = -2;
+    // options.scales.yAxes[0].scaleLabel.fontSize = 11;
+    // options.scales.yAxes[0].ticks.padding = -5;
+    // options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+    //   let label = data.datasets[tooltipItem.datasetIndex].label;
+    //   let value = tooltipItem.yLabel;
 
-      if (!value) {
-        return;
-      }
-      if (label == translate.instant('General.soc')) {
-        return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
-      }
-    };
+    //   if (!value) {
+    //     return;
+    //   }
+    //   if (label == translate.instant('General.soc')) {
+    //     return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+    //   } else {
+    //     return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
+    //   }
+    // };
     this.options = options;
   }
 

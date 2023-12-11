@@ -140,7 +140,9 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
-        });
+        }).finally(() => {
+            this.setOptions(this.options);
+        });;
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

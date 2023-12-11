@@ -7,6 +7,8 @@ import * as Chart from 'chart.js';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+import { formatNumber } from '@angular/common';
 
 
 @Component({
@@ -179,7 +181,11 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
-    });
+    }).finally(() => {
+      this.unit = YAxisTitle.PERCENTAGE;
+      this.setOptions(this.options);
+      this.addControllerSpecificOptions(this.options)
+    });;
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -197,59 +203,70 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   protected setLabel(config: EdgeConfig) {
-    let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
-    let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
-    let outputChannel: ChannelAddress;
-    if (typeof outputChannelAddress === 'string') {
-      outputChannel = ChannelAddress.fromString(outputChannelAddress);
-    } else {
-      outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
-    }
-    let labelString;
     let options = this.createDefaultChartOptions();
-    let translate = this.translate;
-
-    if (inputChannel.channelId == 'EssSoc') {
-      labelString = '%';
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
-      labelString = 'kW';
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    } else {
-      labelString = config.getChannel(inputChannel)['unit'];
-      options.scales.yAxes[0].id = "yAxis1";
-      options.scales.yAxes[0].scaleLabel.labelString = labelString;
-    }
-
-    if (inputChannel.channelId != 'EssSoc') {
-      // adds second y-axis to chart
-      options.scales.yAxes = {
-        max: 100,
-        position: 'right',
-        title: {
-          text: '%',
-          display: true
-        },
-        ticks: {
-          padding: -5,
-          stepSize: 20
-        }
-      });
-    }
-    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-      // let label = data.datasets[tooltipItem.datasetIndex].label;
-      // let value = tooltipItem.yLabel;
-      // if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
-      //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      // } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
-      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-      // } else {
-      //   return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
-      // }
-    };
     this.options = options;
+  }
+
+  protected addControllerSpecificOptions(options: Chart.ChartOptions) {
+
+    this.service.getConfig().then(config => {
+
+      let inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['inputChannelAddress']);
+      let outputChannelAddress: string | string[] = config.getComponentProperties(this.componentId)['outputChannelAddress'];
+      let outputChannel: ChannelAddress;
+      if (typeof outputChannelAddress === 'string') {
+        outputChannel = ChannelAddress.fromString(outputChannelAddress);
+      } else {
+        outputChannel = ChannelAddress.fromString(outputChannelAddress[0]);
+      }
+
+      let labelString;
+
+      if (inputChannel.channelId == 'EssSoc') {
+        labelString = '%';
+        this.unit = YAxisTitle.PERCENTAGE;
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      } else if (inputChannel.channelId == 'GridActivePower' || inputChannel.channelId == 'ProductionActivePower') {
+        labelString = 'kW';
+        this.unit = YAxisTitle.ENERGY;
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      } else {
+        labelString = config.getChannel(inputChannel)['unit'];
+        options.scales[ChartAxis.LEFT]['title'].text = labelString;
+      }
+
+      if (inputChannel.channelId != 'EssSoc') {
+        // adds second y-axis to chart
+        options.scales[ChartAxis.RIGHT] = {
+          max: 100,
+          position: 'right',
+          title: {
+            text: '%',
+            display: true
+          },
+          ticks: {
+            padding: -5,
+            stepSize: 20
+          }
+        };
+      }
+
+      let translate = this.translate;
+      options.plugins.tooltip.callbacks.label = function (item: Chart.TooltipItem<any>) {
+        let label = item.dataset.label;
+        let value = item.dataset.data[item.dataIndex];
+        if (label == outputChannel.channelId || label == translate.instant('General.soc')) {
+          return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
+        } else if (label == translate.instant('General.grid') || label == translate.instant('General.production')) {
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        } else {
+          return label + ": " + formatNumber(value, 'de', '1.0-2') + " " + labelString;
+        }
+      };
+
+      this.options = options;
+    });
+
   }
 
   public getChartHeight(): number {

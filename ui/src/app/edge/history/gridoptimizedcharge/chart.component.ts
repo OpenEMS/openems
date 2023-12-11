@@ -184,6 +184,8 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
+    }).finally(() => {
+      this.setOptions(this.options);
     });
   }
 
@@ -206,36 +208,36 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   protected setLabel() {
     let translate = this.translate;
     let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    // adds second y-axis to chart
-    options.scales['y'] = {
-      position: 'right',
-      max: 100,
-      title: {
-        display: true,
-        text: '%',
-        font: {
-          size: 11
-        }
-      },
-      ticks: {
-        padding: -5,
-        stepSize: 20
-      }
-    });
-    options.layout = {
-      padding: {
-        left: 2,
-        right: 2,
-        top: 0,
-        bottom: 0,
-      },
-    };
-    //x-axis
-    if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
-      options.scales.xAxes[0].time.unit = "day";
-    } else {
-      options.scales.xAxes[0].time.unit = "hour";
-    }
+    // // adds second y-axis to chart
+    // options.scales['y'] = {
+    //   position: 'right',
+    //   max: 100,
+    //   title: {
+    //     display: true,
+    //     text: '%',
+    //     font: {
+    //       size: 11
+    //     }
+    //   },
+    //   ticks: {
+    //     padding: -5,
+    //     stepSize: 20
+    //   }
+    // });
+    // options.layout = {
+    //   padding: {
+    //     left: 2,
+    //     right: 2,
+    //     top: 0,
+    //     bottom: 0,
+    //   },
+    // };
+    // //x-axis
+    // if (differenceInDays(this.service.historyPeriod.value.to, this.service.historyPeriod.value.from) >= 5) {
+    //   options.scales.xAxes[0].time.unit = "day";
+    // } else {
+    //   options.scales.xAxes[0].time.unit = "hour";
+    // }
 
     //y-axis
     // options.scales.yAxes[0].id = "yAxis1";

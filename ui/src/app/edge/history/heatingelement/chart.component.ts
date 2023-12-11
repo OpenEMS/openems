@@ -7,6 +7,8 @@ import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/res
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import * as Chart from 'chart.js';
+import { ChartAxis } from 'src/app/shared/service/utils';
+import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'heatingelementChart',
@@ -89,7 +91,11 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
-    });
+    }).finally(() => {
+      this.formatNumber = '1.0-1';
+      this.setOptions(this.options);
+      this.addControllerSpecificOptions(this.options);
+    });;
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -100,18 +106,32 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     });
   }
 
+  protected addControllerSpecificOptions(options: Chart.ChartOptions) {
+    options.scales[ChartAxis.LEFT]['title'].text = 'Level';
+    options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
+    options.scales[ChartAxis.LEFT].max = 3;
+    options.scales[ChartAxis.LEFT].ticks['stepSize'] = 1;
+    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+      let label = tooltipItem.dataset.label;
+      let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+
+      return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
+    };
+    this.options = options;
+  }
+
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].id = 'yAxis1';
-    options.scales.yAxes[0].scaleLabel.labelString = 'Level';
-    options.scales.yAxes[0].ticks.beginAtZero = true;
-    options.scales.yAxes[0].ticks.max = 3;
-    options.scales.yAxes[0].ticks.stepSize = 1;
-    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-      // let label = data.datasets[tooltipItem.datasetIndex].label;
-      // let value = tooltipItem.yLabel;
-      // return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
-    };
+    // options.scales.yAxes[0].id = 'yAxis1';
+    // options.scales.yAxes[0].scaleLabel.labelString = 'Level';
+    // options.scales.yAxes[0].ticks.beginAtZero = true;
+    // options.scales.yAxes[0].ticks.max = 3;
+    // options.scales.yAxes[0].ticks.stepSize = 1;
+    // options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+    //   // let label = data.datasets[tooltipItem.datasetIndex].label;
+    //   // let value = tooltipItem.yLabel;
+    //   // return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
+    // };
     this.options = options;
   }
 
