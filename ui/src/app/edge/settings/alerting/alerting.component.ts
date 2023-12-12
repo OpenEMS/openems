@@ -17,6 +17,7 @@ export enum AlertingType {
 type DefaultValues = { [K in AlertingType]: Delay[]; };
 type Delay = { value: number, label: string };
 type AlertingSetting = AlertingSettingResponse;
+type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isFaultActive: boolean, isWarningActive: boolean };
 
 @Component({
   selector: AlertingComponent.SELECTOR,
@@ -34,7 +35,7 @@ export class AlertingComponent implements OnInit {
   protected user: User;
   protected error: Error;
 
-  protected currentUserInformation: AlertingSetting;
+  protected currentUserInformation: DetailedAlertingSetting;
   protected currentUserForm: FormGroup;
 
   protected otherUserInformation: AlertingSetting[];
@@ -68,25 +69,33 @@ export class AlertingComponent implements OnInit {
       this.sendRequest(request).then(response => {
         const result = response.result;
 
-        this.currentUserInformation = result.currentUserSettings;
-        this.currentUserForm = this.formBuilder.group({
-          offlineEdgeDelay: new FormControl(this.currentUserInformation.offlineEdgeDelay),
-          faultEdgeDelay: new FormControl(this.currentUserInformation.faultEdgeDelay),
-          warningEdgeDelay: new FormControl(this.currentUserInformation.warningEdgeDelay),
-        });
-
-        if (result.otherUsersSettings) {
-          [this.otherUserInformation, this.otherUserForm] = this.generateSettings(result.otherUsersSettings);
-        }
+        this.setupCurrentUser(result.currentUserSettings);
+        this.setupOtherUsers(result.otherUsersSettings);
       }).catch(error => {
         this.error = error.error;
       });
     });
   }
 
-  private generateSettings(response: AlertingSettingResponse[]): [AlertingSetting[], FormGroup] {
-    var settings: AlertingSetting[] = [];
-    var form: FormGroup = new FormGroup({});
+  private setupCurrentUser(response: AlertingSettingResponse) {
+    this.currentUserInformation = this.asDetailedSettings(response);
+    this.currentUserForm = this.formBuilder.group({
+      isOfflineActive: new FormControl(this.currentUserInformation.isOfflineActive),
+      offlineEdgeDelay: new FormControl(this.currentUserInformation.offlineEdgeDelay),
+      isFaultActive: new FormControl(this.currentUserInformation.isFaultActive),
+      faultEdgeDelay: new FormControl(this.currentUserInformation.faultEdgeDelay),
+      isWarningActive: new FormControl(this.currentUserInformation.isWarningActive),
+      warningEdgeDelay: new FormControl(this.currentUserInformation.warningEdgeDelay),
+    });
+  }
+
+  private setupOtherUsers(response: AlertingSettingResponse[]) {
+    if (!response || response.length == 0) {
+      return;
+    }
+
+    this.otherUserInformation = [];
+    this.otherUserForm = new FormGroup({});
 
     var sorted = this.sortedAlphabetically(response);
 
@@ -98,17 +107,49 @@ export class AlertingComponent implements OnInit {
         warningEdgeDelay: r.warningEdgeDelay,
       };
 
-      settings.push(setting);
+      this.otherUserInformation.push(setting);
 
-      form.addControl(setting.userLogin, //
+      this.otherUserForm.addControl(setting.userLogin, //
         this.formBuilder.group({
           offlineEdgeDelay: new FormControl(setting.offlineEdgeDelay),
           faultEdgeDelay: new FormControl(setting.faultEdgeDelay),
           warningEdgeDelay: new FormControl(setting.warningEdgeDelay),
         }));
     });
+  }
 
-    return [settings, form];
+  private getValue(setting: AlertingSetting, type: AlertingType): number {
+    switch (type) {
+      case AlertingType.offline:
+        return setting.offlineEdgeDelay;
+      case AlertingType.fault:
+        return setting.faultEdgeDelay;
+      case AlertingType.warning:
+        return setting.warningEdgeDelay;
+      default:
+        return 0;
+    }
+  }
+
+  private getValueOrDefault(setting: AlertingSetting, type: AlertingType) {
+    var val = this.getValue(setting, type);
+    return val <= 0 ? this.defaultValues[type][0].value : val;
+  }
+
+  private asDetailedSettings(setting: AlertingSetting): DetailedAlertingSetting {
+    return {
+      userLogin: setting.userLogin,
+      offlineEdgeDelay: this.getValueOrDefault(setting, AlertingType.offline),
+      warningEdgeDelay: this.getValueOrDefault(setting, AlertingType.warning),
+      faultEdgeDelay: this.getValueOrDefault(setting, AlertingType.fault),
+      isOfflineActive: setting.offlineEdgeDelay > 0,
+      isFaultActive: setting.faultEdgeDelay > 0,
+      isWarningActive: setting.warningEdgeDelay > 0,
+    };
+  }
+
+  protected loadOtherUsers(): void {
+    console.info("TEST");
   }
 
   private sortedAlphabetically(userSettings: AlertingSettingResponse[]): AlertingSettingResponse[] {
@@ -173,9 +214,12 @@ export class AlertingComponent implements OnInit {
       var formGroup = this.currentUserForm;
       dirtyformGroups.push(formGroup);
 
-      let offlineEdgeDelay = formGroup.controls['offlineEdgeDelay']?.value ?? 0;
-      let faultEdgeDelay = formGroup.controls['faultEdgeDelay']?.value ?? 0;
-      let warningEdgeDelay = formGroup.controls['warningEdgeDelay']?.value ?? 0;
+      let offlineEdgeDelay = this.currentUserInformation.isOfflineActive ?
+        this.currentUserForm.controls["offlineEdgeDelay"].value : 0;
+      let faultEdgeDelay = this.currentUserInformation.isFaultActive ?
+        this.currentUserForm.controls["faultEdgeDelay"].value : 0;
+      let warningEdgeDelay = this.currentUserInformation.isWarningActive ?
+        this.currentUserForm.controls["warningEdgeDelay"].value : 0;
 
       changedUserSettings.push({
         userLogin: this.currentUserInformation.userLogin,
@@ -213,14 +257,6 @@ export class AlertingComponent implements OnInit {
 
     let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings });
     this.sendRequestAndUpdate(request, dirtyformGroups);
-
-    /* reset options for users with a non-default option.
-    var defaultSettingsCount = this.Delays.size;
-    userOptions.forEach(user => {
-      if (user.options.size > defaultSettingsCount) {
-        user.options = this.getDelayOptions(user.offlineEdgeDelay);
-      }
-    });*/
   }
 
   /**
