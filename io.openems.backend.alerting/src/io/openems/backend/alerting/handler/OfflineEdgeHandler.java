@@ -16,7 +16,7 @@ import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
@@ -175,7 +175,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return null;
 	}
 
-	private boolean shouldReceiveMail(Edge edge, AlertingSetting setting) {
+	private boolean shouldReceiveMail(Edge edge, UserAlertingSettings setting) {
 		final var lastMailRecievedAt = setting.getLastNotification();
 		final var edgeOfflineSince = edge.getLastmessage();
 
