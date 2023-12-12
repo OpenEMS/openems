@@ -7,6 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'delayedselltogridgchart',
@@ -188,6 +189,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
             this.initializeChart();
             return;
         }).finally(() => {
+            this.unit = YAxisTitle.PERCENTAGE;
             this.setOptions(this.options);
         });
     }
@@ -207,15 +209,6 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
-        // options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            let label = tooltipItem.label;
-            let value = tooltipItem.dataset[tooltipItem.dataIndex];
-            return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
         this.options = options;
     }
 

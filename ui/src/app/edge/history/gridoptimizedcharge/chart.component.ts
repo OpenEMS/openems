@@ -10,6 +10,8 @@ import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/res
 import { ChannelAddress, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../shared';
+import { ChartAxis, HistoryUtils, YAxisTitle } from 'src/app/shared/service/utils';
+import { AbstractHistoryChart as NewAbstractHistoryChart } from '../../../shared/genericComponents/chart/abstracthistorychart';
 
 @Component({
   selector: 'gridOptimizedChargeChart',
@@ -163,6 +165,9 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
               yAxisID: 'yAxis2',
               position: 'right',
               borderDash: [10, 10],
+
+              // BAD PRACTICE
+              unit: YAxisTitle.PERCENTAGE,
             });
             this.colors.push({
               backgroundColor: 'rgba(189, 195, 199,0.05)',
@@ -186,6 +191,27 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
       return;
     }).finally(() => {
       this.setOptions(this.options);
+      this.applyControllerSpecificOptions();
+    });
+  }
+
+  private applyControllerSpecificOptions() {
+    const yAxis: HistoryUtils.yAxes = {
+      unit: YAxisTitle.PERCENTAGE,
+      position: 'right',
+      yAxisId: ChartAxis.RIGHT,
+    };
+
+    const locale = this.service.translate.currentLang;
+    this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, yAxis, this.translate, 'line', locale);
+
+    this.datasets = this.datasets.map((el, index, arr) => {
+
+      if ((arr.length - 1) === index) {
+        el['yAxisID'] = ChartAxis.RIGHT;
+      }
+
+      return el;
     });
   }
 
@@ -206,8 +232,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   protected setLabel() {
-    let translate = this.translate;
-    let options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = this.createDefaultChartOptions();
     // // adds second y-axis to chart
     // options.scales['y'] = {
     //   position: 'right',

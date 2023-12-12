@@ -275,12 +275,13 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
-      this.chartType = 'bar';
-      this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ]).then(([energyPeriodResponse, energyResponse]) => {
+
+        this.chartType = 'bar';
+        this.chartObject = this.getChartData();
 
         // TODO after chartjs migration, look for config
         if (unit === Unit.MONTHS) {
@@ -318,11 +319,12 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param chartType the chart type
    * @returns chart options
    */
-  static applyOptionsChanges(chartType: string, options: Chart.ChartOptions, service: Service): Chart.ChartOptions {
+  static applyChartTypeSpecificOptionsChanges(chartType: string, options: Chart.ChartOptions, service: Service): Chart.ChartOptions {
     switch (chartType) {
       case 'bar':
         options.plugins.tooltip.mode = 'x';
-        // options.scales.x.ticks['source'] = 'data';
+        options.scales.x['offset'] = true;
+        options.scales.x.ticks['source'] = 'data';
         let barPercentage = 0;
         let categoryPercentage = 0;
         switch (service.periodString) {
@@ -352,12 +354,12 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         options.datasets.bar = {
           barPercentage: barPercentage,
-          categoryPercentage: categoryPercentage
         }
         break;
 
       case 'line':
         options.scales.x['offset'] = false;
+        options.scales.x.ticks['source'] = 'data';
         options.plugins.tooltip.mode = 'index';
         break;
     }
@@ -534,11 +536,27 @@ export abstract class AbstractHistoryChart implements OnInit {
     }
   }
 
+  /**
+   * Gets chart options {@link Chart.ChartOptions}
+   * 
+   * @param chartObject the chartObject
+   * @param chartType the current chart type
+   * @param service the service
+   * @param translate the translate service
+   * @param legendOptions the legend options
+   * @param channelData the channel data
+   * @param locale the locale
+   * @returns options
+   */
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
     translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string): ChartOptions {
 
     let tooltipsLabel: string | null = null;
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
+
+    chartObject.yAxes.forEach((element) => {
+      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale);
+    });
 
     options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
       if (tooltipItems?.length === 0) {
@@ -548,16 +566,13 @@ export abstract class AbstractHistoryChart implements OnInit {
       let date = new Date(Date.parse(tooltipItems[0].label));
       return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
     };
-    options = AbstractHistoryChart.applyOptionsChanges(chartType, options, service);
 
-    chartObject.yAxes.forEach((element) => {
-      options = AbstractHistoryChart.getYAxisOptions(options, element, translate, chartType, locale);
-    });
+    options = AbstractHistoryChart.applyChartTypeSpecificOptionsChanges(chartType, options, service);
+
 
     options.scales.x['time'].unit = calculateResolution(service, service.historyPeriod.value.from, service.historyPeriod.value.to).timeFormat;
 
     options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
-
       let label = item.dataset.label;
       let value = item.dataset.data[item.dataIndex];
 
@@ -668,34 +683,10 @@ export abstract class AbstractHistoryChart implements OnInit {
       chart.update();
     };
 
-    // options.scales.x.ticks['source'] = 'labels';//labels,auto
-    // options.scales.x.ticks.maxTicksLimit = 31;
-    // options.scales.x['bounds'] = 'ticks';
-
-    // options.plugins.zoom = {
-    //   pan: {
-    //     enabled: true,
-    //     mode: 'x'
-    //   },
-    //   zoom: {
-
-    //     // Select-window that will be zoomed in
-    //     drag: {
-    //       enabled: false,
-    //     },
-    //     // Mouse-wheel
-    //     wheel: {
-    //       speed: 0.1,
-    //       enabled: true
-    //     },
-    //     pinch: {
-    //       enabled: false
-    //     },
-    //     mode: 'x',
-    //   }
-    // }
-
-    // Chart.Chart.register(zoomPlugin);
+    options.scales.x.ticks['source'] = 'auto';
+    options.scales.x.ticks.maxTicksLimit = 31;
+    options.scales.x['bounds'] = 'ticks';
+    options.scales.x.stacked = true;
 
     return options;
   }
@@ -704,60 +695,66 @@ export abstract class AbstractHistoryChart implements OnInit {
   public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string): Chart.ChartOptions {
     switch (element.unit) {
 
-      // case YAxisTitle.RELAY:
+      case YAxisTitle.RELAY:
 
-      // if (chartType === ChartType.LINE) {
+        if (chartType === ChartType.LINE) {
+          options.scales[element.yAxisId] = {
+            position: element.position,
+            min: 0,
+            max: 1,
+            beginAtZero: true,
+            title: {
+              text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              display: true,
+              padding: 10,
+              font: {
+                size: 11,
+              }
+            },
+            grid: {
+              display: element.displayGrid ?? true,
+            },
+            ticks: {
 
-      //   options.scales.yAxes.push({
-      //     id: element.yAxisId,
-      //     position: element.position,
-      //     scaleLabel: {
-      //       display: true,
-      //       labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-      //       padding: 10,
-      //     },
-      //     gridLines: {
-      //       display: element.displayGrid ?? true,
-      //     },
-      //     ticks: {
+              // Two states are possible
+              callback: function (value, index, ticks) {
+                return Converter.ON_OFF(translate)(value);
+              },
+              padding: 5,
+              stepSize: 20,
+            },
+          };
+        }
 
-      //       // Two states are possible
-      //       callback: function (value, index, ticks) {
-      //         return Converter.ON_OFF(translate)(value);
-      //       },
-      //       min: 0,
-      //       max: 1,
-      //       beginAtZero: true,
-      //       padding: 5,
-      //       stepSize: 20,
-      //     },
-      //   });
-      // }
+        if (chartType === ChartType.BAR) {
+          options.scales[element.yAxisId] = {
+            position: element.position,
+            min: 0,
+            beginAtZero: true,
+            title: {
+              text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
+              display: true,
+              padding: 5,
+              font: {
+                size: 11,
+              }
+            },
+            grid: {
+              display: element.displayGrid ?? true,
+            },
+            ticks: {
+              callback: function (value, index, values) {
 
-      // if (chartType === ChartType.BAR) {
-      //   options.scales[element.yAxisId] = {
-      //     id: element.yAxisId,
-      //     position: element.position,
-      //     scaleLabel: {
-      //       display: true,
-      //       labelString: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
-      //       padding: 5,
-      //       fontSize: 11,
-      //     },
-      //     gridLines: {
-      //       display: element.displayGrid ?? true,
-      //     },
-      //     ticks: {
-      //       min: 0,
-      //       beginAtZero: true,
-      //       callback: function (value, index, values) {
-      //         return TimeUtils.formatSecondsToDuration(value, locale);
-      //       },
-      //     },
-      //   };
-      // }
-      // break;
+                if (typeof value !== 'number') {
+                  return;
+                }
 
+                return TimeUtils.formatSecondsToDuration(value, locale);
+              },
+            },
+          };
+        }
+        break;
       case YAxisTitle.PERCENTAGE:
         options.scales[element.yAxisId] = {
           stacked: true,
@@ -929,7 +926,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @param title the YAxisTitle
    * @returns 
    */
-  private static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisTitle, chartType: 'bar' | 'line', language: string, translate: TranslateService): string {
+  public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisTitle, chartType: 'bar' | 'line', language: string, translate: TranslateService): string {
 
     let tooltipsLabel: string | null = null;
     switch (title) {
@@ -1047,3 +1044,33 @@ export enum ChartType {
   LINE = 'line',
   BAR = 'bar'
 }
+
+/**
+ * Chartjs plugin zoom
+ * 
+ * @TODO
+ *  
+ * options.plugins.zoom = {
+    //   pan: {
+    //     enabled: true,
+    //     mode: 'x'
+    //   },
+    //   zoom: {
+
+    //     // Select-window that will be zoomed in
+    //     drag: {
+    //       enabled: false,
+    //     },
+    //     // Mouse-wheel
+    //     wheel: {
+    //       speed: 0.1,
+    //       enabled: true
+    //     },
+    //     pinch: {
+    //       enabled: false
+    //     },
+    //     mode: 'x',
+    //   }
+    // }
+    // Chart.Chart.register(zoomPlugin);
+ */

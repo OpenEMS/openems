@@ -8,6 +8,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
   selector: 'fixDigitalOutputTotalChart',
@@ -55,9 +56,10 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
       let datasets = [];
       // convert datasets
+
       Object.keys(result.data).forEach((channel, index) => {
         let address = ChannelAddress.fromString(channel);
-        let data = result.data[channel].map((value) => {
+        let data = result.data[channel]?.map((value) => {
           if (value == null) {
             return null;
           } else {
@@ -96,6 +98,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
       this.initializeChart();
       return;
     }).finally(() => {
+      this.unit = YAxisTitle.PERCENTAGE;
       this.setOptions(this.options);
     });
   }
@@ -116,17 +119,6 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    // options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-
-      let label = tooltipItem.label;
-      let value = tooltipItem.dataset[tooltipItem.dataIndex];
-      return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
-      // let label = data.datasets[tooltipItem.datasetIndex].label;
-      // let value = tooltipItem.yLabel;
-      // return label + ": " + formatNumber(value, 'de', '1.0-0') + " %"; // TODO get locale dynamically
-    };
-    options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 

@@ -8,6 +8,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/share
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from './../shared';
 import * as  Chart from 'chart.js';
+import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'socStorageChart',
@@ -58,59 +59,68 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                     // convert datasets
                     let datasets = [];
                     let moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        channelAddresses.forEach(channelAddress => {
-                            let component = config.getComponent(channelAddress.componentId);
-                            let data = result.data[channelAddress.toString()]?.map(value => {
-                                if (value == null) {
-                                    return null;
-                                } else if (value > 100 || value < 0) {
-                                    return null;
+                    this.getChannelAddresses(edge, config)
+                        .then(channelAddresses => {
+                            channelAddresses.forEach(channelAddress => {
+                                let component = config.getComponent(channelAddress.componentId);
+                                let data = result.data[channelAddress.toString()]?.map(value => {
+                                    if (value == null) {
+                                        return null;
+                                    } else if (value > 100 || value < 0) {
+                                        return null;
+                                    } else {
+                                        return value;
+                                    }
+                                });
+                                if (!data) {
+                                    return;
                                 } else {
-                                    return value;
+                                    if (channelAddress.channelId === 'EssSoc') {
+                                        datasets.push({
+                                            label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
+                                            data: data,
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(0,223,0,0.05)',
+                                            borderColor: 'rgba(0,223,0,1)',
+                                        });
+                                    }
+                                    if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
+                                        datasets.push({
+                                            label: (channelAddress.componentId == component.alias ? component.id : component.alias),
+                                            data: data,
+                                        });
+                                        this.colors.push({
+                                            backgroundColor: 'rgba(128,128,128,0.05)',
+                                            borderColor: 'rgba(128,128,128,1)',
+                                        });
+                                    }
+                                }
+                                if (channelAddress.channelId === 'ActualReserveSoc') {
+                                    datasets.push({
+                                        label:
+                                            this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
+                                        data: data,
+                                        borderDash: [3, 3],
+
+                                    });
+                                    this.colors.push({
+                                        backgroundColor: 'rgba(1, 1, 1,0)',
+                                        borderColor: 'rgba(1, 1, 1,1)',
+                                    });
                                 }
                             });
-                            if (!data) {
-                                return;
-                            } else {
-                                if (channelAddress.channelId === 'EssSoc') {
-                                    datasets.push({
-                                        label: (moreThanOneESS ? this.translate.instant('General.TOTAL') : this.translate.instant('General.soc')),
-                                        data: data,
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(0,223,0,0.05)',
-                                        borderColor: 'rgba(0,223,0,1)',
-                                    });
-                                }
-                                if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
-                                    datasets.push({
-                                        label: (channelAddress.componentId == component.alias ? component.id : component.alias),
-                                        data: data,
-                                    });
-                                    this.colors.push({
-                                        backgroundColor: 'rgba(128,128,128,0.05)',
-                                        borderColor: 'rgba(128,128,128,1)',
-                                    });
-                                }
-                            }
-                            if (channelAddress.channelId === 'ActualReserveSoc') {
-                                datasets.push({
-                                    label:
-                                        this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
-                                    data: data,
-                                    borderDash: [3, 3],
-                                });
-                                this.colors.push({
-                                    backgroundColor: 'rgba(1, 1, 1,0)',
-                                    borderColor: 'rgba(1, 1, 1,1)',
-                                });
-                            }
+
+                            this.datasets = datasets;
+                            this.loading = false;
+                            this.stopSpinner();
+                            return;
+                        }).finally(() => {
+
+                            this.unit = YAxisTitle.PERCENTAGE;
+                            this.formatNumber = '1.0-0';
+                            this.setOptions(this.options);
                         });
-                    });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
 
                 }).catch(reason => {
                     console.error(reason); // TODO error message
@@ -156,9 +166,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.percentage');
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) { };
-        options.scales.yAxes[0].ticks.max = 100;
         this.options = options;
     }
 

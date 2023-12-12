@@ -7,6 +7,8 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import * as Chart from 'chart.js';
+import { _DeepPartialObject } from 'chart.js/dist/types/utils';
+import { ChartAxis } from 'src/app/shared/service/utils';
 
 @Component({
     selector: 'storageSingleChart',
@@ -156,10 +158,13 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                                 }
                             }
                         });
+                    }).then(() => {
+                        this.datasets = datasets;
+                        this.loading = false;
+                        this.stopSpinner();
+                        this.setOptions(this.options);
+                        this.applyControllerSpecificChartOptions(this.options);
                     });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
 
                 }).catch(reason => {
                     console.error(reason); // TODO error message
@@ -180,6 +185,31 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
         });
     }
 
+    private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {
+        const translate = this.translate;
+
+        options.scales[ChartAxis.LEFT].min = null;
+        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
+            let label = tooltipItem.dataset.label;
+            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.005) {
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.chargePower');
+                } else {
+                    label = translate.instant('General.chargePower');
+                }
+            } else if (value > 0.005) {
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.dischargePower');
+                } else {
+                    label = translate.instant('General.dischargePower');
+                }
+            }
+            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+        }
+    }
+
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let result: ChannelAddress[] = [
@@ -194,13 +224,11 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-        };
         this.options = options;
     }
+
+
 
     public getChartHeight(): number {
         return window.innerHeight / 21 * 9;

@@ -85,7 +85,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             return;
         }).finally(() => {
             this.setOptions(this.options);
-            this.extendOptions(this.options);
+            this.applyControllerSpecificOptions(this.options);
         });
     }
 
@@ -95,7 +95,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         });
     }
 
-    private extendOptions(options: Chart.ChartOptions) {
+    private applyControllerSpecificOptions(options: Chart.ChartOptions) {
         let translate = this.translate;
         options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
         options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {

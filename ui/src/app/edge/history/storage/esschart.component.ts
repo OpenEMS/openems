@@ -110,11 +110,13 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                                 }
                             }
                         });
-                    });
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
+                    }).then(() => {
 
+                        this.datasets = datasets;
+                        this.loading = false;
+                        this.stopSpinner();
+                        this.setOptions(this.options);
+                    });
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
@@ -154,12 +156,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
-        let translate = this.translate; // enables access to TranslateService
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-
-        };
         this.options = options;
     }
 

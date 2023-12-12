@@ -94,7 +94,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     }).finally(() => {
       this.formatNumber = '1.0-1';
       this.setOptions(this.options);
-      this.addControllerSpecificOptions(this.options);
+      this.applyControllerSpecificOptions(this.options);
     });;
   }
 
@@ -106,7 +106,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
     });
   }
 
-  protected addControllerSpecificOptions(options: Chart.ChartOptions) {
+  protected applyControllerSpecificOptions(options: Chart.ChartOptions) {
     options.scales[ChartAxis.LEFT]['title'].text = 'Level';
     options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
     options.scales[ChartAxis.LEFT].max = 3;

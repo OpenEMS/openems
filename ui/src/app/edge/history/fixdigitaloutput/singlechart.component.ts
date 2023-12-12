@@ -19,7 +19,6 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
 
-  protected override formatNumber: string = '1.0.0';
   protected override unit: YAxisTitle = YAxisTitle.PERCENTAGE;
 
   ngOnChanges() {
@@ -81,13 +80,12 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       this.datasets = datasets;
       this.loading = false;
       this.stopSpinner();
-
-      console.log("datasets ", this.datasets, datasets)
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
     }).finally(() => {
+      this.unit = YAxisTitle.PERCENTAGE;
       this.setOptions(this.options)
       this.stopSpinner();
     });

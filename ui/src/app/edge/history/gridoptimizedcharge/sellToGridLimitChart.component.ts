@@ -172,6 +172,8 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
+    }).finally(() => {
+      this.setOptions(this.options);
     });
   }
 
@@ -191,12 +193,6 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
 
   protected setLabel() {
     let options = this.createDefaultChartOptions();
-    options.scales.yAxes[0].scaleLabel.labelString = "kW";
-    options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-      // let label = data.datasets[tooltipItem.datasetIndex].label;
-      // let value = tooltipItem.yLabel;
-      // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-    };
     this.options = options;
   }
 
@@ -204,5 +200,4 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
     //return window.innerHeight / 1.3;
     return window.innerHeight / 21 * 9;
   }
-
 }

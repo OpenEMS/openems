@@ -186,13 +186,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
             },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]) => {
-                    // return null;
-                    // let date = new Date(Date.parse(tooltipItems[0].label));
-                    // return AbstractHistoryChart.toTooltipTitle(service.historyPeriod.value.from, service.historyPeriod.value.to, date, service);
-                },
+                title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
                 afterTitle: (items: Chart.TooltipItem<any>[]) => { },
-                labelColor: (context: Chart.TooltipItem<any>) => { }
+                labelColor: (context: Chart.TooltipItem<any>) => { },
             }
         }
     },

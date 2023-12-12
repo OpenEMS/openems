@@ -87,6 +87,8 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             console.error(reason); // TODO error message
             this.initializeChart();
             return;
+        }).finally(() => {
+            this.setOptions(this.options);
         });
     }
 
@@ -101,9 +103,6 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-        };
         this.options = options;
     }
 

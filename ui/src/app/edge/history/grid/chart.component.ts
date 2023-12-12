@@ -166,25 +166,24 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     protected setLabel() {
         let translate = this.translate; // enables access to TranslateService
         let options = this.createDefaultChartOptions();
-        options.scales.yAxes[0].scaleLabel.labelString = "kW";
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
-            // if (value < -0.005) {
-            //     if (label.includes(translate.instant('General.phase'))) {
-            //         label += ' ' + translate.instant('General.gridSell');
-            //     } else {
-            //         label = translate.instant('General.gridSell');
-            //     }
-            // } else if (value > 0.005) {
-            //     if (label.includes(translate.instant('General.phase'))) {
-            //         label += ' ' + translate.instant('General.gridBuy');
-            //     } else {
-            //         label = translate.instant('General.gridBuy');
-            //     }
-            // }
-            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
+            let label = tooltipItem.dataset.label;
+            let value = tooltipItem.dataset.data[tooltipItem.dataIndex];
+            // 0.005 to prevent showing Charge or Discharge if value is e.g. 0.00232138
+            if (value < -0.005) {
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.gridSell');
+                } else {
+                    label = translate.instant('General.gridSell');
+                }
+            } else if (value > 0.005) {
+                if (label.includes(translate.instant('General.phase'))) {
+                    label += ' ' + translate.instant('General.gridBuy');
+                } else {
+                    label = translate.instant('General.gridBuy');
+                }
+            }
+            return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
         };
         this.options = options;
     }

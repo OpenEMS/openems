@@ -145,6 +145,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
                 hidden: false,
                 yAxisID: yAxisID,
                 position: 'right',
+                unit: YAxisTitle.PERCENTAGE,
               });
 
               this.colors.push({
@@ -175,17 +176,16 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
+      }).finally(() => {
+        this.unit = YAxisTitle.PERCENTAGE;
+        this.setOptions(this.options);
+        this.addControllerSpecificOptions(this.options)
       });
-
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
       return;
-    }).finally(() => {
-      this.unit = YAxisTitle.PERCENTAGE;
-      this.setOptions(this.options);
-      this.addControllerSpecificOptions(this.options)
-    });;
+    });
   }
 
   protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
