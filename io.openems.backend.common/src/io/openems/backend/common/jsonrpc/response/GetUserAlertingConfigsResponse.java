@@ -51,7 +51,7 @@ public class GetUserAlertingConfigsResponse extends JsonrpcResponseSuccess {
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
-				.add("currentUserSettings", this.toJson(currentUserSettings)) //
+				.add("currentUserSettings", this.toJson(this.currentUserSettings)) //
 				.add("otherUsersSettings", JsonUtils.generateJsonArray(this.otherUsersSettings, this::toJson)) //
 				.build();
 	}

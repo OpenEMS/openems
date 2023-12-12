@@ -9,7 +9,7 @@ public record UserAlertingSettings(String deviceId, String userLogin, //
 		this(null, userLogin, offlineEdgeDelay, faultStateDelay, warningStateDelay, null, null);
 	}
 	
-	public static UserAlertingSettings getDefault(String deviceId, String userLogin) {
-		return new UserAlertingSettings(deviceId,userLogin, 1440, 1440, 1440, null, null);
+	public UserAlertingSettings(String deviceId, String userLogin) {
+		this(deviceId,userLogin, 1440, 1440, 1440, null, null);
 	}
 }

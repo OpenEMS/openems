@@ -503,15 +503,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
 			GetUserAlertingConfigsRequest request) throws OpenemsException {
 		var edgeId = request.getEdgeId();
-		
+
 		UserAlertingSettings currentUser = null;
 		List<UserAlertingSettings> otherUser = List.of();
 
 		if (userIsAdmin(user, edgeId)) {
 			var allSettings = this.parent.metadata.getUserAlertingSettings(edgeId);
-			
+
 			var userOpt = allSettings.stream().filter(s -> s.userLogin().equals(user.getId())).findAny();
-			if(userOpt.isPresent()) {
+			if (userOpt.isPresent()) {
 				allSettings.remove(userOpt.get());
 				currentUser = userOpt.get();
 			}
@@ -519,9 +519,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		} else {
 			currentUser = this.parent.metadata.getUserAlertingSettings(edgeId, user.getId());
 		}
-		
-		if(currentUser == null) {
-			currentUser = UserAlertingSettings.getDefault(edgeId, user.getId());
+
+		if (currentUser == null) {
+			currentUser = new UserAlertingSettings(edgeId, user.getId());
 		}
 
 		return CompletableFuture.completedFuture(//
