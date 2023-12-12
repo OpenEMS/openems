@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
@@ -83,7 +83,7 @@ public class Dummy {
 
 	public static class AlertingMetadataImpl extends SimpleMetadataImpl {
 		private Collection<Edge> edges;
-		private Map<String, List<AlertingSetting>> alertingSettings;
+		private Map<String, List<UserAlertingSettings>> alertingSettings;
 		private Map<String, Level> sumStates = new HashMap<>(10);
 
 		/**
@@ -92,7 +92,7 @@ public class Dummy {
 		 * @param edges    to add
 		 * @param settings to add
 		 */
-		public void initialize(Collection<Edge> edges, Map<String, List<AlertingSetting>> settings) {
+		public void initialize(Collection<Edge> edges, Map<String, List<UserAlertingSettings>> settings) {
 			this.edges = edges;
 			this.alertingSettings = settings;
 		}
@@ -113,7 +113,7 @@ public class Dummy {
 		}
 
 		@Override
-		public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+		public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 			return this.alertingSettings.get(edgeId);
 		}
 
@@ -125,7 +125,7 @@ public class Dummy {
 			return this.edges;
 		}
 
-		public Map<String, List<AlertingSetting>> getAlertingSettings() {
+		public Map<String, List<UserAlertingSettings>> getAlertingSettings() {
 			return this.alertingSettings;
 		}
 	}
