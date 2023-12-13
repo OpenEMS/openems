@@ -28,10 +28,6 @@ public class TowersAndModulesTest {
 			"Tower1BmsSoftwareVersion");
 	private static final ChannelAddress TOWER_2_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
 			"Tower2BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_3_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower3BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_4_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower4BmsSoftwareVersion");
 	private static final ChannelAddress BATTERY_HARDWARE_TYPE = new ChannelAddress(BATTERY_ID, "BatteryHardwareType");
 
 	private static final int TOWERS = 1;
@@ -59,8 +55,6 @@ public class TowersAndModulesTest {
 				.input(TOWER_0_BMS_SOFTWARE_VERSION, 1) //
 				.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
 				.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-				.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-				.input(TOWER_4_BMS_SOFTWARE_VERSION, 0) //
 				.input(BATTERY_HARDWARE_TYPE, BatteryFeneconHomeHardwareType.BATTERY_52));
 		checkDynamicChannels(battery, TOWERS, MODULES, CELLS, BatteryFeneconHomeHardwareType.BATTERY_52);
 
