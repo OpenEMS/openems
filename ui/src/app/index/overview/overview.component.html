@@ -49,7 +49,7 @@
                             <!-- Filter -->
                             <ng-container *ngIf="(service.metadata | async)?.user as user">
                                 <oe-filter (setSearchParams)="searchOnChange($event)"
-                                    *ngIf="user.globalRole === 'installer'"></oe-filter>
+                                    *ngIf="user.globalRole === 'admin'"></oe-filter>
                             </ng-container>
 
                             <ion-row class="ion-justify-content-center">

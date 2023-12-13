@@ -175,9 +175,9 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     }).then(() => {
                         this.datasets = datasets;
                         this.loading = false;
-                        this.stopSpinner();
                         this.setOptions(this.options);
                         this.applyControllerSpecificChartOptions(this.options);
+                        this.stopSpinner();
                     });
 
                 }).catch(reason => {
@@ -234,8 +234,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     }
 
     protected setLabel() {
-        let options: Chart.ChartOptions = this.createDefaultChartOptions();
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     private applyControllerSpecificChartOptions(options: Chart.ChartOptions) {

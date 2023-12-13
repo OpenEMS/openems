@@ -111,7 +111,6 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             this.datasets = datasets;
                             this.loading = false;
                             this.stopSpinner();
-                            return;
                         }).finally(() => {
 
                             this.unit = YAxisTitle.PERCENTAGE;
@@ -162,8 +161,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

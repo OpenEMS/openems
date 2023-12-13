@@ -715,10 +715,10 @@ export namespace HistoryUtils {
       formatNumber: string,
       afterTitle?: (stack: string) => string,
     },
-    yAxes: yAxes[],
+    yAxes: yAxis[],
   }
 
-  export type yAxes = {
+  export type yAxis = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
     unit: YAxisTitle,
     customTitle?: string,

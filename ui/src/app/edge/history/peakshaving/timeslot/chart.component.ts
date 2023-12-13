@@ -221,14 +221,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        // options.scales[''].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

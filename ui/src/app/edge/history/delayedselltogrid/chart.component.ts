@@ -206,8 +206,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

@@ -121,18 +121,7 @@ export class HeatingelementChartComponent extends AbstractHistoryChart implement
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    // options.scales.yAxes[0].id = 'yAxis1';
-    // options.scales.yAxes[0].scaleLabel.labelString = 'Level';
-    // options.scales.yAxes[0].ticks.beginAtZero = true;
-    // options.scales.yAxes[0].ticks.max = 3;
-    // options.scales.yAxes[0].ticks.stepSize = 1;
-    // options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-    //   // let label = data.datasets[tooltipItem.datasetIndex].label;
-    //   // let value = tooltipItem.yLabel;
-    //   // return label + ": " + formatNumber(value, 'de', '1.0-1'); // TODO get locale dynamically
-    // };
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {

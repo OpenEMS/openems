@@ -26,9 +26,6 @@ import { Converter } from '../shared/converter';
 import 'chartjs-adapter-date-fns';
 import { TimeUtils } from '../../utils/timeutils/timeutils';
 
-// TODO
-// - fix x Axes last tick to be 00:00 not 23:00
-
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
 @Directive()
@@ -611,7 +608,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         let isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach((element) => {
+        displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
           chartLegendLabelItems.push({
             text: dataset.label,
             datasetIndex: index,
@@ -688,8 +685,17 @@ export abstract class AbstractHistoryChart implements OnInit {
     return options;
   }
 
-
-  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: 'line' | 'bar', locale: string): Chart.ChartOptions {
+  /**
+   * Gets the yAxis options 
+   * 
+   * @param options the chart options
+   * @param element the yAxis
+   * @param translate the translate service
+   * @param chartType the current chart type
+   * @param locale the current locale
+   * @returns the chart options {@link Chart.ChartOptions}
+   */
+  public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxis, translate: TranslateService, chartType: 'line' | 'bar', locale: string): Chart.ChartOptions {
     switch (element.unit) {
 
       case YAxisTitle.RELAY:
@@ -833,7 +839,6 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected setChartLabel() {
     const locale = this.service.translate.currentLang;
     this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale);
-    sessionStorage.setItem("options", JSON.stringify(this.options));
     this.loading = false;
     this.stopSpinner();
   }

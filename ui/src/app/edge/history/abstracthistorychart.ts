@@ -291,13 +291,12 @@ export abstract class AbstractHistoryChart {
      * 
      * Sets chart options
      * 
-     * 
-     * @deprecated used for not refactored charts
+     * @deprecated used for charts not using {@link NewAbstractHistoryChart} but {@link AbstractHistoryChart}
      */
     public setOptions(options: Chart.ChartOptions) {
 
         const locale = this.service.translate.currentLang;
-        const yAxis: HistoryUtils.yAxes = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
+        const yAxis: HistoryUtils.yAxis = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
         const unit = this.unit;
         const formatNumber = this.formatNumber;
         const colors = this.colors;

@@ -4,7 +4,6 @@ import { de } from 'date-fns/locale';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
-
 export interface Dataset {
     label: string;
     data: number[];

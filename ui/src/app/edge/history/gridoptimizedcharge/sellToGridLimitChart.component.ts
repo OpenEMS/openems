@@ -191,8 +191,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {

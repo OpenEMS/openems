@@ -223,11 +223,8 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
-
-
 
     public getChartHeight(): number {
         return window.innerHeight / 21 * 9;

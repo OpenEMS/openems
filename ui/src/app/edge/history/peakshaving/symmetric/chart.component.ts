@@ -188,11 +188,7 @@ export class SymmetricPeakshavingChartComponent extends AbstractHistoryChart imp
             return;
         }).finally(() => {
             this.setOptions(this.options);
-            this.applyControllerSpecificOptions(this.options);
         });
-    }
-    private applyControllerSpecificOptions(options: Chart.ChartOptions): void {
-        this.options = options;
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

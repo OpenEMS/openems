@@ -77,7 +77,6 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             }
             this.datasets = datasets;
             this.loading = false;
-            this.stopSpinner();
 
         }).catch(reason => {
             console.error(reason); // TODO error message
@@ -86,6 +85,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         }).finally(() => {
             this.setOptions(this.options);
             this.applyControllerSpecificOptions(this.options);
+            this.stopSpinner();
         });
     }
 
@@ -112,8 +112,6 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
         };
-
-
 
         options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
             let label = tooltipItem.dataset.label;
@@ -144,60 +142,12 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
         };
 
         options.scales[ChartAxis.LEFT].max = 3;
-
         options.scales[ChartAxis.LEFT]['beginAtZero'] = true;
-
         this.options = options;
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        let translate = this.translate;
-        // options.scales[ChartAxis.LEFT]['title'].text = this.translate.instant('General.state');
-        // options.scales[ChartAxis.LEFT].ticks.callback = function (label, index, labels) {
-        //     switch (label) {
-        //         case -1:
-        //             return translate.instant('Edge.Index.Widgets.HeatPump.undefined');
-        //         case 0:
-        //             return translate.instant('Edge.Index.Widgets.HeatPump.lock');
-        //         case 1:
-        //             return translate.instant('Edge.Index.Widgets.HeatPump.normalOperationShort');
-        //         case 2:
-        //             return translate.instant('Edge.Index.Widgets.HeatPump.switchOnRecShort');
-        //         case 3:
-        //             return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
-        //     }
-        // };
-        // options.scales[ChartAxis.LEFT].ticks.max = 3;
-        // options.scales[ChartAxis.LEFT].ticks.stepSize = 1;
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // let toolTipValue;
-            // switch (value) {
-            //     case -1:
-            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.undefined');
-            //         break;
-            //     case 0:
-            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.lock');
-            //         break;
-
-            //     case 1:
-            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.normalOperation');
-            //         break;
-            //     case 2:
-            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnRec');
-            //         break;
-            //     case 3:
-            //         toolTipValue = translate.instant('Edge.Index.Widgets.HeatPump.switchOnCom');
-            //         break;
-            //     default:
-            //         toolTipValue = '';
-            //         break;
-            // }
-            // return label + ": " + toolTipValue; // TODO get locale dynamically
-        };
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

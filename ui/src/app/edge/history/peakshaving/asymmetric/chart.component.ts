@@ -215,6 +215,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
         }).finally(() => {
             this.unit = YAxisTitle.ENERGY;
             this.setOptions(this.options);
+            this.stopSpinner();
         });;
     }
 
@@ -234,14 +235,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
     }
 
     protected setLabel() {
-        let options = this.createDefaultChartOptions();
-        // options.scales.yAxes[0].scaleLabel.labelString = "kW";
-        options.plugins.tooltip.callbacks.label = function (tooltipItem: Chart.TooltipItem<any>) {
-            // let label = data.datasets[tooltipItem.datasetIndex].label;
-            // let value = tooltipItem.yLabel;
-            // return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        };
-        this.options = options;
+        this.options = this.createDefaultChartOptions();
     }
 
     public getChartHeight(): number {

@@ -18,8 +18,6 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
 
-  protected override unit: YAxisTitle = YAxisTitle.PERCENTAGE;
-
   ngOnChanges() {
     this.updateChart();
   }
@@ -69,7 +67,6 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
         datasets.push({
           label: address.channelId,
           data: data,
-          yAxisID: '',
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
@@ -99,8 +96,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {

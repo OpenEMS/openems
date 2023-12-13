@@ -203,8 +203,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
   }
 
   protected setLabel(config: EdgeConfig) {
-    let options = this.createDefaultChartOptions();
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   protected addControllerSpecificOptions(options: Chart.ChartOptions) {

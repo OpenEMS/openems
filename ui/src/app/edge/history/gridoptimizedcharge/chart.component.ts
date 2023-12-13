@@ -192,7 +192,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   private applyControllerSpecificOptions() {
-    const yAxis: HistoryUtils.yAxes = {
+    const yAxis: HistoryUtils.yAxis = {
       unit: YAxisTitle.PERCENTAGE,
       position: 'right',
       yAxisId: ChartAxis.RIGHT,
@@ -204,6 +204,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
     this.datasets = this.datasets.map((el, index, arr) => {
 
+      // align last element to right yAxis
       if ((arr.length - 1) === index) {
         el['yAxisID'] = ChartAxis.RIGHT;
       }
@@ -229,8 +230,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
   }
 
   protected setLabel() {
-    let options = this.createDefaultChartOptions();
-    this.options = options;
+    this.options = this.createDefaultChartOptions();
   }
 
   public getChartHeight(): number {

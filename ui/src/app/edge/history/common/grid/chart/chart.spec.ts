@@ -1,10 +1,10 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
+import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 
 import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { expectView } from "./chart.constants.spec";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 
 describe('History Grid', () => {
   const defaultEMS = DummyConfig.from(
@@ -15,7 +15,6 @@ describe('History Grid', () => {
   beforeEach(() =>
     TEST_CONTEXT = sharedSetup(),
   );
-
 
   it('#getChartData()', () => {
     {
