@@ -111,7 +111,6 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                             }
                         });
                     }).then(() => {
-
                         this.datasets = datasets;
                         this.loading = false;
                         this.stopSpinner();

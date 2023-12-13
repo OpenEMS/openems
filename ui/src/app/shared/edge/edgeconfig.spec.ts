@@ -4,6 +4,7 @@ import { OeChartTester, OeFormlyViewTester } from "../genericComponents/shared/t
 import { Role } from "../type/role";
 import { Edge } from "./edge";
 import { EdgeConfig } from "./edgeconfig";
+import { TimeUnit } from "chart.js";
 
 export namespace DummyConfig {
 
@@ -281,6 +282,122 @@ export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
 });
 
 export namespace ChartConfig {
-    export const LINE_CHART_OPTIONS = (period: string, labelString?: string): OeChartTester.Dataset.Option => ({ type: 'option', options: { "maintainAspectRatio": false, "legend": { "labels": {}, "position": "bottom" }, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "borderWidth": 2, "tension": 0.1 }, "rectangle": { "borderWidth": 2 } }, "hover": { "mode": "point", "intersect": true }, "scales": { "yAxes": [{ "id": "left", "position": "left", "scaleLabel": { "display": true, "labelString": labelString ?? "kW", "padding": 5, "fontSize": 11 }, "gridLines": { "display": true }, "ticks": { "beginAtZero": false } }], "xAxes": [{ "ticks": {}, "stacked": false, "type": "time", "time": { "minUnit": "hour", "displayFormats": { "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:[00]", "day": "DD", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "YYYY" }, "unit": period }, "bounds": "ticks" }] }, "tooltips": { "mode": "index", "intersect": false, "axis": "x", "callbacks": {} }, "responsive": true } });
-    export const BAR_CHART_OPTIONS = (period: string, labelString?: string): OeChartTester.Dataset.Option => ({ type: 'option', options: { "maintainAspectRatio": false, "legend": { "labels": {}, "position": "bottom" }, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "borderWidth": 2, "tension": 0.1 }, "rectangle": { "borderWidth": 2 } }, "hover": { "mode": "point", "intersect": true }, "scales": { "yAxes": [{ "id": "left", "position": "left", "scaleLabel": { "display": true, "labelString": labelString ?? "kWh", "padding": 5, "fontSize": 11 }, "gridLines": { "display": true }, "ticks": { "beginAtZero": false }, "stacked": true }], "xAxes": [{ "ticks": { "maxTicksLimit": 12, "source": "data" }, "stacked": true, "type": "time", "time": { "minUnit": "hour", "displayFormats": { "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:[00]", "day": "DD", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "YYYY" }, "unit": period }, "offset": true, "bounds": "ticks" }] }, "tooltips": { "mode": "x", "intersect": false, "axis": "x", "callbacks": {} }, "responsive": true } });
+
+    export const LINE_CHART_OPTIONS = (period: string, labelString?: string): OeChartTester.Dataset.Option => ({
+        type: 'option',
+        options: { "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": {} }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": { "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "YYYY" } } }, "yAxisLeft": { "stacked": true, "title": { "text": "kW", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} } } }
+    });
+
+    // export const LINE_CHART_OPTIONS = (period: string, labelString?: string): OeChartTester.Dataset.Option => ({
+    //     "type": "option",
+    //     "options": {
+    //         "responsive": true,
+    //         "maintainAspectRatio": false,
+    //         "elements": {
+    //             "point": {
+    //                 "radius": 0,
+    //                 "hitRadius": 0,
+    //                 "hoverRadius": 0
+    //             },
+    //             "line": {
+
+    //                 "stepped": false,
+    //                 "fill": true
+    //             }
+    //         },
+    //         "datasets": {
+    //             "bar": {
+    //                 "barPercentage": 0
+    //             },
+    //             "line": {
+    //             }
+    //         },
+    //         "plugins": {
+    //             "colors": {
+    //                 "enabled": false
+    //             },
+    //             "legend": {
+    //                 "display": true,
+    //                 "position": "bottom",
+    //                 "labels": {
+    //                 }
+    //             },
+    //             "tooltip": {
+    //                 "intersect": false,
+    //                 "mode": "x",
+    //                 "callbacks": {
+    //                 }
+    //             }
+    //         },
+    //         "scales": {
+    //             "x": {
+    //                 "stacked": true,
+    //                 "offset": true,
+    //                 "type": "time",
+    //                 "ticks": {
+    //                     "source": "auto",
+    //                     "maxTicksLimit": 31
+    //                 },
+    //                 "bounds": "ticks",
+    //                 "adapters": {
+    //                     "date": {
+    //                         "locale": {
+    //                             "code": "de",
+    //                             "formatLong": {
+    //                             },
+    //                             "localize": {
+    //                             },
+    //                             "match": {
+    //                             },
+    //                             "options": {
+    //                                 "weekStartsOn": 1,
+    //                                 "firstWeekContainsDate": 4
+    //                             }
+    //                         }
+    //                     }
+    //                 },
+    //                 "time": {
+    //                     "unit": "month",
+    //                     "displayFormats": {
+    //                         "datetime": "yyyy-MM-dd HH:mm:ss",
+    //                         "millisecond": "SSS [ms]",
+    //                         "second": "HH:mm:ss a",
+    //                         "minute": "HH:mm",
+    //                         "hour": "HH:00",
+    //                         "day": "dd",
+    //                         "week": "ll",
+    //                         "month": "MM",
+    //                         "quarter": "[Q]Q - YYYY",
+    //                         "year": "YYYY"
+    //                     }
+    //                 }
+    //             },
+    //             "yAxisLeft": {
+    //                 "stacked": true,
+    //                 "title": {
+    //                     "text": "kWh",
+    //                     "display": true,
+    //                     "padding": 5,
+    //                     "font": {
+    //                         "size": 11
+    //                     }
+    //                 },
+    //                 "position": "left",
+    //                 "grid": {
+    //                     "display": true
+    //                 },
+    //                 "ticks": {
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
+
+    export const BAR_CHART_OPTIONS = (period: string, labelString?: string): OeChartTester.Dataset.Option => ({
+        type: 'option', options: {
+            "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 0 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": {} }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
+                "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "YYYY" } } }, "yAxisLeft": { "stacked": true, "title": { "text": "kWh", "display": true, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true }, "ticks": {} },
+            }
+        }
+    });
 }

@@ -1,6 +1,6 @@
 import { TimeUtils } from "./timeutils";
 
-fdescribe('TimeUtils', () => {
+describe('TimeUtils', () => {
   it('#formatSecondsToDuration', () => {
     expect(TimeUtils.formatSecondsToDuration(12000, 'de')).toEqual("3h 20m");
     expect(TimeUtils.formatSecondsToDuration(null, 'de')).toEqual(null);

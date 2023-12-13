@@ -1,10 +1,10 @@
 import { History } from "src/app/edge/history/common/energy/chart/channels.spec";
 import { DummyConfig } from "src/app/shared/edge/edgeconfig.spec";
-import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 import { sharedSetup, TestContext } from "src/app/shared/test/utils.spec";
 
 import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
 import { expectView } from "./chart.constants.spec";
+import { OeTester } from "src/app/shared/genericComponents/shared/testing/common";
 
 describe('History Grid', () => {
   const defaultEMS = DummyConfig.from(
@@ -15,6 +15,7 @@ describe('History Grid', () => {
   beforeEach(() =>
     TEST_CONTEXT = sharedSetup(),
   );
+
 
   it('#getChartData()', () => {
     {
@@ -27,7 +28,7 @@ describe('History Grid', () => {
               DATA('Bezug: 0,9 kWh', [null, null, null, 0.031, 0.018, 0, 0.02, 0.016, 0.015, 0.014, 0.009, 0.02, 0.025, 0.025, 0.025, 0.021, 0.012, 0.009, 0.01, 0.011, 0.005, 0.003, 0, 0.015, 0.018, 0.023, 0, 0, 0, 0.002, 0.002, 0.003, 0.015, 0.008, 0.022, 0.027, 0.016, 0.003, 0.002, 0, 0.028, 0.027, 0.017, 0.001, 0, 0, 0, null, null, null, null, 0.011, 0.01, 0.004, 0.006, 0.007, 0.018, 0.008, 0.012, 0.009, 0.004, 0.013, 0.015, 0.012, 0, 0, 0, 0.002, 0, 0.005, 0.001, 0.03, 0.062, 0, 0, 0, 0, 0, 0, 0, 0, 0.015, 0.005, 0.004, 0.007, 0, 0, 0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0, 0.021, 0, 0, 0, 0, 0, 0.003, 0, 0.004, 0, 0, 0.032, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
             ],
             labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('hour'),
+            options: OeTester.ChartOptions.LINE_CHART_OPTIONS('hour')
           },
         }, false);
     }

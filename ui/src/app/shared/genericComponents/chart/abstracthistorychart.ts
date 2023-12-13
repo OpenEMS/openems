@@ -1,33 +1,30 @@
 import { DecimalPipe, formatNumber } from '@angular/common';
 import { ChangeDetectorRef, Directive, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import zoomPlugin from 'chartjs-plugin-zoom';
-import { de } from 'date-fns/locale';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
 import { startOfMonth } from 'date-fns';
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { FormatSecondsToDurationPipe } from '../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe';
 import { ChartAxis, HistoryUtils, YAxisTitle } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
+import { Language } from '../../type/language';
 import { ColorUtils } from '../../utils/color/color.utils';
 import { DateUtils } from '../../utils/dateutils/dateutils';
-import { FormatSecondsToDurationPipe } from '../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe';
-import { Language } from '../../type/language';
 import { Converter } from '../shared/converter';
 
 import 'chartjs-adapter-date-fns';
 import { TimeUtils } from '../../utils/timeutils/timeutils';
-import { NonNullableFormBuilder } from '@angular/forms';
 
 // TODO
 // - fix x Axes last tick to be 00:00 not 23:00
@@ -549,7 +546,7 @@ export abstract class AbstractHistoryChart implements OnInit {
    * @returns options
    */
   public static getOptions(chartObject: HistoryUtils.ChartData, chartType: 'line' | 'bar', service: Service,
-    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string): ChartOptions {
+    translate: TranslateService, legendOptions: { label: string, strokeThroughHidingStyle: boolean }[], channelData: { data: { [name: string]: number[] } }, locale: string): Chart.ChartOptions {
 
     let tooltipsLabel: string | null = null;
     let options = Utils.deepCopy(<ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS));
@@ -836,6 +833,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected setChartLabel() {
     const locale = this.service.translate.currentLang;
     this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale);
+    sessionStorage.setItem("options", JSON.stringify(this.options))
     this.loading = false;
     this.stopSpinner();
   }
