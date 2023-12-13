@@ -4,6 +4,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common } from './common/common';
+import { Controller } from './Controller/controller.module';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -51,6 +52,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
   imports: [
     SharedModule,
     Common,
+    Controller,
   ],
   declarations: [
     AsymmetricPeakshavingChartComponent,
