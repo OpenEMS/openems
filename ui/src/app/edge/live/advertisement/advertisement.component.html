@@ -19,8 +19,8 @@
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
 
-                <ion-slide *ngSwitchCase="'eoy-winner'">
-                    <eoy-winner></eoy-winner>
+                <ion-slide *ngSwitchCase="'merry-christmas'">
+                    <merry-christmas></merry-christmas>
                 </ion-slide>
 
                 <ion-slide *ngSwitchCase="'dynamic-electricity-tariff-existing-customer'">

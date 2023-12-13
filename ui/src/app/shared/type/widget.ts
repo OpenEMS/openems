@@ -58,7 +58,12 @@ export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [];
+        let list: AdvertWidget[] = [
+            {
+                name: 'merry-christmas',
+                title: 'FENECON wünscht frohe Weihnachten',
+            },
+        ];
 
         //Temporarily removing from displaying this advertise.
         /*
@@ -74,12 +79,6 @@ export class AdvertWidgets {
             title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
         })
         */
-
-        list.push({
-            name: 'eoy-winner',
-            title: 'EOY Award',
-        });
-
 
         // Home
         if (edge?.producttype === ProductType.HOME) {

@@ -680,7 +680,7 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart */
+    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,

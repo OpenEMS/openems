@@ -3,7 +3,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 
 import { AdvertisementComponent } from './advertisement.component';
 import { DynamicElectricityTarifAdvertForExistingCustomerComponent } from './dynamic-electricity-tariff/dynamic-electricity-tariff-existing-customer';
-import { EoYWinnerAdvertComponent } from './eoy-winner/eoy-winner';
+import { MerryChristmasAdvertComponent } from './merry-christmas/merry-christmas';
 
 @NgModule({
     imports: [
@@ -11,7 +11,7 @@ import { EoYWinnerAdvertComponent } from './eoy-winner/eoy-winner';
     ],
     declarations: [
         AdvertisementComponent,
-        EoYWinnerAdvertComponent,
+        MerryChristmasAdvertComponent,
         DynamicElectricityTarifAdvertForExistingCustomerComponent,
     ],
     exports: [
