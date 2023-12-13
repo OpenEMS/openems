@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class ReadCsv {
 
@@ -63,7 +62,7 @@ public class ReadCsv {
 			}
 
 			reader.close();
-			System.out.println(Collections.min(this.data));
+			// System.out.println(Collections.min(this.data));
 
 		} catch (IOException e) {
 			e.printStackTrace();

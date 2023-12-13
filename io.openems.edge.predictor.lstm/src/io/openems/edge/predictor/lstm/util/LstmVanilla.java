@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.Function;
 
-public class Lstm {
+public class LstmVanilla {
 
 	private double[] inputData;
 	private double outputData;
 	private double derivativeLWrtRi = 0;
 	private double derivativeLWrtRo = 0;
 	private double derivativeLWrtRz = 0;
+	private double derivativeLWrtRf = 0;
 	private double derivativeLWrtWi = 0;
 	private double derivativeLWrtWo = 0;
 	private double derivativeLWrtWz = 0;
-	private double standerDeviation = 0;
-	private double mean = 0;
+	private double derivativeLWrtWf = 0;
 	private double learningRate; //
 	private int epoch = 100;
 
@@ -25,12 +25,11 @@ public class Lstm {
 		return arrayList.indexOf(Collections.min(arrayList));
 	};
 
-	public Lstm(LstmBuilder builder) {
+	public LstmVanilla(LstmBuilder builder) {
 		this.inputData = builder.inputData;
 		this.outputData = builder.outputData;
 		this.learningRate = builder.learningRate;
 		this.epoch = builder.epoch;
-
 	}
 
 	/**
@@ -39,7 +38,7 @@ public class Lstm {
 	public void forwardprop() {
 		try {
 			for (int i = 0; i < this.cells.size(); i++) {
-				this.cells.get(i).forwardPropogation();
+				this.cells.get(i).forwardPropogationvanilla();
 				if (i < this.cells.size() - 1) {
 					this.cells.get(i + 1).setYtMinusOne(this.cells.get(i).getYt());
 					this.cells.get(i + 1).setCtMinusOne(this.cells.get(i).getCt());
@@ -66,10 +65,12 @@ public class Lstm {
 		double localLearningRate4 = 0;
 		double localLearningRate5 = 0;
 		double localLearningRate6 = 0;
+		double localLearningRate7 = 0;
+		double localLearningRate8 = 0;
 
 		for (int i = this.cells.size() - 1; i >= 0; i--) {
 			if (i == this.cells.size() - 1) {
-				this.cells.get(i).backwardPropogation();
+				this.cells.get(i).backWardPropogationVanilla();
 			} else {
 				this.cells.get(i).setDlByDc(this.cells.get(i + 1).getDlByDc());
 				this.cells.get(i).backwardPropogation();
@@ -77,13 +78,15 @@ public class Lstm {
 		}
 
 		for (int i = 0; i < this.cells.size(); i++) {
-			this.derivativeLWrtRi += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelI();
-			this.derivativeLWrtRo += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelO();
-			this.derivativeLWrtRz += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelZ();
+			this.derivativeLWrtRi += this.cells.get(i).getYt() * this.cells.get(i).getDelI();
+			this.derivativeLWrtRo += this.cells.get(i).getYt() * this.cells.get(i).getDelO();
+			this.derivativeLWrtRz += this.cells.get(i).getYt() * this.cells.get(i).getDelZ();
+			this.derivativeLWrtRf += this.cells.get(i).getYt() * this.cells.get(i).getDelF();
 
 			this.derivativeLWrtWi += this.cells.get(i).getXt() * this.cells.get(i).getDelI();
 			this.derivativeLWrtWo += this.cells.get(i).getXt() * this.cells.get(i).getDelO();
 			this.derivativeLWrtWz += this.cells.get(i).getXt() * this.cells.get(i).getDelZ();
+			this.derivativeLWrtWf += this.cells.get(i).getXt() * this.cells.get(i).getDelZ();
 
 			// AdaptiveLearningRate rate = new AdaptiveLearningRate();
 			localLearningRate1 = rate.adagradOptimizer(this.learningRate, localLearningRate1, this.derivativeLWrtWi, i);
@@ -92,13 +95,17 @@ public class Lstm {
 			localLearningRate4 = rate.adagradOptimizer(this.learningRate, localLearningRate4, this.derivativeLWrtRi, i);
 			localLearningRate5 = rate.adagradOptimizer(this.learningRate, localLearningRate5, this.derivativeLWrtRo, i);
 			localLearningRate6 = rate.adagradOptimizer(this.learningRate, localLearningRate6, this.derivativeLWrtRz, i);
+			localLearningRate7 = rate.adagradOptimizer(this.learningRate, localLearningRate7, this.derivativeLWrtWf, i);
+			localLearningRate8 = rate.adagradOptimizer(this.learningRate, localLearningRate8, this.derivativeLWrtRf, i);
 
 			this.cells.get(i).setWi(this.cells.get(i).getWi() - localLearningRate1 * this.derivativeLWrtWi);
 			this.cells.get(i).setWo(this.cells.get(i).getWo() - localLearningRate2 * this.derivativeLWrtWo);
 			this.cells.get(i).setWz(this.cells.get(i).getWz() - localLearningRate3 * this.derivativeLWrtWz);
+			this.cells.get(i).setWf(this.cells.get(i).getWf() - localLearningRate7 * this.derivativeLWrtWf);
 			this.cells.get(i).setRi(this.cells.get(i).getRi() - localLearningRate4 * this.derivativeLWrtRi);
 			this.cells.get(i).setRo(this.cells.get(i).getRo() - localLearningRate5 * this.derivativeLWrtRo);
 			this.cells.get(i).setRz(this.cells.get(i).getRz() - localLearningRate6 * this.derivativeLWrtRz);
+			this.cells.get(i).setRf(this.cells.get(i).getRf() - localLearningRate8 * this.derivativeLWrtRf);
 
 		}
 	}
@@ -126,6 +133,8 @@ public class Lstm {
 			ArrayList<Double> temp6 = new ArrayList<Double>();
 			ArrayList<Double> temp7 = new ArrayList<Double>();
 			ArrayList<Double> temp8 = new ArrayList<Double>();
+			ArrayList<Double> temp9 = new ArrayList<Double>();
+			ArrayList<Double> temp10 = new ArrayList<Double>();
 
 			for (int j = 0; j < this.cells.size(); j++) {
 				temp1.add(this.cells.get(j).getWi()); // wi
@@ -136,6 +145,8 @@ public class Lstm {
 				temp6.add(this.cells.get(j).getRz()); // Rz
 				temp7.add(this.cells.get(j).getYt());
 				temp8.add(this.cells.get(j).getCt());
+				temp9.add(this.cells.get(j).getWf());
+				temp10.add(this.cells.get(j).getRf());
 			}
 
 			mW.getErrorList().add(this.cells.get(this.cells.size() - 1).getError());
@@ -147,6 +158,9 @@ public class Lstm {
 			mW.getRz().add(temp6);
 			mW.getOut().add(temp7);
 			mW.getCt().add(temp8);
+			mW.getWf().add(temp9);
+			mW.getRf().add(temp10);
+
 		}
 
 		int ind = findGlobalMinima(mW.getErrorList());
@@ -160,6 +174,9 @@ public class Lstm {
 		returnArray.add(mW.getRz().get(ind));
 		returnArray.add(mW.getOut().get(ind));
 		returnArray.add(mW.getCt().get(ind));
+		returnArray.add(mW.getWf().get(ind));
+		returnArray.add(mW.getRf().get(ind));
+		
 
 		ArrayList<Double> err = new ArrayList<Double>();
 		err.add(mW.getErrorList().get(ind));
@@ -218,6 +235,10 @@ public class Lstm {
 		return this.derivativeLWrtRz;
 	}
 
+	public double getDerivativeLWrtRf() {
+		return this.derivativeLWrtRf;
+	}
+
 	public double getDerivativeLWrtWi() {
 		return this.derivativeLWrtWi;
 	}
@@ -230,20 +251,16 @@ public class Lstm {
 		return this.derivativeLWrtWz;
 	}
 
+	public double getDerivativeLWrtWf() {
+		return this.derivativeLWrtWf;
+	}
+
 	public double getLearningRate() {
 		return this.learningRate;
 	}
 
 	public ArrayList<Cell> getCells() {
 		return this.cells;
-	}
-
-	public double getMen() {
-		return this.mean;
-	}
-
-	public double getStanderDeviation() {
-		return this.standerDeviation;
 	}
 
 	public void setWi(ArrayList<ArrayList<Double>> val) {
@@ -262,6 +279,13 @@ public class Lstm {
 	public void setWz(ArrayList<ArrayList<Double>> val) {
 		for (int i = 0; i < this.cells.size(); i++) {
 			this.cells.get(i).setWz(val.get(2).get(i));
+		}
+
+	}
+
+	public void setWf(ArrayList<ArrayList<Double>> val) {
+		for (int i = 0; i < this.cells.size(); i++) {
+			this.cells.get(i).setWf(val.get(8).get(i));
 		}
 
 	}
@@ -286,6 +310,13 @@ public class Lstm {
 		}
 
 	}
+	
+	public void setRf(ArrayList<ArrayList<Double>> val) {
+		for (int i = 0; i < this.cells.size(); i++) {
+			this.cells.get(i).setRf(val.get(9).get(i));
+		}
+
+	}
 
 	public void setYt(ArrayList<ArrayList<Double>> val) {
 		for (int i = 0; i < this.cells.size(); i++) {
@@ -298,18 +329,7 @@ public class Lstm {
 		for (int i = 0; i < this.cells.size(); i++) {
 			this.cells.get(i).setCt(val.get(7).get(i));
 		}
-	}
 
-	public void setMean(double val) {
-		for (int i = 0; i < this.cells.size(); i++) {
-			this.mean = val;
-		}
-	}
-
-	public void setStanderDeviation(double val) {
-		for (int i = 0; i < this.cells.size(); i++) {
-			this.standerDeviation = val;
-		}
 	}
 
 	/**
@@ -323,8 +343,6 @@ public class Lstm {
 
 		protected double learningRate; //
 		protected int epoch = 100; //
-  //		private double standerDeviation = 0;
-  //		private double mean = 0;
 
 		public LstmBuilder(double[] inputData, double outputData) {
 			this.inputData = inputData;
@@ -357,18 +375,8 @@ public class Lstm {
 			return this;
 		}
 
-  //		public LstmBuilder setStanderDeviation(double val) {
-  //			this.standerDeviation = val;
-  //			return this;
-  //		}
-  //
-  //		public LstmBuilder setMean(double val) {
-  //			this.mean = val;
-  //			return this;
-  //		}
-
-		public Lstm build() {
-			return new Lstm(this);
+		public LstmVanilla build() {
+			return new LstmVanilla(this);
 		}
 
 	}

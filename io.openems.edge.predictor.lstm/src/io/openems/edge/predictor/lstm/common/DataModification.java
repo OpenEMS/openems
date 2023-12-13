@@ -1,7 +1,10 @@
 package io.openems.edge.predictor.lstm.common;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
 import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class DataModification {
@@ -161,6 +164,124 @@ public class DataModification {
 		double reverseStand = 0;
 		reverseStand = (zvalue * standardDeviation + mean);
 		return reverseStand;
+	}
+
+	/**
+	 * Modifies the given time-series data for long-term prediction by grouping it
+	 * based on hours and minutes.
+	 * 
+	 * @param data The ArrayList of Double values representing the time-series data.
+	 * @param date The ArrayList of OffsetDateTime objects corresponding to the
+	 *             timestamps of the data.
+	 * @return An ArrayList of ArrayLists of ArrayLists, representing the modified
+	 *         data grouped by hours and minutes.
+	 */
+
+	public static ArrayList<ArrayList<ArrayList<Double>>> modifyFroLongTermPrediction(ArrayList<Double> data,
+			ArrayList<OffsetDateTime> date) {
+
+		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
+		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
+
+		GroupBy groupAsHour = new GroupBy(data, date);
+		groupAsHour.hour();
+
+		for (int i = 0; i < groupAsHour.getDataGroupedByHour().size(); i++) {
+
+			GroupBy groupAsMinute = new GroupBy(groupAsHour.getDataGroupedByHour().get(i),
+					groupAsHour.getDateGroupedByHour().get(i));
+			groupAsMinute.minute();
+			dataGroupedByMinute.add(groupAsMinute.getDataGroupedByMinute());
+			dateGroupedByMinute.add(groupAsMinute.getDateGroupedByMinute());
+		}
+
+		return dataGroupedByMinute;
+
+	}
+	
+	/**
+	 * Modifies the given time-series data for short-term prediction by performing a series of transformations,
+	 * including grouping based on hours and minutes, changing the dimension of the grouped data, and applying
+	 * windowing to create a third modification.
+	 *
+	 * @param data The ArrayList of Double values representing the time-series data.
+	 * @param date The ArrayList of OffsetDateTime objects corresponding to the timestamps of the data.
+	 * @param hyperParameters The hyperparameters configuration for the short-term prediction.
+	 * @return An ArrayList of ArrayLists of Double values representing the third modification of the data.
+	 */
+
+	public static ArrayList<ArrayList<Double>> modifyForShortTermPrediction(ArrayList<Double> data,
+			ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
+
+		ArrayList<ArrayList<Double>> secondModification = new ArrayList<ArrayList<Double>>();
+
+		ArrayList<ArrayList<ArrayList<Double>>> firstModification = modifyFroLongTermPrediction(data, date);
+
+		ArrayList<ArrayList<Double>> thirdModification = new ArrayList<ArrayList<Double>>();
+
+		// second modification on the data: changing the dimension of the first modified
+		
+
+		for (int i = 0; i < firstModification.size(); i++) {
+			for (int j = 0; j < firstModification.get(i).size(); j++) {
+
+				secondModification.add(firstModification.get(i).get(j));
+			}
+
+		}
+
+		// Third modification:
+
+		int offset = 0;
+
+		for (int i = 0; i < secondModification.size(); i++) {
+			ArrayList<ArrayList<Double>> toCombine = new ArrayList<ArrayList<Double>>();
+
+			for (int j = 0; j <= hyperParameters.getWindowSizeTrend(); j++) {
+				if (j + offset < secondModification.size()) {
+					toCombine.add(secondModification.get(j + offset));
+
+				} else {
+
+					toCombine.add(secondModification.get(j + offset - secondModification.size()));
+
+				}
+
+			}
+
+			thirdModification.add(combinedArray(toCombine));
+			offset++;
+
+		}
+		return thirdModification;
+
+	}
+	
+	/**
+	 * Combines the given ArrayList of ArrayLists of Double values into a single ArrayList by interleaving
+	 * the elements from each inner ArrayList.
+	 *
+	 * @param val The ArrayList of ArrayLists of Double values to be combined.
+	 * @return An ArrayList of Double values representing the combined result.
+	 */
+
+	public static ArrayList<Double> combinedArray(ArrayList<ArrayList<Double>> val) {
+		ArrayList<Integer> sizeMatrix = new ArrayList<Integer>();
+		ArrayList<Double> reGroupedsecond = new ArrayList<Double>();
+		for (int i = 0; i < val.size(); i++) {
+			sizeMatrix.add(val.get(i).size());
+
+		}
+		for (int i = 0; i < Collections.min(sizeMatrix); i++) {
+			for (int j = 0; j < val.size(); j++) {
+
+				reGroupedsecond.add(val.get(j).get(i));
+
+			}
+
+		}
+		return reGroupedsecond;
+
 	}
 
 }

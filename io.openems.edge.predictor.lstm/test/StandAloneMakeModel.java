@@ -1,6 +1,9 @@
 
+import java.util.Collections;
+
 import org.junit.Test;
 
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
 import io.openems.edge.predictor.lstm.train.MakeModel;
 import io.openems.edge.predictor.lstm.validator.Validation;
@@ -16,15 +19,25 @@ public class StandAloneMakeModel {
 	 */
 
 	public static void itter() {
-		for (int i = 0; i < 27; i++) {
-			int itterNumb = i;
-			System.out.println("Training for data set " + i);
-			String pathTrain = Integer.toString(itterNumb + 1) + ".csv";
-			String pathValidate = Integer.toString(itterNumb + 2) + ".csv";
-			ReadCsv obj1 = new ReadCsv(pathTrain);
-			ReadCsv obj2 = new ReadCsv(pathValidate);
-			MakeModel obj = new MakeModel(obj1.getData(), obj1.getDates(), itterNumb);
-			Validation obj3 = new Validation(obj2.getData(), obj2.getDates(), itterNumb);
+		int k = 0;
+		HyperParameters hyperParameters = new HyperParameters();
+		for (int i = 0; i < 1; i++) {
+
+			String pathTrain = Integer.toString(i) + ".csv";
+			String pathValidate = Integer.toString(i + 1) + ".csv";
+
+			for (int j = 0; j < hyperParameters.getEpoch(); j++) {
+				hyperParameters.setCount(k);
+				System.out.println("Epoch=  " + j);
+
+				ReadCsv obj1 = new ReadCsv(pathTrain);
+				final ReadCsv obj2 = new ReadCsv(pathValidate);
+				hyperParameters.setScalingMax(Collections.max(obj1.getData()));
+				hyperParameters.setScalingMin(Collections.min(obj1.getData()));
+				MakeModel obj = new MakeModel(obj1.getData(), obj1.getDates(), hyperParameters);
+				Validation obj3 = new Validation(obj2.getData(), obj2.getDates(), hyperParameters);
+				k = k + 1;
+			}
 		}
 	}
 

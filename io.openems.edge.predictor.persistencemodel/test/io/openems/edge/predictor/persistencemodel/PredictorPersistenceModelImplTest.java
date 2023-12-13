@@ -16,6 +16,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.timedata.test.DummyTimedata;
 
+
 public class PredictorPersistenceModelImplTest {
 
 	private static final String TIMEDATA_ID = "timedata0";

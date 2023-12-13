@@ -30,6 +30,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -74,9 +75,11 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 	}
 
 	protected void train(ChannelAddress channelAddress) {
+		
+		HyperParameters hyperParameters = new HyperParameters();
 
 		// This is reference date specific to fems
-		ZonedDateTime nowDate = ZonedDateTime.now();
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 07, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 		ZonedDateTime until = ZonedDateTime.of(//
 				nowDate.getYear(), //
 				nowDate.getMonthValue(), //
@@ -86,7 +89,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 				0, //
 				0, //
 				nowDate.getZone());
-		ZonedDateTime temp = until.minusDays(6);
+		ZonedDateTime temp = until.minusDays(30);
 
 		ZonedDateTime fromDate = ZonedDateTime.of(//
 				temp.getYear(), //
@@ -111,7 +114,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
-		MakeModel obj = new MakeModel((ArrayList<Double>) data, date, 1);
+		MakeModel obj = new MakeModel((ArrayList<Double>) data, date, hyperParameters);
 
 	}
 

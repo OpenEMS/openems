@@ -1,7 +1,7 @@
 package io.openems.edge.predictor.lstm.util;
 
 import java.util.Random;
-
+ 
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
 
 public class Cell {
@@ -10,14 +10,22 @@ public class Cell {
 	private double wI;
 	private double wO;
 	private double wZ;
+	private double wF;
 	private double rI;
 	private double rO;
 	private double rZ;
+	private double rF;
 	private double yT;
+	private double ytMinusOne;
 
 	private double cT;
+	private double ctMinusOne;
 	private double oT;
 	private double zT;
+	private double fT;
+
+	private double mean;
+	private double standerDeviation;
 
 	private double iT;
 	private double dlByDy;
@@ -31,6 +39,8 @@ public class Cell {
 
 	private double xT;
 	private double outputDataLoc;
+	private double dlByDf;
+	private double delF;
 
 	public enum PropagationType {
 		FORWARD, BACKWARD
@@ -80,6 +90,31 @@ public class Cell {
 
 	}
 
+	public Cell(double xt, double outputData, double wI, double wO, double wZ, double wF, double rI, double rO,
+			double rZ, double rF, double yT) {
+		this.dlByDc = 0;
+		this.error = 0;
+		this.wI = wI;
+		this.wO = wO;
+		this.wZ = wZ;
+		this.wF = wF;
+		this.rI = rI;
+		this.rO = rO;
+		this.rZ = rZ;
+		this.cT = 0;
+		this.ctMinusOne = 0;
+		this.fT = 0;
+		this.oT = 0;
+		this.zT = 0;
+		this.yT = yT;
+		this.dlByDy = this.dlByDo = this.dlByDc = this.dlByDi = this.dlByDz = this.dlByDf = 0;
+		this.delI = this.delO = this.delZ = this.delF = 0;
+		this.iT = 0;
+		this.xT = xt;
+		this.outputDataLoc = outputData;
+
+	}
+
 	/**
 	 * Forward propagation.
 	 */
@@ -91,17 +126,17 @@ public class Cell {
 
 		if (decissionFlag == true) {
 			dropOutProb = 0.02;
-			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
-			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
-			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
-			this.cT = this.cT + this.iT * this.zT * dropOutProb;
-			this.yT = this.yT * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+			this.cT = this.ctMinusOne + this.iT * this.zT * dropOutProb;
+			this.yT = this.ytMinusOne * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
 			this.error = this.yT - this.outputDataLoc;
 		} else {
-			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
-			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
-			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
-			this.cT = this.cT + this.iT * this.zT;
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+			this.cT = this.ctMinusOne + this.iT * this.zT;
 			this.yT = this.oT * MathUtils.tanh(this.cT);
 			this.error = this.yT - this.outputDataLoc;
 		}
@@ -117,9 +152,62 @@ public class Cell {
 		this.dlByDc = this.dlByDy * this.oT * MathUtils.tanhDerivative(this.cT) + this.dlByDc;
 		this.dlByDi = this.dlByDc * this.zT;
 		this.dlByDz = this.dlByDc * this.iT;
-		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wI + this.rI * this.yT);
-		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wO + this.rO * this.yT);
-		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ + this.rZ * this.yT);
+		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wI * this.xT + this.rI * this.ytMinusOne);
+		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wO * this.xT + this.rO * this.ytMinusOne);
+		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+	}
+
+	/**
+	 * Forward propagation including forget get Experimental forward propagation to
+	 * check if the model is able to forget redundant patterns from from general
+	 * Models.
+	 */
+
+	public void forwardPropogationvanilla() {
+
+		double dropOutProb;
+		// System.out.println(decisionDropout());
+		boolean decissionFlag = this.decisionDropout();
+
+		if (decissionFlag == true) {
+			dropOutProb = 0.02;
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
+			this.fT = MathUtils.sigmoid(this.wF * this.xT + this.rF * this.ytMinusOne);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+			this.cT = this.fT * this.ctMinusOne + this.iT * this.zT * dropOutProb;
+			this.yT = this.ytMinusOne * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
+			this.error = this.yT - this.outputDataLoc;
+		} else {
+			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
+			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
+			this.fT = MathUtils.sigmoid(this.wF * this.xT + this.rF * this.ytMinusOne);
+			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+			this.cT = this.fT * this.ctMinusOne + this.iT * this.zT;
+			this.yT = this.oT * MathUtils.tanh(this.cT);
+			this.error = this.yT - this.outputDataLoc;
+		}
+	}
+
+	/**
+	 * Backward propagation including forget get Experimental backward propagation
+	 * to check if the model is able to forget redundant patterns from from general
+	 * Models.
+	 */
+
+	public void backWardPropogationVanilla() {
+
+		this.dlByDy = this.error;
+		this.dlByDo = this.dlByDy * MathUtils.tanh(this.cT);
+		this.dlByDc = this.dlByDy * this.oT * MathUtils.tanhDerivative(this.cT) + this.dlByDc;
+		this.dlByDi = this.dlByDc * this.zT;
+		this.dlByDz = this.dlByDc * this.iT;
+		this.dlByDf = this.dlByDc * this.ctMinusOne;
+		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wI * this.xT + this.rI * this.ytMinusOne);
+		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wO * this.xT + this.rO * this.ytMinusOne);
+		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ * this.xT + this.rZ * this.ytMinusOne);
+		this.delF = this.dlByDf * MathUtils.sigmoidDerivative(this.wF * this.xT + this.rF * this.ytMinusOne);
+
 	}
 
 	/**
@@ -136,7 +224,7 @@ public class Cell {
 
 		Random random = new Random();
 		int randomNumber = random.nextInt(10) + 1;
-		if (randomNumber > 9) {
+		if (randomNumber > 10) {
 			return true;
 		}
 		return false;
@@ -160,6 +248,15 @@ public class Cell {
 
 	public double getWo() {
 		return this.wO;
+	}
+
+	public double getWf() {
+		return this.wF;
+	}
+
+	public void setWf(double wF) {
+		this.wF = wF;
+
 	}
 
 	public void setWo(double wo) {
@@ -198,12 +295,38 @@ public class Cell {
 		this.rZ = rz;
 	}
 
+	public double getRf() {
+		return this.rF;
+	}
+
+	public void setRf(double rf) {
+		this.rF = rf;
+	}
+
 	public double getCt() {
 		return this.cT;
 	}
 
 	public void setCt(double ct) {
 		this.cT = ct;
+
+	}
+
+	public double getCtMinusOne() {
+		return this.ctMinusOne;
+	}
+
+	public void setCtMinusOne(double ct) {
+		this.ctMinusOne = ct;
+
+	}
+
+	public double getYtMinusOne() {
+		return this.ytMinusOne;
+	}
+
+	public void setYtMinusOne(double yt) {
+		this.ytMinusOne = yt;
 
 	}
 
@@ -279,6 +402,14 @@ public class Cell {
 		this.delO = delO;
 	}
 
+	public double getDelF() {
+		return this.delF;
+	}
+
+	public void setDelF(double delF) {
+		this.delF = delF;
+	}
+
 	public double getDelO() {
 		return this.delO;
 	}
@@ -297,6 +428,24 @@ public class Cell {
 
 	public double getXt() {
 		return this.xT;
+	}
+
+	public double getMean() {
+		return this.mean;
+
+	}
+
+	public void setMean(double val) {
+		this.mean = val;
+	}
+
+	public double getStanderDeviation() {
+		return this.standerDeviation;
+
+	}
+
+	public void setStanderDeviation(double val) {
+		this.standerDeviation = val;
 	}
 
 	/**
