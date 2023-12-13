@@ -37,6 +37,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.12.2',
+        changes: [
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Fehlerbehebungen zu Version 2023.12.1",
+        ],
+      },
+      {
         version: '2023.12.1',
         changes: [
           Changelog.openems('2023.12.0'),
