@@ -5,7 +5,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
-import * as Chart from 'chart.js';
 import { YAxisTitle } from 'src/app/shared/service/utils';
 
 
