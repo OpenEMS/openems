@@ -37,6 +37,19 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.12.1',
+        changes: [
+          Changelog.openems('2023.12.0'),
+          Changelog.product(Product.HOME_10, Product.HOME_20_30) + Changelog.GENERAL_OPTIMIZATION,
+          "Verbesserungen am Inbetriebnahmeassistent (breitere Darstellung, Prüfen der Konfiguration, Home 20 & 30 mit mehreren Batterietürmen)",
+          Changelog.app(App.TIME_OF_USE) + "(BETA-Test): Verbesserungen am Algorithmus",
+          { roleIsAtLeast: Role.ADMIN, change: "GoodWe Netzzähler: setze Werte auf UNDEFINED, wenn Kommunikationsverbindung gestört ist (Status 'GoodWe has no Grid-Meter')" },
+          { roleIsAtLeast: Role.ADMIN, change: "GoodWe Battery-Inverter: Ausblenden Fehler bei PU_ENABLE_CURVE" },
+          { roleIsAtLeast: Role.ADMIN, change: "Interne Verbesserungen: Fehlerbehebung Modbus-Bridge ConcurrentModificationException, State-Channels werden immer mit 'false' initialisiert, Exception-Handling in ESS-Power, Debug-Log bei fehlendem 'additionalChannel'" },
+          Changelog.library(Library.GRADLE, Library.FASTEXCEL),
+        ],
+      },
+      {
         version: '2023.11.3',
         changes: [
           Changelog.UI,
@@ -44,9 +57,9 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Option zum Deaktivieren der Einspeise-Limitierung im Inbetriebnahmeassistent",
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Konfigurationsparameter für Rundsteuerempfänger",
           Changelog.app(App.TIME_OF_USE) + "(BETA-Test): Verbesserungen der KI-Performance und am Algorithmus",
-          Changelog.app(App.PV_INVERTER, App.SMA) + "Kompatibilität mit neuen Modellen des SMA Sunny Tripower (SunSpec Model 7xx)",
           "App Center: Verbesserte Auswahl von Relaisausgängen",
           Changelog.library(Library.FASTEXCEL),
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.app(App.PV_INVERTER, App.SMA) + "Kompatibilität mit neuen Modellen des SMA Sunny Tripower (SunSpec Model 7xx)" },
           { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der vordefinierten Funktionen in System-Execute" },
           { roleIsAtLeast: Role.ADMIN, change: "Modernisierung der historischen Ansicht für Channelthreshold-Controller" },
           { roleIsAtLeast: Role.ADMIN, change: "Home 10, 20 & 30/GoodWe Battery-Inverter: bessere Beschreibung der Konfigurationsparameter in \"Komponenten konfigurieren\"" },
