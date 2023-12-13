@@ -6,8 +6,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 import { AbstractHistoryChart } from '../../abstracthistorychart';
 import * as Chart from 'chart.js';
-import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
-import { _DeepPartialObject } from 'chart.js/dist/types/utils';
 
 @Component({
     selector: 'symmetricpeakshavingchart',

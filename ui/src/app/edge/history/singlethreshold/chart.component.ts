@@ -179,7 +179,7 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
       }).finally(() => {
         this.unit = YAxisTitle.PERCENTAGE;
         this.setOptions(this.options);
-        this.addControllerSpecificOptions(this.options)
+        this.addControllerSpecificOptions(this.options);
       });
     }).catch(reason => {
       console.error(reason); // TODO error message
@@ -242,12 +242,12 @@ export class SinglethresholdChartComponent extends AbstractHistoryChart implemen
           position: 'right',
           title: {
             text: '%',
-            display: true
+            display: true,
           },
           ticks: {
             padding: -5,
-            stepSize: 20
-          }
+            stepSize: 20,
+          },
         };
       }
 

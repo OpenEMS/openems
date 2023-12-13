@@ -37,7 +37,7 @@ export class ChartComponent extends AbstractHistoryChart {
             console.log("test", data['Consumption']
               ?.map((value, index) =>
                 Utils.calculateAutarchy(data['GridBuy'][index], value),
-              ))
+              ));
             return data['Consumption']
               ?.map((value, index) =>
                 Utils.calculateAutarchy(data['GridBuy'][index], value),

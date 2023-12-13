@@ -1,4 +1,3 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+import { YAxisTitle } from 'src/app/shared/service/utils';
 
 @Component({
   selector: 'fixDigitalOutputSingleChart',
@@ -70,7 +69,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
         datasets.push({
           label: address.channelId,
           data: data,
-          yAxisID: ''
+          yAxisID: '',
         });
         this.colors.push({
           backgroundColor: 'rgba(0,191,255,0.05)',
@@ -86,7 +85,7 @@ export class FixDigitalOutputSingleChartComponent extends AbstractHistoryChart i
       return;
     }).finally(() => {
       this.unit = YAxisTitle.PERCENTAGE;
-      this.setOptions(this.options)
+      this.setOptions(this.options);
       this.stopSpinner();
     });
   }

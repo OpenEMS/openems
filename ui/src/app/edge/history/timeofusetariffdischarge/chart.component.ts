@@ -1,14 +1,12 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem, Unit } from '../shared';
+import { Unit } from '../shared';
 import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
 
 // TODO rename folder; remove 'Discharge'

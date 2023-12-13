@@ -297,7 +297,7 @@ export abstract class AbstractHistoryChart {
     public setOptions(options: Chart.ChartOptions) {
 
         const locale = this.service.translate.currentLang;
-        const yAxis: HistoryUtils.yAxes = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT }
+        const yAxis: HistoryUtils.yAxes = { position: 'left', unit: this.unit, yAxisId: ChartAxis.LEFT };
         const unit = this.unit;
         const formatNumber = this.formatNumber;
         const colors = this.colors;
@@ -305,8 +305,8 @@ export abstract class AbstractHistoryChart {
 
         /** Hide default displayed yAxis */
         options.scales['y'] = {
-            display: false
-        }
+            display: false,
+        };
 
         // Overwrite TooltipsTitle
         options.plugins.tooltip.callbacks.title = (tooltipItems: Chart.TooltipItem<any>[]): string => {
@@ -368,7 +368,7 @@ export abstract class AbstractHistoryChart {
 
             let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
                 if (ds.label == legendItem.text) {
-                    arr.push({ label: ds.label, index: i })
+                    arr.push({ label: ds.label, index: i });
                 }
                 return arr;
             }, []);
@@ -393,7 +393,6 @@ export abstract class AbstractHistoryChart {
             case 'hour':
                 options.scales.x.ticks['source'] = 'auto';//labels,auto
                 options.scales.x.ticks.maxTicksLimit = 31;
-                options.scales.x['bounds'] = 'ticks';
                 break;
             case 'day':
             case 'month':
@@ -403,7 +402,8 @@ export abstract class AbstractHistoryChart {
 
         options.scales.x['stacked'] = true;
         options.scales[ChartAxis.LEFT]['stacked'] = false;
-        NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service)
+
+        NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges('line', options, this.service);
 
         /** Overwrite default yAxisId */
         this.datasets = this.datasets
@@ -411,9 +411,6 @@ export abstract class AbstractHistoryChart {
                 el['yAxisID'] = ChartAxis.LEFT;
                 return el;
             });
-
-        console.log("🚀 ~ file: abstracthistorychart.ts:413 ~ AbstractHistoryChart ~ setOptions ~ this.datasets:", this.datasets, this.options)
-
 
         this.options = options;
     }

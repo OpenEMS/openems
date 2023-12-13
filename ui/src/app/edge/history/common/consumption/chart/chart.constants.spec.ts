@@ -8,17 +8,6 @@ import { OeChartTester } from "src/app/shared/genericComponents/shared/testing/t
 
 export function expectView(config: EdgeConfig, testContext: TestContext, chartType: 'line' | 'bar', channels: OeTester.Types.Channels, view: OeChartTester.View): void {
 
-  let input = removeFunctions(OeChartTester
-    .apply(ChartComponent
-      .getChartData(
-        DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config),
-        testContext.translate), chartType, channels, testContext));
-
-  let output = removeFunctions(view);
-
-  sessionStorage.setItem("input", JSON.stringify(input))
-  sessionStorage.setItem("output", JSON.stringify(output))
-
   expect(removeFunctions(OeChartTester
     .apply(ChartComponent
       .getChartData(

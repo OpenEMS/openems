@@ -30,7 +30,7 @@ export namespace ColorUtils {
     }
 
     var rgba = color.split('(').pop().split(')')[0];
-    var rgb = rgba.split(',').slice(0, -1).join(',')
+    var rgb = rgba.split(',').slice(0, -1).join(',');
 
     return 'rgba(' + rgb + ',' + (opacity ?? 0) + ')';
   }

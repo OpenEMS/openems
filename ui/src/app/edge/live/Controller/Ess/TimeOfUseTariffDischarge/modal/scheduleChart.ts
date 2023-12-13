@@ -1,9 +1,7 @@
-import { formatNumber } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Data } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { TooltipItem } from 'src/app/edge/history/shared';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';

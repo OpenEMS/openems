@@ -2,10 +2,8 @@ import * as Chart from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChartAxis } from 'src/app/shared/service/utils';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
-import { AbstractHistoryChart } from './abstracthistorychart';
 
 export interface Dataset {
     label: string;
@@ -153,29 +151,29 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
         point: {
             radius: 0,
             hitRadius: 0,
-            hoverRadius: 0
+            hoverRadius: 0,
         },
         line: {
             stepped: false,
-            fill: true
+            fill: true,
         },
     },
     datasets: {
         bar: {},
-        line: {}
+        line: {},
     },
     plugins: {
         colors: {
-            enabled: false
+            enabled: false,
         },
         legend: {
             display: true,
 
             position: 'bottom',
             labels: {
-                generateLabels: (chart: Chart.Chart) => { return null; }
+                generateLabels: (chart: Chart.Chart) => { return null; },
             },
-            onClick: (event, legendItem, legend) => { }
+            onClick: (event, legendItem, legend) => { },
         },
         tooltip: {
             intersect: false,
@@ -189,8 +187,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
                 title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
                 afterTitle: (items: Chart.TooltipItem<any>[]) => { },
                 labelColor: (context: Chart.TooltipItem<any>) => { },
-            }
-        }
+            },
+        },
     },
     scales: {
         x: {
@@ -220,9 +218,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
                     week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
                     month: 'MM', // September
                     quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY' // 2015,
-                }
-            }
+                    year: 'YYYY', // 2015,
+                },
+            },
         },
     },
 };
@@ -230,8 +228,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: Chart.ChartOptions = {
 export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions = {
     plugins: {
         legend: {
-            labels: {}
-        }
+            labels: {},
+        },
     },
     datasets: {},
     maintainAspectRatio: false,

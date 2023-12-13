@@ -6,7 +6,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import * as Chart from 'chart.js';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ChartAxis, YAxisTitle } from 'src/app/shared/service/utils';
+import { ChartAxis } from 'src/app/shared/service/utils';
 import { formatNumber } from '@angular/common';
 
 @Component({
@@ -252,7 +252,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                 label += ' ' + translate.instant('General.dischargePower');
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
     }
 
     public getChartHeight(): number {

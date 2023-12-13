@@ -201,7 +201,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     return {
       datasets: datasets,
-      legendOptions: legendOptions
+      legendOptions: legendOptions,
     };
   }
 
@@ -257,7 +257,7 @@ export abstract class AbstractHistoryChart implements OnInit {
       order: element.order ?? Number.MAX_VALUE,
       ...(element.hideShadow && { fill: !element.hideShadow }),
       ...AbstractHistoryChart.getColors(element.color, chartType),
-      borderWidth: 2
+      borderWidth: 2,
     };
     return dataset;
   }
@@ -351,7 +351,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         options.datasets.bar = {
           barPercentage: barPercentage,
-        }
+        };
         break;
 
       case 'line':
@@ -593,14 +593,14 @@ export abstract class AbstractHistoryChart implements OnInit {
     options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
       return {
         borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
-        backgroundColor: ColorUtils.changeOpacityFromRGBA(item.dataset.backgroundColor, 0.6),
+        backgroundColor: item.dataset.backgroundColor,
       };
     };
 
     options.plugins.legend.labels.generateLabels = function (chart: Chart.Chart) {
 
       let chartLegendLabelItems: Chart.LegendItem[] = [];
-      chart.data.datasets.forEach((dataset, index) => {
+      chart.data.datasets.forEach((dataset: Chart.ChartDataset, index) => {
 
         let legendItem = legendOptions?.find(element => element.label == dataset.label);
         //Remove duplicates 'directConsumption' from legend
@@ -611,7 +611,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
         let isHidden = legendItem?.strokeThroughHidingStyle ?? null;
 
-        displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach(() => {
+        displayValues.filter(element => element.name == dataset.label?.split(":")[0]).forEach((element) => {
           chartLegendLabelItems.push({
             text: dataset.label,
             datasetIndex: index,
@@ -619,7 +619,7 @@ export abstract class AbstractHistoryChart implements OnInit {
             hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
             lineWidth: 2,
             strokeStyle: dataset.borderColor.toString(),
-            // lineDash: dataset.borderDash
+            ...(dataset['borderDash'] != null && { lineDash: dataset['borderDash'] }),
           });
         });
       });
@@ -663,7 +663,7 @@ export abstract class AbstractHistoryChart implements OnInit {
 
       let legendItems = chart.data.datasets.reduce((arr, ds, i) => {
         if (ds.label == legendItem.text) {
-          arr.push({ label: ds.label, index: i })
+          arr.push({ label: ds.label, index: i });
         }
         return arr;
       }, []);
@@ -706,7 +706,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               padding: 10,
               font: {
                 size: 11,
-              }
+              },
             },
             grid: {
               display: element.displayGrid ?? true,
@@ -734,7 +734,7 @@ export abstract class AbstractHistoryChart implements OnInit {
               padding: 5,
               font: {
                 size: 11,
-              }
+              },
             },
             grid: {
               display: element.displayGrid ?? true,
@@ -763,8 +763,8 @@ export abstract class AbstractHistoryChart implements OnInit {
             text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
             display: true,
             font: {
-              size: 11
-            }
+              size: 11,
+            },
           },
           position: element.position,
           grid: {
@@ -773,7 +773,7 @@ export abstract class AbstractHistoryChart implements OnInit {
           ticks: {
             padding: 5,
             stepSize: 20,
-          }
+          },
         };
         break;
 
@@ -785,8 +785,8 @@ export abstract class AbstractHistoryChart implements OnInit {
             text: element.customTitle ?? AbstractHistoryChart.getYAxisTitle(element.unit, translate, chartType),
             display: true,
             font: {
-              size: 11
-            }
+              size: 11,
+            },
           },
           grid: {
             display: element.displayGrid ?? true,
@@ -810,16 +810,16 @@ export abstract class AbstractHistoryChart implements OnInit {
             display: true,
             padding: 5,
             font: {
-              size: 11
-            }
+              size: 11,
+            },
           },
           position: element.position,
           grid: {
-            display: element.displayGrid ?? true
+            display: element.displayGrid ?? true,
           },
           ticks: {
             // source: 'data',
-          }
+          },
         };
         break;
     }
@@ -833,7 +833,7 @@ export abstract class AbstractHistoryChart implements OnInit {
   protected setChartLabel() {
     const locale = this.service.translate.currentLang;
     this.options = AbstractHistoryChart.getOptions(this.chartObject, this.chartType, this.service, this.translate, this.legendOptions, this.channelData, locale);
-    sessionStorage.setItem("options", JSON.stringify(this.options))
+    sessionStorage.setItem("options", JSON.stringify(this.options));
     this.loading = false;
     this.stopSpinner();
   }

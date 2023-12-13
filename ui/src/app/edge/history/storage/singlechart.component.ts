@@ -7,7 +7,6 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import * as Chart from 'chart.js';
-import { _DeepPartialObject } from 'chart.js/dist/types/utils';
 import { ChartAxis } from 'src/app/shared/service/utils';
 
 @Component({
@@ -207,7 +206,7 @@ export class StorageSingleChartComponent extends AbstractHistoryChart implements
                 }
             }
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

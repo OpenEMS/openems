@@ -1,6 +1,5 @@
 import { ChartDataset } from "chart.js";
 import * as Chart from "chart.js";
-import { ChartOptions } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { HistoryUtils } from "src/app/shared/service/utils";
