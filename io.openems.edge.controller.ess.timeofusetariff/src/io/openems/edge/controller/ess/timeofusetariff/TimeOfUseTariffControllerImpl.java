@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,6 +26,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -73,6 +75,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 	private final ScheduledExecutorService taskExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ScheduledExecutorService triggerExecutor = Executors.newSingleThreadScheduledExecutor();
+	private final AtomicReference<Future<?>> taskFuture = new AtomicReference<>();
+	private final Optimizer optimizer;
+	private final Runnable triggerOptimizerTask;
 
 	/** Charged Time is aggregated also after restart of OpenEMS. */
 	private final CalculateActiveTime calculateChargedTime = new CalculateActiveTime(this,
@@ -93,8 +98,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	private Config config = null;
-
 	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
@@ -111,7 +114,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private Optimizer optimizer = null;
+	private Config config = null;
 
 	public TimeOfUseTariffControllerImpl() {
 		super(//
@@ -119,11 +122,43 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				Controller.ChannelId.values(), //
 				TimeOfUseTariffController.ChannelId.values() //
 		);
+
+		// Prepare Optimizer and Context
+		this.optimizer = new Optimizer(() -> Context.create() //
+				.predictorManager(this.predictorManager) //
+				.timeOfUseTariff(this.timeOfUseTariff) //
+				.ess(this.ess) //
+				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
+				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
+				.controlMode(this.config.controlMode()) //
+				.maxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
+				.solveDurationChannel(this.channel(TimeOfUseTariffController.ChannelId.SOLVE_DURATION)) //
+				.build());
+
+		this.triggerOptimizerTask = () -> this.taskFuture.updateAndGet(previous -> {
+			if (previous != null) {
+				previous.cancel(true);
+			}
+			return this.taskExecutor.submit(this.optimizer);
+		});
+
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) {
+		super.modified(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+	}
+
+	private ScheduledFuture<?> triggerFuture;
+
+	private synchronized void applyConfig(Config config) {
 		this.config = config;
 
 		// update filter for 'ess'
@@ -131,29 +166,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		/* Run Worker once now and afterwards every 15 minutes */
-		this.optimizer = new Optimizer(() -> Context.create() //
-				.predictorManager(this.predictorManager) //
-				.timeOfUseTariff(this.timeOfUseTariff) //
-				.ess(this.ess) //
-				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
-				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
-				.controlMode(config.controlMode()) //
-				.maxChargePowerFromGrid(config.maxChargePowerFromGrid()) //
-				.maxChargePowerFromGrid(config.maxChargePowerFromGrid()) //
-				.solveDurationChannel(this.channel(TimeOfUseTariffController.ChannelId.SOLVE_DURATION)) //
-				.build());
-		final AtomicReference<Future<?>> future = new AtomicReference<>();
-		future.set(this.taskExecutor.submit(this.optimizer));
+		// Trigger immediate run of Optimizer (with updated Context)
+		this.triggerOptimizerTask.run();
 
+		// Schedule run of Optimizer every 15 minutes
 		var now = ZonedDateTime.now();
 		var nextRun = roundZonedDateTimeDownToMinutes(now, 15).plusMinutes(3);
+		if (nextRun.isBefore(now)) {
+			nextRun = nextRun.plusMinutes(15);
+		}
 
-		this.triggerExecutor.scheduleAtFixedRate(() -> {
-			// Cancel previous run
-			future.get().cancel(true);
-			future.set(this.taskExecutor.submit(this.optimizer));
-		}, //
+		if (this.triggerFuture != null) {
+			this.triggerFuture.cancel(true);
+		}
+		this.triggerFuture = this.triggerExecutor.scheduleAtFixedRate(this.triggerOptimizerTask, //
 
 				// Run 12 minutes before full 15 minutes
 				Duration.between(now, nextRun).toMillis(), //
@@ -208,10 +234,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		var state = period.state();
 		this._setStateMachine(period.state());
 
-		// Battery full? Always BALANCING.
 		var soc = this.ess.getSoc().get();
-		if (soc != null && soc > ESS_FULL_SOC_THRESHOLD) {
-			state = BALANCING;
+		if (soc != null) {
+			if (soc > ESS_FULL_SOC_THRESHOLD) {
+				// Battery full? -> BALANCING.
+				state = BALANCING;
+			} else if (soc <= 0 && state == DELAY_DISCHARGE) {
+				// DELAY_DISCHARGE, but battery empty? -> BALANCING
+				state = BALANCING;
+			}
 		}
 
 		// Update the timer.
@@ -312,7 +343,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 			GetScheduleRequest request) throws OpenemsNamedException {
 		final var now = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15);
 		final var fromDate = now.minusHours(3);
-		
+
 		return CompletableFuture.completedFuture(Utils.handleGetScheduleRequest(this.optimizer, request.getId(),
 				this.timedata, this.id(), fromDate, now));
 	}

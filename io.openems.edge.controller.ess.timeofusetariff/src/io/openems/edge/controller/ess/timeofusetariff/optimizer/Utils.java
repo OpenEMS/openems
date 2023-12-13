@@ -1,7 +1,11 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.JsonUtils.getAsOptionalFloat;
+import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
+import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.edge.common.type.TypeUtils.multiply;
 import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.common.type.TypeUtils.subtract;
 import static io.openems.edge.common.type.TypeUtils.sum;
@@ -21,8 +25,8 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -32,9 +36,6 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonPrimitive;
 
 import io.jenetics.Genotype;
 import io.jenetics.IntegerChromosome;
@@ -63,8 +64,8 @@ public final class Utils {
 			"UnmanagedConsumptionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
-	public record ScheduleData(JsonElement quarterlyPrice, JsonElement stateMachine, JsonElement production,
-			JsonElement consumption, JsonElement soc) {
+	public record ScheduleData(Float quarterlyPrice, Integer stateMachine, Integer production, Integer consumption,
+			Integer soc) {
 	}
 
 	/**
@@ -137,10 +138,6 @@ public final class Utils {
 				Arrays.stream(unmanagedConsumption) //
 						.skip(splitAfterIndex)) //
 				.toArray(Integer[]::new);
-	}
-
-	protected static int toEnergy(int power) {
-		return power / PERIODS_PER_HOUR;
 	}
 
 	/**
@@ -314,33 +311,23 @@ public final class Utils {
 
 		// Process past predictions
 		final var pastPredictions = queryResult.entrySet().stream()//
-				.map(entry -> {
-					var data = entry.getValue();
-					var production = Optional.ofNullable(data.get(channelPredictedProduction))
-							.orElse(JsonNull.INSTANCE);
-					var consumption = Optional.ofNullable(data.get(channelPredictedConsumption))
-							.orElse(JsonNull.INSTANCE);
-					var price = Optional.ofNullable(data.get(channelQuarterlyPrices))//
-							.orElse(JsonNull.INSTANCE);
-					var stateMachine = Optional.ofNullable(data.get(channelStateMachine))//
-							.orElse(JsonNull.INSTANCE);
-
-					return new ScheduleData(price, stateMachine, production, consumption, JsonNull.INSTANCE);
-				}).collect(Collectors.toList());
+				.map(Entry::getValue) //
+				.map(d -> new ScheduleData(//
+						getAsOptionalFloat(d.get(channelQuarterlyPrices)).orElse(null), //
+						getAsOptionalInt(d.get(channelStateMachine)).orElse(null), //
+						getAsOptionalInt(d.get(channelPredictedProduction)).orElse(null), //
+						getAsOptionalInt(d.get(channelPredictedConsumption)).orElse(null), //
+						null)) //
+				.collect(Collectors.toList());
 
 		// Process future predictions
 		final var futurePredictions = periods.stream()//
-				.map(period -> {
-					// available energy -> soc.
-					var soc = (period.essInitial() * 100) / essUsableCapacity;
-
-					return new ScheduleData(//
-							new JsonPrimitive(period.price()), //
-							new JsonPrimitive(period.state().getValue()), //
-							new JsonPrimitive(period.production()), //
-							new JsonPrimitive(period.consumption()), //
-							new JsonPrimitive(soc));
-				}) //
+				.map(period -> new ScheduleData(//
+						period.price(), //
+						period.state().getValue(), //
+						period.production(), //
+						period.consumption(), //
+						(period.essInitial() * 100) / essUsableCapacity)) //
 				.collect(Collectors.toList());
 
 		// Concatenate past and future predictions
@@ -371,22 +358,14 @@ public final class Utils {
 		// Create the JSON object for each ScheduleData and add it to the schedule array
 		for (int index = 0; index < datas.size(); index++) {
 			var data = datas.get(index);
-			var price = data.quarterlyPrice();
-			var state = data.stateMachine();
-
-			if (price.isJsonNull() || state.isJsonNull()) {
-				continue;
-			}
-
-			// Add the JSON object to the schedule array.
 			schedule.add(JsonUtils.buildJsonObject() //
 					// Calculate the timestamp for the current entry, adding 15 minutes for each
-					.add("timestamp", new JsonPrimitive(timestamp.plusMinutes(15 * index).format(ISO_INSTANT))) //
-					.add("price", price) //
-					.add("state", state) //
-					.add("production", data.production()) //
-					.add("consumption", data.consumption()) //
-					.add("soc", data.soc()) //
+					.add("timestamp", toJson(timestamp.plusMinutes(15 * index).format(ISO_INSTANT))) //
+					.add("price", toJson(data.quarterlyPrice())) //
+					.add("state", toJson(data.stateMachine())) //
+					.add("production", toJson(toPower(data.production()))) //
+					.add("consumption", toJson(toPower(data.consumption()))) //
+					.add("soc", toJson(data.soc())) //
 					.build());
 		}
 
@@ -419,7 +398,9 @@ public final class Utils {
 
 		case DELAY_DISCHARGE -> {
 			// DELAY_DISCHARGE,...
-			if (balancingChargeDischarge < 0) {
+			if (essInitial == 0) {
+				yield BALANCING;
+			} else if (balancingChargeDischarge < 0) {
 				// but actually charging from PV -> could have been BALANCING
 				yield BALANCING;
 			} else if (p.maxPrice() - price < 0.001F) {
@@ -465,5 +446,25 @@ public final class Utils {
 								))) //
 								.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
 								.toList()));
+	}
+
+	/**
+	 * Converts power [W] to energy [Wh/15 min].
+	 * 
+	 * @param power the power value
+	 * @return the energy value
+	 */
+	protected static int toEnergy(int power) {
+		return power / PERIODS_PER_HOUR;
+	}
+
+	/**
+	 * Converts energy [Wh/15 min] to power [W].
+	 * 
+	 * @param energy the energy value
+	 * @return the power value
+	 */
+	public static Integer toPower(Integer energy) {
+		return multiply(energy, PERIODS_PER_HOUR);
 	}
 }

@@ -89,7 +89,11 @@ export class ConfigurationExecuteComponent implements OnInit {
         return;
       }
     }).finally(() => {
-      this.isWaiting = false;
+      this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.START_FUNCTION_TEST'), 'warning', 5000);
+      this.componentConfigurator.startFunctionTest().then(() => {
+        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FINISH_FUNCTION_TEST'), 'success');
+        this.isWaiting = false;
+      });
     });
   }
 }

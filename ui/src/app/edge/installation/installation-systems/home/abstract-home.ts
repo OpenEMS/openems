@@ -35,6 +35,8 @@ type FeneconHome = {
 
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
+  private static readonly MODULE_DATA_TIMEOUT = 12_000; // two minutes
+  private static readonly TOWER_DATA_TIMEOUT = 5_000; // five seconds
 
   constructor(public override views: View[], public override translate: TranslateService) {
     super(views, translate);
@@ -46,7 +48,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   };
 
   // configuration-emergency-reserve
-  public override emergencyReserve?= {
+  public override emergencyReserve? = {
     isEnabled: true,
     minValue: 5,
     value: 20,
@@ -218,7 +220,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           wrappers: ['input-serial-number'],
         });
         break;
-      case 2:
+      default: // usually 2,3,4,5
         fields.push({
           key: 'extensionBox',
           type: 'input',
@@ -329,7 +331,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         stopOnRequest.next();
         stopOnRequest.complete();
         edge.unsubscribeChannels(websocket, subscriptionId);
-      }, 5000);
+      }, AbstractHomeIbn.MODULE_DATA_TIMEOUT);
 
     });
   }
@@ -375,7 +377,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         stopOnRequest.next();
         stopOnRequest.complete();
         edge.unsubscribeChannels(websocket, 'home');
-      }, 5000);
+      }, AbstractHomeIbn.TOWER_DATA_TIMEOUT);
     });
   }
 

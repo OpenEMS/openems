@@ -65,8 +65,6 @@ export class ChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(253,197,7)',
           stack: 0,
-          hiddenOnInit: true,
-          noStrokeThroughLegendIfHidden: false,
         });
 
         const evcsComponentColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)'];

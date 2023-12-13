@@ -48,7 +48,7 @@ export type ConfigurationObject = {
 
 const DELAY_CLEAR = 5000;          // Time between the clear and the start of the configurations
 const DELAY_CONFIG = 15000;         // Time between the configuration of every component
-const DELAY_FUNCTION_TEST = 15000;  // Time between the configuration and the function test of every component
+const DELAY_FUNCTION_TEST = 120000;  // Time between the configuration and the function test of every component
 
 export class ComponentConfigurator {
 
@@ -125,7 +125,9 @@ export class ComponentConfigurator {
                 });
                 Promise.all([installApp, updateComponents])
                     .then(() => resolve())
-                    .catch(error => reject(error));
+                    .catch(error => {
+                        return reject(error);
+                    });
             }).catch(reason => {
                 reject(reason);
             });
@@ -184,9 +186,10 @@ export class ComponentConfigurator {
         return false;
     }
 
-    public allHaveFunctionState(functionState: FunctionState): boolean {
+    public allHaveFunctionState(desiredFunctionState: FunctionState): boolean {
         for (let configurationObject of this.configurationObjects) {
-            if (configurationObject.functionState !== functionState) {
+            const functionState: FunctionState = configurationObject.functionState;
+            if (functionState && functionState !== desiredFunctionState) {
                 return false;
             }
         }
@@ -312,10 +315,7 @@ export class ComponentConfigurator {
 
                 let timeout = DELAY_CONFIG;
 
-                if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
-                    // Only do function test if in RemoveAndConfigure-Mode
-                    this.startFunctionTest(configurationObject);
-                } else {
+                if (configurationObject.mode !== ConfigurationMode.RemoveAndConfigure) {
                     // Do not wait if in RemoveOnly-Mode
                     timeout = 0;
                 }
@@ -377,58 +377,70 @@ export class ComponentConfigurator {
         });
     }
 
-    private startFunctionTest(configurationObject: ConfigurationObject) {
+    public startFunctionTest(): Promise<void> {
 
-        configurationObject.functionState = FunctionState.Testing;
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                for (const configurationObject of this.configurationObjects) {
 
-        setTimeout(() => {
-            let channelAddress = new ChannelAddress(configurationObject.componentId, "State");
-            let channelMapping = { configurationObject: configurationObject, channelAddress: channelAddress };
+                    if (configurationObject.mode !== ConfigurationMode.RemoveAndConfigure) {
+                        // Only do function test if in RemoveAndConfigure-Mode
+                        continue;
+                    }
 
-            // Add the subscription
-            this.channelMappings.push(channelMapping);
+                    configurationObject.functionState = FunctionState.Testing;
 
-            // Get all channel addresses
-            let channelAddresses: ChannelAddress[] = [];
+                    const channelAddress = new ChannelAddress(configurationObject.componentId, "State");
+                    const channelMapping = { configurationObject: configurationObject, channelAddress: channelAddress };
 
-            for (let subscription of this.channelMappings) {
-                channelAddresses.push(subscription.channelAddress);
-            }
+                    // Add the subscription
+                    this.channelMappings.push(channelMapping);
 
-            // Do edge subscribe for all channels
-            this.edge.subscribeChannels(this.websocket, "component-configurator", channelAddresses);
+                    // Get all channel addresses
+                    let channelAddresses: ChannelAddress[] = [];
 
-            // Subscribe to the new channel
-            let subscription: Subscription = this.edge.currentData.pipe(
-                filter(currentData => currentData !== null),
-            ).subscribe((currentData) => {
-                let channelAddress: ChannelAddress = channelMapping.channelAddress;
-                let channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
+                    for (let subscription of this.channelMappings) {
+                        channelAddresses.push(subscription.channelAddress);
+                    }
 
-                let functionState;
+                    // Do edge subscribe for all channels
+                    this.edge.subscribeChannels(this.websocket, "component-configurator", channelAddresses);
 
-                switch (channelValue) {
-                    case 0:
-                    case 1:
-                        functionState = FunctionState.Ok;
-                        break;
-                    case 2:
-                        functionState = FunctionState.Warning;
-                        break;
-                    case 3:
-                        functionState = FunctionState.Fault;
-                        break;
-                    default:
-                        functionState = undefined;
-                        break;
+                    // Subscribe to the new channel
+                    let subscription: Subscription = this.edge.currentData.pipe(
+                        filter(currentData => currentData !== null),
+                    ).subscribe((currentData) => {
+                        let channelAddress: ChannelAddress = channelMapping.channelAddress;
+                        let channelValue: number = currentData.channel[channelAddress.componentId + "/" + channelAddress.channelId];
+
+                        let functionState;
+
+                        switch (channelValue) {
+                            case 0:
+                            case 1:
+                                functionState = FunctionState.Ok;
+                                break;
+                            case 2:
+                                functionState = FunctionState.Warning;
+                                break;
+                            case 3:
+                                functionState = FunctionState.Fault;
+                                break;
+                            default:
+                                functionState = undefined;
+                                break;
+                        }
+
+                        channelMapping.configurationObject.functionState = functionState;
+                    });
+
+                    // Add subscription to list
+                    this.subscriptions.push(subscription);
                 }
 
-                channelMapping.configurationObject.functionState = functionState;
-            });
-
-            // Add subscription to list
-            this.subscriptions.push(subscription);
-        }, DELAY_FUNCTION_TEST);
+                resolve();
+            }, DELAY_FUNCTION_TEST);
+        });
     }
 
     private stopFunctionTests() {

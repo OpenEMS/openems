@@ -105,7 +105,7 @@ export class Service extends AbstractService {
   }
 
   public getDocsLang(): string {
-      return "de";
+    return "de";
 
     // TODO: Redo when translations for docs are available
     // if (this.translate.currentLang == "de") {
@@ -393,11 +393,11 @@ export class Service extends AbstractService {
     this.spinner.hide(selector);
   }
 
-  public async toast(message: string, level: 'success' | 'warning' | 'danger') {
+  public async toast(message: string, level: 'success' | 'warning' | 'danger', duration?: number) {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: 2000,
+      duration: duration ?? 2000,
       cssClass: 'container',
     });
     toast.present();

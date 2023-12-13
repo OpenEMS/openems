@@ -315,6 +315,10 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(7, BatteryFeneconHome.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, BatteryFeneconHome.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(BatteryFeneconHome.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
+				new FC3ReadRegistersTask(18000, Priority.LOW, //
+						m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, new UnsignedWordElement(18000))), //
+				new FC3ReadRegistersTask(16000, Priority.LOW, //
+						m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, new UnsignedWordElement(16000))), //
 				new FC3ReadRegistersTask(14000, Priority.LOW, //
 						m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
 				new FC3ReadRegistersTask(12000, Priority.LOW, //
@@ -476,9 +480,18 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		Channel<Integer> tower3BmsSoftwareVersionChannel = this
 				.channel(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION);
 		var tower3BmsSoftwareVersion = tower3BmsSoftwareVersionChannel.value();
+		Channel<Integer> tower4BmsSoftwareVersionChannel = this
+				.channel(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION);
+		var tower4BmsSoftwareVersion = tower4BmsSoftwareVersionChannel.value();
+		Channel<Integer> tower5BmsSoftwareVersionChannel = this
+				.channel(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION);
+		var tower5BmsSoftwareVersion = tower5BmsSoftwareVersionChannel.value();
 
 		// Were all required registers read?
-		if (!numberOfModulesPerTowerOpt.isDefined() || !tower3BmsSoftwareVersion.isDefined()
+		if (!numberOfModulesPerTowerOpt.isDefined()//
+				|| !tower5BmsSoftwareVersion.isDefined()//
+				|| !tower4BmsSoftwareVersion.isDefined() //
+				|| !tower3BmsSoftwareVersion.isDefined()//
 				|| !tower2BmsSoftwareVersion.isDefined()) {
 			return;
 		}
@@ -486,7 +499,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		// Evaluate the total number of towers by reading the software versions of
 		// towers 2 and 3: they are '0' when the respective tower is not available.
 		final int numberOfTowers;
-		if (!Objects.equals(tower3BmsSoftwareVersion.get(), 0)) {
+		if (!Objects.equals(tower5BmsSoftwareVersion.get(), 0)) {
+			numberOfTowers = 5;
+		} else if (!Objects.equals(tower4BmsSoftwareVersion.get(), 0)) {
+			numberOfTowers = 4;
+		} else if (!Objects.equals(tower3BmsSoftwareVersion.get(), 0)) {
 			numberOfTowers = 3;
 		} else if (!Objects.equals(tower2BmsSoftwareVersion.get(), 0)) {
 			numberOfTowers = 2;
@@ -759,7 +776,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-											return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixBms, intValue);
+											return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixBms,
+													intValue);
 										}))));
 			}
 
@@ -851,7 +869,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 									m(channelId, new UnsignedDoublewordElement(moduleOffset + module * 100 + 83),
 											new ElementToChannelConverter(value -> {
 												Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-												return buildSerialNumber(this.getBatteryHardwareType().serialNrPrefixModule, intValue);
+												return buildSerialNumber(
+														this.getBatteryHardwareType().serialNrPrefixModule, intValue);
 											}))));
 				}
 			}

@@ -221,12 +221,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.V4_VALUE), -526);
 			break;
 		case PU_ENABLE_CURVE:
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.A_POINT_COS_PHI), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.B_POINT_COS_PHI), 0);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_POWER), 2000);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.C_POINT_COS_PHI), 0);
+			this.writeToChannel(GoodWe.ChannelId.A_POINT_POWER, 2000);
+			this.writeToChannel(GoodWe.ChannelId.A_POINT_COS_PHI, 0);
+			this.writeToChannel(GoodWe.ChannelId.B_POINT_POWER, 2000);
+			this.writeToChannel(GoodWe.ChannelId.B_POINT_COS_PHI, 0);
+			this.writeToChannel(GoodWe.ChannelId.C_POINT_POWER, 2000);
+			this.writeToChannel(GoodWe.ChannelId.C_POINT_COS_PHI, 0);
 			break;
 		case LAGGING_0_80:
 		case LAGGING_0_81:

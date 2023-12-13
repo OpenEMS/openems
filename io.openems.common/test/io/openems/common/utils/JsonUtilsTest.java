@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import static com.google.gson.JsonNull.INSTANCE;
+import static io.openems.common.utils.JsonUtils.toJson;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,7 +24,6 @@ import org.junit.function.ThrowingRunnable;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -137,6 +138,21 @@ public class JsonUtilsTest {
 				.build();
 		JsonUtils.buildJsonObject(JSON_OBJECT) //
 				.build();
+	}
+
+	@Test
+	public void testToJson() {
+		assertEquals(INSTANCE, toJson((Boolean) null));
+		assertEquals(new JsonPrimitive(true), toJson(true));
+
+		assertEquals(INSTANCE, toJson((Number) null));
+		assertEquals(new JsonPrimitive(123), toJson(123));
+
+		assertEquals(INSTANCE, toJson((Character) null));
+		assertEquals(new JsonPrimitive('a'), toJson('a'));
+
+		assertEquals(INSTANCE, toJson((String) null));
+		assertEquals(new JsonPrimitive("abc"), toJson("abc"));
 	}
 
 	@Test
@@ -479,8 +495,8 @@ public class JsonUtilsTest {
 
 	@Test
 	public void testGetAsJsonElement() throws UnknownHostException {
-		assertEquals(JsonNull.INSTANCE, JsonUtils.getAsJsonElement(null));
-		assertEquals(JsonNull.INSTANCE, JsonUtils.getAsJsonElement(Optional.empty()));
+		assertEquals(INSTANCE, JsonUtils.getAsJsonElement(null));
+		assertEquals(INSTANCE, JsonUtils.getAsJsonElement(Optional.empty()));
 		assertEquals(new JsonPrimitive(123), JsonUtils.getAsJsonElement(Optional.of(123)));
 		assertEquals(new JsonPrimitive(123), JsonUtils.getAsJsonElement(123));
 		assertEquals(new JsonPrimitive("foo"), JsonUtils.getAsJsonElement("foo"));
@@ -564,7 +580,7 @@ public class JsonUtilsTest {
 	@Test
 	public void testGetAsType2() throws OpenemsNamedException {
 		assertEquals((Boolean) null, JsonUtils.getAsType(OpenemsType.BOOLEAN, null));
-		assertEquals((Boolean) null, JsonUtils.getAsType(OpenemsType.BOOLEAN, JsonNull.INSTANCE));
+		assertEquals((Boolean) null, JsonUtils.getAsType(OpenemsType.BOOLEAN, INSTANCE));
 		assertEquals(true, JsonUtils.getAsType(OpenemsType.BOOLEAN, new JsonPrimitive(true)));
 		assertEquals(Double.valueOf(123D), JsonUtils.getAsType(OpenemsType.DOUBLE, new JsonPrimitive(123)));
 		assertEquals(Float.valueOf(123F), JsonUtils.getAsType(OpenemsType.FLOAT, new JsonPrimitive(123)));

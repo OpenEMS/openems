@@ -627,7 +627,9 @@
         "WAGO_BRIDGE": "WAGO (Gray component)"
       },
       "COMMUNICATION_WITH_RELAY": "Communication with Relay",
-      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration."
+      "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration.",
+      "START_FUNCTION_TEST": "Initiated function tests for the installed components",
+      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",

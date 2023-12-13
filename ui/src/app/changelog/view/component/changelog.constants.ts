@@ -3,7 +3,7 @@ import { environment } from "src/environments";
 
 export class Changelog {
 
-    public static readonly UI_VERSION = "2023.11.3";
+    public static readonly UI_VERSION = "2023.12.1";
 
     public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
     public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";

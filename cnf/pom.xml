@@ -258,7 +258,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.16.3</version>
+			<version>0.16.4</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -294,7 +294,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.9.20</version>
+			<version>1.9.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>

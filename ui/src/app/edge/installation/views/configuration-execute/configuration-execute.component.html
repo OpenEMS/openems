@@ -17,91 +17,87 @@
   </ion-item>
 
   <!-- Items -->
-  <ion-item lines="none">
-    <ion-card>
-      <ion-card-content>
-        <ion-list>
+  <ion-card>
+    <ion-card-content>
+      <ion-list>
 
-          <ng-container *ngFor="let configurationObject of configurationObjectsToBeConfigured">
+        <ng-container *ngFor="let configurationObject of configurationObjectsToBeConfigured">
 
-            <!-- Overview Item -->
-            <ion-item lines="none" style="border: 2px solid black; margin-bottom: 4px;">
-              <ion-label>{{configurationObject.alias}}</ion-label>
-              <ion-icon
-                *ngIf="configurationObject.configState === 'configured' && configurationObject.functionState === 'ok'"
-                name="checkmark-outline" color="success">
-              </ion-icon>
+          <!-- Overview Item -->
+          <ion-item lines="none" style="border: 2px solid black; margin-bottom: 4px;">
+            <ion-label>{{configurationObject.alias}}</ion-label>
+            <ion-icon
+              *ngIf="configurationObject.configState === 'configured' && configurationObject.functionState === 'ok'"
+              name="checkmark-outline" color="success">
+            </ion-icon>
+          </ion-item>
+
+          <!-- Details -->
+          <ng-container
+            *ngIf="!(configurationObject.configState === 'configured' && configurationObject.functionState === 'ok')">
+
+            <!-- Configuration Part -->
+            <ion-item lines="none" style="border: 1px solid black; margin-bottom: 2px; margin-left: 10px;">
+              <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.TITLE' | translate}}</ion-label>
+              <ng-container [ngSwitch]="configurationObject.configState">
+                <ion-icon *ngSwitchCase="'missing'" name="help-outline"></ion-icon>
+                <ion-icon *ngSwitchCase="'configuring'" name="settings-outline"></ion-icon>
+                <ion-icon *ngSwitchCase="'configured'" name="checkmark-outline" color="success"></ion-icon>
+                <ion-icon *ngSwitchCase="'pre-configured'" name="alert-outline" color="warning"></ion-icon>
+                <ion-icon *ngSwitchCase="'error'" name="alert-outline" color="danger"></ion-icon>
+              </ng-container>
             </ion-item>
 
-            <!-- Details -->
-            <ng-container
-              *ngIf="!(configurationObject.configState === 'configured' && configurationObject.functionState === 'ok')">
-
-              <!-- Configuration Part -->
-              <ion-item lines="none" style="border: 1px solid black; margin-bottom: 2px; margin-left: 10px;">
-                <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.TITLE' | translate}}</ion-label>
-                <ng-container [ngSwitch]="configurationObject.configState">
-                  <ion-icon *ngSwitchCase="'missing'" name="help-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="'configuring'" name="settings-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="'configured'" name="checkmark-outline" color="success"></ion-icon>
-                  <ion-icon *ngSwitchCase="'pre-configured'" name="alert-outline" color="warning"></ion-icon>
-                  <ion-icon *ngSwitchCase="'error'" name="alert-outline" color="danger"></ion-icon>
-                </ng-container>
-              </ion-item>
-
-              <!-- Function Test Part-->
-              <ion-item lines="none" style="border: 1px solid black; margin-bottom: 2px; margin-left: 10px;">
-                <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.FUNCTION_TEST' | translate}}</ion-label>
-                <ng-container [ngSwitch]="configurationObject.functionState">
-                  <ion-icon *ngSwitchCase="undefined" name="help-outline"></ion-icon>
-                  <ion-icon *ngSwitchCase="'testing'" name="settings-outline" class="icon ion-looping"></ion-icon>
-                  <ion-icon *ngSwitchCase="'ok'" name="checkmark-outline" color="success"></ion-icon>
-                  <ion-icon *ngSwitchCase="'warning'" name="alert-outline" color="warning"></ion-icon>
-                  <ion-icon *ngSwitchCase="'fault'" name="alert-outline" color="danger"></ion-icon>
-                </ng-container>
-              </ion-item>
-            </ng-container>
+            <!-- Function Test Part-->
+            <ion-item lines="none" style="border: 1px solid black; margin-bottom: 2px; margin-left: 10px;">
+              <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.FUNCTION_TEST' | translate}}</ion-label>
+              <ng-container [ngSwitch]="configurationObject.functionState">
+                <ion-icon *ngSwitchCase="undefined" name="help-outline"></ion-icon>
+                <ion-icon *ngSwitchCase="'testing'" name="settings-outline" class="icon ion-looping"></ion-icon>
+                <ion-icon *ngSwitchCase="'ok'" name="checkmark-outline" color="success"></ion-icon>
+                <ion-icon *ngSwitchCase="'warning'" name="alert-outline" color="warning"></ion-icon>
+                <ion-icon *ngSwitchCase="'fault'" name="alert-outline" color="danger"></ion-icon>
+              </ng-container>
+            </ion-item>
           </ng-container>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-  </ion-item>
+        </ng-container>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Legend -->
-  <ion-item lines="none">
-    <ion-card>
-      <ion-card-header>
-        <ion-item>
-          <ion-icon slot="start" name="reader-outline" style="pointer-events: none;"></ion-icon>
-          <ion-label>
-            <ion-card-title>{{'INSTALLATION.CONFIGURATION_EXECUTE.LEGEND' | translate}}</ion-card-title>
-          </ion-label>
-        </ion-item>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="help-outline" style="pointer-events: none;"></ion-icon>
-          <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.NOT_YET_CONFIGURED' | translate}}</ion-label>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="alert-outline" style="pointer-events: none; color: orange;">
-          </ion-icon>
-          <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.PRE_CONFIGURED' | translate}}</ion-label>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="settings-outline" style="pointer-events: none;"></ion-icon>
-          <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.PRE_CONFIGURED' | translate}}</ion-label>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="checkmark-outline" style="pointer-events: none; color: green;"></ion-icon>
-          <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.SUCCESSFULLY_CONFIGURED' | translate}}</ion-label>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-icon slot="start" name="alert-outline" style="pointer-events: none; color: red;"></ion-icon>
-          <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.ERROR' | translate}}</ion-label>
-        </ion-item>
-      </ion-card-content>
-    </ion-card>
-  </ion-item>
+  <ion-card>
+    <ion-card-header>
+      <ion-item>
+        <ion-icon slot="start" name="reader-outline" style="pointer-events: none;"></ion-icon>
+        <ion-label>
+          <ion-card-title>{{'INSTALLATION.CONFIGURATION_EXECUTE.LEGEND' | translate}}</ion-card-title>
+        </ion-label>
+      </ion-item>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item lines="none">
+        <ion-icon slot="start" name="help-outline" style="pointer-events: none;"></ion-icon>
+        <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.NOT_YET_CONFIGURED' | translate}}</ion-label>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-icon slot="start" name="alert-outline" style="pointer-events: none; color: orange;">
+        </ion-icon>
+        <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.PRE_CONFIGURED' | translate}}</ion-label>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-icon slot="start" name="settings-outline" style="pointer-events: none;"></ion-icon>
+        <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.PRE_CONFIGURED' | translate}}</ion-label>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-icon slot="start" name="checkmark-outline" style="pointer-events: none; color: green;"></ion-icon>
+        <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.SUCCESSFULLY_CONFIGURED' | translate}}</ion-label>
+      </ion-item>
+      <ion-item lines="none">
+        <ion-icon slot="start" name="alert-outline" style="pointer-events: none; color: red;"></ion-icon>
+        <ion-label>{{'INSTALLATION.CONFIGURATION_EXECUTE.ERROR' | translate}}</ion-label>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
 
 </installation-view>
