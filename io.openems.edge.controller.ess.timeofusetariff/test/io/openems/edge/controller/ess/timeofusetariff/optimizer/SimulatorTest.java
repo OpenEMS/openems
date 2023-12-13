@@ -69,7 +69,7 @@ public class SimulatorTest {
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-				.states(BALANCING, DELAY_DISCHARGE, CHARGE) //
+				.states(ControlMode.CHARGE_CONSUMPTION.states) //
 				.existingSchedule(existingSchedule) //
 				.build();
 		var s = getBestSchedule(p, //
@@ -245,7 +245,7 @@ public class SimulatorTest {
 				+ "%.4f €".formatted(calculateCost(p, schedule) / 1_000_000 /* convert to € */));
 	}
 
-	private static void logSchedule(Params p, StateMachine[] schedule) {
+	protected static void logSchedule(Params p, StateMachine[] schedule) {
 		var periods = new ArrayList<String>();
 		periods.add(Period.header());
 		calculateCost(p, schedule, period -> periods.add(period.toString()));

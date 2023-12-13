@@ -48,6 +48,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleData;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -171,14 +172,16 @@ public class UtilsTest {
 		assertEquals("BALANCING stays BALANCING", //
 				BALANCING, postprocessPeriodState(p, 0, 0, 0, 0, BALANCING));
 
+		assertEquals("DELAY_DISCHARGE but battery is empty", //
+				BALANCING, postprocessPeriodState(p, 0, 0, 0, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would discharge in balancing", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 0, 0, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessPeriodState(p, 1, 0, 0, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would charge from PV in balancing", //
-				BALANCING, postprocessPeriodState(p, 0, 0, 0, -1000, DELAY_DISCHARGE));
+				BALANCING, postprocessPeriodState(p, 1, 0, 0, -1000, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE but price is the max price", //
-				BALANCING, postprocessPeriodState(p, 0, 0, 123F, 0, DELAY_DISCHARGE));
+				BALANCING, postprocessPeriodState(p, 1, 0, 123F, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and price is NOT the max price", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 0, 122.9F, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessPeriodState(p, 1, 0, 122.9F, 0, DELAY_DISCHARGE));
 
 		assertEquals("CHARGE actually from grid", //
 				CHARGE, postprocessPeriodState(p, 0, 1, 0, 0, CHARGE));
@@ -201,7 +204,7 @@ public class UtilsTest {
 					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(BALANCING, DELAY_DISCHARGE, CHARGE) //
+					.states(ControlMode.CHARGE_CONSUMPTION.states) //
 					.existingSchedule(CHARGE, DELAY_DISCHARGE, CHARGE, DELAY_DISCHARGE, BALANCING) //
 					.build()).get(0);
 			assertEquals(2 /* CHARGE */, gt.get(0).get(0).intValue());
@@ -216,7 +219,7 @@ public class UtilsTest {
 					.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 					.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.states(BALANCING, DELAY_DISCHARGE) //
+					.states(ControlMode.DELAY_DISCHARGE.states) //
 					.existingSchedule(CHARGE, DELAY_DISCHARGE, CHARGE, DELAY_DISCHARGE, BALANCING) //
 					.build()).get(0);
 			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());

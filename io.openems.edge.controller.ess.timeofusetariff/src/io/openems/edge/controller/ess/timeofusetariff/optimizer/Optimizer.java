@@ -71,11 +71,21 @@ public class Optimizer implements Runnable {
 
 			// Debug Log best Schedule
 			this.log.info("# Best Schedule");
-			var b = new StringBuilder(Period.header());
-			b.append("\n");
-			periods.values().stream() //
-					.map(Period::toString) //
-					.forEach(s -> b.append(s).append("\n"));
+			var b = new StringBuilder("OPTIMIZER ") //
+					.append(Period.header()) //
+					.append("\n");
+			if (periods.values().isEmpty()) {
+				b //
+						.append("OPTIMIZER ") //
+						.append("-> EMPTY\n");
+			} else {
+				periods.values().stream() //
+						.map(Period::toString) //
+						.forEach(s -> b //
+								.append("OPTIMIZER ") //
+								.append(s) //
+								.append("\n"));
+			}
 			System.out.println(b.toString());
 
 		} catch (InvalidValueException | InterruptedException e) {

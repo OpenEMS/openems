@@ -398,7 +398,9 @@ public final class Utils {
 
 		case DELAY_DISCHARGE -> {
 			// DELAY_DISCHARGE,...
-			if (balancingChargeDischarge < 0) {
+			if (essInitial == 0) {
+				yield BALANCING;
+			} else if (balancingChargeDischarge < 0) {
 				// but actually charging from PV -> could have been BALANCING
 				yield BALANCING;
 			} else if (p.maxPrice() - price < 0.001F) {
