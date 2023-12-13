@@ -1,13 +1,20 @@
 package io.openems.edge.predictor.lstm.interpolation;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 
 public class InterpolationManager {
 
 	private ArrayList<Double> interpolated = new ArrayList<Double>();
+	private ArrayList<OffsetDateTime> newDates = new ArrayList<OffsetDateTime>();
 
-	public InterpolationManager(ArrayList<Double> data) {
+	public InterpolationManager(ArrayList<Double> data, ArrayList<OffsetDateTime> dates,
+			HyperParameters hyperParameters) {
 		// System.out.println("Data" + data.size());
+		// data = this.findMissingData(data, dates, hyperParameters);
 
 		ArrayList<Double> dataDouble = replaceNullWitNan(data);
 		ArrayList<ArrayList<Double>> interpolatedGroupedData = new ArrayList<ArrayList<Double>>();
@@ -154,4 +161,60 @@ public class InterpolationManager {
 		return this.interpolated;
 
 	}
+
+	public ArrayList<OffsetDateTime> getNewDates() {
+		return this.newDates;
+	}
+
+	/**
+	 * Finds missing data points in a time series and fills in the gaps with NaN
+	 * values.
+	 *
+	 * @param data            ArrayList of Double representing the data.
+	 * @param date            ArrayList of OffsetDateTime representing the
+	 *                        corresponding dates.
+	 * @param hyperParameters HyperParameters object containing configuration
+	 *                        settings.
+	 * @return ArrayList of Double with missing data points filled with NaN values.
+	 */
+
+	public ArrayList<Double> findMissingData(ArrayList<Double> data, ArrayList<OffsetDateTime> date,
+			HyperParameters hyperParameters) {
+
+		int missingData = 0;
+		ArrayList<Double> dataNew = new ArrayList<Double>();
+		OffsetDateTime starting = date.get(0);
+		OffsetDateTime ending = date.get(date.size() - 1);
+
+		while (!starting.isEqual(ending)) {
+			this.newDates.add(starting);
+			starting = starting.plusMinutes(hyperParameters.getInterval());
+		}
+		for (int i = 0; i < data.size() - 1; i++) {
+			if (i + 1 <= data.size() - 1) {
+
+				OffsetDateTime refDate = date.get(i);
+				OffsetDateTime plusOneDate = date.get(i + 1);
+				long minute = ChronoUnit.MINUTES.between(refDate, plusOneDate);
+				missingData = (int) ((minute / hyperParameters.getInterval()));
+				if (missingData == 1) {
+
+					dataNew.add(data.get(i));
+
+				} else {
+					dataNew.add(data.get(i));
+					for (int k = 1; k < missingData; k++) {
+						dataNew.add(Double.NaN);
+
+					}
+				}
+
+			}
+		}
+		System.out.println(dataNew.size());
+		System.out.println(this.newDates.size());
+		return dataNew;
+
+	}
+
 }

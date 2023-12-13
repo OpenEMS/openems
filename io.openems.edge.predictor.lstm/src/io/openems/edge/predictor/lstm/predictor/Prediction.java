@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadModels;
 import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.preprocessing.GroupBy;
@@ -17,7 +17,8 @@ public class Prediction {
 	private ArrayList<Double> predictedAndScaledBack = new ArrayList<Double>();
 	private ArrayList<Double> predicted = new ArrayList<Double>();
 
-	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date, double min, double max, String path) {
+	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date, String path,
+			HyperParameters hyperParameters) {
 
 		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
@@ -26,16 +27,17 @@ public class Prediction {
 		ArrayList<Double> dataToPredict = data;
 		final ArrayList<OffsetDateTime> dateToPredict = date;
 
-		min = Collections.min(data);
-		max = Collections.max(data);
+		// min = Collections.min(data);
+		// max = Collections.max(data);
 
 		// Interpolate
-		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict);
+		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict, dateToPredict,hyperParameters);
 		dataToPredict = interpolationManager.getInterpolatedData();
 
 		// Scaling
 
-		ArrayList<Double> scaledData = DataModification.scale(dataToPredict, min, max);
+		ArrayList<Double> scaledData = DataModification.scale(dataToPredict, hyperParameters.getScalingMin(),
+				hyperParameters.getScalingMax());
 
 		// Grouping data by hour
 		GroupBy groupBy = new GroupBy(scaledData, dateToPredict);
@@ -56,11 +58,13 @@ public class Prediction {
 		}
 
 		// Make prediction
-		ArrayList<ArrayList<ArrayList<Double>>> allModel = ReadModels.getModelForSeasonality(path).get(0);
-		this.predicted = Predictor.predictPre(dataGroupedByMinute1, allModel);
+		ArrayList<ArrayList<ArrayList<Double>>> allModel = ReadModels.getModelForSeasonality(path, hyperParameters)
+				.get(0);
 
+		this.predicted = Predictor.predictPre(dataGroupedByMinute1, allModel);
 		for (int i = 0; i < this.predicted.size(); i++) {
-			this.predictedAndScaledBack.add(DataModification.scaleBack(this.predicted.get(i), min, max));
+			this.predictedAndScaledBack.add(DataModification.scaleBack(this.predicted.get(i),
+					hyperParameters.getScalingMin(), hyperParameters.getScalingMax()));
 		}
 	}
 
@@ -76,13 +80,16 @@ public class Prediction {
 	 *                        original (actual) values.
 	 * @param weekNumber      An integer representing the week number for which the
 	 *                        plot is generated.
+	 * @param hyperParameters Is the object of class HyperParameters.
+	 * 
 	 */
 
-	public static void makePlot(ArrayList<Double> predictedValues, ArrayList<Double> orginal, int weekNumber) {
+	public static void makePlot(ArrayList<Double> predictedValues, ArrayList<Double> orginal,
+			HyperParameters hyperParameters, int weekNumber) {
 		Plot.Data dataActualValues = Plot.data();
 		Plot.Data dataPredictedValues = Plot.data();
 
-		for (int i = 0; i < 96; i++) {
+		for (int i = 0; i < 60 / hyperParameters.getInterval() * 24; i++) {
 			dataActualValues.xy(i, predictedValues.get(i));
 			dataPredictedValues.xy(i, orginal.get(i));
 		}

@@ -1,13 +1,17 @@
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.junit.Test;
 
+import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
+import io.openems.edge.predictor.lstm.common.ReadModels;
+import io.openems.edge.predictor.lstm.interpolation.InterpolationManager;
 import io.openems.edge.predictor.lstm.performance.PerformanceMatrix;
 import io.openems.edge.predictor.lstm.predictor.Prediction;
+import io.openems.edge.predictor.lstm.predictor.Predictor;
 
 public class StandAlonePrediction {
 	/**
@@ -16,97 +20,157 @@ public class StandAlonePrediction {
 
 	public void predictionTest() {
 		ArrayList<Double> predicted = new ArrayList<Double>();
-		ArrayList<Double> allPredicted = new ArrayList<Double>();
+		ArrayList<Double> predictionFromSeasonality = new ArrayList<Double>();
 		ArrayList<Double> allTarget = new ArrayList<Double>();
 		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
+		ArrayList<OffsetDateTime> dateForTrend = new ArrayList<OffsetDateTime>();
 		ArrayList<Double> target = new ArrayList<Double>();
+		ArrayList<String> fileName = new ArrayList<String>();
+		ArrayList<Double> rmsTrend = new ArrayList<Double>();
+		ArrayList<Double> rmsSeasonality = new ArrayList<Double>();
+		ArrayList<Double> accuracyTrend = new ArrayList<Double>();
+		ArrayList<Double> accuracySeasonality = new ArrayList<Double>();
 
-		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
-		String csvFileNAme = "17.csv";
-		for (int i = 0; i < 1; i++) {
+		HyperParameters hyperParameters = new HyperParameters();
 
-			ZonedDateTime nowDate = ZonedDateTime.of(2022, 6, 10, 4, 0, 0, 0, ZonedDateTime.now().getZone());
-			nowDate = nowDate.plusDays(i);
-			ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
-					nowDate.getHour(), getMinute(nowDate), 0, 0, nowDate.getZone());
+		for (int m = 20; m <= 21; m++) {
+			ArrayList<Double> predictionFromTrend = new ArrayList<Double>();
 
-			ZonedDateTime temp = until.minusDays(6);
-			ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
-					nowDate.getHour(), getMinute(nowDate), 0, 0, temp.getZone());
-			ZonedDateTime targetFrom = until.plusMinutes(15);
+			String pathSeasonality = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+			//String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
+			String csvFileNAme = Integer.toString(m) + ".csv";
+			fileName.add(csvFileNAme);
+			for (int i = 0; i < 60 / hyperParameters.getInterval() * 24; i++) {
 
-			ZonedDateTime targetTo = targetFrom.plusHours(24);
+				int windowSize = hyperParameters.getWindowSizeSeasonality();
 
-			System.out.println("From : " + fromDate);
-			System.out.println("Till : " + until);
+				ZonedDateTime nowDate = ZonedDateTime.of(2022, 11, 11, 23, 55, 0, 0, ZonedDateTime.now().getZone());
 
-			// quarry data
+				nowDate = nowDate.plusMinutes(i * hyperParameters.getInterval());
+				ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(),
+						nowDate.getDayOfMonth(), nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0,
+						nowDate.getZone());
 
-			final ArrayList<Double> data = this.quarryData(fromDate, until, csvFileNAme);
-			target = this.quarryData(targetFrom, targetTo, csvFileNAme);
-			allTarget.addAll(target);
+				ZonedDateTime temp = until.minusDays(windowSize - 1);
+				ZonedDateTime fromDate = ZonedDateTime.of(temp.getYear(), temp.getMonthValue(), temp.getDayOfMonth(),
+						nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, temp.getZone());
+				ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
 
-			// quarry dates
+				ZonedDateTime targetTo = targetFrom.plusHours(24);
 
-			ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until, csvFileNAme);
-			System.out.println(date);
+				// quarry data
 
-			Prediction prediction = new Prediction(data, date, Collections.min(data), Collections.max(data), path);
+				final ArrayList<Double> data = this.quarryData(fromDate, until, csvFileNAme);
+				target = this.quarryData(targetFrom, targetTo, csvFileNAme);
+				allTarget.addAll(target);
 
-			predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute()),
-					prediction.getPredictedValues());
-			allPredicted.addAll(predicted);
+				forTrendPrediction = this.quarryData(
+						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+						csvFileNAme);
+				dateForTrend = this.quarryDate(
+						until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+						csvFileNAme);
 
-			// System.out.println(prediction.predicted);
-			System.out.println("data size" + data.size());
-			System.out.println("Target From = " + targetFrom);
-			System.out.println("Target to= " + targetTo);
-			System.out.println("Target = " + target);
-			System.out.println("");
-			// System.out.println("Last week same day: " + sameDayLastWeek);
-			System.out.println("");
-			System.out.println("Predicted = " + prediction.getPredictedValues());
-			System.out.println("");
-			System.out.println("forTrendfrom =" + until.minusMinutes(105));
-			System.out.println("forTrendto =" + until);
-			System.out.println("forTrendPrediction =" + forTrendPrediction);
-			// System.out.println("forTrendPredictionr result =" + onePointPrediction);
-			System.out.println("");
-			System.out.println("Predicted Arranged= " + predicted);
+				// quarry dates
 
-			System.out.println("Predicted size= " + prediction.getPredictedValues().size());
-			System.out.println("Target size = " + target.size());
-			System.out.println("");
-			PerformanceMatrix pm = new PerformanceMatrix(allTarget, allPredicted, 0.2);
-			pm.statusReport();
+				ArrayList<OffsetDateTime> date = this.quarryDate(fromDate, until, csvFileNAme);
+
+				if (i == 0) {
+
+					Prediction var = new Prediction(data, date, pathSeasonality, hyperParameters);
+					predictionFromSeasonality = getArranged(
+							getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+							var.getPredictedValues());
+				}
+				Prediction prediction = new Prediction(data, date, pathSeasonality, hyperParameters);
+
+				predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
+						prediction.getPredictedValues());
+				// allPredicted.addAll(predicted);
+
+				// making prediction from trend
+				final ArrayList<Double> trendPrediction = this.predictTrend(forTrendPrediction, dateForTrend, until,
+						hyperParameters);
+				predictionFromTrend.add(trendPrediction.get(0));
+
+				for (int l = 0; l < trendPrediction.size(); l++) {
+					predicted.add(l, trendPrediction.get(l));
+
+				}
+
+			}
+			System.out.println(csvFileNAme);
+			System.out.println("Target =" + target);
+			System.out.println("Predictedtrend =" + predictionFromTrend);
+			System.out.println("Predictedseasonality =" + predictionFromSeasonality);
+
+			// PerformanceMatrix preTrend = new PerformanceMatrix(target,
+			// predictionFromTrend, 0.2);
+			// rmsTrend.add(PerformanceMatrix.rmsError(target, predictionFromTrend));
+			// accuracyTrend.add(PerformanceMatrix.accuracy(target, predictionFromTrend,
+			// 0.2));
+
+			// final PerformanceMatrix perSeasonality = new PerformanceMatrix(target,
+			// predictionFromSeasonality, 0.2);
+			System.out.println(predictionFromSeasonality.size());
+			System.out.println(target.size());
+			rmsSeasonality.add(PerformanceMatrix.rmsError(target, predictionFromSeasonality));
+			accuracySeasonality.add(PerformanceMatrix.accuracy(target, predictionFromTrend, 0.2));
+
+			// System.out.println("Preformabce of trend = ");
+			// preTrend.statusReport();
+
+			// System.out.println("Preformabce of seasonality = ");
+
+			// perSeasonality.statusReport();
+
+			// Prediction.makePlot(target, predictionFromTrend, hyperParameters, 0);
+			System.out.println("File Name= " + fileName);
+			System.out.println("Rms Trend = " + rmsTrend);
+			System.out.println("Rms seasonality = " + rmsSeasonality);
+			System.out.println("Accuracy Trend = " + accuracyTrend);
+			System.out.println("Rms seasonality = " + accuracySeasonality);
 
 		}
-
-		Prediction.makePlot(allTarget, allPredicted, 0);
-
+		System.out.println("File Name= " + fileName);
+		System.out.println("Rms Trend = " + rmsTrend);
+		System.out.println("Rms seasonality = " + rmsSeasonality);
+		System.out.println("Accuracy Trend = " + accuracyTrend);
+		System.out.println("Rms seasonality = " + accuracySeasonality);
 	}
 
 	/**
 	 * Gets the rounded minute value for the provided ZonedDateTime.
 	 *
-	 * @param nowDate The ZonedDateTime for which to determine the rounded minute
-	 *                value.
+	 * @param nowDate         The ZonedDateTime for which to determine the rounded
+	 *                        minute
+	 * @param hyperParameters is the object of class HyperParameters value.
 	 * @return The rounded minute value (0, 15, 30, or 45) based on the minute
 	 *         component of the input time.
 	 */
 
-	public static Integer getMinute(ZonedDateTime nowDate) {
+	public static Integer getMinute(ZonedDateTime nowDate, HyperParameters hyperParameters) {
 
-		int nowMinute = nowDate.getMinute();
-		if (nowMinute >= 0 && nowMinute < 15) {
+		int totalGroups = 60 / hyperParameters.getInterval();
+		int startVal = 0;
+		int endVal = 0;
+		for (int i = 0; i < totalGroups; i++) {
+			endVal = startVal + hyperParameters.getInterval();
+			boolean check = startVal <= nowDate.getMinute() && nowDate.getMinute() < endVal;
+			if (check == false) {
 
-			return 0;
-		} else if (nowMinute >= 15 && nowMinute < 30) {
-			return 15;
-		} else if (nowMinute >= 30 && nowMinute < 45) {
-			return 30;
+				startVal = endVal;
+
+			} else {
+
+				break;
+			}
 		}
-		return 45;
+		// if (endVal == 60) {
+		// return 0;
+		// }
+		return startVal;
+
 	}
 
 	/**
@@ -155,7 +219,7 @@ public class StandAlonePrediction {
 		String dataPath = path;
 
 		ReadCsv csv = new ReadCsv(dataPath);
-		ArrayList<Double> data = csv.getData();
+		//ArrayList<Double> data = csv.getData();
 		ArrayList<OffsetDateTime> dates = csv.getDates();
 		ArrayList<OffsetDateTime> toReturn = new ArrayList<OffsetDateTime>();
 		int from = this.getindexOfDate(this.convertZoned2Ooned(fromDate), dates);
@@ -298,21 +362,23 @@ public class StandAlonePrediction {
 	 * Calculates the index of a specific hour and minute combination within a
 	 * 24-hour period, divided into 15-minute intervals.
 	 *
-	 * @param hour   The hour component (0-23) to be used for the calculation.
-	 * @param minute The minute component (0, 15, 30, or 45) to be used for the
-	 *               calculation.
+	 * @param hour            The hour component (0-23) to be used for the
+	 *                        calculation.
+	 * @param minute          The minute component (0, 5, 10, ..., 55) to be used
+	 *                        for the
+	 * @param hyperParameters is the object of class HyperParameters, calculation.
 	 * @return The index representing the specified hour and minute combination.
 	 */
 
-	public static Integer getIndex(Integer hour, Integer minute) {
+	public static Integer getIndex(Integer hour, Integer minute, HyperParameters hyperParameters) {
 
 		int k = 0;
 		for (int i = 0; i < 24; i++) {
-			for (int j = 0; j < 4; j++) {
+			for (int j = 0; j < (int) 60 / hyperParameters.getInterval(); j++) {
 				int h = i;
-				int m = j * 15;
+				int m = j * hyperParameters.getInterval();
 				if (hour == h && minute == m) {
-					System.out.println(k);
+					// System.out.println(k);
 
 					return k;
 				} else {
@@ -330,6 +396,90 @@ public class StandAlonePrediction {
 		StandAlonePrediction obj = new StandAlonePrediction();
 		obj.predictionTest();
 
+	}
+
+	/**
+	 * Predict a trend value for a given dataset using a trained model. This method
+	 * predicts a trend value for a given dataset using a trained model. The method
+	 * reads the model data, performs data interpolation, scales the data, and uses
+	 * the model to make the prediction. It then scales back the predicted value to
+	 * the original range.
+	 *
+	 * @param data            An ArrayList of Double representing the dataset for
+	 *                        prediction.
+	 * @param until           A ZonedDateTime representing the time until which the
+	 *                        prediction is made.
+	 * @param date            reference date for time series data
+	 * @param hyperParameters is the object of class HyperParameter
+	 * @return A double representing the predicted trend value.
+	 */
+
+	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
+			HyperParameters hyperParameters) {
+		// read Model
+		String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
+		// String pathSeasonality =
+		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+		double pred = 0;
+		ArrayList<Double> trendPrediction = new ArrayList<Double>();
+		ZonedDateTime predictionFor = until.plusMinutes(hyperParameters.getInterval());
+
+		// ArrayList<Double>prediction = new ArrayList<Double>();
+		ArrayList<ArrayList<ArrayList<Double>>> val = ReadModels.getModelForSeasonality(pathTrend, hyperParameters)
+				.get(0);
+		
+		InterpolationManager interpolationManager = new InterpolationManager(data, date, hyperParameters);
+		data = interpolationManager.getInterpolatedData();
+
+		ArrayList<Double> scaledData = DataModification.scale(data, hyperParameters.getScalingMin(),
+				hyperParameters.getScalingMax());
+		// readData
+		for (int i = 0; i < hyperParameters.getTrendPoint(); i++) {
+			predictionFor = predictionFor.plusMinutes(i * hyperParameters.getInterval());
+			int modlelindex = (int) this.decodeDateToColumnIndex(predictionFor, hyperParameters);
+			System.out.println(modlelindex);
+
+			double predTemp = Predictor.predict(scaledData, val.get(modlelindex).get(0), val.get(modlelindex).get(1),
+					val.get(modlelindex).get(2), val.get(modlelindex).get(3), val.get(modlelindex).get(4),
+					val.get(modlelindex).get(5), val.get(modlelindex).get(7), val.get(modlelindex).get(6));
+			scaledData.add(predTemp);
+			scaledData.remove(0);
+			// System.out.println(scaledData);
+
+			pred = DataModification.scaleBack(predTemp, hyperParameters.getScalingMin(),
+					hyperParameters.getScalingMax());
+			trendPrediction.add(pred);
+			// System.out.println(pred);
+		}
+		// prediction.add(pred);
+
+		return trendPrediction;
+
+	}
+
+	/**
+	 * Decodes a given ZonedDateTime into a column index based on the hour and
+	 * minute. The method calculates the column index of the model to be used by
+	 * converting the given hour and minute into a standardized time representation
+	 * where each 15-minute interval is assigned a unique index.
+	 *
+	 * @param predictionFor   The ZonedDateTime for which the column index is to be
+	 * @param hyperParameters is the object of class HyperParameters. decoded.
+	 * @return The column index corresponding to the specified ZonedDateTime.
+	 * 
+	 */
+
+	public double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
+
+		int hour = predictionFor.getHour();
+		int minute = predictionFor.getMinute();
+		int index = (Integer) hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();
+		int modifiedIndex = index - hyperParameters.getWindowSizeTrend();
+		if (modifiedIndex >= 0) {
+			return modifiedIndex;
+		} else {
+			return modifiedIndex + 60 / hyperParameters.getInterval() * 24;
+		}
 	}
 
 }

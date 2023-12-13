@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import io.openems.edge.predictor.lstm.common.DataModification;
+import io.openems.edge.predictor.lstm.common.DataStatistics;
+import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.util.Lstm.LstmBuilder;
 import io.openems.edge.predictor.lstm.utilities.MathUtils;
+import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class Engine implements EngineDriver {
 
@@ -27,16 +31,17 @@ public class Engine implements EngineDriver {
 	/**
 	 * This method train the LSTM network. and Update the finalWeight matrix.
 	 * 
-	 * @param epochs Number of times the forward and backward propagation.
-	 * @param val    are the weights.
+	 * @param epochs          Number of times the forward and backward propagation.
+	 * @param val             are the weights.
+	 * @param hyperParameters An instance of class HyperParameter
 	 * 
 	 */
-	public void fit(int epochs, ArrayList<ArrayList<Double>> val) {
+	public void fit(int epochs, ArrayList<ArrayList<Double>> val, HyperParameters hyperParameters) {
 
 		AdaptiveLearningRate rate = new AdaptiveLearningRate();
 
 		double perc = ((double) (0 + 1) / this.inputMatrix.length) * 100.00;
-		this.learningRate = rate.scheduler(perc);
+		this.learningRate = rate.scheduler(perc, hyperParameters);
 
 		Lstm ls = new LstmBuilder(this.inputMatrix[0], this.targetVector[0])//
 				.setLearningRate(this.learningRate) //
@@ -52,6 +57,9 @@ public class Engine implements EngineDriver {
 		ls.setRz(val);
 		ls.setCt(val);
 		ls.setYt(val);
+		ls.setMean(DataStatistics.getMean(UtilityConversion.convert1DArrayTo1DArrayList(this.inputMatrix[0])));
+		ls.setStanderDeviation(
+				DataStatistics.getStanderDeviation(UtilityConversion.convert1DArrayTo1DArrayList(this.inputMatrix[0])));
 
 		ArrayList<ArrayList<Double>> wieghtMatrix = ls.train();
 
@@ -60,17 +68,19 @@ public class Engine implements EngineDriver {
 		for (int i = 1; i < this.inputMatrix.length; i++) {
 
 			perc = ((double) (i + 1) / this.inputMatrix.length);
-			this.learningRate = rate.scheduler(perc);
+			this.learningRate = rate.scheduler(perc, hyperParameters);
 			// System.out.println(this.learningRate);
 
-			ls = new LstmBuilder(this.inputMatrix[i], this.targetVector[i])// double[] inputData, double outputData
+			ls = new LstmBuilder(this.inputMatrix[i], this.targetVector[i])// double[]
 
 					.setLearningRate(this.learningRate) //
 					.setEpoch(epochs) //
-
 					.build();
 
 			ls.initilizeCells();
+			double mean = (DataStatistics.getMean(UtilityConversion.convert1DArrayTo1DArrayList(this.inputMatrix[i])));
+			double standerDeviation = (DataStatistics
+					.getStanderDeviation(UtilityConversion.convert1DArrayTo1DArrayList(this.inputMatrix[i])));
 
 			for (int j = 0; j < ls.cells.size(); j++) {
 
@@ -80,28 +90,39 @@ public class Engine implements EngineDriver {
 				ls.cells.get(j).setRi((wieghtMatrix.get(3)).get(j));
 				ls.cells.get(j).setRo((wieghtMatrix.get(4)).get(j));
 				ls.cells.get(j).setRz((wieghtMatrix.get(5)).get(j));
+
+				ls.cells.get(j).setStanderDeviation(standerDeviation);
+				ls.cells.get(j).setMean(mean);
+
 			}
-			ls.cells.get(0).setYt(wieghtMatrix.get(6).get((wieghtMatrix.get(6).size() - 1)));
+			ls.cells.get(0).setYtMinusOne(wieghtMatrix.get(6).get((wieghtMatrix.get(6).size() - 1)));
+			ls.cells.get(0).setCtMinusOne(wieghtMatrix.get(6).get((wieghtMatrix.get(6).size() - 1)));
 
 			wieghtMatrix = ls.train();
 			this.weights.add(wieghtMatrix);
 
 			// int percentage = 90;
 			// this.earlyStop(percentage, wieghtMatrix);
-			if (this.weights
-					.size() == this.validatorCounter/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
-				int ind = this.selectWeight(this.weights);
-				wieghtMatrix = this.weights.get(ind);
-				System.out.println(ind);
-				this.bestWeights.add(wieghtMatrix);
-				this.weights.clear();
+			// System.out.println(this.weights.size());
+			if (hyperParameters.getTrainTrendFlag() == true) {
+				if (this.weights.size() >= this.validatorCounter) {
+					int ind = this.selectWeight(this.weights, hyperParameters);
+					wieghtMatrix = this.weights.get(ind);
+
+					this.bestWeights.add(wieghtMatrix);
+					this.weights.clear();
+				}
+
 			}
-
 		}
-		// int ind = this.selectWeight(this.bestWeights);
+		if (hyperParameters.getTrainTrendFlag() == true) {
+			int ind = this.selectWeight(this.bestWeights, hyperParameters);
 
-		// wieghtMatrix.clear();
-		// this.finalWeight = this.bestWeights.get(ind);
+			wieghtMatrix.clear();
+			// System.out.println(ind);
+			this.weights.add(this.bestWeights.get(ind));
+		}
+
 	}
 
 	@Override
@@ -155,10 +176,11 @@ public class Engine implements EngineDriver {
 	/**
 	 * Predict using the model and the input data.
 	 * 
-	 * @param inputData input data for the prediction.
+	 * @param inputData      input data for the prediction.
+	 * @param hyperParameter is the object of class HyperParameter
 	 * @return result
 	 */
-	public double[] predict(double[][] inputData) {
+	public double[] predict(double[][] inputData, HyperParameters hyperParameter) {
 
 		double[] result = new double[inputData.length];
 		for (int i = 0; i < inputData.length; i++) {
@@ -169,21 +191,31 @@ public class Engine implements EngineDriver {
 					this.finalWeight.get(2), //
 					this.finalWeight.get(3), //
 					this.finalWeight.get(4), //
-					this.finalWeight.get(5));
+					this.finalWeight.get(5), this.finalWeight.get(6), //
+					this.finalWeight.get(7), //
+					hyperParameter);
 		}
 
 		return result;
 	}
 
+	@Override
+	public double[] predict(double[][] inputData) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Validate to get the best model.
 	 * 
-	 * @param inputData double array
-	 * @param target    double array
-	 * @param val       weight matrix
+	 * @param inputData      double array
+	 * @param target         double array
+	 * @param val            weight matrix
+	 * @param hyperParameter An instance of class HyperParameter
 	 * @return The resulted weight matrix
 	 */
-	public double[] validate(double[][] inputData, double[] target, ArrayList<ArrayList<Double>> val) {
+	public double[] validate(double[][] inputData, double[] target, ArrayList<ArrayList<Double>> val,
+			HyperParameters hyperParameter) {
 
 		double[] result = new double[inputData.length];
 		for (int i = 0; i < inputData.length; i++) {
@@ -194,7 +226,10 @@ public class Engine implements EngineDriver {
 					val.get(2), //
 					val.get(3), //
 					val.get(4), //
-					val.get(5));
+					val.get(5), //
+					val.get(6), //
+					val.get(7), //
+					hyperParameter);
 		}
 
 		return result;
@@ -203,38 +238,52 @@ public class Engine implements EngineDriver {
 	/**
 	 * Takes in an array of inputData and predicts single value.
 	 * 
-	 * @param inputData double array
-	 * @param wi        weight wi
-	 * @param wo        weight wo
-	 * @param wz        weight wz
-	 * @param Ri        weight Ri
-	 * @param Ro        weight Ro
-	 * @param Rz        weight Rz
+	 * @param inputData      double array
+	 * @param wi             weight wi
+	 * @param wo             weight wo
+	 * @param wz             weight wz
+	 * @param Ri             weight Ri
+	 * @param Ro             weight Ro
+	 * @param Rz             weight Rz
+	 * @param ctV            vector containing cell state
+	 * @param ytV            vector containing cell output
+	 * 
+	 * @param hyperParameter An instance of class HyperParameter
 	 * @return The predicted single double value
 	 */
-	private double singleValuePredict(double[] inputData, ArrayList<Double> wi, ArrayList<Double> wo,
-			ArrayList<Double> wz, ArrayList<Double> Ri, ArrayList<Double> Ro, ArrayList<Double> Rz) {
+	private double singleValuePredict(double[] inputData, ArrayList<Double> wi, ArrayList<Double> wo, //
+			ArrayList<Double> wz, ArrayList<Double> Ri, ArrayList<Double> Ro, ArrayList<Double> Rz,
+			ArrayList<Double> ytV, ArrayList<Double> ctV, HyperParameters hyperParameter) {
 
 		double ct = 0;
+		double ctMinusOne = 0;
 		double yt = 0;
+		double[] standData = DataModification.standardize(inputData);
 
 		for (int i = 0; i < wi.size(); i++) {
-			double it = MathUtils.sigmoid(wi.get(i) * inputData[i] + Ri.get(i) * yt);
-			double ot = MathUtils.sigmoid(wo.get(i) * inputData[i] + Ro.get(i) * yt);
-			double zt = MathUtils.tanh(wz.get(i) * inputData[i] + Rz.get(i) * yt);
-			ct = ct + it * zt;
+			ctMinusOne = ctV.get(i);
+			double it = MathUtils.sigmoid(wi.get(i) * standData[i] + Ri.get(i) * yt);
+			double ot = MathUtils.sigmoid(wo.get(i) * standData[i] + Ro.get(i) * yt);
+			double zt = MathUtils.tanh(wz.get(i) * standData[i] + Rz.get(i) * yt);
+			ct = ctMinusOne + it * zt;
+
 			yt = ot * MathUtils.tanh(ct);
 		}
-		return yt;
+
+		double revStander = DataModification.reverseStandrize(
+				DataStatistics.getMean(UtilityConversion.convert1DArrayTo1DArrayList(inputData)),
+				DataStatistics.getStanderDeviation(UtilityConversion.convert1DArrayTo1DArrayList(inputData)), yt);
+		return DataModification.scaleBack(revStander, hyperParameter.getScalingMin(), hyperParameter.getScalingMax());
 	}
 
 	/**
 	 * Select Best Weight out of all the Weights.
 	 * 
-	 * @param wightMatrix All the matrices of the weight.
+	 * @param wightMatrix    All the matrices of the weight.
+	 * @param hyperParameter is the object of class HyperParameter
 	 * @return index index of the best matrix.
 	 */
-	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix) {
+	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix, HyperParameters hyperParameter) {
 
 		// System.out.println("Validating...");
 
@@ -242,12 +291,18 @@ public class Engine implements EngineDriver {
 
 		for (int k = 0; k < wightMatrix.size(); k++) {
 			ArrayList<ArrayList<Double>> val = wightMatrix.get(k);
-			double[] pre = this.validate(this.validateData, this.validateTarget, val);
+			double[] pre = this.validate(this.validateData, this.validateTarget, val, hyperParameter);
 			rms[k] = this.computeRms(this.validateTarget, pre);
 		}
 		int minInd = this.getMinIndex(rms);
-		// System.out.println("Index : " + minInd);
+		System.out.println("RMS : " + rms[minInd]);
 		return minInd;
+	}
+
+	@Override
+	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	/**
@@ -349,4 +404,5 @@ public class Engine implements EngineDriver {
 	public ArrayList<ArrayList<ArrayList<Double>>> getWeights() {
 		return this.weights;
 	}
+
 }

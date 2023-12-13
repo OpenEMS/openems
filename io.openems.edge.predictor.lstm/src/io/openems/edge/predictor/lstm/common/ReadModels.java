@@ -71,14 +71,15 @@ public class ReadModels {
 	 * performed by dividing the original data into blocks of size 4x24. The
 	 * resulting four-dimensional ArrayList contains these blocks.
 	 *
-	 * @param dataList The three-dimensional ArrayList to be reshaped.
+	 * @param dataList        The three-dimensional ArrayList to be reshaped.
+	 * @param hyperParameters is the object of class HyperPrameters.
 	 * @return A four-dimensional ArrayList structure containing the reshaped data.
 	 */
 
 	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> reshape(
-			ArrayList<ArrayList<ArrayList<Double>>> dataList) {
+			ArrayList<ArrayList<ArrayList<Double>>> dataList, HyperParameters hyperParameters) {
 
-		int m = 4 * 24;
+		int m = 60 / hyperParameters.getInterval() * 24;
 		int n = dataList.size() / m;
 		int o = 0;
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> temp2 = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
@@ -169,14 +170,17 @@ public class ReadModels {
 	 * four-dimensional ArrayList structure suitable for seasonality analysis, and
 	 * returns the reshaped model.
 	 *
-	 * @param filePath The path to the data file containing the model data.
+	 * @param filePath       The path to the data file containing the model data.
+	 * @param hyperParametes is the object of class HyperPrameters.
 	 * @return A four-dimensional ArrayList structure representing the reshaped
 	 *         model data.
 	 */
 
-	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filePath) {
+	public static ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getModelForSeasonality(String filePath,
+			HyperParameters hyperParametes) {
 		ArrayList<ArrayList<ArrayList<Double>>> dataList = readDataFile(filePath);
-		allModel = reshape(dataList);
+		allModel = reshape(dataList, hyperParametes);
+		
 		return allModel;
 
 	}

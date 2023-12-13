@@ -47,6 +47,9 @@ public class DataStatistics {
 
 		double variance = sumSquaredDeviations / (data.size());
 		double stdDeviation = Math.sqrt(variance);
+		if (stdDeviation == 0) {
+			return 1;
+		}
 		return stdDeviation;
 	}
 

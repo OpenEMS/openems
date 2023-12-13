@@ -14,6 +14,8 @@ public class Lstm {
 	private double derivativeLWrtWi = 0;
 	private double derivativeLWrtWo = 0;
 	private double derivativeLWrtWz = 0;
+	private double standerDeviation = 0;
+	private double mean = 0;
 	private double learningRate; //
 	private int epoch = 100;
 
@@ -28,6 +30,7 @@ public class Lstm {
 		this.outputData = builder.outputData;
 		this.learningRate = builder.learningRate;
 		this.epoch = builder.epoch;
+
 	}
 
 	/**
@@ -38,8 +41,8 @@ public class Lstm {
 			for (int i = 0; i < this.cells.size(); i++) {
 				this.cells.get(i).forwardPropogation();
 				if (i < this.cells.size() - 1) {
-					this.cells.get(i + 1).setYt(this.cells.get(i).getYt());
-					this.cells.get(i + 1).setCt(this.cells.get(i).getCt());
+					this.cells.get(i + 1).setYtMinusOne(this.cells.get(i).getYt());
+					this.cells.get(i + 1).setCtMinusOne(this.cells.get(i).getCt());
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -74,9 +77,9 @@ public class Lstm {
 		}
 
 		for (int i = 0; i < this.cells.size(); i++) {
-			this.derivativeLWrtRi += this.cells.get(i).getYt() * this.cells.get(i).getDelI();
-			this.derivativeLWrtRo += this.cells.get(i).getYt() * this.cells.get(i).getDelO();
-			this.derivativeLWrtRz += this.cells.get(i).getYt() * this.cells.get(i).getDelZ();
+			this.derivativeLWrtRi += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelI();
+			this.derivativeLWrtRo += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelO();
+			this.derivativeLWrtRz += this.cells.get(i).getYtMinusOne() * this.cells.get(i).getDelZ();
 
 			this.derivativeLWrtWi += this.cells.get(i).getXt() * this.cells.get(i).getDelI();
 			this.derivativeLWrtWo += this.cells.get(i).getXt() * this.cells.get(i).getDelO();
@@ -235,6 +238,14 @@ public class Lstm {
 		return this.cells;
 	}
 
+	public double getMen() {
+		return this.mean;
+	}
+
+	public double getStanderDeviation() {
+		return this.standerDeviation;
+	}
+
 	public void setWi(ArrayList<ArrayList<Double>> val) {
 		for (int i = 0; i < this.cells.size(); i++) {
 			this.cells.get(i).setWi(val.get(0).get(i));
@@ -289,6 +300,18 @@ public class Lstm {
 		}
 	}
 
+	public void setMean(double val) {
+		for (int i = 0; i < this.cells.size(); i++) {
+			this.mean = val;
+		}
+	}
+
+	public void setStanderDeviation(double val) {
+		for (int i = 0; i < this.cells.size(); i++) {
+			this.standerDeviation = val;
+		}
+	}
+
 	/**
 	 * Please build the model with input and target.
 	 * 
@@ -300,6 +323,8 @@ public class Lstm {
 
 		protected double learningRate; //
 		protected int epoch = 100; //
+  //		private double standerDeviation = 0;
+  //		private double mean = 0;
 
 		public LstmBuilder(double[] inputData, double outputData) {
 			this.inputData = inputData;
@@ -331,6 +356,16 @@ public class Lstm {
 
 			return this;
 		}
+
+  //		public LstmBuilder setStanderDeviation(double val) {
+  //			this.standerDeviation = val;
+  //			return this;
+  //		}
+  //
+  //		public LstmBuilder setMean(double val) {
+  //			this.mean = val;
+  //			return this;
+  //		}
 
 		public Lstm build() {
 			return new Lstm(this);

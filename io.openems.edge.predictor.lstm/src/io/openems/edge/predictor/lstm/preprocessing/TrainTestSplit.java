@@ -24,9 +24,6 @@ public class TrainTestSplit {
 		this.testIndexHigher = this.testIndexLower + (int) (valSplit * size);
 		this.validateIndexHigher = this.testIndexHigher;// here we are ignoring the test data 
 
-
-
-		System.out.println(this.printTrainSplitPerc());
 	}
 	
 	public TrainTestSplit(int size, int windowSize, double percentage) {
@@ -44,7 +41,6 @@ public class TrainTestSplit {
 		this.validateIndexLower = this.trainIndexHigher;
 		this.validateIndexHigher = this.testIndexLower;
 
-		System.out.println(this.printTrainSplitPerc());
 	}
 
 	/**

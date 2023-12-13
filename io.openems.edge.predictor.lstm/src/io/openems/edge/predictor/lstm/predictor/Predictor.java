@@ -34,6 +34,8 @@ public class Predictor {
 
 		ArrayList<Double> result = new ArrayList<Double>();
 		for (int i = 0; i < inputData.size(); i++) {
+
+			
 			ArrayList<Double> wi = val.get(i).get(0);
 			ArrayList<Double> wo = val.get(i).get(1);
 			ArrayList<Double> wz = val.get(i).get(2);
@@ -80,6 +82,7 @@ public class Predictor {
 			ArrayList<Double> wz, ArrayList<Double> rI, ArrayList<Double> rO, ArrayList<Double> rZ,
 			ArrayList<Double> cta, ArrayList<Double> yta) {
 		double ct = 0;
+		double ctMinusOne = 0;
 		double xt = 0;
 		double it = 0;
 		double ot = 0;
@@ -88,16 +91,19 @@ public class Predictor {
 		ArrayList<Double> standData = DataModification.standardize(inputData);
 
 		for (int i = 0; i < standData.size(); i++) {
+			ctMinusOne = cta.get(i);
 			xt = standData.get(i);
 			it = MathUtils.sigmoid(wi.get(i) * xt + rI.get(i) * yt);
 			ot = MathUtils.sigmoid(wo.get(i) * xt + rO.get(i) * yt);
 			zt = MathUtils.tanh(wz.get(i) * xt + rZ.get(i) * yt);
-			ct = ct + it * zt;
+			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 
 		}
-		double res = DataModification.reverseStandrize(DataStatistics.getMean(inputData),
-				DataStatistics.getStanderDeviation(inputData), yt);
+		double res = DataModification.reverseStandrize(DataStatistics.getMean(inputData),//
+				DataStatistics.getStanderDeviation(inputData), //
+				yt);
+		
 
 		return res;
 	}

@@ -7,9 +7,11 @@ public class MatrixWeight {
 	private ArrayList<ArrayList<Double>> wI = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> wO = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> wZ = new ArrayList<ArrayList<Double>>();
+	private ArrayList<ArrayList<Double>> wF = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> rI = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> rO = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> rZ = new ArrayList<ArrayList<Double>>();
+	private ArrayList<ArrayList<Double>> rF = new ArrayList<ArrayList<Double>>();
 
 	private ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
 	private ArrayList<ArrayList<Double>> cT = new ArrayList<ArrayList<Double>>();
@@ -59,5 +61,16 @@ public class MatrixWeight {
 		return this.errorList;
 
 	}
+	
+	public ArrayList<ArrayList<Double>> getWf() {
+		return this.wF;
+
+	}
+	
+	public ArrayList<ArrayList<Double>> getRf() {
+		return this.rF;
+
+	}
+
 
 }

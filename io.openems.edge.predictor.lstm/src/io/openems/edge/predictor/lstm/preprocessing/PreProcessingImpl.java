@@ -19,7 +19,7 @@ public class PreProcessingImpl {
 
 	private ArrayList<Double> scaleDataList;
 
-	private TrainTestSplit trainTestSplit;
+	// private TrainTestSplit trainTestSplit;
 
 	private double[][] trainData;
 	private double[][] validateData;
@@ -34,7 +34,7 @@ public class PreProcessingImpl {
 		this.scaleDataList = (ArrayList<Double>) data;
 
 		// TODO make percentage dynamic
-		this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
+		// this.trainTestSplit = new TrainTestSplit(data.size(), windowSize, 0.8, 0.1);
 	}
 
 	/**
@@ -84,6 +84,73 @@ public class PreProcessingImpl {
 		return subArr;
 	}
 
+	/**
+	 * Groups the values in the input ArrayList into windows of a specified size and
+	 * converts the grouped data into a 2D array representing the stiffed windowed
+	 * structure.
+	 *
+	 * @param val        The input ArrayList of Double values to be grouped into
+	 *                   windows.
+	 * @param windowSize The size of each window for grouping the values.
+	 * @return A 2D array representing the stiffed windowed structure of the grouped
+	 *         values. //
+	 */
+
+	public static double[][] groupToStiffedWindow(ArrayList<Double> val, int windowSize) {
+		ArrayList<ArrayList<Double>> windowedData = new ArrayList<ArrayList<Double>>();
+		int index = 0;
+		for (int i = 0; i < val.size(); i++) {
+
+			ArrayList<Double> temp = new ArrayList<Double>();
+			if (index + windowSize < val.size()) {
+
+				for (int j = 0; j < windowSize; j++) {
+					temp.add(val.get(index + j));
+
+				}
+
+				windowedData.add(temp);
+				index = index + windowSize + 1;
+
+			}
+			
+		}
+		
+		return UtilityConversion.convert2DArrayListTo2DArray(windowedData);
+
+	}
+
+	/**
+	 * Groups the values in the input ArrayList into a stiffed target structure,
+	 * extracting every nth element to form windows of a specified size and converts
+	 * the grouped data into a 1D array.
+	 *
+	 * @param val        The input ArrayList of Double values from which the stiffed
+	 *                   target structure is created.
+	 * @param windowSize The size of each window, representing the step size for
+	 *                   selecting elements.
+	 * @return A 1D array representing the stiffed target structure of the grouped
+	 *         values.
+	 */
+
+	public static double[] groupToStiffedTarget(ArrayList<Double> val, int windowSize) {
+		int index = windowSize;
+		ArrayList<Double> windowedData = new ArrayList<Double>();
+		for (int i = 0; i < val.size(); i++) {
+
+			// ArrayList<Double> temp = new ArrayList<Double>();
+			if (index  < val.size()) {
+				windowedData.add(val.get(index));
+
+			}
+			index = index + windowSize + 1;
+
+		}
+
+		return UtilityConversion.convert1DArrayListTo1DArray(windowedData);
+
+	}
+
 	public double[][] getTrainData() {
 		return this.trainData;
 	}
@@ -108,8 +175,4 @@ public class PreProcessingImpl {
 		return this.testTarget;
 	}
 
-	public TrainTestSplit getTrainTestSplit() {
-		return this.trainTestSplit;
-
-	}
 }
