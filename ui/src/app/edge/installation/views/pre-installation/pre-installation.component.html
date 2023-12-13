@@ -10,9 +10,11 @@
         </tr>
     </table>
 
-    <ion-item lines="none" class="ion-padding-top">
-        <img [src]="image">
-    </ion-item>
+    <ion-row class="ion-justify-content-center">
+        <ion-item lines="none" class="ion-padding-top">
+            <img [src]="image" />
+        </ion-item>
+    </ion-row>
 
     <ion-card *ngIf="!validKey">
         <ion-card-content>
