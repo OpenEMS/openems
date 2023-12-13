@@ -218,7 +218,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           wrappers: ['input-serial-number'],
         });
         break;
-      case 2:
+      default: // usually 2,3,4,5
         fields.push({
           key: 'extensionBox',
           type: 'input',

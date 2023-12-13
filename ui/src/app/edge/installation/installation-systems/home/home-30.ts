@@ -41,7 +41,7 @@ export class Home30FeneconIbn extends AbstractHomeIbn {
     public override readonly maxFeedInLimit: number = 29999;
     public override readonly homeAppId: string = 'App.FENECON.Home.30';
     public override readonly homeAppAlias: string = 'FENECON Home 30';
-    public override readonly maxNumberOfTowers: number = 4;
+    public override readonly maxNumberOfTowers: number = 5;
     public override readonly maxNumberOfModulesPerTower: number = 15;
     public override readonly relayFactoryId: string = 'IO.KMtronic';
 
