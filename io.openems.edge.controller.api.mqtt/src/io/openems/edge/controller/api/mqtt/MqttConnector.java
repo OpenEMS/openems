@@ -64,19 +64,17 @@ public class MqttConnector {
 		this.connector = null;
 		this.executor.shutdownNow();
 	}
-	
+
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-			String password) throws IllegalArgumentException, MqttException {
-		// TODO	do not hard code this
-		String certPath = "../aws_cert/openEMS_edge_test.cert.pem";
-		String privateKeyPath = "../aws_cert/openEMS_edge_conv.private.key";
-		String trustStorePath = "../aws_cert/AmazonRootCA1.der";
-		String trustStorePassword = null;
-		return this.connect(serverUri, clientId, username, password, certPath, privateKeyPath, trustStorePath, trustStorePassword, null);
+			String password, String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword)
+			throws IllegalArgumentException, MqttException {
+		return this.connect(serverUri, clientId, username, password, certPath, privateKeyPath, trustStorePath,
+				trustStorePassword, null);
 	}
-	
+
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-            String password, String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword, MqttCallback callback) throws IllegalArgumentException, MqttException {
+			String password, String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword,
+			MqttCallback callback) throws IllegalArgumentException, MqttException {
 		IMqttClient client = new MqttClient(serverUri, clientId);
 		if (callback != null) {
 			client.setCallback(callback);
@@ -92,9 +90,10 @@ public class MqttConnector {
 		options.setConnectionTimeout(10);
 
 		if (certPath != null && privateKeyPath != null) {
-			options.setSocketFactory(MqttUtils.createSslSocketFactory(certPath, privateKeyPath, trustStorePath, trustStorePassword));
+			options.setSocketFactory(
+					MqttUtils.createSslSocketFactory(certPath, privateKeyPath, trustStorePath, trustStorePassword));
 		}
-		
+
 		this.connector = new MyConnector(client, options);
 
 		this.executor.schedule(this.connector, 0 /* immediately */, TimeUnit.SECONDS);
