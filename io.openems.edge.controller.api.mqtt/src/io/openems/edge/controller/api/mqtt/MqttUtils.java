@@ -29,7 +29,6 @@ public class MqttUtils {
 	 * @param privateKeyPath     The the file path to the private key file.
 	 * @param trustStorePath     The file path to the server's truststore.
 	 * @param trustStorePassword The password for accessing the server's truststore.
-	 *                           If none is required, this can be null.
 	 * @return An SSLSocketFactory configured with the specified security settings.
 	 * @throws RuntimeException If there is an error during the creation of the
 	 *                          SSLSocketFactory.
@@ -42,7 +41,6 @@ public class MqttUtils {
 
 			PrivateKey privateKey = loadPrivateKey(privateKeyPath);
 
-			// Initialize key manager factory
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory
 					.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -53,12 +51,10 @@ public class MqttUtils {
 					new java.security.cert.Certificate[] { clientCertificate });
 			keyManagerFactory.init(clientKeyStore, pw);
 
-			// Initialize trust manager factory
 			TrustManagerFactory trustManagerFactory = TrustManagerFactory
 					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			trustManagerFactory.init(loadTrustStore(trustStorePath));
 
-			// Initialize SSL context
 			SSLContext sslContext = SSLContext.getInstance("TLS");
 			sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 
