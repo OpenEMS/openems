@@ -21,12 +21,12 @@ public class MqttUtils {
 	 * in MQTT.
 	 *
 	 * <p>
-	 * This method initializes an SSL context using the provided client keystore and
+	 * This method initializes an SSL context using the provided certificate, private key and
 	 * server truststore information, allowing the creation of an SSLSocketFactory
 	 * with the configured security settings.
 	 *
 	 * @param certPath           The file path to the client's certificate.
-	 * @param privateKeyPath     The the file path to the private key file.
+	 * @param privateKeyPath     The file path to the private key file.
 	 * @param trustStorePath     The file path to the server's truststore.
 	 * @param trustStorePassword The password for accessing the server's truststore.
 	 * @return An SSLSocketFactory configured with the specified security settings.
