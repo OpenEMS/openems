@@ -6,11 +6,9 @@ import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +32,11 @@ public class MqttUtils {
 	 * @throws RuntimeException If there is an error during the creation of the SSLSocketFactory.
 	 */
 
-	public static SSLSocketFactory createSslSocketFactory(String certPath, String privateKeyPath, String publicKeyPath, String trustStorePath, String trustStorePassword) {
+	public static SSLSocketFactory createSslSocketFactory(String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword) {
         try {
         	X509Certificate clientCertificate = loadClientCertificate(certPath);
 
             PrivateKey privateKey = loadPrivateKey(privateKeyPath);
-
-            PublicKey serverPublicKey = loadPublicKey(publicKeyPath);
 
             // Initialize key manager factory
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -65,6 +61,13 @@ public class MqttUtils {
         }
     }
 	
+	/**
+	 * Loads a client certificate from a given path.
+	 *
+	 * @param certPath The path to the certificate file.
+	 * @return The loaded client certificate.
+	 * @throws Exception If an error occurs while loading the certificate.
+	 */
 	private static X509Certificate loadClientCertificate(String certPath) throws Exception {
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         X509Certificate clientCertificate;
@@ -75,6 +78,13 @@ public class MqttUtils {
 
 	}
 	
+	/**
+	 * Loads a trust store from a given path.
+	 *
+	 * @param trustStorePath The path to the trust store file.
+	 * @return The loaded trust store.
+	 * @throws Exception If an error occurs while loading the trust store.
+	 */
 	private static KeyStore loadTrustStore(String trustStorePath) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
@@ -98,21 +108,19 @@ public class MqttUtils {
         return trustStore;
 	}
 	
+	/**
+	 * Loads a private key from a given path.
+	 *
+	 * @param privateKeyPath The path to the private key file.
+	 * @return The loaded private key.
+	 * @throws Exception If an error occurs while loading the private key.
+	 */
     private static PrivateKey loadPrivateKey(String privateKeyPath) throws Exception {
         try (FileInputStream keyInputStream = new FileInputStream(privateKeyPath)) {
             byte[] keyBytes = keyInputStream.readAllBytes();
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpec);
-        }
-    }
-
-    private static PublicKey loadPublicKey(String publicKeyPath) throws Exception {
-        try (FileInputStream keyInputStream = new FileInputStream(publicKeyPath)) {
-            byte[] keyBytes = keyInputStream.readAllBytes();
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePublic(keySpec);
         }
     }
 }
