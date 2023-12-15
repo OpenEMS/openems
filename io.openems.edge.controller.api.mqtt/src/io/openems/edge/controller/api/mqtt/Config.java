@@ -31,6 +31,18 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to MQTT broker.")
 	String uri() default "tcp://localhost:1883";
+	
+	@AttributeDefinition(name = "Certificate", description = "The path to the client certificate")
+	String certPath();
+	
+	@AttributeDefinition(name = "Private Key", description = "The path to the private key")
+	String privateKeyPath();
+	
+	@AttributeDefinition(name = "Trust Store", description = "The path to the trust store")
+	String trustStorePath();
+	
+	@AttributeDefinition(name = "Trust Store Password", description = "Password to access trust store")
+	String trustStorePassword() default "";
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;
