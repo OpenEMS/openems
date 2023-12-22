@@ -14,9 +14,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String clientId;
 		private String username;
 		private String password;
-		private String certPath;
-		private String privateKeyPath;
-		private String trustStorePath;
+		private String certPem;
+		private String privateKeyPem;
+		private String trustStorePem;
 		private String trustStorePassword;
 
 		private Builder() {
@@ -47,18 +47,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 		
-		public Builder setCertPath(String certPath) {
-			this.certPath = certPath;
+		public Builder setCertPem(String certPem) {
+			this.certPem = certPem;
 			return this;
 		}
 		
-		public Builder setPrivateKeyPath(String privateKeyPath) {
-			this.privateKeyPath = privateKeyPath;
+		public Builder setPrivateKeyPem(String privateKeyPem) {
+			this.privateKeyPem = privateKeyPem;
 			return this;
 		}
 		
-		public Builder setTrustStorePath(String trustStorePath) {
-			this.trustStorePath = trustStorePath;
+		public Builder setTrustStorePath(String trustStorePem) {
+			this.trustStorePem = trustStorePem;
 			return this;
 		}
 		
@@ -129,18 +129,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override 
-	public String certPath() {
-		return this.builder.certPath;
+	public String certPem() {
+		return this.builder.certPem;
 	}
 	
 	@Override
-	public String privateKeyPath() {
-		return this.builder.privateKeyPath;
+	public String privateKeyPem() {
+		return this.builder.privateKeyPem;
 	}
 	
 	@Override
-	public String trustStorePath() {
-		return this.builder.trustStorePath;
+	public String trustStorePem() {
+		return this.builder.trustStorePem;
 	}
 	
 	@Override
