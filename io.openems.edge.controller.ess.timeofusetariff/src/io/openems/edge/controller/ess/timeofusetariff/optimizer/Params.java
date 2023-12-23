@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -14,10 +13,14 @@ public record Params(//
 		int numberOfPeriods,
 		/** Start-Timestamp of the Schedule */
 		ZonedDateTime time,
+		/** ESS Total Energy (Capacity) [Wh] */
+		int essTotalEnergy, //
+		/** ESS Energy below a configured Minimum-SoC [Wh] */
+		int essMinSocEnergy, //
+		/** ESS Energy below a configured Maximium-SoC [Wh] */
+		int essMaxSocEnergy, //
 		/** ESS Initially Available Energy (SoC in [Wh]) */
-		int essAvailableEnergy, //
-		/** ESS Capacity [Wh] */
-		int essCapacity, //
+		int essInitialEnergy, //
 		/** ESS Max Charge/Discharge Energy per Period [Wh] */
 		int essMaxEnergyPerPeriod, //
 		/** Max Buy-From-Grid Energy per Period [Wh] */
@@ -37,8 +40,10 @@ public record Params(//
 
 	public static class Builder {
 		private ZonedDateTime time;
-		private int essAvailableEnergy;
-		private int essCapacity;
+		private int essTotalEnergy;
+		private int essMinSocEnergy;
+		private int essMaxSocEnergy;
+		private int essInitialEnergy;
 		private int essMaxEnergyPerPeriod;
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
@@ -52,13 +57,23 @@ public record Params(//
 			return this;
 		}
 
-		protected Builder essAvailableEnergy(int essAvailableEnergy) {
-			this.essAvailableEnergy = essAvailableEnergy;
+		protected Builder essTotalEnergy(int essTotalEnergy) {
+			this.essTotalEnergy = essTotalEnergy;
 			return this;
 		}
 
-		protected Builder essCapacity(int essCapacity) {
-			this.essCapacity = essCapacity;
+		protected Builder essMinSocEnergy(int essMinSocEnergy) {
+			this.essMinSocEnergy = essMinSocEnergy;
+			return this;
+		}
+
+		protected Builder essMaxSocEnergy(int essMaxSocEnergy) {
+			this.essMaxSocEnergy = essMaxSocEnergy;
+			return this;
+		}
+
+		protected Builder essInitialEnergy(int essInitialEnergy) {
+			this.essInitialEnergy = essInitialEnergy;
 			return this;
 		}
 
@@ -111,7 +126,8 @@ public record Params(//
 					.orElse(null);
 			return new Params(numberOfPeriods, //
 					this.time, //
-					this.essAvailableEnergy, this.essCapacity, this.essMaxEnergyPerPeriod, //
+					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
+					this.essMaxEnergyPerPeriod, //
 					this.maxBuyFromGrid, //
 					this.productions, this.consumptions, //
 					this.prices, maxPrice, //
@@ -122,10 +138,5 @@ public record Params(//
 
 	protected static Builder create() {
 		return new Params.Builder();
-	}
-
-	protected boolean predictionsAreEmpty() {
-		return Arrays.stream(this.productions).allMatch(v -> v == 0)
-				&& Arrays.stream(this.consumptions).allMatch(v -> v == 0);
 	}
 }

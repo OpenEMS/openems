@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -11,18 +12,12 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestMultipleIds;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestSettingComponentIds {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -97,7 +92,7 @@ public class TestSettingComponentIds {
 	}
 
 	private AddAppInstance.Response add(int setIds) throws Exception {
-		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		return this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.testMultipleIds.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty(TestMultipleIds.Property.SET_IDS.name(), setIds) //
 						.build()))
@@ -105,7 +100,7 @@ public class TestSettingComponentIds {
 	}
 
 	private UpdateAppInstance.Response update(UUID instanceId, int setIds) throws Exception {
-		return this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+		return this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty(TestMultipleIds.Property.SET_IDS.name(), setIds) //
 						.build()))

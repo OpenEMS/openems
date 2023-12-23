@@ -149,21 +149,15 @@ public class TestData {
 			2, 1, 2, 2, //
 	};
 
+	public static final Integer[] PAST_SOC = { //
+			60, 62, 64, 66, //
+			65, 67, 70, 73, //
+			76, 79, 83, 87, //
+	};
+
 	public static final Integer[] PAST_HOURLY_PRICES = { //
 			158, 160, 171, 174, //
 			161, 152, 120, 111, //
 			105, 105, 74, 73, //
-	};
-
-	public static final Integer[] PAST_CONSUMPTION_PREDICTION = { //
-			1021, 1208, 713, 931, //
-			2847, 2551, 1558, 1234, //
-			433, 633, 1355, 606,//
-	};
-
-	public static final Integer[] PAST_PRODUCTION_PREDICTION = { //
-			913, 1399, 1838, 2261, //
-			2662, 3052, 3405, 3708, //
-			4011, 4270, 4458, 4630, //
 	};
 }

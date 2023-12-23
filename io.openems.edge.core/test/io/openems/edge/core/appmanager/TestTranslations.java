@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -12,13 +13,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrial;
-import io.openems.edge.common.test.DummyUser;
 
 public class TestTranslations {
 
@@ -115,14 +114,12 @@ public class TestTranslations {
 	}
 
 	private void testTranslations(Language l) throws Exception {
-		final var user = new DummyUser("1", "password", l, Role.ADMIN);
-
 		final var debugTranslator = TranslationUtil.enableDebugMode();
 
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				app.getAppAssistant(user);
+				app.getAppAssistant(DUMMY_ADMIN);
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);

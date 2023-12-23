@@ -1,57 +1,78 @@
 package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
+import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.HOURLY_PRICES_SUMMER;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_CONSUMPTION_PREDICTION;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_HOURLY_PRICES;
-import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_PRODUCTION_PREDICTION;
+import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PAST_STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRICES_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.PRODUCTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.controller.ess.timeofusetariff.TestData.STATES;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getComponentManager;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getOptimizer;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getPredictorManager;
+import static io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest.getTimeOfUseTariff;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.TIME;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.SimulatorTest.hourlyToQuarterly;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ESS_MAX_SOC;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_CONSUMPTION;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_ESS_SOC;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.SUM_PRODUCTION;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge100;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingChargeDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSchedule;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.handleGetScheduleRequest;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.interpolateArray;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.joinConsumptionPredictions;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessPeriodState;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.paramsAreValid;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessRunState;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessSimulatorState;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toPower;
-import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNowRoundedDownToMinutes;
 import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.stream;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleData;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.predictor.api.oneday.Prediction24Hours;
+import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.timedata.test.DummyTimedata;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
@@ -99,6 +120,32 @@ public class UtilsTest {
 	}
 
 	@Test
+	public void testCalculateEssMaxCharge() {
+		assertEquals(0, calculateEssMaxCharge(0, 0, 0));
+		assertEquals(-400, calculateEssMaxCharge(1000, 400, 0));
+		assertEquals(-300, calculateEssMaxCharge(1000, 400, 700));
+		assertEquals(0, calculateEssMaxCharge(1000, 400, 1100));
+		assertEquals(-400, calculateEssMaxCharge(1000, 400, -100));
+	}
+
+	@Test
+	public void testCalculateEssMaxDischarge() {
+		assertEquals(0, calculateEssMaxDischarge(0, 0, 0));
+		assertEquals(400, calculateEssMaxDischarge(100, 400, 1000));
+		assertEquals(300, calculateEssMaxDischarge(100, 400, 400));
+		assertEquals(0, calculateEssMaxDischarge(100, 400, 0));
+	}
+
+	@Test
+	public void testCalculateBalancingChargeDischarge() {
+		assertEquals(0, calculateBalancingChargeDischarge(0, 0, 0, 0));
+		assertEquals(-200, calculateBalancingChargeDischarge(-1000, 1000, 500, 300));
+		assertEquals(200, calculateBalancingChargeDischarge(-1000, 1000, 500, 700));
+		assertEquals(1000, calculateBalancingChargeDischarge(-1000, 1000, 5000, 7000));
+		assertEquals(-1000, calculateBalancingChargeDischarge(-1000, 1000, 5000, 3000));
+	}
+
+	@Test
 	public void testCalculateStateChargeEnergy() {
 		assertEquals(0, calculateStateChargeEnergy(0, 0, 0, 0));
 
@@ -117,84 +164,173 @@ public class UtilsTest {
 
 	@Test
 	public void testCalculateCharge100() {
-		assertEquals(-2500, calculateCharge100(//
+		assertEquals(-2500, calculateCharge(//
 				new DummyManagedSymmetricEss("ess0").withActivePower(-1000), //
 				new DummySum().withGridActivePower(500), //
 				/* maxChargePowerFromGrid */ 2000).intValue());
 
 		// Would be 5000, but can never be positive
-		assertEquals(0, calculateCharge100(//
+		assertEquals(0, calculateCharge(//
 				new DummyManagedSymmetricEss("ess0").withActivePower(1000), //
 				new DummySum().withGridActivePower(9000), //
 				/* maxChargePowerFromGrid */ 5000).intValue());
 	}
 
 	@Test
-	@Ignore
-	public void testHandleScheduleRequest() throws OpenemsNamedException {
-		final var now = getNowRoundedDownToMinutes(ZonedDateTime.now(), 15);
+	public void testParamsAreValid() throws Exception {
+		var builder = Params.create() //
+				.time(TIME) //
+				.essInitialEnergy(0) //
+				.essTotalEnergy(22000) //
+				.essMinSocEnergy(2_000) //
+				.essMaxSocEnergy(20_000) //
+				.essMaxEnergyPerPeriod(0) //
+				.maxBuyFromGrid(0) //
+				.states(new StateMachine[0]);
+
+		// No periods are available
+		assertFalse(paramsAreValid(builder //
+				.productions() //
+				.consumptions() //
+				.prices() //
+				.build()));
+
+		// Production and Consumption predictions are all zero
+		assertFalse(paramsAreValid(builder //
+				.productions(0, 0, 0) //
+				.consumptions(0, 0) //
+				.prices(123F) //
+				.build()));
+
+		// Prices are all the same
+		assertFalse(paramsAreValid(builder //
+				.productions(0, 1, 3) //
+				.consumptions(0, 2) //
+				.prices(123F, 123F) //
+				.build()));
+
+		// Finally got it right...
+		assertTrue(paramsAreValid(builder //
+				.productions(0, 1, 3) //
+				.consumptions(0, 2) //
+				.prices(123F, 124F) //
+				.build()));
+		assertEquals(2, builder.build().numberOfPeriods());
+	}
+
+	@Test
+	public void testHandleScheduleRequest() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-03-04T14:19:00.00Z"), ZoneOffset.UTC);
+		final var ctrl = TimeOfUseTariffControllerImplTest.create(clock);
+		final var predictorManager = getPredictorManager(ctrl);
+		final var componentManager = getComponentManager(ctrl);
+		final var timeOfUseTariff = getTimeOfUseTariff(ctrl);
+
+		// Simulate historic data
+		var now = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(clock), 15);
 		final var fromDate = now.minusHours(3);
-		final var channeladdressPrices = new ChannelAddress("", "QuarterlyPrices");
-		final var channeladdressStateMachine = new ChannelAddress("", "StateMachine");
-		final var channelPredictedProduction = new ChannelAddress("", "PredictedProduction");
-		final var channelPredictedConsumption = new ChannelAddress("", "PredictedConsumption");
-
 		var timedata = new DummyTimedata("timedata0");
-
-		// past data is only for 3 hours. in total 12 quarters.
 		for (var i = 0; i < 12; i++) {
-			timedata.add(fromDate.plusMinutes(i * 15), channeladdressPrices, PAST_HOURLY_PRICES[i]);
-			timedata.add(fromDate.plusMinutes(i * 15), channeladdressStateMachine, PAST_STATES[i]);
-			timedata.add(fromDate.plusMinutes(i * 15), channelPredictedProduction, PAST_PRODUCTION_PREDICTION[i]);
-			timedata.add(fromDate.plusMinutes(i * 15), channelPredictedConsumption, PAST_CONSUMPTION_PREDICTION[i]);
+			var quarter = fromDate.plusMinutes(i * 15);
+			timedata.add(quarter, new ChannelAddress("", "QuarterlyPrices"), PAST_HOURLY_PRICES[i]);
+			timedata.add(quarter, new ChannelAddress("", "StateMachine"), PAST_STATES[i]);
+			timedata.add(quarter, SUM_PRODUCTION, PRODUCTION_PREDICTION_QUARTERLY[i]);
+			timedata.add(quarter, SUM_CONSUMPTION, CONSUMPTION_PREDICTION_QUARTERLY[i]);
+			timedata.add(quarter, SUM_ESS_SOC, PAST_SOC[i]);
 		}
 
-		// Testing only past data. For full data, optimizer has to be created as well.
-		var result = handleGetScheduleRequest(new Optimizer(null), randomUUID(), timedata, "", fromDate, now);
+		predictorManager.addPredictor(new DummyPredictor24Hours("predictor0", componentManager,
+				Prediction24Hours.of(SUM_PRODUCTION, PRODUCTION_PREDICTION_QUARTERLY), SUM_PRODUCTION));
+		predictorManager.addPredictor(new DummyPredictor24Hours("predictor0", componentManager,
+				Prediction24Hours.of(SUM_CONSUMPTION, CONSUMPTION_PREDICTION_QUARTERLY), SUM_CONSUMPTION));
+		timeOfUseTariff.setPrices(now, 1F, 1F);
 
-		JsonUtils.prettyPrint(result.getResult());
+		var optimizer = getOptimizer(ctrl);
+		optimizer.forever();
+
+		// Testing only past data. For full data, optimizer has to be created as well.
+		var result = handleGetScheduleRequest(optimizer, randomUUID(), timedata, "", clock.now()).getResult();
+
+		// JsonUtils.prettyPrint(result);
+
+		var schedule = getAsJsonArray(result, "schedule");
+		assertEquals(14, schedule.size());
+		{
+			var period = getAsJsonObject(schedule.get(0));
+			assertEquals(PAST_HOURLY_PRICES[0], getAsFloat(period, "price"), 0.00F);
+			assertEquals(PRODUCTION_PREDICTION_QUARTERLY[0] / 4, getAsInt(period, "production"));
+		}
+		{
+			var period = getAsJsonObject(schedule.get(12));
+			assertEquals(BALANCING.getValue(), getAsInt(period, "state"));
+			assertEquals(60, getAsInt(period, "soc"));
+		}
+		{
+			var period = getAsJsonObject(schedule.get(13));
+			assertEquals(BALANCING.getValue(), getAsInt(period, "state"));
+			assertEquals(58, getAsInt(period, "soc"));
+		}
 	}
 
 	@Test
 	public void testPostprocessPeriodState() {
 		var p = Params.create() //
 				.time(TIME) //
-				.essAvailableEnergy(0) //
-				.essCapacity(22000) //
+				.essInitialEnergy(0) //
+				.essTotalEnergy(22000) //
+				.essMinSocEnergy(2_000) //
+				.essMaxSocEnergy(20_000) //
 				.essMaxEnergyPerPeriod(0) //
 				.maxBuyFromGrid(0) //
-				.productions(new int[0]) //
-				.consumptions(new int[0]) //
+				.productions() //
+				.consumptions() //
 				.prices(new float[] { 123F }) //
 				.states(new StateMachine[0]) //
 				.build();
 
 		assertEquals("BALANCING stays BALANCING", //
-				BALANCING, postprocessPeriodState(p, 0, 0, 0, 0, BALANCING));
+				BALANCING, postprocessSimulatorState(p, 0, 0, 0, 0, 0, BALANCING));
 
 		assertEquals("DELAY_DISCHARGE but battery is empty", //
-				BALANCING, postprocessPeriodState(p, 0, 0, 0, 0, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, 0, 0, 0, 0, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would discharge in balancing", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 1, 0, 0, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 2001, 0, 0, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would charge from PV in balancing", //
-				BALANCING, postprocessPeriodState(p, 1, 0, 0, -1000, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, 0, 1, 0, 0, -1000, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE but price is the max price", //
-				BALANCING, postprocessPeriodState(p, 1, 0, 123F, 0, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, 0, 1, 0, 123F, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and price is NOT the max price", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 1, 0, 122.9F, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 2001, 0, 122.9F, 0, DELAY_DISCHARGE));
 
 		assertEquals("CHARGE actually from grid", //
-				CHARGE, postprocessPeriodState(p, 0, 1, 0, 0, CHARGE));
+				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 0, 0, CHARGE));
 		assertEquals("CHARGE but fully supplied by excess PV", //
-				BALANCING, postprocessPeriodState(p, 0, -1000, 0, 0, CHARGE));
-		assertEquals("CHARGE but battery is full (>= 90 %)", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 19800, 1, 0, 0, CHARGE));
-		assertEquals("CHARGE and battery is NOT full (89 %)", //
-				CHARGE, postprocessPeriodState(p, 19799, 1, 0, 0, CHARGE));
+				BALANCING, postprocessSimulatorState(p, 0, 0, -1000, 0, 0, CHARGE));
 		assertEquals("CHARGE but price is close to max", //
-				DELAY_DISCHARGE, postprocessPeriodState(p, 0, 1, 102.6F, 0, CHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.51F, 0, CHARGE));
 		assertEquals("CHARGE and price is NOT close to max", //
-				CHARGE, postprocessPeriodState(p, 0, 1, 102.5F, 0, CHARGE));
+				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.50F, 0, CHARGE));
+	}
+
+	@Test
+	public void testPostprocessRunState() {
+		// SoC undefined -> all stay
+		assertEquals(BALANCING, postprocessRunState(0, null, BALANCING));
+		assertEquals(DELAY_DISCHARGE, postprocessRunState(0, null, DELAY_DISCHARGE));
+		assertEquals(CHARGE, postprocessRunState(0, null, CHARGE));
+
+		assertEquals("BALANCING stays BALANCING", //
+				BALANCING, postprocessRunState(10, 10, DELAY_DISCHARGE));
+
+		assertEquals("DELAY_DISCHARGE but SoC is at Min-SoC", //
+				BALANCING, postprocessRunState(10, 10, DELAY_DISCHARGE));
+		assertEquals("DELAY_DISCHARGE and SoC is above Min-SoC", //
+				DELAY_DISCHARGE, postprocessRunState(10, 11, DELAY_DISCHARGE));
+
+		assertEquals("CHARGE but SoC is at Max-SoC", //
+				DELAY_DISCHARGE, postprocessRunState((int) ESS_MAX_SOC, (int) ESS_MAX_SOC + 1, CHARGE));
+		assertEquals("CHARGE and SoC is below or equal Max-SoC", //
+				CHARGE, postprocessRunState((int) ESS_MAX_SOC, (int) ESS_MAX_SOC, CHARGE));
 	}
 
 	@Test
@@ -234,7 +370,7 @@ public class UtilsTest {
 	@Test
 	public void testCreateSchedule() {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var timestamp = getNowRoundedDownToMinutes(ZonedDateTime.now(clock), 15).minusHours(3);
+		final var timestamp = roundZonedDateTimeDownToMinutes(ZonedDateTime.now(clock), 15).minusHours(3);
 
 		// Price provider
 		final var quarterlyPrices = DummyTimeOfUseTariffProvider
@@ -267,5 +403,20 @@ public class UtilsTest {
 
 		// Check if the last timestamp is as expected.
 		assertEquals(expectedLastTimestamp, generatedLastTimestamp);
+	}
+
+	@Test
+	public void testCalculateExecutionLimitSeconds() {
+		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		assertEquals(Duration.ofMinutes(14).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
+
+		clock.leap(11, ChronoUnit.MINUTES);
+		assertEquals(Duration.ofMinutes(3).plusSeconds(30).toSeconds(), calculateExecutionLimitSeconds(clock));
+
+		clock.leap(150, ChronoUnit.SECONDS);
+		assertEquals(60, calculateExecutionLimitSeconds(clock));
+
+		clock.leap(1, ChronoUnit.SECONDS);
+		assertEquals(Duration.ofMinutes(15).plusSeconds(59).toSeconds(), calculateExecutionLimitSeconds(clock));
 	}
 }

@@ -22,14 +22,23 @@ public class RunOptimizerFromLogApp {
 	/** The ESS Capacity in [Wh]. */
 	private static final int ESS_CAPACITY = 22000;
 
+	/** The ESS configured Min-Soc in [%]. */
+	private static final int ESS_MIN_SOC = 10;
+
+	/** The ESS configured Max-Soc in [%]. */
+	private static final int ESS_MAX_SOC = 90;
+
 	/** The ESS Max Power [W]. */
 	private static final int ESS_MAX_POWER = 10000;
 
 	/** The Max Buy-from-Grid Power [W]. */
-	private static final int MAX_BUY_FROM_GRID = 6000;
+	private static final int MAX_BUY_FROM_GRID = 10000;
 
 	/** The {@link ControlMode}. */
 	private static final ControlMode CONTROL_MODE = ControlMode.CHARGE_CONSUMPTION;
+
+	/** The {@link ControlMode}. */
+	private static final long EXECUTION_LIMIT_SECONDS = 60;
 
 	/** Insert the log lines without header. */
 	private static final String LOG = """
@@ -59,8 +68,10 @@ public class RunOptimizerFromLogApp {
 		}
 		var params = Params.create() //
 				.time(periods.get(0).time()) //
-				.essAvailableEnergy(periods.get(0).essInitial()) //
-				.essCapacity(ESS_CAPACITY) //
+				.essTotalEnergy(ESS_CAPACITY) //
+				.essMinSocEnergy(Math.round(ESS_MIN_SOC / 100F * ESS_CAPACITY)) //
+				.essMaxSocEnergy(Math.round(ESS_MAX_SOC / 100F * ESS_CAPACITY)) //
+				.essInitialEnergy(periods.get(0).essInitial()) //
 				.essMaxEnergyPerPeriod(toEnergy(ESS_MAX_POWER)) //
 				.maxBuyFromGrid(toEnergy(MAX_BUY_FROM_GRID)) //
 				.productions(periods.stream().mapToInt(Period::production).toArray()) //
@@ -69,7 +80,7 @@ public class RunOptimizerFromLogApp {
 				.states(CONTROL_MODE.states) //
 				.existingSchedule(new TreeMap<>()) //
 				.build();
-		var schedule = getBestSchedule(params);
+		var schedule = getBestSchedule(params, EXECUTION_LIMIT_SECONDS);
 
 		logSchedule(params, schedule);
 	}

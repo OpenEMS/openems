@@ -1,21 +1,18 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.core.appmanager.AssertOpenemsAppPropertyDefinition.assertPropertyDefaultValue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -24,8 +21,6 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class TestFeneconHomeDefaultRelays {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -94,8 +89,8 @@ public class TestFeneconHomeDefaultRelays {
 	}
 
 	private final OpenemsAppInstance createFullHomeWithDummyIo() throws Exception {
-		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, this.user);
-		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(this.user,
+		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
+		this.appManagerTestBundle.componentManger.handleJsonrpcRequest(DUMMY_ADMIN,
 				new DeleteComponentConfigRequest("io0"));
 		final var dummyRelay = new DummyInputOutput("io0", "RELAY", 1, 4);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration(dummyRelay.id());
