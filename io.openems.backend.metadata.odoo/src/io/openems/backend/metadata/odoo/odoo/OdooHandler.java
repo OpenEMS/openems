@@ -1268,7 +1268,7 @@ public class OdooHandler {
 	 * @param settings the settings of the user
 	 */
 	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/setUserSettings",
+		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/set_user_settings",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.add("settings", settings)//
