@@ -108,11 +108,7 @@ public final class CommonProps {
 				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
 						"unofficialAppWarning.text1"), //
 				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle,
-						"unofficialAppWarning.text2"))
-		// TODO ,def ->
-		// def.setAutoGenerateField(!OpenemsConstants.MANUFACTURER.equals("OpenEMS
-		// Association e.V."))
-		);
+						"unofficialAppWarning.text2")));
 	}
 
 }
