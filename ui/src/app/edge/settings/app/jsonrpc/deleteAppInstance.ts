@@ -37,7 +37,7 @@ export namespace DeleteAppInstance {
         public constructor(
             public override readonly params: {
                 instanceId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }

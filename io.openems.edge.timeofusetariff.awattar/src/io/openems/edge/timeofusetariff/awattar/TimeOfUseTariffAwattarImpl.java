@@ -1,5 +1,7 @@
 package io.openems.edge.timeofusetariff.awattar;
 
+import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
@@ -30,6 +32,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
@@ -50,6 +53,9 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -169,4 +175,8 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 		return ImmutableSortedMap.copyOf(result);
 	}
 
+	@Override
+	public String debugLog() {
+		return generateDebugLog(this, this.meta.getCurrency());
+	}
 }

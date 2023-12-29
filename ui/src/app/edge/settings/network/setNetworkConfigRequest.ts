@@ -31,7 +31,7 @@ export class SetNetworkConfigRequest extends JsonrpcRequest {
             interfaces: {
                 [name: string]: NetworkInterface
             }
-        }
+        },
     ) {
         super(SetNetworkConfigRequest.METHOD, params);
     }

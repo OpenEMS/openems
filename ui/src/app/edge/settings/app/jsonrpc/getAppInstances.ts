@@ -40,7 +40,7 @@ export namespace GetAppInstances {
         public constructor(
             public override readonly params: {
                 appId: string
-            }
+            },
         ) {
             super(METHOD, params);
         }
@@ -52,7 +52,7 @@ export namespace GetAppInstances {
             public override readonly id: string,
             public override readonly result: {
                 instances: AppInstance[]
-            }
+            },
         ) {
             super(id, result);
         }

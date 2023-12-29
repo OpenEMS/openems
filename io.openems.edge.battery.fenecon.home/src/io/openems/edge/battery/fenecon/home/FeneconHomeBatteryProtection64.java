@@ -21,7 +21,7 @@ public class FeneconHomeBatteryProtection64 implements BatteryProtectionDefiniti
 	public PolyLine getChargeVoltageToPercent() {
 		return PolyLine.create() //
 				.addPoint(2000, 0.1) //
-				.addPoint(3000, 0.1) //
+				.addPoint(3000, 0.2) //
 				.addPoint(Math.nextUp(3000), 1) //
 				.addPoint(3450, 1) //
 				.addPoint(3540, 0.08) //

@@ -2,6 +2,7 @@ package io.openems.backend.timedata.influx;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -29,6 +30,7 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.Timedata;
@@ -54,7 +56,7 @@ import io.openems.shared.influxdb.InfluxConnector;
 @EventTopics({ //
 		Edge.Events.ON_SET_ONLINE //
 })
-public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements Timedata, EventHandler {
+public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements Timedata, EventHandler, DebugLoggable {
 
 	private final Logger log = LoggerFactory.getLogger(TimedataInfluxDb.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
@@ -437,6 +439,16 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 		}
 
 		return true;
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.config.id() + " " + this.influxConnector.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		return null;
 	}
 
 }

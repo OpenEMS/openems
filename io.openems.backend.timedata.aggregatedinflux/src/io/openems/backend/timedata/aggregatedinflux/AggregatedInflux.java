@@ -40,6 +40,7 @@ import com.influxdb.client.write.Point;
 import com.influxdb.client.write.WriteParameters;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.timedata.InternalTimedataException;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.aggregatedinflux.AllowedChannels.ChannelType;
@@ -61,7 +62,7 @@ import io.openems.shared.influxdb.InfluxConnector;
 		name = "Timedata.AggregatedInfluxDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata {
+public class AggregatedInflux extends AbstractOpenemsBackendComponent implements Timedata, DebugLoggable {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -409,6 +410,16 @@ public class AggregatedInflux extends AbstractOpenemsBackendComponent implements
 				.collect(toMap(//
 						parts -> ZoneId.of(parts[0]), //
 						parts -> parts[1]));
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.config.id() + " " + this.influxConnector.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		return null;
 	}
 
 }

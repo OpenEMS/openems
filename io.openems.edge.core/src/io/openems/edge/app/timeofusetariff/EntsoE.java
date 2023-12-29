@@ -120,16 +120,17 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
-									.addPropertyIfNotNull("biddingZone", biddingZone) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
 							JsonUtils.buildJsonObject() //
+									.addPropertyIfNotNull("biddingZone", biddingZone) //
 									.build())//
 			);
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.scheduler(ctrlEssTimeOfUseTariffId, "ctrlBalancing0")) //
+					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
 	}
@@ -168,6 +169,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		SWEDEN_SE2("sweden_se2"), //
 		SWEDEN_SE3("sweden_se3"), //
 		SWEDEN_SE4("sweden_se4"), //
+		BELGIUM("belgium"), //
+		NETHERLANDS("netherlands"), //
 		;
 
 		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.biddingZone.option.";

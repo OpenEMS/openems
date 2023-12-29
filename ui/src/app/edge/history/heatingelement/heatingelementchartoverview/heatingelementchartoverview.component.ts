@@ -4,7 +4,7 @@ import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: HeatingelementChartOverviewComponent.SELECTOR,
-    templateUrl: './heatingelementchartoverview.component.html'
+    templateUrl: './heatingelementchartoverview.component.html',
 })
 export class HeatingelementChartOverviewComponent implements OnInit {
 
@@ -15,7 +15,7 @@ export class HeatingelementChartOverviewComponent implements OnInit {
 
     constructor(
         public service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {

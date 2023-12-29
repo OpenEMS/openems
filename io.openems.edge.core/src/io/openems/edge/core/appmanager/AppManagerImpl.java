@@ -47,6 +47,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -503,8 +504,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user,
-			AddAppInstance.Request request, boolean ignoreBackend) throws OpenemsNamedException {
+	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(//
+			final User user, // nullable
+			final AddAppInstance.Request request, //
+			final boolean ignoreBackend //
+	) throws OpenemsNamedException {
 		// check if key is valid for this app
 		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key, request.appId)) {
 			throw new OpenemsException("Key not applicable!");
@@ -513,6 +517,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		final var openemsApp = this.findAppByIdOrError(request.appId);
 
 		return this.lockModifyingApps(() -> {
+			// initial check if the app can even be installed
+			final var language = user == null ? Language.DEFAULT : user.getLanguage();
+			openemsApp.getAppConfiguration(ConfigurationTarget.ADD, request.properties, language);
+			this.validator.checkStatus(openemsApp, language);
+
 			List<String> warnings = new ArrayList<>();
 			var instance = new OpenemsAppInstance(openemsApp.getAppId(), request.alias, UUID.randomUUID(),
 					request.properties, null);
@@ -780,6 +789,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		return this.lockModifyingApps(() -> {
 			final var oldApp = this.findInstanceByIdOrError(request.instanceId);
 			final var app = this.findAppByIdOrError(oldApp.appId);
+			app.getAppConfiguration(ConfigurationTarget.UPDATE, request.properties, user.getLanguage());
 
 			final var updatedInstance = new OpenemsAppInstance(oldApp.appId, request.alias, oldApp.instanceId,
 					request.properties, oldApp.dependencies);

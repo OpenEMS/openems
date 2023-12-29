@@ -49,16 +49,12 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 	@Override
 	public AppConfiguration getAppConfiguration(ConfigurationTarget target, OpenemsApp app, String alias,
 			JsonObject properties, Language language) throws OpenemsNamedException {
+		final var copy = properties.deepCopy();
 		if (alias != null) {
-			properties.addProperty("ALIAS", alias);
+			copy.addProperty("ALIAS", alias);
 		}
-		try {
-			return app.getAppConfiguration(target, properties, language);
-		} finally {
-			if (alias != null) {
-				properties.remove("ALIAS");
-			}
-		}
+
+		return app.getAppConfiguration(target, copy, language);
 	}
 
 	@Override

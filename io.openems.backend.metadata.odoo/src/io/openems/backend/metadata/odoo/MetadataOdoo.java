@@ -35,7 +35,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
@@ -499,17 +499,17 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId);
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException {
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users) throws OpenemsException {
 		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
 	}
 

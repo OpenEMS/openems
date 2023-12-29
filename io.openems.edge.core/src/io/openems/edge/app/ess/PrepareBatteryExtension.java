@@ -144,7 +144,7 @@ public class PrepareBatteryExtension
 									.addProperty("targetSoc", targetSoc) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("enabled", true) //
-													.addProperty("ess_id", "ess0") //
+													.addProperty("ess.id", "ess0") //
 													.addProperty("isRunning", false) //
 													.addProperty("targetTimeSpecified", false) //
 													.addProperty("targetTimeBuffer", 30) //

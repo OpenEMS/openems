@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'formatSecondsToDuration'
+    name: 'formatSecondsToDuration',
 })
 export class FormatSecondsToDurationPipe implements PipeTransform {
 

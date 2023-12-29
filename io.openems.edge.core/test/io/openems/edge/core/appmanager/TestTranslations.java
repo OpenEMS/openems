@@ -17,6 +17,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.TestFeneconIndustrial;
 import io.openems.edge.common.test.DummyUser;
 
 public class TestTranslations {
@@ -34,7 +35,13 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome(t), true, TestFeneconHome.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome20(t), true, TestFeneconHome20.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome30(t), true, TestFeneconHome30.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk010(t), true, TestFeneconIndustrial.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk110(t), true, TestFeneconIndustrial.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconIsk011(t), true, TestFeneconIndustrial.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("BIDDING_ZONE", "GERMANY") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.stromdaoCorrently(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
@@ -57,12 +64,26 @@ public class TestTranslations {
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
 					.addProperty("OUTPUT_CHANNEL_2", "io0/Relay2") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.combinedHeatAndPower(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.heatingElement(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L1", "io0/Relay1") //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L2", "io0/Relay2") //
+					.addProperty("OUTPUT_CHANNEL_PHASE_L3", "io0/Relay3") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.gridOptimizedCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MAXIMUM_SELL_TO_GRID_POWER", 60) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.selfConsumptionOptimization(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.manualRelayControl(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("OUTPUT_CHANNEL", "io0/Relay1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.thresholdControl(t), false, JsonUtils.buildJsonObject() //
+					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
