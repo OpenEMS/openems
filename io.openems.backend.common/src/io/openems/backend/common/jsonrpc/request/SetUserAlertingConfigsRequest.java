@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -47,7 +47,7 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 	}
 
 	private final String edgeId;
-	private final List<AlertingSetting> userSettings = new ArrayList<>();
+	private final List<UserAlertingSettings> userSettings = new ArrayList<>();
 
 	private SetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
 		super(request, SetUserAlertingConfigsRequest.METHOD);
@@ -60,7 +60,7 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 				var userId = JsonUtils.getAsString(userJsonObject, "userId");
 				var timeToWait = JsonUtils.getAsInt(userJsonObject, "delayTime");
 
-				this.userSettings.add(new AlertingSetting(userId, timeToWait));
+				this.userSettings.add(new UserAlertingSettings(userId, timeToWait));
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
@@ -81,7 +81,7 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 	 *
 	 * @return list of {@link UserAlertingSetting}
 	 */
-	public List<AlertingSetting> getUserSettings() {
+	public List<UserAlertingSettings> getUserSettings() {
 		return this.userSettings;
 	}
 
@@ -93,7 +93,7 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 				.build();
 	}
 
-	private JsonElement toJson(AlertingSetting setting) {
+	private JsonElement toJson(UserAlertingSettings setting) {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("userId", setting.getUserId()) //
 				.addProperty("delayTime", setting.getDelayTime()) //

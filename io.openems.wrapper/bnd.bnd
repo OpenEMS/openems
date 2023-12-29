@@ -4,10 +4,10 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 -sub: *.bnd
 -buildpath: \
 	com.github.rzymek:opczip;version='1.2.0',\
-	com.influxdb:influxdb-client-core;version='6.10.0',\
-	com.influxdb:influxdb-client-java;version='6.10.0',\
-	com.influxdb:influxdb-client-utils;version='6.10.0',\
-	com.influxdb:flux-dsl;version='6.10.0',\
+	com.influxdb:influxdb-client-core;version='6.12.0',\
+	com.influxdb:influxdb-client-java;version='6.12.0',\
+	com.influxdb:influxdb-client-utils;version='6.12.0',\
+	com.influxdb:flux-dsl;version='6.12.0',\
 	com.squareup.okhttp3:logging-interceptor;version='4.12.0',\
 	com.squareup.okhttp3:okhttp;version='4.12.0',\
 	com.squareup.retrofit2:retrofit;version='2.9.0',\
