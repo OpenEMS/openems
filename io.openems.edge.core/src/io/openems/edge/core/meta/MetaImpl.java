@@ -10,10 +10,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.channel.AccessMode;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -26,6 +29,9 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	public MetaImpl() {
 		super(//
@@ -59,6 +65,11 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return Meta.getModbusSlaveTable(accessMode, this.oem);
 	}
 
 	private void applyConfig(Config config) {

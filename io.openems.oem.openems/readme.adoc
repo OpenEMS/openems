@@ -1,0 +1,5 @@
+= OpenEMS OEM Bundle
+
+This is the OpenEMS default OEM implementation. If you plan to create your own distribution of OpenEMS Edge or Backend, simply delete this bundle from your repository and replace it with your own OEM implementation.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.oem.openems[Source Code icon:github[]]

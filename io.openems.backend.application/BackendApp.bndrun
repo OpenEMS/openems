@@ -81,6 +81,7 @@
 	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
+	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.aXMLRPC;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\

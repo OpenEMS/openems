@@ -39,7 +39,6 @@ import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
@@ -269,7 +268,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("FileMetadata.registerUser() is not implemented");
 	}
 
