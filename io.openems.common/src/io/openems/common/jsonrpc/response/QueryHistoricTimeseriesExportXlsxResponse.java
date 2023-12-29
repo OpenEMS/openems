@@ -20,7 +20,6 @@ import org.dhatim.fastexcel.Worksheet;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
@@ -136,7 +135,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			byte[] payload = {};
 			try (//
 					var os = new ByteArrayOutputStream();
-					var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null) //
+					var wb = new Workbook(os, "", null) //
 			) {
 				var ws = wb.newWorksheet("Export");
 

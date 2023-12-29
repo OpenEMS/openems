@@ -28,6 +28,7 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -62,6 +63,9 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	@Reference
+	private OpenemsEdgeOem oem;
+
 	private InfluxConnector influxConnector = null;
 
 	/** Counts the number of Cycles till data is written to InfluxDB. */
@@ -86,7 +90,8 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 		}
 
 		this.influxConnector = new InfluxConnector(config.id(), config.queryLanguage(), URI.create(config.url()),
-				config.org(), config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
+				config.org(), config.apiKey(), config.bucket(), this.oem.getInfluxdbTag(), config.isReadOnly(), 5,
+				config.maxQueueSize(), //
 				(e) -> {
 					// ignore
 				});
