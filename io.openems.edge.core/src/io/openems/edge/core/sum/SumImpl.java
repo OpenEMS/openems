@@ -1,6 +1,12 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.edge.core.sum.ExtremeEverValue.Range.NEGATIVE;
+import static io.openems.edge.core.sum.ExtremeEverValue.Range.POSTIVE;
+
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,6 +66,17 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	private final EnergyValuesHandler energyValuesHandler;
 	private final Set<String> ignoreStateComponents = new HashSet<>();
 
+	private final List<ExtremeEverValue> extremeEverValues = List.of(//
+			new ExtremeEverValue(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, "gridMinActivePower", //
+					NEGATIVE, Sum.ChannelId.GRID_ACTIVE_POWER), //
+			new ExtremeEverValue(Sum.ChannelId.GRID_MAX_ACTIVE_POWER, "gridMaxActivePower", //
+					POSTIVE, Sum.ChannelId.GRID_ACTIVE_POWER), //
+			new ExtremeEverValue(Sum.ChannelId.PRODUCTION_MAX_ACTIVE_POWER, "productionMaxActivePower", //
+					POSTIVE, Sum.ChannelId.PRODUCTION_ACTIVE_POWER), //
+			new ExtremeEverValue(Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER, "consumptionMaxActivePower", //
+					POSTIVE, Sum.ChannelId.CONSUMPTION_ACTIVE_POWER) //
+	);
+
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
@@ -78,7 +95,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config);
+		this.applyConfig(context, config);
 
 		this.energyValuesHandler.activate();
 
@@ -90,14 +107,17 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	@Modified
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config);
+		this.applyConfig(context, config);
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
 	}
 
-	private synchronized void applyConfig(Config config) {
+	private synchronized void applyConfig(ComponentContext context, Config config) {
+		// Read max power values
+		this.extremeEverValues.forEach(v -> v.initializeFromContext(context));
+
 		// Parse Ignore States
 		this.ignoreStateComponents.clear();
 		for (String channelId : config.ignoreStateComponents()) {
@@ -148,8 +168,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var gridActivePowerL1 = new CalculateIntegerSum();
 		final var gridActivePowerL2 = new CalculateIntegerSum();
 		final var gridActivePowerL3 = new CalculateIntegerSum();
-		final var gridMinActivePower = new CalculateIntegerSum();
-		final var gridMaxActivePower = new CalculateIntegerSum();
 		final var gridBuyActiveEnergy = new CalculateLongSum();
 		final var gridSellActiveEnergy = new CalculateLongSum();
 
@@ -158,9 +176,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var productionAcActivePowerL1 = new CalculateIntegerSum();
 		final var productionAcActivePowerL2 = new CalculateIntegerSum();
 		final var productionAcActivePowerL3 = new CalculateIntegerSum();
-		final var productionMaxAcActivePower = new CalculateIntegerSum();
 		final var productionDcActualPower = new CalculateIntegerSum();
-		final var productionMaxDcActualPower = new CalculateIntegerSum();
 		final var productionAcActiveEnergy = new CalculateLongSum();
 		final var productionDcActiveEnergy = new CalculateLongSum();
 
@@ -244,8 +260,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					 * Grid-Meter
 					 */
 					gridActivePower.addValue(meter.getActivePowerChannel());
-					gridMinActivePower.addValue(meter.getMinActivePowerChannel());
-					gridMaxActivePower.addValue(meter.getMaxActivePowerChannel());
 					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
 					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
 					gridActivePowerL1.addValue(meter.getActivePowerL1Channel());
@@ -258,7 +272,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					 * Production-Meter
 					 */
 					productionAcActivePower.addValue(meter.getActivePowerChannel());
-					productionMaxAcActivePower.addValue(meter.getMaxActivePowerChannel());
 					productionAcActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
 					productionAcActiveEnergyNegative.addValue(meter.getActiveConsumptionEnergyChannel());
 					productionAcActivePowerL1.addValue(meter.getActivePowerL1Channel());
@@ -274,7 +287,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				 */
 				var charger = (EssDcCharger) component;
 				productionDcActualPower.addValue(charger.getActualPowerChannel());
-				productionMaxDcActualPower.addValue(charger.getMaxActualPowerChannel());
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
 
 			} else if (component instanceof Evcs evcs) {
@@ -328,9 +340,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setGridActivePowerL2(gridActivePowerL2Sum);
 		var gridActivePowerL3Sum = gridActivePowerL3.calculate();
 		this._setGridActivePowerL3(gridActivePowerL3Sum);
-		this._setGridMinActivePower(gridMinActivePower.calculate());
-		var gridMaxActivePowerSum = gridMaxActivePower.calculate();
-		this._setGridMaxActivePower(gridMaxActivePowerSum);
 
 		var gridBuyActiveEnergySum = gridBuyActiveEnergy.calculate();
 		gridBuyActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY,
@@ -352,12 +361,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setProductionDcActualPower(productionDcActualPowerSum);
 		this._setProductionActivePower(TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum));
 
-		var productionMaxAcActivePowerSum = productionMaxAcActivePower.calculate();
-		this._setProductionMaxAcActivePower(productionMaxAcActivePowerSum);
-		var productionMaxDcActualPowerSum = productionMaxDcActualPower.calculate();
-		this._setProductionMaxDcActualPower(productionMaxDcActualPowerSum);
-		this._setProductionMaxActivePower(TypeUtils.sum(productionMaxAcActivePowerSum, productionMaxDcActualPowerSum));
-
 		var productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
 		productionAcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY,
 				productionAcActiveEnergySum);
@@ -378,8 +381,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				essActivePowerL2Sum, gridActivePowerL2Sum, productionAcActivePowerL2Sum));
 		this._setConsumptionActivePowerL3(TypeUtils.sum(//
 				essActivePowerL3Sum, gridActivePowerL3Sum, productionAcActivePowerL3Sum));
-		this._setConsumptionMaxActivePower(TypeUtils.sum(//
-				essMaxApparentPowerSum, gridMaxActivePowerSum, productionMaxAcActivePowerSum));
 		this._setUnmanagedConsumptionActivePower(
 				TypeUtils.subtract(consumptionActivePower, managedConsumptionActivePower.calculate()));
 
@@ -393,6 +394,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		// Further calculated Channels
 		var essDischargePowerSum = essDcDischargePower.calculate();
 		this.getEssDischargePowerChannel().setNextValue(essDischargePowerSum);
+
+		this.updateExtremeEverValues();
 	}
 
 	/**
@@ -432,6 +435,27 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		}
 
 		this.getStateChannel().setNextValue(highestLevel);
+	}
+
+	/**
+	 * Calculates maximum/minimum ever values for respective Channels. Extreme
+	 * values are persisted in the Config of Core.Sum component.
+	 */
+	private void updateExtremeEverValues() {
+		var toBeUpdated = this.extremeEverValues.stream() //
+				.map(v -> v.updateFromChannel(this)) //
+				.filter(Objects::nonNull) //
+				.toList();
+		if (!toBeUpdated.isEmpty()) {
+			try {
+				var c = this.cm.getConfiguration(SINGLETON_SERVICE_PID, "?");
+				var properties = c.getProperties();
+				toBeUpdated.forEach(v -> v.updateConfig(properties));
+				c.update(properties);
+			} catch (IOException | SecurityException e) {
+				System.out.println("ERROR: " + e.getMessage());
+			}
+		}
 	}
 
 	@Override

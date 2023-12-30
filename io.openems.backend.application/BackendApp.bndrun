@@ -51,6 +51,7 @@
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
+	bnd.identity;id='io.openems.backend.oem.fenecon',\
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
