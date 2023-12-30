@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -23,6 +24,8 @@ public record Params(//
 		int essInitialEnergy, //
 		/** ESS Max Charge/Discharge Energy per Period [Wh] */
 		int essMaxEnergyPerPeriod, //
+		/** ESS Max Charge Energy per Period in CHARGE State [Wh] */
+		int essMaxChargePerPeriod, //
 		/** Max Buy-From-Grid Energy per Period [Wh] */
 		int maxBuyFromGrid,
 		/** Production predictions per Period */
@@ -45,6 +48,7 @@ public record Params(//
 		private int essMaxSocEnergy;
 		private int essInitialEnergy;
 		private int essMaxEnergyPerPeriod;
+		private int essMaxChargePerPeriod;
 		private int maxBuyFromGrid;
 		private int[] productions = new int[0];
 		private int[] consumptions = new int[0];
@@ -79,6 +83,11 @@ public record Params(//
 
 		protected Builder essMaxEnergyPerPeriod(int essMaxEnergyPerPeriod) {
 			this.essMaxEnergyPerPeriod = essMaxEnergyPerPeriod;
+			return this;
+		}
+
+		protected Builder essMaxChargePerPeriod(int essMaxChargePerPeriod) {
+			this.essMaxChargePerPeriod = essMaxChargePerPeriod;
 			return this;
 		}
 
@@ -128,7 +137,7 @@ public record Params(//
 					this.time, //
 					this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy, this.essInitialEnergy,
 					this.essMaxEnergyPerPeriod, //
-					this.maxBuyFromGrid, //
+					this.essMaxChargePerPeriod, this.maxBuyFromGrid, //
 					this.productions, this.consumptions, //
 					this.prices, maxPrice, //
 					this.states, //
@@ -139,4 +148,34 @@ public record Params(//
 	protected static Builder create() {
 		return new Params.Builder();
 	}
+
+	@Override
+	public String toString() {
+		return this.toString(true);
+	}
+
+	protected String toString(boolean full) {
+		StringBuilder b = new StringBuilder();
+		b.append("Params [") //
+				.append("numberOfPeriods=").append(this.numberOfPeriods) //
+				.append(", time=").append(this.time) //
+				.append(", essTotalEnergy=").append(this.essTotalEnergy) //
+				.append(", essMinSocEnergy=").append(this.essMinSocEnergy) //
+				.append(", essMaxSocEnergy=").append(this.essMaxSocEnergy) //
+				.append(", essInitialEnergy=").append(this.essInitialEnergy) //
+				.append(", essMaxEnergyPerPeriod=").append(this.essMaxEnergyPerPeriod) //
+				.append(", essMaxChargePerPeriod=").append(this.essMaxChargePerPeriod) //
+				.append(", maxBuyFromGrid=").append(this.maxBuyFromGrid) //
+				.append(", states=").append(Arrays.toString(this.states)) //
+				.append(", maxPrice=").append(this.maxPrice);
+		if (full) {
+			b //
+					.append(", productions=").append(Arrays.toString(this.productions)) //
+					.append(", consumptions=").append(Arrays.toString(this.consumptions)) //
+					.append(", prices=").append(Arrays.toString(this.prices)) //
+					.append(", existingSchedule=").append(Arrays.toString(this.existingSchedule)); //
+		}
+		return b.append("]").toString();
+	}
+
 }

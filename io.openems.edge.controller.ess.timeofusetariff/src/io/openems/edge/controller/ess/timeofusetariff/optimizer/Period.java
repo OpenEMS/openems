@@ -21,14 +21,14 @@ public record Period(ZonedDateTime time, int production, int consumption, int es
 	 * @return header
 	 */
 	public static String header() {
-		return "Time Production Consumption EssInitial EssMaxCharge EssMaxDischarge State EssChargeDischarge Grid Price Cost";
+		return "Time  Production Consumption EssInitial EssMaxCharge EssMaxDischarge State           EssChargeDischarge  Grid Price  Cost";
 	}
 
 	/**
 	 * Gets the Period as String.
 	 */
 	public String toString() {
-		return String.format(Locale.ENGLISH, "%s %d %d %d %d %d %s %d %d %.2f %.4f", //
+		return String.format(Locale.ENGLISH, "%s %10d %11d %10d %12d %15d %-15s %18d %5d %.2f %.4f", //
 				this.time.format(FORMATTER), this.production, this.consumption, //
 				this.essInitial, this.essMaxCharge, this.essMaxDischarge, //
 				this.state, //

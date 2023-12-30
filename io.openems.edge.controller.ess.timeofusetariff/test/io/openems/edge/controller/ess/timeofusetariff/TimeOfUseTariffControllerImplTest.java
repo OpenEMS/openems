@@ -63,6 +63,7 @@ public class TimeOfUseTariffControllerImplTest {
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //
 						.setControlMode(CHARGE_CONSUMPTION) //
+						.setEssMaxChargePower(5000) //
 						.setRiskLevel(MEDIUM) //
 						.build());
 		return sut;

@@ -70,6 +70,7 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.ScheduleData;
+import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
@@ -147,33 +148,51 @@ public class UtilsTest {
 
 	@Test
 	public void testCalculateStateChargeEnergy() {
-		assertEquals(0, calculateStateChargeEnergy(0, 0, 0, 0));
+		assertEquals(0, calculateStateChargeEnergy(0, 0, 0, 0, 0));
 
 		assertEquals(-1234, calculateStateChargeEnergy(//
-				2000 /* grid limit */, 1000 /* consumption */, 2000 /* production */, -1234));
+				2000 /* ess charge limit */, 24_000 /* grid limit */, 1000 /* consumption */, 2000 /* production */,
+				-1234));
 
 		assertEquals(-1100, calculateStateChargeEnergy(//
-				1000 /* grid limit */, 100 /* consumption */, 200 /* production */, MIN_VALUE /* no limit */));
+				1100 /* ess charge limit */, 24_000 /* grid limit */, 100 /* consumption */, 200 /* production */,
+				MIN_VALUE /* no limit */));
 
 		// 'maxBuyFromGrid' is already completely consumed by predicted consumption
 		// (minus production). => simulate charge with 1 Wh to trigger optimizer to
 		// consider CHARGE instead of BALANCING mode
-		assertEquals(1, calculateStateChargeEnergy(//
-				5000 /* grid limit */, 20000 /* consumption */, 0 /* production */, -2500));
+		assertEquals(-1, calculateStateChargeEnergy(//
+				5000 /* ess charge limit */, 5000 /* grid limit */, 20000 /* consumption */, 0 /* production */,
+				-2500));
 	}
 
 	@Test
-	public void testCalculateCharge100() {
+	public void testCalculateCharge() {
 		assertEquals(-2500, calculateCharge(//
-				new DummyManagedSymmetricEss("ess0").withActivePower(-1000), //
-				new DummySum().withGridActivePower(500), //
-				/* maxChargePowerFromGrid */ 2000).intValue());
+				new DummyManagedSymmetricEss("ess0") //
+						.withActivePower(-1000), //
+				new DummySum() //
+						.withGridActivePower(500), //
+				/* essMaxChargePower */ 2_500, //
+				/* maxChargePowerFromGrid */ 24_000).intValue());
 
 		// Would be 5000, but can never be positive
 		assertEquals(0, calculateCharge(//
-				new DummyManagedSymmetricEss("ess0").withActivePower(1000), //
-				new DummySum().withGridActivePower(9000), //
-				/* maxChargePowerFromGrid */ 5000).intValue());
+				new DummyManagedSymmetricEss("ess0") //
+						.withActivePower(1000), //
+				new DummySum() //
+						.withGridActivePower(9000), //
+				/* essMaxChargePower */ 5_000, //
+				/* maxChargePowerFromGrid */ 5_000).intValue());
+
+		assertEquals(-2000, calculateCharge(//
+				new DummyHybridEss("ess0") //
+						.withActivePower(-1000) //
+						.withDcDischargePower(-1500), //
+				new DummySum() //
+						.withGridActivePower(-2000), //
+				/* essMaxChargePower */ 2_500, //
+				/* maxChargePowerFromGrid */ 24_000).intValue());
 	}
 
 	@Test
@@ -184,7 +203,8 @@ public class UtilsTest {
 				.essTotalEnergy(22000) //
 				.essMinSocEnergy(2_000) //
 				.essMaxSocEnergy(20_000) //
-				.essMaxEnergyPerPeriod(0) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.maxBuyFromGrid(0) //
 				.states(new StateMachine[0]);
 
@@ -281,7 +301,8 @@ public class UtilsTest {
 				.essMinSocEnergy(2_000) //
 				.essMaxSocEnergy(20_000) //
 				.essMaxEnergyPerPeriod(0) //
-				.maxBuyFromGrid(0) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions() //
 				.consumptions() //
 				.prices(new float[] { 123F }) //
@@ -292,24 +313,26 @@ public class UtilsTest {
 				BALANCING, postprocessSimulatorState(p, 0, 0, 0, 0, 0, BALANCING));
 
 		assertEquals("DELAY_DISCHARGE but battery is empty", //
-				BALANCING, postprocessSimulatorState(p, 0, 0, 0, 0, 0, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, 0, 2000, 0, 0, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would discharge in balancing", //
-				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 2001, 0, 0, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 2001, 0, 0, 1, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and would charge from PV in balancing", //
-				BALANCING, postprocessSimulatorState(p, 0, 1, 0, 0, -1000, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, -1000, 2001, 0, 0, -1000, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE but price is the max price", //
-				BALANCING, postprocessSimulatorState(p, 0, 1, 0, 123F, 0, DELAY_DISCHARGE));
+				BALANCING, postprocessSimulatorState(p, -1000, 2001, 1, 123F, 0, DELAY_DISCHARGE));
 		assertEquals("DELAY_DISCHARGE and price is NOT the max price", //
-				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 2001, 0, 122.9F, 0, DELAY_DISCHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, -1000, 2001, -1, 122.9F, 0, DELAY_DISCHARGE));
 
 		assertEquals("CHARGE actually from grid", //
-				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 0, 0, CHARGE));
+				CHARGE, postprocessSimulatorState(p, -1000, 0, 1, 0, 0, CHARGE));
 		assertEquals("CHARGE but fully supplied by excess PV", //
-				BALANCING, postprocessSimulatorState(p, 0, 0, -1000, 0, 0, CHARGE));
+				BALANCING, postprocessSimulatorState(p, -1000, 0, 0, 0, 0, CHARGE));
+		assertEquals("CHARGE but battery is full", //
+				DELAY_DISCHARGE, postprocessSimulatorState(p, -1000, 20_001, 1, 0, 0, CHARGE));
 		assertEquals("CHARGE but price is close to max", //
-				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.51F, 0, CHARGE));
+				DELAY_DISCHARGE, postprocessSimulatorState(p, 0, 0, 1, 106.96F, 0, CHARGE));
 		assertEquals("CHARGE and price is NOT close to max", //
-				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 102.50F, 0, CHARGE));
+				CHARGE, postprocessSimulatorState(p, 0, 0, 1, 106.95F, 0, CHARGE));
 	}
 
 	@Test

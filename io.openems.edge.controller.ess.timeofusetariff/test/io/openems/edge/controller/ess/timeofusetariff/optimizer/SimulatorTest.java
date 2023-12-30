@@ -15,7 +15,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.int
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
 import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -25,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
@@ -67,7 +67,8 @@ public class SimulatorTest {
 				.essMaxSocEnergy(22000) //
 				.essInitialEnergy((int) (22000 * 0.1)) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(8000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
@@ -227,7 +228,8 @@ public class SimulatorTest {
 				.essMinSocEnergy(0) //
 				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(3000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
@@ -242,7 +244,8 @@ public class SimulatorTest {
 				.essMinSocEnergy(0) //
 				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(3000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
 				.prices(interpolateArray(PRICES_12786_20231121)) //
@@ -256,10 +259,9 @@ public class SimulatorTest {
 	}
 
 	protected static void logSchedule(Params p, StateMachine[] schedule) {
-		var periods = new ArrayList<String>();
-		periods.add(Period.header());
-		calculateCost(p, schedule, period -> periods.add(period.toString()));
-		System.out.println(periods.stream().collect(joining("\n")));
+		var periods = new TreeMap<ZonedDateTime, Period>();
+		calculateCost(p, schedule, period -> periods.put(period.time(), period));
+		Utils.logSchedule(p, periods);
 	}
 
 	private static int[] getEssChargeDischarges(Params p, StateMachine[] schedule) {

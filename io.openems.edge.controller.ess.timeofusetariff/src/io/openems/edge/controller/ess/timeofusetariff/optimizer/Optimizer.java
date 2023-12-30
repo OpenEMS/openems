@@ -4,6 +4,7 @@ import static io.openems.common.utils.DateUtils.roundZonedDateTimeDownToMinutes;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Simulator.calculateCost;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.createSimulatorParams;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.logSchedule;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -82,7 +83,7 @@ public class Optimizer extends AbstractImmediateWorker {
 			}
 
 			// Debug Log best Schedule
-			this.logBestSchedule(periods);
+			logSchedule(this.params, periods);
 
 		} catch (InvalidValueException | InterruptedException e) {
 			this.log.error("Error while running Optimizer: " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -100,8 +101,8 @@ public class Optimizer extends AbstractImmediateWorker {
 			var remainingExecutionLimit = Duration
 					.between(Instant.now(context.clock()), start.plusSeconds(executionLimitSeconds)).getSeconds();
 			if (remainingExecutionLimit > 0) {
-				this.log.info("Sleep [" + (remainingExecutionLimit / 1000) + "s] till next run of Optimizer");
-				Thread.sleep(remainingExecutionLimit);
+				this.log.info("Sleep [" + remainingExecutionLimit + "s] till next run of Optimizer");
+				Thread.sleep(remainingExecutionLimit * 1000);
 			}
 		}
 	}
@@ -160,24 +161,5 @@ public class Optimizer extends AbstractImmediateWorker {
 			result = ImmutableList.copyOf(this.periods.values());
 		}
 		return result;
-	}
-
-	private void logBestSchedule(TreeMap<ZonedDateTime, Period> periods) {
-		var b = new StringBuilder("OPTIMIZER ") //
-				.append(Period.header()) //
-				.append("\n");
-		if (periods.values().isEmpty()) {
-			b //
-					.append("OPTIMIZER ") //
-					.append("-> EMPTY\n");
-		} else {
-			periods.values().stream() //
-					.map(Period::toString) //
-					.forEach(s -> b //
-							.append("OPTIMIZER ") //
-							.append(s) //
-							.append("\n"));
-		}
-		System.out.println(b.toString());
 	}
 }

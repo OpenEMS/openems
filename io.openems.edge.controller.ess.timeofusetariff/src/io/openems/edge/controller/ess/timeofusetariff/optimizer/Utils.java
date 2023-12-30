@@ -55,6 +55,7 @@ import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmer
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.jsonrpc.GetScheduleResponse;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
@@ -118,8 +119,6 @@ public final class Utils {
 		var dischargePower = max(5000 /* at least 5000 */, power.getMaxPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
 		var chargePower = min(-5000 /* at least 5000 */, power.getMinPower(context.ess(), Phase.ALL, Pwr.ACTIVE));
 
-		var maxChargePowerFromGrid = context.maxChargePowerFromGrid();
-
 		return Params.create() //
 				.time(time) //
 				.essTotalEnergy(essTotalEnergy) //
@@ -127,7 +126,8 @@ public final class Utils {
 				.essMaxSocEnergy(essMaxSocEnergy) //
 				.essInitialEnergy(essSocEnergy) //
 				.essMaxEnergyPerPeriod(toEnergy(max(dischargePower, abs(chargePower)))) //
-				.maxBuyFromGrid(toEnergy(maxChargePowerFromGrid)) //
+				.essMaxChargePerPeriod(toEnergy(context.essMaxChargePower())) //
+				.maxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.productions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
 				.prices(interpolateArray(prices.getValues())) //
@@ -322,21 +322,26 @@ public final class Utils {
 	 * Calculates the ESS charge energy for one period in
 	 * {@link StateCategory#CHARGE} state.
 	 * 
-	 * @param maxBuyFromGrid Max Buy-From-Grid Energy per Period [Wh]
-	 * @param consumption    Consumption prediction
-	 * @param production     Production prediction
-	 * @param essMaxCharge   the max ESS charge energy after constraints; always
-	 *                       negative
-	 * @return ESS charge energy
+	 * @param essMaxChargePerPeriod ESS Max Charge Energy per Period in CHARGE State
+	 *                              [Wh], positive
+	 * @param maxBuyFromGrid        Max Buy-From-Grid Energy per Period [Wh],
+	 *                              positive
+	 * @param consumption           Consumption prediction
+	 * @param production            Production prediction
+	 * @param essMaxCharge          the max ESS charge energy after constraints
+	 *                              [Wh], negative
+	 * @return ESS charge energy (negative)
 	 */
-	protected static int calculateStateChargeEnergy(int maxBuyFromGrid, int consumption, int production,
-			int essMaxCharge) {
-		return max(//
+	protected static int calculateStateChargeEnergy(int essMaxChargePerPeriod, int maxBuyFromGrid, int consumption,
+			int production, int essMaxCharge) {
+		return max(max(//
 				min(//
 						/* max charge energy from grid */
 						-maxBuyFromGrid + consumption - production,
-						/* force positive */
-						1),
+						/* force charge with at least '1 W' to make a difference */
+						-1),
+				/* limit to Max Charge Energy per Period in CHARGE State */
+				-essMaxChargePerPeriod),
 				/* limit to max ESS charge energy */
 				essMaxCharge);
 	}
@@ -346,17 +351,25 @@ public final class Utils {
 	 * 
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param sum                    the {@link Sum}
+	 * @param essMaxChargePower      ESS Max Charge Power in CHARGE State
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @return the set-point or null
 	 */
-	public static Integer calculateCharge(ManagedSymmetricEss ess, Sum sum, int maxChargePowerFromGrid) {
+	public static Integer calculateCharge(ManagedSymmetricEss ess, Sum sum, int essMaxChargePower,
+			int maxChargePowerFromGrid) {
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = sum(//
 				sum.getGridActivePower().get(), /* current buy-from/sell-to grid */
 				ess.getActivePower().get() /* current charge/discharge Ess */);
 
+		if (ess instanceof HybridEss h) {
+			// Apply essMaxChargePower on AC- and DC-side
+			essMaxChargePower -= max(orElse(subtract(ess.getActivePower().get(), h.getDcDischargePower().get()), 0), 0);
+		}
+
 		return min(0, // never positive, i.e. force discharge
-				subtract(gridPower, maxChargePowerFromGrid)); // apply maxChargePowerFromGrid
+				max(-essMaxChargePower, //
+						subtract(gridPower, maxChargePowerFromGrid))); // apply maxChargePowerFromGrid
 	}
 
 	/**
@@ -496,34 +509,30 @@ public final class Utils {
 
 		case DELAY_DISCHARGE -> {
 			// DELAY_DISCHARGE,...
-			if (essChargeDischarge == 0) {
-				if (essInitialEnergy <= p.essMinSocEnergy()) {
-					yield BALANCING;
-				} else if (balancingChargeDischarge < 0) {
-					// but actually charging from PV -> could have been BALANCING
-					yield BALANCING;
-				} else if (p.maxPrice() - price < 0.001F) {
-					// but price is high
-					yield BALANCING;
-				}
+			if (essInitialEnergy <= p.essMinSocEnergy()) {
+				// but battery is already empty (at Min-Soc)
+				yield BALANCING;
+			} else if (essChargeDischarge < 0 && gridEssCharge == 0) {
+				// but actually charging from PV -> could have been BALANCING
+				yield BALANCING;
+			} else if (p.maxPrice() - price < 0.001F) {
+				// but price is high
+				yield BALANCING;
 			}
 			yield state;
 		}
 
 		case CHARGE -> {
 			// CHARGE,...
-			if (gridEssCharge <= 0) {
+			if (essChargeDischarge <= 0 && gridEssCharge <= 0) {
 				// but actually charging from PV -> could have been BALANCING
 				yield BALANCING;
-			} else if (essChargeDischarge == 0) {
-				// but with 0 energy...
-				if (essInitialEnergy > p.essMaxSocEnergy()) {
-					// and battery is above limit
-					yield DELAY_DISCHARGE;
-				} else if (p.maxPrice() / price < EFFICIENCY_FACTOR) {
-					// and price is high
-					yield DELAY_DISCHARGE;
-				}
+			} else if (essInitialEnergy > p.essMaxSocEnergy()) {
+				// but battery is above limit
+				yield DELAY_DISCHARGE;
+			} else if (p.maxPrice() / price < EFFICIENCY_FACTOR) {
+				// but price is high
+				yield DELAY_DISCHARGE;
 			}
 			yield state;
 		}
@@ -636,5 +645,38 @@ public final class Utils {
 		}
 		// Otherwise add 15 more minutes
 		return Duration.between(now, nextQuarter.plusMinutes(15)).getSeconds();
+	}
+
+	/**
+	 * Prints the Schedule to System.out.
+	 * 
+	 * <p>
+	 * NOTE: The output format is suitable as input for "RunOptimizerFromLogApp".
+	 * This is useful to re-run a simulation.
+	 * 
+	 * @param params  the {@link Params}
+	 * @param periods the map of {@link Period}s
+	 */
+	protected static void logSchedule(Params params, TreeMap<ZonedDateTime, Period> periods) {
+		var b = new StringBuilder() //
+				.append("OPTIMIZER ") //
+				.append(params.toString(false)) //
+				.append("\n") //
+				.append("OPTIMIZER ") //
+				.append(Period.header()) //
+				.append("\n");
+		if (periods.values().isEmpty()) {
+			b //
+					.append("OPTIMIZER ") //
+					.append("-> EMPTY\n");
+		} else {
+			periods.values().stream() //
+					.map(Period::toString) //
+					.forEach(s -> b //
+							.append("OPTIMIZER ") //
+							.append(s) //
+							.append("\n"));
+		}
+		System.out.println(b.toString());
 	}
 }

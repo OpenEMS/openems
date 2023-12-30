@@ -18,7 +18,7 @@ public record Context(//
 		List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves, //
 		List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges, //
 		ControlMode controlMode, //
-		int maxChargePowerFromGrid) {
+		int essMaxChargePower, int maxChargePowerFromGrid) {
 
 	public static class Builder {
 		private Clock clock;
@@ -28,6 +28,7 @@ public record Context(//
 		private List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves;
 		private List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges;
 		private ControlMode controlMode;
+		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
 
 		/**
@@ -111,6 +112,17 @@ public record Context(//
 		}
 
 		/**
+		 * The essMaxChargePower.
+		 * 
+		 * @param essMaxChargePower the essMaxChargePower
+		 * @return myself
+		 */
+		public Builder essMaxChargePower(int essMaxChargePower) {
+			this.essMaxChargePower = essMaxChargePower;
+			return this;
+		}
+
+		/**
 		 * The maxChargePowerFromGrid.
 		 * 
 		 * @param maxChargePowerFromGrid the maxChargePowerFromGrid
@@ -129,7 +141,7 @@ public record Context(//
 		public Context build() {
 			return new Context(this.clock, this.predictorManager, this.timeOfUseTariff, this.ess,
 					this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges, this.controlMode,
-					this.maxChargePowerFromGrid);
+					this.essMaxChargePower, this.maxChargePowerFromGrid);
 		}
 	}
 

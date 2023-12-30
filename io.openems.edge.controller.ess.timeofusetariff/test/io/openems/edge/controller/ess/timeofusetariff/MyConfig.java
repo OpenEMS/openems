@@ -12,7 +12,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String essId;
 		private Mode mode;
 		private ControlMode controlMode;
-		private int maxPower;
+		private int essMaxChargePower;
+		private int maxChargePowerFromGrid;
 		private RiskLevel riskLevel;
 
 		private Builder() {
@@ -43,8 +44,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaxPower(int maxPower) {
-			this.maxPower = maxPower;
+		public Builder setEssMaxChargePower(int essMaxChargePower) {
+			this.essMaxChargePower = essMaxChargePower;
+			return this;
+		}
+
+		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
+			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
 			return this;
 		}
 
@@ -95,8 +101,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int essMaxChargePower() {
+		return this.builder.essMaxChargePower;
+	}
+
+	@Override
 	public int maxChargePowerFromGrid() {
-		return this.builder.maxPower;
+		return this.builder.maxChargePowerFromGrid;
 	}
 
 	@Override

@@ -119,6 +119,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 				.ctrlEmergencyCapacityReserves(this.ctrlEmergencyCapacityReserves) //
 				.ctrlLimitTotalDischarges(this.ctrlLimitTotalDischarges) //
 				.controlMode(this.config.controlMode()) //
+				.essMaxChargePower(this.config.essMaxChargePower()) //
 				.maxChargePowerFromGrid(this.config.maxChargePowerFromGrid()) //
 				.build());
 	}
@@ -204,7 +205,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		var activePower = switch (state) {
-		case CHARGE -> calculateCharge(this.ess, this.sum, this.config.maxChargePowerFromGrid());
+		case CHARGE ->
+			calculateCharge(this.ess, this.sum, this.config.essMaxChargePower(), this.config.maxChargePowerFromGrid());
 		case DELAY_DISCHARGE -> 0;
 		case BALANCING -> null;
 		};

@@ -28,7 +28,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 public class Simulator {
 
 	/** Used to incorporate charge/discharge efficiency. */
-	public static final double EFFICIENCY_FACTOR = 1.2;
+	public static final double EFFICIENCY_FACTOR = 1.15;
 
 	protected static double calculateCost(Params p, StateMachine[] states) {
 		return calculateCost(p, states, null);
@@ -43,8 +43,8 @@ public class Simulator {
 		return sum;
 	}
 
-	protected static double calculatePeriodCost(Params p, int i, StateMachine[] states, final AtomicInteger nextEssInitial,
-			Consumer<Period> collect) {
+	protected static double calculatePeriodCost(Params p, int i, StateMachine[] states,
+			final AtomicInteger nextEssInitial, Consumer<Period> collect) {
 		final var production = p.productions()[i];
 		final var consumption = p.consumptions()[i];
 		final var state = states[i];
@@ -59,12 +59,13 @@ public class Simulator {
 		case BALANCING ->
 			// Apply behaviour of ESS Balancing Controller
 			balancingChargeDischarge;
-			
+
 		case DELAY_DISCHARGE -> 0;
-		
+
 		case CHARGE ->
-		// Charge from grid; max 'maxBuyFromGrid'
-		calculateStateChargeEnergy(p.maxBuyFromGrid(), consumption, production, essMaxCharge);
+			// Charge from grid; max 'maxBuyFromGrid'
+			calculateStateChargeEnergy(p.essMaxChargePerPeriod(), p.maxBuyFromGrid(), consumption, production,
+					essMaxCharge);
 		};
 
 		// Calculate Grid energy
