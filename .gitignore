@@ -198,9 +198,7 @@ typings/
 
 ### Gradle ###
 .gradle
-**/build/
-# do not ignore '/doc/build' directory
-!*doc/build/
+/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
