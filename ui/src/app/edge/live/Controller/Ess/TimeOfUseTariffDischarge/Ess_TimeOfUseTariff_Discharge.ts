@@ -3,7 +3,8 @@ import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
 import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
-import { ScheduleChartComponent } from "./modal/scheduleChart";
+import { ScheduleStateAndPriceChartComponent } from "./modal/statePriceChart";
+import { SchedulePowerAndSocChartComponent } from "./modal/powerSocChart";
 
 @NgModule({
     imports: [
@@ -13,12 +14,14 @@ import { ScheduleChartComponent } from "./modal/scheduleChart";
     entryComponents: [
         FlatComponent,
         ModalComponent,
-        ScheduleChartComponent,
+        ScheduleStateAndPriceChartComponent,
+        SchedulePowerAndSocChartComponent,
     ],
     declarations: [
         FlatComponent,
         ModalComponent,
-        ScheduleChartComponent,
+        ScheduleStateAndPriceChartComponent,
+        SchedulePowerAndSocChartComponent,
     ],
     exports: [
         FlatComponent,
