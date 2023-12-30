@@ -17,7 +17,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "result": {
  *     'schedule': [{
- *     	'timestamp':...,
+ *      'timestamp':...,
  *      'price':...,
  *      'state':...,
  *      'production':...,
