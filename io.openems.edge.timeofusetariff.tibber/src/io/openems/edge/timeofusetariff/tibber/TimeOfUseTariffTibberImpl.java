@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +50,6 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffTibber {
 
 	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
-	private static final int API_EXECUTE_HOUR = 14;
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffTibberImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -136,20 +136,22 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		this.channel(TimeOfUseTariffTibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
 
 		/*
-		 * Schedule next price update for 2 pm; or try again after 5 minutes
+		 * Schedule next price update at next hour; or try again after 5 minutes
 		 */
 		var now = ZonedDateTime.now();
-		var nextRun = now.withHour(API_EXECUTE_HOUR).truncatedTo(ChronoUnit.HOURS);
+		final ZonedDateTime nextRun;
 		if (unableToUpdatePrices) {
-			// If the prices are not updated, try again in next minute.
+			// If the prices are not updated, try again in 5 minutes.
 			nextRun = now.plusMinutes(5).truncatedTo(ChronoUnit.MINUTES);
 			this.logWarn(this.log, "Unable to Update the prices, Trying again at: " + nextRun);
-		} else if (now.isAfter(nextRun)) {
-			nextRun = nextRun.plusDays(1);
+		} else {
+			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		}
 
-		var delay = Duration.between(now, nextRun).getSeconds();
-		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
+		this.executor.schedule(this.task, //
+				Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
+						.getSeconds(),
+				TimeUnit.SECONDS);
 	};
 
 	@Override
