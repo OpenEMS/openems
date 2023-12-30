@@ -134,7 +134,7 @@ public class StromdaoCorrently extends
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-dynamischer-stromtarif/") //
 				.build();
 	}
 
