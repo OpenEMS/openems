@@ -74,6 +74,7 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
 	private Language defaultLanguage = Language.DE;
+	private JsonObject settings = new JsonObject();
 
 	@Activate
 	public MetadataDummy(@Reference EventAdmin eventadmin) {
@@ -97,7 +98,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public User authenticate(String username, String password) throws OpenemsNamedException {
 		var name = "User #" + this.nextUserId.incrementAndGet();
 		var token = UUID.randomUUID().toString();
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -110,7 +112,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 			}
 			final var hasMultipleEdges = this.hasMultipleEdges();
 			final User returnUser;
-			if (user.hasMultipleEdges() != hasMultipleEdges) {
+			if (user.hasMultipleEdges() != hasMultipleEdges //
+					|| !user.getSettings().equals(this.settings)) {
 				returnUser = this.createUser(user.getId(), user.getName(), user.getToken(), hasMultipleEdges);
 				this.users.put(token, returnUser);
 			} else {
@@ -123,7 +126,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	private User createUser(String username, String name, String token, boolean hasMultipleEdges) {
-		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges());
+		return new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
+				this.settings);
 	}
 
 	private boolean hasMultipleEdges() {
@@ -356,6 +360,11 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 						systemLog.getValues().entrySet().stream() //
 								.map(t -> t.getKey() + "=" + t.getValue()) //
 								.collect(joining(", "))));
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
+		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
 }

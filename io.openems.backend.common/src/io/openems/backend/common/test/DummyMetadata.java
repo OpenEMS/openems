@@ -174,4 +174,9 @@ public class DummyMetadata implements Metadata {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
 }

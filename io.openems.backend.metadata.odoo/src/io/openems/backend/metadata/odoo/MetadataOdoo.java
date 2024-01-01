@@ -145,6 +145,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
 		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
 		var hasMultipleEdges = JsonUtils.getAsBoolean(jUser, "has_multiple_edges");
+
+		final var settings = JsonUtils.getAsOptionalString(jUser, "settings") //
+				.flatMap(JsonUtils::parseOptional) //
+				.flatMap(JsonUtils::getAsOptionalJsonObject) //
+				.orElse(new JsonObject());
+
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -153,7 +159,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			roles.put(edgeId, role);
 		}
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges,
+				settings);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
@@ -570,6 +577,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				firstSetupProtocol, //
 				sumState //
 		);
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings)throws OpenemsNamedException {
+		this.odooHandler.updateUserSettings(user, settings);
 	}
 
 }
