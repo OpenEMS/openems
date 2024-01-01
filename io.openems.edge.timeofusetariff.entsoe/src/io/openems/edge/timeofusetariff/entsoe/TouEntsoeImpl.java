@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.getNext24HourPrices;
 import static io.openems.edge.timeofusetariff.entsoe.ExchangeRateApi.getExchangeRate;
@@ -35,6 +36,7 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -62,6 +64,9 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	@Reference
 	private Meta meta;
 
+	@Reference
+	private OpenemsEdgeOem oem;
+
 	private Config config = null;
 	private String securityToken = null;
 	private String exchangerateAccesskey = null;
@@ -87,13 +92,13 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 			return;
 		}
 
-		this.securityToken = Token.parseOrNull(config.securityToken());
+		this.securityToken = definedOrElse(config.securityToken(), this.oem.getEntsoeToken());
 		if (this.securityToken == null) {
 			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
 			return;
 		}
 
-		this.exchangerateAccesskey = Token.parseExchangeRateAccesskeyOrNull(config.exchangerateAccesskey());
+		this.exchangerateAccesskey = definedOrElse(config.exchangerateAccesskey(), this.oem.getExchangeRateAccesskey());
 		if (this.exchangerateAccesskey == null) {
 			this.logError(this.log, "Please configure personal Access key to access Exchange rate host API");
 			return;

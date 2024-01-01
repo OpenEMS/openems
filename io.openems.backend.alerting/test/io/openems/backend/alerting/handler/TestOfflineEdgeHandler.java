@@ -22,7 +22,7 @@ import io.openems.backend.alerting.Dummy.MessageSchedulerServiceImpl;
 import io.openems.backend.alerting.Dummy.SimpleMetadataImpl;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
-import io.openems.backend.common.metadata.AlertingSetting;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.test.DummyMetadata;
@@ -56,12 +56,12 @@ public class TestOfflineEdgeHandler {
 		final var timer = new MinuteTimer(Clock.systemUTC());
 		final var handler = new OfflineEdgeHandler(msgsch, timer, mailer, Utility.getTestMetadata(), 1);
 		final var msg_1 = new OfflineEdgeMessage("1", ZonedDateTime.now().minusSeconds(1));
-		msg_1.addRecipient(new AlertingSetting(1, "user1", null, null, 1));
-		msg_1.addRecipient(new AlertingSetting(1, "user2", null, null, 2));
+		msg_1.addRecipient(new UserAlertingSettings(1, "user1", null, null, 1));
+		msg_1.addRecipient(new UserAlertingSettings(1, "user2", null, null, 2));
 
 		final var msg_2 = new OfflineEdgeMessage("Fail", ZonedDateTime.now().minusSeconds(2));
-		msg_2.addRecipient(new AlertingSetting(2, "user1", null, null, 1));
-		msg_2.addRecipient(new AlertingSetting(2, "user2", null, null, 2));
+		msg_2.addRecipient(new UserAlertingSettings(2, "user1", null, null, 1));
+		msg_2.addRecipient(new UserAlertingSettings(2, "user2", null, null, 2));
 
 		assertEquals(mailer.sentMails.size(), 0);
 		var msgs = new ArrayList<>(List.of(msg_1, msg_2));
@@ -180,16 +180,16 @@ public class TestOfflineEdgeHandler {
 					Utility.getTestEdge(metadata, "5", Utility.now.minusMonths(1), false), //
 					Utility.getTestEdge(metadata, "6", null, false)); //
 
-			final Map<String, List<AlertingSetting>> settings = Map.of(//
+			final Map<String, List<UserAlertingSettings>> settings = Map.of(//
 					"1", List.of(//
-							new AlertingSetting(1, "user1", null, Utility.now.minusDays(1), 1)), //
+							new UserAlertingSettings(1, "user1", null, Utility.now.minusDays(1), 1)), //
 					"2", List.of(), //
 					"3", List.of(//
-							new AlertingSetting(3, "user1", null, Utility.now.plusDays(1), 1), //
-							new AlertingSetting(3, "user2", null, Utility.now, 0)), //
+							new UserAlertingSettings(3, "user1", null, Utility.now.plusDays(1), 1), //
+							new UserAlertingSettings(3, "user2", null, Utility.now, 0)), //
 					"4", List.of(//
-							new AlertingSetting(4, "edge2", null, Utility.now.minusDays(1), 1), //
-							new AlertingSetting(4, "edge3", null, Utility.now.minusDays(1), 2)) //
+							new UserAlertingSettings(4, "edge2", null, Utility.now.minusDays(1), 1), //
+							new UserAlertingSettings(4, "edge3", null, Utility.now.minusDays(1), 2)) //
 			);
 
 			metadata.initialize(edges, settings);
@@ -206,13 +206,13 @@ public class TestOfflineEdgeHandler {
 			private final ZonedDateTime now = ZonedDateTime.now();
 			private final ZonedDateTime yesterday = this.now.minusDays(1);
 
-			private List<AlertingSetting> userList = List.of(//
-					new AlertingSetting(1, "user0", null, this.yesterday, 60), //
-					new AlertingSetting(1, "user1", null, this.yesterday, 15), //
-					new AlertingSetting(1, "user2", null, this.yesterday, 10), //
-					new AlertingSetting(1, "user3", null, this.yesterday, 30), //
-					new AlertingSetting(1, "user4", null, this.yesterday, 30), //
-					new AlertingSetting(1, "user5", null, this.yesterday, 1440));
+			private List<UserAlertingSettings> userList = List.of(//
+					new UserAlertingSettings(1, "user0", null, this.yesterday, 60), //
+					new UserAlertingSettings(1, "user1", null, this.yesterday, 15), //
+					new UserAlertingSettings(1, "user2", null, this.yesterday, 10), //
+					new UserAlertingSettings(1, "user3", null, this.yesterday, 30), //
+					new UserAlertingSettings(1, "user4", null, this.yesterday, 30), //
+					new UserAlertingSettings(1, "user5", null, this.yesterday, 1440));
 
 			@Override
 			public boolean isInitialized() {
@@ -231,7 +231,7 @@ public class TestOfflineEdgeHandler {
 			}
 
 			@Override
-			public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+			public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 				return this.userList;
 			}
 		}
@@ -256,11 +256,11 @@ public class TestOfflineEdgeHandler {
 			}
 
 			@Override
-			public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+			public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
 				return List.of(//
-						new AlertingSetting(0, "user0", null, this.yesterday, 60), //
-						new AlertingSetting(0, "user1", null, this.yesterday, 15), //
-						new AlertingSetting(0, "user2", null, this.yesterday, 0) //
+						new UserAlertingSettings(0, "user0", null, this.yesterday, 60), //
+						new UserAlertingSettings(0, "user1", null, this.yesterday, 15), //
+						new UserAlertingSettings(0, "user2", null, this.yesterday, 0) //
 				);
 			}
 		}

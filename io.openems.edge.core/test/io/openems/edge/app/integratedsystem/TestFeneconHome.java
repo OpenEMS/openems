@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -8,11 +9,8 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
-import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -22,8 +20,6 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -65,7 +61,7 @@ public class TestFeneconHome {
 
 		var homeInstance = this.createFullHome();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullConfig));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -120,7 +116,7 @@ public class TestFeneconHome {
 				.addProperty("SHADOW_MANAGEMENT_DISABLED", false) //
 				.build();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", configNoMeter));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -157,7 +153,7 @@ public class TestFeneconHome {
 	public void testFeedInTypeRippleControlReceiver() throws Exception {
 		final var properties = fullSettings();
 		properties.addProperty("RIPPLE_CONTROL_RECEIVER_ACTIV", true);
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
@@ -171,7 +167,7 @@ public class TestFeneconHome {
 	public void testFeedInTypeDynamicLimitation() throws Exception {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
@@ -185,7 +181,7 @@ public class TestFeneconHome {
 	public void testFeedInTypeNoLimitation() throws Exception {
 		final var properties = fullSettings();
 		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", properties)).get();
 
 		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
@@ -196,7 +192,7 @@ public class TestFeneconHome {
 	}
 
 	private final OpenemsAppInstance createFullHome() throws Exception {
-		return createFullHome(this.appManagerTestBundle, this.user);
+		return createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
 	}
 
 	/**

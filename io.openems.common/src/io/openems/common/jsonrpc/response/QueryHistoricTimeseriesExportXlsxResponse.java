@@ -20,7 +20,6 @@ import org.dhatim.fastexcel.Worksheet;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
@@ -136,7 +135,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 			byte[] payload = {};
 			try (//
 					var os = new ByteArrayOutputStream();
-					var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null) //
+					var wb = new Workbook(os, "", null) //
 			) {
 				var ws = wb.newWorksheet("Export");
 
@@ -170,7 +169,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		protected static void addBasicInfo(Worksheet ws, String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
 				ResourceBundle translationBundle) {
 
-			XlsxUtils.addStringValueBold(ws, 0, 0, "Edge-Nr.");
+			XlsxUtils.addStringValueBold(ws, 0, 0, "Nr.");
 			XlsxUtils.addStringValue(ws, 0, 1, edgeId);
 			XlsxUtils.addStringValueBold(ws, 1, 0, translationBundle.getString("exportCreatedOn"));
 			XlsxUtils.addStringValue(ws, 1, 1, ZonedDateTime.now().format(XlsxUtils.DATE_TIME_FORMATTER));

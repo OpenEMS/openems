@@ -1,5 +1,6 @@
 package io.openems.edge.app.heat;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -7,16 +8,12 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
@@ -24,8 +21,6 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class TestHeatPump {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -62,20 +57,20 @@ public class TestHeatPump {
 	@Test
 	public void testNotRemovingDependenciesFromRelay() throws Exception {
 		// install usual free apps
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
 				this.modbusTcpApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
 				this.restJsonApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// install home
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.homeApp.getAppId(), "key", "alias", TestFeneconHome.fullSettings()));
 
 		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// create heat pump
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
 				this.heatPump.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(7, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -91,7 +86,7 @@ public class TestHeatPump {
 		assertEquals(3, home.dependencies.size());
 
 		// update heat pump
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user, new UpdateAppInstance.Request(
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				heatPumpInstance.instanceId, "alias", JsonUtils.buildJsonObject().build()));
 
 		// if exceptions occurs here heat pump also deleted dependencies from home

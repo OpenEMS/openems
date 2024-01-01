@@ -15,7 +15,6 @@ import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.int
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.toEnergy;
 import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -25,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
@@ -62,18 +62,21 @@ public class SimulatorTest {
 
 		var p = Params.create() //
 				.time(TIME) //
-				.essAvailableEnergy((int) (22000 * 0.1)) //
-				.essCapacity(22000) //
+				.essTotalEnergy(22000) //
+				.essMinSocEnergy(0) //
+				.essMaxSocEnergy(22000) //
+				.essInitialEnergy((int) (22000 * 0.1)) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(8000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-				.states(BALANCING, DELAY_DISCHARGE, CHARGE) //
+				.states(ControlMode.CHARGE_CONSUMPTION.states) //
 				.existingSchedule(existingSchedule) //
 				.build();
 		var s = getBestSchedule(p, //
-
+				/* executionLimitSeconds */ 30, //
 				/* populationSize */ 1, //
 				/* limit */ 1);
 
@@ -84,7 +87,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testOnlyBalancing888d20231106() {
 		var p = createParams888d20231106(BALANCING);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,9436 €
 		// Grid Buy: 7794 Wh
@@ -107,7 +111,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testOnlyDelayDischarge888d20231106() {
 		var p = createParams888d20231106(DELAY_DISCHARGE);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,9436 €
 		// Grid Buy: 7794 Wh
@@ -127,7 +132,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testOnlyCharge888d20231106() {
 		var p = createParams888d20231106(CHARGE);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,9436 €
 		// Grid Buy: 7794 Wh
@@ -148,7 +154,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testDelayDischarge888d20231106() {
 		var p = createParams888d20231106(ControlMode.DELAY_DISCHARGE.states);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,6973 €
 		// Grid Buy: 7794 Wh
@@ -171,7 +178,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testCharge888d20231106() {
 		var p = createParams888d20231106(ControlMode.CHARGE_CONSUMPTION.states);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,5012 €
 		// Grid Buy: 7794 Wh
@@ -194,7 +202,8 @@ public class SimulatorTest {
 	@Ignore
 	public void testCharge12786d20231121() {
 		var p = createParams12786d20231121(ControlMode.CHARGE_CONSUMPTION.states);
-		var schedule = getBestSchedule(p);
+		var schedule = getBestSchedule(p, //
+				/* executionLimitSeconds */ 10 * 60);
 
 		// Cost: 1,0649 €
 		// Grid Buy: 8592 Wh
@@ -215,10 +224,12 @@ public class SimulatorTest {
 	private static Params createParams888d20231106(StateMachine... states) {
 		return Params.create() //
 				.time(TIME) //
-				.essAvailableEnergy((int) (22000 * 0.1)) //
-				.essCapacity(22000) //
+				.essTotalEnergy(22000) //
+				.essMinSocEnergy(0) //
+				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(3000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
 				.prices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
@@ -229,10 +240,12 @@ public class SimulatorTest {
 	private static Params createParams12786d20231121(StateMachine... states) {
 		return Params.create() //
 				.time(TIME.plusMinutes(15 * 60 + 30)) //
-				.essAvailableEnergy((int) (22000 * 0.1)) //
-				.essCapacity(22000) //
+				.essTotalEnergy(22000) //
+				.essMinSocEnergy(0) //
+				.essMaxSocEnergy(22000) //
 				.essMaxEnergyPerPeriod(toEnergy(10000)) //
-				.maxBuyFromGrid(toEnergy(3000)) //
+				.essMaxChargePerPeriod(toEnergy(5000)) //
+				.maxBuyFromGrid(toEnergy(24_000)) //
 				.productions(stream(interpolateArray(PRODUCTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
 				.consumptions(stream(interpolateArray(CONSUMPTION_12786_20231121)).map(v -> toEnergy(v)).toArray()) //
 				.prices(interpolateArray(PRICES_12786_20231121)) //
@@ -245,11 +258,10 @@ public class SimulatorTest {
 				+ "%.4f €".formatted(calculateCost(p, schedule) / 1_000_000 /* convert to € */));
 	}
 
-	private static void logSchedule(Params p, StateMachine[] schedule) {
-		var periods = new ArrayList<String>();
-		periods.add(Period.header());
-		calculateCost(p, schedule, period -> periods.add(period.toString()));
-		System.out.println(periods.stream().collect(joining("\n")));
+	protected static void logSchedule(Params p, StateMachine[] schedule) {
+		var periods = new TreeMap<ZonedDateTime, Period>();
+		calculateCost(p, schedule, period -> periods.put(period.time(), period));
+		Utils.logSchedule(p, periods);
 	}
 
 	private static int[] getEssChargeDischarges(Params p, StateMachine[] schedule) {

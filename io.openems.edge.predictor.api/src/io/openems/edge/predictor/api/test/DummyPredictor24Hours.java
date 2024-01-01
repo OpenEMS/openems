@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.Stream;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -17,9 +18,16 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 public class DummyPredictor24Hours extends AbstractPredictor24Hours implements Predictor24Hours {
 
 	private final ClockProvider clockProvider;
-	private DummyPrediction24Hours prediction24Hours;
+	private Prediction24Hours prediction24Hours;
 
-	public DummyPredictor24Hours(String id, ClockProvider clockProvider, DummyPrediction24Hours prediction24Hours,
+	public DummyPredictor24Hours(String id, ClockProvider clockProvider, Prediction24Hours prediction24Hours,
+			ChannelAddress... channelAddresses) throws OpenemsNamedException {
+		this(id, clockProvider, prediction24Hours, Stream.of(channelAddresses) //
+				.map(ChannelAddress::toString) //
+				.toArray(String[]::new));
+	}
+
+	public DummyPredictor24Hours(String id, ClockProvider clockProvider, Prediction24Hours prediction24Hours,
 			String... channelAddresses) throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values() //
@@ -32,7 +40,7 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 		this.prediction24Hours = prediction24Hours;
 	}
 
-	public void setPrediction24Hours(DummyPrediction24Hours prediction24Hours) {
+	public void setPrediction24Hours(Prediction24Hours prediction24Hours) {
 		this.prediction24Hours = prediction24Hours;
 	}
 
@@ -43,7 +51,6 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-
 		var now = ZonedDateTime.now(this.clockProvider.getClock()).withZoneSameInstant(ZoneOffset.UTC);
 		now = roundZonedDateTimeDownTo15Minutes(now);
 
@@ -56,7 +63,7 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 			adjustedValues[y] = values[i];
 		}
 
-		return new Prediction24Hours(adjustedValues);
+		return Prediction24Hours.of(channelAddress, adjustedValues);
 	}
 
 	/**

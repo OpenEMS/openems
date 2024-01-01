@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
+
 import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
@@ -14,7 +16,7 @@ public class AppDescriptor {
 		}
 
 		public AppDescriptorBuilder setWebsiteUrl(String websiteUrl) {
-			this.websiteUrl = websiteUrl;
+			this.websiteUrl = definedOrElse(websiteUrl, null);
 			return this;
 		}
 
