@@ -629,18 +629,6 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of towers of the built system")),
 
-		TOWER_4_BMS_SOFTWARE_VERSION(new IntegerDoc() //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fifth tower") //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
-
-		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fourth tower") //
-				.<BatteryFeneconHomeImpl>onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
-
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
