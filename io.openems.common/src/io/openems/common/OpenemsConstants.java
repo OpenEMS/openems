@@ -14,7 +14,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the year of the release.
 	 */
-	public static final short VERSION_MAJOR = 2023;
+	public static final short VERSION_MAJOR = 2024;
 
 	/**
 	 * The minor version of OpenEMS.
@@ -22,7 +22,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public static final short VERSION_MINOR = 12;
+	public static final short VERSION_MINOR = 1;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -31,7 +31,7 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public static final short VERSION_PATCH = 3;
+	public static final short VERSION_PATCH = 1;
 
 	/**
 	 * The additional version string.
