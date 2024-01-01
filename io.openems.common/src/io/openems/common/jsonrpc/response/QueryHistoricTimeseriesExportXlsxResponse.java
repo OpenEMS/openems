@@ -169,7 +169,7 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 		protected static void addBasicInfo(Worksheet ws, String edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
 				ResourceBundle translationBundle) {
 
-			XlsxUtils.addStringValueBold(ws, 0, 0, "FEMS-Nr.");
+			XlsxUtils.addStringValueBold(ws, 0, 0, "Nr.");
 			XlsxUtils.addStringValue(ws, 0, 1, edgeId);
 			XlsxUtils.addStringValueBold(ws, 1, 0, translationBundle.getString("exportCreatedOn"));
 			XlsxUtils.addStringValue(ws, 1, 1, ZonedDateTime.now().format(XlsxUtils.DATE_TIME_FORMATTER));

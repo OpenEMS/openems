@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
+
 public class FeneconEdgeOemImplTest {
 
 	@Test
@@ -19,5 +22,10 @@ public class FeneconEdgeOemImplTest {
 		var p = getSystemUpdateParams("feature/foo-bar");
 		assertEquals("https://dev.intranet.fenecon.de/feature/foo-bar/fems.version", p.latestVersionUrl());
 		assertEquals("-fb \"feature/foo-bar\"", p.updateScriptParams());
+	}
+
+	@Test
+	public void testGetAppWebsiteUrl() throws OpenemsException {
+		DummyOpenemsEdgeOem.assertAllWebsiteUrlsSet(new FeneconEdgeOemImpl());
 	}
 }

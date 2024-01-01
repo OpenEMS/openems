@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.edge.common.currency.Currency;
 
 public class ExchangeRateApiTest {
@@ -30,7 +31,8 @@ public class ExchangeRateApiTest {
 	@Ignore
 	@Test
 	public void testGetExchangeRate() throws IOException, OpenemsNamedException {
-		var rate = getExchangeRate(Token.parseExchangeRateAccesskeyOrNull(null), "EUR", Currency.SEK);
+		var oem = new DummyOpenemsEdgeOem();
+		var rate = getExchangeRate(oem.getExchangeRateAccesskey(), "EUR", Currency.SEK);
 		System.out.println(rate);
 	}
 

@@ -87,7 +87,8 @@ public interface OpenemsEdgeOem {
 		return "edge";
 	}
 
-	public record SystemUpdateParams(String packageName, String latestVersionUrl, String updateScriptUrl, String updateScriptParams) {
+	public record SystemUpdateParams(String packageName, String latestVersionUrl, String updateScriptUrl,
+			String updateScriptParams) {
 	}
 
 	/**
@@ -99,4 +100,46 @@ public interface OpenemsEdgeOem {
 	 * @return the record
 	 */
 	public SystemUpdateParams getSystemUpdateParams();
+
+	/**
+	 * Gets the Website-URL for the given App-ID.
+	 * 
+	 * @param appId the App-ID
+	 * @return
+	 *         <ul>
+	 *         <li>a proper URL (e.g. https://...)
+	 *         <li>an empty String: App is defined, but no WebsiteUrl is available;
+	 *         or
+	 *         <li>null: App is undefined
+	 *         </ul>
+	 */
+	public String getAppWebsiteUrl(String appId);
+
+	/**
+	 * Gets the OEM IdentKey for Kaco.BlueplanetHybrid10.Core.
+	 * 
+	 * @return the value
+	 */
+	public default String getKacoBlueplanetHybrid10IdentKey() {
+		return null;
+	}
+
+	/**
+	 * Gets the OEM Token for TimeOfUseTariff.ENTSO-E.
+	 * 
+	 * @return the value
+	 */
+	public default String getEntsoeToken() {
+		return null;
+	}
+
+	/**
+	 * Gets the OEM Access-Key for Exchangerate.host (used by
+	 * TimeOfUseTariff.ENTSO-E).
+	 * 
+	 * @return the value
+	 */
+	public default String getExchangeRateAccesskey() {
+		return null;
+	}
 }

@@ -1,5 +1,7 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.core;
 
+import static io.openems.common.utils.StringUtils.definedOrElse;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,6 +22,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -32,6 +35,8 @@ import com.ed.edcom.ClientListener;
 import com.ed.edcom.Discovery;
 import com.ed.edcom.Util;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -53,6 +58,9 @@ public class KacoBlueplanetHybrid10CoreImpl extends AbstractOpenemsComponent
 
 	private final Logger log = LoggerFactory.getLogger(KacoBlueplanetHybrid10CoreImpl.class);
 	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	private Config config = null;
 	private ScheduledFuture<?> configFuture = null;
@@ -128,6 +136,12 @@ public class KacoBlueplanetHybrid10CoreImpl extends AbstractOpenemsComponent
 	private void initialize(Config config, InetAddress inverterAddress) throws Exception {
 		Util util = Util.getInstance();
 
+		final var kacoBlueplanetHybrid10IdentKey = definedOrElse(config.identkey(),
+				this.oem.getKacoBlueplanetHybrid10IdentKey());
+		if (kacoBlueplanetHybrid10IdentKey == null) {
+			throw new OpenemsException("Ident-Key is invalid");
+		}
+
 		/*
 		 * Init and listener must be set at the beginning for edcom library > 8. There
 		 * is no possibility to separate between the kaco versions before
@@ -136,8 +150,10 @@ public class KacoBlueplanetHybrid10CoreImpl extends AbstractOpenemsComponent
 		util.init();
 
 		util.setListener(new ClientListener() {
+
+			@Override
 			public byte[] updateIdentKey(byte[] randomKey) {
-				var identKeyString = "0xbddb2f76e47cf6e7";
+				var identKeyString = kacoBlueplanetHybrid10IdentKey;
 				if (identKeyString.startsWith("0x")) {
 					identKeyString = identKeyString.substring(2);
 				}

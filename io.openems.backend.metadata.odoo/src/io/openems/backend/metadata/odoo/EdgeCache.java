@@ -15,7 +15,7 @@ import io.openems.common.types.SemanticVersion;
 
 public class EdgeCache {
 
-	public static final int EXPECTED_CACHE_SIZE = 16_500;
+	public static final int EXPECTED_CACHE_SIZE = 22_000;
 
 	private final MetadataOdoo parent;
 

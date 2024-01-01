@@ -7,6 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private String identkey;
 		private String serialnumber;
 		private String ip;
 		private String userkey;
@@ -31,6 +32,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setUserkey(String userkey) {
 			this.userkey = userkey;
+			return this;
+		}
+
+		public Builder setIdentkey(String identkey) {
+			this.identkey = identkey;
 			return this;
 		}
 
@@ -68,6 +74,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String userkey() {
 		return this.builder.userkey;
+	}
+
+	@Override
+	public String identkey() {
+		return this.builder.identkey;
 	}
 
 }
