@@ -1,7 +1,7 @@
 import { formatNumber } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
-import { CurrentData, EdgeConfig, EssStateMachine, Utils } from "../../shared";
+import { CurrentData, EdgeConfig, Utils } from "../../shared";
 import { TimeUtils } from "../../utils/timeutils/timeutils";
 import { Formatter } from "./formatter";
 
@@ -153,12 +153,6 @@ export namespace Converter {
   export const CURRENT_TO_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       FORMAT_AMPERE(value));
-  };
-
-  export const CONVERT_TO_ESS_STATE: Converter = (raw) => {
-    return IF_NUMBER(raw, value => {
-      return EssStateMachine[value].toLowerCase();
-    });
   };
 
   export const CONVERT_TO_EXTERNAL_RECEIVER_LIMITATION: Converter = (raw) => {
