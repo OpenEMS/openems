@@ -67,6 +67,7 @@ public class SystemUpdateHandler {
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleGetSystemUpdateStateRequest(
 			GetSystemUpdateStateRequest request) throws OpenemsNamedException {
+		final var params = this.oem.getSystemUpdateParams();
 		final var result = new CompletableFuture<JsonrpcResponseSuccess>();
 
 		if (this.updateState.isRunning()) {
@@ -74,8 +75,7 @@ public class SystemUpdateHandler {
 
 		} else {
 			// Read currently installed version
-			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show " //
-					+ this.oem.getSystemUpdateParams().packageName(), //
+			this.executeSystemCommand("dpkg-query --showformat='${Version}' --show " + params.packageName(), //
 					SHORT_TIMEOUT).whenComplete((response, ex) -> {
 						if (ex != null) {
 							result.completeExceptionally(ex);
@@ -90,8 +90,7 @@ public class SystemUpdateHandler {
 
 						// Read latest version
 						try {
-							var latestVersion = this.download(this.oem.getSystemUpdateParams().latestVersionUrl())
-									.trim();
+							var latestVersion = this.download(params.latestVersionUrl()).trim();
 							result.complete(
 									GetSystemUpdateStateResponse.from(request.getId(), currentVersion, latestVersion));
 
@@ -166,6 +165,7 @@ public class SystemUpdateHandler {
 	}
 
 	private void executeUpdate(CompletableFuture<JsonrpcResponseSuccess> result) throws Exception {
+		final var params = this.oem.getSystemUpdateParams();
 		Path logFile = null;
 		Path scriptFile = null;
 		try {
@@ -174,11 +174,11 @@ public class SystemUpdateHandler {
 
 			// Download Update Script to temporary file
 			this.updateState.addLog("# Downloading update script " //
-					+ "[" + this.oem.getSystemUpdateParams().updateScriptUrl() + "]");
+					+ "[" + params.updateScriptUrl() + "]");
 			scriptFile = Files.createTempFile("system-update-script-", null);
 			var script = //
 					"export PS4='" + MARKER_BASH_TRACE + "${LINENO} '; \n" //
-							+ this.download(this.oem.getSystemUpdateParams().updateScriptUrl());
+							+ this.download(params.updateScriptUrl());
 			Files.write(scriptFile, script.getBytes(StandardCharsets.US_ASCII));
 
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;
@@ -210,7 +210,7 @@ public class SystemUpdateHandler {
 				this.updateState.addLog("# Executing update script [" + scriptFile + "]");
 				var response = this.executeSystemCommand("echo '" //
 						+ "  {" //
-						+ "    bash -ex " + scriptFile.toString() + "; " //
+						+ "    bash -ex " + scriptFile.toString() + " " + params.updateScriptParams() + "; " //
 						+ "    if [ $? -eq 0 ]; then " //
 						+ "      echo \"" + MARKER_FINISHED_SUCCESSFULLY + "\"; " //
 						+ "    else " //

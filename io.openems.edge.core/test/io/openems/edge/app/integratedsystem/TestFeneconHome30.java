@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,11 +11,8 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.FeedInType;
-import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -24,8 +22,6 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome30 {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -51,7 +47,7 @@ public class TestFeneconHome30 {
 	public void testCreateAndUpdateHomeFullSettings() throws Exception {
 		var homeInstance = this.createFullHome30();
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
@@ -98,7 +94,7 @@ public class TestFeneconHome30 {
 		settings.addProperty("HAS_PV_3", false);
 		settings.addProperty("HAS_PV_4", false);
 
-		this.appManagerTestBundle.sut.handleJsonrpcRequest(this.user,
+		this.appManagerTestBundle.sut.handleJsonrpcRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", settings));
 
 		for (int i = 0; i < 2; i++) {
@@ -119,7 +115,7 @@ public class TestFeneconHome30 {
 
 	@Test
 	public void testEnableEmergency() throws Exception {
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
 				"App.FENECON.Home.30", "key", "alias", fullSettingsWithoutEmergencyReserve()));
 		var homeInstance = this.appManagerTestBundle.sut.getInstantiatedApps().stream()
 				.filter(t -> t.appId.equals("App.FENECON.Home.30")).findAny().orElse(null);
@@ -130,14 +126,14 @@ public class TestFeneconHome30 {
 				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 
-		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, homeInstance.alias, fullSettings()));
 
 		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
 				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
-		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user, new UpdateAppInstance.Request(
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				homeInstance.instanceId, homeInstance.alias, fullSettingsWithoutEmergencyReserve()));
 
 		this.appManagerTestBundle.assertExactSchedulerOrder("Update Home 30 to remove EmergencyReserve Controller",
@@ -147,7 +143,7 @@ public class TestFeneconHome30 {
 
 	@Test
 	public void testShadowManagement() throws Exception {
-		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
 						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
@@ -164,7 +160,7 @@ public class TestFeneconHome30 {
 		assertEquals("DISABLE",
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 
-		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(response.instance.instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
 						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
@@ -180,8 +176,50 @@ public class TestFeneconHome30 {
 				(String) batteryInverter.getComponentContext().getProperties().get("mpptForShadowEnable"));
 	}
 
+	@Test
+	public void testFeedInTypeRippleControlReceiver() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.EXTERNAL_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("ENABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeDynamicLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("ENABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
+	@Test
+	public void testFeedInTypeNoLimitation() throws Exception {
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", FeedInType.NO_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties)).get();
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("feedPowerEnable"));
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+	}
+
 	private final OpenemsAppInstance createFullHome30() throws Exception {
-		return createFullHome30(this.appManagerTestBundle, this.user);
+		return createFullHome30(this.appManagerTestBundle, DUMMY_ADMIN);
 	}
 
 	/**

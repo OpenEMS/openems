@@ -121,8 +121,7 @@ public class CombinedHeatAndPower
 				return new CombinedHeatAndPowerParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 1, //
-								List.of(RelayProps.feneconHomeFilter(t.language,
-										isHomeInstalled, false)), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false)), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5 }), //
 										PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //

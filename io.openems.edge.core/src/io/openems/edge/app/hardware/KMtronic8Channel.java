@@ -44,7 +44,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
  * <pre>
   {
     "appId":"App.Hardware.KMtronic8Channel",
-    "alias":"",
+    "alias": string,
     "instanceId": UUID,
     "image": base64,
     "properties":{

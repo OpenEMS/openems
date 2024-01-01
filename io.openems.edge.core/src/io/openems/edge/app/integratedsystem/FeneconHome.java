@@ -256,7 +256,6 @@ public class FeneconHome extends AbstractOpenemsAppWithProps<FeneconHome, Proper
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-home-10/") //
 				.build();
 	}
 

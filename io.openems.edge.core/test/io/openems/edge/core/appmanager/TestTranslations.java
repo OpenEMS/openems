@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -11,14 +12,13 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.TestFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrial;
-import io.openems.edge.common.test.DummyUser;
 
 public class TestTranslations {
 
@@ -54,9 +54,13 @@ public class TestTranslations {
 					.add("COMPONENT_IDS", new JsonArray()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadOnly(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.restJsonApiReadWrite(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("API_TIMEOUT", 60) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
@@ -88,6 +92,34 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.socomecMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.carloGavazziMeter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("MODBUS_UNIT_ID", 5) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.froniusPvInverter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("PORT", 502) //
+					.addProperty("MODBUS_UNIT_ID", 1) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.kacoPvInverter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("PORT", 502) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.kostalPvInverter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("PORT", 502) //
+					.addProperty("MODBUS_UNIT_ID", 1) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.smaPvInverter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.solarEdgePvInverter(t), false, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("PORT", 502) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.peakShaving(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("METER_ID", "meter0") //
@@ -114,15 +146,26 @@ public class TestTranslations {
 		this.testTranslations(Language.EN);
 	}
 
-	private void testTranslations(Language l) throws Exception {
-		final var user = new DummyUser("1", "password", l, Role.ADMIN);
+	@Test
+	// TODO this is certainly not the best place for this test, but it holds the
+	// most testable Apps.
+	public void testOemWebsiteUrl() throws Exception {
+		var dummyOem = new DummyOpenemsEdgeOem();
+		var missing = this.apps.stream() //
+				.map(TestTranslation::app) //
+				.map(OpenemsApp::getAppId) //
+				.filter(appId -> dummyOem.getAppWebsiteUrl(appId) == null) //
+				.toList();
+		assertTrue("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]", missing.isEmpty());
+	}
 
+	private void testTranslations(Language l) throws Exception {
 		final var debugTranslator = TranslationUtil.enableDebugMode();
 
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				app.getAppAssistant(user);
+				app.getAppAssistant(DUMMY_ADMIN);
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);

@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,12 +20,9 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
@@ -33,10 +31,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 
 public class SchedulerAggregateTaskImplTest {
 
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
-
 	private SchedulerAggregateTask task;
-
 	private DummyPseudoComponentManager componentManager;
 	private DummyConfigurationAdmin cm;
 	private ComponentUtilImpl componentUtil;
@@ -83,7 +78,7 @@ public class SchedulerAggregateTaskImplTest {
 				new EdgeConfig.Component("test1", "test", "Test.test", JsonUtils.buildJsonObject().build()));
 
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		this.assertExactSchedulerOrder("Ids in scheduler do not match!", config.componentOrder());
 	}
 
@@ -92,7 +87,7 @@ public class SchedulerAggregateTaskImplTest {
 		final var config = new SchedulerConfiguration("test0", "test1");
 		this.setSchedulerIds(config.componentOrder());
 		this.task.aggregate(null, config);
-		this.task.delete(this.user, emptyList());
+		this.task.delete(DUMMY_ADMIN, emptyList());
 		this.assertExactSchedulerOrder("Ids in scheduler got not removed!");
 	}
 
@@ -135,7 +130,7 @@ public class SchedulerAggregateTaskImplTest {
 	}
 
 	private void setSchedulerIds(String... ids) throws OpenemsNamedException, InterruptedException, ExecutionException {
-		this.componentManager.handleJsonrpcRequest(this.user, new UpdateComponentConfigRequest("scheduler0", List.of(//
+		this.componentManager.handleJsonrpcRequest(DUMMY_ADMIN, new UpdateComponentConfigRequest("scheduler0", List.of(//
 				new UpdateComponentConfigRequest.Property("controllers.ids", Arrays.stream(ids) //
 						.map(JsonPrimitive::new) //
 						.collect(toJsonArray())) //
