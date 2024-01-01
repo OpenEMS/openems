@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,19 +11,13 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiConsumer;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public class InstallationTest {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	@Test
 	public void testIncompatibleAppInstallation() throws Exception {
@@ -34,7 +29,7 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			OpenemsException exception = null;
 			try {
-				appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 								.build()))
 						.get();
@@ -54,7 +49,7 @@ public class InstallationTest {
 						.build())
 				.build();
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
-			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 							.build()))
 					.get();
@@ -73,7 +68,7 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			OpenemsException exception = null;
 			try {
-				appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 								.build()))
 						.get();
@@ -93,7 +88,7 @@ public class InstallationTest {
 						.build())
 				.build();
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
-			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 							.build()))
 					.get();
@@ -113,7 +108,7 @@ public class InstallationTest {
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
 			OpenemsException exception = null;
 			try {
-				appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 						new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 								.build()))
 						.get();
@@ -136,7 +131,7 @@ public class InstallationTest {
 				}) //
 				.build();
 		singleAppTest(dummyApp, (appManagerTestBundle, app) -> {
-			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+			final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 					new AddAppInstance.Request(app.getAppId(), "key", "alias", JsonUtils.buildJsonObject() //
 							.build()))
 					.get();
@@ -148,7 +143,7 @@ public class InstallationTest {
 
 			OpenemsException exception = null;
 			try {
-				appManagerTestBundle.sut.handleUpdateAppInstanceRequest(this.user,
+				appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 						new UpdateAppInstance.Request(instance.instanceId, "alias", JsonUtils.buildJsonObject() //
 								.build()))
 						.get();

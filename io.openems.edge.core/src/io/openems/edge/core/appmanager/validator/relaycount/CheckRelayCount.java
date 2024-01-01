@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -34,6 +35,9 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 
 	private final ComponentUtil openemsAppUtil;
 	private final OpenemsApp relayApp;
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	private String io;
 	private int count;
@@ -128,7 +132,7 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 			messageBuilder.append(//
 					AbstractCheckable.getTranslation(language, //
 							"Validator.Checkable.CheckRelayCount.Message.AdditionalRelay", //
-							this.relayApp.getAppDescriptor().getWebsiteUrl(), //
+							this.relayApp.getAppDescriptor(this.oem).getWebsiteUrl(), //
 							this.relayApp.getName(language)) //
 			);
 		}

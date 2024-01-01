@@ -64,7 +64,7 @@ public class SendChannelValuesWorkerTest {
 
 	@Test
 	public void testAggregateEnumDocExactValueInsteadOfRounded() throws Exception {
-		testAggregateEnumChannel(3, channel -> {
+		testAggregateEnumChannel(4, channel -> {
 			writeValue(channel, DummyEnum.VALUE_1);
 			writeValue(channel, DummyEnum.VALUE_3);
 			writeValue(channel, DummyEnum.VALUE_3);
@@ -75,7 +75,7 @@ public class SendChannelValuesWorkerTest {
 
 	@Test
 	public void testAggregateEnumChannelHandleNulls() throws Exception {
-		testAggregateEnumChannel(4, channel -> {
+		testAggregateEnumChannel(5, channel -> {
 			writeValue(channel, DummyEnum.VALUE_1);
 			writeValue(channel, null);
 			writeValue(channel, DummyEnum.VALUE_3);
@@ -87,7 +87,7 @@ public class SendChannelValuesWorkerTest {
 
 	@Test
 	public void testAggregateEnumChannelSameAmountButLatests() throws Exception {
-		testAggregateEnumChannel(4, channel -> {
+		testAggregateEnumChannel(5, channel -> {
 			writeValue(channel, DummyEnum.VALUE_1);
 			writeValue(channel, DummyEnum.VALUE_1);
 			writeValue(channel, DummyEnum.VALUE_3);
@@ -99,7 +99,7 @@ public class SendChannelValuesWorkerTest {
 
 	@Test
 	public void testAggregateEnumChannelSameAmountButLatestsWithAll() throws Exception {
-		testAggregateEnumChannel(3, channel -> {
+		testAggregateEnumChannel(4, channel -> {
 			writeValue(channel, DummyEnum.VALUE_1);
 			writeValue(channel, DummyEnum.VALUE_2);
 			writeValue(channel, DummyEnum.VALUE_3);
@@ -110,7 +110,7 @@ public class SendChannelValuesWorkerTest {
 
 	@Test
 	public void testAggregateEnumChannelSameAmountButLatestsWithAllViceVersa() throws Exception {
-		testAggregateEnumChannel(3, channel -> {
+		testAggregateEnumChannel(4, channel -> {
 			writeValue(channel, DummyEnum.VALUE_3);
 			writeValue(channel, DummyEnum.VALUE_2);
 			writeValue(channel, DummyEnum.VALUE_1);

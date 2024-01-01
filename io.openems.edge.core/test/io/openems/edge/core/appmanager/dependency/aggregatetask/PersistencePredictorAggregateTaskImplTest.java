@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertFalse;
@@ -18,11 +19,8 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -30,10 +28,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 
 public class PersistencePredictorAggregateTaskImplTest {
 
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
-
 	private PersistencePredictorAggregateTask task;
-
 	private DummyPseudoComponentManager componentManager;
 
 	@Before
@@ -56,7 +51,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 	public void testCreateWithoutPredictor() throws Exception {
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 	}
 
 	@Test
@@ -64,7 +59,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 		this.createPredictor();
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(config, null);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		this.assertChannelsInPredictor("test/Test");
 	}
 
@@ -73,7 +68,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 		this.createPredictor("test/Test");
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(null, config);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		this.assertChannelsNotInPredictor("test/Test");
 	}
 
@@ -82,7 +77,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 		this.createPredictor("test/Test");
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(null, config);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 		this.assertChannelsNotInPredictor("test/Test");
 	}
 
@@ -90,7 +85,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 	public void testDeleteWithoutPredictor() throws Exception {
 		final var config = new PersistencePredictorConfiguration("test/Test");
 		this.task.aggregate(null, config);
-		this.task.create(this.user, emptyList());
+		this.task.create(DUMMY_ADMIN, emptyList());
 	}
 
 	@Test

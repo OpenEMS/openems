@@ -240,7 +240,8 @@
             "DELAY_DISCHARGE": "Entladung verzögert",
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE": "Beladung aus dem Netz freigegeben"
-          }
+          },
+          "CHART_TITLE": "Fahrplan und Vorhersagen (nur sichtbar für Admins)"
         }
       },
       "RETROFITTING": {
@@ -627,7 +628,9 @@
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
       },
       "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
-      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden."
+      "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden.",
+      "START_FUNCTION_TEST": "Funktionstests für die installierten Komponenten gestartet",
+      "FINISH_FUNCTION_TEST": "Funktionstests für die verbauten Komponenten abgeschlossen"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",

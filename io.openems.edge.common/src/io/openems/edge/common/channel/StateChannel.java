@@ -69,7 +69,9 @@ public class StateChannel extends BooleanReadChannel {
 
 	protected StateChannel(OpenemsComponent component, ChannelId channelId, BooleanDoc channelDoc, Level level,
 			int debounce, Debounce debounceMode) {
-		super(component, channelId, channelDoc, debounce, debounceMode);
+		super(component, channelId, //
+				(BooleanDoc) channelDoc.initialValue(false), // -> StateChannels are always `false` by default
+				debounce, debounceMode);
 		this.level = level;
 	}
 
