@@ -51,6 +51,56 @@ export class SystemExecuteComponent implements OnInit {
     type: 'radio',
     templateOptions: {
       options: [
+        { value: 'branch', label: 'Update system from branch' },
+      ],
+    },
+  }, {
+    key: 'branch',
+    fieldGroup: [{
+      key: 'name',
+      type: 'select',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch',
+      templateOptions: {
+        label: 'Branch Predefined', placeholder: "main", required: true,
+        options: [
+          { label: 'main', value: 'main' },
+          { label: 'develop', value: 'develop' },
+          { label: 'Other branch...', value: 'other' },
+        ],
+      },
+    }, {
+      key: 'free',
+      type: 'input',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch' || this.model?.branch?.name !== 'other',
+      templateOptions: {
+        label: 'Branch', placeholder: "main", required: false,
+      },
+      validation: {
+        messages: {
+          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is too short.`,
+        },
+      },
+    }, {
+      key: 'force',
+      type: 'toggle',
+      hideExpression: (model: any, formState: any) => this.model['predefined'] !== 'branch',
+      templateOptions: {
+        label: 'Force update?', placeholder: "main", required: false, default: false,
+      },
+    }],
+  }, {
+    key: 'predefined',
+    type: 'radio',
+    templateOptions: {
+      options: [
+        { value: 'query-status', label: 'Status Systemupdate abfragen' },
+      ],
+    },
+  }, {
+    key: 'predefined',
+    type: 'radio',
+    templateOptions: {
+      options: [
         { value: 'openems-restart', label: 'Restart OpenEMS Edge service' },
       ],
     },

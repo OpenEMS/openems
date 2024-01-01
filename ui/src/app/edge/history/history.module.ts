@@ -4,7 +4,13 @@ import { SharedModule } from '../../shared/shared.module';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
 import { Common } from './common/common';
-import { Controller } from './Controller/controller.module';
+import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
+import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
+import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
+import { ConsumptionOtherChartComponent } from './consumption/otherchart.component';
+import { ConsumptionSingleChartComponent } from './consumption/singlechart.component';
+import { ConsumptionTotalChartComponent } from './consumption/totalchart.component';
+import { ConsumptionComponent } from './consumption/widget.component';
 import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
 import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
@@ -47,6 +53,7 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { Controller } from './Controller/controller.module';
 
 @NgModule({
   imports: [
@@ -60,6 +67,13 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     AsymmetricPeakshavingWidgetComponent,
     ChpSocChartComponent,
     ChpSocWidgetComponent,
+    ConsumptionChartOverviewComponent,
+    ConsumptionComponent,
+    ConsumptionEvcsChartComponent,
+    ConsumptionMeterChartComponent,
+    ConsumptionOtherChartComponent,
+    ConsumptionSingleChartComponent,
+    ConsumptionTotalChartComponent,
     DelayedSellToGridChartComponent,
     DelayedSellToGridChartOverviewComponent,
     DelayedSellToGridWidgetComponent,

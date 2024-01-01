@@ -7,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { ChannelAddress, EdgeConfig } from '../shared';
+import { ChannelAddress } from '../shared';
 
 export class Utils {
 
@@ -540,74 +540,6 @@ export class Utils {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
-
-  /**
-   * Calculates the total other consumption.
-   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption) 
-   * 
-   * @param energyValues the energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
-   * @param evcsComponents the evcsComponents
-   * @param consumptionMeterComponents the consumptionMeterComponents
-   * @returns the other consumption
-   */
-  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
-
-    let totalEvcsConsumption: number = 0;
-    let totalMeteredConsumption: number = 0;
-    evcsComponents.forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + '/ActiveConsumptionEnergy']);
-    });
-
-    consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
-    });
-
-    return Utils.roundSlightlyNegativeValues(
-      Utils.subtractSafely(
-        Utils.subtractSafely(
-          energyValues.result.data['_sum/ConsumptionActiveEnergy'], totalEvcsConsumption),
-        totalMeteredConsumption));
-  }
-
-  /**
-   * Calculates the other consumption.
-   * 
-   * other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
-   * 
-   * @param channelData the channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
-   * @param evcsComponents the evcsComponents
-   * @param consumptionMeterComponents the consumptionMeterComponents
-   * @returns the other consumption
-   */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
-
-    let totalEvcsConsumption: number[] = [];
-    let totalMeteredConsumption: number[] = [];
-
-    evcsComponents.forEach(component => {
-      channelData[component.id + '/ChargePower']?.forEach((value, index) => {
-        totalEvcsConsumption[index] = value;
-      });
-    });
-
-    consumptionMeterComponents.forEach(meter => {
-      channelData[meter.id + '/ActivePower']?.forEach((value, index) => {
-        totalMeteredConsumption[index] = value;
-      });
-    });
-
-    return channelData['ConsumptionActivePower']?.map((value, index) => {
-
-      if (value == null) {
-        return null;
-      }
-      return Utils.roundSlightlyNegativeValues(
-        Utils.subtractSafely(
-          Utils.subtractSafely(
-            value, totalEvcsConsumption[index]),
-          totalMeteredConsumption[index]));
-    });
-  }
 }
 
 export enum YAxisTitle {

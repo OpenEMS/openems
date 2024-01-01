@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { environment } from 'src/environments';
-
 import { ChangelogViewComponent } from './changelog/view/view';
 import { EdgeComponent } from './edge/edge.component';
-import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
 import { OverviewComponent as AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
-import { OverviewComponent as ConsumptionChartOverviewComponent } from './edge/history/common/consumption/overview/overview';
 import { OverviewComponent as GridChartOverviewComponent } from './edge/history/common/grid/overview/overview';
 import { OverviewComponent as ProductionChartOverviewComponent } from './edge/history/common/production/overview/overview';
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from './edge/history/common/selfconsumption/overview/overview';
+import { OverviewComponent as ChannelthresholdChartOverviewComponent } from './edge/history/Controller/ChannelThreshold/overview/overview';
+import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
 import { GridOptimizedChargeChartOverviewComponent } from './edge/history/gridoptimizedcharge/gridoptimizedchargechartoverview/gridoptimizedchargechartoverview.component';
@@ -24,6 +23,7 @@ import { TimeslotPeakshavingChartOverviewComponent } from './edge/history/peaksh
 import { SinglethresholdChartOverviewComponent } from './edge/history/singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
+import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { LiveDataService } from './edge/live/livedataservice';
 import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
@@ -36,12 +36,16 @@ import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent }
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
+import { HomeServiceAssistentComponent } from './edge/settings/homeassistent/homeassistent';
+import { NetworkOldComponent as EdgeSettingsNetworkOldComponent } from './edge/settings/network.old/network.old.component';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
+import { ServiceAssistantComponent as EdgeSettingsServiceAssistant } from './edge/settings/serviceassistant/serviceassistant.component';
 import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/settings.component';
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
+import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
 import { LoginComponent } from './index/login.component';
 import { OverViewComponent } from './index/overview/overview.component';
@@ -56,6 +60,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
 
   { path: 'overview', component: OverViewComponent },
+  { path: 'overview/installation', component: InstallationComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
@@ -106,16 +111,20 @@ const routes: Routes = [
       { path: 'settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
       { path: 'settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
       { path: 'settings/network', component: EdgeSettingsNetworkComponent },
+      { path: 'settings/network.old', component: EdgeSettingsNetworkOldComponent },
       { path: 'settings/profile', component: EdgeSettingsProfileComponent },
       { path: 'settings/profile/:componentId', component: AliasUpdateComponent },
+      { path: 'settings/servcieAssistant', component: EdgeSettingsServiceAssistant },
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
       { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
       { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
+      { path: 'settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
       { path: 'settings/app', data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },
       { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
       { path: 'settings/alerting', component: EdgeSettingsAlerting },
+      { path: 'settings/homeServiceAssistent', component: HomeServiceAssistentComponent, data: { navbarTitle: 'Home-Assistent' } },
     ],
   },
 
