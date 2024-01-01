@@ -317,6 +317,11 @@ formly-input-section {
         width: 50%;
         color: var(--ion-color-primary);
     }
+
+    // Used for notification component
+    .text-overflow-break {
+        line-break: anywhere;
+    }
 }
 
 // auto height for modals
