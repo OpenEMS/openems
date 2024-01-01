@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Changelog } from 'src/app/changelog/view/component/changelog.constants';
 import { environment } from '../../environments';
@@ -12,6 +11,7 @@ import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserIn
 import { Service, Websocket } from '../shared/shared';
 import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { Language } from '../shared/type/language';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 
 type UserInformation = {
   firstname: string,
@@ -214,19 +214,6 @@ export class UserComponent implements OnInit {
   public doLogout() {
     this.websocket.logout();
   }
-
-  // TODO redo when darkMode is applied
-  // protected toggleMode(key: string, event: CustomEvent) {
-  //   let userSettings = this.service.currentUser.settings;
-  //   userSettings[key] = event.detail['checked'];
-
-  //   this.websocket.sendRequest(
-  //     new UpdateUserSettingsRequest({ settings: userSettings })).then(() => {
-  //       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-  //     }).catch((reason) => {
-  //       this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-  //     });
-  // }
 
   public toggleDebugMode(event: CustomEvent) {
     localStorage.setItem("DEBUGMODE", event.detail['checked']);
