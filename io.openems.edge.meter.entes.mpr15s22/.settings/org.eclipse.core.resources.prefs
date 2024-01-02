@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/meter/entes/mpr15s22/Config.java=UTF-8
+encoding//src/io/openems/edge/meter/entes/mpr15s22/EntesMpr15S22.java=UTF-8
+encoding//src/io/openems/edge/meter/entes/mpr15s22/EntesMpr15S22Impl.java=UTF-8
+encoding//test/io/openems/edge/meter/entes/mpr15s22/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/meter/entes/mpr15s22/MyModbusDeviceTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8

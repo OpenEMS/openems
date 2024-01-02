@@ -181,7 +181,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	bnd.identity;id='io.openems.edge.meter.entes.mpr15s22'
 -runbundles: \
 	Java-WebSocket;version='[1.5.4,1.5.5)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -307,6 +307,7 @@
 	io.openems.edge.meter.bgetech;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
+  io.openems.edge.meter.entes.mpr15s22;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
@@ -406,4 +407,3 @@
 	rrd4j;version='[3.9.0,3.9.1)',\
 	bcpkix;version='[1.65.0,1.65.1)',\
 	bcprov;version='[1.65.0,1.65.1)'
--resolve: auto
