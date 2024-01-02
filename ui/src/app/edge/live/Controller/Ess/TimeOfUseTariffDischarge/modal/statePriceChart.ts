@@ -11,10 +11,10 @@ import { GetScheduleRequest } from '../../../../../../shared/jsonrpc/request/get
 import { GetScheduleResponse } from '../../../../../../shared/jsonrpc/response/getScheduleResponse';
 
 @Component({
-    selector: 'scheduleChart',
+    selector: 'statePriceChart',
     templateUrl: '../../../../../history/abstracthistorychart.html',
 })
-export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
+export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public refresh: boolean;
     @Input() public override edge: Edge;
@@ -65,12 +65,14 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
                 timestampArray: result.schedule.map(entry => entry.timestamp),
             };
 
+            let datasets = [];
             const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(length, priceArray, stateArray, timestampArray, this.translate, this.component.factoryId);
 
-            this.datasets = scheduleChartData.datasets;
+            datasets = scheduleChartData.datasets;
             this.colors = scheduleChartData.colors;
             this.labels = scheduleChartData.labels;
 
+            this.datasets = datasets;
             this.loading = false;
             this.setLabel();
             this.stopSpinner();
@@ -85,9 +87,6 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
         let options = this.createDefaultChartOptions();
         const currencyLabel: string = this.currencyLabel;
 
-        // Scale prices y-axis between min-/max-values, not from zero
-        options.scales.yAxes[0].ticks.beginAtZero = false;
-
         //x-axis
         options.scales.xAxes[0].time.unit = "hour";
         options.scales.xAxes[0].stacked = true;
@@ -97,15 +96,17 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
         options.scales.yAxes[0].scaleLabel.padding = -2;
         options.scales.yAxes[0].scaleLabel.fontSize = 11;
         options.scales.yAxes[0].ticks.padding = -5;
+        options.scales.yAxes[0].ticks.beginAtZero = false; // scale with min and max values.
 
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
 
             // TODO solve before here
-            if (!value) {
+            if (value === undefined || value === null || Number.isNaN(value)) {
                 return;
             }
+
             return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
         };
         this.options = options;
@@ -116,7 +117,6 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     public getChartHeight(): number {
-
         return this.service.isSmartphoneResolution
             ? window.innerHeight / 3
             : window.innerHeight / 4;

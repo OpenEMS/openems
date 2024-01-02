@@ -19,7 +19,6 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -144,7 +143,7 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject user, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
@@ -190,6 +189,11 @@ public class DummyMetadata implements Metadata {
 
 	@Override
 	public void logGenericSystemLog(GenericSystemLog systemLog) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

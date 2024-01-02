@@ -271,12 +271,12 @@ export abstract class AbstractHistoryChart implements OnInit {
 
     // Show Barchart if resolution is days or months
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
-      this.chartType = 'bar';
-      this.chartObject = this.getChartData();
       Promise.all([
         this.queryHistoricTimeseriesEnergyPerPeriod(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
         this.queryHistoricTimeseriesEnergy(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to),
       ]).then(([energyPeriodResponse, energyResponse]) => {
+        this.chartType = 'bar';
+        this.chartObject = this.getChartData();
 
         // TODO after chartjs migration, look for config
         if (unit === Unit.MONTHS) {

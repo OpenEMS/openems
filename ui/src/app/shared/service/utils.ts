@@ -540,6 +540,22 @@ export class Utils {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
+  /**
+   * Converts a value in €/MWh to €Ct./kWh.
+   * 
+   * @param price the price value
+   * @returns  the converted price
+   */
+  public static formatPrice(price: number): number {
+    if (price == null || Number.isNaN(price)) {
+      return null;
+    } else if (price == 0) {
+      return 0;
+    } else {
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
+    }
+  }
 
   /**
    * Calculates the total other consumption.
@@ -559,7 +575,7 @@ export class Utils {
     });
 
     consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveProductionEnergy']);
     });
 
     return Utils.roundSlightlyNegativeValues(
@@ -664,7 +680,7 @@ export namespace HistoryUtils {
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart */
+    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -767,9 +783,10 @@ export namespace TimeOfUseTariffUtils {
   }
 
   export enum TimeOfUseTariffState {
-    DelayDischarge = 0,
-    Balancing = 1,
-    Charge = 3,
+    DELAY_DISCHARGE = 0,
+    BALANCING = 1,
+    CHARGE = 3,
+    UNDEFINED = 2,
   }
 
   /**
@@ -813,18 +830,19 @@ export namespace TimeOfUseTariffUtils {
 
     for (let index = 0; index < size; index++) {
       const quarterlyPrice = formatPrice(prices[index]);
-      const state = states[index];
+      const state = Math.round(states[index]);
       labels.push(new Date(timestamps[index]));
 
       if (state !== null) {
         switch (state) {
-          case TimeOfUseTariffState.DelayDischarge:
+          case TimeOfUseTariffState.DELAY_DISCHARGE:
             barDelayDischarge[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.Balancing:
+          case TimeOfUseTariffState.BALANCING:
             barBalancing[index] = quarterlyPrice;
             break;
-          case TimeOfUseTariffState.Charge:
+          case TimeOfUseTariffState.CHARGE:
+          case TimeOfUseTariffState.UNDEFINED:
             barCharge[index] = quarterlyPrice;
             break;
         }

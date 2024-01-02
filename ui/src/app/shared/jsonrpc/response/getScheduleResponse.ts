@@ -11,7 +11,10 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
  *     "schedule": [{
  *     	"timestamp": string,
  *      "price": number,
- *      "state": number
+ *      "state": number,
+ *      "production": number,
+ *      "consumption": number,
+ *      "soc": number,
  *     }]
  *   }
  * }
@@ -26,6 +29,9 @@ export class GetScheduleResponse extends JsonrpcResponseSuccess {
                 timestamp: string;
                 price: number;
                 state: number;
+                production: number,
+                consumption: number,
+                soc: number
             }]
         },
     ) {

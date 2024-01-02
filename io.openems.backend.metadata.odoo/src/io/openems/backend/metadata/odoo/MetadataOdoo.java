@@ -49,13 +49,13 @@ import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
+import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -90,6 +90,9 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Reference
 	private EventAdmin eventAdmin;
+
+	@Reference
+	private OpenemsBackendOem oem;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
@@ -148,6 +151,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
 		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
 		var hasMultipleEdges = JsonUtils.getAsBoolean(jUser, "has_multiple_edges");
+
+		final var settings = JsonUtils.getAsOptionalString(jUser, "settings") //
+				.flatMap(JsonUtils::parseOptional) //
+				.flatMap(JsonUtils::getAsOptionalJsonObject) //
+				.orElse(new JsonObject());
+
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -156,7 +165,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			roles.put(edgeId, role);
 		}
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges);
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles, hasMultipleEdges,
+				settings);
 		var oldUser = this.users.put(login, user);
 		if (oldUser != null) {
 			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
@@ -270,7 +280,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		final OdooUserRole role;
 
 		var roleOpt = JsonUtils.getAsOptionalString(jsonObject, "role");
@@ -485,12 +495,13 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			final String appId //
 	) throws OpenemsNamedException {
 		if (this.isAppFree(user, appId)) {
-			return "";
+			return this.oem.getAppCenterMasterKey();
 		}
+		// TODO better only for certain employees/admins
 		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
 			return null;
 		}
-		return "";
+		return this.oem.getAppCenterMasterKey();
 	}
 
 	@Override
@@ -600,6 +611,12 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			this.log.warn(e.getMessage());
 			return Optional.empty();
 		}
+	}
+
+	
+	@Override
+	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
+		this.odooHandler.updateUserSettings(user, settings);
 	}
 
 }

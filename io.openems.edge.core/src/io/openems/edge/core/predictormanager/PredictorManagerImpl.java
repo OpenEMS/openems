@@ -1,5 +1,7 @@
 package io.openems.edge.core.predictormanager;
 
+import static io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,8 +122,8 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
 			// This is a Sum-Channel. Try to get predictions for each source channel.
 			try {
-				return this.getPredictionSum(Sum.ChannelId.valueOf(
-						io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId())));
+				return this.getPredictionSum(//
+						Sum.ChannelId.valueOf(channelIdCamelToUpper(channelAddress.getChannelId())));
 
 			} catch (IllegalArgumentException e) {
 				this.logWarn(this.log, "Unable to find ChannelId for " + channelAddress);
@@ -155,7 +157,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 
 				PRODUCTION_ACTIVE_ENERGY, PRODUCTION_AC_ACTIVE_ENERGY, PRODUCTION_AC_ACTIVE_POWER_L1,
 				PRODUCTION_AC_ACTIVE_POWER_L2, PRODUCTION_AC_ACTIVE_POWER_L3, PRODUCTION_DC_ACTIVE_ENERGY,
-				PRODUCTION_MAX_ACTIVE_POWER, PRODUCTION_MAX_AC_ACTIVE_POWER, PRODUCTION_MAX_DC_ACTUAL_POWER, //
+				PRODUCTION_MAX_ACTIVE_POWER, //
 
 				HAS_IGNORED_COMPONENT_STATES ->
 			Prediction24Hours.EMPTY;

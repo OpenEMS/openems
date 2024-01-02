@@ -47,6 +47,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -96,6 +97,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	@Reference
+	private OpenemsEdgeOem oem;
 
 	@Reference
 	protected ComponentUtil componentUtil;
@@ -683,7 +687,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppDescriptorRequest(User user,
 			GetAppDescriptor.Request request) throws OpenemsNamedException {
 		final var app = this.findAppByIdOrError(request.appId);
-		return CompletableFuture.completedFuture(new GetAppDescriptor.Response(request.id, app.getAppDescriptor()));
+		return CompletableFuture
+				.completedFuture(new GetAppDescriptor.Response(request.id, app.getAppDescriptor(this.oem)));
 	}
 
 	/**
