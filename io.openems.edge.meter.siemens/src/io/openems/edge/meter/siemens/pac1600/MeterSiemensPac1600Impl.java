@@ -31,7 +31,7 @@ import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.SiemensPAC1600", //
+		name = "Meter.Siemens.PAC1600", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )

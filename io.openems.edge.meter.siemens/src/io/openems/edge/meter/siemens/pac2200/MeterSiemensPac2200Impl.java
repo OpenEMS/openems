@@ -1,4 +1,4 @@
-package io.openems.edge.meter.siemens.pac2200_3200_4200;
+package io.openems.edge.meter.siemens.pac2200;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
@@ -33,7 +33,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 
 /**
- * Implements the Siemens PAC2200/3200/4200 power meter.
+ * Implements the Siemens PAC2200/PAC3200/PAC4200 power meter.
  *
  * <p>
  * https://cache.industry.siemens.com/dl/files/150/26504150/att_906558/v1/A5E01168664B-04_EN-US_122016_201612221316360495.pdf
@@ -44,8 +44,8 @@ import io.openems.edge.meter.api.MeterType;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterSiemensPac2200_3200_4200Impl extends AbstractOpenemsModbusComponent
-		implements MeterSiemensPac2200_3200_4200, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public class MeterSiemensPac2200Impl extends AbstractOpenemsModbusComponent
+		implements MeterSiemensPac2200, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -60,12 +60,12 @@ public class MeterSiemensPac2200_3200_4200Impl extends AbstractOpenemsModbusComp
 	/** Invert power values. */
 	private boolean invert = false;
 
-	public MeterSiemensPac2200_3200_4200Impl() {
+	public MeterSiemensPac2200Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				MeterSiemensPac2200_3200_4200.ChannelId.values() //
+				MeterSiemensPac2200.ChannelId.values() //
 		);
 
 		// Automatically calculate sum values from L1/L2/L3

@@ -1,4 +1,4 @@
-package io.openems.edge.meter.siemens.pac2200_3200_4200;
+package io.openems.edge.meter.siemens.pac2200;
 
 import org.junit.Test;
 
@@ -7,14 +7,14 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
 
-public class MeterSiemensPac2200_3200_4200ImplTest {
+public class MeterSiemensPac2200ImplTest {
 
 	private static final String METER_ID = "meter0";
 	private static final String MODBUS_ID = "modbus0";
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new MeterSiemensPac2200_3200_4200Impl()) //
+		new ComponentTest(new MeterSiemensPac2200Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

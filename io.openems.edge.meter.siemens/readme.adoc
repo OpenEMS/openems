@@ -1,4 +1,4 @@
-= Siemens Meters PAC1600 / 2200 / 3200 / 4200
+= Siemens Meter
 
 * Applies to
 ** Siemens PAC1600
