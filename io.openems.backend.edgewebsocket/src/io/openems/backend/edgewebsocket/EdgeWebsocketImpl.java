@@ -1,14 +1,12 @@
 package io.openems.backend.edgewebsocket;
 
-import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,12 +27,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
@@ -48,12 +46,10 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -64,14 +60,13 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
-public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
+public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
+		implements EdgeWebsocket, EventHandler, DebugLoggable {
 
-	private static final String EDGE_ID = "backend0";
-	private static final String COMPONENT_ID = "edgewebsocket";
+	private static final String COMPONENT_ID = "edgewebsocket0";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 	private final SystemLogHandler systemLogHandler;
-	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -99,13 +94,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			var data = TreeBasedTable.<Long, String, JsonElement>create();
-			var now = Instant.now().toEpochMilli();
-			data.put(now, COMPONENT_ID + "/Connections",
-					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
-		}, 10, 10, TimeUnit.SECONDS);
 
 		if (this.metadata.isInitialized()) {
 			this.startServer();
@@ -114,7 +102,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Deactivate
 	private void deactivate() {
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
 	}
 
@@ -301,4 +288,25 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		}
 		return result;
 	}
+
+	public String getId() {
+		return COMPONENT_ID;
+	}
+
+	@Override
+	public String debugLog() {
+		return "[" + this.getName() + "] " + this.server.debugLog();
+	}
+
+	@Override
+	public Map<String, JsonElement> debugMetrics() {
+		final var metrics = new HashMap<String, JsonElement>();
+
+		this.server.debugMetrics().forEach((key, value) -> {
+			metrics.put(this.getId() + "/" + key, new JsonPrimitive(value));
+		});
+
+		return metrics;
+	}
+
 }

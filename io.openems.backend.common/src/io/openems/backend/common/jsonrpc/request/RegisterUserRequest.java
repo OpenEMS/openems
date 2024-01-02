@@ -2,7 +2,6 @@ package io.openems.backend.common.jsonrpc.request;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -20,14 +19,14 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	public static RegisterUserRequest from(JsonrpcRequest request) throws OpenemsNamedException {
 		var params = request.getParams();
 		var user = JsonUtils.getAsJsonObject(params, "user");
-		var oem = JsonUtils.getAsEnum(OpenemsOEM.Manufacturer.class, params, "oem");
+		var oem = JsonUtils.getAsString(params, "oem");
 		return new RegisterUserRequest(request, user, oem);
 	}
 
 	private final JsonObject user;
-	private final OpenemsOEM.Manufacturer oem;
+	private final String oem;
 
-	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject, OpenemsOEM.Manufacturer oem) {
+	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject, String oem) {
 		super(request, RegisterUserRequest.METHOD);
 		this.user = jsonObject;
 		this.oem = oem;
@@ -50,7 +49,7 @@ public class RegisterUserRequest extends JsonrpcRequest {
 		return this.user;
 	}
 
-	public OpenemsOEM.Manufacturer getOem() {
+	public String getOem() {
 		return this.oem;
 	}
 }

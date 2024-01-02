@@ -27,6 +27,9 @@ common_update_version_in_code() {
     sed --in-place "s/\(VERSION_MINOR = \)\([0-9]\+\);$/\1$VERSION_MINOR;/" $SRC_OPENEMS_CONSTANTS
     sed --in-place "s/\(VERSION_PATCH = \)\([0-9]\+\);$/\1$VERSION_PATCH;/" $SRC_OPENEMS_CONSTANTS
     sed --in-place "s/\(VERSION_STRING = \)\"\(.*\)\";$/\1\"$VERSION_STRING\";/" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s/\(VERSION_DEV_BRANCH = \)\"\(.*\)\";$/\1\"${VERSION_DEV_BRANCH/\//\\/}\";/" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s/\(VERSION_DEV_COMMIT = \)\"\(.*\)\";$/\1\"$VERSION_DEV_COMMIT\";/" $SRC_OPENEMS_CONSTANTS
+    sed --in-place "s/\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";$/\1\"$VERSION_DEV_BUILD_TIME\";/" $SRC_OPENEMS_CONSTANTS
 
     echo "## Update $SRC_PACKAGE_JSON"
     sed --in-place "s/^\(    \"version\": \"\).*\(\".*$\)/\1$VERSION\2/" $SRC_PACKAGE_JSON

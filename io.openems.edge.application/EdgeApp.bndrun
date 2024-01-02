@@ -89,6 +89,7 @@
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
+	bnd.identity;id='io.openems.edge.controller.io.analog',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
 	bnd.identity;id='io.openems.edge.controller.io.fixdigitaloutput',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
@@ -128,6 +129,7 @@
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe',\
+	bnd.identity;id='io.openems.edge.io.filipowski',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
@@ -185,10 +187,10 @@
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.gson;version='[2.10.1,2.10.2)',\
-	com.google.guava;version='[32.1.2,32.1.3)',\
-	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
-	com.squareup.okio;version='[3.6.0,3.6.1)',\
-	com.sun.jna;version='[5.13.0,5.13.1)',\
+	com.google.guava;version='[33.0.0,33.0.1)',\
+	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
+	com.squareup.okio;version='[3.7.0,3.7.1)',\
+	com.sun.jna;version='[5.14.0,5.14.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -245,6 +247,7 @@
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
 	io.openems.edge.controller.io.alarm;version=snapshot,\
+	io.openems.edge.controller.io.analog;version=snapshot,\
 	io.openems.edge.controller.io.channelsinglethreshold;version=snapshot,\
 	io.openems.edge.controller.io.fixdigitaloutput;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
@@ -287,6 +290,7 @@
 	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
+	io.openems.edge.io.filipowski;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.offgridswitch;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
@@ -345,6 +349,7 @@
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
 	io.openems.edge.timeofusetariff.entsoe;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
+	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.eu.chargetime.ocpp;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
@@ -355,6 +360,7 @@
 	io.openems.wrapper.influxdb-flux-dsl;version=snapshot,\
 	io.openems.wrapper.io.reactivex.rxjava3.rxjava;version=snapshot,\
 	io.openems.wrapper.javax.activation;version=snapshot,\
+	io.openems.wrapper.jenetics;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
 	io.openems.wrapper.okhttp;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
@@ -369,12 +375,12 @@
 	javax.xml.soap-api;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-csv;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-fileupload;version='[1.5.0,1.5.1)',\
-	org.apache.commons.commons-io;version='[2.14.0,2.14.1)',\
+	org.apache.commons.commons-io;version='[2.15.1,2.15.2)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.2,5.1.3)',\
+	org.apache.felix.http.jetty;version='[5.1.6,5.1.7)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
@@ -386,8 +392,8 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.9.10,1.9.11)',\
-	org.jsoup;version='[1.16.1,1.16.2)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.9.22,1.9.23)',\
+	org.jsoup;version='[1.17.1,1.17.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\

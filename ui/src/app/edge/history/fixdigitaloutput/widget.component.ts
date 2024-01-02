@@ -9,7 +9,7 @@ import { calculateActiveTimeOverPeriod } from '../shared';
 
 @Component({
     selector: FixDigitalOutputWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html'
+    templateUrl: './widget.component.html',
 })
 export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
@@ -25,7 +25,7 @@ export class FixDigitalOutputWidgetComponent extends AbstractHistoryWidget imple
 
     constructor(
         public override service: Service,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) {
         super(service);
     }

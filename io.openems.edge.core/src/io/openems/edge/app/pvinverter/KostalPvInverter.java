@@ -12,6 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -26,6 +27,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a App for Kostal PV-Inverter.
@@ -88,7 +90,9 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 			var inverter = AbstractOpenemsApp.getComponentWithFactoryId(components, factoryIdInverter);
 			inverter.getProperties().put("modbusUnitId", new JsonPrimitive(modbusUnitId));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
@@ -109,8 +113,9 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

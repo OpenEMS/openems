@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -35,6 +36,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a symmetric peak shaving app.
@@ -67,25 +71,21 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
-						.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
-								ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> field.isRequired(true)) //
-						.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
-								ComponentManagerSupplier::getComponentManager))), //
+		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
+				.setRequired(true) //
+				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
+						ComponentManagerSupplier::getComponentManager))), //
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
+				.setRequired(true) //
+				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
+						ComponentManagerSupplier::getComponentManager))), //
 		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPower(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}) //
+				.setRequired(true) //
 				.setAutoGenerateField(false) //
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "peakShavingPower",
 						ComponentManagerSupplier::getComponentManager))), //
 		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePower(), def -> def //
-				.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}) //
+				.setRequired(true) //
 				.setAutoGenerateField(false) //
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "rechargePower", //
 						ComponentManagerSupplier::getComponentManager))), //
@@ -127,8 +127,9 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -167,8 +168,16 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 									.addProperty("rechargePower", rechargePower) //
 									.build()));
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
+	}
+
+	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setCompatibleCheckableConfigs(Checkables.checkHome().invert());
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -40,6 +41,7 @@ import io.openems.edge.core.appmanager.OpenemsAppStatus;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a Microcare SDM630 meter App.
@@ -73,14 +75,13 @@ public class MicrocareSdm630Meter
 		// Properties
 		ALIAS(CommonProps.alias()), //
 		TYPE(MeterProps.type(MeterType.GRID)), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(),
-				def -> def.wrapField((app, property, l, parameter, field) -> {
-					field.isRequired(true);
-				}).setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), //
-				def -> def.setAutoGenerateField(false) //
-						.setDefaultValue(10) //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
+				.setRequired(true) //
+				.setAutoGenerateField(false) //
+				.setDefaultValue(10))), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(MODBUS_ID, MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())), //
 		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //
@@ -148,13 +149,16 @@ public class MicrocareSdm630Meter
 							.build()) //
 			);
 
-			return new AppConfiguration(components);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

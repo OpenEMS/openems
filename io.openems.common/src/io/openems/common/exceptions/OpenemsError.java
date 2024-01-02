@@ -61,33 +61,33 @@ public enum OpenemsError {
 	JSON_NO_ARRAY_MEMBER(5007, "JSON [%s:%s] is not JSON-Array"), //
 	JSON_NO_DATE_MEMBER(5008, "JONS [%s:%s] is not a Date. Error: %s"), //
 	JSON_NO_STRING(5009, "JSON [%s] is not a String"), //
-	JSON_NO_STRING_MEMBER(5010, "JSON [%s:%s] is not a String"), //
+	JSON_NO_STRING_MEMBER(5010, "JSON [%s:%s] is not a String member"), //
 	JSON_NO_BOOLEAN(5011, "JSON [%s] is not a Boolean"), //
-	JSON_NO_BOOLEAN_MEMBER(5012, "JSON [%s:%s] is not a Boolean"), //
+	JSON_NO_BOOLEAN_MEMBER(5012, "JSON [%s:%s] is not a Boolean member"), //
 	JSON_NO_NUMBER(5013, "JSON [%s] is not a Number"), //
-	JSON_NO_NUMBER_MEMBER(5014, "JSON [%s:%s] is not a Number"), //
+	JSON_NO_NUMBER_MEMBER(5014, "JSON [%s:%s] is not a Number member"), //
 	JSON_PARSE_ELEMENT_FAILED(5015, "JSON failed to parse [%s]. %s: %s"), //
 	JSON_PARSE_FAILED(5016, "JSON failed to parse [%s]: %s"), //
-	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
+	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum member"), //
 	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
 	JSON_NO_ENUM(5021, "JSON [%s] is not an Enum"), //
 	JSON_NO_FLOAT(5022, "JSON [%s] is not a Float"), //
-	JSON_NO_FLOAT_MEMBER(5030, "JSON [%s:%s] is not a Float"), //
+	JSON_NO_FLOAT_MEMBER(5030, "JSON [%s:%s] is not a Float member"), //
 	JSON_NO_SHORT(5023, "JSON [%s] is not a Short"), //
-	JSON_NO_SHORT_MEMBER(5024, "JSON [%s:%s] is not a Short"), //
+	JSON_NO_SHORT_MEMBER(5024, "JSON [%s:%s] is not a Short member"), //
 	JSON_NO_LONG(5025, "JSON [%s] is not a Short"), //
-	JSON_NO_LONG_MEMBER(5026, "JSON [%s:%s] is not a Short"), //
+	JSON_NO_LONG_MEMBER(5026, "JSON [%s:%s] is not a Short member"), //
 	JSON_NO_DOUBLE(5027, "JSON [%s] is not a Short"), //
-	JSON_NO_DOUBLE_MEMBER(5028, "JSON [%s:%s] is not a Short"), //
+	JSON_NO_DOUBLE_MEMBER(5028, "JSON [%s:%s] is not a Short member"), //
 	JSON_NO_STRING_ARRAY(5029, "JSON [%s] is not a String Array"), //
-	JSON_NO_INET4ADDRESS_MEMBER(5031, "JSON [%s:%s] is not a IPv4 address"), //
+	JSON_NO_INET4ADDRESS_MEMBER(5031, "JSON [%s:%s] is not a IPv4 address member"), //
 	JSON_NO_UUID(5032, "JSON [%s] is not a UUID"), //
-	JSON_NO_UUID_MEMBER(5033, "JSON [%s:%s] is not a UUID"), //
+	JSON_NO_UUID_MEMBER(5033, "JSON [%s:%s] is not a UUID member"), //
 	/*
 	 * XML Errors. 6000-6999
 	 */
 	XML_HAS_NO_MEMBER(6000, "XML [%s] has no member [%s]"), //
-	XML_NO_STRING_MEMBER(6010, "XML [%s:%s] is not a String"), //
+	XML_NO_STRING_MEMBER(6010, "XML [%s:%s] is not a String member"), //
 	;
 
 	/**

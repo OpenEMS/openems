@@ -1,5 +1,7 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -15,6 +17,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -38,6 +41,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
  * Describes a dezony IQ evcs App.
@@ -69,13 +73,13 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 		EVCS_ID(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
-		ALIAS(CommonProps.alias()), //
+		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
 				def -> def.setDefaultValue("192.168.50.88") //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+						.setRequired(true))), //
 		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), //
 				def -> def.setDefaultValue(5000) //
-						.wrapField((app, property, l, parameter, field) -> field.isRequired(true)))), //
+						.setRequired(true))), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //
@@ -141,19 +145,19 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 							.build())//
 			);
 
-			return new AppConfiguration(//
-					components, //
-					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					null, //
-					EvcsCluster.dependency(t, this.componentManager, this.componentUtil, maxHardwarePowerPerPhase,
-							evcsId) //
-			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.scheduler(ctrlEvcsId, "ctrlBalancing0")) //
+					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+							maxHardwarePowerPerPhase, evcsId)) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 

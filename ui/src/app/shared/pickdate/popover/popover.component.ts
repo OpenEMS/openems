@@ -7,11 +7,11 @@ import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek,
 
 import { Edge } from '../../edge/edge';
 import { DefaultTypes } from '../../service/defaulttypes';
-import { Service } from '../../shared';
+import { Service, Utils } from '../../shared';
 
 @Component({
     selector: 'pickdatepopover',
-    templateUrl: './popover.component.html'
+    templateUrl: './popover.component.html',
 })
 export class PickDatePopoverComponent implements OnInit {
 
@@ -34,7 +34,7 @@ export class PickDatePopoverComponent implements OnInit {
                    border-bottom: 2px solid #2d8fab;
                    color: #2d8fab;
                 }
-             `
+             `,
         },
         calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
         dateFormat: 'dd.mm.yyyy',
@@ -44,17 +44,19 @@ export class PickDatePopoverComponent implements OnInit {
         inline: true,
         selectorHeight: '225px',
         selectorWidth: '251px',
-        showWeekNumbers: true
+        showWeekNumbers: true,
     };
 
     constructor(
         public service: Service,
         public popoverCtrl: PopoverController,
-        public translate: TranslateService
+        public translate: TranslateService,
     ) { }
 
     ngOnInit() {
-        this.locale = this.translate.getBrowserLang();
+        // Restrict user to pick date before ibn-date
+        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 },
+            this.locale = this.translate.getBrowserLang();
     }
 
     /**

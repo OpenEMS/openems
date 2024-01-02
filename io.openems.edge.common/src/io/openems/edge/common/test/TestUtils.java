@@ -52,7 +52,20 @@ public class TestUtils {
 	 * @param value     the new value
 	 */
 	public static void withValue(OpenemsComponent component, ChannelId channelId, Object value) {
-		var channel = component.channel(channelId);
+		withValue(component.channel(channelId), value);
+	}
+
+	/**
+	 * Sets the value on a Channel and activates the Process Image.
+	 * 
+	 * <p>
+	 * This is useful to simulate a Channel value in a Unit test, as the value
+	 * becomes directly available on the Channel.
+	 * 
+	 * @param channel the {@link Channel}
+	 * @param value   the new value
+	 */
+	public static void withValue(Channel<?> channel, Object value) {
 		channel.setNextValue(value);
 		channel.nextProcessImage();
 	}

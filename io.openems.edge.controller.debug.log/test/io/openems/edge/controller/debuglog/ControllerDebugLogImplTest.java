@@ -28,6 +28,7 @@ public class ControllerDebugLogImplTest {
 	private static final String ANY_DUMMY = "dummy*";
 
 	private static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
+	private static final ChannelAddress SUM_FOO_BAR = new ChannelAddress("_sum", "FooBar");
 
 	@Test
 	public void test() throws Exception {
@@ -71,7 +72,8 @@ public class ControllerDebugLogImplTest {
 						.setShowAlias(true) //
 						.setCondensedOutput(true) //
 						.setAdditionalChannels(new String[] { //
-								SUM_ESS_SOC.toString() //
+								SUM_ESS_SOC.toString(), //
+								SUM_FOO_BAR.toString() //
 						}) //
 						.setIgnoreComponents(new String[] { //
 								DUMMY0_ID //
@@ -81,7 +83,7 @@ public class ControllerDebugLogImplTest {
 						.input(SUM_ESS_SOC, 50));
 
 		assertEquals(
-				"_sum[Core.Sum|foo:bar|EssSoc:50 %] dummy1[This is Dummy1|def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]",
+				"_sum[Core.Sum|foo:bar|EssSoc:50 %|FooBar:CHANNEL_IS_NOT_DEFINED] dummy1[This is Dummy1|def:uvw] dummy2[ghi:rst] dummy10[jkl:opq]",
 				sut.getLogMessage());
 
 	}

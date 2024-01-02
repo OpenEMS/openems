@@ -102,7 +102,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.activate(context, config.id(), config.alias(), config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_ids())) {
 			return;
 		}
@@ -130,7 +130,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	@Override
 	public int getPowerPrecision() {
 		Integer result = null;
-		for (SymmetricEss ess : this.esss) {
+		for (var ess : this.esss) {
 			if (ess instanceof ManagedSymmetricEss) {
 				result = TypeUtils.min(result, ((ManagedSymmetricEss) ess).getPowerPrecision());
 			}
@@ -161,49 +161,30 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.handleStartStop();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.handleStartStop();
 		}
 	}
 
 	/**
-	 * Handles the Start/Stop target from {@link Config} or set via
-	 * {@link #setStartStop(StartStop)}.
+	 * Starts/Stops all ESS in the Cluster as required by Config or call to
+	 * setStartStop().
 	 */
 	private void handleStartStop() {
-		StartStop target = StartStop.UNDEFINED;
-
-		switch (this.config.startStop()) {
-		case AUTO: {
-			target = this.startStopTarget.get();
-			break;
-		}
-		case START: {
-			target = StartStop.START;
-			break;
-		}
-		case STOP: {
-			target = StartStop.STOP;
-			break;
-		}
-		}
-
-		if (target == StartStop.UNDEFINED) {
-			this.logInfo(this.log, "Start-Stop-Target is Undefined");
+		var target = this.getStartStopTarget();
+		if (target == this.getStartStop()) {
 			return;
 		}
 
-		for (SymmetricEss ess : this.esss) {
-			if (ess instanceof StartStoppable) {
-				try {
-					((StartStoppable) ess).setStartStop(target);
-				} catch (OpenemsNamedException e) {
-					this.logError(this.log, e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		}
+		this.esss.stream() //
+				.filter(StartStoppable.class::isInstance) //
+				.map(StartStoppable.class::cast) //
+				.forEach(ess -> {
+					try {
+						ess.setStartStop(target);
+					} catch (OpenemsNamedException e) {
+						this.logError(this.log, e.getMessage());
+					}
+				});
 	}
 
 	@Override
@@ -214,5 +195,13 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 	@Override
 	public void setStartStop(StartStop value) {
 		this.startStopTarget.set(value);
+	}
+
+	private StartStop getStartStopTarget() {
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
 }

@@ -12,7 +12,7 @@ export class TranslateExtension implements FormlyExtension {
         props._translated = true;
         field.expressions = {
             ...(field.expressions || {}),
-            'props.label': this.translate.stream(props.label)
+            'props.label': this.translate.stream(props.label),
         };
     }
 }
@@ -23,9 +23,9 @@ export function registerTranslateExtension(translate: TranslateService) {
         extensions: [
             {
                 name: 'translate',
-                extension: new TranslateExtension(translate)
-            }
-        ]
+                extension: new TranslateExtension(translate),
+            },
+        ],
     };
 }
 

@@ -11,7 +11,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
 
 @Component({
     selector: 'header',
-    templateUrl: './header.component.html'
+    templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
@@ -31,7 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public router: Router,
         public service: Service,
         public websocket: Websocket,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {
@@ -40,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // update backUrl on navigation events
         this.router.events.pipe(
             takeUntil(this.ngUnsubscribe),
-            filter(event => event instanceof NavigationEnd)
+            filter(event => event instanceof NavigationEnd),
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
@@ -163,14 +163,16 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigate(["/device/" + this.service.currentEdge.value.id + "/history"], { replaceUrl: true });
+
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            this.router.navigate(['../history'], { relativeTo: this.route });
             this.cdRef.detectChanges();
         }
     }
 
     async presentSingleStatusModal() {
         const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent
+            component: StatusSingleComponent,
         });
         return await modal.present();
     }

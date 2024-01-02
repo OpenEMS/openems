@@ -9,7 +9,7 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
 
 @Component({
   selector: 'Io_ChannelSingleThresholdModalComponent',
-  templateUrl: './modal.component.html'
+  templateUrl: './modal.component.html',
 })
 export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 
@@ -34,7 +34,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
     public modalCtrl: ModalController,
     public translate: TranslateService,
     public websocket: Websocket,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
   ) {
   }
 
@@ -43,19 +43,19 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime, Validators.compose([
         Validators.min(5),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       switchedLoadPower: new FormControl(this.component.properties.switchedLoadPower, Validators.compose([
         Validators.pattern('^(?:[1-9][0-9]*|0)$'),
-        Validators.required
+        Validators.required,
       ])),
       threshold: new FormControl(this.getInputMode() == 'GRIDSELL' ? this.component.properties.threshold * -1 : this.component.properties.threshold, Validators.compose([
         Validators.min(1),
         Validators.pattern('^[1-9][0-9]*$'),
-        Validators.required
+        Validators.required,
       ])),
       inputMode: new FormControl(this.getInputMode()),
-      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue)
+      invert: new FormControl(this.component.properties.invert, Validators.requiredTrue),
     });
     this.minimumSwitchingTime = this.formGroup.controls['minimumSwitchingTime'];
     this.threshold = this.formGroup.controls['threshold'];
@@ -141,7 +141,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
 
     if (this.edge != null) {
       this.edge.updateComponentConfig(this.websocket, this.component.id, [
-        { name: 'mode', value: newMode }
+        { name: 'mode', value: newMode },
       ]).then(() => {
         this.component.properties.mode = newMode;
         this.service.toast(this.translate.instant('General.changeAccepted'), 'success');

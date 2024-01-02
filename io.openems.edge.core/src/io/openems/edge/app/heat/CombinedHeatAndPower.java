@@ -1,8 +1,8 @@
 package io.openems.edge.app.heat;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.heat.HeatProps.createPhaseInformation;
-import static io.openems.edge.app.heat.HeatProps.relayContactDef;
+import static io.openems.edge.app.common.props.RelayProps.createPhaseInformation;
+import static io.openems.edge.app.common.props.RelayProps.relayContactDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
 import java.util.List;
@@ -21,18 +21,22 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.PropsUtil;
+import io.openems.edge.app.common.props.RelayProps;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformation;
+import io.openems.edge.app.common.props.RelayProps.RelayContactInformationProvider;
 import io.openems.edge.app.heat.CombinedHeatAndPower.CombinedHeatAndPowerParameter;
 import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
-import io.openems.edge.app.heat.HeatProps.RelayContactInformation;
-import io.openems.edge.app.heat.HeatProps.RelayContactInformationProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -44,7 +48,9 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
+import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
 /**
  * Describes a App for a Heating Element.
@@ -111,21 +117,33 @@ public class CombinedHeatAndPower
 		@Override
 		public Function<GetParameterValues<CombinedHeatAndPower>, CombinedHeatAndPowerParameter> getParamter() {
 			return t -> {
+				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+
 				return new CombinedHeatAndPowerParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 1, //
-								new PreferredRelay(4, new int[] { 1 }), //
-								new PreferredRelay(8, new int[] { 1 })) //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false)), //
+								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5 }), //
+										PreferredRelay.of(4, new int[] { 1 }), //
+										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
 			};
 		}
 
 	}
 
+	private final AppManagerUtil appManagerUtil;
+
 	@Activate
-	public CombinedHeatAndPower(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public CombinedHeatAndPower(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference AppManagerUtil appManagerUtil //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
@@ -152,7 +170,9 @@ public class CombinedHeatAndPower
 
 			if (instanceIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(components);
+				return AppConfiguration.create() //
+						.addTask(Tasks.component(components)) //
+						.build();
 			}
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -165,13 +185,17 @@ public class CombinedHeatAndPower
 							.setSpecificInstanceId(instanceIdOfRelay) //
 							.build()));
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(components)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -183,12 +207,12 @@ public class CombinedHeatAndPower
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1));
+				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(false)));
 	}
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	@Override
