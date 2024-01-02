@@ -2,6 +2,7 @@ package io.openems.edge.meter.siemens.pac1600;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(//

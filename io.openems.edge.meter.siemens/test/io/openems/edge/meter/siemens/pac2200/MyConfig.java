@@ -3,7 +3,6 @@ package io.openems.edge.meter.siemens.pac2200;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.siemens.pac2200.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
