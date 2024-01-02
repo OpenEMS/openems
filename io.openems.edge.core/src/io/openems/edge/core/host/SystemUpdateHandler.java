@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
@@ -41,14 +40,12 @@ public class SystemUpdateHandler {
 
 	private final Logger log = LoggerFactory.getLogger(SystemUpdateHandler.class);
 	private final HostImpl parent;
-	private final OpenemsEdgeOem oem;
 	private final UpdateState updateState = new UpdateState();
 
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 
-	public SystemUpdateHandler(HostImpl parent, OpenemsEdgeOem oem) {
+	public SystemUpdateHandler(HostImpl parent) {
 		this.parent = parent;
-		this.oem = oem;
 	}
 
 	/**
@@ -67,7 +64,7 @@ public class SystemUpdateHandler {
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleGetSystemUpdateStateRequest(
 			GetSystemUpdateStateRequest request) throws OpenemsNamedException {
-		final var params = this.oem.getSystemUpdateParams();
+		final var params = this.parent.oem.getSystemUpdateParams();
 		final var result = new CompletableFuture<JsonrpcResponseSuccess>();
 
 		if (this.updateState.isRunning()) {
@@ -165,7 +162,7 @@ public class SystemUpdateHandler {
 	}
 
 	private void executeUpdate(CompletableFuture<JsonrpcResponseSuccess> result) throws Exception {
-		final var params = this.oem.getSystemUpdateParams();
+		final var params = this.parent.oem.getSystemUpdateParams();
 		Path logFile = null;
 		Path scriptFile = null;
 		try {

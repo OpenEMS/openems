@@ -49,12 +49,6 @@ import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 		})
 public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsComponent, JsonApi {
 
-	@Reference
-	private OpenemsEdgeOem oem;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
 	protected final OperatingSystem operatingSystem;
 
 	private final DiskSpaceWorker diskSpaceWorker;
@@ -62,6 +56,12 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final UsbConfigurationWorker usbConfigurationWorker;
 
 	private final SystemUpdateHandler systemUpdateHandler;
+
+	@Reference
+	protected OpenemsEdgeOem oem;
+
+	@Reference
+	protected ConfigurationAdmin cm;
 
 	protected Config config;
 
@@ -81,7 +81,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
 		this.networkConfigurationWorker = new NetworkConfigurationWorker(this);
 		this.usbConfigurationWorker = new UsbConfigurationWorker(this);
-		this.systemUpdateHandler = new SystemUpdateHandler(this, this.oem);
+		this.systemUpdateHandler = new SystemUpdateHandler(this);
 
 		// Initialize 'Hostname' channel
 		try {
