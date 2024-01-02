@@ -17,7 +17,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String certPem;
 		private String privateKeyPem;
 		private String trustStorePem;
-		private String trustStorePassword;
 
 		private Builder() {
 		}
@@ -46,24 +45,19 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.password = password;
 			return this;
 		}
-		
+
 		public Builder setCertPem(String certPem) {
 			this.certPem = certPem;
 			return this;
 		}
-		
+
 		public Builder setPrivateKeyPem(String privateKeyPem) {
 			this.privateKeyPem = privateKeyPem;
 			return this;
 		}
-		
+
 		public Builder setTrustStorePath(String trustStorePem) {
 			this.trustStorePem = trustStorePem;
-			return this;
-		}
-		
-		public Builder setTrustStorePassword(String trustStorePassword) {
-			this.trustStorePassword = trustStorePassword;
 			return this;
 		}
 
@@ -128,23 +122,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.password;
 	}
 
-	@Override 
+	@Override
 	public String certPem() {
 		return this.builder.certPem;
 	}
-	
+
 	@Override
 	public String privateKeyPem() {
 		return this.builder.privateKeyPem;
 	}
-	
+
 	@Override
 	public String trustStorePem() {
 		return this.builder.trustStorePem;
-	}
-	
-	@Override
-	public String trustStorePassword() {
-		return this.builder.trustStorePassword;
 	}
 }

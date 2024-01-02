@@ -40,9 +40,6 @@ import io.openems.common.channel.PersistencePriority;
 	
 	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
 	String trustStorePem();
-	
-	@AttributeDefinition(name = "Trust Store Password", description = "Password to access trust store")
-	String trustStorePassword() default "";
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")
 	PersistencePriority persistencePriority() default PersistencePriority.VERY_LOW;

@@ -30,17 +30,15 @@ public class MqttUtils {
 	 * server truststore information, allowing the creation of an SSLSocketFactory
 	 * with the configured security settings.
 	 *
-	 * @param cert           The file path to the client's certificate.
-	 * @param privateKey     The file path to the private key file.
-	 * @param trustStore     The file path to the server's truststore.
-	 * @param trustStorePassword The password for accessing the server's truststore.
+	 * @param cert           The client's certificate as String.
+	 * @param privateKey     The private key as String.
+	 * @param trustStore     The server's trust store as String.
 	 * @return An SSLSocketFactory configured with the specified security settings.
 	 * @throws RuntimeException If there is an error during the creation of the
 	 *                          SSLSocketFactory.
 	 */
 
-	public static SSLSocketFactory createSslSocketFactory(String cert, String privateKey, String trustStore,
-			String trustStorePassword) {
+	public static SSLSocketFactory createSslSocketFactory(String cert, String privateKey, String trustStore) {
 		try {
 	        Security.addProvider(new BouncyCastleProvider());
 
