@@ -21,6 +21,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD)
 	String securityToken() default "";
 
+	@AttributeDefinition(name = "Exchangerate.host API Access Key", description = "Access key for Exchangerate.host: Please register at https://exchangerate.host/ to get your personal access key", type = AttributeType.PASSWORD)
+	String exchangerateAccesskey() default "";
+
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
 	BiddingZone biddingZone();
 

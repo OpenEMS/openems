@@ -41,6 +41,7 @@ import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.DummyValidator.TestCheckable;
 import io.openems.edge.core.appmanager.dependency.AppConfigValidator;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
@@ -51,9 +52,9 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
+import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 
 public class AppManagerTestBundle {
 
@@ -214,7 +215,8 @@ public class AppManagerTestBundle {
 
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
-		this.checkablesBundle = new CheckablesBundle(
+		this.checkablesBundle = new CheckablesBundle(//
+				new TestCheckable(), //
 				new CheckCardinality(this.sut, this.appManagerUtil,
 						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
 				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null), //
@@ -228,7 +230,7 @@ public class AppManagerTestBundle {
 		this.validator = dummyValidator;
 
 		final var appManagerAppHelper = new DummyAppManagerAppHelper(this.componentManger, this.componentUtil,
-				this.validator, this.appManagerUtil);
+				this.appManagerUtil);
 		final var csoAppManagerAppHelper = cso((AppManagerAppHelper) appManagerAppHelper);
 
 		this.appValidateWorker = new AppValidateWorker();
@@ -390,6 +392,7 @@ public class AppManagerTestBundle {
 	}
 
 	public record CheckablesBundle(//
+			DummyValidator.TestCheckable checkTest, //
 			CheckCardinality checkCardinality, //
 			CheckRelayCount checkRelayCount, //
 			CheckAppsNotInstalled checkAppsNotInstalled, //
@@ -403,6 +406,7 @@ public class AppManagerTestBundle {
 		 */
 		public final List<Checkable> all() {
 			return Lists.newArrayList(//
+					this.checkTest(), //
 					this.checkCardinality(), //
 					this.checkRelayCount(), //
 					this.checkAppsNotInstalled(), //

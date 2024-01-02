@@ -1,10 +1,13 @@
 package io.openems.edge.timeofusetariff.tibber;
 
+import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +20,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -26,6 +31,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
@@ -45,9 +51,13 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 
 	private static final String TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
 
+	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffTibberImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -126,18 +136,22 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 		this.channel(TimeOfUseTariffTibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
 
 		/*
-		 * Schedule next price update for 2 pm
+		 * Schedule next price update at next hour; or try again after 5 minutes
 		 */
 		var now = ZonedDateTime.now();
-		var nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
-		if (now.isAfter(nextRun)) {
-			nextRun = nextRun.plusDays(1);
+		final ZonedDateTime nextRun;
+		if (unableToUpdatePrices) {
+			// If the prices are not updated, try again in 5 minutes.
+			nextRun = now.plusMinutes(5).truncatedTo(ChronoUnit.MINUTES);
+			this.logWarn(this.log, "Unable to Update the prices, Trying again at: " + nextRun);
+		} else {
+			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
 		}
 
-		var duration = Duration.between(now, nextRun);
-		var delay = duration.getSeconds();
-
-		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
+		this.executor.schedule(this.task, //
+				Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
+						.getSeconds(),
+				TimeUnit.SECONDS);
 	};
 
 	@Override
@@ -149,5 +163,10 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
 				this.prices.get(), this.updateTimeStamp);
+	}
+
+	@Override
+	public String debugLog() {
+		return generateDebugLog(this, this.meta.getCurrency());
 	}
 }

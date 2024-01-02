@@ -47,7 +47,7 @@ export class GetUserInformationResponse extends JsonrpcResponseSuccess {
                     name: string
                 }
             }
-        }
+        },
     ) {
         super(id, result);
     }

@@ -279,7 +279,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		if (image != null) {
 			return image;
 		}
-		return OpenemsApp.FALLBACK_IMAGE;
+		return null;
 	}
 
 	@Override

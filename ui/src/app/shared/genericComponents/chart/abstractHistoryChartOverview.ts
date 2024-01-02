@@ -1,4 +1,4 @@
-import { Directive, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Directive, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -9,7 +9,6 @@ import { DefaultTypes } from "../../service/defaulttypes";
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  @Input() public componentId: string;
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
   protected showTotal: boolean = true;
@@ -26,7 +25,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   constructor(
     public service: Service,
     protected route: ActivatedRoute,
-    public modalCtrl: ModalController
+    public modalCtrl: ModalController,
   ) { }
 
   public ngOnInit() {
@@ -35,7 +34,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
         // store important variables publically
         this.edge = edge;
         this.config = config;
-        this.component = config.components[this.componentId];
+        this.component = config.getComponent(this.route.snapshot.params.componentId);
 
         this.period = this.service.historyPeriod.value;
 

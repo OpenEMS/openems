@@ -198,9 +198,7 @@ typings/
 
 ### Gradle ###
 .gradle
-**/build/
-# do not ignore '/doc/build' directory
-!*doc/build/
+/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -232,51 +230,3 @@ io.openems.edge.application/c:/
 
 ### Debian ###
 !tools/debian/**
-io.openems.edge.predictor.lstm/TestFolder/0seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/10seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/11seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/12seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/13seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/14seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/15seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/16seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/1seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/2seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/3seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/4seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/5seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/6seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/7seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/8seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/9seasonality.txt
-io.openems.edge.predictor.lstm/TestFolder/1.csv
-io.openems.edge.predictor.lstm/TestFolder/10.csv
-io.openems.edge.predictor.lstm/TestFolder/11.csv
-io.openems.edge.predictor.lstm/TestFolder/11544.csv
-io.openems.edge.predictor.lstm/TestFolder/12.csv
-io.openems.edge.predictor.lstm/TestFolder/13.csv
-io.openems.edge.predictor.lstm/TestFolder/14.csv
-io.openems.edge.predictor.lstm/TestFolder/15.csv
-io.openems.edge.predictor.lstm/TestFolder/16.csv
-io.openems.edge.predictor.lstm/TestFolder/17.csv
-io.openems.edge.predictor.lstm/TestFolder/18.csv
-io.openems.edge.predictor.lstm/TestFolder/19.csv
-io.openems.edge.predictor.lstm/TestFolder/2.csv
-io.openems.edge.predictor.lstm/TestFolder/20.csv
-io.openems.edge.predictor.lstm/TestFolder/21.csv
-io.openems.edge.predictor.lstm/TestFolder/22.csv
-io.openems.edge.predictor.lstm/TestFolder/23.csv
-io.openems.edge.predictor.lstm/TestFolder/24.csv
-io.openems.edge.predictor.lstm/TestFolder/25.csv
-io.openems.edge.predictor.lstm/TestFolder/26.csv
-io.openems.edge.predictor.lstm/TestFolder/27.csv
-io.openems.edge.predictor.lstm/TestFolder/28.csv
-io.openems.edge.predictor.lstm/TestFolder/29.csv
-io.openems.edge.predictor.lstm/TestFolder/3.csv
-io.openems.edge.predictor.lstm/TestFolder/30.csv
-io.openems.edge.predictor.lstm/TestFolder/4.csv
-io.openems.edge.predictor.lstm/TestFolder/5.csv
-io.openems.edge.predictor.lstm/TestFolder/6.csv
-io.openems.edge.predictor.lstm/TestFolder/7.csv
-io.openems.edge.predictor.lstm/TestFolder/8.csv
-io.openems.edge.predictor.lstm/TestFolder/9.csv

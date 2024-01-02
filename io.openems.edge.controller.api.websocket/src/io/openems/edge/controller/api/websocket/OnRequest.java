@@ -502,8 +502,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the {@link GetEdgesResponse} Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static CompletableFuture<GetEdgesResponse> handleGetEdgesRequest(User user,
-			GetEdgesRequest request) {
+	protected static CompletableFuture<GetEdgesResponse> handleGetEdgesRequest(User user, GetEdgesRequest request) {
 		return CompletableFuture.completedFuture(//
 				new GetEdgesResponse(request.getId(), List.of(Utils.getEdgeMetadata(user.getGlobalRole()))));
 	}

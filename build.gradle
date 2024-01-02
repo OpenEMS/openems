@@ -289,7 +289,8 @@ task copyBundleReadmes() {
 							return // ignore
 						}
 
-					} else if(bundle.startsWith("io.openems.wrapper")) {
+					} else if(bundle.startsWith("io.openems.wrapper")
+						|| bundle.startsWith("io.openems.oem.")) {
 						// ignore
 						return
 					}

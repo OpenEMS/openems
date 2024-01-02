@@ -372,17 +372,6 @@
           "switchOnRec": "Doporučení k zapnutí",
           "switchOnRecShort": "Doporučení",
           "undefined": "Nedefinováno"
-        },
-        "TimeOfUseTariff": {
-          "currentTariff": "Aktuální cena",
-          "delayedDischarge": "Opožděné propuštění",
-          "STORAGE_DISCHARGE": "Vybíjení ze skladu",
-          "State": {
-            "notStarted": "Ovladač ještě nezačal ",
-            "delayed": "Opožděné",
-            "allowsDischarge": "Uvolněno",
-            "standby": "Pohotovostní režim"
-          }
         }
       }
     },

@@ -22,8 +22,8 @@ describe('SelfConsumption - Modal', () => {
       expectView(TEST_CONTEXT, VIEW_CONTEXT, {
         title: "Eigenverbrauch",
         lines: [
-          LINE_INFO("Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird.")
-        ]
+          LINE_INFO("Der Eigenverbrauch gibt an zu wie viel Prozent die aktuell erzeugte Leistung durch direkten Verbrauch und durch Speicherbeladung selbst genutzt wird."),
+        ],
       });
     }
   });

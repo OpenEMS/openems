@@ -35,7 +35,8 @@ public class ControllerEssCycleImplTest {
 	public void test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2000-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final var power = new DummyPower(10_000);
-		final var ess = new DummyManagedSymmetricEss(ESS_ID, power);
+		final var ess = new DummyManagedSymmetricEss(ESS_ID) //
+				.setPower(power);
 		final var test = new ControllerTest(new ControllerEssCycleImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

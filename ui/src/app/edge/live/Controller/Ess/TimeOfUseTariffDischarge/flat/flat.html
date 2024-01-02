@@ -2,9 +2,9 @@
     'cloud-outline'}" (click)="presentModal()">
     <oe-flat-widget-line [name]="'General.mode' | translate" [channelAddress]="component.id + '/_PropertyMode'"
         [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE' | translate"
         [value]="priceWithCurrency"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="storageStatuslabel" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
-        [channelAddress]="component.id + '/StateMachine'">
+    <oe-flat-widget-line leftColumnWidth="20" [name]="'General.state' | translate"
+        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE" [channelAddress]="component.id + '/StateMachine'">
     </oe-flat-widget-line>
 </oe-flat-widget>

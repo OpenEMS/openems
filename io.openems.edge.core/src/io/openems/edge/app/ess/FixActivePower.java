@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -105,8 +106,9 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor() {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
 		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
 				.build();
 	}
 
@@ -132,7 +134,7 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 					new EdgeConfig.Component(ctrlFixActivePowerId, alias, "Controller.Ess.FixActivePower", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
-									.addProperty("ess_id", essId) //
+									.addProperty("ess.id", essId) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("mode", "MANUAL_OFF") //
 													.addProperty("hybridEssMode", "TARGET_DC") //

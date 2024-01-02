@@ -570,7 +570,7 @@ If you experience any errors you can always run OpenEMS Edge using the btn:[Debu
 
 === Alternative Device Development Flow
 
-Instead of adding the device to the btn:[EdgeApp.bndrun] file (as described in xref:implement.adoc#_enable_the_component[Enable the Component]), the device can be loaded dynamically by using [Apache Felix File Install]. Copying the device's built jar file into a `load` folder, relative to the project's root directory. Apache Felix File Install watches this folder and handles the device automatically.
+Instead of adding the device to the btn:[EdgeApp.bndrun] file (as described in xref:#_enable_the_component[Enable the Component]), the device can be loaded dynamically by using [Apache Felix File Install]. Copying the device's built jar file into a `load` folder, relative to the project's root directory. Apache Felix File Install watches this folder and handles the device automatically.
 
 The folder is configurable by supplying the `felix.fileinstall.dir` option when starting the edge app. More configuration options can be found in the https://felix.apache.org/documentation/subprojects/apache-felix-file-install.html[Apache Felix File Install documentation].
 

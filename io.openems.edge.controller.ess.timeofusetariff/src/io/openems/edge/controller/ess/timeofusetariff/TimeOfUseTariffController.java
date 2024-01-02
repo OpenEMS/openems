@@ -11,6 +11,8 @@ import io.openems.edge.controller.api.Controller;
 
 public interface TimeOfUseTariffController extends Controller, OpenemsComponent {
 
+	public static final int PERIODS_PER_HOUR = 4;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Current state of the Time of use tariff controller.
@@ -36,28 +38,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 		 */
 		DELAYED_TIME(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.CUMULATED_SECONDS) //
-				.persistencePriority(PersistencePriority.HIGH)), //
-
-		/**
-		 * Channels for debugging.
-		 */
-		CHARGE_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.text("Charge/Discharge energy calculated for the period.")), //
-		GRID_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.text("Grid energy calculated for the period.")), //
-		QUARTERLY_PRICES_ARE_EMPTY(Doc.of(OpenemsType.BOOLEAN)//
-				.text("The list of quarterly prices retrieved are empty")),
-		AVAILABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.text("Available capcity in the battery during evening")), //
-		USABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.text("Usable capcity in the battery during after taking limit soc into consideration")), //
-		PREDICTED_PRODUCTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Predicted Production for the current quarterly hour")),
-		PREDICTED_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Predicted Consumption for the current quarterly hour")),
-		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
-				.text("Minimum SoC to avoid complete discharge")), //
-		;
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 
@@ -100,7 +81,7 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	}
 
 	/**
-	 * Gets the Status of the Controller. See {@link ChannelId#STATE_MACHINE}.
+	 * Gets the {@link ChannelId#STATE_MACHINE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -117,81 +98,4 @@ public interface TimeOfUseTariffController extends Controller, OpenemsComponent 
 	public default void _setStateMachine(StateMachine value) {
 		this.getStateMachineChannel().setNextValue(value);
 	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#PREDICTED_PRODUCTION}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getPredictedProductionChannel() {
-		return this.channel(ChannelId.PREDICTED_PRODUCTION);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PREDICTED_PRODUCTION} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setPredictedProduction(Integer value) {
-		this.getPredictedProductionChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#PREDICTED_CONSUMPTION}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getPredictedConsumptionChannel() {
-		return this.channel(ChannelId.PREDICTED_CONSUMPTION);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PREDICTED_CONSUMPTION} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setPredictedConsumption(Integer value) {
-		this.getPredictedConsumptionChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getChargeDischargeEnergyChannel() {
-		return this.channel(ChannelId.CHARGE_DISCHARGE_ENERGY);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CHARGE_DISCHARGE_ENERGY} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setChargeDischargeEnergyChannel(Integer value) {
-		this.getChargeDischargeEnergyChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#GRID_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Integer> getGridEnergyChannel() {
-		return this.channel(ChannelId.GRID_ENERGY);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_ENERGY}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setGridEnergyChannel(Integer value) {
-		this.getGridEnergyChannel().setNextValue(value);
-	}
-
 }

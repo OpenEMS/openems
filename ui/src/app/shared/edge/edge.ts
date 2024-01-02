@@ -33,7 +33,7 @@ export class Edge {
     public isOnline: boolean,
     public readonly lastmessage: Date,
     public readonly sumState: SumState,
-    public readonly firstSetupProtocol: Date
+    public readonly firstSetupProtocol: Date,
   ) { }
 
   // holds currently subscribed channels, identified by source id

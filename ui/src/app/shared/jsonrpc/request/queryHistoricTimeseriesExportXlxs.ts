@@ -23,12 +23,12 @@ export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
     public constructor(
         private fromDate: Date,
-        private toDate: Date
+        private toDate: Date,
     ) {
         super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
             timezone: new Date().getTimezoneOffset() * 60,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
-            toDate: format(toDate, 'yyyy-MM-dd')
+            toDate: format(toDate, 'yyyy-MM-dd'),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.fromDate;

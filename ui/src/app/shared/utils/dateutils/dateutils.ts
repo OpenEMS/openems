@@ -14,7 +14,7 @@ export namespace DateUtils {
     }
 
     return new Date(
-      Math.max(...dates.filter(date => !!date).map(Number))
+      Math.max(...dates.filter(date => !!date).map(Number)),
     );
   }
 
@@ -31,7 +31,7 @@ export namespace DateUtils {
     }
 
     return new Date(
-      Math.min(...dates.filter(date => !!date).map(Number))
+      Math.min(...dates.filter(date => !!date).map(Number)),
     );
   }
 
@@ -43,5 +43,33 @@ export namespace DateUtils {
    */
   export function stringToDate(date: string) {
     return isNaN(new Date(date)?.getTime()) ? null : new Date(date);
+  }
+
+  /**
+   * Converts a date into a local date string
+   * @description should be used for mutating dates
+   * 
+   * @todo use locales for formatting
+   * 
+   * @param date the date
+   * @param service the service
+   * @returns a formateted date string
+   */
+  export function toLocaleDateString(date: Date): string {
+    return date.toLocaleDateString();
+  }
+
+  /**
+   * Converts a date into a local date string
+   * @description should be used for mutating dates
+   * 
+   * @todo use locales for formatting
+   * 
+   * @param date the date
+   * @param service the service
+   * @returns a formateted date string
+   */
+  export function toLocaleTimeString(date: Date): string {
+    return date.toLocaleTimeString();
   }
 }

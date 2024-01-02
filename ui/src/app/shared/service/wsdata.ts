@@ -83,7 +83,7 @@ export class WsData {
         // TODO use OpenemsError code
         promise.reject(
           new JsonrpcResponseError(response.id, {
-            code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {}
+            code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {},
           }));
       }
     } else {

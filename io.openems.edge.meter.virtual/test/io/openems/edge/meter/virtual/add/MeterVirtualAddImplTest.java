@@ -37,7 +37,7 @@ public class MeterVirtualAddImplTest {
 	private static final ChannelAddress METER_ID_2_ACTIVEPOWER_L1 = new ChannelAddress(METER_ID_2, "ActivePowerL1");
 	private static final ChannelAddress METER_ID_2_ACTIVEPOWER_L2 = new ChannelAddress(METER_ID_2, "ActivePowerL2");
 	private static final ChannelAddress METER_ID_2_ACTIVEPOWER_L3 = new ChannelAddress(METER_ID_2, "ActivePowerL3");
-	
+
 	private static final String METER_ID_3 = "meter3";
 	private static final ChannelAddress METER_ID_3_ACTIVEPOWER = new ChannelAddress(METER_ID_3, "ActivePower");
 	private static final ChannelAddress METER_ID_3_VOLTAGE = new ChannelAddress(METER_ID_3, "Voltage");

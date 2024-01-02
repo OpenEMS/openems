@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
@@ -7,15 +8,9 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 
 public class ResolveDependenciesTest {
-
-	private final User user = new DummyUser("1", "password", Language.DEFAULT, Role.ADMIN);
 
 	private AppManagerTestBundle testBundle;
 
@@ -57,7 +52,7 @@ public class ResolveDependenciesTest {
 	@Test
 	public void testResolveDependencies() {
 		assertEquals(1, this.testBundle.sut.getInstantiatedApps().size());
-		ResolveDependencies.resolveDependencies(this.user, this.testBundle.sut, this.testBundle.appManagerUtil);
+		ResolveDependencies.resolveDependencies(DUMMY_ADMIN, this.testBundle.sut, this.testBundle.appManagerUtil);
 		assertEquals(4, this.testBundle.sut.getInstantiatedApps().size());
 	}
 

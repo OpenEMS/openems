@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -39,7 +40,12 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.OPTIONAL, //
+			target = "(enabled=true)" //
+	)
 	private volatile ControllerApiBackend backend;
 
 	private final ComponentManager componentManager;
@@ -99,7 +105,8 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	private final CompletableFuture<? extends JsonrpcResponseSuccess> handleRequestAsync(User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		return this.getBackendOrError().handleJsonrpcRequest(user, new AppCenterRequest(request));
+		return this.getBackendOrError().handleJsonrpcRequest(user, new AppCenterRequest(request)) //
+				.orTimeout(30L, TimeUnit.SECONDS);
 	}
 
 	private final JsonrpcResponseSuccess handleRequest(User user, JsonrpcRequest request) throws OpenemsNamedException {
