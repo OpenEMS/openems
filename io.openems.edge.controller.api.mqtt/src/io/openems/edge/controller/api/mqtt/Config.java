@@ -31,13 +31,13 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to MQTT broker.")
 	String uri() default "tcp://localhost:1883";
-	
+
 	@AttributeDefinition(name = "Certificate", description = "The client certificate in PEM format")
 	String certPem();
-	
+
 	@AttributeDefinition(name = "Private Key", description = "The private key in PEM format")
 	String privateKeyPem();
-	
+
 	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
 	String trustStorePem();
 
