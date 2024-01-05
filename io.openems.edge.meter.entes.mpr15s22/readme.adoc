@@ -1,3 +1,0 @@
-= io.openems.edge.meter.entes.mpr15s22
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.entes.mpr15s22[Source Code icon:github[]]
