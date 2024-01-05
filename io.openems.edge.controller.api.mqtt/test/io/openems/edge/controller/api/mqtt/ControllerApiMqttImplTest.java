@@ -24,10 +24,12 @@ public class ControllerApiMqttImplTest {
 				.addComponent(new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
-						.setClientId("edge0") //
+						.setClientId("iotconsole-28fca1b5-0a3d-405b-9b5c-92c87fcbbbcd\n"
+								+ "")//.setClientId("edge0") //
 						.setUsername("guest") //
 						.setPassword("guest") //
-						.setUri("ws://localhost:1883") //
+						.setUri("a3emae25wqghr3-ats.iot.eu-central-1.amazonaws.com\n"
+								+ "")//.setUri("ws://localhost:1883") //
 						.setPersistencePriority(PersistencePriority.VERY_LOW) //
 						.setDebugMode(true) //
 						.build());

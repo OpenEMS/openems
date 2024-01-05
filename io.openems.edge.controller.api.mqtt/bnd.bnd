@@ -13,8 +13,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.paho-mqttv5,\
 	org.eclipse.paho.mqttv5.client;version='1.2',\
 	org.ops4j.pax.logging.pax-logging-api,\
-	bcprov,\
-	bcpkix
-	
+
 -testpath: \
 	${testpath}

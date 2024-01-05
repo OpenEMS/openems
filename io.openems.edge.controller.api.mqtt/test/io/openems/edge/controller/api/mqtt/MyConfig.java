@@ -14,9 +14,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String clientId;
 		private String username;
 		private String password;
-		private String certPem;
-		private String privateKeyPem;
-		private String trustStorePem;
+		private String certPath;
+		private String privateKeyPath;
+		private String trustStorePath;
+		private String trustStorePassword;
 
 		private Builder() {
 		}
@@ -45,19 +46,24 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.password = password;
 			return this;
 		}
-
-		public Builder setCertPem(String certPem) {
-			this.certPem = certPem;
+		
+		public Builder setCertPath(String certPath) {
+			this.certPath = certPath;
 			return this;
 		}
-
-		public Builder setPrivateKeyPem(String privateKeyPem) {
-			this.privateKeyPem = privateKeyPem;
+		
+		public Builder setPrivateKeyPath(String privateKeyPath) {
+			this.privateKeyPath = privateKeyPath;
 			return this;
 		}
-
-		public Builder setTrustStorePath(String trustStorePem) {
-			this.trustStorePem = trustStorePem;
+		
+		public Builder setTrustStorePath(String trustStorePath) {
+			this.trustStorePath = trustStorePath;
+			return this;
+		}
+		
+		public Builder setTrustStorePassword(String trustStorePassword) {
+			this.trustStorePassword = trustStorePassword;
 			return this;
 		}
 
@@ -122,18 +128,23 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.password;
 	}
 
-	@Override
-	public String certPem() {
-		return this.builder.certPem;
+	@Override 
+	public String certPath() {
+		return this.builder.certPath;
 	}
-
+	
 	@Override
-	public String privateKeyPem() {
-		return this.builder.privateKeyPem;
+	public String privateKeyPath() {
+		return this.builder.privateKeyPath;
 	}
-
+	
 	@Override
-	public String trustStorePem() {
-		return this.builder.trustStorePem;
+	public String trustStorePath() {
+		return this.builder.trustStorePath;
+	}
+	
+	@Override
+	public String trustStorePassword() {
+		return this.builder.trustStorePassword;
 	}
 }

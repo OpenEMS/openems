@@ -66,14 +66,15 @@ public class MqttConnector {
 	}
 
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-			String password, String certPem, String privateKeyPem, String trustStorePem)
+			String password, String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword)
 			throws IllegalArgumentException, MqttException {
-		return this.connect(serverUri, clientId, username, password, certPem, privateKeyPem, trustStorePem, null);
+		return this.connect(serverUri, clientId, username, password, certPath, privateKeyPath, trustStorePath,
+				trustStorePassword, null);
 	}
 
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
-			String password, String certPem, String privateKeyPem, String trustStorePem, MqttCallback callback)
-			throws IllegalArgumentException, MqttException {
+			String password, String certPath, String privateKeyPath, String trustStorePath, String trustStorePassword,
+			MqttCallback callback) throws IllegalArgumentException, MqttException {
 		IMqttClient client = new MqttClient(serverUri, clientId);
 		if (callback != null) {
 			client.setCallback(callback);
@@ -88,8 +89,9 @@ public class MqttConnector {
 		options.setCleanStart(true);
 		options.setConnectionTimeout(10);
 
-		if (certPem != null && privateKeyPem != null) {
-			options.setSocketFactory(MqttUtils.createSslSocketFactory(certPem, privateKeyPem, trustStorePem));
+		if (certPath != null && privateKeyPath != null) {
+			options.setSocketFactory(
+					MqttUtils.createSslSocketFactory(certPath, privateKeyPath, trustStorePath, trustStorePassword));
 		}
 
 		this.connector = new MyConnector(client, options);

@@ -1,21 +1,16 @@
 package io.openems.edge.controller.api.mqtt;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-
 import javax.net.ssl.*;
+import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This Utility class provides methods for handling MQTT-related operations.
@@ -30,93 +25,105 @@ public class MqttUtils {
 	 * server truststore information, allowing the creation of an SSLSocketFactory
 	 * with the configured security settings.
 	 *
-	 * @param cert           The client's certificate as String.
-	 * @param privateKey     The private key as String.
-	 * @param trustStore     The server's trust store as String.
+	 * @param certPath           The file path to the client's certificate.
+	 * @param privateKeyPath     The file path to the private key file.
+	 * @param trustStorePath     The file path to the server's truststore.
+	 * @param trustStorePassword The password for accessing the server's truststore.
 	 * @return An SSLSocketFactory configured with the specified security settings.
 	 * @throws RuntimeException If there is an error during the creation of the
 	 *                          SSLSocketFactory.
 	 */
 
-	public static SSLSocketFactory createSslSocketFactory(String cert, String privateKey, String trustStore) {
+	public static SSLSocketFactory createSslSocketFactory(String certPath, String privateKeyPath, String trustStorePath,
+			String trustStorePassword) {
 		try {
-	        Security.addProvider(new BouncyCastleProvider());
+			X509Certificate clientCertificate = loadClientCertificate(certPath);
 
+			PrivateKey privateKey = loadPrivateKey(privateKeyPath);
 
-	        // Load client certificate
-	        X509Certificate clientCert = loadCertificate(cert);
+			KeyManagerFactory keyManagerFactory = KeyManagerFactory
+					.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			clientKeyStore.load(null);
+			clientKeyStore.setCertificateEntry("clientCert", clientCertificate);
+			char pw[] = (trustStorePassword != null) ? trustStorePassword.toCharArray() : null;
+			clientKeyStore.setKeyEntry("clientKey", privateKey, pw,
+					new java.security.cert.Certificate[] { clientCertificate });
+			keyManagerFactory.init(clientKeyStore, pw);
 
-	        // Load client private key
-	        PrivateKey clientKey = loadPrivateKey(privateKey);
-	        
-	        // Load CA certificate
-	        X509Certificate caCert = loadCertificate(trustStore);
+			TrustManagerFactory trustManagerFactory = TrustManagerFactory
+					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			trustManagerFactory.init(loadTrustStore(trustStorePath));
 
-	        // Create a KeyStore and add the CA certificate, client certificate, and private key
-	        KeyStore keyStore = KeyStore.getInstance("PKCS12");
-	        keyStore.load(null, null);
-	        keyStore.setCertificateEntry("caCert", caCert);
-	        keyStore.setCertificateEntry("clientCert", clientCert);
-	        keyStore.setKeyEntry("clientKey", clientKey, new char[0], new X509Certificate[]{clientCert});
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 
-	        // Create a TrustManager that trusts the CA certificate
-	        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-	        trustManagerFactory.init(keyStore);
-
-	        // Create a KeyManager that uses the client certificate and private key
-	        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	        keyManagerFactory.init(keyStore, new char[0]);
-
-	        // Create an SSLContext with the TrustManager and KeyManager
-	        SSLContext sslContext = SSLContext.getInstance("TLS");
-	        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-	        return sslContext.getSocketFactory();
+			return sslContext.getSocketFactory();
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating SSLSocketFactory", e);
 		}
 	}
-	
-    /**
-     * Loads an X.509 certificate from a PEM-encoded string.
-     *
-     * @param cert The PEM-encoded certificate string.
-     * @return The X.509 certificate.
-     * @throws IOException              If an I/O error occurs.
-     * @throws CertificateException     If an error occurs while processing the certificate.
-     */
-    private static X509Certificate loadCertificate(String cert) throws IOException, CertificateException {
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        try (InputStream is = new ByteArrayInputStream(cert.getBytes())) {
-            return (X509Certificate) cf.generateCertificate(is);
-        }
-    }
-    
-    /**
-     * Loads a private key from a PEM-encoded string.
-     *
-     * @param privateKey The PEM-encoded private key string.
-     * @return The private key.
-     * @throws IOException                 If an I/O error occurs.
-     * @throws NoSuchAlgorithmException    If the specified algorithm is not available.
-     * @throws InvalidKeySpecException     If the private key cannot be generated.
-     */
-    private static PrivateKey loadPrivateKey(String privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        try (PEMParser pemParser = new PEMParser(new InputStreamReader(new ByteArrayInputStream(privateKey.getBytes())))) {
-            Object obj = pemParser.readObject();
-            if (obj instanceof PEMKeyPair) {
-                // Handle RSA private key
-                PEMKeyPair pemKeyPair = (PEMKeyPair) obj;
-                JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-                return converter.getPrivateKey(pemKeyPair.getPrivateKeyInfo());
-            } else if (obj instanceof PrivateKeyInfo) {
-                // Handle other private key formats
-                PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) obj;
-                JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-                return converter.getPrivateKey(privateKeyInfo);
-            } else {
-                throw new InvalidKeySpecException("Invalid private key format");
-            }
-        }
-    }
+
+	/**
+	 * Loads a client certificate from a given path.
+	 *
+	 * @param certPath The path to the certificate file.
+	 * @return The loaded client certificate.
+	 * @throws Exception If an error occurs while loading the certificate.
+	 */
+	private static X509Certificate loadClientCertificate(String certPath) throws Exception {
+		CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+		X509Certificate clientCertificate;
+		try (InputStream certInputStream = new FileInputStream(certPath)) {
+			clientCertificate = (X509Certificate) certificateFactory.generateCertificate(certInputStream);
+			return clientCertificate;
+		}
+
+	}
+
+	/**
+	 * Loads a trust store from a given path.
+	 *
+	 * @param trustStorePath The path to the trust store file.
+	 * @return The loaded trust store.
+	 * @throws Exception If an error occurs while loading the trust store.
+	 */
+	private static KeyStore loadTrustStore(String trustStorePath) throws Exception {
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+		List<X509Certificate> certificates = new ArrayList<>();
+		try (FileInputStream fis = new FileInputStream(trustStorePath)) {
+			while (fis.available() > 0) {
+				X509Certificate certificate = (X509Certificate) cf.generateCertificate(fis);
+				certificates.add(certificate);
+			}
+		}
+
+		KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		trustStore.load(null);
+
+		int i = 0;
+		for (X509Certificate certificate : certificates) {
+			String alias = "cert" + i++;
+			trustStore.setCertificateEntry(alias, certificate);
+		}
+
+		return trustStore;
+	}
+
+	/**
+	 * Loads a private key from a given path.
+	 *
+	 * @param privateKeyPath The path to the private key file.
+	 * @return The loaded private key.
+	 * @throws Exception If an error occurs while loading the private key.
+	 */
+	private static PrivateKey loadPrivateKey(String privateKeyPath) throws Exception {
+		try (FileInputStream keyInputStream = new FileInputStream(privateKeyPath)) {
+			byte[] keyBytes = keyInputStream.readAllBytes();
+			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			return keyFactory.generatePrivate(keySpec);
+		}
+	}
 }
