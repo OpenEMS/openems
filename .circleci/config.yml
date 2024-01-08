@@ -55,8 +55,10 @@ jobs:
     steps:
       - checkout
       - run: |
+          currdir=$(pwd)
           cd tools/docker/openems-backend
           ./download-release.sh
+          cd $currdir
       - devops/build-image:
           build_args: "<< parameters.build_args >>"
           dockerfile_path: << parameters.dockerfile_path >>
