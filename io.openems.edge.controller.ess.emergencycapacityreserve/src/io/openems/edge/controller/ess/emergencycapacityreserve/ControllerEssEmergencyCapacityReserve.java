@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -36,13 +37,15 @@ public interface ControllerEssEmergencyCapacityReserve extends Controller, Opene
 		 * Holds target power to reach.
 		 */
 		DEBUG_TARGET_POWER(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT).text("The debug target power to reach")), //
+				.unit(Unit.WATT) //
+				.text("The debug target power to reach")), //
 
 		/**
 		 * Holds power to increase/decrease ramp for every cycle.
 		 */
 		DEBUG_RAMP_POWER(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT).text("The debug ramp power to decrease power")), //
+				.unit(Unit.WATT) //
+				.text("The debug ramp power to decrease power")), //
 
 		/**
 		 * Configured reserve SoC is out of range [5,100].
@@ -55,7 +58,8 @@ public interface ControllerEssEmergencyCapacityReserve extends Controller, Opene
 		 */
 		ACTUAL_RESERVE_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.text("The reserve soc value")); //
+				.text("The reserve soc value") //
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 
