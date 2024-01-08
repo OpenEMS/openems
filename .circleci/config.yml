@@ -96,4 +96,5 @@ workflows:
       - build-image:
           <<: *dev
           image_repo: ems-backend
+          dockerfile_path: tools/docker/openems-backend/Dockerfile
           build_path: tools/docker/openems-backend
