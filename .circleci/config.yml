@@ -44,8 +44,10 @@ jobs:
         type: string
       dockerfile_path:
         type: string
+        default: "."
       build_args:
         type: string
+        default: ""
       build_path:
         type: string
     docker:
