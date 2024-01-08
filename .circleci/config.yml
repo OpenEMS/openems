@@ -53,6 +53,10 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
+      - run: |
+          cd tools/docker/openems-backend
+          ./download-release.sh
       - devops/build-image:
           build_args: "<< parameters.build_args >>"
           dockerfile_path: << parameters.dockerfile_path >>
