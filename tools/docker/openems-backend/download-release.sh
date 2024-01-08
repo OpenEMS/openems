@@ -17,3 +17,6 @@ echo "Downloading ${FILE_NAME} from the latest release..."
 curl -LJO "${release_url}"
 
 echo "Download complete. The ${FILE_NAME} file is saved in the current directory."
+
+mkdir -p build
+mv ${FILE_NAME} build/
