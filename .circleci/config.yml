@@ -1,0 +1,91 @@
+version: 2.1
+
+dev: &dev
+  filters:
+    branches:
+      ignore: main
+  context: dev
+
+staging: &staging
+  filters:
+    branches:
+      only: main
+  context: staging
+
+prod: &prod
+  filters:
+    tags:
+      only: /^\d+\.\d+\.\d+$/
+    branches:
+      ignore: /.*/
+  context: prod
+
+not_scheduled: &not_scheduled
+  when:
+    not:
+      equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+
+nightly: &nightly
+  when:
+    and:
+      - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      - equal: [ nightly_build, << pipeline.schedule.name >> ]
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1.3
+  aws-ecr: circleci/aws-ecr@8.2.1
+  github-cli: circleci/github-cli@2.2.0
+  devops: terawatt-infrastructure/devops-orb@3.1.8
+
+jobs:
+  build-image:
+    parameters:
+      image_repo:
+        type: string
+      dockerfile_path:
+        type: string
+      build_args:
+        type: string
+      build_path:
+        type: string
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - devops/build-image:
+          build_args: "<< parameters.build_args >>"
+          dockerfile_path: << parameters.dockerfile_path >>
+          image_repo: << parameters.image_repo >>
+          pipeline_id: << pipeline.id >>
+          pipeline_number: << pipeline.number >>
+          build_path: << parameters.build_path >>
+
+  deploy:
+    parameters:
+      environment:
+        type: enum
+        default: development
+        enum:
+          - development
+          - staging
+          - production
+      image_repo:
+        type: string
+    description: "Deploys App to Environment"
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - devops/gitops-deploy:
+          application: "<< parameters.image_repo >>"
+          image_repo: "<< parameters.image_repo >>"
+          environment: << parameters.environment >>
+          pipeline_id: << pipeline.id >>
+          pipeline_number: << pipeline.number >>
+
+workflows:
+  dev:
+    <<: *not_scheduled
+    jobs:
+      - build-image:
+          <<: *dev
+          image_repo: ems-backend
+          build_path: tools/docker/openems-backend
