@@ -94,7 +94,6 @@ jobs:
           pipeline_id: << pipeline.id >>
           pipeline_number: << pipeline.number >>
 
-
 workflows:
   dev:
     <<: *not_scheduled
@@ -102,7 +101,6 @@ workflows:
       - build-image:
           <<: *dev
           name: build-image-backend
-          application: openems
           image_repo: ems-backend
           dockerfile_path: tools/docker/openems-backend/Dockerfile
           build_path: tools/docker/openems-backend
