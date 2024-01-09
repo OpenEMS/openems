@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Changelog } from 'src/app/changelog/view/component/changelog.constants';
+
 import { environment } from '../../environments';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
@@ -16,6 +17,7 @@ import { Language } from '../shared/type/language';
 type UserInformation = {
   firstname: string,
   lastname: string,
+  companyname?: string,
   email: string,
   phone: string,
   street: string,
@@ -109,10 +111,29 @@ export class UserComponent implements OnInit {
   }
 
   public enableAndDisableFormFields(): boolean {
+
+    /** Fields, that are allowed to be edited for company assigned users */
+    const ALLOWED_FIELDS_FOR_COMPANY_USER: string[] = [
+      'firstname', 'lastname',
+    ];
+
+    const hasUserCompany = this.userInformationFields.find(field => field.key === 'companyname').model.companyname;
+
     // Update Fields
-    this.userInformationFields.forEach(element => {
-      element.props.disabled = !element.props.disabled;
-    });
+    this.userInformationFields.reduce((arr, field) => {
+
+      if (hasUserCompany && ALLOWED_FIELDS_FOR_COMPANY_USER.find(key => key === field.key)?.length > 0) {
+        field.props.disabled = !field.props.disabled;
+      }
+
+      if (!hasUserCompany) {
+        field.props.disabled = !field.props.disabled;
+      }
+
+      arr.push(field);
+      return arr;
+    }, []);
+
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
@@ -184,7 +205,19 @@ export class UserComponent implements OnInit {
       label: this.translate.instant("Register.Form.phone"),
       disabled: true,
     },
-  }];
+  },
+  {
+    key: "companyname",
+    type: "input",
+    props: {
+      label: this.translate.instant('Register.Form.companyName'),
+      disabled: true,
+    },
+    expressions: {
+      hide: (fields) => !fields.model.companyname,
+    },
+  },
+  ];
 
   public getUserInformation(): Promise<UserInformation> {
 
@@ -197,6 +230,9 @@ export class UserComponent implements OnInit {
             resolve({
               lastname: user.lastname,
               firstname: user.firstname,
+
+              // Show company if available
+              ...(user.company.name && { companyname: user.company.name }),
               email: user.email,
               phone: user.phone,
               street: user.address.street,
