@@ -78,16 +78,22 @@ jobs:
           - production
       image_repo:
         type: string
+      application:
+        type: string
+      tag_values_path:
+        type: string
     description: "Deploys App to Environment"
     docker:
       - image: cimg/base:stable
     steps:
       - devops/gitops-deploy:
-          application: "<< parameters.image_repo >>"
+          application: "<< parameters.application >>"
           image_repo: "<< parameters.image_repo >>"
           environment: << parameters.environment >>
+          tag_values_path: "<< parameters.tag_values_path >>"
           pipeline_id: << pipeline.id >>
           pipeline_number: << pipeline.number >>
+
 
 workflows:
   dev:
@@ -95,6 +101,17 @@ workflows:
     jobs:
       - build-image:
           <<: *dev
+          name: build-image-backend
+          application: openems
           image_repo: ems-backend
           dockerfile_path: tools/docker/openems-backend/Dockerfile
           build_path: tools/docker/openems-backend
+      - deploy:
+          requires:
+            - build-image-backend
+          <<: *dev
+          name: deploy-backend
+          application: openems
+          tag_values_path: .backend.image.tag
+          image_repo: openems
+          environment: development
