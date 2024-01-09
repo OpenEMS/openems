@@ -226,7 +226,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent
 		this.calculateDelayedTime.update(false);
 
 		// Default State Machine.
-		this._setStateMachine(null);
+		this._setStateMachine(BALANCING);
 	}
 
 	/**
