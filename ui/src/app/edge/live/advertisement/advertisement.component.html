@@ -18,11 +18,6 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-
-                <ion-slide *ngSwitchCase="'merry-christmas'">
-                    <merry-christmas></merry-christmas>
-                </ion-slide>
-
                 <ion-slide *ngSwitchCase="'dynamic-electricity-tariff-existing-customer'">
                     <dynamic-electricity-tariff-existing-customer></dynamic-electricity-tariff-existing-customer>
                 </ion-slide>
