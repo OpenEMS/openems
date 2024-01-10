@@ -37,6 +37,16 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2024.1.1',
+        changes: [
+          Changelog.openems('2024.1.0'),
+          Changelog.app(App.TIME_OF_USE) + "(BETA-Test Beladung aus dem Netz): Verbesserungen am Algorithmus (Berücksichtigung Notstromvorhaltung, KI-Performance-Optimierung, kontinuierliche Beladeleistung, uvm.)",
+          Changelog.app(App.HOCHLASTZEITFENSTER) + "Verbesserung der Visualisierung",
+          "Online-Monitoring Live-Energiemonitor: Darstellung der maximalen Netzbezug/-einspeisung, Erzeugung, Verbrauch",
+          Changelog.library(Library.INFLUXDB, Library.POSTGRESQL, Library.APACHE_FELIX_HTTP_JETTY, Library.JNA, Library.OKIO, Library.GUAVA, Library.GRADLE, Library.FASTEXCEL),
+        ],
+      },
+      {
         version: '2023.12.2',
         changes: [
           Changelog.product(Product.HOME_10, Product.HOME_20_30) + "Fehlerbehebungen zu Version 2023.12.1",
