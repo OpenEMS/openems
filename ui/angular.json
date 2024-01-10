@@ -97,6 +97,18 @@
                 }
               ]
             },
+            "openems-backend-prod-eks": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/backend-prod-eks.ts"
+                }
+              ]
+            },
             "openems-edge-dev": {
               "fileReplacements": [
                 {
