@@ -50,6 +50,7 @@ jobs:
         default: ""
       build_path:
         type: string
+        default: "."
     docker:
       - image: cimg/base:stable
     steps:
@@ -111,5 +112,19 @@ workflows:
           name: deploy-backend
           application: openems
           tag_values_path: .backend.image.tag
+          image_repo: openems
+          environment: development
+      - build-image:
+          <<: *dev
+          name: build-image-frontend
+          image_repo: ems-ui
+          dockerfile_path: tools/docker/openems-ui/Dockerfile
+      - deploy:
+          requires:
+            - build-image-frontend
+          <<: *dev
+          name: deploy-frontend
+          application: openems
+          tag_values_path: .ui.image.tag
           image_repo: openems
           environment: development
