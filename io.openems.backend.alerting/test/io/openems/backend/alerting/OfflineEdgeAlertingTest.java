@@ -164,7 +164,7 @@ public class OfflineEdgeAlertingTest {
 	}
 
 	@Test
-	public void deactiveTest() {
+	public void deactivateTest() {
 		var env = new TestEnvironment();
 		/* All off */
 		var config = Dummy.testConfig(5, true, false);

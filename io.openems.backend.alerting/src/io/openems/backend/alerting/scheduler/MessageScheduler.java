@@ -53,15 +53,16 @@ public class MessageScheduler<T extends Message> {
 	 *
 	 * @param msgId for message to remove
 	 */
-	public void remove(String msgId) {
+	public T remove(String msgId) {
 		if (msgId == null) {
-			return;
+			return null;
 		}
 		synchronized (this) {
 			var msg = this.messageForId.remove(msgId);
 			if (msg != null) {
 				this.queue.remove(msg);
 			}
+			return msg;
 		}
 	}
 

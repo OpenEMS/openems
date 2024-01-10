@@ -64,7 +64,8 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 				var faultEdgeDelay = JsonUtils.getAsInt(userJsonObject, "faultEdgeDelay");
 				var warningEdgeDelay = JsonUtils.getAsInt(userJsonObject, "warningEdgeDelay");
 
-				this.userSettings.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
+				this.userSettings
+						.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}

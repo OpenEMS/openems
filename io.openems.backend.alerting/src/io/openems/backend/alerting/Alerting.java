@@ -67,7 +67,6 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	private final Scheduler scheduler;
 
-
 	protected final List<Handler<?>> handler = new ArrayList<>(2);
 
 	protected Alerting(Scheduler scheduler, ThreadPoolExecutor executor) {

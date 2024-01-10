@@ -51,8 +51,8 @@ public class SumStateAlertingTest {
 					new SimpleAlertingSetting("user01", 0, 0), //
 					new SimpleAlertingSetting("user02", 0, 0));
 			this.createEdge("edge04", true, this.timer.now(), //
-					new SimpleAlertingSetting("user01", 30, 60), //
-					new SimpleAlertingSetting("user02", 60, 60));
+					new SimpleAlertingSetting("user01", 30, 120), //
+					new SimpleAlertingSetting("user02", 60, 120));
 			this.createEdge("edge05", true, this.timer.now().minusHours(12), //
 					new SimpleAlertingSetting("user02", 60, 120), //
 					new SimpleAlertingSetting("user03", 1440, 1440));
@@ -126,19 +126,34 @@ public class SumStateAlertingTest {
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
-		/* Wait long enough to trigger delayed Initialization. */
-		env.timer.leap(2); /* inaccuracy + initial mails on next cycle */
+		env.timer.leap(2);
 
 		assertEquals(0, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
-		env.setState(Level.FAULT, "edge03", "edge04");
+		env.setState(Level.WARNING, "edge03", "edge04");
 
-		/* edge04[user01, uer02] */
+		env.timer.leap(5);
+
+		/* edge04[user01, user02] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
 		assertEquals(0, env.mailer.getMailsCount());
 
-		env.timer.leap(31);
+		env.timer.leap(16);
+
+		env.setState(Level.FAULT, "edge04");
+
+		/* edge04[user01, user02] */
+		assertEquals(1, env.scheduler.getScheduledMsgsCount());
+		assertEquals(0, env.mailer.getMailsCount());
+
+		env.timer.leap(16);
+
+		/* edge04[user02, user01] */
+		assertEquals(1, env.scheduler.getScheduledMsgsCount());
+		assertEquals(0, env.mailer.getMailsCount());
+
+		env.timer.leap(16);
 
 		/* edge04[user02] */
 		assertEquals(1, env.scheduler.getScheduledMsgsCount());
@@ -171,7 +186,7 @@ public class SumStateAlertingTest {
 	}
 
 	@Test
-	public void deactiveTest() {
+	public void deactivateTest() {
 		var env = new TestEnvironment();
 		/* All off */
 		var config = Dummy.testConfig(5, false, true);

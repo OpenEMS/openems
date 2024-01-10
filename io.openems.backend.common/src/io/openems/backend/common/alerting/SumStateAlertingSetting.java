@@ -8,12 +8,15 @@ public record SumStateAlertingSetting(String edgeId, String userLogin, int fault
 		ZonedDateTime lastNotification) {
 	/**
 	 * Get the appropriate delay for the given SumState level .
-	 * 
+	 *
 	 * @param state to get delay for
-	 * @return delay as int
+	 * @return delay as integer
 	 */
 	public int getDelay(Level state) {
 		return switch (state) {
+		case OK:
+		case INFO:
+			yield 0;
 		case FAULT:
 			yield this.faultDelay;
 		case WARNING:

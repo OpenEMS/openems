@@ -310,7 +310,7 @@ public interface Metadata {
 	 * @throws OpenemsException on error
 	 */
 	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
-	
+
 	/**
 	 * Gets all the alerting settings for given edge id.
 	 *
@@ -344,12 +344,13 @@ public interface Metadata {
 	/**
 	 * Sets the alerting settings for the given list of users.
 	 *
-	 * @param user   	{@link User} the current user
-	 * @param edgeId 	the Edge-ID
-	 * @param settings	list of updated {@link UserAlertingSettings}
+	 * @param user     {@link User} the current user
+	 * @param edgeId   the Edge-ID
+	 * @param settings list of updated {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings) throws OpenemsException;
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
+			throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.

@@ -4,7 +4,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
@@ -19,32 +19,45 @@ public class SumStateMessage extends Message {
 
 	public static final String TEMPLATE = "alerting_sum_state";
 
-	private Level sumState;
-	private final ZonedDateTime stateSince;
-	private ZonedDateTime lastMessage;
-	private final TreeMap<Integer, List<SumStateAlertingSetting>> recipients;
+	private final List<SumStateAlertingSetting> recipients;
 
-	private SumStateMessage(String edgeId, Level sumState, ZonedDateTime stateSince,
-			TreeMap<Integer, List<SumStateAlertingSetting>> recipients) {
+	private Level sumState;
+	private ZonedDateTime stateSince;
+
+	public SumStateMessage(String edgeId, Level sumState, ZonedDateTime stateSince,
+			List<SumStateAlertingSetting> recipients) {
 		super(edgeId);
 		this.stateSince = stateSince;
-		this.lastMessage = stateSince;
 		this.sumState = sumState;
 		this.recipients = recipients;
 	}
 
 	public SumStateMessage(String edgeId, Level sumState, ZonedDateTime stateSince) {
-		this(edgeId, sumState, stateSince, new TreeMap<>());
-	}
-
-	@Override
-	public ZonedDateTime getNotifyStamp() {
-		var minutes = this.recipients.isEmpty() ? 0 : this.recipients.firstKey();
-		return this.stateSince.plusMinutes(minutes);
+		this(edgeId, sumState, stateSince, new ArrayList<>());
 	}
 
 	public Level getSumState() {
 		return this.sumState;
+	}
+
+	public ZonedDateTime getStateSince() {
+		return this.stateSince;
+	}
+
+	private OptionalInt minimumSetting() {
+		var sumState = this.getSumState();
+		return recipients.stream().mapToInt(r -> r.getDelay(sumState)).filter(i -> i > 0).min();
+	}
+
+	@Override
+	public ZonedDateTime getNotifyStamp() {
+		var min = this.minimumSetting().orElse(0);
+		return this.getStateSince().plusMinutes(min);
+	}
+
+	public void setSumState(Level sumState, ZonedDateTime now) {
+		this.stateSince = now;
+		this.sumState = sumState;
 	}
 
 	public String getEdgeId() {
@@ -52,7 +65,12 @@ public class SumStateMessage extends Message {
 	}
 
 	public List<SumStateAlertingSetting> getCurrentRecipients() {
-		return this.recipients.get(this.recipients.firstKey());
+		var min = minimumSetting();
+		if (min.isEmpty()) {
+			return List.of();
+		}
+		var sumState = this.getSumState();
+		return this.recipients.stream().filter(r -> r.getDelay(sumState) == min.getAsInt()).toList();
 	}
 
 	@Override
@@ -68,7 +86,7 @@ public class SumStateMessage extends Message {
 	@Override
 	public String toString() {
 		var localNotify = this.getNotifyStamp().withZoneSameInstant(ZoneId.systemDefault()).toString();
-		var localSince = this.stateSince.withZoneSameInstant(ZoneId.systemDefault()).toString();
+		var localSince = this.getStateSince().withZoneSameInstant(ZoneId.systemDefault()).toString();
 
 		var rec = this.getCurrentRecipients().stream() //
 				.map(s -> String.valueOf(s.userLogin())) //
@@ -76,29 +94,7 @@ public class SumStateMessage extends Message {
 
 		return SumStateMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
 				+ localNotify //
-				+ ", state=" + this.sumState.getName() + ", since=" + localSince + "}";
-	}
-
-	/**
-	 * Tell if mail should be sent.
-	 *
-	 * @return true if mail should be sent
-	 */
-	public boolean shouldSend() {
-		return this.stateSince.isEqual(this.lastMessage);
-	}
-
-	/**
-	 * Add a recipient with its delay to the message.
-	 *
-	 * @param setting of user to whom to send the mail to
-	 * @param state   of edge
-	 */
-	public void addRecipient(SumStateAlertingSetting setting, Level state) {
-		var delay = setting.getDelay(state);
-		this.recipients.putIfAbsent(delay, new ArrayList<>());
-		var settings = this.recipients.get(delay);
-		settings.add(setting);
+				+ ", state=" + this.getSumState().getName() + ", since=" + localSince + "}";
 	}
 
 	/**
@@ -107,11 +103,11 @@ public class SumStateMessage extends Message {
 	 * @return true if should be rescheduled;
 	 */
 	public boolean update() {
-		this.recipients.remove(this.recipients.firstKey());
+		this.recipients.removeAll(this.getCurrentRecipients());
 		return !this.isEmpty();
 	}
 
 	public boolean isEmpty() {
-		return this.recipients.isEmpty();
+		return this.minimumSetting().isEmpty();
 	}
 }

@@ -36,11 +36,11 @@ public class Dummy {
 
 	/**
 	 * Dummy ThreadPoolExecutor, that executes tasks in the caller Thread.
-	 * 
+	 *
 	 * @return Dummy {@link ThreadPoolExecutor}
 	 */
 	public static ThreadPoolExecutor executor() {
-		return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>()) {
+		return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MINUTES, new LinkedBlockingQueue<>()) {
 			@Override
 			public void execute(Runnable command) {
 				command.run();
@@ -256,7 +256,6 @@ public class Dummy {
 		}
 	}
 
-
 	protected static Config testConfig(int initialDelay, boolean onOffline, boolean onSumState) {
 		return new Config() {
 
@@ -269,7 +268,7 @@ public class Dummy {
 			public String webconsole_configurationFactory_nameHint() {
 				return "Alerting";
 			}
-			
+
 			@Override
 			public boolean notifyOnSumStateChange() {
 				return onSumState;
@@ -279,7 +278,6 @@ public class Dummy {
 			public boolean notifyOnOffline() {
 				return onOffline;
 			}
-
 
 			@Override
 			public int initialDelay() {
