@@ -46,7 +46,6 @@ export class Language {
     }
 
     public static getByBrowserLang(browserLang: string): Language | null {
-        console.log(`getByBrowserLang = ${browserLang}`);
         switch (browserLang) {
             case "de": return Language.DE;
             case "en":
@@ -61,7 +60,6 @@ export class Language {
     }
 
     public static getLocale(language: string) {
-        console.log(`getLocale = ${language}`);
         switch (language) {
             case Language.DE.key: return Language.DE.locale;
             case Language.EN.key: return Language.EN.locale;
