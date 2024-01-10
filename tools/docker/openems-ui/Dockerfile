@@ -3,7 +3,7 @@ COPY ui ui/
 WORKDIR ui
 RUN npm install && \
     npm install -g @angular/cli@15.2.8
-RUN ng build -c --base-href "/openems/" "openems,openems-backend-prod-eks,prod"
+RUN ng build --base-href "/openems/" -c "openems,openems-backend-prod-eks,prod"
 
 FROM nginx:latest
 
