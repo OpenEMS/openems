@@ -49,7 +49,9 @@ export class Language {
         console.log(`getByBrowserLang = ${browserLang}`);
         switch (browserLang) {
             case "de": return Language.DE;
-            case "en": return Language.EN;
+            case "en":
+            case "en-US":
+                return Language.EN;
             case "es": return Language.ES;
             case "nl": return Language.NL;
             case "cz": return Language.CZ;
