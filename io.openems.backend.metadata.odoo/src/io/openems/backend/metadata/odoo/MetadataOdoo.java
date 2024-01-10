@@ -35,25 +35,25 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
-import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
+import io.openems.backend.common.metadata.UserAlertingSettings;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
+import io.openems.common.oem.OpenemsBackendOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -88,6 +88,9 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Reference
 	private EventAdmin eventAdmin;
+
+	@Reference
+	private OpenemsBackendOem oem;
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
@@ -275,7 +278,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		final OdooUserRole role;
 
 		var roleOpt = JsonUtils.getAsOptionalString(jsonObject, "role");
@@ -488,13 +491,13 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			final String appId //
 	) throws OpenemsNamedException {
 		if (this.isAppFree(user, appId)) {
-			return "8fyk-Gma9-EUO3-j3gi";
+			return this.oem.getAppCenterMasterKey();
 		}
-		// TODO may only be for fenecon employees/admins
+		// TODO better only for certain employees/admins
 		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
 			return null;
 		}
-		return "8fyk-Gma9-EUO3-j3gi";
+		return this.oem.getAppCenterMasterKey();
 	}
 
 	@Override
@@ -508,17 +511,18 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId);
 	}
 
 	@Override
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException {
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users)
+			throws OpenemsException {
 		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
 	}
 
@@ -582,7 +586,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void updateUserSettings(User user, JsonObject settings)throws OpenemsNamedException {
+	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
 		this.odooHandler.updateUserSettings(user, settings);
 	}
 

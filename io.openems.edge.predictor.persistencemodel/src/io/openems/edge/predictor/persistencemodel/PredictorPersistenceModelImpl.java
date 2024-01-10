@@ -96,11 +96,14 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
-			this.logError(this.log, e.getMessage());
+			this.logError(this.log, "Historic data is not available: " + e.getMessage());
 			e.printStackTrace();
 			return Prediction24Hours.EMPTY;
 		}
-
+		if (queryResult == null) {
+			this.logError(this.log, "Historic data is not available: query result is null");
+			return Prediction24Hours.EMPTY;
+		}
 		// Extract data
 		var data = queryResult.values().stream() //
 				.map(SortedMap::values) //
@@ -113,6 +116,10 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor24Hours
 					}
 					return v.getAsInt();
 				}).toList();
+		if (data.isEmpty()) {
+			this.logError(this.log, "Historic data is not available: query result is empty");
+			return Prediction24Hours.EMPTY;
+		}
 
 		// Apply regression for ultra-short-term prediction
 		final var regression = this.getRegressionPrediction(data);

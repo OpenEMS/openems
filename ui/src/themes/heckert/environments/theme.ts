@@ -72,7 +72,7 @@ export const theme = {
                         default: return 'en';
                     }
                 })();
-                return 'https://docs.fenecon.de/de/_/latest/_images/fenecon/apps/' + languageKey + '/' + appId + '.png';
+                return 'https://docs.fenecon.de/_/' + languageKey + '/_images/fenecon/apps/' + appId + '.png';
             },
         },
     },

@@ -157,6 +157,7 @@
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.meter.ziehl',\
+	bnd.identity;id='io.openems.edge.oem.fenecon',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
@@ -185,10 +186,10 @@
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
 	com.google.gson;version='[2.10.1,2.10.2)',\
-	com.google.guava;version='[32.1.3,32.1.4)',\
+	com.google.guava;version='[33.0.0,33.0.1)',\
 	com.google.guava.failureaccess;version='[1.0.2,1.0.3)',\
-	com.squareup.okio;version='[3.6.0,3.6.1)',\
-	com.sun.jna;version='[5.13.0,5.13.1)',\
+	com.squareup.okio;version='[3.7.0,3.7.1)',\
+	com.sun.jna;version='[5.14.0,5.14.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -317,6 +318,7 @@
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.meter.ziehl;version=snapshot,\
+	io.openems.edge.oem.fenecon;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
@@ -370,12 +372,12 @@
 	javax.xml.soap-api;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-csv;version='[1.10.0,1.10.1)',\
 	org.apache.commons.commons-fileupload;version='[1.5.0,1.5.1)',\
-	org.apache.commons.commons-io;version='[2.15.0,2.15.1)',\
+	org.apache.commons.commons-io;version='[2.15.1,2.15.2)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty;version='[5.1.4,5.1.5)',\
+	org.apache.felix.http.jetty;version='[5.1.6,5.1.7)',\
 	org.apache.felix.http.servlet-api;version='[3.0.0,3.0.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
@@ -383,7 +385,7 @@
 	org.apache.felix.webconsole;version='[4.9.6,4.9.7)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.9.21,1.9.22)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.9.22,1.9.23)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\

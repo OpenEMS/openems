@@ -15,8 +15,10 @@ import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.evcs.AlpitronicEvcs;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
@@ -29,15 +31,22 @@ import io.openems.edge.app.heat.HeatingElement;
 import io.openems.edge.app.integratedsystem.FeneconHome;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
-import io.openems.edge.app.loadcontrol.ManualRelayControl;
-import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
+import io.openems.edge.app.loadcontrol.ManualRelayControl;
+import io.openems.edge.app.loadcontrol.ThresholdControl;
+import io.openems.edge.app.meter.CarloGavazziMeter;
+import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.MicrocareSdm630Meter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
+import io.openems.edge.app.pvinverter.FroniusPvInverter;
+import io.openems.edge.app.pvinverter.KacoPvInverter;
+import io.openems.edge.app.pvinverter.KostalPvInverter;
+import io.openems.edge.app.pvinverter.SmaPvInverter;
+import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
@@ -246,6 +255,16 @@ public class Apps {
 		return app(t, RestJsonApiReadOnly::new, "App.Api.RestJson.ReadOnly");
 	}
 
+	/**
+	 * Test method for creating a {@link RestJsonApiReadWrite}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final RestJsonApiReadWrite restJsonApiReadWrite(AppManagerTestBundle t) {
+		return app(t, RestJsonApiReadWrite::new, "App.Api.RestJson.ReadWrite");
+	}
+
 	// Evcs
 
 	/**
@@ -276,6 +295,16 @@ public class Apps {
 	 */
 	public static final IesKeywattEvcs iesKeywattEvcs(AppManagerTestBundle t) {
 		return app(t, IesKeywattEvcs::new, "App.Evcs.IesKeywatt");
+	}
+
+	/**
+	 * Test method for creating a {@link AlpitronicEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AlpitronicEvcs alpitronicEvcs(AppManagerTestBundle t) {
+		return app(t, AlpitronicEvcs::new, "App.Evcs.Alpitronic");
 	}
 
 	/**
@@ -397,6 +426,26 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link CarloGavazziMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final CarloGavazziMeter carloGavazziMeter(AppManagerTestBundle t) {
+		return app(t, CarloGavazziMeter::new, "App.Meter.CarloGavazzi");
+	}
+
+	/**
+	 * Test method for creating a {@link JanitzaMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final JanitzaMeter janitzaMeter(AppManagerTestBundle t) {
+		return app(t, JanitzaMeter::new, "App.Meter.Janitza");
+	}
+
+	/**
 	 * Test method for creating a {@link MicrocareSdm630Meter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -404,6 +453,58 @@ public class Apps {
 	 */
 	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
 		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	}
+
+	// PV-Inverter
+
+	/**
+	 * Test method for creating a {@link FroniusPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FroniusPvInverter froniusPvInverter(AppManagerTestBundle t) {
+		return app(t, FroniusPvInverter::new, "App.PvInverter.Fronius");
+	}
+
+	/**
+	 * Test method for creating a {@link KacoPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KacoPvInverter kacoPvInverter(AppManagerTestBundle t) {
+		return app(t, KacoPvInverter::new, "App.PvInverter.Kaco");
+	}
+
+	/**
+	 * Test method for creating a {@link KostalPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KostalPvInverter kostalPvInverter(AppManagerTestBundle t) {
+		return app(t, KostalPvInverter::new, "App.PvInverter.Kostal");
+	}
+
+	/**
+	 * Test method for creating a {@link SmaPvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SmaPvInverter smaPvInverter(AppManagerTestBundle t) {
+		return app(t, SmaPvInverter::new, "App.PvInverter.Sma");
+	}
+
+	/**
+	 * Test method for creating a {@link SolarEdgePvInverter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SolarEdgePvInverter solarEdgePvInverter(AppManagerTestBundle t) {
+		return app(t, SolarEdgePvInverter::new, "App.PvInverter.SolarEdge");
 	}
 
 	// PeakShaving

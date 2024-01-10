@@ -13,6 +13,7 @@ public class KacoBlueplanetHybrid10CoreImplTest {
 		new ComponentTest(new KacoBlueplanetHybrid10CoreImpl()) //
 				.activate(MyConfig.create() //
 						.setId(CORE_ID) //
+						.setIdentkey("") //
 						.setIp("192.168.0.1") //
 						.setSerialnumber("123456") //
 						.setUserkey("user") //

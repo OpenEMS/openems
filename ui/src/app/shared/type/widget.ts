@@ -58,12 +58,7 @@ export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [
-            {
-                name: 'merry-christmas',
-                title: 'FENECON wünscht frohe Weihnachten',
-            },
-        ];
+        let list: AdvertWidget[] = [];
 
         //Temporarily removing from displaying this advertise.
         /*

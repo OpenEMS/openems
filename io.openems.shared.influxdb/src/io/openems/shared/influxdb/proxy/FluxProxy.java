@@ -21,7 +21,6 @@ import com.influxdb.query.FluxTable;
 import com.influxdb.query.dsl.Flux;
 import com.influxdb.query.dsl.functions.restriction.Restrictions;
 
-import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -35,6 +34,10 @@ import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 public class FluxProxy extends QueryProxy {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FluxProxy.class);
+
+	public FluxProxy(String tag) {
+		super(tag);
+	}
 
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(//
@@ -106,7 +109,7 @@ public class FluxProxy extends QueryProxy {
 			throws OpenemsNamedException {
 		final var query = this.buildFetchAvailableSinceQuery(bucket);
 		final var queryResult = this.executeQuery(influxConnection, query);
-		return convertAvailableSinceQueryResult(queryResult);
+		return convertAvailableSinceQueryResult(queryResult, this.tag);
 	}
 
 	@Override
@@ -138,7 +141,7 @@ public class FluxProxy extends QueryProxy {
 				.filter(Restrictions.measurement().equal(measurement));
 
 		if (influxEdgeId.isPresent()) {
-			flux = flux.filter(Restrictions.tag(OpenemsOEM.INFLUXDB_TAG).equal(influxEdgeId.get().toString()));
+			flux = flux.filter(Restrictions.tag(this.tag).equal(influxEdgeId.get().toString()));
 		}
 
 		flux = flux.filter(toChannelAddressFieldList(channels)) //
@@ -164,7 +167,7 @@ public class FluxProxy extends QueryProxy {
 				.append("|> filter(fn: (r) => r._measurement == \"").append(measurement).append("\")");
 
 		if (influxEdgeId.isPresent()) {
-			builder.append("|> filter(fn: (r) => r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\")");
+			builder.append("|> filter(fn: (r) => r." + this.tag + " == \"" + influxEdgeId.get() + "\")");
 		}
 
 		builder //
@@ -210,7 +213,7 @@ public class FluxProxy extends QueryProxy {
 				.filter(Restrictions.measurement().equal(measurement));
 
 		if (influxEdgeId.isPresent()) {
-			flux = flux.filter(Restrictions.tag(OpenemsOEM.INFLUXDB_TAG).equal(influxEdgeId.get().toString()));
+			flux = flux.filter(Restrictions.tag(this.tag).equal(influxEdgeId.get().toString()));
 		}
 
 		flux = flux.filter(toChannelAddressFieldList(channels)) //
@@ -250,8 +253,8 @@ public class FluxProxy extends QueryProxy {
 				.append(date.toInstant()).append(")") //
 				.append("|> filter(fn: (r) => r._measurement == \"").append(measurement).append("\") ");
 
-		influxEdgeId.ifPresent(id -> builder.append("|> filter(fn: (r) => r.").append(OpenemsOEM.INFLUXDB_TAG)
-				.append(" == '").append(id).append("') "));
+		influxEdgeId.ifPresent(id -> builder //
+				.append("|> filter(fn: (r) => r.").append(this.tag).append(" == '").append(id).append("') "));
 
 		builder //
 				.append("|> filter(fn : (r) => ") //
@@ -437,16 +440,15 @@ public class FluxProxy extends QueryProxy {
 		return latestValues;
 	}
 
-	private static Map<Integer, Map<String, Long>> convertAvailableSinceQueryResult(List<FluxTable> queryResult) {
+	private static Map<Integer, Map<String, Long>> convertAvailableSinceQueryResult(List<FluxTable> queryResult,
+			String tag) {
 		if (queryResult == null || queryResult.isEmpty()) {
 			return new TreeMap<>();
 		}
 		return queryResult.stream() //
 				.flatMap(t -> t.getRecords().stream()) //
 				.collect(CollectorUtils.toDoubleMap(//
-						record -> Integer.parseInt(//
-								(String) record.getValueByKey(OpenemsOEM.INFLUXDB_TAG) //
-						), //
+						record -> Integer.parseInt((String) record.getValueByKey(tag)), //
 						record -> (String) record.getValueByKey(QueryProxy.CHANNEL_TAG), //
 						record -> (Long) record.getValue()) //
 				);

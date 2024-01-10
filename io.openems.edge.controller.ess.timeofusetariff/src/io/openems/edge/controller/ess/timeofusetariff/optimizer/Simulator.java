@@ -2,13 +2,15 @@ package io.openems.edge.controller.ess.timeofusetariff.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestGenotype;
 import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.jenetics.engine.Limits.bySteadyFitness;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.buildInitialPopulation;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateBalancingChargeDischarge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxCharge;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateEssMaxDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.calculateStateChargeEnergy;
-import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessPeriodState;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.paramsAreValid;
+import static io.openems.edge.controller.ess.timeofusetariff.optimizer.Utils.postprocessSimulatorState;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.time.Duration.ofMinutes;
+import static java.time.Duration.ofSeconds;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -33,7 +35,7 @@ public class Simulator {
 	}
 
 	protected static double calculateCost(Params p, StateMachine[] states, Consumer<Period> collect) {
-		final var nextEssInitial = new AtomicInteger(p.essAvailableEnergy());
+		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
 		var sum = 0.;
 		for (var i = 0; i < p.numberOfPeriods(); i++) {
 			sum += calculatePeriodCost(p, i, states, nextEssInitial, collect);
@@ -47,23 +49,23 @@ public class Simulator {
 		final var consumption = p.consumptions()[i];
 		final var state = states[i];
 		final var essInitial = nextEssInitial.get();
-		final var essMaxCharge = -min(//
-				p.essCapacity() - essInitial, // Remaining capacity
-				p.essMaxEnergyPerPeriod()); // Max per Period
-		final var essMaxDischarge = min(//
-				essInitial, // Available energy in ESS
-				p.essMaxEnergyPerPeriod() // Max per Period
-		);
+		final var essMaxCharge = calculateEssMaxCharge(p.essMaxSocEnergy(), p.essMaxEnergyPerPeriod(), essInitial);
+		final var essMaxDischarge = calculateEssMaxDischarge(p.essMinSocEnergy(), p.essMaxEnergyPerPeriod(),
+				essInitial);
 		final var price = p.prices()[i];
-		final var balancingChargeDischarge = min(max(consumption - production, essMaxCharge), essMaxDischarge);
+		final var balancingChargeDischarge = calculateBalancingChargeDischarge(essMaxCharge, essMaxDischarge,
+				production, consumption);
 		var essChargeDischarge = switch (state) {
 		case BALANCING ->
 			// Apply behaviour of ESS Balancing Controller
 			balancingChargeDischarge;
+
+		case DELAY_DISCHARGE -> 0;
+
 		case CHARGE ->
 			// Charge from grid; max 'maxBuyFromGrid'
-			calculateStateChargeEnergy(p.maxBuyFromGrid(), consumption, production, essMaxCharge);
-		case DELAY_DISCHARGE -> 0;
+			calculateStateChargeEnergy(p.essMaxChargePerPeriod(), p.maxBuyFromGrid(), consumption, production,
+					essMaxCharge);
 		};
 
 		// Calculate Grid energy
@@ -86,7 +88,7 @@ public class Simulator {
 		}
 		if (collect != null) {
 			var time = p.time().plusMinutes(15 * i);
-			var postprocessedState = postprocessPeriodState(p, essInitial, gridEssCharge, price,
+			var postprocessedState = postprocessSimulatorState(p, essChargeDischarge, essInitial, gridEssCharge, price,
 					balancingChargeDischarge, state);
 			collect.accept(new Period(time, production, consumption, essInitial, essMaxCharge, essMaxDischarge,
 					postprocessedState, essChargeDischarge, grid, price, cost / 1000000));
@@ -97,17 +99,18 @@ public class Simulator {
 	/**
 	 * Runs the optimization with default settings.
 	 * 
-	 * @param p the {@link Params}
+	 * @param p                     the {@link Params}
+	 * @param executionLimitSeconds limit.byExecutionTime.ofSeconds
 	 * @return the best schedule
 	 */
-	protected static StateMachine[] getBestSchedule(Params p) {
-		return getBestSchedule(p, null, null);
+	protected static StateMachine[] getBestSchedule(Params p, long executionLimitSeconds) {
+		return getBestSchedule(p, executionLimitSeconds, null, null);
 	}
 
-	protected static StateMachine[] getBestSchedule(Params p, Integer populationSize, Integer limit) {
+	protected static StateMachine[] getBestSchedule(Params p, long executionLimitSeconds, Integer populationSize,
+			Integer limit) {
 		// Return pure BALANCING Schedule if no predictions are available
-		if (p.numberOfPeriods() == 0 || p.predictionsAreEmpty()) {
-			System.out.println("Fallback to DEFAULT BALANCING Schedule");
+		if (!paramsAreValid(p)) {
 			return IntStream.range(0, p.numberOfPeriods()) //
 					.mapToObj(period -> StateMachine.BALANCING) //
 					.toArray(StateMachine[]::new);
@@ -130,8 +133,7 @@ public class Simulator {
 		}
 		Stream<EvolutionResult<IntegerGene, Double>> stream = engine.build() //
 				.stream(buildInitialPopulation(p)) //
-				.limit(bySteadyFitness(20_000)) //
-				.limit(byExecutionTime(ofMinutes(11))); //
+				.limit(byExecutionTime(ofSeconds(executionLimitSeconds))); //
 		if (limit != null) {
 			stream = stream.limit(limit); // apply optional limit
 		}

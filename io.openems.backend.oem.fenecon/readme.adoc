@@ -1,0 +1,5 @@
+= OpenEMS Backend OEM FENECON
+
+This is the OpenEMS Backend OEM Bundle for FENECON.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.oem.fenecon[Source Code icon:github[]]

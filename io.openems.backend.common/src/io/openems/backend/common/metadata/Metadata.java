@@ -15,7 +15,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.event.BackendEventConstants;
-import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -288,7 +287,7 @@ public interface Metadata {
 	 * @param oem  OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
+	public void registerUser(JsonObject user, String oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.
@@ -304,10 +303,10 @@ public interface Metadata {
 	 *
 	 *
 	 * @param edgeId the Edge ID
-	 * @return List of {@link AlertingSetting}
+	 * @return List of {@link UserAlertingSettings}
 	 * @throws OpenemsException on error
 	 */
-	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException;
+	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) throws OpenemsException;
 
 	/**
 	 * Gets the alerting settings for given edge id and userId.
@@ -317,7 +316,7 @@ public interface Metadata {
 	 * @return List of {@link UserRoleDelayTime}
 	 * @throws OpenemsException on error
 	 */
-	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+	public UserAlertingSettings getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
 
 	/**
 	 * Sets the alerting settings for the given list of users.
@@ -327,7 +326,7 @@ public interface Metadata {
 	 * @param users  list of users to update
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException;
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> users) throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.

@@ -1,0 +1,5 @@
+= OpenEMS Edge OEM FENECON
+
+This is the OpenEMS Edge OEM Bundle for FENECON.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.oem.fenecon[Source Code icon:github[]]

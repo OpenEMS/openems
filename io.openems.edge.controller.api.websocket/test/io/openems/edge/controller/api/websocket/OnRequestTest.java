@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -11,19 +12,13 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyUser;
-import io.openems.edge.common.user.User;
 
 public class OnRequestTest {
 
-	private final User user = new DummyUser("id", "password", Language.DEFAULT, Role.ADMIN);
-
 	@Test
 	public void testHandleGetEdgesRequest() throws Exception {
-		final var response = OnRequest.handleGetEdgesRequest(this.user,
+		final var response = OnRequest.handleGetEdgesRequest(DUMMY_ADMIN,
 				GetEdgesRequest.from(new GenericJsonrpcRequest(GetEdgesRequest.METHOD, JsonUtils.buildJsonObject() //
 						.addProperty("page", 0) //
 						.build())))
@@ -37,7 +32,7 @@ public class OnRequestTest {
 
 	@Test
 	public void testHandleGetEdgeRequest() throws Exception {
-		final var response = OnRequest.handleGetEdgeRequest(this.user,
+		final var response = OnRequest.handleGetEdgeRequest(DUMMY_ADMIN,
 				GetEdgeRequest.from(new GenericJsonrpcRequest(GetEdgeRequest.METHOD, JsonUtils.buildJsonObject() //
 						.addProperty("edgeId", ControllerApiWebsocket.EDGE_ID) //
 						.build())))
@@ -53,7 +48,7 @@ public class OnRequestTest {
 		assertEquals(ControllerApiWebsocket.SUM_STATE, edge.sumState());
 		assertEquals(OpenemsConstants.VERSION, edge.version());
 		assertTrue(edge.isOnline());
-		assertEquals(this.user.getGlobalRole(), edge.role());
+		assertEquals(DUMMY_ADMIN.getGlobalRole(), edge.role());
 		assertNull(edge.firstSetupProtocol());
 	}
 
