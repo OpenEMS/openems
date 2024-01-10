@@ -87,7 +87,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private boolean isEdgeError(String edgeId) {
 		var sumState = this.metadata.getSumState(edgeId);
 		if (sumState.isPresent()) {
-			return isSevere(sumState.get());
+			return this.isSevere(sumState.get());
 		} else {
 			return false;
 		}
@@ -103,7 +103,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	 * @param edge     to add
 	 * @param sumState of edge
 	 * @return {@link OfflineEdgeMessage} generated from edge
-	 * @throws OpenemsException
+	 * @throws OpenemsException on any error
 	 */
 	protected SumStateMessage getEdgeMessage(Edge edge, Level sumState) throws OpenemsException {
 		if (edge == null || edge.getId() == null) {

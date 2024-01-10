@@ -46,7 +46,7 @@ public class SumStateMessage extends Message {
 
 	private OptionalInt minimumSetting() {
 		var sumState = this.getSumState();
-		return recipients.stream().mapToInt(r -> r.getDelay(sumState)).filter(i -> i > 0).min();
+		return this.recipients.stream().mapToInt(r -> r.getDelay(sumState)).filter(i -> i > 0).min();
 	}
 
 	@Override
@@ -64,8 +64,13 @@ public class SumStateMessage extends Message {
 		return super.getId();
 	}
 
+	/**
+	 * Get the list of settings, which are closest to be sent.
+	 * 
+	 * @return {@link List} of recipients
+	 */
 	public List<SumStateAlertingSetting> getCurrentRecipients() {
-		var min = minimumSetting();
+		var min = this.minimumSetting();
 		if (min.isEmpty()) {
 			return List.of();
 		}

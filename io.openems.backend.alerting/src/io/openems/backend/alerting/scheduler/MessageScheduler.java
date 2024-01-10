@@ -52,6 +52,7 @@ public class MessageScheduler<T extends Message> {
 	 * Remove message from scheduler.
 	 *
 	 * @param msgId for message to remove
+	 * @return the removed Message or null, if none was found
 	 */
 	public T remove(String msgId) {
 		if (msgId == null) {
