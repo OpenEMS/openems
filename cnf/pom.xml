@@ -98,19 +98,6 @@
 			<artifactId>HikariCP</artifactId>
 			<version>5.1.0</version>
 		</dependency>
-		<!-- commons -->
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.5</version>
-		</dependency>
-		<dependency>
-			<!-- Apache Commons IO is a library of utilities to assist with developing IO functionality. -->
-			<!-- Changelog: https://commons.apache.org/proper/commons-io/changes-report.html -->
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.15.1</version>
-		</dependency>
 		<!-- de -->
 		<dependency>
 			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->
@@ -249,7 +236,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>4.9.6</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
