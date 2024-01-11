@@ -118,7 +118,7 @@ public class LstmModelValidatorImpl extends AbstractPredictor24Hours
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 
-		Validation obj1 = new Validation((ArrayList<Double>) data, date, hyperParameters);
+		new Validation((ArrayList<Double>) data, date, hyperParameters);
 
 	}
 

@@ -57,9 +57,6 @@ public class Lstm {
 	public void backwardprop() {
 
 		AdaptiveLearningRate rate = new AdaptiveLearningRate();
-		// double lr = rate.scheduler(perc);
-		// System.out.println(lr);
-
 		double localLearningRate1 = 0;
 		double localLearningRate2 = 0;
 		double localLearningRate3 = 0;
@@ -85,7 +82,6 @@ public class Lstm {
 			this.derivativeLWrtWo += this.cells.get(i).getXt() * this.cells.get(i).getDelO();
 			this.derivativeLWrtWz += this.cells.get(i).getXt() * this.cells.get(i).getDelZ();
 
-			// AdaptiveLearningRate rate = new AdaptiveLearningRate();
 			localLearningRate1 = rate.adagradOptimizer(this.learningRate, localLearningRate1, this.derivativeLWrtWi, i);
 			localLearningRate2 = rate.adagradOptimizer(this.learningRate, localLearningRate2, this.derivativeLWrtWo, i);
 			localLearningRate3 = rate.adagradOptimizer(this.learningRate, localLearningRate3, this.derivativeLWrtWz, i);
@@ -164,7 +160,6 @@ public class Lstm {
 		ArrayList<Double> err = new ArrayList<Double>();
 		err.add(mW.getErrorList().get(ind));
 
-		// returnArray.add(err);
 		return returnArray;
 
 	}
@@ -323,8 +318,8 @@ public class Lstm {
 
 		protected double learningRate; //
 		protected int epoch = 100; //
-  //		private double standerDeviation = 0;
-  //		private double mean = 0;
+		// private double standerDeviation = 0;
+		// private double mean = 0;
 
 		public LstmBuilder(double[] inputData, double outputData) {
 			this.inputData = inputData;
@@ -357,15 +352,15 @@ public class Lstm {
 			return this;
 		}
 
-  //		public LstmBuilder setStanderDeviation(double val) {
-  //			this.standerDeviation = val;
-  //			return this;
-  //		}
-  //
-  //		public LstmBuilder setMean(double val) {
-  //			this.mean = val;
-  //			return this;
-  //		}
+		// public LstmBuilder setStanderDeviation(double val) {
+		// this.standerDeviation = val;
+		// return this;
+		// }
+		//
+		// public LstmBuilder setMean(double val) {
+		// this.mean = val;
+		// return this;
+		// }
 
 		public Lstm build() {
 			return new Lstm(this);

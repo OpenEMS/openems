@@ -132,12 +132,8 @@ public class UtilityConversion {
 	public static ArrayList<Double> convert1DArrayTo1DArrayList(double[] data) {
 		ArrayList<Double> toReturn = new ArrayList<Double>();
 		for (int i = 0; i < data.length; i++) {
-
 			toReturn.add(data[i]);
-
 		}
-
 		return toReturn;
-
 	}
 }

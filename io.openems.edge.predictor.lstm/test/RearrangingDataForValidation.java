@@ -44,13 +44,13 @@ public class RearrangingDataForValidation {
 		ArrayList<Double> data = csv.getData();
 		ArrayList<OffsetDateTime> date = csv.getDates();
 
-		//ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+		// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new
+		// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		InterpolationManager inter = new InterpolationManager(data, date, hyperParameters);
-		//ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
+		// ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> finalGroupedMatrix = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
-		hyperParameters.setModleSuffix("trend.txt");
-
+  //		hyperParameters.setModleSuffix("trend.txt");
 
 		double minOfTrainingData = hyperParameters.getScalingMin();
 		double maxOfTrainingData = hyperParameters.getScalingMax();
@@ -86,11 +86,10 @@ public class RearrangingDataForValidation {
 			for (int j = 0; j <= hyperParameters.getWindowSizeTrend(); j++) {
 				if (j + offset < reShapeFirst.size()) {
 					toCombine.add(reShapeFirst.get(j + offset));
-					
+
 				} else {
 
 					toCombine.add(reShapeFirst.get(j + offset - reShapeFirst.size()));
-					
 
 				}
 
@@ -101,7 +100,7 @@ public class RearrangingDataForValidation {
 
 		}
 
-		String path = modlePath + Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix();
+		String path = modlePath + Integer.toString(hyperParameters.getCount()) + "trend.txt";
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
 
@@ -110,13 +109,14 @@ public class RearrangingDataForValidation {
 
 			for (int j = 0; j < finalGroupedMatrix.size(); j++) {
 
-				double[][] validateData = PreProcessingImpl.groupToStiffedWindow(DataModification.scale(finalGroupedMatrix.get(j),hyperParameters.getScalingMin(), hyperParameters.getScalingMax()),
+				double[][] validateData = PreProcessingImpl.groupToStiffedWindow(
+						DataModification.scale(finalGroupedMatrix.get(j), hyperParameters.getScalingMin(),
+								hyperParameters.getScalingMax()),
 						hyperParameters.getWindowSizeTrend());
 				double[] validationTarget = PreProcessingImpl.groupToStiffedTarget(finalGroupedMatrix.get(j),
 						hyperParameters.getWindowSizeTrend());
 
 				ArrayList<ArrayList<Double>> val = allModels.get(i).get(j);
-				
 
 				ArrayList<Double> result = predictPre(validateData, val, minOfTrainingData, maxOfTrainingData);
 
@@ -129,21 +129,25 @@ public class RearrangingDataForValidation {
 			rmsTemp2.add(rmsTemp1);
 
 		}
-		
+
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
 
 		System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
+		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
 	}
-	
+
 	/**
-	 * Combines values from a list of ArrayLists into a single ArrayList, grouping values by their respective positions.
+	 * Combines values from a list of ArrayLists into a single ArrayList, grouping
+	 * values by their respective positions.
 	 *
-	 * <p>This method takes a list of ArrayLists as input, and for each position (index) within the smallest
-	 * ArrayList in the list, it retrieves the value from that position in each ArrayList and combines them into
-	 * a new ArrayList. The resulting ArrayList represents the values grouped by position across all input ArrayLists.</p>
+	 * <p>
+	 * This method takes a list of ArrayLists as input, and for each position
+	 * (index) within the smallest ArrayList in the list, it retrieves the value
+	 * from that position in each ArrayList and combines them into a new ArrayList.
+	 * The resulting ArrayList represents the values grouped by position across all
+	 * input ArrayLists.
+	 * </p>
 	 *
 	 * @param val The list of ArrayLists containing values to be combined.
 	 * @return An ArrayList of Double representing the combined values.
@@ -269,7 +273,7 @@ public class RearrangingDataForValidation {
 		;
 		return res;
 	}
-	
+
 	/**
 	 * Find the indices of the minimum values in each column of a 2D matrix. This
 	 * method takes a 2D matrix represented as a List of Lists and finds the row
@@ -317,7 +321,7 @@ public class RearrangingDataForValidation {
 
 		return minimumIndices;
 	}
-	
+
 	/**
 	 * Find the indices of the minimum values in each column of a 2D matrix. This
 	 * method takes a 2D matrix represented as a List of Lists and finds the row
@@ -362,7 +366,7 @@ public class RearrangingDataForValidation {
 
 		return minimumIndices;
 	}
-	
+
 	/**
 	 * Estimate the optimum weight index from a list of indices. This method takes a
 	 * list of indices and estimates the optimum weight index by finding the value
@@ -384,7 +388,7 @@ public class RearrangingDataForValidation {
 		toReturn = findValueWithMaxCount(temp);
 		return toReturn;
 	}
-	
+
 	/**
 	 * Find the value with the maximum count in a list of integers. This method
 	 * takes a list of integers and determines the value with the highest count

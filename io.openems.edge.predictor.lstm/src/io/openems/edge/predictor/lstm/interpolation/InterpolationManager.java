@@ -13,24 +13,16 @@ public class InterpolationManager {
 
 	public InterpolationManager(ArrayList<Double> data, ArrayList<OffsetDateTime> dates,
 			HyperParameters hyperParameters) {
-		// System.out.println("Data" + data.size());
-		// data = this.findMissingData(data, dates, hyperParameters);
-
 		ArrayList<Double> dataDouble = replaceNullWitNan(data);
 		ArrayList<ArrayList<Double>> interpolatedGroupedData = new ArrayList<ArrayList<Double>>();
-
 		double mean = calculateMean(dataDouble);
-
 		ArrayList<ArrayList<Double>> groupedData = this.group(dataDouble);
-
 		for (int i = 0; i < groupedData.size(); i++) {
 			ArrayList<Double> interpolatedTemp = new ArrayList<Double>();
 			ArrayList<Double> data1 = new ArrayList<Double>();
 			data1 = groupedData.get(i);
-
 			boolean interpolationNeeded = this.interpolationDecision(groupedData.get(i));
 			if (interpolationNeeded == true) {
-
 				if (Double.isNaN(data1.get(0))) {
 					data1.set(0, mean);
 				}
@@ -39,19 +31,16 @@ public class InterpolationManager {
 				}
 
 				if (CubicalInterpolation.canInterpolate(data1) == false) {
-
 					LinearInterpolation linear = new LinearInterpolation(data1);
 					interpolatedTemp = linear.getData();
 
 				} else {
-
 					interpolatedTemp = CubicalInterpolation.interpolate(data1);
 
 				}
 				interpolatedGroupedData.add(interpolatedTemp);
 
 			} else {
-
 				interpolatedGroupedData.add(data1);
 
 			}
@@ -214,7 +203,6 @@ public class InterpolationManager {
 		System.out.println(dataNew.size());
 		System.out.println(this.newDates.size());
 		return dataNew;
-
 	}
 
 }

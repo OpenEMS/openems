@@ -16,17 +16,19 @@ import io.openems.edge.predictor.lstm.util.Engine.EngineBuilder;
 
 public class MakeModel {
 	private String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
-	// private String pathTrend =
-	// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
+ //	private Model mod1 = new Model();
 
 	public MakeModel(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
 		// Trianing seasonality
-
-		//this.trainSeasonality(data, date, hyperParameters);
-		// Training Trend
-
+		this.trainSeasonality(data, date, hyperParameters);
 		this.trainTrend(data, date, hyperParameters);
+
+  //		mod1.setSeasonalityModel(temp1.getSeasonalityModle());
+  //		mod1.setTrendModle(temp2.getTrendModle());
+	}
+	
+	public MakeModel() {
 
 	}
 
@@ -34,112 +36,100 @@ public class MakeModel {
 	 * Trains a seasonality model using the provided data and parameters. *
 	 * 
 	 * @param data            The time series data to train the model on.
-	 * @param date            The corresponding timestamps for the data. *
+	 * @param date            The corresponding timestamps for the data. * *
 	 * @param hyperParameters An instance of class HyperParameters
+	 * 
 	 */
 
 	public void trainSeasonality(ArrayList<Double> data, ArrayList<OffsetDateTime> date,
 			HyperParameters hyperParameters) {
 		ArrayList<Double> values;
 		ArrayList<OffsetDateTime> dates;
-		// ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new
-		// ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
-
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
-		// String modleSuffix = "";
 		int windowsSize = 0;
 		int k = 0;
-
 		values = data;
 		dates = date;
-
 		windowsSize = hyperParameters.getWindowSizeSeasonality();
-		hyperParameters.setModleSuffix("seasonality.txt");
-
-		// compute interpolation
+  //		hyperParameters.setModleSuffix();
 		InterpolationManager inter = new InterpolationManager(values, dates, hyperParameters);
-
-		// modify data for long term prediction
-
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
+  //		Model mod = new Model();
 		/**
 		 * compute model
 		 */
 
 		for (int i = 0; i < dataGroupedByMinute.size(); i++) {
-
 			for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
 
 				if (hyperParameters.getCount() == 0) {
+     //					mod = new Model();
+
 					weight1 = this.generateInitialWeightMatrix(windowsSize, hyperParameters);
+
 				} else {
-					String path = this.path + Integer.toString(hyperParameters.getCount() - 1)
-							+ hyperParameters.getModleSuffix();
+     //					// Reading the exsisting modle
+     //					try {
+     //						mod = (Model) Model.read();
+     //					} catch (ClassNotFoundException e) {
+     //						// TODO Auto-generated catch block
+     //						e.printStackTrace();
+     //					} catch (IOException e) {
+     //						// TODO Auto-generated catch block
+     //						e.printStackTrace();
+     //					}
+					String path = this.path + Integer.toString(hyperParameters.getCount() - 1) + "seasonality.txt";
 					ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels
 							.getModelForSeasonality(path, hyperParameters);
-
 					weight1 = allModel.get(allModel.size() - 1).get(k);
+
+					// weight1 = mod.getSeasonalityModle().get(mod.getSeasonalityAllModle().size() -
+					// 1).get(k);
+
 				}
-				System.out.println(k);
-
-				System.out.println("making Model for " + Integer.toString(i) + ":"
-						+ Integer.toString(j * hyperParameters.getInterval()));
-
+//				System.out.println(k);
+//				System.out.println("making Model for " + Integer.toString(i) + ":"
+//						+ Integer.toString(j * hyperParameters.getInterval()));
 				PreProcessingImpl preprocessing = new PreProcessingImpl(
 						DataModification.scale(dataGroupedByMinute.get(i).get(j), hyperParameters.getScalingMin(),
 								hyperParameters.getScalingMax()),
 						windowsSize);
-
 				try {
 					TrainTestSplit splitIndex = new TrainTestSplit(dataGroupedByMinute.get(i).get(j).size(),
 							windowsSize, hyperParameters.getDataSplitTrain(), hyperParameters.getDataSplitValidate());
-
 					double[][] trainData = preprocessing.getFeatureData(splitIndex.getTrainLowerIndex(),
 							splitIndex.getTrainUpperIndex());
-
 					double[][] validateData = preprocessing.getFeatureData(splitIndex.getValidateLowerIndex(),
 							splitIndex.getValidateUpperIndex());
-
 					double[] trainTarget = preprocessing.getTargetData(splitIndex.getTrainLowerIndex(),
 							splitIndex.getTrainUpperIndex());
-
 					double[] validateTarget = preprocessing.getTargetData(splitIndex.getValidateLowerIndex(),
 							splitIndex.getValidateUpperIndex());
-
 					Suffle obj1 = new Suffle(trainData, trainTarget);
 					Suffle obj2 = new Suffle(validateData, validateTarget);
-
 					Engine model = new EngineBuilder() //
 							.setInputMatrix(DataModification.normalizeData(obj1.getData())) //
 							.setTargetVector(obj1.getTarget()) //
 							.setValidateData(DataModification.normalizeData(obj2.getData())) //
 							.setValidateTarget(obj2.getTarget()) //
 							.build();
-
 					model.fit(hyperParameters.getGdIterration(), weight1, hyperParameters);
-					// weight1 = model.getWeights().get(model.getWeights().size() - 1);
-
 					weightMatrix.add(model.getWeights());
 				} catch (Exception e) {
 					e.printStackTrace();
-
 				}
 				k = k + 1;
-
 			}
 
-			/**
-			 * saving Model as .txt file
-			 */
-
 		}
-		SaveModel.saveModels(weightMatrix,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
+		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
+		System.out.println("Modle saved as : " + "seasonality.txt");
 
-		System.out.println("Modle saved as : " + hyperParameters.getModleSuffix());
-
+  //		 mod.setSeasonalityModel(weightMatrix);
+  //		 Model.save(mod);
+  //		 return mod;
 	}
 
 	/**
@@ -148,6 +138,7 @@ public class MakeModel {
 	 * @param data            The time series data to train the trend model on.
 	 * @param date            The corresponding timestamps for the data.
 	 * @param hyperParameters An instance of class HyperParameter
+	 * 
 	 */
 
 	public void trainTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
@@ -156,55 +147,63 @@ public class MakeModel {
 		ArrayList<OffsetDateTime> dates;
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> weightMatrix = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		ArrayList<ArrayList<Double>> weight1 = new ArrayList<ArrayList<Double>>();
-		// String modleSuffix = "";
-
 		values = data;
 		dates = date;
-
-		// modifiying data for short term prediction
-
-		hyperParameters.setModleSuffix("trend.txt");
+  //		hyperParameters.setModleSuffix("trend.txt");
 		InterpolationManager inter = new InterpolationManager(values, dates, hyperParameters);
 		ArrayList<ArrayList<Double>> modifiedData = DataModification
 				.modifyForShortTermPrediction(inter.getInterpolatedData(), dates, hyperParameters);
-
+  //		Model mod = new Model();
 		for (int i = 0; i < modifiedData.size(); i++) {
-
 
 			if (hyperParameters.getCount() == 0) {
 				weight1 = this.generateInitialWeightMatrix(hyperParameters.getWindowSizeTrend(), hyperParameters);
+    //				// Reading the exsisting modle object searilized in TrainSeasonality Method
+    //				try {
+    //					mod = (Model) Model.read();
+    //				} catch (ClassNotFoundException e) {
+    //					// TODO Auto-generated catch block
+    //					e.printStackTrace();
+    //				} catch (IOException e) {
+    //					// TODO Auto-generated catch block
+    //					e.printStackTrace();
+    //				}
 			} else {
-				String path = this.path + Integer.toString(hyperParameters.getCount() - 1)
-						+ hyperParameters.getModleSuffix();
+				String path = this.path + Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
 
+				// Reading the exsisting modle object searilized in TrainSeasonality Method
+    //				try {
+    //					mod = (Model) Model.read();
+    //				} catch (ClassNotFoundException e) {
+    //					// TODO Auto-generated catch block
+    //					e.printStackTrace();
+    //				} catch (IOException e) {
+    //					// TODO Auto-generated catch block
+    //					e.printStackTrace();
+    //				}
 				weight1 = allModel.get(allModel.size() - 1).get(i);
-			}
 
+			}
 			double[][] trainData = PreProcessingImpl.groupToStiffedWindow(DataModification.scale(modifiedData.get(i),
 					hyperParameters.getScalingMin(), hyperParameters.getScalingMax()),
 					hyperParameters.getWindowSizeTrend());
-
 			double[] trainTarget = PreProcessingImpl.groupToStiffedTarget(DataModification.scale(modifiedData.get(i),
 					hyperParameters.getScalingMin(), hyperParameters.getScalingMax()),
 					hyperParameters.getWindowSizeTrend());
 			Suffle obj1 = new Suffle(trainData, trainTarget);
-
 			Engine model = new EngineBuilder() //
 					.setInputMatrix(DataModification.normalizeData(obj1.getData())) // removing normalization
 					.setTargetVector(obj1.getTarget()) //
 					.build();
 			model.fit(hyperParameters.getGdIterration(), weight1, hyperParameters);
-
 			weightMatrix.add(model.getWeights());
-
 		}
-		SaveModel.saveModels(weightMatrix,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
-
-		System.out.println("Modle saved as : " + hyperParameters.getModleSuffix());
-
+		// mod.setTrendModle(weightMatrix);
+		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "trend.txt");
+		System.out.println("Modle saved as : " + "trend.txt");
+		// return mod;
 	}
 
 	/**
@@ -260,21 +259,8 @@ public class MakeModel {
 		return initialWeight;
 
 	}
-
- //	public int setKIndex(int i, int j) {
- //		if (i + j == 0) {
- //			return 1;
- //		}
- //		return i + j;
+ //	public Model getModle() {
+ //		return this.mod1;
  //	}
 
- //	public void reArrange(ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute) {
- //		for (int i = 0; 1 < dateGroupedByMinute.size(); i++) {
- //			for (int j = 0; j < dateGroupedByMinute.get(i).size(); j++) {
- //				for (int k = 0; k < dateGroupedByMinute.get(i).get(j).size(); k++) {
- //
- //				}
- //			}
- //		}
- //	}
 }

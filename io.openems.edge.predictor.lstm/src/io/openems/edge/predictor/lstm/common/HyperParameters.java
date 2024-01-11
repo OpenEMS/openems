@@ -17,7 +17,6 @@ public class HyperParameters {
 	private double ctInit = 0;
 	private double wfInit = -1;
 	private double rfInit = -1;
-
 	private int interval = 5;
 	private int epoch = 5;
 	private int trendPoints = 1;
@@ -27,13 +26,10 @@ public class HyperParameters {
 	private int count = 0;
 	private double scalingMin = -5000;
 	private double scalingMax = 5000;
-
 	private boolean trendTrainFlag = false;
 	private boolean trainingSeasonality = false;
-
 	private boolean trainingTrend = false;
-
-	private String modleSuffix = "";
+	//private String modleSuffix = "";
 
 	public void setLearningRateUpperLimit(double rate) {
 		this.learningRateUpperLimit = rate;
@@ -154,10 +150,6 @@ public class HyperParameters {
 		return this.trendTrainFlag = val;
 	}
 
-	// public void setwindowSizeSeasonality(int val) {
-	// this.windowSizeSeasonality = val;
-	// }
-
 	public int getGdIterration() {
 		return this.gdIterration;
 
@@ -171,10 +163,6 @@ public class HyperParameters {
 		return this.windowSizeTrend;
 
 	}
-
-	// public void setwindowSizeTrend(int val) {
-	// this.windowSizeTrend = val;
-	// }
 
 	public double getScalingMin() {
 		return this.scalingMin;
@@ -202,7 +190,6 @@ public class HyperParameters {
 
 	public void setDatasplitTrain(double val) {
 		this.dataSplitTrain = val;
-
 	}
 
 	public double getDataSplitTrain() {
@@ -211,7 +198,6 @@ public class HyperParameters {
 
 	public void setDatasplitValidate(double val) {
 		this.dataSplitValidate = val;
-
 	}
 
 	public double getDataSplitValidate() {
@@ -242,7 +228,6 @@ public class HyperParameters {
 
 	public boolean getTrainStatusSeasinality() {
 		return this.trainingSeasonality;
-
 	}
 
 	public boolean setTrainStatusSeasonality(boolean val) {
@@ -251,21 +236,20 @@ public class HyperParameters {
 
 	public boolean getTrainStatusTrend() {
 		return this.trainingTrend;
-
 	}
 
 	public boolean setTrainStatusTrend(boolean val) {
 		return this.trainingTrend = val;
 	}
 
-	public String getModleSuffix() {
-		return this.modleSuffix;
-
-	}
-
-	public void setModleSuffix(String val) {
-		this.modleSuffix = val;
-	}
+ //	public String getModleSuffix() {
+ //		return this.modleSuffix;
+ //
+ //	}
+ //
+ //	public void setModleSuffix(String val) {
+ //		this.modleSuffix = val;
+ //	}
 
 	/**
 	 * Prints the hyperParameters.

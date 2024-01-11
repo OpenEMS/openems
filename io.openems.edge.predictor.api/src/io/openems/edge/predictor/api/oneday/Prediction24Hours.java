@@ -14,7 +14,7 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public class Prediction24Hours {
 
-	public static final int NUMBER_OF_VALUES = 96;
+	public static final int NUMBER_OF_VALUES = 288;// set to 96; changed for test. 
 
 	private final Integer[] values = new Integer[NUMBER_OF_VALUES];
 

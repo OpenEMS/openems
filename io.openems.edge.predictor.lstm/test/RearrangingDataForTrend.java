@@ -93,7 +93,7 @@ public class RearrangingDataForTrend {
 
 		// System.out.println(finalGroupedMatrix.get(0).size());
 
-		hyperParameters.setModleSuffix("trend.txt");
+  //		hyperParameters.setModleSuffix("trend.txt");
 
 		for (int i = 0; i < finalGroupedMatrix.size(); i++) {
 			// System.out.println(finalGroupedMatrix.get(i));
@@ -101,8 +101,7 @@ public class RearrangingDataForTrend {
 			if (hyperParameters.getCount() == 0) {
 				weight1 = this.generateInitialWeightMatrix(hyperParameters.getWindowSizeTrend(), hyperParameters);
 			} else {
-				String path = modlePath + Integer.toString(hyperParameters.getCount() - 1)
-						+ hyperParameters.getModleSuffix();
+				String path = modlePath + Integer.toString(hyperParameters.getCount() - 1) + "trend.txt";
 				ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModel = ReadModels.getModelForSeasonality(path,
 						hyperParameters);
 
@@ -137,10 +136,9 @@ public class RearrangingDataForTrend {
 
 		}
 
-		SaveModel.saveModels(weightMatrix,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
+		SaveModel.saveModels(weightMatrix, Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
-		System.out.println("Modle saved as : " + hyperParameters.getModleSuffix());
+		System.out.println("Modle saved as : " + "trend.txt");
 
 	}
 

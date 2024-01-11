@@ -10,7 +10,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.predictor.api,\
 	io.openems.edge.timedata.api,\
-	org.apache.commons.math3
+	org.apache.commons.math3,\
+	com.google.protobuf
 
 -testpath: \
 	${testpath}

@@ -15,7 +15,6 @@ public class ReadCsv {
 	private ArrayList<OffsetDateTime> dates = new ArrayList<OffsetDateTime>();
 
 	public ReadCsv(String path) {
-
 		this.getDataFromCsv(path);
 	}
 
@@ -62,8 +61,6 @@ public class ReadCsv {
 			}
 
 			reader.close();
-			// System.out.println(Collections.min(this.data));
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

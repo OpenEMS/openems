@@ -23,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
@@ -49,8 +50,6 @@ import io.openems.edge.timedata.api.Timedata;
 )
 public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		implements Predictor24Hours, OpenemsComponent /* , org.osgi.service.event.EventHandler */ {
-
-	// private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
 
 	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::convertListIntegerToListDouble;
 	public static final Function<ArrayList<Double>, Integer[]> Array_List_Double_To_Integer_Array = UtilityConversion::convertDoubleToIntegerArray;
@@ -92,15 +91,17 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-		final ArrayList<Double> allPredicted = new ArrayList<Double>();
-		ArrayList<Double> allTarget = new ArrayList<Double>();
+		// final ArrayList<Double> allPredicted = new ArrayList<Double>();
+		// ArrayList<Double> allTarget = new ArrayList<Double>();
 		ArrayList<Double> forTrendPrediction = new ArrayList<Double>();
-		final ArrayList<ArrayList<Double>> allPredictionFro20Days = new ArrayList<ArrayList<Double>>();
-		final ArrayList<ArrayList<Double>> allTargetFro20Days = new ArrayList<ArrayList<Double>>();
+		// final ArrayList<ArrayList<Double>> allPredictionFro20Days = new
+		// ArrayList<ArrayList<Double>>();
+		// final ArrayList<ArrayList<Double>> allTargetFro20Days = new
+		// ArrayList<ArrayList<Double>>();
 		HyperParameters hyperParameters = new HyperParameters();
 		int windowSizeSeasonality = hyperParameters.getWindowSizeSeasonality();
 
-		ZonedDateTime nowDate = ZonedDateTime.of(2023, 7, 14, 18, 0, 0, 0, ZonedDateTime.now().getZone());
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 
 		ZonedDateTime until = ZonedDateTime.of(nowDate.getYear(), nowDate.getMonthValue(), nowDate.getDayOfMonth(),
 				nowDate.getHour(), getMinute(nowDate, hyperParameters), 0, 0, nowDate.getZone());
@@ -126,8 +127,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		final ArrayList<OffsetDateTime> date = this.getDate(querryResult);
 		ArrayList<Double> target = new ArrayList<Double>();
 		ArrayList<OffsetDateTime> dateTrend = new ArrayList<OffsetDateTime>();
-		// ArrayList<Double> sameDayLastWeek = new ArrayList<Double>();
-		ZonedDateTime targetFrom = until.plusMinutes(15);
+		ZonedDateTime targetFrom = until.plusMinutes(hyperParameters.getInterval());
 
 		ZonedDateTime targetTo = targetFrom.plusHours(24);
 
@@ -135,7 +135,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 			target = this.getData(
 					this.timedata.queryHistoricData(null, targetFrom, targetTo, Sets.newHashSet(channelAddress),
 							new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES)));
-			allTarget.addAll(target);
+			// allTarget.addAll(target);
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -143,16 +143,29 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		}
 
 		try {
-			forTrendPrediction = this.getData(this.timedata.queryHistoricData(null, until.minusMinutes(105), until,
-					Sets.newHashSet(channelAddress), new Resolution(15, ChronoUnit.MINUTES)));
-			dateTrend = this.getDate(this.timedata.queryHistoricData(null, until.minusMinutes(105), until,
-					Sets.newHashSet(channelAddress), new Resolution(15, ChronoUnit.MINUTES)));
+			forTrendPrediction = this.getData(this.timedata.queryHistoricData(null,
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					Sets.newHashSet(channelAddress),
+					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES)));
+			dateTrend = this.getDate(this.timedata.queryHistoricData(null,
+					until.minusMinutes(hyperParameters.getInterval() * hyperParameters.getWindowSizeTrend()), until,
+					Sets.newHashSet(channelAddress),
+					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES)));
 
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+
+		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+		System.out.println(openemsDirectory);
+
+		String path = openemsDirectory + "/models/SavedModel.txt";
+
+		// String path =
+		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+		// String path = "/var/lib/openems/models/SavedModels.txt";
 
 		Prediction prediction = new Prediction(data, date, path, hyperParameters);
 		final ArrayList<Double> trendPrediction = this.predictTrend(forTrendPrediction, dateTrend, until,
@@ -160,55 +173,21 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		var predicted = getArranged(getIndex(targetFrom.getHour(), targetFrom.getMinute(), hyperParameters),
 				prediction.getPredictedValues());
 
+		// predictionFromTrend.add(trendPrediction.get(0));
+
 		// combining the prediction from trend and seasonlaity without any smoothing
 		// method
 
 		for (int l = 0; l < trendPrediction.size(); l++) {
-			predicted.add(l, trendPrediction.get(l));
-
+			predicted.set(l, trendPrediction.get(l));
 		}
+		System.out.println("Presicted= " + predicted);
+		System.out.println("Target= " + target);
 
-		// allPredicted.addAll(predicted);
-		// System.out.println(prediction.predicted);
-		// System.out.println("data size" + data.size());
-		// System.out.println("Target From = " + targetFrom);
-		// System.out.println("Target to= " + targetTo);
-		// System.out.println("Target = " + target);
-		// System.out.println("");
-		// System.out.println("Last week same day: " + sameDayLastWeek);
-		// System.out.println("");
-		// System.out.println("Predicted = " + prediction.getPredictedValues());
-		// System.out.println("");
-		// System.out.println("forTrendfrom =" + until.minusMinutes(windowSizeTrend *
-		// 15));
-		// System.out.println("forTrendto =" + until);
-		// System.out.println("forTrendPrediction =" + forTrendPrediction);
-		// System.out.println("forTrendPredictionr result =" + onePointPrediction);
-		// System.out.println("");
-		// System.out.println("Predicted Arranged= " + predicted);
-		//
-		// System.out.println("Predicted size= " +
-		// prediction.getPredictedValues().size());
-		// System.out.println("Target size = " + target.size());
-		// System.out.println("");
-
-		allTargetFro20Days.add(target);
-		allPredictionFro20Days.add(predicted);
-
-		// nowDate = nowDate.plusMinutes(15);
-
-		// }
-
-		// Integer[] x =
-		// Array_List_Double_To_Integer_Array.apply(prediction.predictedAndScaledBack);
-		System.out.println("all Predicted size= " + allPredicted.size());
-		System.out.println("all Target size= " + allTarget.size());
-		System.out.println("Target=" + allTargetFro20Days);
-		System.out.println("Predicted =" + allPredictionFro20Days);
-
-		PerformanceMatrix pm = new PerformanceMatrix(allTarget, allPredicted, 0.2);
+		// System.out.println("Target=" + allTargetFro20Days);
+		// System.out.println("Predicted =" + allPredictionFro20Days);
+		PerformanceMatrix pm = new PerformanceMatrix(target, predicted, 0.19);
 		pm.statusReport();
-
 		return new Prediction24Hours(Array_List_Double_To_Integer_Array.apply(predicted));
 	}
 
@@ -262,7 +241,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 		ArrayList<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
 
 		querryResult.keySet()//
-				.stream()// offs
+				.stream()//
 				.forEach(zonedDateTime -> {
 					date.add(zonedDateTime.toOffsetDateTime());
 				});
@@ -304,9 +283,7 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 				break;
 			}
 		}
-		// if (endVal == 60) {
-		// return 0;
-		// }
+
 		return startVal;
 	}
 
@@ -394,43 +371,40 @@ public class LstmModelPredictorImpl extends AbstractPredictor24Hours
 
 	public ArrayList<Double> predictTrend(ArrayList<Double> data, ArrayList<OffsetDateTime> date, ZonedDateTime until,
 			HyperParameters hyperParameters) {
-		/// read Model
-		String pathTrend = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\Trend.txt";
-		// String pathSeasonality =
-		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\SavedModel.txt";
+
+		String openemsDirectory = OpenemsConstants.getOpenemsDataDir();
+
+		System.out.println(openemsDirectory);
+
+		String pathTrend = openemsDirectory + "/models/Trend.txt";
+		// read Model
+		// String pathTrend =
+		// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\trend.txt";
+		// String pathTrend = "/var/lib/openems/models/Trend.txt";
+
 		double pred = 0;
 		ArrayList<Double> trendPrediction = new ArrayList<Double>();
 		ZonedDateTime predictionFor = until.plusMinutes(hyperParameters.getInterval());
-		int modlelindex = (int) this.decodeDateToColumnIndex(predictionFor, hyperParameters);
-
-		// ArrayList<Double>prediction = new ArrayList<Double>();
 		ArrayList<ArrayList<ArrayList<Double>>> val = ReadModels.getModelForSeasonality(pathTrend, hyperParameters)
 				.get(0);
-
 		InterpolationManager interpolationManager = new InterpolationManager(data, date, hyperParameters);
 		data = interpolationManager.getInterpolatedData();
-
 		ArrayList<Double> scaledData = DataModification.scale(data, hyperParameters.getScalingMin(),
 				hyperParameters.getScalingMax());
-		// readData
 		for (int i = 0; i < hyperParameters.getTrendPoint(); i++) {
-
+			predictionFor = predictionFor.plusMinutes(i * hyperParameters.getInterval());
+			int modlelindex = (int) this.decodeDateToColumnIndex(predictionFor, hyperParameters);
+			System.out.println(modlelindex);
 			double predTemp = Predictor.predict(scaledData, val.get(modlelindex).get(0), val.get(modlelindex).get(1),
 					val.get(modlelindex).get(2), val.get(modlelindex).get(3), val.get(modlelindex).get(4),
 					val.get(modlelindex).get(5), val.get(modlelindex).get(7), val.get(modlelindex).get(6));
 			scaledData.add(predTemp);
 			scaledData.remove(0);
-			// System.out.println(scaledData);
-
 			pred = DataModification.scaleBack(predTemp, hyperParameters.getScalingMin(),
 					hyperParameters.getScalingMax());
 			trendPrediction.add(pred);
-			// System.out.println(pred);
 		}
-		// prediction.add(pred);
-
 		return trendPrediction;
-
 	}
 
 	/**

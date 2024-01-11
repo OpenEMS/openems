@@ -6,14 +6,14 @@ public class AdaptiveLearningRate {
 	/**
 	 * Adjusts the learning rate based on the given percentage.
 	 *
-	 * @param perc The percentage of the current iteration relative to the total
-	 *             iterations.
+	 * @param perc            The percentage of the current iteration relative to
+	 *                        the total iterations.
 	 * @param hyperParameters An instance of class HyperParameter
 	 * @return The adapted learning rate calculated using a cosine annealing
 	 *         strategy.
 	 */
 
-	public double scheduler(double perc,HyperParameters hyperParameters) {
+	public double scheduler(double perc, HyperParameters hyperParameters) {
 		double maximum = hyperParameters.getLearningRateLowerLimit();
 		double minimum = hyperParameters.getLearningRateUpperLimit();
 		double tCurByTmax = perc;
@@ -30,7 +30,8 @@ public class AdaptiveLearningRate {
 	 * @param globalLearningRate The global learning rate for the optimization
 	 *                           process.
 	 * @param localLearningRate  The local learning rate, which is dynamically
-	 *                           adjusted during the optimization.
+	 *                           adjusted during the optimization at previous
+	 *                           iteration.
 	 * @param gradient           The gradient value computed during the
 	 *                           optimization.
 	 * @param i                  The iteration number, used to determine if this is
@@ -42,11 +43,11 @@ public class AdaptiveLearningRate {
 		if (i == 0) {
 			localLearningRate = globalLearningRate / Math.pow(Math.pow(gradient, 2), 0.5);
 			if (Math.pow(Math.pow(gradient, 2), 0.5) == 0) {
-				// System.out.println("G");
+
 				return globalLearningRate;
 
 			}
-			// System.out.println("l");
+
 			return localLearningRate;
 
 		} else {
@@ -54,20 +55,17 @@ public class AdaptiveLearningRate {
 			double temp2 = Math.pow(temp1, 2);
 			double temp3 = temp2 + Math.pow(gradient, 2);
 			if (localLearningRate == 0) {
-				// System.out.println("G");
 
-				// return globalLearningRate;
 				return localLearningRate;
 
 			}
 			localLearningRate = globalLearningRate / Math.pow(temp3, 0.5);
 			if (temp3 < 0) {
-				// System.out.println("G");
+
 				return globalLearningRate;
 
 			}
 
-			// System.out.println("l");
 			return localLearningRate;
 		}
 

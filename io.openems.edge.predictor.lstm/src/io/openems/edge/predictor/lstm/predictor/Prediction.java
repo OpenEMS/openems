@@ -19,30 +19,20 @@ public class Prediction {
 
 	public Prediction(ArrayList<Double> data, ArrayList<OffsetDateTime> date, String path,
 			HyperParameters hyperParameters) {
-
 		ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> dataGroupedByMinute1 = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = new ArrayList<ArrayList<ArrayList<Double>>>();
-
 		ArrayList<Double> dataToPredict = data;
-		final ArrayList<OffsetDateTime> dateToPredict = date;
-
-		// min = Collections.min(data);
-		// max = Collections.max(data);
-
+		final ArrayList<OffsetDateTime> dateToPredict = date;	
 		// Interpolate
 		InterpolationManager interpolationManager = new InterpolationManager(dataToPredict, dateToPredict,hyperParameters);
 		dataToPredict = interpolationManager.getInterpolatedData();
-
 		// Scaling
-
 		ArrayList<Double> scaledData = DataModification.scale(dataToPredict, hyperParameters.getScalingMin(),
 				hyperParameters.getScalingMax());
-
 		// Grouping data by hour
 		GroupBy groupBy = new GroupBy(scaledData, dateToPredict);
 		groupBy.hour();
-
 		// Grouping data by minute
 		for (int i = 0; i < groupBy.getDateGroupedByHour().size(); i++) {
 			GroupBy gB = new GroupBy(groupBy.getDataGroupedByHour().get(i), groupBy.getDateGroupedByHour().get(i));
@@ -109,10 +99,8 @@ public class Prediction {
 						.color(Color.RED)); //
 
 		try {
-			// String path =
-			// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstmmodel\\TestFolder";
+			
 			String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder";
-
 			plot.save(path + "/prediction", "png");
 		} catch (IOException e) {
 			e.printStackTrace();

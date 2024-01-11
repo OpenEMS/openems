@@ -20,16 +20,12 @@ import io.openems.edge.predictor.lstm.utilities.UtilityConversion;
 
 public class Validation {
 	private String path = "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
-	// private String pathTrend =
-	// "C:\\Users\\bishal.ghimire\\git\\Lstmforecasting\\io.openems.edge.predictor.lstm\\TestFolder\\";
 
 	public Validation(ArrayList<Double> data, ArrayList<OffsetDateTime> date, HyperParameters hyperParameters) {
 
-		// this.validateSeasonality(data, date, hyperParameters);
+	}
 
-		this.validateTrend(data, date, hyperParameters);
-		// this.validateTrend(data, date, hyperParameters);
-
+	public Validation() {
 	}
 
 	/**
@@ -49,97 +45,42 @@ public class Validation {
 
 	public void validateSeasonality(ArrayList<Double> values, ArrayList<OffsetDateTime> dates,
 			HyperParameters hyperParameters) {
-
-		// ArrayList<ArrayList<ArrayList<OffsetDateTime>>> dateGroupedByMinute = new
-		// ArrayList<ArrayList<ArrayList<OffsetDateTime>>>();
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
-		// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = new
-		// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
 		int windowsSize = 0;
-
 		windowsSize = hyperParameters.getWindowSizeSeasonality();
-		hyperParameters.setModleSuffix("seasonality.txt");
-
+		// hyperParameters.setModleSuffix("seasonality.txt");
 		double minOfTrainingData;
 		double maxOfTrainingData;
-
-		/**
-		 * compute interpolation
-		 */
 		InterpolationManager inter = new InterpolationManager(values, dates, hyperParameters);
-
 		minOfTrainingData = hyperParameters.getScalingMin();
 		maxOfTrainingData = hyperParameters.getScalingMax();
-
-		/**
-		 * Grouping the interpolated data by hour
-		 */
-
 		ArrayList<ArrayList<ArrayList<Double>>> dataGroupedByMinute = DataModification
 				.modifyFroLongTermPrediction(inter.getInterpolatedData(), dates);
-
-		/**
-		 * Read Model //
-		 */
-
-		// ReadModels models = new
-		// ReadModels(pathSeasonality+Integer.toString(itterNumb)+"seasonality.txt");
-		// if (hyperParameters.getCount() > 0 && hyperParameters.getCount() % 100 == 0
-		// || hyperParameters.getCount() == 26) {
-		// System.out.println("Combining Models");
-		//
-		// String path = this.path + Integer.toString(hyperParameters.getCount()) +
-		// hyperParameters.getModleSuffix();
-		// allModels = ReadModels.getModelForSeasonality(path, hyperParameters);
-		// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> oldModels = this
-		// .getOldModelsseasonality(hyperParameters);
-		// // ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> combinedModels =
-		// // combineModelsSeasonality(oldModels,allModels);
-		// allModels = oldModels;
-		//
-		// } else {
-
-		String path = this.path + Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix();
+		String path = this.path + Integer.toString(hyperParameters.getCount()) + "seasonality.txt";
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
-
-		// }
-
 		for (int h = 0; h < allModels.size(); h++) {
-
 			ArrayList<Double> rmsTemp1 = new ArrayList<Double>();
-
 			int k = 0;
 			for (int i = 0; i < dataGroupedByMinute.size(); i++) {
-
 				for (int j = 0; j < dataGroupedByMinute.get(i).size(); j++) {
-
 					PreProcessingImpl preprocessing = new PreProcessingImpl(DataModification.scale(
 							dataGroupedByMinute.get(i).get(j), minOfTrainingData, maxOfTrainingData), windowsSize);
 					PreProcessingImpl tempObj = new PreProcessingImpl(dataGroupedByMinute.get(i).get(j), windowsSize);
-
 					try {
-
 						TrainTestSplit splitIndex = new TrainTestSplit(dataGroupedByMinute.get(i).get(j).size(),
 								windowsSize, hyperParameters.getDataSplitTrain(),
 								hyperParameters.getDataSplitValidate());
-
 						double[][] validateData = preprocessing.getFeatureData(splitIndex.getTrainLowerIndex(),
 								splitIndex.getTrainUpperIndex());
-
 						double[] tempTarget = tempObj.getTargetData(splitIndex.getTrainLowerIndex(),
 								splitIndex.getTrainUpperIndex());
-
-						// Suffle obj2 = new Suffle(validateData, validateTarget);
 						ArrayList<ArrayList<Double>> val = allModels.get(h).get(k);
-
 						ArrayList<Double> result = predictPre(validateData, val, minOfTrainingData, maxOfTrainingData);
-
 						double rms = PerformanceMatrix
 								.rmsError(UtilityConversion.convert1DArrayTo1DArrayList(tempTarget), result);
 
 						rmsTemp1.add(rms);
-
 						k = k + 1;
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -149,15 +90,10 @@ public class Validation {
 
 			}
 			rmsTemp2.add(rmsTemp1);
-
 		}
-
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
-
 		System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
-
+		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "seasonality.txt");
 	}
 
 	/**
@@ -176,7 +112,7 @@ public class Validation {
 			HyperParameters hyperParameters) {
 		ArrayList<ArrayList<Double>> rmsTemp2 = new ArrayList<ArrayList<Double>>();
 
-		hyperParameters.setModleSuffix("trend.txt");
+		// hyperParameters.setModleSuffix("trend.txt");
 
 		double minOfTrainingData;
 		double maxOfTrainingData;
@@ -190,7 +126,7 @@ public class Validation {
 		ArrayList<ArrayList<Double>> modifiedData = DataModification
 				.modifyForShortTermPrediction(inter.getInterpolatedData(), dates, hyperParameters);
 
-		String path = this.path + Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix();
+		String path = this.path + Integer.toString(hyperParameters.getCount()) + "trend.txt";
 		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allModels = ReadModels.getModelForSeasonality(path,
 				hyperParameters);
 
@@ -219,8 +155,7 @@ public class Validation {
 		List<List<Integer>> optInd = findOptimumIndex(rmsTemp2);
 
 		System.out.println("Optimum Index :" + optInd);
-		ReadModels.updateModel(allModels, optInd,
-				Integer.toString(hyperParameters.getCount()) + hyperParameters.getModleSuffix());
+		ReadModels.updateModel(allModels, optInd, Integer.toString(hyperParameters.getCount()) + "trend.txt");
 
 	}
 
@@ -261,10 +196,13 @@ public class Validation {
 
 			minimumIndices.add(minIndices);
 		}
+		double sum = 0;
+
 		for (int i = 0; i < minimumIndices.size(); i++) {
-			//System.out.println(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
+			sum = sum + matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1));
 
 		}
+		System.out.println("Average RMS error = " + sum / minimumIndices.size());
 
 		return minimumIndices;
 	}
@@ -289,7 +227,7 @@ public class Validation {
 		List<List<Integer>> minimumIndices = new ArrayList<>();
 
 		if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
-			return minimumIndices; // Empty matrix, return empty list
+			return minimumIndices;
 		}
 
 		int numColumns = matrix.get(0).size();
@@ -309,11 +247,13 @@ public class Validation {
 
 			minimumIndices.add(maxIndices);
 		}
+		double sum = 0;
 		for (int i = 0; i < minimumIndices.size(); i++) {
-			
-			System.out.println(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
+
+			sum = sum+(matrix.get(minimumIndices.get(i).get(0)).get(minimumIndices.get(i).get(1)));
 
 		}
+		System.out.println("Average RMS error = " + sum / minimumIndices.size());
 
 		return minimumIndices;
 	}
@@ -357,7 +297,6 @@ public class Validation {
 
 		// Create a HashMap to store the count of each value
 		HashMap<Integer, Integer> countMap = new HashMap<>();
-
 		// Traverse the ArrayList and count occurrences of each value
 		for (Integer num : numbers) {
 			countMap.put(num, countMap.getOrDefault(num, 0) + 1);
@@ -402,7 +341,6 @@ public class Validation {
 	 *         each input data point.
 	 * 
 	 */
-
 	public static ArrayList<Double> predictPre(double[][] data, ArrayList<ArrayList<Double>> val,
 			double minOfTrainingData, double maxOfTrainingData) {
 
@@ -416,10 +354,8 @@ public class Validation {
 			ArrayList<Double> rZ = val.get(5);
 			ArrayList<Double> yt = val.get(6);
 			ArrayList<Double> ct = val.get(7);
-
 			result.add(predict(data[i], wi, wo, wz, rI, rO, rZ, yt, ct, maxOfTrainingData, minOfTrainingData));
 		}
-
 		return result;
 	}
 
@@ -475,7 +411,7 @@ public class Validation {
 				DataStatistics.getMean(UtilityConversion.convert1DArrayTo1DArrayList(data)),
 				DataStatistics.getStanderDeviation(UtilityConversion.convert1DArrayTo1DArrayList(data)), yt);
 		res = DataModification.scaleBack(yt, maxOfTrainingData, minOfTrainingData);
-		;
+
 		return res;
 	}
 
@@ -496,18 +432,22 @@ public class Validation {
 	 *         by iteration.
 	 */
 
-	public ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> getOldModelsseasonality(HyperParameters hyperParameters) {
-		int itterNumb = hyperParameters.getCount();
-		ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allPrevious = new ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
-		for (int i = 0; i < itterNumb; i++) {
-			ArrayList<ArrayList<ArrayList<Double>>> previosusBestModelReadModels = ReadModels.getModelForSeasonality(
-					this.path + Integer.toString(itterNumb) + hyperParameters.getModleSuffix(), hyperParameters).get(0);
-			allPrevious.add(previosusBestModelReadModels);
-
-		}
-		return allPrevious;
-
-	}
+	// public ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>
+	// getOldModelsseasonality(HyperParameters hyperParameters) {
+	// int itterNumb = hyperParameters.getCount();
+	// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>> allPrevious = new
+	// ArrayList<ArrayList<ArrayList<ArrayList<Double>>>>();
+	// for (int i = 0; i < itterNumb; i++) {
+	// ArrayList<ArrayList<ArrayList<Double>>> previosusBestModelReadModels =
+	// ReadModels.getModelForSeasonality(
+	// this.path + Integer.toString(itterNumb) + hyperParameters.getModleSuffix(),
+	// hyperParameters).get(0);
+	// allPrevious.add(previosusBestModelReadModels);
+	//
+	// }
+	// return allPrevious;
+	//
+	// }
 
 	/**
 	 * Retrieve previous seasonality models up to a specified iteration number. This

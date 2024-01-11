@@ -75,11 +75,11 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 	}
 
 	protected void train(ChannelAddress channelAddress) {
-		
+
 		HyperParameters hyperParameters = new HyperParameters();
 
 		// This is reference date specific to fems
-		ZonedDateTime nowDate = ZonedDateTime.of(2023, 07, 21, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+		ZonedDateTime nowDate = ZonedDateTime.of(2023, 10, 01, 0, 0, 0, 0, ZonedDateTime.now().getZone());
 		ZonedDateTime until = ZonedDateTime.of(//
 				nowDate.getYear(), //
 				nowDate.getMonthValue(), //
@@ -89,6 +89,7 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 				0, //
 				0, //
 				nowDate.getZone());
+		System.out.println("Now Date : " + nowDate);
 		ZonedDateTime temp = until.minusDays(30);
 
 		ZonedDateTime fromDate = ZonedDateTime.of(//
@@ -100,21 +101,17 @@ public class LstmModelTrainImpl extends AbstractOpenemsComponent
 				0, //
 				0, //
 				ZonedDateTime.now().getZone());
-
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> querryResult = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
-
 		try {
 			querryResult = this.timedata.queryHistoricData(null, fromDate, until, Sets.newHashSet(channelAddress),
-					new Resolution(15, ChronoUnit.MINUTES));
+					new Resolution(hyperParameters.getInterval(), ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
-
 			e.printStackTrace();
 		}
-
 		ArrayList<Double> data = this.getData(querryResult);
 		ArrayList<OffsetDateTime> date = this.getDate(querryResult);
-
-		MakeModel obj = new MakeModel((ArrayList<Double>) data, date, hyperParameters);
+		System.out.println("....Training.....");
+		new MakeModel((ArrayList<Double>) data, date, hyperParameters);
 
 	}
 

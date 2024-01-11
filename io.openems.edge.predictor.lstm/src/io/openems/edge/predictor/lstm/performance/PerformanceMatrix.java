@@ -222,6 +222,9 @@ public class PerformanceMatrix {
 		System.out.println("");
 
 		System.out.println("..................Performance Report.............................");
+		
+		System.out.println("Size of actual data = " + this.target.size());
+		System.out.println("Size  of prediction data = " + this.predicted.size());
 
 		System.out.println("average of actual data = " + DataStatistics.getMean(this.target));
 		System.out.println("average of prediction data = " + DataStatistics.getMean(this.predicted));

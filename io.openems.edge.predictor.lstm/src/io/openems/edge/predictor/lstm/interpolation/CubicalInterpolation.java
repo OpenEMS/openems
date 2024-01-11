@@ -14,7 +14,6 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 public class CubicalInterpolation {
-
 	/**
 	 * Interpolate data using the given input data and return the interpolated
 	 * result. This method performs interpolation on the input data using a specific
@@ -39,7 +38,6 @@ public class CubicalInterpolation {
 
 		}
 		return data;
-
 	}
 
 	/**
@@ -52,7 +50,6 @@ public class CubicalInterpolation {
 	 * @param y A list of Y interval data.
 	 * @return An ArrayList of Double representing the mVector.
 	 */
-
 	private static ArrayList<Double> generateAndSolveTriDiagonal(ArrayList<ArrayList<Double>> x,
 			ArrayList<ArrayList<Double>> y) {
 		ArrayList<ArrayList<Double>> cof = new ArrayList<ArrayList<Double>>();
@@ -165,7 +162,6 @@ public class CubicalInterpolation {
 	 * @param arr The list of elements to be grouped into intervals.
 	 * @return An ArrayList of intervals, each containing two elements.
 	 */
-
 	private static ArrayList<ArrayList<Double>> groupToInterval(ArrayList<Double> arr) {
 		ArrayList<ArrayList<Double>> result = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < arr.size(); i++) {
@@ -199,11 +195,9 @@ public class CubicalInterpolation {
 		for (int i = 0; i < x.size(); i++) {
 			if (x.get(i).get(0) <= interpolationValue && x.get(i).get(x.get(i).size() - 1) >= interpolationValue) {
 				return i;
-
 			}
 		}
 		return -1;
-
 	}
 
 	/**
@@ -227,7 +221,6 @@ public class CubicalInterpolation {
 	private static double interpolationFunction(ArrayList<ArrayList<Double>> xInter, ArrayList<ArrayList<Double>> yInt,
 			ArrayList<ArrayList<Double>> mInter, double interpolationValue) {
 		int index = identifyInterval(xInter, interpolationValue);
-
 		double temp1 = 0.0;
 		double temp2 = 0.0;
 		double temp3 = 0.0;

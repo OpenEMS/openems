@@ -1,8 +1,6 @@
 
 import java.util.Collections;
-
 import org.junit.Test;
-
 import io.openems.edge.predictor.lstm.common.HyperParameters;
 import io.openems.edge.predictor.lstm.common.ReadCsv;
 import io.openems.edge.predictor.lstm.train.MakeModel;
@@ -20,9 +18,10 @@ public class StandAloneMakeModel {
 
 	public static void itter() {
 		int k = 0;
+		
 		HyperParameters hyperParameters = new HyperParameters();
-		for (int i = 0; i < 10; i++) {
-			System.out.println("Batch:" + i + "/" + 10);
+		for (int i = 0; i < 28; i++) {
+			System.out.println("Batch:" + i + "/" + 28);
 
 			String pathTrain = Integer.toString(i + 1) + ".csv";
 			String pathValidate = Integer.toString(29) + ".csv";
@@ -35,9 +34,9 @@ public class StandAloneMakeModel {
 				final ReadCsv obj2 = new ReadCsv(pathValidate);
 				hyperParameters.setScalingMax(Collections.max(obj1.getData()));
 				hyperParameters.setScalingMin(Collections.min(obj1.getData()));
-				MakeModel obj = new MakeModel(obj1.getData(), obj1.getDates(), hyperParameters);
+				 new MakeModel(obj1.getData(), obj1.getDates(), hyperParameters);
 				System.out.println("Analyzing Trained Models");
-				Validation obj3 = new Validation(obj2.getData(), obj2.getDates(), hyperParameters);
+				new Validation(obj2.getData(), obj2.getDates(), hyperParameters);
 				k = k + 1;
 			}
 		}

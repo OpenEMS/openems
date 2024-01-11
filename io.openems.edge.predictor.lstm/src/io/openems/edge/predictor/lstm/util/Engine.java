@@ -21,8 +21,6 @@ public class Engine implements EngineDriver {
 	private double[] validateTarget;
 	private int validatorCounter = 50;
 	private double learningRate;
-	// private Lstm generalLstm;
-
 	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 
@@ -119,7 +117,6 @@ public class Engine implements EngineDriver {
 			int ind = this.selectWeight(this.bestWeights, hyperParameters);
 
 			wieghtMatrix.clear();
-			// System.out.println(ind);
 			this.weights.add(this.bestWeights.get(ind));
 		}
 
