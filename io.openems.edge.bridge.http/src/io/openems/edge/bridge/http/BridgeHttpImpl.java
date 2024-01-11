@@ -92,7 +92,9 @@ public class BridgeHttpImpl implements BridgeHttp {
 
 	@Override
 	public void subscribe(Endpoint endpoint) {
-		this.endpoints.add(new EndpointCountdown(endpoint));
+		if (!this.endpoints.offer(new EndpointCountdown(endpoint))) {
+			this.log.warn("Unable to add " + endpoint + "!");
+		}
 	}
 
 	@Override
@@ -113,18 +115,19 @@ public class BridgeHttpImpl implements BridgeHttp {
 		// TODO: Execute before TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, like modbus bridge
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 
-			this.endpoints.forEach(EndpointCountdown::decreaseCycleCount);
-
 			if (this.endpoints.isEmpty()) {
 				return;
 			}
+
+			this.endpoints.forEach(EndpointCountdown::decreaseCycleCount);
+
 			while (this.endpoints.peek().getCycleCount() == 0) {
 				final var item = this.endpoints.poll();
 				synchronized (item) {
 					if (item.isRunning()) {
 						this.log.info("Process for " + item.endpoint + " is still running. Task is not queued twice");
 						this.endpoints.add(item.reset());
-						return;
+						continue;
 					}
 
 					item.setRunning(true);
