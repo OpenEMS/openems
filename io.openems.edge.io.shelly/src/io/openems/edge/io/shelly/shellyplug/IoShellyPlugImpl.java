@@ -77,14 +77,8 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", t -> {
-			this.processHttpResult(t);
-			this._setSlaveCommunicationFailed(false);
-		}, t -> {
-			this.logDebug(this.log, t.getMessage());
-			this._setRelay(null);
-			this._setSlaveCommunicationFailed(true);
-		});
+
+		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 	}
 
 	@Override
@@ -125,18 +119,33 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void processHttpResult(JsonElement jsonElement) throws OpenemsNamedException {
-		final var relays = JsonUtils.getAsJsonArray(jsonElement, "relays");
-		final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-		final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-		final var meters = JsonUtils.getAsJsonArray(jsonElement, "meters");
-		final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
-		final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
-		final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
+	private void processHttpResult(JsonElement result, Throwable error) {
+		this._setSlaveCommunicationFailed(result == null);
+		if (error != null) {
+			this._setRelay(null);
+			this._setActivePower(null);
+			this._setActiveProductionEnergy(null);
+			this.logDebug(this.log, error.getMessage());
+			return;
+		}
+		try {
+			final var relays = JsonUtils.getAsJsonArray(result, "relays");
+			final var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			final var relayIson = JsonUtils.getAsBoolean(relay1, "ison");
+			final var meters = JsonUtils.getAsJsonArray(result, "meters");
+			final var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+			final var power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+			final var energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
-		this._setRelay(relayIson);
-		this._setActivePower(power);
-		this._setActiveProductionEnergy(energy);
+			this._setRelay(relayIson);
+			this._setActivePower(power);
+			this._setActiveProductionEnergy(energy);
+		} catch (OpenemsNamedException e) {
+			this._setRelay(null);
+			this._setActivePower(null);
+			this._setActiveProductionEnergy(null);
+			this.logDebug(this.log, e.getMessage());
+		}
 	}
 
 	/**
