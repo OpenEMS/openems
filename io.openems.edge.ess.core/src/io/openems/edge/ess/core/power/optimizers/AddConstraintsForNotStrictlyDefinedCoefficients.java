@@ -60,7 +60,7 @@ public class AddConstraintsForNotStrictlyDefinedCoefficients {
 					var c = coefficients.of(inv.getEssId(), inv.getPhase(), pwr);
 					max += solution.getPoint()[c.getIndex()];
 				}
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+			} catch (Exception e) {
 				max = Double.MAX_VALUE;
 			}
 			// get Min value over all relevant Coefficients
@@ -77,7 +77,7 @@ public class AddConstraintsForNotStrictlyDefinedCoefficients {
 					var c = coefficients.of(inv.getEssId(), inv.getPhase(), pwr);
 					min += solution.getPoint()[c.getIndex()];
 				}
-			} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+			} catch (Exception e) {
 				min = Double.MIN_VALUE;
 			}
 

@@ -183,7 +183,7 @@ public class ImageBuilder {
 	 */
 	public static void main(String[] args) {
 		// default settings for fenecon images
-		ImageBuilder.of(FroniusPvInverter.class.getResource("FEMS App_22_Fronius Wechselrichter_DE.png")) //
+		ImageBuilder.of(FroniusPvInverter.class.getResource("OpenEMS App_22_Fronius Wechselrichter_DE.png")) //
 				.resizeWidth(400) //
 				.applyPaddingLeftRight(200) //
 				.saveTo("Fronius.png");

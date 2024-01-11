@@ -1,7 +1,4 @@
-<div *ngIf="optionGroups.length === 0; elseShowOptions">
-    <!-- no options set -->
-</div>
-<ion-radio-group #elseShowOptions [(ngModel)]="selectedValue" [value]="selectedValue" (ionChange)="valueChange()">
+<ng-template #inside>
     <ion-segment [value]="selectedGroup?.group">
         <ng-container *ngFor="let optionGroup of optionGroups; let i = index">
             <ion-segment-button (click)="selectedIndex = i" [value]="optionGroup.group">
@@ -16,11 +13,30 @@
             <ion-row *ngFor="let option of optionGroup.options">
                 <ion-col>
                     <ion-item [disabled]="option.disabled">
-                        <ion-radio slot="start" [value]="option.value"></ion-radio>
+                        <div *ngIf="multi; else noMulti">
+                            <ion-checkbox labelPlacement="start" (ionChange)="valueChangeCheckbox(option);"
+                                [checked]="option.selected" class="ion-margin-end"></ion-checkbox>
+                        </div>
+                        <ng-template #noMulti>
+                            <ion-radio slot="start" [value]="option.value"></ion-radio>
+                        </ng-template>
                         {{ option.title }}
                     </ion-item>
                 </ion-col>
             </ion-row>
         </div>
     </div>
-</ion-radio-group>
+</ng-template>
+
+<div *ngIf="optionGroups.length === 0; elseShowOptions">
+    <!-- no options set -->
+</div>
+
+<div #elseShowOptions *ngIf="multi; else singleSelect">
+    <template [ngTemplateOutlet]="inside"></template>
+</div>
+<ng-template #singleSelect>
+    <ion-radio-group #elseShowOptions [(ngModel)]="selectedValue" [value]="selectedValue" (ionChange)="valueChange()">
+        <template [ngTemplateOutlet]="inside"></template>
+    </ion-radio-group>
+</ng-template>

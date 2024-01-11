@@ -575,7 +575,7 @@ export class Utils {
     });
 
     consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveConsumptionEnergy']);
+      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + '/ActiveProductionEnergy']);
     });
 
     return Utils.roundSlightlyNegativeValues(
@@ -628,8 +628,10 @@ export class Utils {
 
 export enum YAxisTitle {
   PERCENTAGE,
+  RELAY,
   ENERGY,
-  VOLTAGE
+  VOLTAGE,
+  TIME
 }
 
 export enum ChartAxis {
@@ -671,14 +673,14 @@ export namespace HistoryUtils {
     /** suffix to the name */
     nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
     /** Convert the values to be displayed in Chart */
-    converter: () => number[],
+    converter: () => any,
     /** If dataset should be hidden on Init */
     hiddenOnInit?: boolean,
     /** default: true, stroke through label for hidden dataset */
     noStrokeThroughLegendIfHidden?: boolean,
     /** color in rgb-Format */
     color: string,
-    /** the stack for barChart */
+    /** the stack for barChart, if not provided datasets are not stacked but overlaying each other */
     stack?: number | number[],
     /** False per default */
     hideLabelInLegend?: boolean,
@@ -688,6 +690,7 @@ export namespace HistoryUtils {
     hideShadow?: boolean,
     /** axisId from yAxes  */
     yAxisId?: ChartAxis,
+    /** overrides global unit for this displayValue */
     customUnit?: YAxisTitle,
     tooltip?: [{
       afterTitle: (channelData?: { [name: string]: number[] }) => string,
@@ -768,5 +771,131 @@ export namespace HistoryUtils {
         return 0;
       }
     };
+  }
+}
+
+export namespace TimeOfUseTariffUtils {
+
+  export type ScheduleChartData = {
+    datasets: ChartDataSets[],
+    colors: any[],
+    labels: Date[]
+  }
+
+  export enum TimeOfUseTariffState {
+    DELAY_DISCHARGE = 0,
+    BALANCING = 1,
+    CHARGE = 3,
+    UNDEFINED = 2,
+  }
+
+  /**
+   * Converts a value in €/MWh to €Ct./kWh.
+   * 
+   * @param price the price value
+   * @returns  the converted price
+   */
+  export function formatPrice(price: number): number {
+    if (price === null || Number.isNaN(price)) {
+      return null;
+    } else if (price === 0) {
+      return 0;
+    } else {
+      price = (price / 10.0);
+      return Math.round(price * 10000) / 10000.0;
+    }
+  }
+
+  /**
+   * Gets the schedule chart data containing datasets, colors and labels.
+   * 
+   * @param size The length of the dataset
+   * @param prices The Time-of-Use-Tariff quarterly price array
+   * @param states The Time-of-Use-Tariff state array
+   * @param timestamps The Time-of-Use-Tariff timestamps array
+   * @param translate The Translate service
+   * @param factoryId The factory id of the component
+   * @returns The ScheduleChartData.
+   */
+  export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[], translate: TranslateService, factoryId: string): ScheduleChartData {
+    let scheduleChartData: ScheduleChartData;
+    let datasets: ChartDataSets[] = [];
+    let colors: any[] = [];
+    let labels: Date[] = [];
+
+    // Initializing States.
+    var barCharge = Array(size).fill(null);
+    var barBalancing = Array(size).fill(null);
+    var barDelayDischarge = Array(size).fill(null);
+
+    for (let index = 0; index < size; index++) {
+      const quarterlyPrice = formatPrice(prices[index]);
+      const state = Math.round(states[index]);
+      labels.push(new Date(timestamps[index]));
+
+      if (state !== null) {
+        switch (state) {
+          case TimeOfUseTariffState.DELAY_DISCHARGE:
+            barDelayDischarge[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.BALANCING:
+            barBalancing[index] = quarterlyPrice;
+            break;
+          case TimeOfUseTariffState.CHARGE:
+          case TimeOfUseTariffState.UNDEFINED:
+            barCharge[index] = quarterlyPrice;
+            break;
+        }
+      }
+    }
+
+    // Set datasets
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
+      data: barBalancing,
+      order: 3,
+    });
+    colors.push({
+      // Dark Green
+      backgroundColor: 'rgba(51,102,0,0.8)',
+      borderColor: 'rgba(51,102,0,1)',
+    });
+
+    // Set dataset for Quarterly Prices being charged.
+    if (!barCharge.every(v => v === null)) {
+      datasets.push({
+        type: 'bar',
+        label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
+        data: barCharge,
+        order: 3,
+      });
+      colors.push({
+        // Sky blue
+        backgroundColor: 'rgba(0, 204, 204,0.5)',
+        borderColor: 'rgba(0, 204, 204,0.7)',
+      });
+    }
+
+    // Set dataset for buy from grid
+    datasets.push({
+      type: 'bar',
+      label: translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
+      data: barDelayDischarge,
+      order: 3,
+    });
+    colors.push({
+      // Black
+      backgroundColor: 'rgba(0,0,0,0.8)',
+      borderColor: 'rgba(0,0,0,0.9)',
+    });
+
+    scheduleChartData = {
+      colors: colors,
+      datasets: datasets,
+      labels: labels,
+    };
+
+    return scheduleChartData;
   }
 }

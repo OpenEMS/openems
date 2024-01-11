@@ -7,6 +7,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public enum FeedInType implements TranslatableEnum {
 	DYNAMIC_LIMITATION("App.IntegratedSystem.feedInType.dynamicLimitation"), //
 	EXTERNAL_LIMITATION("App.IntegratedSystem.feedInType.externalLimitation"), //
+	NO_LIMITATION("App.IntegratedSystem.feedInType.noLimitation"), //
 	;
 
 	private final String translationKey;

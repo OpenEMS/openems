@@ -20,5 +20,7 @@
         "**/node_modules/**": true
     },
     "files.eol": "\n",
-    "files.insertFinalNewline": true
+    "files.insertFinalNewline": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "eslint.format.enable": true
 }

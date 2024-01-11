@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
+import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
+import static io.openems.edge.common.test.DummyUser.DUMMY_INSTALLER;
+import static io.openems.edge.common.test.DummyUser.DUMMY_OWNER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -21,8 +25,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -32,7 +34,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.test.DummyUserService;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.test.ControllerTest;
@@ -43,11 +44,6 @@ public class ControllerApiRestReadWriteImplTest {
 	private static final String CTRL_ID = "ctrlApiRest0";
 	private static final String DUMMY_ID = "dummy0";
 
-	private static final String GUEST = "guest";
-	private static final String OWNER = "owner";
-	private static final String INSTALLER = "installer";
-	private static final String ADMIN = "admin";
-
 	@Test
 	public void test() throws OpenemsException, Exception {
 		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
@@ -56,10 +52,7 @@ public class ControllerApiRestReadWriteImplTest {
 		var test = new ControllerTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("userService", new DummyUserService(//
-						new DummyUser(GUEST, GUEST, Language.DEFAULT, Role.GUEST), //
-						new DummyUser(OWNER, OWNER, Language.DEFAULT, Role.OWNER), //
-						new DummyUser(INSTALLER, INSTALLER, Language.DEFAULT, Role.INSTALLER), //
-						new DummyUser(ADMIN, ADMIN, Language.DEFAULT, Role.ADMIN))) //
+						DUMMY_GUEST, DUMMY_OWNER, DUMMY_INSTALLER, DUMMY_ADMIN)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addComponent(new DummyComponent(DUMMY_ID) //
 						.withReadChannel(1234)) //
@@ -75,7 +68,7 @@ public class ControllerApiRestReadWriteImplTest {
 		 * /rest/channel/*
 		 */
 		// GET successful as GUEST
-		var channelGet = sendGetRequest(port, GUEST, "/rest/channel/dummy0/ReadChannel");
+		var channelGet = sendGetRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/ReadChannel");
 		assertEquals(JsonUtils.buildJsonObject() //
 				.addProperty("address", "dummy0/ReadChannel") //
 				.addProperty("type", "INTEGER") //
@@ -86,9 +79,10 @@ public class ControllerApiRestReadWriteImplTest {
 				.build(), channelGet);
 
 		// POST successful as OWNER
-		var channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
-				.addProperty("value", 4321) //
-				.build());
+		var channelPost = sendPostRequest(port, DUMMY_OWNER.password, "/rest/channel/dummy0/WriteChannel",
+				JsonUtils.buildJsonObject() //
+						.addProperty("value", 4321) //
+						.build());
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //
@@ -97,7 +91,7 @@ public class ControllerApiRestReadWriteImplTest {
 
 		// POST fails as GUEST
 		try {
-			sendPostRequest(port, GUEST, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
+			sendPostRequest(port, DUMMY_GUEST.password, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
 					.addProperty("value", 4321) //
 					.build());
 			assertTrue(false);
@@ -112,11 +106,11 @@ public class ControllerApiRestReadWriteImplTest {
 		var request = new GetEdgeConfigRequest().toJsonObject();
 		JsonrpcResponseSuccess.from(//
 				JsonUtils.getAsJsonObject(//
-						sendPostRequest(port, OWNER, "/jsonrpc", request)));
+						sendPostRequest(port, DUMMY_OWNER.password, "/jsonrpc", request)));
 
 		// POST fails as GUEST
 		try {
-			sendPostRequest(port, GUEST, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
+			sendPostRequest(port, DUMMY_GUEST.password, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
 			assertTrue(false);
 		} catch (OpenemsNamedException e) {
 			// ignore

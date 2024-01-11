@@ -6,9 +6,10 @@ import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
+import { TimeOfUseTariffUtils } from 'src/app/shared/service/utils';
 
 // TODO rename folder; remove 'Discharge'
 @Component({
@@ -60,91 +61,20 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
       this.service.getConfig().then(config => {
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
-        // convert labels
-        let labels: Date[] = [];
-        for (let timestamp of result.timestamps) {
-          // Only use full hours as a timestamp
-          labels.push(new Date(timestamp));
-        }
-        this.labels = labels;
-
         // convert datasets
         let datasets = [];
         let quarterlyPrices = this.componentId + '/QuarterlyPrices';
         let timeOfUseTariffState = this.componentId + '/StateMachine';
 
         if (timeOfUseTariffState in result.data && quarterlyPrices in result.data) {
-
           // Size of the data
-          let size = result.data[timeOfUseTariffState].length;
+          const size = result.data[timeOfUseTariffState].length;
+          // get chart data.
+          const scheduleChartData = TimeOfUseTariffUtils.getScheduleChartData(size, result.data[quarterlyPrices], result.data[timeOfUseTariffState], result.timestamps, this.translate, this.component.factoryId);
 
-          // Get only the 15 minute value
-          let barDelayDischarge = Array(size).fill(null);
-          let barCharge = Array(size).fill(null);
-          let barBalancing = Array(size).fill(null);
-
-          for (let index = 0; index < size; index++) {
-            let quarterlyPrice = Utils.formatPrice(result.data[quarterlyPrices][index]);
-            let state = result.data[timeOfUseTariffState][index];
-
-            if (state !== null) {
-              switch (state) {
-                case 0:
-                  // delayed
-                  barDelayDischarge[index] = quarterlyPrice;
-                  break;
-                case 3:
-                  // charged
-                  barCharge[index] = quarterlyPrice;
-                  break;
-                default: // Usually "1"
-                  barBalancing[index] = quarterlyPrice;
-                  break;
-              }
-            }
-          }
-
-          // Dataset for DELAY_DISCHARGE
-          datasets.push({
-            type: 'bar',
-            label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE'),
-            data: barDelayDischarge,
-            order: 3,
-          });
-          this.colors.push({
-            // Dark Green
-            backgroundColor: 'rgba(51,102,0,0.8)',
-            borderColor: 'rgba(51,102,0,1)',
-          });
-
-          // Dataset for BALANCING
-          datasets.push({
-            type: 'bar',
-            label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING'),
-            data: barBalancing,
-            order: 3,
-          });
-          this.colors.push({
-            // Black
-            backgroundColor: 'rgba(0,0,200,0.7)',
-            borderColor: 'rgba(0,0,200,0.9)',
-          });
-
-          // Dataset for CHARGE
-          // Show charge data only for the new controller.
-          if (this.component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff' && !barCharge.every(v => v === null)) {
-            datasets.push({
-              type: 'bar',
-              label: this.translate.instant('Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE'),
-              data: barCharge,
-              order: 3,
-            });
-            this.colors.push({
-              // Sky blue
-              backgroundColor: 'rgba(0, 204, 204,0.5)',
-              borderColor: 'rgba(0, 204, 204,0.7)',
-            });
-          }
+          datasets = scheduleChartData.datasets;
+          this.colors = scheduleChartData.colors;
+          this.labels = scheduleChartData.labels;
         }
 
         // State of charge data

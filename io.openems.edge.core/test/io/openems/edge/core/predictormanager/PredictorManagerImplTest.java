@@ -18,7 +18,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 
 public class PredictorManagerImplTest {
@@ -51,13 +50,18 @@ public class PredictorManagerImplTest {
 			3226, 2358, 1778, 1002, 455, 654, 534, 1587, 1638, 459, 330, 258, 368, 728, 1096, 878 //
 	};
 
+	private static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+			"ConsumptionActivePower");
+	private static final ChannelAddress SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
+			"UnmanagedConsumptionActivePower");
+
 	@Test
 	public void test() throws OpenemsException, Exception {
 		var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		var componentManager = new DummyComponentManager(clock);
-		var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		var consumptionPrediction = Prediction24Hours.of(SUM_CONSUMPTION_ACTIVE_POWER, DEFAULT_CONSUMPTION_PREDICTION);
 		var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, componentManager, consumptionPrediction,
-				"_sum/ConsumptionActivePower");
+				SUM_CONSUMPTION_ACTIVE_POWER);
 
 		var sut = new PredictorManagerImpl();
 		new ComponentTest(sut) //
@@ -72,7 +76,7 @@ public class PredictorManagerImplTest {
 		assertArrayEquals(//
 				// First 96 elements only
 				Stream.of(DEFAULT_CONSUMPTION_PREDICTION).limit(96).toArray(Integer[]::new),
-				sut.get24HoursPrediction(new ChannelAddress("_sum", "UnmanagedConsumptionActivePower")).getValues());
+				sut.get24HoursPrediction(SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER).getValues());
 	}
 
 }
