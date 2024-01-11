@@ -3,6 +3,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 
 -sub: *.bnd
 -buildpath: \
+	com.ghgande.j2mod,\
 	com.github.rzymek:opczip;version='1.2.0',\
 	com.influxdb:influxdb-client-core;version='6.10.0',\
 	com.influxdb:influxdb-client-java;version='6.10.0',\
